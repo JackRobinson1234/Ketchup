@@ -14,6 +14,15 @@
 		F84FE25E2B6A531300144F01 /* FoodiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE25D2B6A531300144F01 /* FoodiTests.swift */; };
 		F84FE2682B6A531300144F01 /* FoodiUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2672B6A531300144F01 /* FoodiUITests.swift */; };
 		F84FE26A2B6A531300144F01 /* FoodiUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2692B6A531300144F01 /* FoodiUITestsLaunchTests.swift */; };
+		F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2942B6A55F800144F01 /* AuthError.swift */; };
+		F84FE2982B6A564F00144F01 /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2972B6A564F00144F01 /* AuthServiceProtocol.swift */; };
+		F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */; };
+		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
+		F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29D2B6A590700144F01 /* MockAuthService.swift */; };
+		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
+		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
+		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
+		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +54,15 @@
 		F84FE2632B6A531300144F01 /* FoodiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE2672B6A531300144F01 /* FoodiUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiUITests.swift; sourceTree = "<group>"; };
 		F84FE2692B6A531300144F01 /* FoodiUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F84FE2942B6A55F800144F01 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
+		F84FE2972B6A564F00144F01 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
+		F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFormProtocol.swift; sourceTree = "<group>"; };
+		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		F84FE29D2B6A590700144F01 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
+		F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
+		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,7 +113,12 @@
 		F84FE24A2B6A531200144F01 /* Foodi */ = {
 			isa = PBXGroup;
 			children = (
-				F84FE24B2B6A531200144F01 /* FoodiApp.swift */,
+				F84FE27B2B6A542D00144F01 /* App */,
+				F84FE27A2B6A541900144F01 /* Core */,
+				F84FE2792B6A541400144F01 /* Extensions */,
+				F84FE2782B6A53E200144F01 /* Model */,
+				F84FE2772B6A53DA00144F01 /* Services */,
+				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24D2B6A531200144F01 /* ContentView.swift */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
@@ -127,6 +150,202 @@
 				F84FE2692B6A531300144F01 /* FoodiUITestsLaunchTests.swift */,
 			);
 			path = FoodiUITests;
+			sourceTree = "<group>";
+		};
+		F84FE2762B6A53CF00144F01 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		F84FE2772B6A53DA00144F01 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		F84FE2782B6A53E200144F01 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		F84FE2792B6A541400144F01 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F84FE27A2B6A541900144F01 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE27E2B6A54D700144F01 /* Authentication */,
+				F84FE27D2B6A54BC00144F01 /* Comments */,
+				F84FE27C2B6A548500144F01 /* Components */,
+				F84FE27F2B6A54F500144F01 /* Feed */,
+				F84FE2852B6A550000144F01 /* Filters */,
+				F84FE2862B6A550200144F01 /* MainTabBar */,
+				F84FE2872B6A553000144F01 /* Map */,
+				F84FE2882B6A553500144F01 /* Notifications */,
+				F84FE2892B6A553D00144F01 /* Profile */,
+				F84FE28A2B6A554300144F01 /* RestaurantProfile */,
+				F84FE28B2B6A555400144F01 /* Root */,
+				F84FE28C2B6A555B00144F01 /* Search */,
+				F84FE28D2B6A556400144F01 /* UploadMedia */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F84FE27B2B6A542D00144F01 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE24B2B6A531200144F01 /* FoodiApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		F84FE27C2B6A548500144F01 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F84FE27D2B6A54BC00144F01 /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
+		F84FE27E2B6A54D700144F01 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE2932B6A55EA00144F01 /* Model */,
+				F84FE2922B6A55E200144F01 /* Protocols */,
+				F84FE2912B6A55DC00144F01 /* Service */,
+				F84FE28F2B6A55D200144F01 /* ViewModel */,
+				F84FE28E2B6A55CC00144F01 /* View */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		F84FE27F2B6A54F500144F01 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Feed;
+			sourceTree = "<group>";
+		};
+		F84FE2852B6A550000144F01 /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Filters;
+			sourceTree = "<group>";
+		};
+		F84FE2862B6A550200144F01 /* MainTabBar */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = MainTabBar;
+			sourceTree = "<group>";
+		};
+		F84FE2872B6A553000144F01 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		F84FE2882B6A553500144F01 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		F84FE2892B6A553D00144F01 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		F84FE28A2B6A554300144F01 /* RestaurantProfile */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = RestaurantProfile;
+			sourceTree = "<group>";
+		};
+		F84FE28B2B6A555400144F01 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Root;
+			sourceTree = "<group>";
+		};
+		F84FE28C2B6A555B00144F01 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		F84FE28D2B6A556400144F01 /* UploadMedia */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = UploadMedia;
+			sourceTree = "<group>";
+		};
+		F84FE28E2B6A55CC00144F01 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */,
+				F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F84FE28F2B6A55D200144F01 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */,
+				F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		F84FE2912B6A55DC00144F01 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE29B2B6A58ED00144F01 /* AuthService.swift */,
+				F84FE29D2B6A590700144F01 /* MockAuthService.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		F84FE2922B6A55E200144F01 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE2972B6A564F00144F01 /* AuthServiceProtocol.swift */,
+				F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		F84FE2932B6A55EA00144F01 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F84FE2942B6A55F800144F01 /* AuthError.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,7 +478,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
+				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
+				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
+				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,
+				F84FE2982B6A564F00144F01 /* AuthServiceProtocol.swift in Sources */,
+				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
+				F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */,
+				F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */,
+				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

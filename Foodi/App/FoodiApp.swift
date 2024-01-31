@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
 @main
-struct FoodiApp: App {
+struct foodiApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    private let authService = AuthService()
+    private let userService = UserService()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(authService: authService, userService: userService)
         }
     }
 }
