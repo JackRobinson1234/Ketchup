@@ -1,0 +1,118 @@
+//
+//  ProfileHeaderView.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 2/1/24.
+//
+
+import SwiftUI
+
+struct ProfileHeaderView: View {
+    @State private var showEditProfile = false
+    @ObservedObject var viewModel: ProfileViewModel
+    @Environment(\.dismiss) var dismiss
+    private var user: User {
+        return viewModel.user
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                UserCircularProfileImageView(user: user, size: .xLarge)
+                
+                Text("@\(user.username)")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+            }
+            
+            // stats view
+                HStack(spacing: 16) {
+                    // DEBUG: When the navigation link is enabled, the user stats are not showing
+                    NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: viewModel.user.id))) {
+                        UserStatView(value: viewModel.user.stats.following, title: "Following")
+                    }
+                    .disabled(viewModel.user.stats.following == 0)
+                    // DEBUG: When the navigation link is enabled, the user stats are not showing
+                    NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: viewModel.user.id))) {
+                        UserStatView(value: viewModel.user.stats.followers, title: "Followers")
+                    }
+                    .disabled(viewModel.user.stats.followers == 0)
+                    
+                    UserStatView(value: user.stats.likes, title: "Likes")
+                }
+            
+            if let bio = user.bio {
+                Text(bio)
+                    .font(.subheadline)
+            }
+            // action button view
+            if user.isCurrentUser {
+                Button {
+                    showEditProfile.toggle()
+                } label: {
+                    Text("Edit Profile")
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(width: 360, height: 32)
+                        .foregroundStyle(.black)
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+            } else {
+                Button {
+                    handleFollowTapped()
+                } label: {
+                    Text(user.isFollowed ? "Following" : "Follow")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .frame(width: 360, height: 32)
+                        .foregroundStyle(user.isFollowed ? .black : .white)
+                        .background(user.isFollowed ? .white : .pink)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: user.isFollowed ? 1 : 0)
+                        }
+                }
+            }
+            
+            
+            Divider()
+        }
+        .navigationDestination(for: SearchModelConfig.self) { config in
+            SearchView(userService: UserService(), searchConfig: config)}
+        .fullScreenCover(isPresented: $showEditProfile) {
+            EditProfileView(user: $viewModel.user)
+        }
+    }
+    
+    func handleFollowTapped() {
+        user.isFollowed ? viewModel.unfollow() : viewModel.follow()
+    }
+}
+
+struct UserStatView: View {
+    let value: Int
+    let title: String
+    var body: some View {
+        VStack {
+            Text("\(value)")
+                .font(.subheadline)
+                .fontWeight(.bold)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.gray)
+        }
+        .opacity(value == 0 ? 0.5 : 1.0)
+        .frame(width: 80, alignment: .center)
+        .foregroundColor(.black)
+    }
+}
+
+#Preview {
+    ProfileHeaderView(viewModel: ProfileViewModel(
+        user: DeveloperPreview.user,
+        userService: UserService(),
+        postService: PostService())
+    )
+}

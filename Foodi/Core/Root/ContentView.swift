@@ -1,0 +1,40 @@
+//
+//  ContentView.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 1/31/24.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    private let authService: AuthService
+    private let userService: UserService
+    
+    @StateObject var viewModel: ContentViewModel
+    
+    init(authService: AuthService, userService: UserService) {
+        self.authService = authService
+        self.userService = userService
+        
+        let contentViewModel = ContentViewModel(authService: authService, userService: userService)
+        self._viewModel = StateObject(wrappedValue: contentViewModel)
+    }
+    
+    var body: some View {
+        Group {
+            if viewModel.userSession != nil {
+                if let user = viewModel.currentUser {
+                    MainTabView(authService: authService, user: user, userService: userService)
+                        .environmentObject(viewModel)
+                }
+            } else {
+                LoginView(service: authService)
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView(authService: AuthService(), userService: UserService())
+}
