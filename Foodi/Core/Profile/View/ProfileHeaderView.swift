@@ -78,8 +78,7 @@ struct ProfileHeaderView: View {
             
             Divider()
         }
-        .navigationDestination(for: SearchModelConfig.self) { config in
-            SearchView(userService: UserService(), searchConfig: config)}
+        
         .fullScreenCover(isPresented: $showEditProfile) {
             EditProfileView(user: $viewModel.user)
         }

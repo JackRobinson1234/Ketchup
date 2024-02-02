@@ -89,6 +89,8 @@ struct FeedView: View {
             .navigationDestination(for: User.self) { user in
                 ProfileView(user: user, userService: userService)
             }
+            .navigationDestination(for: SearchModelConfig.self) { config in
+                SearchView(userService: UserService(), searchConfig: config)}
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
                     player.pause()
@@ -98,7 +100,7 @@ struct FeedView: View {
                 }
             }
             .fullScreenCover(isPresented: $showSearchView) {
-                SearchView(userService: userService, searchConfig: .users(userListConfig: .users))
+                SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
             }
             .onChange(of: showFilters) { oldValue, newValue in
                 if newValue {

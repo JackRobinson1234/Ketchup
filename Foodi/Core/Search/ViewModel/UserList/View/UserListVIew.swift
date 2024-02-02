@@ -45,9 +45,6 @@ struct UserListView: View {
             
             
         }
-        //DEBUG: when this is commented out, do not get purple errors for multiple navigation destinations, but when its accessed from anywhere besides the feed, it doenst work.
-        //.navigationDestination(for: User.self) { user in
-        //ProfileView(user: user, userService: userService).id(user.id)}
         .searchable(text: $searchText, placement: .navigationBarDrawer)
     }
 }

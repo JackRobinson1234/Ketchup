@@ -34,9 +34,10 @@ struct NotificationsView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            .navigationDestination(for: User.self, destination: { user in
-                ProfileView(user: user, userService: userService)
-            })
+            .navigationDestination(for: User.self, destination: {user in
+                ProfileView(user: user, userService: userService)})
+            .navigationDestination(for: SearchModelConfig.self) { config in
+                SearchView(userService: UserService(), searchConfig: config)}
         }
     }
 }

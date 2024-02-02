@@ -41,8 +41,8 @@ struct RestaurantListView: View {
                     
                 }
                 .navigationTitle(config.navigationTitle)
-                .navigationDestination(for: Restaurant.self) { restaurant in
-                    RestaurantProfileView()}
+                //.navigationDestination(for: Restaurant.self) { restaurant in
+                    //RestaurantProfileView()}
                 .searchable(text: $searchText, placement: .navigationBarDrawer)
         }
     }

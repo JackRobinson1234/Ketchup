@@ -46,6 +46,12 @@ struct CurrentUserProfileView: View {
             .task { await profileViewModel.fetchUserStats() }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: User.self) { user in
+                ProfileView(user: user, userService: userService)
+            }
+            .navigationDestination(for: SearchModelConfig.self) { config in
+                SearchView(userService: UserService(), searchConfig: config)}
+            .navigationBarBackButtonHidden(true)
         }
     }
 }
