@@ -32,18 +32,34 @@ struct FeedCell: View {
                                              endPoint: .bottom))
                     
                     HStack(alignment: .bottom) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            NavigationLink(value: post.user) {
-                                Text(post.user?.fullname ?? "")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.white)
+                        VStack(alignment: .leading, spacing: 7) {
+                            HStack{
+                                NavigationLink(value: post.restaurant) {
+                                    RestaurantCircularProfileImageView(restaurant: post.restaurant, size: .large)
+                                }
+                                VStack (alignment: .leading){
+                                NavigationLink(value: post.restaurant) {
+                                    Text("\(post.restaurant?.name ?? "")")
+                                        .font(.title3)
+                                        .bold()
+                                }
+                                
+                                Text("\(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
+                                
+                                    NavigationLink(value: post.user) {
+                                        Text("by \(post.user?.fullname ?? "")")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.white)
+                                            .bold()
+                                    }
+                                }
                             }
                             
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 2)
-                            
                         }
+                        .background(Color.white.opacity(0.2))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
@@ -55,7 +71,6 @@ struct FeedCell: View {
                             NavigationLink(value: post.user) {
                                 ZStack(alignment: .bottom) {
                                     UserCircularProfileImageView(user: post.user, size: .medium)
-                                    
                                     Image(systemName: "plus.circle.fill")
                                         .foregroundStyle(.pink)
                                         .offset(y: 8)
@@ -96,7 +111,7 @@ struct FeedCell: View {
                         }
                         .padding()
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 80 : 12)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 12)
                 }
                 
             }
@@ -117,10 +132,6 @@ struct FeedCell: View {
                 }
             }
         }
-        .onAppear {
-                // Print statement to debug the value of post.user
-                print(post)
-            }
     }
     
     private func handleLikeTapped() {

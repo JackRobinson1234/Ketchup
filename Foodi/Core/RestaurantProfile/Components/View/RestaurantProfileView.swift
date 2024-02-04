@@ -8,13 +8,29 @@
 import SwiftUI
 
 struct RestaurantProfileView: View {
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         
         VStack{
             RestaurantProfileHeaderView()
         }
+        .navigationBarBackButtonHidden()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundStyle(.black)
+                }
+            }
+        }
+        
         .overlay(alignment: .bottom) {
             CTAButtonOverlay()
+    
         }
     }
 }

@@ -31,7 +31,6 @@ class FeedViewModel: ObservableObject {
         
         do {
             if posts.isEmpty {
-                
                 posts = try await postService.fetchPosts()
                 posts.shuffle()
             }

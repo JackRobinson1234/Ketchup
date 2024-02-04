@@ -87,7 +87,9 @@ struct DeveloperPreview {
             thumbnailUrl: "lewis-hamilton",
             timestamp: Timestamp(),
             user: users[0],
+            restaurant: restaurants[0],
             restaurantId: restaurants[0].id
+            
         ),
         .init(
             id: NSUUID().uuidString,
@@ -102,6 +104,7 @@ struct DeveloperPreview {
             thumbnailUrl: "max-verstappen",
             timestamp: Timestamp(),
             user: users[1],
+            restaurant: restaurants[1],
             restaurantId: restaurants[0].id
         ),
         .init(
@@ -117,6 +120,7 @@ struct DeveloperPreview {
             thumbnailUrl: "fernando-alonso",
             timestamp: Timestamp(),
             user: users[2],
+            restaurant: restaurants[2],
             restaurantId: restaurants[0].id
         ),
     ]

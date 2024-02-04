@@ -62,6 +62,10 @@ class EditProfileViewModel: ObservableObject {
             user.fullname = fullname
             data["fullname"] = fullname
         }
+        if !username.isEmpty, user.username != username {
+            user.username = username
+            data["username"] = username
+        }
         
         if !bio.isEmpty, user.bio != bio {
             user.bio = bio
