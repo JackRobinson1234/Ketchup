@@ -31,6 +31,7 @@ struct CurrentUserProfileView: View {
                         .padding(.top)
                     
                     PostGridView(viewModel: profileViewModel, userService: userService)
+                    
                 }
             }
             .toolbar {

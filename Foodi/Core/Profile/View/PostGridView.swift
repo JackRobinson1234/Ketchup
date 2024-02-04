@@ -10,7 +10,6 @@ import Kingfisher
 import AVKit
 
 struct PostGridView: View {
-    //@ObservedObject var viewModel: ProfileViewModel
     var viewModel: any PostGridViewModelProtocol
     @State private var player = AVPlayer()
     @State private var selectedPost: Post?
@@ -34,6 +33,45 @@ struct PostGridView: View {
                     .frame(width: width, height: 160)
                     .clipped()
                     .onTapGesture { selectedPost = post }
+                    .overlay(
+                        VStack{
+                            HStack{
+                                VStack (alignment: .leading) {
+                                    Text("\(post.restaurant!.name)")
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .foregroundColor(.white)
+                                        .font(.caption)
+                                        .bold()
+                                    Text("\(post.user!.username)")
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .foregroundColor(.white)
+                                        .font(.caption)
+                                }
+                                .background(Color.black.opacity(0.1))
+                                Spacer()
+                            }
+                            
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                HStack(spacing: 2) {
+                                    Text("\(post.likes)")
+                                        .padding(4)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(4)
+                                        .bold()
+                                        .background(Color.black.opacity(0.1))
+                                    Image(systemName: "heart.fill")
+                                        .resizable()
+                                        .frame(width: 14, height: 14)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
+                        .padding([.bottom, .trailing], 4)
+                    )
             }
         }
         .sheet(item: $selectedPost) { post in

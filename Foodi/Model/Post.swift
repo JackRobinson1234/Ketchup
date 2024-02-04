@@ -24,8 +24,8 @@ struct Post: Identifiable, Codable {
     var views: Int
     var thumbnailUrl: String
     var timestamp: Timestamp
-    
     var user: User?
+    var restaurant: Restaurant?
     var didLike = false
     var didSave = false
     
@@ -44,6 +44,7 @@ struct Post: Identifiable, Codable {
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
         self.user = try container.decodeIfPresent(User.self, forKey: .user)
+        self.restaurant = try container.decodeIfPresent(Restaurant.self, forKey: .restaurant)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
     }
@@ -61,6 +62,7 @@ struct Post: Identifiable, Codable {
         thumbnailUrl: String,
         timestamp: Timestamp,
         user: User? = nil,
+        restaurant: Restaurant? = nil,
         didLike: Bool = false,
         didSave: Bool = false,
         restaurantId: String
@@ -78,6 +80,7 @@ struct Post: Identifiable, Codable {
         self.timestamp = timestamp
         self.user = user
         self.didLike = didLike
+        self.restaurant = restaurant
         self.didSave = didSave
         self.restaurantId = restaurantId
     }

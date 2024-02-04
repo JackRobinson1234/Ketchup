@@ -11,6 +11,7 @@ import Firebase
 class PostService {
     private var posts = [Post]()
     private let userService = UserService()
+    private let restaurantService = RestaurantService()
     
     
     func fetchPost(postId: String) async throws -> Post {
@@ -41,9 +42,9 @@ class PostService {
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
+                group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
-        
         return posts
     }
 
@@ -52,6 +53,12 @@ class PostService {
         
         let user = try await userService.fetchUser(withUid: post.ownerUid)
         posts[index].user = user
+    }
+    private func fetchPostRestaurantData(_ post: Post) async throws {
+        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
+        
+        let restaurant = try await restaurantService.fetchRestaurant(withId: post.restaurantId)
+        posts[index].restaurant = restaurant
     }
 }
 
