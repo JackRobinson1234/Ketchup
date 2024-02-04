@@ -8,8 +8,32 @@
 import Foundation
 @MainActor
 class PostListViewModel: ObservableObject, PostGridViewModelProtocol {
-    
+    private let postService: PostService
+    private let userService: UserService
     @Published var posts = [Post]()
+    init(postService: PostService, userService: UserService) {
+        self.postService = postService
+        self.userService = userService
+        Task { await fetchPosts() }
+    }
+    
+    func fetchPosts() async {
+        do {
+            if posts.isEmpty {
+                posts = try await postService.fetchPosts()
+                posts.shuffle()
+            }
+        } catch {
+            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+        }
+    }
+}
+    
+    
+    
+    
+    
+    /*@Published var posts = [Post]()
    
     init() {
         Task {
@@ -49,3 +73,4 @@ class PostListViewModel: ObservableObject, PostGridViewModelProtocol {
         }
     }
 }
+*/

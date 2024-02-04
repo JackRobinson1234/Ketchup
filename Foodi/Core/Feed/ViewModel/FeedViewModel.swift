@@ -13,12 +13,11 @@ class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showEmptyView = false
     
-    private let feedService: FeedService
+    
     private let postService: PostService
     var isContainedInTabBar = true
 
-    init(feedService: FeedService, postService: PostService, posts: [Post] = []) {
-        self.feedService = feedService
+    init(postService: PostService, posts: [Post] = []) {
         self.postService = postService
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
@@ -26,12 +25,14 @@ class FeedViewModel: ObservableObject {
         Task { await fetchPosts() }
     }
     
+    
     func fetchPosts() async {
         isLoading = true
         
         do {
             if posts.isEmpty {
-                posts = try await feedService.fetchPosts()
+                
+                posts = try await postService.fetchPosts()
                 posts.shuffle()
             }
             isLoading = false
@@ -48,7 +49,7 @@ class FeedViewModel: ObservableObject {
         isLoading = true
         
         do {
-            posts = try await feedService.fetchPosts()
+            posts = try await postService.fetchPosts()
             posts.shuffle()
             isLoading = false
         } catch {

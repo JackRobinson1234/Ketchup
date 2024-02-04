@@ -14,7 +14,7 @@ struct PostListView: View {
     init(userService: UserService, searchText: Binding<String>){
         self.userService = userService
         self._searchText = searchText
-        self._viewModel = StateObject(wrappedValue: PostListViewModel())
+        self._viewModel = StateObject(wrappedValue: PostListViewModel(postService: PostService(), userService: userService))
         
     }
     var body: some View {

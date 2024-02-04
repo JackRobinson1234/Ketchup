@@ -21,7 +21,7 @@ struct FeedView: View {
     init(player: Binding<AVPlayer>, posts: [Post] = [], userService: UserService) {
         self._player = player
         
-        let viewModel = FeedViewModel(feedService: FeedService(),
+        let viewModel = FeedViewModel(
                                       postService: PostService(),
                                       posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)

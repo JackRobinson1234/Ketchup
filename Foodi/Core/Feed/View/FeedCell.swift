@@ -133,7 +133,6 @@ struct FeedCell: View {
         post: .constant(DeveloperPreview.posts[0]),
         player: AVPlayer(),
              viewModel: FeedViewModel(
-                feedService: FeedService(),
                 postService: PostService()
              )
     )

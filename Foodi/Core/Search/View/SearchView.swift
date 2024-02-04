@@ -31,6 +31,9 @@ struct SearchView: View {
                     }
                     .navigationDestination(for: SearchModelConfig.self) { config in
                         SearchView(userService: UserService(), searchConfig: config)}
+                    .navigationDestination(for: Restaurant.self) { restaurant in
+                        RestaurantProfileView()
+                    }
             }
         } else {
             internalBody
