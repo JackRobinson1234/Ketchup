@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-class ProfileViewModel: ObservableObject {
+class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
     @Published var posts = [Post]()
     @Published var user: User
     
@@ -78,6 +78,11 @@ extension ProfileViewModel {
             self.posts = try await postService.fetchUserPosts(user: user)
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        }
+    }
+    func fetchPosts() {
+        Task{
+            await fetchUserPosts()
         }
     }
 }

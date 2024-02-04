@@ -117,6 +117,10 @@ struct FeedCell: View {
                 }
             }
         }
+        .onAppear {
+                // Print statement to debug the value of post.user
+                print(post)
+            }
     }
     
     private func handleLikeTapped() {

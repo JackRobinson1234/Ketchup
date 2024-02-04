@@ -8,11 +8,26 @@
 import SwiftUI
 //DEBUG
 struct PostListView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    var userService: UserService
+    @Binding var searchText: String
+    @StateObject var viewModel: PostListViewModel
+    init(userService: UserService, searchText: Binding<String>){
+        self.userService = userService
+        self._searchText = searchText
+        self._viewModel = StateObject(wrappedValue: PostListViewModel())
+        
     }
+    var body: some View {
+        ScrollView{
+            PostGridView(viewModel: viewModel, userService: userService)
+        }
+        .navigationTitle("Explore")
+        .padding(.top)
+        .searchable(text: $searchText, placement: .navigationBarDrawer)
+    }
+    
 }
 
 #Preview {
-    PostListView()
+    PostListView(userService: UserService(), searchText: .constant(""))
 }

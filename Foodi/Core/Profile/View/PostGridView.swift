@@ -10,7 +10,8 @@ import Kingfisher
 import AVKit
 
 struct PostGridView: View {
-    @ObservedObject var viewModel: ProfileViewModel
+    //@ObservedObject var viewModel: ProfileViewModel
+    var viewModel: any PostGridViewModelProtocol
     @State private var player = AVPlayer()
     @State private var selectedPost: Post?
     private let userService: UserService
@@ -20,7 +21,7 @@ struct PostGridView: View {
         GridItem(.flexible(), spacing: 1),
     ]
     private let width = (UIScreen.main.bounds.width / 3) - 2
-    init(viewModel: ProfileViewModel, userService: UserService) {
+    init(viewModel: any PostGridViewModelProtocol, userService: UserService) {
         self.viewModel = viewModel
         self.userService = userService
     }

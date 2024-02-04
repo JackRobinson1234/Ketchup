@@ -6,10 +6,18 @@
 //
 
 import Foundation
-class PostListViewModel: ObservableObject {
-    @Published var posts = [Post]()
+@MainActor
+class PostListViewModel: ObservableObject, PostGridViewModelProtocol {
     
-    func fetchRandomPosts(count: Int) async throws -> [Post] {
+    @Published var posts = [Post]()
+   
+    init() {
+        Task {
+            try await fetchRandomPosts(count: 20)
+        }
+    }
+    @MainActor
+    func fetchRandomPosts(count: Int) async throws {
         let postsCollection = FirestoreConstants.PostsCollection
         
         // Fetch 20 random posts
@@ -30,11 +38,14 @@ class PostListViewModel: ObservableObject {
                     return nil
                 }
             }
-            
-            return posts
         } catch {
             // Handle error if fetching documents fails
             throw error
+        }
+    }
+    func fetchPosts() {
+        Task{
+            try await fetchRandomPosts(count: 25)
         }
     }
 }

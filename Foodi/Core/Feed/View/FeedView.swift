@@ -43,13 +43,6 @@ struct FeedView: View {
                     .scrollTargetLayout()
                 }
                 HStack{
-                    /* Button {
-                        Task { await viewModel.refreshFeed() }
-                    } label: {
-                        Image(systemName: "arrow.counterclockwise")
-                            .imageScale(.large)
-                            .shadow(radius: 4)
-                    }*/
                     Button{
                         showSearchView.toggle()
                       

@@ -44,8 +44,7 @@ struct SearchView: View {
             }
             switch searchConfig {
             case .posts:
-                Text("Should Be Posts")
-                UserListView(config: .users, userService: userService, searchText: $searchText)
+                PostListView(userService: userService, searchText: $searchText)
                 
             case .users(let userListConfig):
                 UserListView(config: userListConfig, userService: userService, searchText: $searchText)
