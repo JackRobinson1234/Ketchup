@@ -10,8 +10,23 @@ import SwiftUI
 struct RestaurantProfileView: View {
     @Environment(\.dismiss) var dismiss
     @State var currentSection: Section
-    init(currentSection: Section = .posts) {
-        self._currentSection = State(initialValue: currentSection)}
+    @StateObject var viewModel: RestaurantViewModel
+    private let restaurantService = RestaurantService()
+    
+    private var restaurant: Restaurant {
+        return viewModel.restaurant
+    }
+    
+    init(restaurant: Restaurant, currentSection: Section = .posts) {
+        let restaurantViewModel = RestaurantViewModel(restaurant: restaurant,
+                                                      restaurantService: RestaurantService(),
+                                                      postService: PostService())
+        
+        self._viewModel = StateObject(wrappedValue: restaurantViewModel)
+        self._currentSection = State(initialValue: currentSection)
+    }
+    
+ 
     var body: some View {
         
         VStack{
@@ -39,5 +54,5 @@ struct RestaurantProfileView: View {
 }
 
 #Preview {
-    RestaurantProfileView()
+    RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])
 }

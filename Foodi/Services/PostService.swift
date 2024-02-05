@@ -37,6 +37,21 @@ class PostService {
         return posts
     }
     
+    func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
+        self.posts = try await FirestoreConstants
+            .PostsCollection
+            .whereField("restaurantId", isEqualTo: restaurant.id)
+            .getDocuments(as: Post.self)
+        
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for post in posts {
+                group.addTask { try await self.fetchPostUserData(post) }
+                group.addTask { try await self.fetchPostRestaurantData(post)}
+            }
+        }
+        return posts
+    }
+    
     func fetchPosts() async throws -> [Post] {
         self.posts = try await FirestoreConstants
             .PostsCollection

@@ -76,7 +76,7 @@ struct FeedCell: View {
                                 // price
                                 Text("Price: \(post.restaurant?.price ?? "")")
                                 //Menu Button
-                                NavigationLink(destination: RestaurantProfileView(currentSection: .menu)) {
+                                NavigationLink(destination: RestaurantProfileView(restaurant: post.restaurant!, currentSection: .menu)) {
                                     Text("View Menu")
                                 }
                                         .modifier(StandardButtonModifier(width: 175))
