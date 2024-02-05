@@ -20,7 +20,7 @@ struct RestaurantProfileHeaderView: View {
     var body: some View {
         ScrollView {
             ZStack(alignment: .topLeading) {
-                ListingImageCarouselView()
+                ListingImageCarouselView(viewModel: viewModel)
 
             }
             VStack(alignment: .center, spacing: 8) {

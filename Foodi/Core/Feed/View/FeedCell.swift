@@ -43,11 +43,12 @@ struct FeedCell: View {
                                     RestaurantCircularProfileImageView(restaurant: post.restaurant, size: .large)
                                 }
                                 //restaurant name
-                                VStack (alignment: .leading){
+                                VStack (alignment: .leading) {
                                 NavigationLink(value: post.restaurant) {
                                     Text("\(post.restaurant?.name ?? "")")
                                         .font(.title3)
                                         .bold()
+                                        .multilineTextAlignment(.leading)
                                 }
                                 //address
                                 Text("\(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
@@ -58,6 +59,7 @@ struct FeedCell: View {
                                             .fontWeight(.semibold)
                                             .foregroundStyle(.white)
                                             .bold()
+                                            .multilineTextAlignment(.leading)
                                     }
                                 }
                             }
