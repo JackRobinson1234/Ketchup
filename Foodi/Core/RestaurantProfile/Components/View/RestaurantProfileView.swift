@@ -9,10 +9,13 @@ import SwiftUI
 
 struct RestaurantProfileView: View {
     @Environment(\.dismiss) var dismiss
+    @State var currentSection: Section
+    init(currentSection: Section = .posts) {
+        self._currentSection = State(initialValue: currentSection)}
     var body: some View {
         
         VStack{
-            RestaurantProfileHeaderView()
+            RestaurantProfileHeaderView(currentSection: $currentSection)
         }
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)

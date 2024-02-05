@@ -9,6 +9,8 @@ import SwiftUI
 import AVKit
 
 struct FeedView: View {
+    
+    //MARK: Variables
     @Binding var player: AVPlayer
     @StateObject var viewModel: FeedViewModel
     @State private var scrollPosition: String?
@@ -29,6 +31,7 @@ struct FeedView: View {
     }
     
     var body: some View {
+        //MARK: Video
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
                 ScrollView {
@@ -42,6 +45,7 @@ struct FeedView: View {
                     }
                     .scrollTargetLayout()
                 }
+                //MARK: Seach + Filters
                 HStack{
                     Button{
                         showSearchView.toggle()
@@ -62,12 +66,14 @@ struct FeedView: View {
                     
                 }
                 .padding(32)
-                .padding(.top)
+                .padding(.top, 20)
                 .foregroundStyle(.white)
             }
             .background(.black)
             .onAppear { player.play() }
             .onDisappear { player.pause() }
+            
+            //MARK: Loading/ No posts
             .overlay {
                 if viewModel.isLoading {
                     ProgressView()
@@ -76,6 +82,7 @@ struct FeedView: View {
                         .foregroundStyle(.white)
                 }
             }
+            //MARK: Navigation
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
@@ -94,6 +101,7 @@ struct FeedView: View {
                     player.play()
                 }
             }
+            
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
             }
@@ -113,7 +121,7 @@ struct FeedView: View {
             })
         }
     }
-    
+    //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
             scrollPosition == nil,

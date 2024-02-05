@@ -31,19 +31,26 @@ struct FeedCell: View {
                                              startPoint: .top,
                                              endPoint: .bottom))
                     
+                    //MARK: UI Componenets and Links
+                    
                     HStack(alignment: .bottom) {
+                        
+                        // MARK: LEFT (POST META-DATA) VSTACK
+                        
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
+                                // restaurant profile image
                                 NavigationLink(value: post.restaurant) {
                                     RestaurantCircularProfileImageView(restaurant: post.restaurant, size: .large)
                                 }
+                                //restaurant name
                                 VStack (alignment: .leading){
                                 NavigationLink(value: post.restaurant) {
                                     Text("\(post.restaurant?.name ?? "")")
                                         .font(.title3)
                                         .bold()
                                 }
-                                
+                                //address
                                 Text("\(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
                                 
                                     NavigationLink(value: post.user) {
@@ -55,19 +62,39 @@ struct FeedCell: View {
                                     }
                                 }
                             }
-                            
+                            //caption
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 2)
-                        }
-                        .background(Color.white.opacity(0.2))
+                            
+                            //see more
+                            if !expandCaption{
+                                Text("See more...")
+                                    .font(.footnote)
+                            }
+                            else {
+                                //cuisine
+                                Text("Cuisine: \(post.restaurant?.cuisine ?? "")")
+                                // price
+                                Text("Price: \(post.restaurant?.price ?? "")")
+                                //Menu Button
+                                NavigationLink(destination: RestaurantProfileView(currentSection: .menu)) {
+                                    Text("View Menu")
+                                }
+                                        .modifier(StandardButtonModifier(width: 175))
+                                }
+                            }
+                        
+                        
+                        .background(Color.black.opacity(0.2))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
                         .padding()
                         
                         Spacer()
-                        
+                        //MARK: Right hand Vstack
                         VStack(spacing: 28) {
+                            //user profile image
                             NavigationLink(value: post.user) {
                                 ZStack(alignment: .bottom) {
                                     UserCircularProfileImageView(user: post.user, size: .medium)
@@ -76,7 +103,7 @@ struct FeedCell: View {
                                         .offset(y: 8)
                                 }
                             }
-                            
+                            //like button
                             Button {
                                 handleLikeTapped()
                             } label: {
@@ -84,14 +111,14 @@ struct FeedCell: View {
                                                          value: post.likes,
                                                          tintColor: didLike ? .red : .white)
                             }
-                            
+                            //comment button
                             Button {
                                 player.pause()
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
                             }
-                            
+                            // Bookmark button
                             Button {
                                 
                             } label: {
@@ -101,7 +128,7 @@ struct FeedCell: View {
                                                          width: 22,
                                                          tintColor: .white)
                             }
-                            
+                            //share button
                             Button {
                                 
                             } label: {
@@ -111,10 +138,11 @@ struct FeedCell: View {
                         }
                         .padding()
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 12)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 22)
                 }
-                
             }
+            //MARK: CLICKING CONTROLS
+            //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
@@ -133,7 +161,7 @@ struct FeedCell: View {
             }
         }
     }
-    
+    // like and unlike functionality
     private func handleLikeTapped() {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }

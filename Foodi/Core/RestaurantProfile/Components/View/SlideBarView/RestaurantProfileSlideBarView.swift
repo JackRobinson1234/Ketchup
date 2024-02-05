@@ -14,7 +14,10 @@ enum Section {
 }
 
 struct RestaurantProfileSlideBarView: View {
-    @State private var currentSection: Section = .posts
+    @Binding var currentSection: Section
+    init(currentSection: Binding<Section> = .constant(.posts)) {
+            self._currentSection = currentSection
+        }
 
     var body: some View {
         VStack{

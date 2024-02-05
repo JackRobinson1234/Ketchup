@@ -7,6 +7,11 @@
 
 import SwiftUI
 struct RestaurantProfileHeaderView: View {
+@Binding var currentSection: Section
+    init(currentSection: Binding<Section> = .constant(.posts)) {
+            self._currentSection = currentSection
+        }
+
     var images = [
         "listings-1",
         "listings-2",
@@ -62,7 +67,7 @@ struct RestaurantProfileHeaderView: View {
                     Text("Reservations")
                 }
             }
-            RestaurantProfileSlideBarView()
+            RestaurantProfileSlideBarView(currentSection: $currentSection)
             
         }
         .ignoresSafeArea()

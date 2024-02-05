@@ -78,7 +78,7 @@ struct DeveloperPreview {
             id: NSUUID().uuidString,
             videoUrl: videoUrls[0],
             ownerUid: "lewis.hamilton",
-            caption: "This is some test caption for this post",
+            caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
             likes: 200,
             commentCount: 57,
             saveCount: 23,
@@ -128,7 +128,7 @@ struct DeveloperPreview {
     static var comment = Comment(
         id: NSUUID().uuidString,
         postOwnerUid: "test",
-        commentText: "This is a test comment for preview purposes",
+        commentText: "This is a test comment for preview purposes. Making it extra long to test to see what it will look like if there is a longer caption or anything like that. hajskdfjnaklsdfn",
         postId: "",
         timestamp: Timestamp(),
         commentOwnerUid: "",
