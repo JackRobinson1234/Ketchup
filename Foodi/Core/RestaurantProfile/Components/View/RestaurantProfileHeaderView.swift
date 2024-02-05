@@ -7,19 +7,16 @@
 
 import SwiftUI
 struct RestaurantProfileHeaderView: View {
-@Binding var currentSection: Section
+    @Binding var currentSection: Section
+    @ObservedObject var viewModel: RestaurantViewModel
+    private var restaurant: Restaurant {
+        return viewModel.restaurant
+    }
     
-    init(currentSection: Binding<Section> = .constant(.posts)) {
-            self._currentSection = currentSection
-        }
-
-    var images = [
-        "listings-1",
-        "listings-2",
-        "listings-3",
-        "listings-4"
-    ]
-    
+    init(viewModel: RestaurantViewModel, currentSection: Binding<Section> = .constant(.posts)) {
+        self._currentSection = currentSection
+        self.viewModel = viewModel
+    }
     var body: some View {
         ScrollView {
             ZStack(alignment: .topLeading) {
@@ -27,17 +24,17 @@ struct RestaurantProfileHeaderView: View {
 
             }
             VStack(alignment: .center, spacing: 8) {
-                Text("Amir B's Pizzeria")
+                Text("\(restaurant.name)")
                     .font(.title)
                     .fontWeight(.semibold)
             }
             VStack(alignment: .center) {
-                Text("2425 Piedmont Ave, Berkeley, CA 90254")
+                Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
                     .font(.headline)
                     .fontWeight(.semibold)
-                Text("Italian, $$")
+                Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
                     .font(.subheadline)
-                Text("Amir B's Pizzeria offers a delectable culinary experience, crafting mouthwatering pizzas with a perfect blend of fresh ingredients.")
+                Text("\(restaurant.bio ?? "")")
                     .font(.caption)
                     .multilineTextAlignment(.center)
             }
@@ -76,5 +73,5 @@ struct RestaurantProfileHeaderView: View {
 }
 
 #Preview {
-    RestaurantProfileHeaderView()
+    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }

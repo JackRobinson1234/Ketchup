@@ -12,7 +12,7 @@ import FirebaseFirestoreSwift
 struct Restaurant: Identifiable, Codable, Hashable {
     let id: String
     let cuisine: String?
-    let price: String
+    let price: String?
     let name: String
     let latitude: Double?
     let longitude: Double?
@@ -27,7 +27,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.cuisine = try container.decode(String.self, forKey: .cuisine)
-        self.price = try container.decode(String.self, forKey: .price)
+        self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.name = try container.decode(String.self, forKey: .name)
         self.latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
         self.longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
@@ -39,7 +39,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
     }
     
-    init(id: String, cuisine: String? = nil, price: String, name: String, latitude: Double? = 0.0, longitude: Double? = 0.0, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
+    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, latitude: Double? = 0.0, longitude: Double? = 0.0, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
             self.id = id
             self.cuisine = cuisine
             self.price = price

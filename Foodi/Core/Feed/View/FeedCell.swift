@@ -73,15 +73,19 @@ struct FeedCell: View {
                             else {
                                 //cuisine
                                 Text("Cuisine: \(post.restaurant?.cuisine ?? "")")
+                                
                                 // price
                                 Text("Price: \(post.restaurant?.price ?? "")")
+                                
                                 //Menu Button
-                                NavigationLink(destination: RestaurantProfileView(restaurant: post.restaurant!, currentSection: .menu)) {
-                                    Text("View Menu")
-                                }
-                                        .modifier(StandardButtonModifier(width: 175))
+                                if post.restaurant != nil {
+                                    NavigationLink(destination: RestaurantProfileView(restaurant: post.restaurant!, currentSection: .menu)) {
+                                        Text("View Menu")
+                                    }
+                                    .modifier(StandardButtonModifier(width: 175))
                                 }
                             }
+                        }
                         //controls box size
                         .padding(10)
                         .background(Color.black.opacity(0.2))

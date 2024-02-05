@@ -30,7 +30,7 @@ struct RestaurantProfileView: View {
     var body: some View {
         
         VStack{
-            RestaurantProfileHeaderView(currentSection: $currentSection)
+            RestaurantProfileHeaderView(viewModel: viewModel, currentSection: $currentSection)
         }
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
