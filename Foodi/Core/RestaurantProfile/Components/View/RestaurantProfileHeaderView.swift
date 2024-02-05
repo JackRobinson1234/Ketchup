@@ -65,7 +65,7 @@ struct RestaurantProfileHeaderView: View {
                     Text("Reservations")
                 }
             }
-            RestaurantProfileSlideBarView(currentSection: $currentSection)
+            RestaurantProfileSlideBarView(viewModel: viewModel, currentSection: $currentSection)
             
         }
         .ignoresSafeArea()

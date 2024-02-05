@@ -15,6 +15,7 @@ class PostService {
     
     
     func fetchPost(postId: String) async throws -> Post {
+        print("DEBUG: Ran fetchPost")
         return try await FirestoreConstants
             .PostsCollection
             .document(postId)
@@ -22,6 +23,7 @@ class PostService {
     }
     
     func fetchUserPosts(user: User) async throws -> [Post] {
+        print("DEBUG: Ran fetchUserPost")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .whereField("ownerUid", isEqualTo: user.id)
@@ -38,6 +40,7 @@ class PostService {
     }
     
     func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
+        print("DEBUG: Ran fetchRestaurantPosts")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurantId", isEqualTo: restaurant.id)
@@ -53,6 +56,7 @@ class PostService {
     }
     
     func fetchPosts() async throws -> [Post] {
+        print("DEBUG: Ran fetchPosts()")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .order(by: "timestamp", descending: true)

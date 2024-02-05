@@ -20,6 +20,9 @@ class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
         self.restaurant = restaurant
         self.restaurantService = restaurantService
         self.postService = postService
+        Task {
+            fetchPosts()
+        }
     }
 }
     

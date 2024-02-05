@@ -24,6 +24,7 @@ struct PostGridView: View {
         self.viewModel = viewModel
         self.userService = userService
     }
+    
     var body: some View {
         LazyVGrid(columns: items, spacing: 2) {
             ForEach(viewModel.posts) { post in

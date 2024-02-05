@@ -64,7 +64,6 @@ class RestaurantListViewModel: ObservableObject {
             }
             
             print("DEBUG: Successfully fetched \(snapshot.documents.count) restaurants.")
-            print("DEBUG: Restaurants array after fetching: \(self.restaurants)")
             }
         }
         private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {

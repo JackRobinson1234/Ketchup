@@ -41,7 +41,7 @@ struct RestaurantProfileView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.white)
                 }
             }
         }

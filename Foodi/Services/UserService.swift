@@ -13,6 +13,7 @@ enum UserError: Error {
 
 class UserService {
     func fetchCurrentUser() async throws -> User {
+        print("DEBUG: Ran fetchCurrentUser()")
         guard let uid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
         return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
     }

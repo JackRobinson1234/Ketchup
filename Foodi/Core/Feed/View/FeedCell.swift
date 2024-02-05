@@ -90,7 +90,7 @@ struct FeedCell: View {
                         }
                         //controls box size
                         .padding(10)
-                        .background(Color.black.opacity(0.2))
+                        .background(Color.black.opacity(0.3))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
