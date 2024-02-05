@@ -31,7 +31,6 @@ struct FeedCell: View {
                                              startPoint: .top,
                                              endPoint: .bottom))
                     
-                    //MARK: UI Componenets and Links
                     
                     HStack(alignment: .bottom) {
                         
@@ -64,7 +63,7 @@ struct FeedCell: View {
                             }
                             //caption
                             Text(post.caption)
-                                .lineLimit(expandCaption ? 50 : 2)
+                                .lineLimit(expandCaption ? 50 : 1)
                             
                             //see more
                             if !expandCaption{
@@ -83,8 +82,8 @@ struct FeedCell: View {
                                         .modifier(StandardButtonModifier(width: 175))
                                 }
                             }
-                        
-                        
+                        //controls box size
+                        .padding(10)
                         .background(Color.black.opacity(0.2))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)

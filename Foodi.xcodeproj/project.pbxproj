@@ -715,7 +715,6 @@
 			isa = PBXGroup;
 			children = (
 				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
-				F88E0ABB2B6B04D000EC159B /* PostGridView.swift */,
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
 			);
@@ -742,6 +741,7 @@
 		F88E0AC32B6B057200EC159B /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0ABB2B6B04D000EC159B /* PostGridView.swift */,
 				F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */,
 				F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */,
 				F88E0AC82B6B05BC00EC159B /* RestaurantTab.swift */,

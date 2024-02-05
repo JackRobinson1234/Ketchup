@@ -8,6 +8,7 @@
 import SwiftUI
 struct RestaurantProfileHeaderView: View {
 @Binding var currentSection: Section
+    
     init(currentSection: Binding<Section> = .constant(.posts)) {
             self._currentSection = currentSection
         }
