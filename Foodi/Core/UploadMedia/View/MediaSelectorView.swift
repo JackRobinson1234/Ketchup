@@ -17,7 +17,7 @@ struct MediaSelectorView: View {
     @Binding var tabIndex: Int
     
     var body: some View {
-        NavigationStack {
+        
             VStack {
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
@@ -60,7 +60,7 @@ struct MediaSelectorView: View {
             .toolbar(.hidden, for: .tabBar)
         }
     }
-}
+
 
 #Preview {
     MediaSelectorView(tabIndex: .constant(0))

@@ -15,6 +15,9 @@ struct PostSelectorView: View {
     var body: some View {
         VStack{
             SelectedRestaurantView(restaurant: restaurant)
+            NavigationLink(destination: MediaSelectorView(tabIndex: .constant(0))) {
+                CreatePostSelection()
+            }
         }
     }
 }

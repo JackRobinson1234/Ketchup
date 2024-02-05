@@ -56,7 +56,6 @@ struct SearchView: View {
                 RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -65,8 +64,8 @@ struct SearchView: View {
                     Image(systemName: "chevron.left")
                         .foregroundStyle(.black)
                 }
-            }
         }
+    }
         .navigationBarBackButtonHidden()
     }
 }

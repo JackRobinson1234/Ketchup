@@ -26,6 +26,8 @@ class RestaurantListViewModel: ObservableObject {
             switch config {
             case .restaurants:
                 await fetchRestaurants()
+            case .upload:
+                await fetchRestaurants()
             }
         }
     }

@@ -11,10 +11,11 @@ struct RestaurantSelectorView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .restaurants))
+                SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
             }
             .navigationDestination(for: Restaurant.self) { restaurant in
-                RestaurantProfileView(restaurant: restaurant)}
+                PostSelectorView(restaurant: restaurant)}
+            .navigationBarBackButtonHidden()
         }
     }
 }

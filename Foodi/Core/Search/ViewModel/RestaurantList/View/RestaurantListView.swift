@@ -41,7 +41,6 @@ struct RestaurantListView: View {
                     
                 }
                 .navigationTitle(config.navigationTitle)
-            
                 .searchable(text: $searchText, placement: .navigationBarDrawer)
         }
     }
