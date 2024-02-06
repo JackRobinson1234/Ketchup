@@ -8,20 +8,17 @@
 import SwiftUI
 
 struct PostSelectorView: View {
-    private let restaurant: Restaurant
-    init(restaurant: Restaurant) {
-        self.restaurant = restaurant
-    }
     var body: some View {
-        VStack{
-            SelectedRestaurantView(restaurant: restaurant)
-            NavigationLink(destination: MediaSelectorView(tabIndex: .constant(0))) {
-                CreatePostSelection()
+        NavigationStack{
+            VStack{
+                NavigationLink(destination: RestaurantSelectorView()) {
+                    CreatePostSelection()
+                }
             }
         }
     }
 }
 
 #Preview {
-    PostSelectorView(restaurant: DeveloperPreview.restaurants[0])
+    PostSelectorView()
 }

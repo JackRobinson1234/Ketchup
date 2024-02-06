@@ -52,7 +52,7 @@ struct MainTabView: View {
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)*/
-            RestaurantSelectorView()
+            PostSelectorView()
                 .tabItem { Image(systemName: "star") }
                 .onAppear { selectedTab = 6 }
                 .tag(6)

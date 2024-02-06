@@ -9,16 +9,15 @@ import SwiftUI
 
 struct RestaurantSelectorView: View {
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
-            }
-            .navigationDestination(for: Restaurant.self) { restaurant in
-                PostSelectorView(restaurant: restaurant)}
-            .navigationBarBackButtonHidden()
+        ScrollView {
+            SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
         }
+        .navigationDestination(for: Restaurant.self) { restaurant in
+            MediaSelectorView(tabIndex: .constant(0), restaurant: restaurant)}
+        .navigationBarBackButtonHidden()
     }
 }
+
 
 #Preview {
     RestaurantSelectorView()

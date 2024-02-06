@@ -11,6 +11,7 @@
 		F823E17A2B70BC2D00E18135 /* PostSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1792B70BC2D00E18135 /* PostSelectorView.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
+		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -156,6 +157,7 @@
 		F823E1792B70BC2D00E18135 /* PostSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostSelectorView.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E17F2B70C16600E18135 /* CreatePostSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostSelection.swift; sourceTree = "<group>"; };
+		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -942,6 +944,7 @@
 				F88E0B2F2B6CA0C700EC159B /* StandardBackButtonModifier.swift */,
 				F88E0B312B6CA0F100EC159B /* StandardButtonModifier.swift */,
 				F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */,
+				F823E1812B71D32200E18135 /* BackButtonModifier.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -1122,6 +1125,7 @@
 				F88E0AF62B6B08A800EC159B /* RestaurantCell.swift in Sources */,
 				F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */,
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
+				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
 				F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */,
 				F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */,

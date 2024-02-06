@@ -12,7 +12,13 @@ struct UploadPostView: View {
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
-    
+    private let restaurant: Restaurant
+    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
+        self.restaurant = restaurant
+        self.movie = movie
+        self.viewModel = viewModel
+        self._tabIndex = tabIndex
+    }
     var body: some View {
         VStack {
             HStack(alignment: .top) {
@@ -72,5 +78,5 @@ struct UploadPostView: View {
 #Preview {
     UploadPostView(movie: Movie(url: URL(string: "")!),
                    viewModel: UploadPostViewModel(service: UploadPostService()),
-                   tabIndex: .constant(0))
+                   tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }

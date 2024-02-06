@@ -11,7 +11,6 @@ import SwiftUI
 struct SearchView: View {
     @State var searchText: String = ""
     @State var searchSlideBar: Bool
-    @Environment(\.dismiss) var dismiss
     private let userService: UserService
     @State var searchConfig: SearchModelConfig
     
@@ -48,24 +47,23 @@ struct SearchView: View {
             switch searchConfig {
             case .posts:
                 PostListView(userService: userService, searchText: $searchText)
+                    
                 
             case .users(let userListConfig):
                 UserListView(config: userListConfig, userService: userService, searchText: $searchText)
+                    
                 
             case .restaurants(let restaurantListConfig):
-                RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                if restaurantListConfig != .upload{
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        
+                }
+                else {
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                }
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(.black)
-                }
-        }
-    }
+        .modifier(BackButtonModifier())
         .navigationBarBackButtonHidden()
     }
 }
@@ -75,4 +73,5 @@ struct SearchView_Previews: PreviewProvider {
         SearchView(userService: UserService(), searchConfig: .posts)
     }
 }
+
 

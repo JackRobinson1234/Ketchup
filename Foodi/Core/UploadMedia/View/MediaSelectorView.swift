@@ -15,9 +15,13 @@ struct MediaSelectorView: View {
     @StateObject var viewModel = UploadPostViewModel(service: UploadPostService())
     @State private var showImagePicker = false
     @Binding var tabIndex: Int
+    private let restaurant: Restaurant
+    init(tabIndex: Binding<Int>, restaurant: Restaurant){
+        self._tabIndex = tabIndex
+        self.restaurant = restaurant
+    }
     
     var body: some View {
-        
             VStack {
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
@@ -54,7 +58,7 @@ struct MediaSelectorView: View {
                 }
             }
             .navigationDestination(item: $viewModel.selectedMediaForUpload, destination: { movie in
-                UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex)
+                UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)
             })
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             .toolbar(.hidden, for: .tabBar)
@@ -63,5 +67,5 @@ struct MediaSelectorView: View {
 
 
 #Preview {
-    MediaSelectorView(tabIndex: .constant(0))
+    MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }
