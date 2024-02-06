@@ -10,7 +10,7 @@ import SwiftUI
 struct PostSelectorView: View {
     var body: some View {
         NavigationStack{
-            VStack{
+            VStack {
                 NavigationLink(destination: RestaurantSelectorView()) {
                     CreatePostSelection()
                 }
