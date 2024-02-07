@@ -45,6 +45,7 @@ class UploadPostViewModel: ObservableObject {
         selectedMediaForUpload = mediaPreview
     }
     
+    
     func reset() {
         caption = ""
         mediaPreview = nil
@@ -55,10 +56,12 @@ class UploadPostViewModel: ObservableObject {
     
     func loadVideo(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
+        isLoading = true
         
         do {
             guard let movie = try await item.loadTransferable(type: Movie.self) else { return }
             self.mediaPreview = movie
+            isLoading = false
         } catch {
             print("DEBUG: Failed with error \(error.localizedDescription)")
         }

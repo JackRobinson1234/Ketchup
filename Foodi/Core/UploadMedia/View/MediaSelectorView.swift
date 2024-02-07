@@ -22,27 +22,29 @@ struct MediaSelectorView: View {
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
     }
         var body: some View {
-            
             VStack {
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
                         .onAppear {
                             player.replaceCurrentItem(with: AVPlayerItem(url: movie.url))
                             player.play()
-                            print("VideoPlayer appeared")
+                            
                             viewModel.setMediaItemForUpload()
                             
                         }
                         .onDisappear { player.pause()
-                            print("VideoPlayer disappeared")}
+                        }
                         .padding()
                 }
-                    else {
+                else {
+                    if viewModel.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
                             .frame(width: 44, height: 44)
-                            .padding()
+                    } else {
+                        Text("No Video Selected")
                     }
+                }
                     
                     
                 }
@@ -62,17 +64,29 @@ struct MediaSelectorView: View {
                             .imageScale(.large)
                     }
                 }
-            }
-            .toolbar {
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
                             Text("Next")
-                            }
                         }
                     }
                 }
-                
+                if let movie = viewModel.selectedMediaForUpload, !viewModel.isLoading {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Select Different Video") {
+                            viewModel.reset()
+                            showImagePicker.toggle()
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Select Video") {
+                            viewModel.reset()
+                            showImagePicker.toggle()
+                        }
+                    }
+                }
+            }
             .navigationBarBackButtonHidden()
             
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
