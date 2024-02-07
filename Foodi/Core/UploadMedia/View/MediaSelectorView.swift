@@ -31,6 +31,7 @@ struct MediaSelectorView: View {
                             player.replaceCurrentItem(with: AVPlayerItem(url: movie.url))
                             player.play()
                             print("VideoPlayer appeared")
+                            viewModel.setMediaItemForUpload()
                         }
                         .onDisappear { player.pause()
                             print("VideoPlayer disappeared")
@@ -54,6 +55,19 @@ struct MediaSelectorView: View {
                             .imageScale(.large)
                     }
                 }
+            }
+            .toolbar {
+                if let movie = viewModel.selectedMediaForUpload {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
+                            Text("Next")
+                            }
+                        }
+                    }
+                }
+            /*.toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                }
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Next") {
@@ -62,11 +76,12 @@ struct MediaSelectorView: View {
                     .disabled(viewModel.mediaPreview == nil)
                     .font(.headline)
                 }
-            }
+            }*/
+                
             .navigationBarBackButtonHidden()
-            .navigationDestination(item: $viewModel.selectedMediaForUpload, destination: { movie in
+            /*.navigationDestination(item: $viewModel.selectedMediaForUpload, destination: { movie in
                 UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)
-            })
+            }) */
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             .toolbar(.hidden, for: .tabBar)
         }

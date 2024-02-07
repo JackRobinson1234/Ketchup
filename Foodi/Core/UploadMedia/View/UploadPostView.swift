@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct UploadPostView: View {
-    let movie: Movie
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
     private let restaurant: Restaurant
+    private let movie: Movie
     init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
         self.restaurant = restaurant
         self.movie = movie
