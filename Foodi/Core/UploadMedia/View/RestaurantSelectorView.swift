@@ -20,6 +20,16 @@ struct RestaurantSelectorView: View {
             .navigationDestination(for: Restaurant.self) { restaurant in
                 MediaSelectorView(tabIndex: $tabIndex, restaurant: restaurant)}
             .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        tabIndex = 0
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+            }
+            .toolbar(.hidden, for: .tabBar)
         }
     }
 }
