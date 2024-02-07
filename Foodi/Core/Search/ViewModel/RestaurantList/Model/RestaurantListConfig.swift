@@ -9,12 +9,13 @@ import Foundation
 
 enum RestaurantListConfig: Hashable {
     case restaurants
+    case upload
    
     
     var navigationTitle: String {
         switch self {
         case .restaurants: return "Explore"
-        
+        case .upload: return "Select a Restaurant to Post"
         }
     }
 }

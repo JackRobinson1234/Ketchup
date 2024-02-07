@@ -24,6 +24,7 @@ struct PostGridView: View {
         self.viewModel = viewModel
         self.userService = userService
     }
+    
     var body: some View {
         LazyVGrid(columns: items, spacing: 2) {
             ForEach(viewModel.posts) { post in
@@ -32,45 +33,40 @@ struct PostGridView: View {
                     .scaledToFill()
                     .frame(width: width, height: 160)
                     .clipped()
-                    .onTapGesture { selectedPost = post }
+                    .onTapGesture { selectedPost = post}
                     .overlay(
                         VStack{
                             HStack{
                                 VStack (alignment: .leading) {
-                                    Text("\(post.restaurant!.name)")
+                                    Text("\(post.restaurant?.name ?? "")")
                                         .lineLimit(1)
                                         .truncationMode(.tail)
                                         .foregroundColor(.white)
-                                        .font(.caption)
+                                        .font(.footnote)
                                         .bold()
-                                    Text("\(post.user!.username)")
-                                        .lineLimit(1)
-                                        .truncationMode(.tail)
-                                        .foregroundColor(.white)
-                                        .font(.caption)
+        
                                 }
-                                .background(Color.black.opacity(0.1))
+                                
                                 Spacer()
                             }
                             
                             Spacer()
                             HStack {
+                                
                                 Spacer()
-                                HStack(spacing: 2) {
-                                    Text("\(post.likes)")
-                                        .padding(4)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(4)
-                                        .bold()
-                                        .background(Color.black.opacity(0.1))
-                                    Image(systemName: "heart.fill")
-                                        .resizable()
-                                        .frame(width: 14, height: 14)
-                                        .foregroundColor(.white)
-                                }
+                                
+                                Text("\(post.likes)")
+                                    .foregroundColor(.white)
+                                    .font(.footnote)
+                                    
                             }
+    
                         }
-                        .padding([.bottom, .trailing], 4)
+                        .padding(4)
+                        .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
+                                                   startPoint: .top,
+                                                   endPoint: .bottom))
+                        .onTapGesture { selectedPost = post }
                     )
             }
         }

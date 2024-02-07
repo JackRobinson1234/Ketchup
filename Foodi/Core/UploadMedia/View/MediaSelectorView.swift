@@ -6,29 +6,49 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import AVKit
 
 struct MediaSelectorView: View {
     @State private var player = AVPlayer()
-    @StateObject var viewModel = UploadPostViewModel(service: UploadPostService())
+    @StateObject var viewModel: UploadPostViewModel
     @State private var showImagePicker = false
     @Binding var tabIndex: Int
-    
-    var body: some View {
-        NavigationStack {
+    private let restaurant: Restaurant
+    @Environment(\.dismiss) var dismiss
+        
+    init(tabIndex: Binding<Int>, restaurant: Restaurant) {
+        self._tabIndex = tabIndex
+        self.restaurant = restaurant
+        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
+    }
+        var body: some View {
             VStack {
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
                         .onAppear {
                             player.replaceCurrentItem(with: AVPlayerItem(url: movie.url))
                             player.play()
+                            
+                            viewModel.setMediaItemForUpload()
+                            
                         }
-                        .onDisappear { player.pause() }
+                        .onDisappear { player.pause()
+                        }
                         .padding()
                 }
-            }
+                else {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .frame(width: 44, height: 44)
+                    } else {
+                        Text("No Video Selected")
+                    }
+                }
+                    
+                    
+                }
+            
             .onAppear {
                 if viewModel.selectedMediaForUpload == nil { showImagePicker.toggle() }
             }
@@ -38,30 +58,42 @@ struct MediaSelectorView: View {
                         player.pause()
                         player = AVPlayer(playerItem: nil)
                         viewModel.reset()
-                        tabIndex = 0
+                        dismiss()
                     } label: {
                         Image(systemName: "xmark")
                             .imageScale(.large)
                     }
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Next") {
-                        viewModel.setMediaItemForUpload()
+                if let movie = viewModel.selectedMediaForUpload {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
+                            Text("Next")
+                        }
                     }
-                    .disabled(viewModel.mediaPreview == nil)
-                    .font(.headline)
+                }
+                if let movie = viewModel.selectedMediaForUpload, !viewModel.isLoading {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Select Different Video") {
+                            viewModel.reset()
+                            showImagePicker.toggle()
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Select Video") {
+                            viewModel.reset()
+                            showImagePicker.toggle()
+                        }
+                    }
                 }
             }
-            .navigationDestination(item: $viewModel.selectedMediaForUpload, destination: { movie in
-                UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex)
-            })
+            .navigationBarBackButtonHidden()
+            
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             .toolbar(.hidden, for: .tabBar)
         }
     }
-}
 
 #Preview {
-    MediaSelectorView(tabIndex: .constant(0))
+    MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }

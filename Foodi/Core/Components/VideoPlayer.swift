@@ -18,7 +18,8 @@ struct VideoPlayer: UIViewControllerRepresentable {
         controller.showsPlaybackControls = false
         controller.exitsFullScreenWhenPlaybackEnds = true
         controller.allowsPictureInPicturePlayback = true
-        controller.videoGravity = .resizeAspectFill // makes video full screen
+        controller.videoGravity = .resizeAspectFill 
+        controller.allowsVideoFrameAnalysis = false// makes video full screen
         return controller
     }
     

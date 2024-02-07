@@ -8,17 +8,51 @@
 import SwiftUI
 
 struct RestaurantProfileView: View {
+    @Environment(\.dismiss) var dismiss
+    @State var currentSection: Section
+    @StateObject var viewModel: RestaurantViewModel
+    private let restaurantService = RestaurantService()
+    
+    private var restaurant: Restaurant {
+        return viewModel.restaurant
+    }
+    
+    init(restaurant: Restaurant, currentSection: Section = .posts) {
+        let restaurantViewModel = RestaurantViewModel(restaurant: restaurant,
+                                                      restaurantService: RestaurantService(),
+                                                      postService: PostService())
+        
+        self._viewModel = StateObject(wrappedValue: restaurantViewModel)
+        self._currentSection = State(initialValue: currentSection)
+    }
+    
+ 
     var body: some View {
         
         VStack{
-            RestaurantProfileHeaderView()
+            RestaurantProfileHeaderView(viewModel: viewModel, currentSection: $currentSection)
         }
+        .navigationBarBackButtonHidden()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+        
         .overlay(alignment: .bottom) {
             CTAButtonOverlay()
+    
         }
     }
 }
 
 #Preview {
-    RestaurantProfileView()
+    RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])
 }

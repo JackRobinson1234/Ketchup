@@ -15,6 +15,7 @@ class PostService {
     
     
     func fetchPost(postId: String) async throws -> Post {
+        print("DEBUG: Ran fetchPost")
         return try await FirestoreConstants
             .PostsCollection
             .document(postId)
@@ -22,18 +23,40 @@ class PostService {
     }
     
     func fetchUserPosts(user: User) async throws -> [Post] {
-        var posts = try await FirestoreConstants
+        print("DEBUG: Ran fetchUserPost")
+        self.posts = try await FirestoreConstants
             .PostsCollection
             .whereField("ownerUid", isEqualTo: user.id)
             .getDocuments(as: Post.self)
         
-        for i in 0 ..< posts.count {
-            posts[i].user = user
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for post in posts {
+                group.addTask { try await self.fetchPostUserData(post) }
+                group.addTask { try await self.fetchPostRestaurantData(post)}
+            }
+        }
+        
+        return posts
+    }
+    
+    func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
+        print("DEBUG: Ran fetchRestaurantPosts")
+        self.posts = try await FirestoreConstants
+            .PostsCollection
+            .whereField("restaurantId", isEqualTo: restaurant.id)
+            .getDocuments(as: Post.self)
+        
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for post in posts {
+                group.addTask { try await self.fetchPostUserData(post) }
+                group.addTask { try await self.fetchPostRestaurantData(post)}
+            }
         }
         return posts
     }
     
     func fetchPosts() async throws -> [Post] {
+        print("DEBUG: Ran fetchPosts()")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .order(by: "timestamp", descending: true)

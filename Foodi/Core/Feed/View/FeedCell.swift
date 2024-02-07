@@ -31,37 +31,84 @@ struct FeedCell: View {
                                              startPoint: .top,
                                              endPoint: .bottom))
                     
+                    
                     HStack(alignment: .bottom) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            NavigationLink(value: post.user) {
-                                Text(post.user?.fullname ?? "")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.white)
+                        
+                        // MARK: LEFT (POST META-DATA) VSTACK
+                        
+                        VStack(alignment: .leading, spacing: 7) {
+                            HStack{
+                                // restaurant profile image
+                                NavigationLink(value: post.restaurant) {
+                                    RestaurantCircularProfileImageView(restaurant: post.restaurant, size: .large)
+                                }
+                                //restaurant name
+                                VStack (alignment: .leading) {
+                                NavigationLink(value: post.restaurant) {
+                                    Text("\(post.restaurant?.name ?? "")")
+                                        .font(.title3)
+                                        .bold()
+                                        .multilineTextAlignment(.leading)
+                                }
+                                //address
+                                Text("📍 \(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
+                                
+                                    NavigationLink(value: post.user) {
+                                        Text("by \(post.user?.fullname ?? "")")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.white)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
+                                    }
+                                }
                             }
-                            
+                            //caption
                             Text(post.caption)
-                                .lineLimit(expandCaption ? 50 : 2)
+                                .lineLimit(expandCaption ? 50 : 1)
                             
+                            //see more
+                            if !expandCaption{
+                                Text("See more...")
+                                    .font(.footnote)
+                            }
+                            else {
+                                //cuisine
+                                Text("Cuisine: \(post.restaurant?.cuisine ?? "")")
+                                
+                                // price
+                                Text("Price: \(post.restaurant?.price ?? "")")
+                                
+                                //Menu Button
+                                if post.restaurant != nil {
+                                    NavigationLink(destination: RestaurantProfileView(restaurant: post.restaurant!, currentSection: .menu)) {
+                                        Text("View Menu")
+                                    }
+                                    .modifier(StandardButtonModifier(width: 175))
+                                }
+                            }
                         }
+                        //controls box size
+                        .padding(10)
+                        .background(Color.black.opacity(0.3))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
                         .padding()
                         
                         Spacer()
-                        
+                        //MARK: Right hand Vstack
                         VStack(spacing: 28) {
+                            //user profile image
                             NavigationLink(value: post.user) {
                                 ZStack(alignment: .bottom) {
                                     UserCircularProfileImageView(user: post.user, size: .medium)
-                                    
                                     Image(systemName: "plus.circle.fill")
                                         .foregroundStyle(.pink)
                                         .offset(y: 8)
                                 }
                             }
-                            
+                            //like button
                             Button {
                                 handleLikeTapped()
                             } label: {
@@ -69,14 +116,14 @@ struct FeedCell: View {
                                                          value: post.likes,
                                                          tintColor: didLike ? .red : .white)
                             }
-                            
+                            //comment button
                             Button {
                                 player.pause()
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
                             }
-                            
+                            // Bookmark button
                             Button {
                                 
                             } label: {
@@ -86,7 +133,7 @@ struct FeedCell: View {
                                                          width: 22,
                                                          tintColor: .white)
                             }
-                            
+                            //share button
                             Button {
                                 
                             } label: {
@@ -96,10 +143,11 @@ struct FeedCell: View {
                         }
                         .padding()
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 80 : 12)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 22)
                 }
-                
             }
+            //MARK: CLICKING CONTROLS
+            //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
@@ -117,12 +165,8 @@ struct FeedCell: View {
                 }
             }
         }
-        .onAppear {
-                // Print statement to debug the value of post.user
-                print(post)
-            }
     }
-    
+    // like and unlike functionality
     private func handleLikeTapped() {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }

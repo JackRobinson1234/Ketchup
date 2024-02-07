@@ -9,7 +9,7 @@ import Foundation
 import Firebase
 
 struct UploadPostService {
-    func uploadPost(caption: String, videoUrlString: String) async throws {
+    func uploadPost(caption: String, videoUrlString: String, restaurantId: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let ref = FirestoreConstants.PostsCollection.document()
         
@@ -29,7 +29,7 @@ struct UploadPostService {
                 views: 0,
                 thumbnailUrl: "",
                 timestamp: Timestamp(),
-                restaurantId: ""
+                restaurantId: restaurantId
             )
 
             guard let postData = try? Firestore.Encoder().encode(post) else { return }

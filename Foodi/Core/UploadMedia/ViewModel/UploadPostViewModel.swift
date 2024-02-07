@@ -19,11 +19,12 @@ class UploadPostViewModel: ObservableObject {
     @Published var selectedItem: PhotosPickerItem? {
         didSet { Task { await loadVideo(fromItem: selectedItem) } }
     }
-    
+    private let restaurant: Restaurant
     private let service: UploadPostService
     
-    init(service: UploadPostService) {
+    init(service: UploadPostService, restaurant: Restaurant) {
         self.service = service
+        self.restaurant = restaurant
     }
     
     func uploadPost() async {
@@ -32,7 +33,7 @@ class UploadPostViewModel: ObservableObject {
         isLoading = true
         
         do {
-            try await service.uploadPost(caption: caption, videoUrlString: videoUrlString)
+            try await service.uploadPost(caption: caption, videoUrlString: videoUrlString, restaurantId: restaurant.id)
             isLoading = false
         } catch {
             self.error = error
@@ -44,6 +45,7 @@ class UploadPostViewModel: ObservableObject {
         selectedMediaForUpload = mediaPreview
     }
     
+    
     func reset() {
         caption = ""
         mediaPreview = nil
@@ -54,10 +56,12 @@ class UploadPostViewModel: ObservableObject {
     
     func loadVideo(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
+        isLoading = true
         
         do {
             guard let movie = try await item.loadTransferable(type: Movie.self) else { return }
             self.mediaPreview = movie
+            isLoading = false
         } catch {
             print("DEBUG: Failed with error \(error.localizedDescription)")
         }

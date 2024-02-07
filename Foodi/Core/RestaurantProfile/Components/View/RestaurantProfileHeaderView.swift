@@ -7,42 +7,34 @@
 
 import SwiftUI
 struct RestaurantProfileHeaderView: View {
-    var images = [
-        "listings-1",
-        "listings-2",
-        "listings-3",
-        "listings-4"
-    ]
-    @Environment(\.dismiss) var dismiss
+    @Binding var currentSection: Section
+    @ObservedObject var viewModel: RestaurantViewModel
+    private var restaurant: Restaurant {
+        return viewModel.restaurant
+    }
+    
+    init(viewModel: RestaurantViewModel, currentSection: Binding<Section> = .constant(.posts)) {
+        self._currentSection = currentSection
+        self.viewModel = viewModel
+    }
     var body: some View {
         ScrollView {
             ZStack(alignment: .topLeading) {
-                ListingImageCarouselView()
-                Button{
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(.black)
-                        .background{
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 32, height: 32)
-                        }
-                        .padding(32)
-                }
+                ListingImageCarouselView(viewModel: viewModel)
+
             }
             VStack(alignment: .center, spacing: 8) {
-                Text("Amir B's Pizzeria")
+                Text("\(restaurant.name)")
                     .font(.title)
                     .fontWeight(.semibold)
             }
             VStack(alignment: .center) {
-                Text("2425 Piedmont Ave, Berkeley, CA 90254")
+                Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
                     .font(.headline)
                     .fontWeight(.semibold)
-                Text("Italian, $$")
+                Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
                     .font(.subheadline)
-                Text("Amir B's Pizzeria offers a delectable culinary experience, crafting mouthwatering pizzas with a perfect blend of fresh ingredients.")
+                Text("\(restaurant.bio ?? "")")
                     .font(.caption)
                     .multilineTextAlignment(.center)
             }
@@ -73,7 +65,7 @@ struct RestaurantProfileHeaderView: View {
                     Text("Reservations")
                 }
             }
-            RestaurantProfileSlideBarView()
+            RestaurantProfileSlideBarView(viewModel: viewModel, currentSection: $currentSection)
             
         }
         .ignoresSafeArea()
@@ -81,5 +73,5 @@ struct RestaurantProfileHeaderView: View {
 }
 
 #Preview {
-    RestaurantProfileHeaderView()
+    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }

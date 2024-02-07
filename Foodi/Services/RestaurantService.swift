@@ -10,8 +10,8 @@ import FirebaseAuth
 import FirebaseFirestoreSwift
 import FirebaseFirestore
 class RestaurantService {
-    //func
     func fetchRestaurant (withId id: String) async throws -> Restaurant {
+        print("DEBUG: Ran fetchRestaurant()")
         return try await FirestoreConstants.RestaurantCollection.document(id).getDocument(as: Restaurant.self)
     }
 

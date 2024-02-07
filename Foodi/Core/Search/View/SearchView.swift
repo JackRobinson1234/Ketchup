@@ -11,7 +11,6 @@ import SwiftUI
 struct SearchView: View {
     @State var searchText: String = ""
     @State var searchSlideBar: Bool
-    @Environment(\.dismiss) var dismiss
     private let userService: UserService
     @State var searchConfig: SearchModelConfig
     
@@ -32,7 +31,7 @@ struct SearchView: View {
                     .navigationDestination(for: SearchModelConfig.self) { config in
                         SearchView(userService: UserService(), searchConfig: config)}
                     .navigationDestination(for: Restaurant.self) { restaurant in
-                        RestaurantProfileView()
+                        RestaurantProfileView(restaurant: restaurant)
                     }
             }
         } else {
@@ -45,29 +44,34 @@ struct SearchView: View {
             if searchSlideBar {
                 SearchViewSlideBar(searchConfig: $searchConfig)
             }
+            
             switch searchConfig {
             case .posts:
                 PostListView(userService: userService, searchText: $searchText)
+                    .modifier(BackButtonModifier())
+                    .navigationBarBackButtonHidden()
+                    
                 
             case .users(let userListConfig):
                 UserListView(config: userListConfig, userService: userService, searchText: $searchText)
+                    .modifier(BackButtonModifier())
+                    .navigationBarBackButtonHidden()
+                    
                 
             case .restaurants(let restaurantListConfig):
-                RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(.black)
+                if restaurantListConfig != .upload{
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+                        
+                }
+                else {
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        
                 }
             }
         }
-        .navigationBarBackButtonHidden()
+        
     }
 }
 
@@ -76,4 +80,5 @@ struct SearchView_Previews: PreviewProvider {
         SearchView(userService: UserService(), searchConfig: .posts)
     }
 }
+
 

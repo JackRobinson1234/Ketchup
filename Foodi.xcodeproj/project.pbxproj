@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */; };
+		F823E17A2B70BC2D00E18135 /* PostSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1792B70BC2D00E18135 /* PostSelectorView.swift */; };
+		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
+		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
+		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -77,10 +82,9 @@
 		F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABB2B6B04D000EC159B /* PostGridView.swift */; };
 		F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */; };
 		F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABF2B6B052700EC159B /* ProfileView.swift */; };
-		F88E0AC22B6B055200EC159B /* ProfileVIewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC12B6B055200EC159B /* ProfileVIewModel.swift */; };
+		F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */; };
 		F88E0AC52B6B058700EC159B /* CTAButtonOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */; };
 		F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */; };
-		F88E0AC92B6B05BC00EC159B /* RestaurantTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC82B6B05BC00EC159B /* RestaurantTab.swift */; };
 		F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */; };
 		F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */; };
 		F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD12B6B06C600EC159B /* RestaurantViewModel.swift */; };
@@ -101,7 +105,6 @@
 		F88E0B052B6B09E400EC159B /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B042B6B09E400EC159B /* Movie.swift */; };
 		F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B062B6B09FF00EC159B /* UploadPostService.swift */; };
 		F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */; };
-		F88E0B0B2B6B0A3D00EC159B /* UploadIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0A2B6B0A3D00EC159B /* UploadIconView.swift */; };
 		F88E0B0D2B6B0A5400EC159B /* UploadPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */; };
 		F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */; };
 		F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */; };
@@ -149,6 +152,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSelectorView.swift; sourceTree = "<group>"; };
+		F823E1792B70BC2D00E18135 /* PostSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostSelectorView.swift; sourceTree = "<group>"; };
+		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
+		F823E17F2B70C16600E18135 /* CreatePostSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostSelection.swift; sourceTree = "<group>"; };
+		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -196,10 +204,9 @@
 		F88E0ABB2B6B04D000EC159B /* PostGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGridView.swift; sourceTree = "<group>"; };
 		F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0ABF2B6B052700EC159B /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		F88E0AC12B6B055200EC159B /* ProfileVIewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVIewModel.swift; sourceTree = "<group>"; };
+		F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CTAButtonOverlay.swift; sourceTree = "<group>"; };
 		F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListingImageCarouselView.swift; sourceTree = "<group>"; };
-		F88E0AC82B6B05BC00EC159B /* RestaurantTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantTab.swift; sourceTree = "<group>"; };
 		F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapRestaurantProfileView.swift; sourceTree = "<group>"; };
 		F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileSlideBarView.swift; sourceTree = "<group>"; };
 		F88E0AD12B6B06C600EC159B /* RestaurantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantViewModel.swift; sourceTree = "<group>"; };
@@ -220,7 +227,6 @@
 		F88E0B042B6B09E400EC159B /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		F88E0B062B6B09FF00EC159B /* UploadPostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostService.swift; sourceTree = "<group>"; };
 		F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSelectorView.swift; sourceTree = "<group>"; };
-		F88E0B0A2B6B0A3D00EC159B /* UploadIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadIconView.swift; sourceTree = "<group>"; };
 		F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostView.swift; sourceTree = "<group>"; };
 		F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
 		F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperPreview.swift; sourceTree = "<group>"; };
@@ -326,7 +332,6 @@
 		F84FE24A2B6A531200144F01 /* Foodi */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */,
 				F84FE27B2B6A542D00144F01 /* App */,
 				F84FE27A2B6A541900144F01 /* Core */,
 				F84FE2792B6A541400144F01 /* Extensions */,
@@ -334,6 +339,7 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
+				F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
@@ -439,9 +445,12 @@
 		F84FE27C2B6A548500144F01 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0ABB2B6B04D000EC159B /* PostGridView.swift */,
 				F88E0A7D2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift */,
 				F88E0A822B6B00F600EC159B /* UserCircularImageProfileView.swift */,
 				F88E0A842B6B013D00EC159B /* VideoPlayer.swift */,
+				F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */,
+				F823E17F2B70C16600E18135 /* CreatePostSelection.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -706,7 +715,7 @@
 		F88E0AAF2B6B040D00EC159B /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0AC12B6B055200EC159B /* ProfileVIewModel.swift */,
+				F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -715,7 +724,6 @@
 			isa = PBXGroup;
 			children = (
 				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
-				F88E0ABB2B6B04D000EC159B /* PostGridView.swift */,
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
 			);
@@ -744,7 +752,6 @@
 			children = (
 				F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */,
 				F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */,
-				F88E0AC82B6B05BC00EC159B /* RestaurantTab.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -895,8 +902,9 @@
 			isa = PBXGroup;
 			children = (
 				F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */,
-				F88E0B0A2B6B0A3D00EC159B /* UploadIconView.swift */,
 				F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */,
+				F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */,
+				F823E1792B70BC2D00E18135 /* PostSelectorView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -933,6 +941,7 @@
 				F88E0B2F2B6CA0C700EC159B /* StandardBackButtonModifier.swift */,
 				F88E0B312B6CA0F100EC159B /* StandardButtonModifier.swift */,
 				F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */,
+				F823E1812B71D32200E18135 /* BackButtonModifier.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -1113,11 +1122,13 @@
 				F88E0AF62B6B08A800EC159B /* RestaurantCell.swift in Sources */,
 				F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */,
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
+				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
 				F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */,
 				F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */,
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
 				F88E0AE82B6B07F900EC159B /* UserListConfig.swift in Sources */,
+				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
@@ -1147,11 +1158,11 @@
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
 				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
+				F823E17A2B70BC2D00E18135 /* PostSelectorView.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileVIew.swift in Sources */,
 				F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */,
 				F88E0B132B6B0AA700EC159B /* FIrestore + Query.swift in Sources */,
-				F88E0AC92B6B05BC00EC159B /* RestaurantTab.swift in Sources */,
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
 				F88E0B052B6B09E400EC159B /* Movie.swift in Sources */,
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
@@ -1165,9 +1176,10 @@
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
-				F88E0AC22B6B055200EC159B /* ProfileVIewModel.swift in Sources */,
+				F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */,
 				F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */,
 				F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */,
+				F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */,
 				F88E0AB42B6B044C00EC159B /* EditProfileView.swift in Sources */,
 				F88E0B282B6CA00800EC159B /* Mediahelpers.swift in Sources */,
 				F88E0AA62B6B035E00EC159B /* NotificationManager.swift in Sources */,
@@ -1192,8 +1204,8 @@
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListVIew.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,
-				F88E0B0B2B6B0A3D00EC159B /* UploadIconView.swift in Sources */,
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
+				F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,

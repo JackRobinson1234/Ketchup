@@ -8,16 +8,22 @@
 import SwiftUI
 
 struct UploadPostView: View {
-    let movie: Movie
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
-    
+    private let restaurant: Restaurant
+    private let movie: Movie
+    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
+        self.restaurant = restaurant
+        self.movie = movie
+        self.viewModel = viewModel
+        self._tabIndex = tabIndex
+    }
     var body: some View {
         VStack {
-            HStack(alignment: .top) {
-                TextField("Enter your caption..", text: $viewModel.caption, axis: .vertical)
-                    .font(.subheadline)
+            HStack() {
+                
+                SelectedRestaurantView(restaurant: restaurant)
                 
                 Spacer()
                 
@@ -25,10 +31,14 @@ struct UploadPostView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 88, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .frame(width: 100, height: 125)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
             }
+           
+            TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
+                .font(.subheadline)
+                .padding(.top, 60)
             
             Divider()
             
@@ -39,7 +49,6 @@ struct UploadPostView: View {
                     await viewModel.uploadPost()
                     tabIndex = 0
                     viewModel.reset()
-                    dismiss()
                 }
             } label: {
                 Text(viewModel.isLoading ? "" : "Post")
@@ -69,8 +78,8 @@ struct UploadPostView: View {
     }
 }
 
-#Preview {
+/*#Preview {
     UploadPostView(movie: Movie(url: URL(string: "")!),
-                   viewModel: UploadPostViewModel(service: UploadPostService()),
-                   tabIndex: .constant(0))
-}
+                   viewModel: UploadPostViewModel(service: UploadPostService(restaurantId: restaurants.id[)),
+                   tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
+} */

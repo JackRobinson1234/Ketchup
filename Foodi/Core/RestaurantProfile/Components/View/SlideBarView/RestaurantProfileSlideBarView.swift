@@ -14,9 +14,15 @@ enum Section {
 }
 
 struct RestaurantProfileSlideBarView: View {
-    @State private var currentSection: Section = .posts
+    @Binding var currentSection: Section
+    @ObservedObject var viewModel: RestaurantViewModel
+    init(viewModel: RestaurantViewModel, currentSection: Binding<Section> = .constant(.posts)) {
+            self._currentSection = currentSection
+            self.viewModel = viewModel
+        }
 
     var body: some View {
+        //MARK: Selecting Images
         VStack{
             HStack(spacing: 0) {
                 Image(systemName: currentSection == .posts ? "square.grid.2x2.fill" : "square.grid.2x2")
@@ -74,8 +80,13 @@ struct RestaurantProfileSlideBarView: View {
         .padding()
         .background(Color.white)
         
+        
+        // MARK: Section Logic
         if currentSection == .map {
             MapRestaurantProfileView()
+        }
+        if currentSection == .posts {
+            PostGridView(viewModel: viewModel, userService: UserService())
         }
     }
 }
@@ -100,5 +111,5 @@ struct UnderlineImageModifier: ViewModifier {
 
 
 #Preview {
-    RestaurantProfileSlideBarView()
+    RestaurantProfileSlideBarView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }

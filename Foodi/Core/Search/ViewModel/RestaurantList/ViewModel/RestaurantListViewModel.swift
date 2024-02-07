@@ -26,6 +26,8 @@ class RestaurantListViewModel: ObservableObject {
             switch config {
             case .restaurants:
                 await fetchRestaurants()
+            case .upload:
+                await fetchRestaurants()
             }
         }
     }
@@ -64,7 +66,6 @@ class RestaurantListViewModel: ObservableObject {
             }
             
             print("DEBUG: Successfully fetched \(snapshot.documents.count) restaurants.")
-            print("DEBUG: Restaurants array after fetching: \(self.restaurants)")
             }
         }
         private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {

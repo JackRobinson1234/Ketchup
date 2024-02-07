@@ -27,16 +27,16 @@ struct ProfileHeaderView: View {
             
             // stats view
                 HStack(spacing: 16) {
-                    // DEBUG: When the navigation link is enabled, the user stats are not showing
-                    NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: viewModel.user.id))) {
-                        UserStatView(value: viewModel.user.stats.following, title: "Following")
+                    
+                    NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: user.id))) {
+                        UserStatView(value: user.stats.following, title: "Following")
                     }
-                    .disabled(viewModel.user.stats.following == 0)
-                    // DEBUG: When the navigation link is enabled, the user stats are not showing
-                    NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: viewModel.user.id))) {
-                        UserStatView(value: viewModel.user.stats.followers, title: "Followers")
+                    .disabled(user.stats.following == 0)
+                    
+                    NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: user.id))) {
+                        UserStatView(value: user.stats.followers, title: "Followers")
                     }
-                    .disabled(viewModel.user.stats.followers == 0)
+                    .disabled(user.stats.followers == 0)
                     
                     UserStatView(value: user.stats.likes, title: "Likes")
                 }
