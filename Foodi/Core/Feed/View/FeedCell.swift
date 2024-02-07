@@ -51,7 +51,7 @@ struct FeedCell: View {
                                         .multilineTextAlignment(.leading)
                                 }
                                 //address
-                                Text("\(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
+                                Text("📍 \(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
                                 
                                     NavigationLink(value: post.user) {
                                         Text("by \(post.user?.fullname ?? "")")

@@ -48,14 +48,11 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 1 }
                 .tag(1)
             
-            /*MediaSelectorView(tabIndex: $selectedTab, restaurant: DeveloperPreview.restaurants[0])
+            RestaurantSelectorView(tabIndex: $selectedTab)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
-                .tag(2)*/
-            RestaurantSelectorView()
-                .tabItem { Image(systemName: "star") }
-                .onAppear { selectedTab = 6 }
-                .tag(6)
+                .tag(2)
+            
             NotificationsView(userService: userService)
                 .tabItem {
                     VStack {

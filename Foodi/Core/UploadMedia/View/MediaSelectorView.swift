@@ -15,11 +15,11 @@ struct MediaSelectorView: View {
     @Binding var tabIndex: Int
     private let restaurant: Restaurant
     @Environment(\.dismiss) var dismiss
-    
+        
     init(tabIndex: Binding<Int>, restaurant: Restaurant) {
         self._tabIndex = tabIndex
         self.restaurant = restaurant
-        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService()))
+        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
     }
         var body: some View {
             
@@ -31,14 +31,22 @@ struct MediaSelectorView: View {
                             player.play()
                             print("VideoPlayer appeared")
                             viewModel.setMediaItemForUpload()
+                            
                         }
                         .onDisappear { player.pause()
-                            print("VideoPlayer disappeared")
-                        }
+                            print("VideoPlayer disappeared")}
                         .padding()
-                   
                 }
-            }
+                    else {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .frame(width: 44, height: 44)
+                            .padding()
+                    }
+                    
+                    
+                }
+            
             .onAppear {
                 if viewModel.selectedMediaForUpload == nil { showImagePicker.toggle() }
             }

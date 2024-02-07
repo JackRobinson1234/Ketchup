@@ -35,8 +35,13 @@ struct RestaurantCell: View {
             }
             .foregroundStyle(.black)
             
+            
             Spacer()
             
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.black)
+                .padding([.leading, .trailing])
+        
         }
     }
 }

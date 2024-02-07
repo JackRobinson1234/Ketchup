@@ -17,13 +17,12 @@ struct SelectedRestaurantView: View {
     var restaurant: Restaurant
     var body: some View {
         VStack  {
-            RestaurantCircularProfileImageView(size: .xLarge)
+            RestaurantCircularProfileImageView(restaurant: restaurant, size: .large)
             Text(restaurant.name)
-                .font(.title2)
+                .font(.title3)
                 .bold()
-            Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
             Text("\(restaurant.address ?? ""), \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                .font(.subheadline)
+                .font(.caption)
         }
     }
 }

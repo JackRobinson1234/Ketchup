@@ -21,9 +21,9 @@ struct UploadPostView: View {
     }
     var body: some View {
         VStack {
-            HStack(alignment: .top) {
-                TextField("Enter your caption..", text: $viewModel.caption, axis: .vertical)
-                    .font(.subheadline)
+            HStack() {
+                
+                SelectedRestaurantView(restaurant: restaurant)
                 
                 Spacer()
                 
@@ -31,10 +31,14 @@ struct UploadPostView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 88, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .frame(width: 100, height: 125)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
             }
+           
+            TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
+                .font(.subheadline)
+                .padding(.top, 60)
             
             Divider()
             
@@ -45,7 +49,6 @@ struct UploadPostView: View {
                     await viewModel.uploadPost()
                     tabIndex = 0
                     viewModel.reset()
-                    dismiss()
                 }
             } label: {
                 Text(viewModel.isLoading ? "" : "Post")
@@ -75,8 +78,8 @@ struct UploadPostView: View {
     }
 }
 
-#Preview {
+/*#Preview {
     UploadPostView(movie: Movie(url: URL(string: "")!),
-                   viewModel: UploadPostViewModel(service: UploadPostService()),
+                   viewModel: UploadPostViewModel(service: UploadPostService(restaurantId: restaurants.id[)),
                    tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
-}
+} */

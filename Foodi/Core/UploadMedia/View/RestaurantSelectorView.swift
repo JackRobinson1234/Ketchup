@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct RestaurantSelectorView: View {
+    @Binding var tabIndex: Int
+    init(tabIndex: Binding<Int>) {
+        self._tabIndex = tabIndex
+    }
     var body: some View {
         NavigationStack{
             ScrollView {
                 SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
             }
             .navigationDestination(for: Restaurant.self) { restaurant in
-                MediaSelectorView(tabIndex: .constant(0), restaurant: restaurant)}
+                MediaSelectorView(tabIndex: $tabIndex, restaurant: restaurant)}
             .navigationBarBackButtonHidden()
         }
     }
@@ -22,5 +26,5 @@ struct RestaurantSelectorView: View {
 
 
 #Preview {
-    RestaurantSelectorView()
+    RestaurantSelectorView(tabIndex: .constant(0))
 }
