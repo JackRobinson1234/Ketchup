@@ -22,9 +22,8 @@ struct MediaSelectorView: View {
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService()))
     }
         var body: some View {
-            //NavigationStack {
+            
             VStack {
-                Text("Hello")
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
                         .onAppear {
@@ -65,28 +64,13 @@ struct MediaSelectorView: View {
                         }
                     }
                 }
-            /*.toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Next") {
-                        viewModel.setMediaItemForUpload()
-                    }
-                    .disabled(viewModel.mediaPreview == nil)
-                    .font(.headline)
-                }
-            }*/
                 
             .navigationBarBackButtonHidden()
-            /*.navigationDestination(item: $viewModel.selectedMediaForUpload, destination: { movie in
-                UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)
-            }) */
+            
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             .toolbar(.hidden, for: .tabBar)
         }
     }
-//}
 
 #Preview {
     MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])

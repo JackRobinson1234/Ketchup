@@ -44,27 +44,34 @@ struct SearchView: View {
             if searchSlideBar {
                 SearchViewSlideBar(searchConfig: $searchConfig)
             }
+            
             switch searchConfig {
             case .posts:
                 PostListView(userService: userService, searchText: $searchText)
+                    .modifier(BackButtonModifier())
+                    .navigationBarBackButtonHidden()
                     
                 
             case .users(let userListConfig):
                 UserListView(config: userListConfig, userService: userService, searchText: $searchText)
+                    .modifier(BackButtonModifier())
+                    .navigationBarBackButtonHidden()
                     
                 
             case .restaurants(let restaurantListConfig):
                 if restaurantListConfig != .upload{
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
                         
                 }
                 else {
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        
                 }
             }
         }
-        .modifier(BackButtonModifier())
-        .navigationBarBackButtonHidden()
+        
     }
 }
 
