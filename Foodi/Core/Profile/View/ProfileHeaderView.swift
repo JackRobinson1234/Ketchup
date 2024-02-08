@@ -17,30 +17,33 @@ struct ProfileHeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            VStack(spacing: 8) {
-                UserCircularProfileImageView(user: user, size: .xLarge)
-                
-                Text("@\(user.username)")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-            }
-            
-            // stats view
-                HStack(spacing: 16) {
-                    
-                    NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: user.id))) {
-                        UserStatView(value: user.stats.following, title: "Following")
-                    }
-                    .disabled(user.stats.following == 0)
-                    
-                    NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: user.id))) {
-                        UserStatView(value: user.stats.followers, title: "Followers")
-                    }
-                    .disabled(user.stats.followers == 0)
-                    
-                    UserStatView(value: user.stats.likes, title: "Likes")
+            HStack{
+                VStack(spacing: 8) {
+                    UserCircularProfileImageView(user: user, size: .xLarge)
                 }
-            
+                
+                VStack(alignment: .leading ){
+                    Text("\(user.username)")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .padding(10)
+                        .padding(.leading)
+                    HStack(spacing: 16) {
+                        
+                        NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: user.id))) {
+                            UserStatView(value: user.stats.following, title: "Following")
+                        }
+                        .disabled(user.stats.following == 0)
+                        
+                        NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: user.id))) {
+                            UserStatView(value: user.stats.followers, title: "Followers")
+                        }
+                        .disabled(user.stats.followers == 0)
+                        
+                        UserStatView(value: user.stats.likes, title: "Likes")
+                    }
+                }
+            }
             if let bio = user.bio {
                 Text(bio)
                     .font(.subheadline)
@@ -66,7 +69,7 @@ struct ProfileHeaderView: View {
                         .fontWeight(.semibold)
                         .frame(width: 360, height: 32)
                         .foregroundStyle(user.isFollowed ? .black : .white)
-                        .background(user.isFollowed ? .white : .pink)
+                        .background(user.isFollowed ? .white : .blue)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                         .overlay {
                             RoundedRectangle(cornerRadius: 6)
@@ -110,7 +113,7 @@ struct UserStatView: View {
 
 #Preview {
     ProfileHeaderView(viewModel: ProfileViewModel(
-        user: DeveloperPreview.user,
+        user: DeveloperPreview.users[0],
         userService: UserService(),
         postService: PostService())
     )

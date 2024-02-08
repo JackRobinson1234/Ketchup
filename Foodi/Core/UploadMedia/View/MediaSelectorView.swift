@@ -23,6 +23,7 @@ struct MediaSelectorView: View {
     }
         var body: some View {
             VStack {
+                // If a movie is selected, creates a player for the user to preview the video
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
                         .onAppear {
@@ -36,6 +37,7 @@ struct MediaSelectorView: View {
                         }
                         .padding()
                 }
+                //loading bubble appears while the viewmodel loads the selected video
                 else {
                     if viewModel.isLoading {
                         ProgressView()
@@ -48,10 +50,12 @@ struct MediaSelectorView: View {
                     
                     
                 }
-            
+            // image chooser appears when the mediaselectorview is selected
             .onAppear {
                 if viewModel.selectedMediaForUpload == nil { showImagePicker.toggle() }
             }
+            
+            // back button clears the viewmodel if gone back
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -60,10 +64,11 @@ struct MediaSelectorView: View {
                         viewModel.reset()
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark")
+                        Image(systemName: "chevron.left")
                             .imageScale(.large)
                     }
                 }
+                // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
@@ -71,13 +76,15 @@ struct MediaSelectorView: View {
                         }
                     }
                 }
-                if let movie = viewModel.selectedMediaForUpload, !viewModel.isLoading {
+                // "Select Different Video Appears" if a video is selected
+                if let _ = viewModel.selectedMediaForUpload, !viewModel.isLoading {
                     ToolbarItem(placement: .bottomBar) {
                         Button("Select Different Video") {
                             viewModel.reset()
                             showImagePicker.toggle()
                         }
                     }
+                    // Select Video appears if no video is selected
                 } else {
                     ToolbarItem(placement: .bottomBar) {
                         Button("Select Video") {
@@ -89,7 +96,10 @@ struct MediaSelectorView: View {
             }
             .navigationBarBackButtonHidden()
             
+            // if showImagePicker is true, the photospicker appears
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
+            
+            
             .toolbar(.hidden, for: .tabBar)
         }
     }

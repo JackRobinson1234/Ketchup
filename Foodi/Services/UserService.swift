@@ -19,6 +19,7 @@ class UserService {
     }
     
     func fetchUser(withUid uid: String) async throws -> User {
+        print("DEBUG: Ran fetchUser()")
         return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
     }
 }
@@ -56,7 +57,7 @@ extension UserService {
     
     func checkIfUserIsFollowed(uid: String) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
-        
+        print("DEBUG: Ran checkIfUsersIsFollowed()")
         guard let snapshot = try? await FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
             .document(uid)

@@ -11,7 +11,8 @@ struct CurrentUserProfileView: View {
     private let user: User
     @StateObject var profileViewModel: ProfileViewModel
     private let userService: UserService
-    init(authService: AuthService, user: User, userService: UserService) {
+    @State var currentProfileSection: currentProfileSection
+    init(authService: AuthService, user: User, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
         self.authService = authService
         self.user = user
         
@@ -20,6 +21,7 @@ struct CurrentUserProfileView: View {
                                          postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
+        self._currentProfileSection = State(initialValue: currentProfileSection)
     }
     
     
@@ -29,7 +31,7 @@ struct CurrentUserProfileView: View {
                 VStack(spacing: 2) {
                     ProfileHeaderView(viewModel: profileViewModel)
                         .padding(.top)
-                    
+                    CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection)
                     PostGridView(viewModel: profileViewModel, userService: userService)
                     
                 }
