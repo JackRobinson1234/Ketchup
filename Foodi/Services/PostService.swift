@@ -16,10 +16,14 @@ class PostService {
     
     func fetchPost(postId: String) async throws -> Post {
         print("DEBUG: Ran fetchPost")
-        return try await FirestoreConstants
-            .PostsCollection
-            .document(postId)
-            .getDocument(as: Post.self)
+        let post = try await FirestoreConstants
+                .PostsCollection
+                .document(postId)
+                .getDocument(as: Post.self)
+
+            // Append the fetched post to the array
+            posts.append(post)
+        return post
     }
     
     func fetchUserPosts(user: User) async throws -> [Post] {
@@ -117,4 +121,24 @@ extension PostService {
         let snapshot = try await FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).getDocument()
         return snapshot.exists
     }
-}
+    
+    func fetchUserLikedPosts(user: User) async throws -> [Post] {        
+        print("DEBUG: Ran fetchUserLikedPost")
+        let querySnapshot = try await FirestoreConstants
+            .UserCollection
+            .document(user.id)
+            .collection("user-likes")
+            .getDocuments()
+        let postIds = querySnapshot.documents.map { $0.documentID }
+        
+        Task{for postId in postIds {
+            try await posts.append(fetchPost(postId: postId))}
+        }
+        print(posts)
+        return posts
+        
+        }
+        
+    }
+
+

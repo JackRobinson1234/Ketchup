@@ -85,4 +85,11 @@ extension ProfileViewModel {
             await fetchUserPosts()
         }
     }
+    func fetchUserLikedPosts() async {
+        do {
+            self.posts = try await postService.fetchUserLikedPosts(user: user)
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        }
+    }
 }

@@ -10,6 +10,7 @@ struct CurrentUserProfileView: View {
     private let authService: AuthService
     private let user: User
     @StateObject var profileViewModel: ProfileViewModel
+    @StateObject var likesViewModel: LikedVideosViewModel
     private let userService: UserService
     @State var currentProfileSection: currentProfileSection
     init(authService: AuthService, user: User, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
@@ -19,9 +20,14 @@ struct CurrentUserProfileView: View {
         let viewModel = ProfileViewModel(user: user,
                                          userService: UserService(),
                                          postService: PostService())
+        let likesViewModel = LikedVideosViewModel(user: user,
+                                                  userService: UserService(),
+                                                  postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: viewModel)
+        self._likesViewModel = StateObject(wrappedValue: likesViewModel)
         self.userService = userService
         self._currentProfileSection = State(initialValue: currentProfileSection)
+        
     }
     
     
@@ -31,8 +37,8 @@ struct CurrentUserProfileView: View {
                 VStack(spacing: 2) {
                     ProfileHeaderView(viewModel: profileViewModel)
                         .padding(.top)
-                    CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection)
-                    PostGridView(viewModel: profileViewModel, userService: userService)
+                    CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
+                    /*PostGridView(viewModel: profileViewModel, userService: userService) */
                     
                 }
             }
@@ -45,7 +51,7 @@ struct CurrentUserProfileView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .task { await profileViewModel.fetchUserPosts() }
+            
             .task { await profileViewModel.fetchUserStats() }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -58,6 +64,10 @@ struct CurrentUserProfileView: View {
         }
     }
 }
+
+
+
+
 
 #Preview {
     CurrentUserProfileView(authService: AuthService(),

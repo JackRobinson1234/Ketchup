@@ -16,21 +16,24 @@ enum currentProfileSection {
 struct CurrentProfileSlideBarView: View {
     @Binding var currentProfileSection: currentProfileSection
     @ObservedObject var viewModel: ProfileViewModel
+    @ObservedObject var likesViewModel: LikedVideosViewModel
     private let userService: UserService
-    init(viewModel: ProfileViewModel, userService: UserService, currentProfileSection: Binding<currentProfileSection>) {
-            self.userService = userService
-            self._currentProfileSection = currentProfileSection
-            self.viewModel = viewModel
+    
+    init(viewModel: ProfileViewModel, userService: UserService, currentProfileSection: Binding<currentProfileSection>, likesViewModel: LikedVideosViewModel) {
+        self.userService = userService
+        self._currentProfileSection = currentProfileSection
+        self.viewModel = viewModel
+        self.likesViewModel = likesViewModel
         }
 
     var body: some View {
-        //MARK: Selecting Images
+        //MARK: Images
         VStack{
             HStack(spacing: 0) {
                 Image(systemName: currentProfileSection == .posts ? "square.grid.2x2.fill" : "square.grid.2x2")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 20)
+                    .frame(width: 45, height: 15)
                 
                     .onTapGesture {
                         withAnimation {
@@ -39,11 +42,12 @@ struct CurrentProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentProfileSection == .posts))
                     .frame(maxWidth: .infinity)
+                    .task { await viewModel.fetchUserPosts() }
                 
                 Image(systemName: currentProfileSection == .likes ? "heart.fill" : "heart")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 25)
+                    .frame(width: 45, height: 20)
                 
                     .onTapGesture {
                         withAnimation {
@@ -52,11 +56,13 @@ struct CurrentProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentProfileSection == .likes))
                     .frame(maxWidth: .infinity)
+                    .task { await likesViewModel.fetchUserLikedPosts()}
+                    
                 
                 Image(systemName: currentProfileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 22)
+                    .frame(width: 45, height: 17)
                 
                     .onTapGesture {
                         withAnimation {
@@ -68,7 +74,7 @@ struct CurrentProfileSlideBarView: View {
                 Image(systemName: currentProfileSection == .messages ? "message.fill" : "message")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 20)
+                    .frame(width: 45, height: 20)
                 
                     .onTapGesture {
                         withAnimation {
@@ -80,16 +86,24 @@ struct CurrentProfileSlideBarView: View {
             }
         }
         .padding()
-        .background(Color.white)
-        
+        .padding(.bottom, 10)
         
         // MARK: Section Logic
         
+        if currentProfileSection == .posts {
+            PostGridView(viewModel: viewModel, userService: userService)
+        }
+                
+        if currentProfileSection == .likes {
+            PostGridView(viewModel: viewModel, userService: userService)
+                
+            }
+        }
     }
-}
+        
 
 
 
 #Preview {
-    CurrentProfileSlideBarView(viewModel: ProfileViewModel(user: DeveloperPreview.users[0], userService: UserService(), postService: PostService()), userService: UserService(), currentProfileSection: .constant(.posts))
+    CurrentProfileSlideBarView(viewModel: ProfileViewModel(user: DeveloperPreview.users[0], userService: UserService(), postService: PostService()), userService: UserService(), currentProfileSection: .constant(.posts), likesViewModel: LikedVideosViewModel(user: DeveloperPreview.users[0], userService: UserService(), postService: PostService()))
 }

@@ -25,6 +25,7 @@
 		F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */; };
 		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
 		F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29D2B6A590700144F01 /* MockAuthService.swift */; };
+		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -175,6 +176,7 @@
 		F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFormProtocol.swift; sourceTree = "<group>"; };
 		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F84FE29D2B6A590700144F01 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
+		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -311,6 +313,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F823E1852B74D3BF00E18135 /* CurrentUserProfile */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = CurrentUserProfile;
+			sourceTree = "<group>";
+		};
+		F823E1862B74D3D100E18135 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		F84FE23F2B6A531200144F01 = {
 			isa = PBXGroup;
 			children = (
@@ -718,6 +735,7 @@
 			isa = PBXGroup;
 			children = (
 				F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */,
+				F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -725,9 +743,10 @@
 		F88E0AB02B6B041900EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
-				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
+				F823E1862B74D3D100E18135 /* Profile */,
+				F823E1852B74D3BF00E18135 /* CurrentUserProfile */,
+				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
 				F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */,
 			);
 			path = View;
@@ -1149,6 +1168,7 @@
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */,
 				F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */,
+				F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */,
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,
 				F88E0B2C2B6CA05300EC159B /* CollapsableDestination.swift in Sources */,
 				F88E0AF42B6B088D00EC159B /* RestaurantListConfig.swift in Sources */,
