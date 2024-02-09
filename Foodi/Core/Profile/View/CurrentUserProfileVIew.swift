@@ -38,7 +38,7 @@ struct CurrentUserProfileView: View {
                     ProfileHeaderView(viewModel: profileViewModel)
                         .padding(.top)
                     CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
-                    /*PostGridView(viewModel: profileViewModel, userService: userService) */
+                    
                     
                 }
             }

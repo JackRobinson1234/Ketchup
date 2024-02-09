@@ -20,9 +20,7 @@ class PostService {
                 .PostsCollection
                 .document(postId)
                 .getDocument(as: Post.self)
-
-            // Append the fetched post to the array
-            posts.append(post)
+        self.posts.append(post)
         return post
     }
     
@@ -130,14 +128,34 @@ extension PostService {
             .collection("user-likes")
             .getDocuments()
         let postIds = querySnapshot.documents.map { $0.documentID }
-        
-        Task{for postId in postIds {
-            try await posts.append(fetchPost(postId: postId))}
+        print(postIds)
+        /*Task{for postId in postIds {
+            try await self.posts.append(fetchPost(postId: postId))}
+        } */
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for postId in postIds {
+                group.addTask { try await self.fetchPostData(postId: postId)}
+            }
         }
-        print(posts)
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for post in posts {
+                group.addTask { try await self.fetchPostUserData(post) }
+                group.addTask { try await self.fetchPostRestaurantData(post)}
+            }
+        }
+       
         return posts
         
         }
+    func fetchPostData(postId: String) async throws {
+        print("DEBUG: Ran fetchPost")
+        let post = try await FirestoreConstants
+                .PostsCollection
+                .document(postId)
+                .getDocument(as: Post.self)
+        self.posts.append(post)
+        
+    }
         
     }
 
