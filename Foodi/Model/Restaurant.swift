@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import MapKit
 
 struct Restaurant: Identifiable, Codable, Hashable {
     let id: String
@@ -39,7 +40,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
     }
     
-    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, latitude: Double? = 0.0, longitude: Double? = 0.0, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
+    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, latitude: Double? = nil, longitude: Double? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
             self.id = id
             self.cuisine = cuisine
             self.price = price
@@ -52,5 +53,11 @@ struct Restaurant: Identifiable, Codable, Hashable {
             self.imageURLs = imageURLs
             self.profileImageUrl = profileImageUrl
             self.bio = bio
+        }
+    var coordinates: CLLocationCoordinate2D? {
+            if let latitude = latitude, let longitude = longitude {
+                return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            }
+            return nil
         }
 }

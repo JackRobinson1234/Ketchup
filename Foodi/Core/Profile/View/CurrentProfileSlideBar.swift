@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 enum currentProfileSection {
-    case posts, likes, collections, messages
+    case posts, likes, messages //collections
 }
 
 struct CurrentProfileSlideBarView: View {
@@ -59,7 +59,7 @@ struct CurrentProfileSlideBarView: View {
                     .task { await likesViewModel.fetchUserLikedPosts()}
                     
                 
-                Image(systemName: currentProfileSection == .collections ? "folder.fill" : "folder")
+               /* Image(systemName: currentProfileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 17)
@@ -71,6 +71,7 @@ struct CurrentProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentProfileSection == .collections))
                     .frame(maxWidth: .infinity)
+                */
                 Image(systemName: currentProfileSection == .messages ? "message.fill" : "message")
                     .resizable()
                     .aspectRatio(contentMode: .fit)

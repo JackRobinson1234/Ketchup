@@ -26,6 +26,8 @@
 		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
 		F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29D2B6A590700144F01 /* MockAuthService.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
+		F871AFEC2B78300300E4EB5F /* RestaurantMapCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEB2B78300300E4EB5F /* RestaurantMapCell.swift */; };
+		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -177,6 +179,8 @@
 		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F84FE29D2B6A590700144F01 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
+		F871AFEB2B78300300E4EB5F /* RestaurantMapCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantMapCell.swift; sourceTree = "<group>"; };
+		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -525,7 +529,10 @@
 		F84FE2872B6A553000144F01 /* Map */ = {
 			isa = PBXGroup;
 			children = (
+				F871AFEE2B7832A500E4EB5F /* ViewModel */,
+				F871AFED2B7832A000E4EB5F /* View */,
 				F88E0A972B6B02A300EC159B /* MapView.swift */,
+				F871AFEB2B78300300E4EB5F /* RestaurantMapCell.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -635,6 +642,21 @@
 				F84FE2942B6A55F800144F01 /* AuthError.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		F871AFED2B7832A000E4EB5F /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F871AFEE2B7832A500E4EB5F /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F88E0A332B6A5D5D00EC159B /* ViewModel */ = {
@@ -1152,6 +1174,7 @@
 				F88E0AE82B6B07F900EC159B /* UserListConfig.swift in Sources */,
 				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
+				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F88E0AFF2B6B095A00EC159B /* PostListView.swift in Sources */,
@@ -1224,6 +1247,7 @@
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */,
+				F871AFEC2B78300300E4EB5F /* RestaurantMapCell.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListVIew.swift in Sources */,
