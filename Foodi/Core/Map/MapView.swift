@@ -10,20 +10,21 @@ import MapKit
 
 struct MapView: View {
     @ObservedObject var viewModel: MapViewModel
-        /*private var restaurant: Restaurant {
-            return viewModel.restaurant
-        } */
     @State var position: MapCameraPosition
     private var restaurants = DeveloperPreview.restaurants
+    @State private var selectedRestaurant: Restaurant?
+    @State private var showDetails = false
+    @State private var showRestaurantPreview = false
     
     
     init() {
         self.viewModel = MapViewModel(restaurantService: RestaurantService(), postService: PostService())
-            self._position = State(initialValue: .userLocation(fallback: .automatic))
+        self._position = State(initialValue: .userLocation(fallback: .automatic))
+        self.restaurants = DeveloperPreview.restaurants //  change this to grab from viewmodel
         }
     
     var body: some View {
-        Map(position: $position) {
+        Map(position: $position, selection: $selectedRestaurant) {
             
             ForEach(restaurants, id: \.self) { restaurant in
                 if let coordinates = restaurant.coordinates {
@@ -33,11 +34,22 @@ struct MapView: View {
                 }
             }
     }
-            
+        .onChange(of: selectedRestaurant, { oldValue, newValue in
+            showRestaurantPreview = newValue != nil
+            print($selectedRestaurant)
+        })
         .mapStyle(.standard(elevation: .realistic))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .ignoresSafeArea()
-    
+        .fullScreenCover(isPresented: $showDetails, onDismiss: clearSelectedListing) {
+            if let selectedRestaurant {
+                RestaurantProfileView(restaurant: selectedRestaurant)
+            }
+        }
+       
+        }
+    func clearSelectedListing() {
+        selectedRestaurant = nil
         }
     }
 
