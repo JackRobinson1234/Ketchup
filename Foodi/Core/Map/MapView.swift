@@ -46,6 +46,16 @@ struct MapView: View {
                 RestaurantProfileView(restaurant: selectedRestaurant)
             }
         }
+        
+        if showRestaurantPreview, let restaurant = selectedRestaurant {
+            withAnimation(.snappy) {
+                MapRestaurantView(restaurant: restaurant)
+                    .onTapGesture {
+                        showRestaurantPreview.toggle()
+                        showDetails.toggle()
+                    }
+            }
+        }
        
         }
     func clearSelectedListing() {
