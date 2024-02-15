@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MapRestaurantView: View {
     let restaurant: Restaurant
@@ -15,13 +16,13 @@ struct MapRestaurantView: View {
             ZStack(alignment: .topTrailing) {
                 if let images = restaurant.imageURLs {
                     TabView {
-                        ForEach(images, id: \.self) { imageUrl in
-                            Image(imageUrl)
+                        ForEach(images, id: \.self) { image in
+                            KFImage(URL(string: image))
                                 .resizable()
                                 .scaledToFill()
                                 .clipShape(Rectangle())
                         }
-                    }
+                        }
                     .frame(height: 200)
                     .tabViewStyle(.page)
                 }

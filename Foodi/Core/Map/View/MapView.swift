@@ -19,11 +19,11 @@ struct MapView: View {
     init() {
         self.viewModel = MapViewModel(restaurantService: RestaurantService())
         self._position = State(initialValue: .userLocation(fallback: .automatic))
-        
         }
     
     var restaurants: [Restaurant] {
-        return /*searchText.isEmpty ?*/ viewModel.restaurants /*: viewModel.filteredRestaurants(searchText) */
+        Task {await viewModel.fetchRestaurants()}
+        return  viewModel.restaurants
     }
     var body: some View {
         NavigationStack{
@@ -44,11 +44,6 @@ struct MapView: View {
             .mapStyle(.standard(elevation: .realistic))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .ignoresSafeArea()
-            /*.fullScreenCover(isPresented: $showDetails, onDismiss: clearSelectedListing) {
-                if let selectedRestaurant {
-                    RestaurantProfileView(restaurant: selectedRestaurant)
-                }
-            } */
             
             if showRestaurantPreview, let restaurant = selectedRestaurant {
                 withAnimation(.snappy) {
