@@ -18,13 +18,7 @@ struct MapRestaurantProfileView: View {
     
     init(viewModel: RestaurantViewModel) {
         self.viewModel = viewModel
-        guard let latitude = restaurant.latitude else {
-            print("DEBUG: No Longitude")
-            return}
-        guard let longitude = restaurant.longitude else {
-            print("DEBUG: No Longitude")
-            return}
-        self.coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        self.coordinates = restaurant.coordinates
     }
     
     var body: some View {

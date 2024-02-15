@@ -27,31 +27,33 @@ struct MapView: View {
     }
     var body: some View {
         NavigationStack{
-            Map(position: $position, selection: $selectedRestaurant) {
-                
-                ForEach(restaurants, id: \.self) { restaurant in
-                    if let coordinates = restaurant.coordinates {
-                        Annotation(restaurant.name, coordinate: coordinates) {
-                            RestaurantCircularProfileImageView(restaurant: restaurant,color: .blue, size: .medium)
+            ZStack(alignment: .bottom) {
+                Map(position: $position, selection: $selectedRestaurant) {
+                    
+                    ForEach(restaurants, id: \.self) { restaurant in
+                        if let coordinates = restaurant.coordinates {
+                            Annotation(restaurant.name, coordinate: coordinates) {
+                                RestaurantCircularProfileImageView(restaurant: restaurant,color: .blue, size: .medium)
+                            }
                         }
                     }
                 }
-            }
-            .onChange(of: selectedRestaurant, { oldValue, newValue in
-                showRestaurantPreview = newValue != nil
-                print($selectedRestaurant)
-            })
-            .mapStyle(.standard(elevation: .realistic))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .ignoresSafeArea()
-            
-            if showRestaurantPreview, let restaurant = selectedRestaurant {
-                withAnimation(.snappy) {
-                    MapRestaurantView(restaurant: restaurant)
-                        .onTapGesture {
-                            showRestaurantPreview.toggle()
-                            showDetails.toggle()
-                        }
+                .onChange(of: selectedRestaurant, { oldValue, newValue in
+                    showRestaurantPreview = newValue != nil
+                    print($selectedRestaurant)
+                })
+                .mapStyle(.standard(elevation: .realistic))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .ignoresSafeArea()
+                
+                if showRestaurantPreview, let restaurant = selectedRestaurant {
+                    withAnimation(.snappy) {
+                        MapRestaurantView(restaurant: restaurant)
+                            .onTapGesture {
+                                showRestaurantPreview.toggle()
+                                showDetails.toggle()
+                            }
+                    }
                 }
             }
         }
