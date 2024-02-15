@@ -80,8 +80,8 @@ struct FeedCell: View {
                                 Text("Price: \(post.restaurant?.price ?? "")")
                                 
                                 //Menu Button
-                                if post.restaurant != nil {
-                                    NavigationLink(destination: RestaurantProfileView(restaurant: post.restaurant!, currentSection: .menu)) {
+                                if let restaurant = post.restaurant {
+                                    NavigationLink(destination: RestaurantProfileView(restaurant: restaurant, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))

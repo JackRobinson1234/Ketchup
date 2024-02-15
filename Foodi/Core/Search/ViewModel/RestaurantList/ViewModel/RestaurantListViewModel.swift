@@ -5,6 +5,8 @@
 //  Created by Jack Robinson on 2/1/24.
 //
 
+// Restaurant Map also grabs from this
+
 import Foundation
 import Firebase
 

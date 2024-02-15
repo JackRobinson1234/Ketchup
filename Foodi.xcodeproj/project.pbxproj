@@ -531,7 +531,6 @@
 			children = (
 				F871AFEE2B7832A500E4EB5F /* ViewModel */,
 				F871AFED2B7832A000E4EB5F /* View */,
-				F88E0A972B6B02A300EC159B /* MapView.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -646,6 +645,7 @@
 		F871AFED2B7832A000E4EB5F /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0A972B6B02A300EC159B /* MapView.swift */,
 				F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */,
 			);
 			path = View;
