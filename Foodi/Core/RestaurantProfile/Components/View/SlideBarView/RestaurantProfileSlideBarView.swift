@@ -84,6 +84,7 @@ struct RestaurantProfileSlideBarView: View {
         // MARK: Section Logic
         if currentSection == .map {
             MapRestaurantProfileView(viewModel: viewModel)
+                
         }
         if currentSection == .posts {
             PostGridView(viewModel: viewModel, userService: UserService())

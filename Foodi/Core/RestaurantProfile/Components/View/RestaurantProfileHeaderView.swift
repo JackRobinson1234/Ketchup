@@ -66,8 +66,9 @@ struct RestaurantProfileHeaderView: View {
                 }
             }
             RestaurantProfileSlideBarView(viewModel: viewModel, currentSection: $currentSection)
-            
         }
+        .padding(.bottom, 100)
+        
         .ignoresSafeArea()
     }
 }

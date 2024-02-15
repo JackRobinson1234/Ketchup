@@ -9,20 +9,21 @@ import SwiftUI
 import MapKit
 
 struct MapView: View {
-    @ObservedObject var viewModel: MapViewModel
+    @StateObject var viewModel: MapViewModel
     @State var position: MapCameraPosition
     @State private var selectedRestaurant: Restaurant?
     @State private var showDetails = false
     @State private var showRestaurantPreview = false
+    @State private var fetchedData = false
     
     
     init() {
-        self.viewModel = MapViewModel(restaurantService: RestaurantService())
+        self._viewModel = StateObject(wrappedValue: MapViewModel(restaurantService: RestaurantService()))
         self._position = State(initialValue: .userLocation(fallback: .automatic))
         }
     
     var restaurants: [Restaurant] {
-        Task {await viewModel.fetchRestaurants()}
+        Task {await viewModel.fetchRestaurants() }
         return  viewModel.restaurants
     }
     var body: some View {
