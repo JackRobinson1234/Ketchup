@@ -35,7 +35,7 @@ struct CurrentUserProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 2) {
-                    FavoriteRestaurantsView(user: user)
+                    
                     ProfileHeaderView(viewModel: profileViewModel)
                         .padding(.top)
                     CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)

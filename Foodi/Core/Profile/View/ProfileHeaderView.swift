@@ -52,6 +52,7 @@ struct ProfileHeaderView: View {
                 }
                 Spacer()
             }
+            FavoriteRestaurantsView(user: user)
             // action button view
             if user.isCurrentUser {
                 Button {
