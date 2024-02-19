@@ -54,6 +54,7 @@ struct EditProfileView: View {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
                     EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
+                    FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .editProfile)
                 }
                 
                 Spacer()

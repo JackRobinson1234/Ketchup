@@ -52,7 +52,8 @@ struct ProfileHeaderView: View {
                 }
                 Spacer()
             }
-            FavoriteRestaurantsView(user: user)
+            
+            FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .profileView)
             // action button view
             if user.isCurrentUser {
                 Button {
@@ -86,7 +87,6 @@ struct ProfileHeaderView: View {
             
             Divider()
         }
-        
         .fullScreenCover(isPresented: $showEditProfile) {
             EditProfileView(user: $viewModel.user)
         }

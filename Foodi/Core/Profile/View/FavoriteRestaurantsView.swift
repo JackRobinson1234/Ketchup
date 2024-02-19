@@ -7,44 +7,66 @@
 
 import SwiftUI
 
+enum favoriteRestaurantViewEnum {
+    case editProfile
+    case profileView
+}
+
 struct FavoriteRestaurantsView: View {
     let user: User
+    let favoriteRestaurantViewEnum: favoriteRestaurantViewEnum
     
     var body: some View {
-        VStack{
-            HStack{
-                Text("Favorites")
-                    .font(.caption)
-            }
-            HStack(alignment: .top, spacing: 10){
+            HStack(alignment: .top, spacing: 8){
                 Spacer()
                 if let favorites = user.favorites {
                     ForEach(favorites) { favoriteRestaurant in
-                        VStack {
-                            ZStack(alignment: .bottom) {
-                                if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
-                                    RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
+                        HStack{
+                            NavigationLink(destination: RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])) {
+                                VStack {
+                                    ZStack(alignment: .bottom) {
+                                        if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                            RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
+                                        }
+                                    }
+                                    Text(favoriteRestaurant.name)
+                                        .font(.caption)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
                                 }
                             }
-                            Text(favoriteRestaurant.name)
-                                .font(.caption)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
+                        }
+                    }
+                
+                        Spacer()
+                    }
+                    
+                
+                ForEach(0..<(4 - (user.favorites?.count ?? 0)), id: \.self) { _ in
+                    if user.isCurrentUser {
+                        ZStack(alignment: .bottom) {
+                            RestaurantCircularProfileImageView( size: .medium)
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(.pink)
+                                .offset(y: 8)
                         }
                         Spacer()
+                        
                     }
-                    ForEach(0..<(4 - favorites.count), id: \.self) { _ in RestaurantCircularProfileImageView( size: .medium)
+            
+                     else {
+                        RestaurantCircularProfileImageView( size: .medium)
                         Spacer()
                     }
+                        
                 }
             }
-            .padding(.horizontal)
+        .padding(.horizontal)
         }
-        
     }
-}
+
 
 
 #Preview {
-    FavoriteRestaurantsView(user: DeveloperPreview.user)
+    FavoriteRestaurantsView(user: DeveloperPreview.user, favoriteRestaurantViewEnum: .profileView)
 }
