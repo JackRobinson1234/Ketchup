@@ -31,14 +31,21 @@ enum ProfileImageSize {
 struct UserCircularProfileImageView: View {
     var user: User?
     let size: ProfileImageSize
+    var color: Color? = nil
     
     var body: some View {
         if let imageUrl = user?.profileImageUrl {
-            KFImage(URL(string: imageUrl))
-                .resizable()
-                .scaledToFill()
-                .frame(width: size.dimension, height: size.dimension)
-                .clipShape(Circle())
+            ZStack{
+                if let color = color{
+                    Circle()
+                        .fill(color)
+                    .frame(width: size.dimension + 4, height: size.dimension + 4)}
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size.dimension, height: size.dimension)
+                    .clipShape(Circle())
+            }
         } else {
             Image(systemName: "person.circle.fill")
                 .resizable()

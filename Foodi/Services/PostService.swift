@@ -122,41 +122,44 @@ extension PostService {
     
     func fetchUserLikedPosts(user: User) async throws -> [Post] {        
         print("DEBUG: Ran fetchUserLikedPost")
+        // Gets a snapshot of liked postIds
         let querySnapshot = try await FirestoreConstants
             .UserCollection
             .document(user.id)
             .collection("user-likes")
             .getDocuments()
         let postIds = querySnapshot.documents.map { $0.documentID }
-        print(postIds)
-        /*Task{for postId in postIds {
-            try await self.posts.append(fetchPost(postId: postId))}
-        } */
+        
+        // fetches the posts fromt the PostIds
         await withThrowingTaskGroup(of: Void.self) { group in
             for postId in postIds {
-                group.addTask { try await self.fetchPostData(postId: postId)}
+                group.addTask { try await self.fetchLikedPostData(postId: postId, userId: user.id)}
             }
         }
+        //Fetches the Restaurant data for each of the posts
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
-                group.addTask { try await self.fetchPostUserData(post) }
                 group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
        
         return posts
-        
         }
-    func fetchPostData(postId: String) async throws {
+    
+    func fetchLikedPostData(postId: String, userId: String) async throws {
         print("DEBUG: Ran fetchPost")
+        // fetches the posts given a postID
         let post = try await FirestoreConstants
                 .PostsCollection
                 .document(postId)
                 .getDocument(as: Post.self)
-        self.posts.append(post)
         
+        // doesnt show posts that arent the users
+        if post.ownerUid != userId {
+            self.posts.append(post)
+        }
     }
         
-    }
+}
 
 

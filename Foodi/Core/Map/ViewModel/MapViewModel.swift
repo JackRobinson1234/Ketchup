@@ -23,9 +23,6 @@ class MapViewModel: ObservableObject {
     }
     
     
-    
-    
-    
     func fetchRestaurants() async {
         let query = FirestoreConstants.RestaurantCollection.limit(to: 20)
         

@@ -124,15 +124,7 @@ struct FeedCell: View {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
                             }
                             // Bookmark button
-                            Button {
-                                
-                            } label: {
-                                FeedCellActionButtonView(imageName: "bookmark.fill",
-                                                         value: post.saveCount,
-                                                         height: 28,
-                                                         width: 22,
-                                                         tintColor: .white)
-                            }
+                            
                             //share button
                             Button {
                                 

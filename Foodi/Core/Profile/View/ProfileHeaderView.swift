@@ -40,13 +40,17 @@ struct ProfileHeaderView: View {
                         }
                         .disabled(user.stats.followers == 0)
                         
-                        UserStatView(value: user.stats.likes, title: "Likes")
+                        UserStatView(value: user.stats.likes, title: "Saves")
                     }
                 }
             }
-            if let bio = user.bio {
-                Text(bio)
-                    .font(.subheadline)
+            HStack{
+                if let bio = user.bio {
+                    Text(bio)
+                        .font(.subheadline)
+                        .padding(.horizontal,20)
+                }
+                Spacer()
             }
             // action button view
             if user.isCurrentUser {
