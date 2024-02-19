@@ -17,7 +17,7 @@ struct SelectedRestaurantView: View {
     var restaurant: Restaurant
     var body: some View {
         VStack  {
-            RestaurantCircularProfileImageView(restaurant: restaurant, size: .large)
+            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
             Text(restaurant.name)
                 .font(.title3)
                 .bold()

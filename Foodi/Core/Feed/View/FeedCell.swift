@@ -40,7 +40,7 @@ struct FeedCell: View {
                             HStack{
                                 // restaurant profile image
                                 NavigationLink(value: post.restaurant) {
-                                    RestaurantCircularProfileImageView(restaurant: post.restaurant, size: .large)
+                                    RestaurantCircularProfileImageView(imageUrl: post.restaurant?.profileImageUrl, size: .large)
                                 }
                                 //restaurant name
                                 VStack (alignment: .leading) {

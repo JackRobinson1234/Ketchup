@@ -34,7 +34,7 @@ struct MapView: View {
                     ForEach(restaurants, id: \.self) { restaurant in
                         if let coordinates = restaurant.coordinates {
                             Annotation(restaurant.name, coordinate: coordinates) {
-                                RestaurantCircularProfileImageView(restaurant: restaurant,color: .blue, size: .medium)
+                                RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                             }
                         }
                     }

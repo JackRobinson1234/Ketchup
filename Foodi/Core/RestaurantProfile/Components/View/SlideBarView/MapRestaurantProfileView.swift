@@ -25,7 +25,7 @@ struct MapRestaurantProfileView: View {
         if let coordinates {
             Map(initialPosition: .region(MKCoordinateRegion(center: coordinates, span: (MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015))))){
                     Annotation(restaurant.name, coordinate: coordinates) {
-                        RestaurantCircularProfileImageView(restaurant: restaurant, size: .medium)
+                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
                     }
             }
             .mapStyle(.standard(elevation: .realistic))

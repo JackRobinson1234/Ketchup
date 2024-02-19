@@ -29,6 +29,7 @@
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
 		F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */; };
 		F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */; };
+		F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -183,6 +184,7 @@
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapRestaurantView.swift; sourceTree = "<group>"; };
 		F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSlideBar.swift; sourceTree = "<group>"; };
+		F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRestaurantsView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -322,6 +324,8 @@
 		F823E1852B74D3BF00E18135 /* CurrentUserProfile */ = {
 			isa = PBXGroup;
 			children = (
+				F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */,
+				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
 			);
 			path = CurrentUserProfile;
 			sourceTree = "<group>";
@@ -768,11 +772,10 @@
 		F88E0AB02B6B041900EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */,
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F823E1862B74D3D100E18135 /* Profile */,
 				F823E1852B74D3BF00E18135 /* CurrentUserProfile */,
-				F88E0AB92B6B04B600EC159B /* CurrentUserProfileVIew.swift */,
-				F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1188,6 +1191,7 @@
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
 				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
+				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
 				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
 				F88E0B0D2B6B0A5400EC159B /* UploadPostView.swift in Sources */,
 				F88E0B2A2B6CA03900EC159B /* FirestoreConstants.swift in Sources */,
