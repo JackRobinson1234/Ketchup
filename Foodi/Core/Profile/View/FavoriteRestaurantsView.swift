@@ -15,33 +15,57 @@ enum favoriteRestaurantViewEnum {
 struct FavoriteRestaurantsView: View {
     let user: User
     let favoriteRestaurantViewEnum: favoriteRestaurantViewEnum
+    let restaurantService: RestaurantService = RestaurantService()
+    @State private var fetchedRestaurant: Restaurant?
+    @State private var isDetailViewActive = false
+    let favorites: [FavoriteRestaurant]?
     
     var body: some View {
+        switch favoriteRestaurantViewEnum{
+        case .profileView:
             HStack(alignment: .top, spacing: 8){
                 Spacer()
-                if let favorites = user.favorites {
+                if let favorites {
                     ForEach(favorites) { favoriteRestaurant in
                         HStack{
-                            NavigationLink(destination: RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])) {
-                                VStack {
-                                    ZStack(alignment: .bottom) {
-                                        if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
-                                            RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
-                                        }
+                            /*Button{
+                             Task {
+                             do {
+                             let fetchedRestaurant = try await restaurantService.fetchRestaurant(withId: favoriteRestaurant.id)
+                             print("first: \(fetchedRestaurant)")
+                             isDetailViewActive = true
+                             print("second \(isDetailViewActive)")
+                             } catch {
+                             // Handle error if needed
+                             print("Error fetching restaurant: \(error.localizedDescription)")
+                             }
+                             }
+                             
+                             } label: { */
+                            VStack {
+                                ZStack(alignment: .bottom) {
+                                    if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                        RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
                                     }
-                                    Text(favoriteRestaurant.name)
-                                        .font(.caption)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2)
                                 }
+                                Text(favoriteRestaurant.name)
+                                    .font(.caption)
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
                             }
+                            /*}
+                             .sheet(isPresented: $isDetailViewActive) {
+                             if let unwrappedRestaurant = fetchedRestaurant{
+                             RestaurantProfileView(restaurant: unwrappedRestaurant)
+                             }
+                             }*/
                         }
-                    }
-                
+                        
+                        
                         Spacer()
                     }
-                    
-                
+                }
+                /*
                 ForEach(0..<(4 - (user.favorites?.count ?? 0)), id: \.self) { _ in
                     if user.isCurrentUser {
                         ZStack(alignment: .bottom) {
@@ -53,20 +77,73 @@ struct FavoriteRestaurantsView: View {
                         Spacer()
                         
                     }
-            
-                     else {
+                    
+                    else {
                         RestaurantCircularProfileImageView( size: .medium)
                         Spacer()
                     }
-                        
+                    
+                }
+                 */
+            }
+            .padding(.horizontal)
+            
+            
+            
+        case .editProfile:
+            HStack(alignment: .top, spacing: 8){
+                Spacer()
+                if let favorites {
+                    ForEach(favorites) { favoriteRestaurant in
+                        VStack{
+                            Text("Edit")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                            HStack{
+                                VStack {
+                                    ZStack(alignment: .bottom) {
+                                        if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                            RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
+                                        }
+                                    }
+                                    Text(favoriteRestaurant.name)
+                                        .font(.caption)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
+                                }
+                                
+                            }
+                        }
+                        Spacer()
+                    }
                 }
             }
-        .padding(.horizontal)
         }
     }
+}
+                /*ForEach(0..<(4 - (user.favorites?.count ?? 0)), id: \.self) { _ in
+                    VStack{
+                        RestaurantCircularProfileImageView(size: .medium)
+                        Text("Select")
+                            .font(.caption)
+                            
+                        
+                    }
+                        Spacer()
+                    
+                }
+            }
+            .padding(.horizontal)
+            }
+        }
+    }
+                 */
+
+                
+                
 
 
 
 #Preview {
-    FavoriteRestaurantsView(user: DeveloperPreview.user, favoriteRestaurantViewEnum: .profileView)
+    FavoriteRestaurantsView(user: DeveloperPreview.user, favoriteRestaurantViewEnum: .editProfile, favorites: DeveloperPreview.user.favorites)
 }

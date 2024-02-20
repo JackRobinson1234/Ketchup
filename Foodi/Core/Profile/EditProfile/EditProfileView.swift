@@ -14,11 +14,13 @@ struct EditProfileView: View {
     @StateObject private var viewModel: EditProfileViewModel
     @Binding var user: User
     @Environment(\.dismiss) var dismiss
+    @State var favoritesPreview: [FavoriteRestaurant]
     
     init(user: Binding<User>) {
         self._user = user
         self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user.wrappedValue))
         self._username = State(initialValue: _user.wrappedValue.username)
+        self._favoritesPreview = State(initialValue: _user.wrappedValue.favorites)
     }
     
     var body: some View {
@@ -54,7 +56,7 @@ struct EditProfileView: View {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
                     EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
-                    FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .editProfile)
+                    FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .editProfile, favorites: favoritesPreview)
                 }
                 
                 Spacer()

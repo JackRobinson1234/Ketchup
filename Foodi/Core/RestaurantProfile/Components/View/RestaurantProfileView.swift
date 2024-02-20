@@ -13,9 +13,6 @@ struct RestaurantProfileView: View {
     @StateObject var viewModel: RestaurantViewModel
     private let restaurantService = RestaurantService()
     
-    private var restaurant: Restaurant {
-        return viewModel.restaurant
-    }
     
     init(restaurant: Restaurant, currentSection: Section = .posts) {
         let restaurantViewModel = RestaurantViewModel(restaurant: restaurant,

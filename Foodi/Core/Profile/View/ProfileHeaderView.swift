@@ -53,7 +53,7 @@ struct ProfileHeaderView: View {
                 Spacer()
             }
             
-            FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .profileView)
+            FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .profileView, favorites: user.favorites)
             // action button view
             if user.isCurrentUser {
                 Button {
