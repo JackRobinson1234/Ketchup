@@ -18,8 +18,12 @@ class EditProfileViewModel: ObservableObject {
         didSet { Task { await loadImage(fromItem: selectedImage) } }
     }
     @Published var profileImage: Image?
+    @Published var favoritesPreview: [FavoriteRestaurant] {
+        didSet {
+                    print("Favorites Preview Changed: \(favoritesPreview)")
+                }
+    }
     
-    @Published var favoritesPreview: [FavoriteRestaurant]
     private var uiImage: UIImage?
     var fullname = ""
     var bio = ""

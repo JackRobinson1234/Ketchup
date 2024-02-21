@@ -11,7 +11,7 @@ import PhotosUI
 
 struct EditProfileView: View {
     @State private var username = ""
-    @StateObject private var viewModel: EditProfileViewModel
+    @StateObject private var editProfileViewModel: EditProfileViewModel
     @Binding var user: User
     @Environment(\.dismiss) var dismiss
     //@State var favoritesPreview: [FavoriteRestaurant]
@@ -20,7 +20,7 @@ struct EditProfileView: View {
         self._user = user
         self._username = State(initialValue: _user.wrappedValue.username)
         //self._favoritesPreview = State(initialValue: _user.wrappedValue.favorites)
-        self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user.wrappedValue))
+        self._editProfileViewModel = StateObject(wrappedValue: EditProfileViewModel(user: user.wrappedValue))
     }
     
     var body: some View {
@@ -29,9 +29,9 @@ struct EditProfileView: View {
                 VStack(spacing: 8) {
                     Divider()
                     
-                    PhotosPicker(selection: $viewModel.selectedImage) {
+                    PhotosPicker(selection: $editProfileViewModel.selectedImage) {
                             VStack {
-                                if let image = viewModel.profileImage {
+                                if let image = editProfileViewModel.profileImage {
                                     image
                                         .resizable()
                                         .scaledToFill()
@@ -53,10 +53,10 @@ struct EditProfileView: View {
                 .padding(.bottom, 4)
                 
                 VStack {
-                    EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
-                    EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
-                    EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
-                    editFavoritesView(user: user, favoritesPreview: $favoritesPreview)
+                    EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $editProfileViewModel.username)
+                    EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $editProfileViewModel.fullname)
+                    EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $editProfileViewModel.bio)
+                    editFavoritesView(user: user, editProfileViewModel: editProfileViewModel)
                 }
                 
                 Spacer()
@@ -72,7 +72,7 @@ struct EditProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         Task {
-                            try await viewModel.updateUserData()
+                            try await editProfileViewModel.updateUserData()
                             dismiss()
                         }
                     }
@@ -80,7 +80,7 @@ struct EditProfileView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .onReceive(viewModel.$user, perform: { user in
+            .onReceive(editProfileViewModel.$user, perform: { user in
                 self.user = user
             })
             .navigationTitle("Edit Profile")
@@ -123,11 +123,11 @@ struct editFavoritesView: View {
     @State private var fetchedRestaurant: Restaurant?
     @State private var isEditFavoritesShowing = false
     @State var oldSelection: FavoriteRestaurant = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: nil)
-    @Binding var favoritesPreview: [FavoriteRestaurant]
+    @ObservedObject var editProfileViewModel: EditProfileViewModel
     var body: some View {
         HStack(alignment: .top, spacing: 8){
             Spacer()
-                ForEach(favoritesPreview) { favoriteRestaurant in
+            ForEach(editProfileViewModel.favoritesPreview) { favoriteRestaurant in
                     Button{
                         oldSelection = favoriteRestaurant
                         isEditFavoritesShowing.toggle()
@@ -155,6 +155,6 @@ struct editFavoritesView: View {
                     }
                 }
             }
-        .fullScreenCover(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, favoritesPreview: $favoritesPreview)}
+        .fullScreenCover(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
     }
 }

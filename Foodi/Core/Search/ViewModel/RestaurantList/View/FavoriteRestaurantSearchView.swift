@@ -11,13 +11,17 @@ struct FavoriteRestaurantSearchView: View {
     @StateObject var viewModel: RestaurantListViewModel
     @State var searchText: String = ""
     @Binding var oldSelection: FavoriteRestaurant
-    @Binding var favoritesPreview: [FavoriteRestaurant]
     @Environment(\.dismiss) var dismiss
+    @ObservedObject var editProfileViewModel: EditProfileViewModel
+    var user: User {
+        return editProfileViewModel.user
+    }
     
-    init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, favoritesPreview: Binding<[FavoriteRestaurant]>) {
+    init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, editProfileViewModel: EditProfileViewModel) {
         self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(config: .favorites, restaurantService: restaurantService))
+        
         self._oldSelection = oldSelection
-        self._favoritesPreview = favoritesPreview
+        self.editProfileViewModel = editProfileViewModel
     }
     var restaurants: [Restaurant] {
         return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
@@ -32,8 +36,8 @@ struct FavoriteRestaurantSearchView: View {
                             let id = restaurant.id
                             let restaurantProfileImageUrl = restaurant.profileImageUrl ?? ""
                             let newSelection = FavoriteRestaurant(name: name, id: id, restaurantProfileImageUrl: restaurantProfileImageUrl)
-                            if let index = favoritesPreview.firstIndex(of: oldSelection) {
-                                favoritesPreview[index] = newSelection
+                            if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
+                                editProfileViewModel.favoritesPreview[index] = newSelection
                             dismiss()
                             }
                         } label :{
