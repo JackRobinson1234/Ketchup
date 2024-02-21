@@ -56,7 +56,7 @@ class EditProfileViewModel: ObservableObject {
     }
     
     func updateUserData() async throws {
-        var data: [String: String] = [:]
+        var data: [String: Any] = [:]
 
         if let uiImage = uiImage {
             try? await updateProfileImage(uiImage)
@@ -77,8 +77,11 @@ class EditProfileViewModel: ObservableObject {
             user.bio = bio
             data["bio"] = bio
         }
-        
-        
+        if !favoritesPreview.isEmpty, user.favorites != favoritesPreview {
+            user.favorites = favoritesPreview
+            let cleanedData = favoritesPreview.map { ["name": $0.name, "id": $0.id, "restaurantProfileImageUrl": $0.restaurantProfileImageUrl ?? ""] }
+            data["favorites"] = cleanedData
+        }
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
     }
 }

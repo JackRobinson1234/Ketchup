@@ -31,7 +31,6 @@
 		F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */; };
 		F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */; };
 		F871AFF82B84586700E4EB5F /* NavigationLazyLoad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF72B84586700E4EB5F /* NavigationLazyLoad.swift */; };
-		F871AFFC2B847B6500E4EB5F /* EditFavoriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFFB2B847B6500E4EB5F /* EditFavoriteView.swift */; };
 		F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFFF2B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
@@ -189,7 +188,6 @@
 		F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSlideBar.swift; sourceTree = "<group>"; };
 		F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRestaurantsView.swift; sourceTree = "<group>"; };
 		F871AFF72B84586700E4EB5F /* NavigationLazyLoad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLazyLoad.swift; sourceTree = "<group>"; };
-		F871AFFB2B847B6500E4EB5F /* EditFavoriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFavoriteView.swift; sourceTree = "<group>"; };
 		F871AFFF2B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRestaurantSearchView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
@@ -800,7 +798,6 @@
 			children = (
 				F88E0AB32B6B044C00EC159B /* EditProfileView.swift */,
 				F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */,
-				F871AFFB2B847B6500E4EB5F /* EditFavoriteView.swift */,
 			);
 			path = EditProfile;
 			sourceTree = "<group>";
@@ -1259,7 +1256,6 @@
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				F88E0A852B6B013D00EC159B /* VideoPlayer.swift in Sources */,
-				F871AFFC2B847B6500E4EB5F /* EditFavoriteView.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
 				F88E0AD42B6B070300EC159B /* ContentVIewModel.swift in Sources */,
