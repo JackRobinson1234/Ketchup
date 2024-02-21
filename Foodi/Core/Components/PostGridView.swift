@@ -26,55 +26,61 @@ struct PostGridView: View {
     }
     
     var body: some View {
-        LazyVGrid(columns: items, spacing: 2) {
-            ForEach(viewModel.posts) { post in
-                KFImage(URL(string: post.thumbnailUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: width, height: 160)
-                    .clipped()
-                    .onTapGesture { selectedPost = post}
-                    .overlay(
-                        VStack{
-                            HStack{
-                                VStack (alignment: .leading) {
-                                    Text("\(post.restaurant?.name ?? "")")
-                                        .lineLimit(1)
-                                        .truncationMode(.tail)
-                                        .foregroundColor(.white)
-                                        .font(.footnote)
-                                        .bold()
-        
+        if !viewModel.posts.isEmpty{
+            LazyVGrid(columns: items, spacing: 2) {
+                ForEach(viewModel.posts) { post in
+                    KFImage(URL(string: post.thumbnailUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: width, height: 160)
+                        .clipped()
+                        .onTapGesture { selectedPost = post}
+                        .overlay(
+                            VStack{
+                                HStack{
+                                    VStack (alignment: .leading) {
+                                        Text("\(post.restaurant?.name ?? "")")
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .foregroundColor(.white)
+                                            .font(.footnote)
+                                            .bold()
+                                        
+                                    }
+                                    
+                                    Spacer()
                                 }
                                 
                                 Spacer()
-                            }
-                            
-                            Spacer()
-                            HStack {
-                                
-                                Spacer()
-                                
-                                Text("\(post.likes)")
-                                    .foregroundColor(.white)
-                                    .font(.footnote)
+                                HStack {
                                     
+                                    Spacer()
+                                    
+                                    Text("\(post.likes)")
+                                        .foregroundColor(.white)
+                                        .font(.footnote)
+                                    
+                                }
+                                
                             }
-    
-                        }
-                        .padding(4)
-                        .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
-                                                   startPoint: .top,
-                                                   endPoint: .bottom))
-                        .onTapGesture { selectedPost = post }
-                    )
-            }
-        }
-        .sheet(item: $selectedPost) { post in
-            FeedView(player: $player, posts: [post], userService: userService)
-                .onDisappear {
-                    player.replaceCurrentItem(with: nil)
+                                .padding(4)
+                                .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
+                                                           startPoint: .top,
+                                                           endPoint: .bottom))
+                                .onTapGesture { selectedPost = post }
+                        )
                 }
+            }
+            
+            .sheet(item: $selectedPost) { post in
+                FeedView(player: $player, posts: [post], userService: userService)
+                    .onDisappear {
+                        player.replaceCurrentItem(with: nil)
+                    }
+            }
+        } else {
+            Text("No Posts to Show")
+                .foregroundStyle(.gray)
         }
     }
 }

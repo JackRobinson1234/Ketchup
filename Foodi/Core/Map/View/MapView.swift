@@ -15,6 +15,7 @@ struct MapView: View {
     @State private var showDetails = false
     @State private var showRestaurantPreview = false
     @State private var fetchedData = false
+    @State private var isSearchPresented: Bool = false
     
     
     init() {
@@ -31,18 +32,52 @@ struct MapView: View {
             ZStack(alignment: .bottom) {
                 Map(position: $position, selection: $selectedRestaurant) {
                     
-                    ForEach(restaurants, id: \.self) { restaurant in
+                    /*ForEach(restaurants, id: \.self) { restaurant in
                         if let coordinates = restaurant.coordinates {
                             Annotation(restaurant.name, coordinate: coordinates) {
                                 RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                             }
                         }
-                    }
+                    } */
                 }
+                    VStack {
+                        HStack {
+                            Button(action: {
+                                isSearchPresented.toggle()
+                            }) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 27))
+                                    .shadow(color: .gray, radius: 10)
+                                    
+        
+                            }
+                            .padding()
+                            Spacer()
+                        
+                        .padding(.top)
+                        Button {
+                            //showFilters.toggle()
+                        }
+                        label: {
+                            Image(systemName: "slider.horizontal.3")
+                                .imageScale(.large)
+                                .shadow(radius: 10)
+                                .font(.system(size: 23))
+                                
+                        }
+                        }
+                        .padding(32)
+                        .padding(.top, 20)
+                        .foregroundStyle(.white)
+                        Spacer()
+                    }
                 .onChange(of: selectedRestaurant, { oldValue, newValue in
                     showRestaurantPreview = newValue != nil
-                    print($selectedRestaurant)
                 })
+                
+                
+                .sheet(isPresented: $isSearchPresented) {SearchView(userService: UserService(),searchConfig: .restaurants(restaurantListConfig: .restaurants))}
                 .mapStyle(.standard(elevation: .realistic))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .ignoresSafeArea()

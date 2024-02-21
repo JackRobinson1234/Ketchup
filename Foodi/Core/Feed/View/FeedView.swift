@@ -52,7 +52,7 @@ struct FeedView: View {
                       
                     } label: {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 22))
+                            .font(.system(size: 27))
                     }
                     Spacer()
                     Button {
@@ -62,6 +62,7 @@ struct FeedView: View {
                         Image(systemName: "slider.horizontal.3")
                             .imageScale(.large)
                             .shadow(radius: 4)
+                            .font(.system(size: 23))
                     }
                     
                 }

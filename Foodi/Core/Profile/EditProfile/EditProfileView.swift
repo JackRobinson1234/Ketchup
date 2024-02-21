@@ -175,6 +175,6 @@ struct editFavoritesView: View {
                     
                 }
             }
-        .fullScreenCover(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
+        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
     }
 }

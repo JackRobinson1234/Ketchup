@@ -20,7 +20,7 @@ struct RestaurantListView: View {
     init(config: RestaurantListConfig, restaurantService: RestaurantService, userService: UserService, oldSelection: Binding<FavoriteRestaurant?> = .constant(nil), favoritesPreview: Binding<[FavoriteRestaurant]?> = .constant(nil)) {
         self.config = config
         self.restaurantService = restaurantService
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(config: config, restaurantService: restaurantService))
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel( restaurantService: restaurantService))
         self._oldSelection = oldSelection
         self._favoritesPreview = favoritesPreview
     }
@@ -29,7 +29,6 @@ struct RestaurantListView: View {
         return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
     }
     var body: some View {
-        
                     switch config {
                     case .upload, .restaurants:
                         ScrollView {
@@ -49,50 +48,10 @@ struct RestaurantListView: View {
                         
                     }
                     .navigationTitle(config.navigationTitle)
-                    .navigationBarTitleDisplayMode(.inline)
                     .searchable(text: $searchText, placement: .navigationBarDrawer)
                         
             }
                         
-                    case .favorites:
-                        Text("testing")
-                        /*ScrollView {
-                            LazyVStack {
-                                ForEach(restaurants) { restaurant in
-                                    Button{
-                                        let name = restaurant.name
-                                        let id = restaurant.id
-                                        let restaurantProfileImageUrl = restaurant.profileImageUrl ?? ""
-                                        let newSelection = FavoriteRestaurant(name: name, id: id, restaurantProfileImageUrl: restaurantProfileImageUrl)
-                                        if var favoritesPreview{
-                                            if let oldSelection{
-                                                if let index = favoritesPreview.firstIndex(of: oldSelection) {
-                                                    favoritesPreview[index] = newSelection
-                                                    
-                                                }
-                                            }
-                                        }
-                                    } label :{
-                                        RestaurantCell(restaurant: restaurant)
-                                            .padding(.leading)
-                                    }
-                                }
-                            }
-                        }
-                        .navigationTitle(config.navigationTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .searchable(text: $searchText, placement: .navigationBarDrawer)
-                        navigationBarBackButtonHidden()
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    dismiss()
-                                } label: {
-                                    Text("Cancel")
-                                }
-                            }
-                        }
-                        .toolbar(.hidden, for: .tabBar)*/
                         
         }
     }

@@ -18,7 +18,7 @@ struct FavoriteRestaurantSearchView: View {
     }
     
     init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, editProfileViewModel: EditProfileViewModel) {
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(config: .favorites, restaurantService: restaurantService))
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
         
         self._oldSelection = oldSelection
         self.editProfileViewModel = editProfileViewModel

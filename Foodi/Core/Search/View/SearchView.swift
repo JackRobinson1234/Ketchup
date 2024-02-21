@@ -66,8 +66,8 @@ struct SearchView: View {
                         .navigationBarBackButtonHidden()
                 case .restaurants:
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                case .favorites:
-                    Text("favorites")
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
                 }
                 /*if restaurantListConfig == .upload{
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)

@@ -13,24 +13,13 @@ import Firebase
 @MainActor
 class RestaurantListViewModel: ObservableObject {
     @Published var restaurants = [Restaurant]()
-    private let config: RestaurantListConfig
     private var restaurantLastDoc: QueryDocumentSnapshot?
     private var restaurantService: RestaurantService = RestaurantService()
-    init(config: RestaurantListConfig, restaurantService: RestaurantService) {
+    init(restaurantService: RestaurantService) {
         self.restaurantService = restaurantService
-        self.config = config
-        fetchRestaurants(forConfig: config)
+        Task {await fetchRestaurants()}
     }
     
-    
-    func fetchRestaurants(forConfig config: RestaurantListConfig) {
-        Task {
-            switch config {
-            case .restaurants, .upload, .favorites:
-                await fetchRestaurants()
-            }
-        }
-    }
     
     
     func fetchRestaurants() async {
