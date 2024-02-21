@@ -14,13 +14,13 @@ struct EditProfileView: View {
     @StateObject private var viewModel: EditProfileViewModel
     @Binding var user: User
     @Environment(\.dismiss) var dismiss
-    @State var favoritesPreview: [FavoriteRestaurant]
+    //@State var favoritesPreview: [FavoriteRestaurant]
     
     init(user: Binding<User>) {
         self._user = user
-        self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user.wrappedValue))
         self._username = State(initialValue: _user.wrappedValue.username)
-        self._favoritesPreview = State(initialValue: _user.wrappedValue.favorites)
+        //self._favoritesPreview = State(initialValue: _user.wrappedValue.favorites)
+        self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user.wrappedValue))
     }
     
     var body: some View {
@@ -56,7 +56,7 @@ struct EditProfileView: View {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
                     EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
-                    FavoriteRestaurantsView(user: user, favoriteRestaurantViewEnum: .editProfile, favorites: favoritesPreview)
+                    editFavoritesView(user: user, favoritesPreview: $favoritesPreview)
                 }
                 
                 Spacer()
@@ -115,4 +115,46 @@ struct EditProfileRowView: View {
 
 #Preview {
     EditProfileView(user: .constant(DeveloperPreview.user))
+}
+
+struct editFavoritesView: View {
+    let user: User
+    let restaurantService: RestaurantService = RestaurantService()
+    @State private var fetchedRestaurant: Restaurant?
+    @State private var isEditFavoritesShowing = false
+    @State var oldSelection: FavoriteRestaurant = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: nil)
+    @Binding var favoritesPreview: [FavoriteRestaurant]
+    var body: some View {
+        HStack(alignment: .top, spacing: 8){
+            Spacer()
+                ForEach(favoritesPreview) { favoriteRestaurant in
+                    Button{
+                        oldSelection = favoriteRestaurant
+                        isEditFavoritesShowing.toggle()
+                    } label: {
+                        VStack{
+                            Text("Edit")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                            HStack{
+                                VStack {
+                                    ZStack(alignment: .bottom) {
+                                        if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                            RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
+                                        }
+                                    }
+                                    Text(favoriteRestaurant.name)
+                                        .font(.caption)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
+                                }
+                                
+                            }
+                        }
+                        Spacer()
+                    }
+                }
+            }
+        .fullScreenCover(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, favoritesPreview: $favoritesPreview)}
+    }
 }

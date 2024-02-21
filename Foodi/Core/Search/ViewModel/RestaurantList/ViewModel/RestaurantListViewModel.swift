@@ -26,9 +26,7 @@ class RestaurantListViewModel: ObservableObject {
     func fetchRestaurants(forConfig config: RestaurantListConfig) {
         Task {
             switch config {
-            case .restaurants:
-                await fetchRestaurants()
-            case .upload:
+            case .restaurants, .upload, .favorites:
                 await fetchRestaurants()
             }
         }

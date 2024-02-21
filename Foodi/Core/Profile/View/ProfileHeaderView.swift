@@ -11,8 +11,13 @@ struct ProfileHeaderView: View {
     @State private var showEditProfile = false
     @ObservedObject var viewModel: ProfileViewModel
     @Environment(\.dismiss) var dismiss
+    @State private var userFavorites: [FavoriteRestaurant]? = []
     private var user: User {
         return viewModel.user
+    }
+    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = []) {
+        self.viewModel = viewModel
+        self.userFavorites = user.favorites
     }
     
     var body: some View {

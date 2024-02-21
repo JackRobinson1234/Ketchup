@@ -19,6 +19,7 @@ class EditProfileViewModel: ObservableObject {
     }
     @Published var profileImage: Image?
     
+    @Published var favoritesPreview: [FavoriteRestaurant]
     private var uiImage: UIImage?
     var fullname = ""
     var bio = ""
@@ -31,6 +32,7 @@ class EditProfileViewModel: ObservableObject {
         }
         self.fullname = user.fullname
         self.username = user.username
+        self.favoritesPreview = user.favorites
     }
     
     @MainActor
@@ -71,6 +73,7 @@ class EditProfileViewModel: ObservableObject {
             user.bio = bio
             data["bio"] = bio
         }
+        
         
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
     }

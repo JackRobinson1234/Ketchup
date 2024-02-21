@@ -59,7 +59,17 @@ struct SearchView: View {
                     
                 
             case .restaurants(let restaurantListConfig):
-                if restaurantListConfig != .upload{
+                switch restaurantListConfig {
+                case .upload:
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+                case .restaurants:
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                case .favorites:
+                    Text("favorites")
+                }
+                /*if restaurantListConfig == .upload{
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
                         .modifier(BackButtonModifier())
                         .navigationBarBackButtonHidden()
@@ -69,6 +79,7 @@ struct SearchView: View {
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
                         
                 }
+                 */
             }
         }
         
