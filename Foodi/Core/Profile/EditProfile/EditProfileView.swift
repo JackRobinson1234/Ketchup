@@ -128,6 +128,7 @@ struct editFavoritesView: View {
         HStack(alignment: .top, spacing: 8){
             Spacer()
             ForEach(editProfileViewModel.favoritesPreview) { favoriteRestaurant in
+                VStack (spacing:10){
                     Button{
                         oldSelection = favoriteRestaurant
                         isEditFavoritesShowing.toggle()
@@ -147,12 +148,31 @@ struct editFavoritesView: View {
                                         .font(.caption)
                                         .multilineTextAlignment(.center)
                                         .lineLimit(2)
+                                        .frame(maxWidth: .infinity, alignment: .center) // Limit the width
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                                 
                             }
                         }
-                        Spacer()
                     }
+                    if !favoriteRestaurant.name.isEmpty{
+                        Button{
+                            oldSelection = favoriteRestaurant
+                            if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
+                                editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: "")
+                            }
+                        } label: {
+                            VStack{
+                                Text("Clear")
+                                    .foregroundStyle(.red)
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+
+                Spacer()
+                    
                 }
             }
         .fullScreenCover(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
