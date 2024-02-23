@@ -16,6 +16,7 @@ import Firebase
 @MainActor
 class MapViewModel: ObservableObject {
     @Published var restaurants = [Restaurant]()
+    @Published var searchPreview = [Restaurant]()
     private var restaurantLastDoc: QueryDocumentSnapshot?
     private var restaurantService: RestaurantService = RestaurantService()
     init(restaurantService: RestaurantService) {

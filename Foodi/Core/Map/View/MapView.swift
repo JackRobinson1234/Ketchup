@@ -14,8 +14,9 @@ struct MapView: View {
     @State private var selectedRestaurant: Restaurant?
     @State private var showDetails = false
     @State private var showRestaurantPreview = false
-    @State private var fetchedData = false
+    @State private var inSearchView: Bool = false
     @State private var isSearchPresented: Bool = false
+    
     
     
     init() {
@@ -31,40 +32,50 @@ struct MapView: View {
         NavigationStack{
             ZStack(alignment: .bottom) {
                 Map(position: $position, selection: $selectedRestaurant) {
-                    
-                    /*ForEach(restaurants, id: \.self) { restaurant in
-                        if let coordinates = restaurant.coordinates {
-                            Annotation(restaurant.name, coordinate: coordinates) {
-                                RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                    if !inSearchView{
+                        ForEach(restaurants, id: \.self) { restaurant in
+                            if let coordinates = restaurant.coordinates {
+                                Annotation(restaurant.name, coordinate: coordinates) {
+                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                            }
                             }
                         }
-                    } */
+                    } else {
+                        ForEach(viewModel.searchPreview, id: \.self) { restaurant in
+                            if let coordinates = restaurant.coordinates {
+                                Annotation(restaurant.name, coordinate: coordinates) {
+                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                                }
+                            }
+                        }
+                    }
                 }
-                    VStack {
+                VStack {
+                    if !inSearchView{
                         HStack {
                             Button(action: {
+                                inSearchView.toggle()
                                 isSearchPresented.toggle()
                             }) {
                                 Image(systemName: "magnifyingglass")
                                     .foregroundStyle(.white)
                                     .font(.system(size: 27))
                                     .shadow(color: .gray, radius: 10)
-                                    
-        
+                                
+                                
                             }
-                            .padding()
                             Spacer()
-                        
-                        .padding(.top)
-                        Button {
-                            //showFilters.toggle()
-                        }
+                            
+                                .padding(.top)
+                            Button {
+                                //showFilters.toggle()
+                            }
                         label: {
                             Image(systemName: "slider.horizontal.3")
                                 .imageScale(.large)
                                 .shadow(radius: 10)
                                 .font(.system(size: 23))
-                                
+                            
                         }
                         }
                         .padding(32)
@@ -72,12 +83,34 @@ struct MapView: View {
                         .foregroundStyle(.white)
                         Spacer()
                     }
+                    else {
+                        VStack{
+                            HStack{
+                                Button{
+                                    inSearchView = false
+                                } label: {
+                                    Text("Cancel")
+                                        .foregroundStyle(.blue)
+                                        .bold()
+                                }
+                                Spacer()
+                            }
+                            .padding(32)
+                            .padding(.top, 20)
+                            Spacer()
+                        }
+                    }
+                }
                 .onChange(of: selectedRestaurant, { oldValue, newValue in
                     showRestaurantPreview = newValue != nil
                 })
                 
                 
-                .sheet(isPresented: $isSearchPresented) {SearchView(userService: UserService(),searchConfig: .restaurants(restaurantListConfig: .restaurants))}
+                .sheet(isPresented: $isSearchPresented) {
+                    NavigationStack {
+                        MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
+                    }
+                }
                 .mapStyle(.standard(elevation: .realistic))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .ignoresSafeArea()
