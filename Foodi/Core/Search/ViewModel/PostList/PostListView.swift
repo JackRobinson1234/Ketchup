@@ -19,7 +19,7 @@ struct PostListView: View {
     }
     var body: some View {
         ScrollView{
-            PostGridView(viewModel: viewModel, userService: userService)
+            PostGridView(posts: viewModel.posts, userService: userService)
         }
         .navigationTitle("Explore")
         .padding(.top)

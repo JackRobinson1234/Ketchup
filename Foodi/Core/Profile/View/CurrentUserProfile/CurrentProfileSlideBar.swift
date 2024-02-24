@@ -92,11 +92,11 @@ struct CurrentProfileSlideBarView: View {
         // MARK: Section Logic
         
         if currentProfileSection == .posts {
-            PostGridView(viewModel: viewModel, userService: userService)
+            PostGridView(posts: viewModel.posts, userService: userService)
         }
                 
         if currentProfileSection == .likes {
-            PostGridView(viewModel: likesViewModel, userService: userService)
+            PostGridView(posts: likesViewModel.posts, userService: userService)
                 
             }
         }

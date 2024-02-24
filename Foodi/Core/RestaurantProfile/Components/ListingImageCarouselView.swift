@@ -10,7 +10,6 @@ import Kingfisher
 
 struct ListingImageCarouselView: View {
     private var restaurant: Restaurant
-    private var images: [String]?
        
     init(restaurant: Restaurant) {
         self.restaurant = restaurant
@@ -19,7 +18,7 @@ struct ListingImageCarouselView: View {
     var height: CGFloat = 300
     var body: some View {
         TabView {
-            if let images = restaurant.imageURLs{
+            if let images = restaurant.imageURLs {
                 ForEach(images, id: \.self) { image in
                     KFImage(URL(string: image))
                         .resizable()

@@ -42,7 +42,7 @@ struct RestaurantProfileView: View {
             
             VStack{
                 if let restaurant = viewModel.restaurant{
-                    RestaurantProfileHeaderView(viewModel: viewModel, restaurant: restaurant, currentSection: $currentSection)
+                    RestaurantProfileHeaderView( restaurant: restaurant, currentSection: $currentSection, posts: viewModel.posts)
                 }
             }
             .navigationBarBackButtonHidden()
