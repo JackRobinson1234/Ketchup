@@ -14,8 +14,8 @@ struct RestaurantProfileView: View {
     private let restaurantService = RestaurantService()
     
     
-    init(restaurant: Restaurant, currentSection: Section = .posts) {
-        let restaurantViewModel = RestaurantViewModel(restaurant: restaurant,
+    init(restaurant: String, currentSection: Section = .posts) {
+        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurant,
                                                       restaurantService: RestaurantService(),
                                                       postService: PostService())
         

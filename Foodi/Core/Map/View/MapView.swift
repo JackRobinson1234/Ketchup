@@ -16,6 +16,7 @@ struct MapView: View {
     @State private var showRestaurantPreview = false
     @State private var inSearchView: Bool = false
     @State private var isSearchPresented: Bool = false
+    @State private var isFiltersPresented: Bool = false
     
     
     
@@ -68,7 +69,7 @@ struct MapView: View {
                             
                                 .padding(.top)
                             Button {
-                                //showFilters.toggle()
+                                isFiltersPresented.toggle()
                             }
                         label: {
                             Image(systemName: "slider.horizontal.3")
@@ -109,6 +110,11 @@ struct MapView: View {
                 .sheet(isPresented: $isSearchPresented) {
                     NavigationStack {
                         MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
+                    }
+                }
+                .sheet(isPresented: $isFiltersPresented) {
+                    NavigationStack {
+                        FiltersView()
                     }
                 }
                 .mapStyle(.standard(elevation: .realistic))

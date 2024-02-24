@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
     @Published var posts = [Post]()
-    @Published var restaurant: Restaurant
+    @Published var restaurant: String
     
     private let restaurantService: RestaurantService
     private let postService: PostService
@@ -24,6 +24,7 @@ class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
             fetchPosts()
         }
     }
+    func
 }
     
 // MARK: - Posts
