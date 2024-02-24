@@ -9,18 +9,19 @@ import SwiftUI
 struct RestaurantProfileHeaderView: View {
     @Binding var currentSection: Section
     @ObservedObject var viewModel: RestaurantViewModel
-    private var restaurant: Restaurant {
-        return viewModel.restaurant
-    }
+    private var restaurant: Restaurant
     
-    init(viewModel: RestaurantViewModel, currentSection: Binding<Section> = .constant(.posts)) {
+    init(viewModel: RestaurantViewModel, restaurant: Restaurant, currentSection: Binding<Section> = .constant(.posts)) {
         self._currentSection = currentSection
         self.viewModel = viewModel
+        self.restaurant = restaurant
     }
     var body: some View {
         ScrollView {
             ZStack(alignment: .topLeading) {
-                ListingImageCarouselView(viewModel: viewModel)
+                if let restaurant = viewModel.restaurant{
+                    ListingImageCarouselView(restaurant: restaurant)
+                }
 
             }
             VStack(alignment: .center, spacing: 8) {
@@ -72,7 +73,8 @@ struct RestaurantProfileHeaderView: View {
         .ignoresSafeArea()
     }
 }
-
+/*
 #Preview {
     RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }
+*/

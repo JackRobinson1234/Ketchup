@@ -83,7 +83,9 @@ struct RestaurantProfileSlideBarView: View {
         
         // MARK: Section Logic
         if currentSection == .map {
-            MapRestaurantProfileView(viewModel: viewModel)
+            if let restaurant = viewModel.restaurant{
+                MapRestaurantProfileView(restaurant: restaurant)
+            }
                 
         }
         if currentSection == .posts {
@@ -110,7 +112,8 @@ struct UnderlineImageModifier: ViewModifier {
 }
 
 
-
+/*
 #Preview {
     RestaurantProfileSlideBarView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }
+*/

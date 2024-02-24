@@ -11,11 +11,15 @@ struct RestaurantProfileView: View {
     @Environment(\.dismiss) var dismiss
     @State var currentSection: Section
     @StateObject var viewModel: RestaurantViewModel
+    @State private var isLoading = true
+    
     private let restaurantService = RestaurantService()
+    private let restaurantId: String
     
     
-    init(restaurant: String, currentSection: Section = .posts) {
-        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurant,
+    init(restaurantId: String, currentSection: Section = .posts) {
+        self.restaurantId = restaurantId
+        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId,
                                                       restaurantService: RestaurantService(),
                                                       postService: PostService())
         
@@ -23,33 +27,47 @@ struct RestaurantProfileView: View {
         self._currentSection = State(initialValue: currentSection)
     }
     
- 
+    
     var body: some View {
-        
-        VStack{
-            RestaurantProfileHeaderView(viewModel: viewModel, currentSection: $currentSection)
-        }
-        .navigationBarBackButtonHidden()
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+        if isLoading {
+            // Loading screen
+            ProgressView("Loading...")
+                .onAppear {
+                    Task {
+                        await viewModel.fetchRestaurant(id: restaurantId)
+                        isLoading = false
+                    }
+                }
+        } else{
+            
+            VStack{
+                if let restaurant = viewModel.restaurant{
+                    RestaurantProfileHeaderView(viewModel: viewModel, restaurant: restaurant, currentSection: $currentSection)
                 }
             }
-        }
-        
-        .overlay(alignment: .bottom) {
-            CTAButtonOverlay()
-    
+            .navigationBarBackButtonHidden()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .tabBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
+            
+            .overlay(alignment: .bottom) {
+                CTAButtonOverlay()
+                
+            }
         }
     }
 }
-
+/*
 #Preview {
-    RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])
+    RestaurantProfileView(restaurantId: DeveloperPreview.restaurants[0].id)
 }
+*/

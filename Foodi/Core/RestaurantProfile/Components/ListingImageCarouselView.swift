@@ -9,28 +9,31 @@ import SwiftUI
 import Kingfisher
 
 struct ListingImageCarouselView: View {
-    @ObservedObject var viewModel: RestaurantViewModel
-    private var images: [String]? {
-        return viewModel.restaurant.imageURLs ?? []
-    }
-    init(viewModel: RestaurantViewModel) {
-        self.viewModel = viewModel
+    private var restaurant: Restaurant
+    private var images: [String]?
+       
+    init(restaurant: Restaurant) {
+        self.restaurant = restaurant
     }
     
     var height: CGFloat = 300
     var body: some View {
         TabView {
-            ForEach(images!, id: \.self) { image in
-                KFImage(URL(string: image))
-                    .resizable()
-                    .scaledToFill()
+            if let images = restaurant.imageURLs{
+                ForEach(images, id: \.self) { image in
+                    KFImage(URL(string: image))
+                        .resizable()
+                        .scaledToFill()
+                }
+                
+                .frame(height: height)
+                .tabViewStyle(.page)
             }
         }
-        .frame(height: height)
-        .tabViewStyle(.page)
     }
 }
-
+/*
 #Preview {
     ListingImageCarouselView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }
+*/

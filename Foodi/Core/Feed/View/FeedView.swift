@@ -93,7 +93,7 @@ struct FeedView: View {
             .navigationDestination(for: SearchModelConfig.self) { config in
                 SearchView(userService: UserService(), searchConfig: config)}
             .navigationDestination(for: Restaurant.self) { restaurant in
-                RestaurantProfileView(restaurant: restaurant)}
+                RestaurantProfileView(restaurantId: restaurant.id)}
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
                     player.pause()

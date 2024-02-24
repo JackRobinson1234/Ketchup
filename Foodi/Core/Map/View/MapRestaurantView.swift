@@ -30,7 +30,7 @@ struct MapRestaurantView: View {
             
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {
-                    NavigationLink(destination: RestaurantProfileView(restaurant: restaurant)) {
+                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                         Text("\(restaurant.name)")
                             .font(.subheadline)
                             .bold()
@@ -45,7 +45,7 @@ struct MapRestaurantView: View {
                 }
                 
                 Spacer()
-                    NavigationLink(destination: RestaurantProfileView(restaurant: restaurant, currentSection: .menu)) {
+                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
                         Text("View Menu")
                     }
                     .modifier(StandardButtonModifier(width: 150))

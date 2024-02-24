@@ -44,7 +44,7 @@ struct FavoriteRestaurantsView: View {
                         }
                         .fullScreenCover(isPresented: $showRestaurantProfile) {
                             NavigationStack{
-                                RestaurantProfileView(restaurant: DeveloperPreview.restaurants[0])
+                                RestaurantProfileView(restaurantId: DeveloperPreview.restaurants[0].id)
                             }
                         }
                     }

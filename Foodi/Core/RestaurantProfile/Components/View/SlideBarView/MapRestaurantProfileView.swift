@@ -10,14 +10,11 @@ import MapKit
 import Kingfisher
 
 struct MapRestaurantProfileView: View {
-    @ObservedObject var viewModel: RestaurantViewModel
-    private var restaurant: Restaurant {
-        return viewModel.restaurant
-    }
+    private var restaurant: Restaurant
     private var coordinates: CLLocationCoordinate2D?
     
-    init(viewModel: RestaurantViewModel) {
-        self.viewModel = viewModel
+    init(restaurant: Restaurant) {
+        self.restaurant = restaurant
         self.coordinates = restaurant.coordinates
     }
     
@@ -37,7 +34,8 @@ struct MapRestaurantProfileView: View {
         }
     }
 }
-
+/*
 #Preview {
     MapRestaurantProfileView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
 }
+*/
