@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 struct RestaurantProfileHeaderView: View {
     @Binding var currentSection: Section
     private var restaurant: Restaurant
@@ -19,9 +20,7 @@ struct RestaurantProfileHeaderView: View {
     var body: some View {
         ScrollView {
             VStack{
-                ZStack(alignment: .topLeading) {
-                    ListingImageCarouselView(restaurant: restaurant)
-                }
+                ListingImageCarouselView(images: restaurant.imageURLs)
                 VStack(alignment: .center, spacing: 8) {
                     Text("\(restaurant.name)")
                         .font(.title)
@@ -68,8 +67,9 @@ struct RestaurantProfileHeaderView: View {
             }
             .padding(.bottom, 100)
             
-            .ignoresSafeArea()
+           
         }
+        .ignoresSafeArea()
     }
 }
 /*

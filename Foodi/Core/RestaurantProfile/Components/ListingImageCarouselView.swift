@@ -8,26 +8,28 @@
 import SwiftUI
 import Kingfisher
 
+import SwiftUI
+import Kingfisher
+
 struct ListingImageCarouselView: View {
-    private var restaurant: Restaurant
-       
-    init(restaurant: Restaurant) {
-        self.restaurant = restaurant
+    
+    private var images: [String]?
+    init(images: [String]? = nil) {
+        self.images = images
     }
     
     var height: CGFloat = 300
     var body: some View {
-        TabView {
-            if let images = restaurant.imageURLs {
-                ForEach(images, id: \.self) { image in
+        if let unwrappedImages = images{
+            TabView {
+                ForEach(unwrappedImages, id: \.self) { image in
                     KFImage(URL(string: image))
                         .resizable()
                         .scaledToFill()
                 }
-                
-                .frame(height: height)
-                .tabViewStyle(.page)
             }
+            .frame(height: height)
+            .tabViewStyle(.page)
         }
     }
 }
