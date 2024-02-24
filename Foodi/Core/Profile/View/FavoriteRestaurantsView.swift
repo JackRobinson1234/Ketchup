@@ -7,15 +7,12 @@
 
 import SwiftUI
 
-
 struct FavoriteRestaurantsView: View {
     let user: User
     let favorites: [FavoriteRestaurant]?
     @State private var showRestaurantProfile: Bool = false
+    @State private var restaurantProfileId: String = ""
    
-    
-    
-    
     var body: some View {
         NavigationStack{
             HStack(alignment: .top, spacing: 8){
@@ -23,55 +20,43 @@ struct FavoriteRestaurantsView: View {
                 if let favorites {
                     ForEach(favorites) { favoriteRestaurant in
                         HStack{
-                            
-                                Button{showRestaurantProfile.toggle()} label:{
-                                    VStack {
-                                        if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
-                                            RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
-                                        }
-                                        Text(favoriteRestaurant.name)
-                                            .font(.caption)
-                                            .multilineTextAlignment(.center)
-                                            .lineLimit(2)
+                            /*Button{
+                                showRestaurantProfile.toggle()
+                                restaurantProfileId = favoriteRestaurant.id
+                            } label:{
+                                VStack {
+                                    if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                        RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
                                     }
-                                
-                                .disabled(favoriteRestaurant.id.isEmpty)
+                                    Text(favoriteRestaurant.name)
+                                        .font(.caption)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
+                                }
                                 
                             }
+                                .disabled(favoriteRestaurant.id.isEmpty)
+                                */
                             
+                            NavigationLink(destination: NavigationLazyView(RestaurantProfileView(restaurantId: favoriteRestaurant.id))) {VStack {
+                                if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                    RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
+                                }
+                                Text(favoriteRestaurant.name)
+                                    .font(.caption)
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
+                            
+                            }
+                            .disabled(favoriteRestaurant.id.isEmpty)
                             
                             Spacer()
                         }
-                        .fullScreenCover(isPresented: $showRestaurantProfile) {
-                            NavigationStack{
-                                RestaurantProfileView(restaurantId: DeveloperPreview.restaurants[0].id)
-                            }
-                        }
                     }
                 }
-                
-                
-                /*
-                 ForEach(0..<(4 - (user.favorites?.count ?? 0)), id: \.self) { _ in
-                 if user.isCurrentUser {
-                 ZStack(alignment: .bottom) {
-                 RestaurantCircularProfileImageView( size: .medium)
-                 Image(systemName: "plus.circle.fill")
-                 .foregroundStyle(.pink)
-                 .offset(y: 8)
-                 }
-                 Spacer()
-                 
-                 }
-                 
-                 else {
-                 RestaurantCircularProfileImageView( size: .medium)
-                 Spacer()
-                 }
-                 
-                 }
-                 */
             }
+            
             
             .padding(.horizontal)
             

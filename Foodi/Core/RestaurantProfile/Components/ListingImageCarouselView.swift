@@ -8,9 +8,6 @@
 import SwiftUI
 import Kingfisher
 
-import SwiftUI
-import Kingfisher
-
 struct ListingImageCarouselView: View {
     
     private var images: [String]?
@@ -24,6 +21,7 @@ struct ListingImageCarouselView: View {
             TabView {
                 ForEach(unwrappedImages, id: \.self) { image in
                     KFImage(URL(string: image))
+                        .placeholder {ProgressView()}
                         .resizable()
                         .scaledToFill()
                 }
