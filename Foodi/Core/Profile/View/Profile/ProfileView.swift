@@ -32,14 +32,12 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        
             ScrollView {
                 VStack(spacing: 2) {
-                    //ProfileHeaderView(viewModel: profileViewModel)
-                    //ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection, likesViewModel: likesViewModel)
+                    ProfileHeaderView(viewModel: profileViewModel)
+                    ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection, likesViewModel: likesViewModel)
                 }
             }
-            .onAppear{print(user)}
         .task { await profileViewModel.fetchUserPosts() }
         .task { await profileViewModel.checkIfUserIsFollowed() }
         .task { await profileViewModel.fetchUserStats() }

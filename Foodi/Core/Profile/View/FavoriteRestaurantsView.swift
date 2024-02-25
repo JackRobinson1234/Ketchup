@@ -14,29 +14,12 @@ struct FavoriteRestaurantsView: View {
     @State private var restaurantProfileId: String = ""
    
     var body: some View {
-        NavigationStack{
+        
             HStack(alignment: .top, spacing: 8){
                 Spacer()
                 if let favorites {
                     ForEach(favorites) { favoriteRestaurant in
                         HStack{
-                            /*Button{
-                                showRestaurantProfile.toggle()
-                                restaurantProfileId = favoriteRestaurant.id
-                            } label:{
-                                VStack {
-                                    if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
-                                        RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)
-                                    }
-                                    Text(favoriteRestaurant.name)
-                                        .font(.caption)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2)
-                                }
-                                
-                            }
-                                .disabled(favoriteRestaurant.id.isEmpty)
-                                */
                             
                             NavigationLink(destination: NavigationLazyView(RestaurantProfileView(restaurantId: favoriteRestaurant.id))) {VStack {
                                 if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
@@ -62,7 +45,7 @@ struct FavoriteRestaurantsView: View {
             
         }
     }
-}
+
                 
                 
 
