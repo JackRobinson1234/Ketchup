@@ -15,7 +15,6 @@ struct Post: Identifiable, Codable {
     let id: String
     let videoUrl: String
     let ownerUid: String
-    let restaurantId: String
     let caption: String
     var likes: Int
     var commentCount: Int
@@ -25,7 +24,7 @@ struct Post: Identifiable, Codable {
     var thumbnailUrl: String
     var timestamp: Timestamp
     var user: User?
-    var restaurant: Restaurant?
+    var restaurant: postRestaurant
     var didLike = false
     var didSave = false
     
@@ -34,7 +33,6 @@ struct Post: Identifiable, Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.videoUrl = try container.decode(String.self, forKey: .videoUrl)
         self.ownerUid = try container.decode(String.self, forKey: .ownerUid)
-        self.restaurantId = try container.decode(String.self, forKey: .restaurantId)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
@@ -44,7 +42,7 @@ struct Post: Identifiable, Codable {
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
         self.user = try container.decodeIfPresent(User.self, forKey: .user)
-        self.restaurant = try container.decodeIfPresent(Restaurant.self, forKey: .restaurant)
+        self.restaurant = try container.decode(postRestaurant.self, forKey: .restaurant)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
     }
@@ -62,10 +60,9 @@ struct Post: Identifiable, Codable {
         thumbnailUrl: String,
         timestamp: Timestamp,
         user: User? = nil,
-        restaurant: Restaurant? = nil,
+        restaurant: postRestaurant,
         didLike: Bool = false,
-        didSave: Bool = false,
-        restaurantId: String
+        didSave: Bool = false
     ) {
         self.id = id
         self.videoUrl = videoUrl
@@ -82,7 +79,6 @@ struct Post: Identifiable, Codable {
         self.didLike = didLike
         self.restaurant = restaurant
         self.didSave = didSave
-        self.restaurantId = restaurantId
     }
 }
 
@@ -92,4 +88,17 @@ extension Post: Equatable {
     static func == (lhs: Post, rhs: Post) -> Bool {
         return lhs.id == rhs.id
     }
+}
+
+struct postRestaurant: Codable, Hashable, Identifiable {
+    let id: String
+    let cuisine: String?
+    let price: String?
+    let name: String
+    let geoPoint: GeoPoint?
+    let address: String?
+    let city: String?
+    let state: String?
+    var profileImageUrl: String?
+    
 }

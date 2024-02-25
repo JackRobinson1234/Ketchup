@@ -40,18 +40,18 @@ struct FeedCell: View {
                             HStack{
                                 // restaurant profile image
                                 NavigationLink(value: post.restaurant) {
-                                    RestaurantCircularProfileImageView(imageUrl: post.restaurant?.profileImageUrl, size: .large)
+                                    RestaurantCircularProfileImageView(imageUrl: post.restaurant.profileImageUrl, size: .large)
                                 }
                                 //restaurant name
                                 VStack (alignment: .leading) {
                                 NavigationLink(value: post.restaurant) {
-                                    Text("\(post.restaurant?.name ?? "")")
+                                    Text("\(post.restaurant.name)")
                                         .font(.title3)
                                         .bold()
                                         .multilineTextAlignment(.leading)
                                 }
                                 //address
-                                Text("📍 \(post.restaurant?.city ?? ""), \(post.restaurant?.state ?? "")")
+                                Text("📍 \(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
                                 
                                     NavigationLink(value: post.user) {
                                         Text("by \(post.user?.fullname ?? "")")
@@ -74,18 +74,18 @@ struct FeedCell: View {
                             }
                             else {
                                 //cuisine
-                                Text("Cuisine: \(post.restaurant?.cuisine ?? "")")
+                                Text("Cuisine: \(post.restaurant.cuisine ?? "")")
                                 
                                 // price
-                                Text("Price: \(post.restaurant?.price ?? "")")
+                                Text("Price: \(post.restaurant.price ?? "")")
                                 
                                 //Menu Button
-                                if let restaurant = post.restaurant {
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
+                                
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
-                                }
+                                
                             }
                         }
                         //controls box size

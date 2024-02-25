@@ -34,7 +34,7 @@ class PostService {
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
+                //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
         
@@ -45,13 +45,13 @@ class PostService {
         print("DEBUG: Ran fetchRestaurantPosts")
         self.posts = try await FirestoreConstants
             .PostsCollection
-            .whereField("restaurantId", isEqualTo: restaurant.id)
+            .whereField("restaurant.id", isEqualTo: restaurant.id)
             .getDocuments(as: Post.self)
         
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
+                //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
         return posts
@@ -67,7 +67,7 @@ class PostService {
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
+                //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
         return posts
@@ -79,12 +79,12 @@ class PostService {
         let user = try await userService.fetchUser(withUid: post.ownerUid)
         posts[index].user = user
     }
-    private func fetchPostRestaurantData(_ post: Post) async throws {
+    /*private func fetchPostRestaurantData(_ post: Post) async throws {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         
         let restaurant = try await restaurantService.fetchRestaurant(withId: post.restaurantId)
         posts[index].restaurant = restaurant
-    }
+    } */
 }
 
     
@@ -137,11 +137,11 @@ extension PostService {
             }
         }
         //Fetches the Restaurant data for each of the posts
-        await withThrowingTaskGroup(of: Void.self) { group in
+        /*await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostRestaurantData(post)}
             }
-        }
+        }*/
        
         return posts
         }

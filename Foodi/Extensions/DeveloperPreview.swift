@@ -84,8 +84,14 @@ struct DeveloperPreview {
             thumbnailUrl: "lewis-hamilton",
             timestamp: Timestamp(),
             user: users[0],
-            restaurant: restaurants[0],
-            restaurantId: restaurants[0].id
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
             
         ),
         .init(
@@ -101,8 +107,14 @@ struct DeveloperPreview {
             thumbnailUrl: "max-verstappen",
             timestamp: Timestamp(),
             user: users[1],
-            restaurant: restaurants[1],
-            restaurantId: restaurants[0].id
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
         ),
         .init(
             id: NSUUID().uuidString,
@@ -117,8 +129,14 @@ struct DeveloperPreview {
             thumbnailUrl: "fernando-alonso",
             timestamp: Timestamp(),
             user: users[2],
-            restaurant: restaurants[2],
-            restaurantId: restaurants[0].id
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
         ),
     ]
     

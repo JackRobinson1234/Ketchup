@@ -29,7 +29,14 @@ struct UploadPostService {
                 views: 0,
                 thumbnailUrl: "",
                 timestamp: Timestamp(),
-                restaurantId: restaurantId
+                restaurant: postRestaurant(id: NSUUID().uuidString,
+                                           cuisine: "Chinese",
+                                           price: "$",
+                                           name: "Greenbaum's Money Pit",
+                                           geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                           address: "2311 Piedmont Ave",
+                                           city: "Berkeley",
+                                           state: "CA")
             )
 
             guard let postData = try? Firestore.Encoder().encode(post) else { return }
