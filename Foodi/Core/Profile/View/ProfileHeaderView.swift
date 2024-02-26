@@ -12,12 +12,13 @@ struct ProfileHeaderView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Environment(\.dismiss) var dismiss
     @State private var userFavorites: [FavoriteRestaurant]? = []
-    private var user: User {
+    var user: User {
         return viewModel.user
     }
     init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = []) {
         self.viewModel = viewModel
         self.userFavorites = user.favorites
+        
     }
     
     var body: some View {
@@ -120,7 +121,7 @@ struct UserStatView: View {
         .foregroundColor(.black)
     }
 }
-
+/*
 #Preview {
     ProfileHeaderView(viewModel: ProfileViewModel(
         user: DeveloperPreview.users[0],
@@ -128,3 +129,4 @@ struct UserStatView: View {
         postService: PostService())
     )
 }
+*/

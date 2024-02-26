@@ -13,11 +13,12 @@ struct CurrentUserProfileView: View {
     @StateObject var likesViewModel: LikedVideosViewModel
     private let userService: UserService
     @State var currentProfileSection: currentProfileSection
+    @State var isLoading = true
     init(authService: AuthService, user: User, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
         self.authService = authService
         self.user = user
         
-        let viewModel = ProfileViewModel(user: user,
+        let viewModel = ProfileViewModel(uid: user.id,
                                          userService: UserService(),
                                          postService: PostService())
         let likesViewModel = LikedVideosViewModel(user: user,
@@ -32,40 +33,50 @@ struct CurrentUserProfileView: View {
     
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 2) {
-                    
-                    ProfileHeaderView(viewModel: profileViewModel)
-                        .padding(.top)
-                    CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
-                    
-                    
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Sign Out") {
-                        authService.signout()
+        if isLoading {
+            // Loading screen
+            ProgressView("Loading...")
+                .onAppear {
+                    Task {
+                        await profileViewModel.fetchUser()
+                        isLoading = false
                     }
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
                 }
+        } else{
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 2) {
+                        
+                        ProfileHeaderView(viewModel: profileViewModel)
+                            .padding(.top)
+                        //CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
+                        
+                        
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Sign Out") {
+                            authService.signout()
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    }
+                }
+                
+                .task { await profileViewModel.fetchUserStats() }
+                .navigationTitle("Profile")
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(for: User.self) { user in
+                    ProfileView(uid: user.id, userService: userService)
+                }
+                .navigationDestination(for: SearchModelConfig.self) { config in
+                    SearchView(userService: UserService(), searchConfig: config)}
+                .navigationBarBackButtonHidden(true)
             }
-            
-            .task { await profileViewModel.fetchUserStats() }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: User.self) { user in
-                ProfileView(user: user, userService: userService)
-            }
-            .navigationDestination(for: SearchModelConfig.self) { config in
-                SearchView(userService: UserService(), searchConfig: config)}
-            .navigationBarBackButtonHidden(true)
         }
     }
 }
-
 
 
 

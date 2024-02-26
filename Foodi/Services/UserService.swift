@@ -39,6 +39,7 @@ extension UserService {
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
+        
     }
     
     func unfollow(uid: String) async throws {

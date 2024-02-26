@@ -21,6 +21,7 @@ class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
         self.restaurantId = restaurantId
         self.restaurantService = restaurantService
         self.postService = postService
+        // DEBUG: see if you can delete this
         Task {
             await fetchRestaurant(id: restaurantId)
         }
