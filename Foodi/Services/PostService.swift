@@ -34,7 +34,7 @@ class PostService {
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                //group.addTask { try await self.fetchPostRestaurantData(post)}
+                
             }
         }
         
@@ -51,7 +51,6 @@ class PostService {
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
         }
         return posts
@@ -79,12 +78,6 @@ class PostService {
         let user = try await userService.fetchUser(withUid: post.ownerUid)
         posts[index].user = user
     }
-    /*private func fetchPostRestaurantData(_ post: Post) async throws {
-        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
-        
-        let restaurant = try await restaurantService.fetchRestaurant(withId: post.restaurantId)
-        posts[index].restaurant = restaurant
-    } */
 }
 
     
@@ -136,18 +129,12 @@ extension PostService {
                 group.addTask { try await self.fetchLikedPostData(postId: postId, userId: user.id)}
             }
         }
-        //Fetches the Restaurant data for each of the posts
-        /*await withThrowingTaskGroup(of: Void.self) { group in
-            for post in posts {
-                group.addTask { try await self.fetchPostRestaurantData(post)}
-            }
-        }*/
        
         return posts
         }
     
     func fetchLikedPostData(postId: String, userId: String) async throws {
-        print("DEBUG: Ran fetchPost")
+        print("DEBUG: Ran fetchLikedPostData")
         // fetches the posts given a postID
         let post = try await FirestoreConstants
                 .PostsCollection

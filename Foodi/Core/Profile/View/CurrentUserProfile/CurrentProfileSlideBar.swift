@@ -16,14 +16,13 @@ enum currentProfileSection {
 struct CurrentProfileSlideBarView: View {
     @Binding var currentProfileSection: currentProfileSection
     @ObservedObject var viewModel: ProfileViewModel
-    @ObservedObject var likesViewModel: LikedVideosViewModel
     private let userService: UserService
     
-    init(viewModel: ProfileViewModel, userService: UserService, currentProfileSection: Binding<currentProfileSection>, likesViewModel: LikedVideosViewModel) {
+    init(viewModel: ProfileViewModel, userService: UserService, currentProfileSection: Binding<currentProfileSection>) {
         self.userService = userService
         self._currentProfileSection = currentProfileSection
         self.viewModel = viewModel
-        self.likesViewModel = likesViewModel
+        
         }
 
     var body: some View {
@@ -56,7 +55,6 @@ struct CurrentProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentProfileSection == .likes))
                     .frame(maxWidth: .infinity)
-                    .task { await likesViewModel.fetchUserLikedPosts()}
                     
                 
                /* Image(systemName: currentProfileSection == .collections ? "folder.fill" : "folder")

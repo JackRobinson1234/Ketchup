@@ -32,7 +32,7 @@ struct LikedPostsView: View {
                     }
                 }
         } else {
-            
+            PostGridView(posts: viewModel.posts, userService: userService)
         }
     }
 }
