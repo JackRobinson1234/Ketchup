@@ -14,14 +14,12 @@ enum ProfileSectionEnum {
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
-    @ObservedObject var likesViewModel: LikedVideosViewModel
     private let userService: UserService
     
-    init(viewModel: ProfileViewModel, userService: UserService, profileSection: Binding<ProfileSectionEnum>, likesViewModel: LikedVideosViewModel) {
+    init(viewModel: ProfileViewModel, userService: UserService, profileSection: Binding<ProfileSectionEnum>) {
         self.userService = userService
         self._profileSection = profileSection
         self.viewModel = viewModel
-        self.likesViewModel = likesViewModel
         }
 
     var body: some View {
@@ -54,22 +52,9 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
                     .frame(maxWidth: .infinity)
-                    .task { await likesViewModel.fetchUserLikedPosts()}
                     
                 
-               /* Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 45, height: 17)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.profileSection = .collections
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
-                    .frame(maxWidth: .infinity)
-                */
+               
                 Image(systemName: profileSection == .messages ? "message.fill" : "message")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -95,7 +80,7 @@ struct ProfileSlideBar: View {
         
                 
         if profileSection == .likes {
-            PostGridView(posts: likesViewModel.posts, userService: userService)
+            LikedPostsView(user: viewModel.user, userService: userService, postService: PostService())
                 
             }
         }

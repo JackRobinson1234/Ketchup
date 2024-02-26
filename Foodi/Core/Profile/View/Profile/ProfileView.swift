@@ -47,7 +47,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 2) {
                     ProfileHeaderView(viewModel: profileViewModel)
-                    /*ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection, likesViewModel: likesViewModel)*/
+                    ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection)
                 }
             }
             .task { await profileViewModel.fetchUserPosts() }
