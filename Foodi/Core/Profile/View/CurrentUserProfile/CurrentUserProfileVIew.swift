@@ -49,7 +49,7 @@ struct CurrentUserProfileView: View {
                         
                         ProfileHeaderView(viewModel: profileViewModel)
                             .padding(.top)
-                        //CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
+                        CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection, likesViewModel: likesViewModel)
                         
                         
                     }

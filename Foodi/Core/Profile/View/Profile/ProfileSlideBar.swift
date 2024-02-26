@@ -92,6 +92,7 @@ struct ProfileSlideBar: View {
         if profileSection == .posts {
             PostGridView(posts: viewModel.posts, userService: userService)
         }
+        
                 
         if profileSection == .likes {
             PostGridView(posts: likesViewModel.posts, userService: userService)
