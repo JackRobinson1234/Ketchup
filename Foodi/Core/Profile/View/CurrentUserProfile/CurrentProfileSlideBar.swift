@@ -57,19 +57,7 @@ struct CurrentProfileSlideBarView: View {
                     .frame(maxWidth: .infinity)
                     
                 
-               /* Image(systemName: currentProfileSection == .collections ? "folder.fill" : "folder")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 45, height: 17)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.currentProfileSection = .collections
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentProfileSection == .collections))
-                    .frame(maxWidth: .infinity)
-                */
+
                 Image(systemName: currentProfileSection == .messages ? "message.fill" : "message")
                     .resizable()
                     .aspectRatio(contentMode: .fit)

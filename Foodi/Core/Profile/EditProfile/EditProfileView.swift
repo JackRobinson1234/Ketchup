@@ -39,7 +39,7 @@ struct EditProfileView: View {
                                         .clipShape(Circle())
                                         .foregroundColor(Color(.systemGray4))
                                 } else {
-                                    UserCircularProfileImageView(user: user, size: .large)
+                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .large)
                                 }
                                 Text("Edit profile picture")
                                     .font(.footnote)

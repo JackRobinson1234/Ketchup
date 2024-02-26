@@ -54,7 +54,7 @@ struct FeedCell: View {
                                 Text("📍 \(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
                                 
                                     NavigationLink(value: post.user) {
-                                        Text("by \(post.user?.fullname ?? "")")
+                                        Text("by \(post.user.fullname)")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundStyle(.white)
@@ -102,7 +102,7 @@ struct FeedCell: View {
                             //user profile image
                             NavigationLink(value: post.user) {
                                 ZStack(alignment: .bottom) {
-                                    UserCircularProfileImageView(user: post.user, size: .medium)
+                                    UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
                                     Image(systemName: "plus.circle.fill")
                                         .foregroundStyle(.pink)
                                         .offset(y: 8)

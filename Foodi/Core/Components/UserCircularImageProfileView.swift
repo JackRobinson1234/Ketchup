@@ -29,12 +29,12 @@ enum ProfileImageSize {
 }
 
 struct UserCircularProfileImageView: View {
-    var user: User?
+    var profileImageUrl: String?
     let size: ProfileImageSize
     var color: Color? = nil
     
     var body: some View {
-        if let imageUrl = user?.profileImageUrl {
+        if let imageUrl = profileImageUrl {
             ZStack{
                 if let color = color{
                     Circle()

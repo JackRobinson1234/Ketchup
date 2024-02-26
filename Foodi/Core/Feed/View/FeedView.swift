@@ -87,7 +87,7 @@ struct FeedView: View {
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
-            .navigationDestination(for: User.self) { user in
+            .navigationDestination(for: postUser.self) { user in
                 ProfileView(uid: user.id, userService: userService)
             }
             .navigationDestination(for: SearchModelConfig.self) { config in

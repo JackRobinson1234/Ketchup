@@ -30,14 +30,14 @@ class PostService {
             .PostsCollection
             .whereField("ownerUid", isEqualTo: user.id)
             .getDocuments(as: Post.self)
-        
+        /*
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
                 
             }
         }
-        
+        */
         return posts
     }
     
@@ -48,11 +48,11 @@ class PostService {
             .whereField("restaurant.id", isEqualTo: restaurant.id)
             .getDocuments(as: Post.self)
         
-        await withThrowingTaskGroup(of: Void.self) { group in
+        /*await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
             }
-        }
+        } */
         return posts
     }
     
@@ -63,21 +63,21 @@ class PostService {
             .order(by: "timestamp", descending: true)
             .getDocuments(as: Post.self)
         
-        await withThrowingTaskGroup(of: Void.self) { group in
+        /*await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
                 //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
-        }
+        }*/
         return posts
     }
 
-    private func fetchPostUserData(_ post: Post) async throws {
+    /*private func fetchPostUserData(_ post: Post) async throws {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         
         let user = try await userService.fetchUser(withUid: post.ownerUid)
         posts[index].user = user
-    }
+    }*/
 }
 
     

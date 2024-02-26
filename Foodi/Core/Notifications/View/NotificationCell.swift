@@ -26,7 +26,7 @@ struct NotificationCell: View {
     var body: some View {
         HStack {
             NavigationLink(value: notification.user) {
-                UserCircularProfileImageView(user: notification.user, size: .xSmall)
+                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .xSmall)
                 
                 HStack {
                     Text(notification.user?.username ?? "")

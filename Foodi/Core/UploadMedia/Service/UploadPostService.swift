@@ -29,6 +29,7 @@ struct UploadPostService {
                 views: 0,
                 thumbnailUrl: "",
                 timestamp: Timestamp(),
+                user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
                 restaurant: postRestaurant(id: restaurant.id,
                                            cuisine: restaurant.cuisine,
                                            price: restaurant.price,
