@@ -14,7 +14,6 @@ import AVKit
 struct Post: Identifiable, Codable {
     let id: String
     let videoUrl: String
-    let ownerUid: String
     let caption: String
     var likes: Int
     var commentCount: Int
@@ -32,7 +31,6 @@ struct Post: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.videoUrl = try container.decode(String.self, forKey: .videoUrl)
-        self.ownerUid = try container.decode(String.self, forKey: .ownerUid)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
@@ -50,7 +48,6 @@ struct Post: Identifiable, Codable {
     init(
         id: String,
         videoUrl: String,
-        ownerUid: String,
         caption: String,
         likes: Int,
         commentCount: Int,
@@ -66,7 +63,6 @@ struct Post: Identifiable, Codable {
     ) {
         self.id = id
         self.videoUrl = videoUrl
-        self.ownerUid = ownerUid
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount

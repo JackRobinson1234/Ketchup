@@ -74,7 +74,6 @@ struct DeveloperPreview {
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[0],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
             likes: 200,
             commentCount: 57,
@@ -97,7 +96,6 @@ struct DeveloperPreview {
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[1],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post",
             likes: 500,
             commentCount: 62,
@@ -119,7 +117,6 @@ struct DeveloperPreview {
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[2],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post",
             likes: 197,
             commentCount: 23,

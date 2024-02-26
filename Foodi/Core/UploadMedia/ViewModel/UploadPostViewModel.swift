@@ -22,6 +22,7 @@ class UploadPostViewModel: ObservableObject {
     private let restaurant: Restaurant
     private let service: UploadPostService
     
+    
     init(service: UploadPostService, restaurant: Restaurant) {
         self.service = service
         self.restaurant = restaurant

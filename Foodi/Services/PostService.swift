@@ -28,7 +28,7 @@ class PostService {
         print("DEBUG: Ran fetchUserPost")
         self.posts = try await FirestoreConstants
             .PostsCollection
-            .whereField("ownerUid", isEqualTo: user.id)
+            .whereField("user.id", isEqualTo: user.id)
             .getDocuments(as: Post.self)
         /*
         await withThrowingTaskGroup(of: Void.self) { group in
@@ -92,7 +92,7 @@ extension PostService {
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": post.likes + 1])
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).setData([:])
         
-        NotificationManager.shared.uploadLikeNotification(toUid: post.ownerUid, post: post)
+        NotificationManager.shared.uploadLikeNotification(toUid: post.user.id, post: post)
     }
     
     func unlikePost(_ post: Post) async throws {
@@ -103,7 +103,7 @@ extension PostService {
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).delete()
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": post.likes - 1])
         
-        async let _ = NotificationManager.shared.deleteNotification(toUid: post.ownerUid, type: .like)
+        async let _ = NotificationManager.shared.deleteNotification(toUid: post.user.id, type: .like)
     }
     
     func checkIfUserLikedPost(_ post: Post) async throws -> Bool {
@@ -142,7 +142,7 @@ extension PostService {
                 .getDocument(as: Post.self)
         
         // doesnt show posts that arent the users
-        if post.ownerUid != userId {
+        if post.user.id != userId {
             self.posts.append(post)
         }
     }
