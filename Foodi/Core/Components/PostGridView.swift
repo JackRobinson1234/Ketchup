@@ -43,7 +43,7 @@ struct PostGridView: View {
                                     HStack{
                                         VStack (alignment: .leading) {
                                             Text("\(post.restaurant.name)")
-                                                .lineLimit(1)
+                                                .lineLimit(2)
                                                 .truncationMode(.tail)
                                                 .foregroundColor(.white)
                                                 .font(.footnote)

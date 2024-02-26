@@ -33,7 +33,9 @@ class UploadPostViewModel: ObservableObject {
         isLoading = true
         
         do {
-            try await service.uploadPost(caption: caption, videoUrlString: videoUrlString, restaurantId: restaurant.id)
+            print("running upload post")
+            print(restaurant)
+            try await service.uploadPost(caption: caption, videoUrlString: videoUrlString, restaurant: restaurant)
             isLoading = false
         } catch {
             self.error = error

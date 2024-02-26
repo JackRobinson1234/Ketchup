@@ -9,7 +9,7 @@ import Foundation
 import Firebase
 
 struct UploadPostService {
-    func uploadPost(caption: String, videoUrlString: String, restaurantId: String) async throws {
+    func uploadPost(caption: String, videoUrlString: String, restaurant: Restaurant) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let ref = FirestoreConstants.PostsCollection.document()
         
@@ -29,17 +29,21 @@ struct UploadPostService {
                 views: 0,
                 thumbnailUrl: "",
                 timestamp: Timestamp(),
-                restaurant: postRestaurant(id: NSUUID().uuidString,
-                                           cuisine: "Chinese",
-                                           price: "$",
-                                           name: "Greenbaum's Money Pit",
-                                           geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
-                                           address: "2311 Piedmont Ave",
-                                           city: "Berkeley",
-                                           state: "CA")
+                restaurant: postRestaurant(id: restaurant.id,
+                                           cuisine: restaurant.cuisine,
+                                           price: restaurant.price,
+                                           name: restaurant.name,
+                                           geoPoint: restaurant.geoPoint,
+                                           address: restaurant.address,
+                                           city: restaurant.city,
+                                           state: restaurant.state,
+                                           profileImageUrl: restaurant.profileImageUrl)
             )
+            print(post)
 
-            guard let postData = try? Firestore.Encoder().encode(post) else { return }
+            guard let postData = try? Firestore.Encoder().encode(post) else { 
+                print("not encoding post right")
+                return }
             try await ref.setData(postData)
             async let _ = try updateThumbnailUrl(fromVideoUrl: videoUrl, postId: ref.documentID)
         } catch {

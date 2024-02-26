@@ -62,7 +62,6 @@ struct SearchView: View {
                 switch restaurantListConfig {
                 case .upload:
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                        .modifier(BackButtonModifier())
                         .navigationBarBackButtonHidden()
                 case .restaurants:
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
