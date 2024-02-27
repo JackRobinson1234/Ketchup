@@ -58,12 +58,14 @@ struct NotificationCell: View {
                         .cornerRadius(6)
                 })
             } else {
-                if let post = notification.post {
-                    KFImage(URL(string: post.thumbnailUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 48, height: 48)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                if let post = notification.postThumbnail {
+                    
+                        KFImage(URL(string: post))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
                 }
             }
         }

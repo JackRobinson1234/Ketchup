@@ -10,25 +10,20 @@ struct CurrentUserProfileView: View {
     private let authService: AuthService
     private let user: User
     @StateObject var profileViewModel: ProfileViewModel
-    @StateObject var likesViewModel: LikedVideosViewModel
+    
     private let userService: UserService
     @State var currentProfileSection: currentProfileSection
     @State var isLoading = true
     init(authService: AuthService, user: User, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
         self.authService = authService
         self.user = user
-        
         let viewModel = ProfileViewModel(uid: user.id,
                                          userService: UserService(),
                                          postService: PostService())
-        let likesViewModel = LikedVideosViewModel(user: user,
-                                                  userService: UserService(),
-                                                  postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: viewModel)
-        self._likesViewModel = StateObject(wrappedValue: likesViewModel)
         self.userService = userService
         self._currentProfileSection = State(initialValue: currentProfileSection)
-        
+        print(user)
     }
     
     

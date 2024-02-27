@@ -23,6 +23,7 @@ class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
         self.uid = uid
         self.userService = userService
         self.postService = postService
+        print(uid)
     }
     func fetchUser() async {
         do {

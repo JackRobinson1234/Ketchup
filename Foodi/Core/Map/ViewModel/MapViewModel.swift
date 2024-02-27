@@ -5,10 +5,6 @@
 //  Created by Jack Robinson on 2/11/24.
 //
 
-/*protocol CoordinateProvider {
-    func getCoordinates() -> [String: CLLocationCoordinate2D]
-}*/
-
 import Foundation
 import MapKit
 import Firebase

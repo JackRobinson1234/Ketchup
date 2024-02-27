@@ -34,6 +34,7 @@ struct NotificationsView: View {
                         .foregroundStyle(.gray)
                 }
             }
+            //.navigationDestination(for: notification.postId): {
             .navigationDestination(for: User.self, destination: {user in
                 ProfileView(uid: user.id, userService: userService)})
             .navigationDestination(for: SearchModelConfig.self) { config in

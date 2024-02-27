@@ -543,7 +543,7 @@
 		F84FE2872B6A553000144F01 /* Map */ = {
 			isa = PBXGroup;
 			children = (
-				F871AFEE2B7832A500E4EB5F /* ViewModel */,
+				F871B0092B8DC30D00E4EB5F /* ViewModel */,
 				F871AFED2B7832A000E4EB5F /* View */,
 			);
 			path = Map;
@@ -659,7 +659,6 @@
 		F871AFED2B7832A000E4EB5F /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */,
 				F88E0A972B6B02A300EC159B /* MapView.swift */,
 				F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */,
 				F871B0012B886D2900E4EB5F /* MapSearchView.swift */,
@@ -667,9 +666,10 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		F871AFEE2B7832A500E4EB5F /* ViewModel */ = {
+		F871B0092B8DC30D00E4EB5F /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
