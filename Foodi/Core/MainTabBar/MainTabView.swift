@@ -9,15 +9,13 @@ import SwiftUI
 import AVKit
 struct MainTabView: View {
     private let authService: AuthService
-    private let user: User
     private let userService: UserService
     @State private var selectedTab = 0
     @State private var player = AVPlayer()
     @State private var playbackObserver: NSObjectProtocol?
     
-    init(authService: AuthService, user: User, userService: UserService) {
+    init(authService: AuthService, userService: UserService) {
         self.authService = authService
-        self.user = user
         self.userService = userService
     }
         
@@ -65,7 +63,7 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 3 }
                 .tag(3)
 
-            CurrentUserProfileView(authService: authService, user: user, userService: userService)
+            CurrentUserProfileView(authService: authService, userService: userService)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 4 ? "person.fill" : "person")
@@ -103,5 +101,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(authService: AuthService(), user: DeveloperPreview.user, userService: UserService())
+    MainTabView(authService: AuthService(), userService: UserService())
 }

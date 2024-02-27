@@ -29,7 +29,15 @@ class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
         do {
             self.user = try await userService.fetchUser(withUid: uid)
         } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
+        }
+    }
+    func fetchCurrentUser() async {
+        do{
+            self.user = try await userService.fetchCurrentUser()
+        }
+        catch {
+            print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
         }
     }
 }

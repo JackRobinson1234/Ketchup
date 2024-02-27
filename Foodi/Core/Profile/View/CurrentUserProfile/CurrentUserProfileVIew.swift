@@ -8,22 +8,21 @@
 import SwiftUI
 struct CurrentUserProfileView: View {
     private let authService: AuthService
-    private let user: User
     @StateObject var profileViewModel: ProfileViewModel
     
     private let userService: UserService
     @State var currentProfileSection: currentProfileSection
     @State var isLoading = true
-    init(authService: AuthService, user: User, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
+    init(authService: AuthService, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
         self.authService = authService
-        self.user = user
-        let viewModel = ProfileViewModel(uid: user.id,
+        
+        let viewModel = ProfileViewModel(uid: "",
                                          userService: UserService(),
                                          postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
         self._currentProfileSection = State(initialValue: currentProfileSection)
-        print(user)
+        
     }
     
     
@@ -33,7 +32,7 @@ struct CurrentUserProfileView: View {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
-                        await profileViewModel.fetchUser()
+                        await profileViewModel.fetchCurrentUser()
                         isLoading = false
                     }
                 }
@@ -77,6 +76,5 @@ struct CurrentUserProfileView: View {
 
 
 #Preview {
-    CurrentUserProfileView(authService: AuthService(),
-                           user: DeveloperPreview.user, userService: UserService())
+    CurrentUserProfileView(authService: AuthService(), userService: UserService())
 }
