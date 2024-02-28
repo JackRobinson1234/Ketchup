@@ -6,6 +6,9 @@
 //
 
 import FirebaseAuth
+import Firebase
+import FirebaseFirestore
+import SwiftUI
 
 enum UserError: Error {
     case unauthenticated
@@ -37,14 +40,29 @@ extension UserService {
             .setData([:])
         
         async let _ = try FirestoreConstants
+            .UserCollection
+            .document(currentUid)
+            .updateData(["stats.following" : FieldValue.increment(Int64(1))])
+        
+        async let _ = try FirestoreConstants
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(uid)
+            .updateData(["stats.followers" : FieldValue.increment(Int64(1))])
         
     }
     
     func unfollow(uid: String) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(currentUid)
+            .updateData(["stats.following" : FieldValue.increment(Int64(-1))])
 
         async let _ = try FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
@@ -55,7 +73,14 @@ extension UserService {
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .delete()
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(uid)
+            .updateData(["stats.followers" : FieldValue.increment(Int64(-1))])
+        
     }
+
     
     func checkIfUserIsFollowed(uid: String) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
@@ -70,8 +95,9 @@ extension UserService {
 }
 
 // MARK: - User Stats
-
+/*
 extension UserService {
+    //
     func fetchUserStats(uid: String) async throws -> UserStats {
         async let following = FirestoreConstants
             .FollowingCollection
@@ -105,3 +131,5 @@ extension UserService {
         return try await .init(following: following, followers: followers, likes: likes)
     }
 }
+
+*/

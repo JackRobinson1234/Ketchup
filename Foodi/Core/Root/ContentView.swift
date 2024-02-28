@@ -26,11 +26,8 @@ struct ContentView: View {
             if viewModel.userSession != nil {
                     MainTabView(authService: authService, userService: userService)
                         .environmentObject(viewModel)
-                        
-                    
                     
                 } else {
-                
                 LoginView(service: authService)
             }
         }

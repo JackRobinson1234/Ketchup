@@ -78,7 +78,7 @@ extension ProfileViewModel {
 
 // MARK: - Stats
 
-extension ProfileViewModel {
+/*extension ProfileViewModel {
     func fetchUserStats() async {
             guard !didCompleteStatsFetch else {print("DEBUG: User stats have already been fetched \(user.stats)")
                 return
@@ -92,7 +92,7 @@ extension ProfileViewModel {
             }
         }
     
-}
+}*/
 
 // MARK: - Posts
 

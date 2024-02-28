@@ -52,7 +52,7 @@ struct ProfileView: View {
             }
             .task { await profileViewModel.fetchUserPosts() }
             .task { await profileViewModel.checkIfUserIsFollowed() }
-            .task { await profileViewModel.fetchUserStats() }
+            /*.task { await profileViewModel.fetchUserStats() }*/
             /*.navigationTitle(profileViewModel.user.username)
             .navigationBarTitleDisplayMode(.inline) */
             .toolbar(.hidden, for: .tabBar)

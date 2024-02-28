@@ -24,7 +24,6 @@ class ContentViewModel: ObservableObject {
     }
     @MainActor
     func setupSubscribers() {
-        print("Debug1: SetupSubscribers is running")
             authService.$userSession.sink { [weak self] session in
                 self?.userSession = session
                

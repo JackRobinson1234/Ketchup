@@ -58,7 +58,7 @@ struct CurrentUserProfileView: View {
                     }
                 }
                 
-                .task { await profileViewModel.fetchUserStats() }
+                /*.task { await profileViewModel.fetchUserStats() }*/
                 .navigationTitle("Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
