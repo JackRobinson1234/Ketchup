@@ -67,6 +67,7 @@ struct CurrentUserProfileView: View {
                 .navigationDestination(for: SearchModelConfig.self) { config in
                     SearchView(userService: UserService(), searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
+                .refreshable { await profileViewModel.fetchCurrentUser() }
             }
         }
     }
