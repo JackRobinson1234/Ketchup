@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
+class RestaurantViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var restaurant: Restaurant?
     
@@ -22,9 +22,7 @@ class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
         self.restaurantService = restaurantService
         self.postService = postService
         // DEBUG: see if you can delete this
-        Task {
-            await fetchRestaurant(id: restaurantId)
-        }
+        
     }
     func fetchRestaurant(id: String) async {
         do {
@@ -43,17 +41,11 @@ class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
 
 extension RestaurantViewModel {
     func fetchRestaurantPosts(restaurant: Restaurant) async {
+        if let unwrappedRestaurant = self.restaurant{
             do {
-                self.posts = try await postService.fetchRestaurantPosts(restaurant: restaurant)
+                self.posts = try await postService.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            }
-        }
-    
-    func fetchPosts() {
-        Task{
-            if let unwrappedRestaurant = self.restaurant{
-                await fetchRestaurantPosts(restaurant: unwrappedRestaurant)
             }
         }
     }

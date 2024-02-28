@@ -17,6 +17,7 @@ struct FeedView: View {
     @State private var path = NavigationPath()
     @State private var showSearchView = false
     @State private var showFilters = false
+    @State private var isLoading = true
     private let userService: UserService
     
     
@@ -31,6 +32,16 @@ struct FeedView: View {
     }
     
     var body: some View {
+        if isLoading {
+            // Loading screen
+            ProgressView("Loading...")
+                .onAppear {
+                    Task {
+                        await viewModel.fetchPosts()
+                        isLoading = false
+                    }
+                }
+        }
         //MARK: Video
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
@@ -76,9 +87,7 @@ struct FeedView: View {
             
             //MARK: Loading/ No posts
             .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else if viewModel.showEmptyView {
+                if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                         .foregroundStyle(.white)
                 }

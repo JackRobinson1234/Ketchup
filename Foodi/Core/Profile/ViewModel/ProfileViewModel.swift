@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
+class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user = User(id: "", username: "", email: "", fullname: "")
     
@@ -101,11 +101,7 @@ extension ProfileViewModel {
             }
         }
     
-    func fetchPosts() {
-        Task{
-            await fetchUserPosts()
-        }
-    }
+    
     func fetchUserLikedPosts() async {
         
             do {

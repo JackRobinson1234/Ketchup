@@ -10,7 +10,7 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-class LikedVideosViewModel: ObservableObject, PostGridViewModelProtocol {
+class LikedVideosViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user: User
     
@@ -22,11 +22,7 @@ class LikedVideosViewModel: ObservableObject, PostGridViewModelProtocol {
         self.userService = userService
         self.postService = postService
     }
-    func fetchPosts() {
-        Task{
-            await fetchUserLikedPosts()
-        }
-    }
+    
     func fetchUserLikedPosts() async {
         do {
             self.posts = try await postService.fetchUserLikedPosts(user: user)

@@ -38,7 +38,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
                     .frame(maxWidth: .infinity)
-                    .task { await viewModel.fetchUserPosts() }
+                    //.task { await viewModel.fetchUserPosts() }
                 
                 Image(systemName: profileSection == .likes ? "heart.fill" : "heart")
                     .resizable()

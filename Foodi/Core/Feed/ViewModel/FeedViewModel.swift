@@ -21,8 +21,6 @@ class FeedViewModel: ObservableObject {
         self.postService = postService
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
-        
-        Task { await fetchPosts() }
     }
     
     
