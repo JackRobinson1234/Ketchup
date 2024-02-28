@@ -28,6 +28,7 @@ class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
     func fetchUser() async {
         do {
             self.user = try await userService.fetchUser(withUid: uid)
+            await fetchUserPosts()
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
@@ -35,6 +36,7 @@ class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
     func fetchCurrentUser() async {
         do{
             self.user = try await userService.fetchCurrentUser()
+            await fetchUserPosts()
         }
         catch {
             print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
@@ -46,19 +48,14 @@ class ProfileViewModel: ObservableObject, PostGridViewModelProtocol {
 
 extension ProfileViewModel {
     func follow() {
-        
             Task {
                 try await userService.follow(uid: user.id)
                 user.isFollowed = true
                 user.stats.followers += 1
-                
                 NotificationManager.shared.uploadFollowNotification(toUid: user.id)
             }
-        
     }
-    
     func unfollow() {
-        
             Task {
                 try await userService.unfollow(uid: user.id)
                 user.isFollowed = false
@@ -66,9 +63,7 @@ extension ProfileViewModel {
             }
         }
     
-    
     func checkIfUserIsFollowed() async {
-        
             guard !user.isCurrentUser, !didCompleteFollowCheck else { return }
             user.isFollowed = await userService.checkIfUserIsFollowed(uid: user.id)
             self.didCompleteFollowCheck = true

@@ -50,7 +50,6 @@ struct ProfileView: View {
                     ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection)
                 }
             }
-            .task { await profileViewModel.fetchUserPosts() }
             .task { await profileViewModel.checkIfUserIsFollowed() }
             /*.task { await profileViewModel.fetchUserStats() }*/
             /*.navigationTitle(profileViewModel.user.username)
