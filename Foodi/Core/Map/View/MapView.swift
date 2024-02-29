@@ -70,6 +70,7 @@ struct MapView: View {
                             Button(action: {
                                 inSearchView.toggle()
                                 isSearchPresented.toggle()
+                                position = .automatic
                             }) {
                                 Image(systemName: "magnifyingglass")
                                     .foregroundStyle(.white)
@@ -102,6 +103,7 @@ struct MapView: View {
                             HStack{
                                 Button{
                                     inSearchView = false
+                                    position = .userLocation(fallback: .automatic)
                                 } label: {
                                     Text("Cancel")
                                         .foregroundStyle(.blue)
