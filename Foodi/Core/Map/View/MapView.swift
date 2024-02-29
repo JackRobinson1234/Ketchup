@@ -17,6 +17,9 @@ struct MapView: View {
     @State private var inSearchView: Bool = false
     @State private var isSearchPresented: Bool = false
     @State private var isFiltersPresented: Bool = false
+    @ObservedObject var locationManager = LocationManager.shared
+    @Namespace var mapScope
+
     
     
     
@@ -32,13 +35,13 @@ struct MapView: View {
     var body: some View {
         NavigationStack{
             ZStack(alignment: .bottom) {
-                Map(position: $position, selection: $selectedRestaurant) {
+                Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
                     if !inSearchView{
                         ForEach(restaurants, id: \.self) { restaurant in
                             if let coordinates = restaurant.coordinates {
                                 Annotation(restaurant.name, coordinate: coordinates) {
                                     RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
-                            }
+                                }
                             }
                         }
                     } else {
@@ -50,7 +53,17 @@ struct MapView: View {
                             }
                         }
                     }
+                    UserAnnotation()
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    VStack {
+                        MapUserLocationButton(scope: mapScope)
+                    }
+                    .padding([.bottom, .trailing], 20)
+                    .buttonBorderShape(.circle)
+                }
+                .mapScope(mapScope)
+                
                 VStack {
                     if !inSearchView{
                         HStack {
@@ -128,16 +141,20 @@ struct MapView: View {
                                 showRestaurantPreview.toggle()
                                 showDetails.toggle()
                             }
+                        
                     }
                 }
             }
+            .onAppear{LocationManager.shared.requestLocation()}
         }
+        
     }
     
     func clearSelectedListing() {
         selectedRestaurant = nil
         }
     }
+
 
 
 
