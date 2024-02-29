@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVKit
-
+import Photos
 struct FeedCell: View {
     @Binding var post: Post
     var player: AVPlayer
@@ -127,6 +127,15 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
+                                requestPhotoLibraryAccess { granted in
+                                    if granted {
+                                        print("Access to photo library granted.")
+                                        // Now you can proceed with saving the video to the photo library
+                                    } else {
+                                        print("Access to photo library denied or not determined.")
+                                        // You might want to inform the user or handle the denial case appropriately
+                                    }
+                                }
                                 
                             } label: {
                                 FeedCellActionButtonView(imageName: "arrowshape.turn.up.right.fill",
@@ -163,6 +172,62 @@ struct FeedCell: View {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }
 }
+
+private func downloadVideo(url: URL) {
+    let task = URLSession.shared.downloadTask(with: url) { (tempLocalURL, response, error) in
+        if let tempLocalURL = tempLocalURL, error == nil {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let destinationURL = documentsDirectory.appendingPathComponent("downloadedVideo.mp4")
+            
+            do {
+                try FileManager.default.moveItem(at: tempLocalURL, to: destinationURL)
+                print("Video downloaded to: \(destinationURL)")
+                
+                // Save the video to the photo library
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: destinationURL)
+                }) { (success, error) in
+                    if success {
+                        print("Video saved to photo library.")
+                    } else {
+                        print("Error saving video to photo library: \(error?.localizedDescription ?? "")")
+                    }
+                }
+                
+            } catch {
+                print("Error moving file: \(error.localizedDescription)")
+            }
+        } else {
+            print("Error downloading video: \(error?.localizedDescription ?? "")")
+        }
+    }
+    
+    task.resume()
+}
+
+func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
+    PHPhotoLibrary.requestAuthorization { status in
+        switch status {
+        case .authorized:
+            // User has granted access
+            completion(true)
+        case .denied, .restricted:
+            // User has denied or restricted access
+            completion(false)
+        case .notDetermined:
+            // User has not yet made a decision
+            completion(false)
+        case .limited:
+            completion(true)
+        @unknown default:
+            // Handle future cases
+            completion(false)
+        }
+    }
+}
+
+
+
 
 #Preview {
     FeedCell(
