@@ -14,7 +14,7 @@ struct FeedCell: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
-    @StateObject var downloadViewModel: DownloadViewModel = .init()
+    @State private var showShareView = false
         
     private var didLike: Bool { return post.didLike }
     
@@ -128,9 +128,8 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
-                                if let url = URL(string: post.videoUrl) {
-                                    downloadViewModel.downloadVideo(url: url)
-                                }
+                                player.pause()
+                                showShareView.toggle()
                                 
                             } label: {
                                 FeedCellActionButtonView(imageName: "arrowshape.turn.up.right.fill",
@@ -147,6 +146,10 @@ struct FeedCell: View {
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+            }
+            .sheet(isPresented: $showShareView) {
+                ShareView(post: post)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
             }
             .onTapGesture {
                 switch player.timeControlStatus {

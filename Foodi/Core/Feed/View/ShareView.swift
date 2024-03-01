@@ -8,15 +8,18 @@
 import SwiftUI
 
 struct ShareView: View {
+    @StateObject var downloadViewModel: DownloadViewModel = .init()
+    var post: Post
+    
     var body: some View {
         HStack(alignment: .bottom, spacing: 30) {
             VStack{
                 Button(action: {
-                    // Handle download action
-                }) {
+                    if let url = URL(string: post.videoUrl) {
+                        downloadViewModel.downloadVideo(url: url)
+                    }}) {
                     Image(systemName: "square.and.arrow.down")
                         .font(.system(size: 40))
-                    
                     
                 }
                 Text("Save Video")
@@ -67,5 +70,5 @@ struct ShareView: View {
 }
 
 #Preview {
-    ShareView()
+    ShareView(post: DeveloperPreview.posts[0])
 }
