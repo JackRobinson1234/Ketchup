@@ -13,10 +13,14 @@ import SwiftUI
 import Photos
 import AVFoundation
 
+
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var progress: Float = 0
-    
+    @Published var isDownloading: Bool = false
+    @Published var downloadSuccess: Bool = false
+    @Published var downloadFailure: Bool = false
     func downloadVideo(url: URL) {
+        isDownloading = true
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         let task = session.dataTask(with: url) { (data, response, error) in
             guard error == nil else {
@@ -27,7 +31,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         }
         task.resume()
     }
-    
+   
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let data = try? Data(contentsOf: location) else {
             return
@@ -38,8 +42,16 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         do {
             try data.write(to: destinationURL)
             saveVideoToAlbum(videoURL: destinationURL, albumName: "MyAlbum")
+            DispatchQueue.main.async {
+                self.isDownloading = false
+                self.downloadSuccess.toggle()
+                        }
         } catch {
             print("Error saving file:", error)
+            DispatchQueue.main.async {
+                self.isDownloading = false
+                self.downloadFailure.toggle()
+                        }
         }
     }
     
@@ -91,8 +103,10 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             albumChangeRequest?.addAssets(enumeration)
         }, completionHandler: { success, error in
             if success {
+            
                 print("Successfully saved video to album")
             } else {
+            
                 print("Error saving video to album: \(error?.localizedDescription ?? "")")
             }
         })

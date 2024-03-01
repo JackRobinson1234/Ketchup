@@ -146,10 +146,12 @@ struct FeedCell: View {
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                    .onDisappear{player.play()}
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                    .onDisappear{player.play()}
             }
             .onTapGesture {
                 switch player.timeControlStatus {
@@ -171,37 +173,7 @@ struct FeedCell: View {
     }
 }
 
-private func downloadVideo(url: URL) {
-    let task = URLSession.shared.downloadTask(with: url) { (tempLocalURL, response, error) in
-        if let tempLocalURL = tempLocalURL, error == nil {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let destinationURL = documentsDirectory.appendingPathComponent("downloadedVideo.mp4")
-            
-            do {
-                try FileManager.default.moveItem(at: tempLocalURL, to: destinationURL)
-                print("Video downloaded to: \(destinationURL)")
-                
-                // Save the video to the photo library
-                PHPhotoLibrary.shared().performChanges({
-                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: destinationURL)
-                }) { (success, error) in
-                    if success {
-                        print("Video saved to photo library.")
-                    } else {
-                        print("Error saving video to photo library: \(error?.localizedDescription ?? "")")
-                    }
-                }
-                
-            } catch {
-                print("Error moving file: \(error.localizedDescription)")
-            }
-        } else {
-            print("Error downloading video: \(error?.localizedDescription ?? "")")
-        }
-    }
-    
-    task.resume()
-}
+
 
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     PHPhotoLibrary.requestAuthorization { status in

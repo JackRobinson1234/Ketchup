@@ -14,19 +14,47 @@ struct ShareView: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 30) {
             VStack{
-                Button(action: {
-                    if let url = URL(string: post.videoUrl) {
-                        downloadViewModel.downloadVideo(url: url)
-                    }}) {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.system(size: 40))
+                if downloadViewModel.downloadSuccess{
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.green)
+                        .font(.system(size: 30))
+                    Text("Saved!")
+                        .font(.subheadline)
+                        .padding(.top,1)
+                    
+                } else if downloadViewModel.downloadFailure {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 50))
+                    Text("Save Failed")
+                        .font(.subheadline)
+                        .padding(.top,1)
+                } else {
+                    Button(action: {
+                        if let url = URL(string: post.videoUrl) {
+                            downloadViewModel.downloadVideo(url: url)
+                        }}) {
+                            if downloadViewModel.isDownloading {
+                                if downloadViewModel.progress == 0 {
+                                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                        .frame(width: 40, height: 40)
+                                }
+                                else {
+                                    ProgressView(value: downloadViewModel.progress)
+                                        .frame(width: 40, height: 40)
+                                }
+                                
+                            } else {
+                                Image(systemName: "square.and.arrow.down")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    Text("Save Video")
+                        .font(.subheadline)
+                        .padding(.top,1)
                     
                 }
-                Text("Save Video")
-                    .font(.subheadline)
-                    .padding(.top,1)
-                    
-                
             }
             VStack{
                 
@@ -52,20 +80,19 @@ struct ShareView: View {
                     // Handle more actions
                 }) {
                     Image(systemName: "ellipsis.circle")
-                        .foregroundColor(.green)
-                        .font(.system(size: 50))
+                        .foregroundColor(.blue)
+                        .font(.system(size: 40))
                 }
                 Text("More")
                     .font(.subheadline)
+                    .padding(.top, 1)
                     
             }
             
             Spacer()
         }
                 .padding()
-                .background(Color.white)
-                .cornerRadius(10)
-                .shadow(radius: 5)
+                
     }
 }
 
