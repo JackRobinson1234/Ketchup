@@ -14,6 +14,7 @@ struct FeedCell: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
+    @StateObject var downloadViewModel: DownloadViewModel = .init()
         
     private var didLike: Bool { return post.didLike }
     
@@ -127,14 +128,8 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
-                                requestPhotoLibraryAccess { granted in
-                                    if granted {
-                                        print("Access to photo library granted.")
-                                        // Now you can proceed with saving the video to the photo library
-                                    } else {
-                                        print("Access to photo library denied or not determined.")
-                                        // You might want to inform the user or handle the denial case appropriately
-                                    }
+                                if let url = URL(string: post.videoUrl) {
+                                    downloadViewModel.downloadVideo(url: url)
                                 }
                                 
                             } label: {

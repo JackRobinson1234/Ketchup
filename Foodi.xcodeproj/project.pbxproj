@@ -36,6 +36,7 @@
 		F871B00B2B912CA500E4EB5F /* LocationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B00A2B912CA500E4EB5F /* LocationRequest.swift */; };
 		F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B00D2B91399C00E4EB5F /* Download Functionality.swift */; };
 		F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B00F2B914B6900E4EB5F /* photosRequest.swift */; };
+		F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B0122B91CB9C00E4EB5F /* ShareView.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -196,6 +197,8 @@
 		F871B00A2B912CA500E4EB5F /* LocationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRequest.swift; sourceTree = "<group>"; };
 		F871B00D2B91399C00E4EB5F /* Download Functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Download Functionality.swift"; sourceTree = "<group>"; };
 		F871B00F2B914B6900E4EB5F /* photosRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = photosRequest.swift; sourceTree = "<group>"; };
+		F871B0112B919B7200E4EB5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F871B0122B91CB9C00E4EB5F /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -372,6 +375,7 @@
 		F84FE24A2B6A531200144F01 /* Foodi */ = {
 			isa = PBXGroup;
 			children = (
+				F871B0112B919B7200E4EB5F /* Info.plist */,
 				F84FE27B2B6A542D00144F01 /* App */,
 				F84FE27A2B6A541900144F01 /* Core */,
 				F84FE2792B6A541400144F01 /* Extensions */,
@@ -728,6 +732,7 @@
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
 				F88E0A912B6B023800EC159B /* FeedView.swift */,
+				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1230,6 +1235,7 @@
 				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
 				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,
+				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileVIew.swift in Sources */,
@@ -1447,8 +1453,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Foodi/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to photos to save videos to your device";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -1485,8 +1492,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Foodi/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to photos to save videos to your device";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
