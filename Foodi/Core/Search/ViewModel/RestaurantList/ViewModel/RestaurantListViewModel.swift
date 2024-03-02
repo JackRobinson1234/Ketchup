@@ -57,14 +57,14 @@ class RestaurantListViewModel: ObservableObject {
             print("DEBUG: Successfully fetched \(snapshot.documents.count) restaurants.")
             }
         }
-        private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {
+        /*private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {
             guard let documents = snapshot?.documents else { return }
             
             for doc in documents {
                 let restaurant = try await restaurantService.fetchRestaurant(withId: doc.documentID)
                 restaurants.append(restaurant)
             }
-        }
+        }*/
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()
             return restaurants.filter({

@@ -63,6 +63,7 @@ class MapViewModel: ObservableObject {
                 restaurants.append(restaurant)
             }
         }
+     
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()
             return restaurants.filter({

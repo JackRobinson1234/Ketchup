@@ -25,8 +25,8 @@ struct FeedView: View {
         self._player = player
         
         let viewModel = FeedViewModel(
-                                      postService: PostService(),
-                                      posts: posts)
+            postService: PostService(),
+            posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
     }
@@ -39,9 +39,11 @@ struct FeedView: View {
                     Task {
                         await viewModel.fetchPosts()
                         isLoading = false
+                        
                     }
                 }
-        }
+                .toolbar(.hidden, for: .tabBar)
+        } else {
         //MARK: Video
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
@@ -60,7 +62,7 @@ struct FeedView: View {
                 HStack{
                     Button{
                         showSearchView.toggle()
-                      
+                        
                     } label: {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 27))
@@ -69,12 +71,12 @@ struct FeedView: View {
                     Button {
                         showFilters.toggle()
                     }
-                     label: {
-                        Image(systemName: "slider.horizontal.3")
-                            .imageScale(.large)
-                            .shadow(radius: 4)
-                            .font(.system(size: 23))
-                    }
+                label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .imageScale(.large)
+                        .shadow(radius: 4)
+                        .font(.system(size: 23))
+                }
                     
                 }
                 .padding(32)
@@ -124,13 +126,14 @@ struct FeedView: View {
                 }
             }
             .fullScreenCover(isPresented: $showFilters) {
-                    FiltersView()
+                FiltersView()
             }
             .onChange(of: scrollPosition, { oldValue, newValue in
                 playVideoOnChangeOfScrollPosition(postId: newValue)
             })
         }
     }
+}
     //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
@@ -149,6 +152,7 @@ struct FeedView: View {
         player.replaceCurrentItem(with: playerItem)
     }
 }
+
 
 #Preview {
     FeedView(player: .constant(AVPlayer()), posts: DeveloperPreview.posts, userService: UserService())
