@@ -9,36 +9,44 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-class RestaurantViewModel: ObservableObject, PostGridViewModelProtocol {
+class RestaurantViewModel: ObservableObject {
     @Published var posts = [Post]()
-    @Published var restaurant: Restaurant
+    @Published var restaurant: Restaurant?
     
+    private let restaurantId: String
     private let restaurantService: RestaurantService
     private let postService: PostService
     
-    init(restaurant: Restaurant, restaurantService: RestaurantService, postService: PostService) {
-        self.restaurant = restaurant
+    init(restaurantId: String, restaurantService: RestaurantService, postService: PostService) {
+        self.restaurantId = restaurantId
         self.restaurantService = restaurantService
         self.postService = postService
-        Task {
-            fetchPosts()
-        }
+        // DEBUG: see if you can delete this
+        
     }
-}
-    
-// MARK: - Posts
-
-extension RestaurantViewModel {
-    func fetchRestaurantPosts() async {
+    func fetchRestaurant(id: String) async {
         do {
-            self.posts = try await postService.fetchRestaurantPosts(restaurant: restaurant)
+            self.restaurant = try await restaurantService.fetchRestaurant(withId: id)
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
+        if let unwrappedRestaurant = self.restaurant{
+            await withThrowingTaskGroup(of: Void.self) { group in
+                group.addTask {await self.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
+            }
+        }
     }
-    func fetchPosts() {
-        Task{
-            await fetchRestaurantPosts()
+}
+// MARK: - Posts
+
+extension RestaurantViewModel {
+    func fetchRestaurantPosts(restaurant: Restaurant) async {
+        if let unwrappedRestaurant = self.restaurant{
+            do {
+                self.posts = try await postService.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
+            } catch {
+                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            }
         }
     }
 }

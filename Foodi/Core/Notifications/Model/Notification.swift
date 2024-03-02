@@ -14,9 +14,8 @@ struct Notification: Identifiable, Codable {
     let timestamp: Timestamp
     let type: NotificationType
     let uid: String
-    
-    var post: Post?
     var user: User?
+    var postThumbnail: String?
 }
 
 enum NotificationType: Int, Codable {

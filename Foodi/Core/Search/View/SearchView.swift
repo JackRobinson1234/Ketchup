@@ -26,12 +26,12 @@ struct SearchView: View {
             NavigationStack {
                 internalBody
                     .navigationDestination(for: User.self) { user in
-                        ProfileView(user: user, userService: userService)
+                        ProfileView(uid: user.id, userService: userService)
                     }
                     .navigationDestination(for: SearchModelConfig.self) { config in
                         SearchView(userService: UserService(), searchConfig: config)}
                     .navigationDestination(for: Restaurant.self) { restaurant in
-                        RestaurantProfileView(restaurant: restaurant)
+                        RestaurantProfileView(restaurantId: restaurant.id)
                     }
             }
         } else {
@@ -59,7 +59,16 @@ struct SearchView: View {
                     
                 
             case .restaurants(let restaurantListConfig):
-                if restaurantListConfig != .upload{
+                switch restaurantListConfig {
+                case .upload:
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .navigationBarBackButtonHidden()
+                case .restaurants:
+                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+                }
+                /*if restaurantListConfig == .upload{
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
                         .modifier(BackButtonModifier())
                         .navigationBarBackButtonHidden()
@@ -69,6 +78,7 @@ struct SearchView: View {
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
                         
                 }
+                 */
             }
         }
         

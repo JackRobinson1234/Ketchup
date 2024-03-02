@@ -7,7 +7,7 @@
 
 import Foundation
 @MainActor
-class PostListViewModel: ObservableObject, PostGridViewModelProtocol {
+class PostListViewModel: ObservableObject {
     private let postService: PostService
     private let userService: UserService
     @Published var posts = [Post]()

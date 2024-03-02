@@ -16,26 +16,28 @@ class PostService {
     
     func fetchPost(postId: String) async throws -> Post {
         print("DEBUG: Ran fetchPost")
-        return try await FirestoreConstants
-            .PostsCollection
-            .document(postId)
-            .getDocument(as: Post.self)
+        let post = try await FirestoreConstants
+                .PostsCollection
+                .document(postId)
+                .getDocument(as: Post.self)
+        self.posts.append(post)
+        return post
     }
     
     func fetchUserPosts(user: User) async throws -> [Post] {
         print("DEBUG: Ran fetchUserPost")
         self.posts = try await FirestoreConstants
             .PostsCollection
-            .whereField("ownerUid", isEqualTo: user.id)
+            .whereField("user.id", isEqualTo: user.id)
             .getDocuments(as: Post.self)
-        
+        /*
         await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
+                
             }
         }
-        
+        */
         return posts
     }
     
@@ -43,15 +45,14 @@ class PostService {
         print("DEBUG: Ran fetchRestaurantPosts")
         self.posts = try await FirestoreConstants
             .PostsCollection
-            .whereField("restaurantId", isEqualTo: restaurant.id)
+            .whereField("restaurant.id", isEqualTo: restaurant.id)
             .getDocuments(as: Post.self)
         
-        await withThrowingTaskGroup(of: Void.self) { group in
+        /*await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
             }
-        }
+        } */
         return posts
     }
     
@@ -62,27 +63,21 @@ class PostService {
             .order(by: "timestamp", descending: true)
             .getDocuments(as: Post.self)
         
-        await withThrowingTaskGroup(of: Void.self) { group in
+        /*await withThrowingTaskGroup(of: Void.self) { group in
             for post in posts {
                 group.addTask { try await self.fetchPostUserData(post) }
-                group.addTask { try await self.fetchPostRestaurantData(post)}
+                //group.addTask { try await self.fetchPostRestaurantData(post)}
             }
-        }
+        }*/
         return posts
     }
 
-    private func fetchPostUserData(_ post: Post) async throws {
+    /*private func fetchPostUserData(_ post: Post) async throws {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         
         let user = try await userService.fetchUser(withUid: post.ownerUid)
         posts[index].user = user
-    }
-    private func fetchPostRestaurantData(_ post: Post) async throws {
-        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
-        
-        let restaurant = try await restaurantService.fetchRestaurant(withId: post.restaurantId)
-        posts[index].restaurant = restaurant
-    }
+    }*/
 }
 
     
@@ -94,10 +89,11 @@ extension PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).setData([:])
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": post.likes + 1])
+        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(1))])
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).setData([:])
+        async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(1))])
         
-        NotificationManager.shared.uploadLikeNotification(toUid: post.ownerUid, post: post)
+        NotificationManager.shared.uploadLikeNotification(toUid: post.user.id, post: post)
     }
     
     func unlikePost(_ post: Post) async throws {
@@ -106,9 +102,10 @@ extension PostService {
         
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).delete()
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).delete()
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": post.likes - 1])
+        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(-1))])
+        async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(-1))])
         
-        async let _ = NotificationManager.shared.deleteNotification(toUid: post.ownerUid, type: .like)
+        async let _ = NotificationManager.shared.deleteNotification(toUid: post.user.id, type: .like)
     }
     
     func checkIfUserLikedPost(_ post: Post) async throws -> Bool {
@@ -117,4 +114,41 @@ extension PostService {
         let snapshot = try await FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).getDocument()
         return snapshot.exists
     }
+    
+    func fetchUserLikedPosts(user: User) async throws -> [Post] {        
+        print("DEBUG: Ran fetchUserLikedPost")
+        // Gets a snapshot of liked postIds
+        let querySnapshot = try await FirestoreConstants
+            .UserCollection
+            .document(user.id)
+            .collection("user-likes")
+            .getDocuments()
+        let postIds = querySnapshot.documents.map { $0.documentID }
+        
+        // fetches the posts fromt the PostIds
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for postId in postIds {
+                group.addTask { try await self.fetchLikedPostData(postId: postId, userId: user.id)}
+            }
+        }
+       
+        return posts
+        }
+    
+    func fetchLikedPostData(postId: String, userId: String) async throws {
+        print("DEBUG: Ran fetchLikedPostData")
+        // fetches the posts given a postID
+        let post = try await FirestoreConstants
+                .PostsCollection
+                .document(postId)
+                .getDocument(as: Post.self)
+        
+        // doesnt show posts that arent the users
+        if post.user.id != userId {
+            self.posts.append(post)
+        }
+    }
+        
 }
+
+

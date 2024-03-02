@@ -26,7 +26,7 @@ struct NotificationCell: View {
     var body: some View {
         HStack {
             NavigationLink(value: notification.user) {
-                UserCircularProfileImageView(user: notification.user, size: .xSmall)
+                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .xSmall)
                 
                 HStack {
                     Text(notification.user?.username ?? "")
@@ -58,12 +58,14 @@ struct NotificationCell: View {
                         .cornerRadius(6)
                 })
             } else {
-                if let post = notification.post {
-                    KFImage(URL(string: post.thumbnailUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 48, height: 48)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                if let post = notification.postThumbnail {
+                    
+                        KFImage(URL(string: post))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
                 }
             }
         }

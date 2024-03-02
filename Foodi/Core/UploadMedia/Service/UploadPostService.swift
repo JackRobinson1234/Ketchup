@@ -9,8 +9,9 @@ import Foundation
 import Firebase
 
 struct UploadPostService {
-    func uploadPost(caption: String, videoUrlString: String, restaurantId: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+    private var userService = UserService()
+    func uploadPost(caption: String, videoUrlString: String, restaurant: Restaurant)async throws {
+        let user = try await userService.fetchCurrentUser()
         let ref = FirestoreConstants.PostsCollection.document()
         
         do {
@@ -20,7 +21,6 @@ struct UploadPostService {
             let post = Post(
                 id: ref.documentID,
                 videoUrl: videoUrl,
-                ownerUid: uid,
                 caption: caption,
                 likes: 0,
                 commentCount: 0,
@@ -29,12 +29,24 @@ struct UploadPostService {
                 views: 0,
                 thumbnailUrl: "",
                 timestamp: Timestamp(),
-                restaurantId: restaurantId
+                user: postUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl),
+                restaurant: postRestaurant(id: restaurant.id,
+                                           cuisine: restaurant.cuisine,
+                                           price: restaurant.price,
+                                           name: restaurant.name,
+                                           geoPoint: restaurant.geoPoint,
+                                           address: restaurant.address,
+                                           city: restaurant.city,
+                                           state: restaurant.state,
+                                           profileImageUrl: restaurant.profileImageUrl)
             )
+            print(post)
 
-            guard let postData = try? Firestore.Encoder().encode(post) else { return }
-            try await ref.setData(postData)
+            guard let postData = try? Firestore.Encoder().encode(post) else { 
+                print("not encoding post right")
+                return }
             async let _ = try updateThumbnailUrl(fromVideoUrl: videoUrl, postId: ref.documentID)
+            try await ref.setData(postData)
         } catch {
             print("DEBUG: Failed to upload image with error \(error.localizedDescription)")
             throw error

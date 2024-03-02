@@ -26,8 +26,7 @@ struct DeveloperPreview {
             cuisine: "Italian",
             price: "$$",
             name: "Amir B's Pizzeria",
-            latitude: 37.86697712078698,
-            longitude:  -122.25134254232876,
+            geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
             address: "2425 Piedmont Ave",
             city: "Berkeley",
             state: "CA",
@@ -38,8 +37,7 @@ struct DeveloperPreview {
             cuisine: "American",
             price: "$$$$",
             name: "Will Bond's Steakhouse",
-            latitude: 37.869308983815685,
-            longitude:  -122.25350152899239,
+            geoPoint: GeoPoint(latitude: 37.869308983815685, longitude: -122.25350152899239),
             address: "2722 Bancroft Ave",
             city: "Berkeley",
             state: "CA",
@@ -50,8 +48,7 @@ struct DeveloperPreview {
             cuisine: "Chinese",
             price: "$",
             name: "Greenbaum's Money Pit",
-            latitude: 37.868883834260735,
-            longitude:  -122.25118022568488,
+            geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
             address: "2311 Piedmont Ave",
             city: "Berkeley",
             state: "CA",
@@ -67,7 +64,7 @@ struct DeveloperPreview {
     ]
     
     static var users: [User] = [
-        .init(id: NSUUID().uuidString, username: "lewis.hamilton", email: "lewis@gmail.com", fullname: "Lewis Hamilton"),
+        .init(id: NSUUID().uuidString, username: "lewis.hamilton", email: "lewis@gmail.com", fullname: "Lewis Hamilton", bio: " jasdf "),
         .init(id: NSUUID().uuidString, username: "max.verstappen", email: "max@gmail.com", fullname: "Max Verstappen"),
         .init(id: NSUUID().uuidString, username: "fernando.alonso", email: "fernando@gmail.com", fullname: "Fernado Alonso"),
         .init(id: NSUUID().uuidString, username: "charles.leclerc", email: "charles@gmail.com", fullname: "Charles Leclerc"),
@@ -77,7 +74,6 @@ struct DeveloperPreview {
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[0],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
             likes: 200,
             commentCount: 57,
@@ -86,15 +82,20 @@ struct DeveloperPreview {
             views: 567,
             thumbnailUrl: "lewis-hamilton",
             timestamp: Timestamp(),
-            user: users[0],
-            restaurant: restaurants[0],
-            restaurantId: restaurants[0].id
+            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
             
         ),
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[1],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post",
             likes: 500,
             commentCount: 62,
@@ -103,14 +104,19 @@ struct DeveloperPreview {
             views: 841,
             thumbnailUrl: "max-verstappen",
             timestamp: Timestamp(),
-            user: users[1],
-            restaurant: restaurants[1],
-            restaurantId: restaurants[0].id
+            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
         ),
         .init(
             id: NSUUID().uuidString,
             videoUrl: videoUrls[2],
-            ownerUid: "lewis.hamilton",
             caption: "This is some test caption for this post",
             likes: 197,
             commentCount: 23,
@@ -119,9 +125,15 @@ struct DeveloperPreview {
             views: 937,
             thumbnailUrl: "fernando-alonso",
             timestamp: Timestamp(),
-            user: users[2],
-            restaurant: restaurants[2],
-            restaurantId: restaurants[0].id
+            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
+            restaurant: postRestaurant(id: NSUUID().uuidString,
+                                       cuisine: "Chinese",
+                                       price: "$",
+                                       name: "Greenbaum's Money Pit",
+                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
+                                       address: "2311 Piedmont Ave",
+                                       city: "Berkeley",
+                                       state: "CA")
         ),
     ]
     
@@ -166,12 +178,12 @@ struct DeveloperPreview {
     ]
     
     static var notifications: [Notification] = [
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", post: posts[0], user: user),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .like, uid: "max-verstappen", post: posts[2], user: users[3]),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", post: posts[1], user: user),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "fernando-alonso", post: posts[0], user: users[2]),
+        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
+        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .like, uid: "max-verstappen",  user: users[3]),
+        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
+        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "fernando-alonso", user: users[2]),
         .init(id: NSUUID().uuidString, timestamp: Timestamp(), type: .follow, uid: "lewis-hamilton", user: users[1]),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", post: posts[1], user: user),
+        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", user: user),
     ]
             
 }

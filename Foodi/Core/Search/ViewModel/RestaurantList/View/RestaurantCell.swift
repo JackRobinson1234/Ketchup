@@ -16,7 +16,7 @@ struct RestaurantCell: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            RestaurantCircularProfileImageView(restaurant: restaurant, size: .large)
+            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
             
             VStack(alignment: .leading) {
                 Text(restaurant.name)

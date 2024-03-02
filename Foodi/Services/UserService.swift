@@ -6,6 +6,9 @@
 //
 
 import FirebaseAuth
+import Firebase
+import FirebaseFirestore
+import SwiftUI
 
 enum UserError: Error {
     case unauthenticated
@@ -13,9 +16,10 @@ enum UserError: Error {
 
 class UserService {
     func fetchCurrentUser() async throws -> User {
-        print("DEBUG: Ran fetchCurrentUser()")
         guard let uid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
-        return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
+        let user = try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
+        print("DEBUG1: running fetched currentuser: \(user.fullname)")
+        return user
     }
     
     func fetchUser(withUid uid: String) async throws -> User {
@@ -36,13 +40,29 @@ extension UserService {
             .setData([:])
         
         async let _ = try FirestoreConstants
+            .UserCollection
+            .document(currentUid)
+            .updateData(["stats.following" : FieldValue.increment(Int64(1))])
+        
+        async let _ = try FirestoreConstants
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(uid)
+            .updateData(["stats.followers" : FieldValue.increment(Int64(1))])
+        
     }
     
     func unfollow(uid: String) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(currentUid)
+            .updateData(["stats.following" : FieldValue.increment(Int64(-1))])
 
         async let _ = try FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
@@ -53,7 +73,14 @@ extension UserService {
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .delete()
+        
+        async let _ = try FirestoreConstants
+            .UserCollection
+            .document(uid)
+            .updateData(["stats.followers" : FieldValue.increment(Int64(-1))])
+        
     }
+
     
     func checkIfUserIsFollowed(uid: String) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
@@ -68,8 +95,9 @@ extension UserService {
 }
 
 // MARK: - User Stats
-
+/*
 extension UserService {
+    //
     func fetchUserStats(uid: String) async throws -> UserStats {
         async let following = FirestoreConstants
             .FollowingCollection
@@ -103,3 +131,5 @@ extension UserService {
         return try await .init(following: following, followers: followers, likes: likes)
     }
 }
+
+*/

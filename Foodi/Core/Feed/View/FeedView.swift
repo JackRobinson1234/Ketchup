@@ -17,6 +17,7 @@ struct FeedView: View {
     @State private var path = NavigationPath()
     @State private var showSearchView = false
     @State private var showFilters = false
+    @State private var isLoading = true
     private let userService: UserService
     
     
@@ -24,13 +25,25 @@ struct FeedView: View {
         self._player = player
         
         let viewModel = FeedViewModel(
-                                      postService: PostService(),
-                                      posts: posts)
+            postService: PostService(),
+            posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
     }
     
     var body: some View {
+        if isLoading {
+            // Loading screen
+            ProgressView("Loading...")
+                .onAppear {
+                    Task {
+                        await viewModel.fetchPosts()
+                        isLoading = false
+                        
+                    }
+                }
+                .toolbar(.hidden, for: .tabBar)
+        } else {
         //MARK: Video
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
@@ -49,20 +62,21 @@ struct FeedView: View {
                 HStack{
                     Button{
                         showSearchView.toggle()
-                      
+                        
                     } label: {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 22))
+                            .font(.system(size: 27))
                     }
                     Spacer()
                     Button {
                         showFilters.toggle()
                     }
-                     label: {
-                        Image(systemName: "slider.horizontal.3")
-                            .imageScale(.large)
-                            .shadow(radius: 4)
-                    }
+                label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .imageScale(.large)
+                        .shadow(radius: 4)
+                        .font(.system(size: 23))
+                }
                     
                 }
                 .padding(32)
@@ -75,9 +89,7 @@ struct FeedView: View {
             
             //MARK: Loading/ No posts
             .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else if viewModel.showEmptyView {
+                if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                         .foregroundStyle(.white)
                 }
@@ -86,13 +98,13 @@ struct FeedView: View {
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
-            .navigationDestination(for: User.self) { user in
-                ProfileView(user: user, userService: userService)
+            .navigationDestination(for: postUser.self) { user in
+                ProfileView(uid: user.id, userService: userService)
             }
             .navigationDestination(for: SearchModelConfig.self) { config in
                 SearchView(userService: UserService(), searchConfig: config)}
-            .navigationDestination(for: Restaurant.self) { restaurant in
-                RestaurantProfileView(restaurant: restaurant)}
+            .navigationDestination(for: postRestaurant.self) { restaurant in
+                RestaurantProfileView(restaurantId: restaurant.id)}
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
                     player.pause()
@@ -114,13 +126,14 @@ struct FeedView: View {
                 }
             }
             .fullScreenCover(isPresented: $showFilters) {
-                    FiltersView()
+                FiltersView()
             }
             .onChange(of: scrollPosition, { oldValue, newValue in
                 playVideoOnChangeOfScrollPosition(postId: newValue)
             })
         }
     }
+}
     //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
@@ -139,6 +152,7 @@ struct FeedView: View {
         player.replaceCurrentItem(with: playerItem)
     }
 }
+
 
 #Preview {
     FeedView(player: .constant(AVPlayer()), posts: DeveloperPreview.posts, userService: UserService())

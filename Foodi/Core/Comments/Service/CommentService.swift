@@ -60,7 +60,7 @@ class CommentService: CommentServiceProtocol {
         
         var comment = Comment(
             id: ref.documentID,
-            postOwnerUid: post.ownerUid,
+            postOwnerUid: post.user.id,
             commentText: commentText,
             postId: post.id,
             timestamp: Timestamp(),
@@ -74,7 +74,7 @@ class CommentService: CommentServiceProtocol {
             "commentCount": post.commentCount + 1
         ])
         
-        NotificationManager.shared.uploadCommentNotification(toUid: post.ownerUid, post: post)
+        NotificationManager.shared.uploadCommentNotification(toUid: post.user.id, post: post)
         
         if let currentUser = currentUser {
             comment.user = currentUser

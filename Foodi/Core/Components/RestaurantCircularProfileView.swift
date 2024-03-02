@@ -4,9 +4,6 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
-import SwiftUI
-
 import SwiftUI
 import Kingfisher
 
@@ -31,20 +28,29 @@ enum RestaurantImageSize {
 }
 
 struct RestaurantCircularProfileImageView: View {
-    var restaurant: Restaurant?
+    var imageUrl: String?
+    var color: Color? = .white
     let size: RestaurantImageSize
     var body: some View {
-        if let imageUrl = restaurant?.profileImageUrl, !imageUrl.isEmpty {
+        ZStack{
+            if let color = color{
+                Circle()
+                .fill(color)
+                .frame(width: size.dimension + 4, height: size.dimension + 4)}
+            
+            if let imageUrl, !imageUrl.isEmpty {
             KFImage(URL(string: imageUrl))
                 .resizable()
                 .scaledToFill()
                 .frame(width: size.dimension, height: size.dimension)
                 .clipShape(Circle())
-        } else {
+            }
+            else {
             Image(systemName: "building.2.crop.circle.fill")
                 .resizable()
                 .frame(width: size.dimension, height: size.dimension)
                 .foregroundColor(Color(.systemGray5))
+            }
         }
     }
 }

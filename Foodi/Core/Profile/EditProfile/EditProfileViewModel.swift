@@ -18,6 +18,11 @@ class EditProfileViewModel: ObservableObject {
         didSet { Task { await loadImage(fromItem: selectedImage) } }
     }
     @Published var profileImage: Image?
+    @Published var favoritesPreview: [FavoriteRestaurant] {
+        didSet {
+                    print("Favorites Preview Changed: \(favoritesPreview)")
+                }
+    }
     
     private var uiImage: UIImage?
     var fullname = ""
@@ -31,6 +36,7 @@ class EditProfileViewModel: ObservableObject {
         }
         self.fullname = user.fullname
         self.username = user.username
+        self.favoritesPreview = user.favorites
     }
     
     @MainActor
@@ -50,7 +56,7 @@ class EditProfileViewModel: ObservableObject {
     }
     
     func updateUserData() async throws {
-        var data: [String: String] = [:]
+        var data: [String: Any] = [:]
 
         if let uiImage = uiImage {
             try? await updateProfileImage(uiImage)
@@ -71,7 +77,11 @@ class EditProfileViewModel: ObservableObject {
             user.bio = bio
             data["bio"] = bio
         }
-        
+        if !favoritesPreview.isEmpty, user.favorites != favoritesPreview {
+            user.favorites = favoritesPreview
+            let cleanedData = favoritesPreview.map { ["name": $0.name, "id": $0.id, "restaurantProfileImageUrl": $0.restaurantProfileImageUrl ?? ""] }
+            data["favorites"] = cleanedData
+        }
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
     }
 }

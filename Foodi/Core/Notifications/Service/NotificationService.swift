@@ -35,7 +35,7 @@ class NotificationService {
         guard uid != currentUid else { return }
         let ref = FirestoreConstants.UserNotificationCollection(uid: uid).document()
         
-        let notification = Notification(id: ref.documentID, postId: post?.id, timestamp: Timestamp(), type: type, uid: currentUid)
+        let notification = Notification(id: ref.documentID, postId: post?.id, timestamp: Timestamp(), type: type, uid: currentUid, postThumbnail: post?.thumbnailUrl)
         guard let data = try? Firestore.Encoder().encode(notification) else { return }
         
         ref.setData(data)
@@ -73,8 +73,8 @@ class NotificationService {
             self.notifications[indexOfNotification].user?.isFollowed = await isFollowed
         }
 
-        if let postId = notification.postId {
+        /*if let postId = notification.postId {
             self.notifications[indexOfNotification].post = try? await postService.fetchPost(postId: postId)
-        }
+        }*/
     }
 }

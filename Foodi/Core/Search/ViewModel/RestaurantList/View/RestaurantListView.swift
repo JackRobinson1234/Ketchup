@@ -12,37 +12,48 @@ struct RestaurantListView: View {
     private let config: RestaurantListConfig
     @State private var searchText = ""
     private let restaurantService: RestaurantService
+    @Binding var oldSelection: FavoriteRestaurant?
+    @Binding var favoritesPreview: [FavoriteRestaurant]?
+    @Environment(\.dismiss) var dismiss
     
-    init(config: RestaurantListConfig, restaurantService: RestaurantService, userService: UserService) {
+    
+    init(config: RestaurantListConfig, restaurantService: RestaurantService, userService: UserService, oldSelection: Binding<FavoriteRestaurant?> = .constant(nil), favoritesPreview: Binding<[FavoriteRestaurant]?> = .constant(nil)) {
         self.config = config
         self.restaurantService = restaurantService
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(config: config, restaurantService: restaurantService))
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel( restaurantService: restaurantService))
+        self._oldSelection = oldSelection
+        self._favoritesPreview = favoritesPreview
     }
     
     var restaurants: [Restaurant] {
         return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
     }
     var body: some View {
-        
-            ScrollView {
-                LazyVStack {
-                    ForEach(restaurants) { restaurant in
-                        NavigationLink(value: restaurant) {
-                            RestaurantCell(restaurant: restaurant)
-                                .padding(.leading)
-                                .onAppear {
-                                    if restaurant.id == restaurants.last?.id ?? "" {
+                    switch config {
+                    case .upload, .restaurants:
+                        ScrollView {
+                            LazyVStack {
+                        ForEach(restaurants) { restaurant in
+                            NavigationLink(value: restaurant) {
+                                RestaurantCell(restaurant: restaurant)
+                                    .padding(.leading)
+                                    .onAppear {
+                                        if restaurant.id == restaurants.last?.id ?? "" {
+                                        }
                                     }
-                                }
+                            }
                         }
+                        
+                        .padding(.top)
+                        
                     }
-                    
-                    .padding(.top)
-                    
-                }
-                .navigationTitle(config.navigationTitle)
-                .navigationBarTitleDisplayMode(.inline) 
-                .searchable(text: $searchText, placement: .navigationBarDrawer)
+                    .navigationTitle(config.navigationTitle)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $searchText, placement: .navigationBarDrawer)
+                        
+            }
+                        
+                        
         }
     }
 }

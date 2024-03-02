@@ -5,32 +5,21 @@
 //  Created by Jack Robinson on 2/1/24.
 //
 
+// Restaurant Map also grabs from this
+
 import Foundation
 import Firebase
 
 @MainActor
 class RestaurantListViewModel: ObservableObject {
     @Published var restaurants = [Restaurant]()
-    private let config: RestaurantListConfig
     private var restaurantLastDoc: QueryDocumentSnapshot?
     private var restaurantService: RestaurantService = RestaurantService()
-    init(config: RestaurantListConfig, restaurantService: RestaurantService) {
+    init(restaurantService: RestaurantService) {
         self.restaurantService = restaurantService
-        self.config = config
-        fetchRestaurants(forConfig: config)
+        Task {await fetchRestaurants()}
     }
     
-    
-    func fetchRestaurants(forConfig config: RestaurantListConfig) {
-        Task {
-            switch config {
-            case .restaurants:
-                await fetchRestaurants()
-            case .upload:
-                await fetchRestaurants()
-            }
-        }
-    }
     
     
     func fetchRestaurants() async {
@@ -68,14 +57,14 @@ class RestaurantListViewModel: ObservableObject {
             print("DEBUG: Successfully fetched \(snapshot.documents.count) restaurants.")
             }
         }
-        private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {
+        /*private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {
             guard let documents = snapshot?.documents else { return }
             
             for doc in documents {
                 let restaurant = try await restaurantService.fetchRestaurant(withId: doc.documentID)
                 restaurants.append(restaurant)
             }
-        }
+        }*/
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()
             return restaurants.filter({

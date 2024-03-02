@@ -12,7 +12,7 @@ struct CommentCell: View {
     
     var body: some View {
         HStack {
-            UserCircularProfileImageView(user: comment.user, size: .xxSmall)
+            UserCircularProfileImageView(profileImageUrl: comment.user?.profileImageUrl, size: .xxSmall)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 2) {

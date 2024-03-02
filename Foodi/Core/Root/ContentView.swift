@@ -24,11 +24,10 @@ struct ContentView: View {
     var body: some View {
         Group {
             if viewModel.userSession != nil {
-                if let user = viewModel.currentUser {
-                    MainTabView(authService: authService, user: user, userService: userService)
+                    MainTabView(authService: authService, userService: userService)
                         .environmentObject(viewModel)
-                }
-            } else {
+                    
+                } else {
                 LoginView(service: authService)
             }
         }
