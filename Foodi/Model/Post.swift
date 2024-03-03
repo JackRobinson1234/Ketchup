@@ -110,16 +110,14 @@ struct postUser: Codable, Hashable, Identifiable {
 }
 
 struct postRecipe: Codable, Hashable {
-    let name: String
-    let cuisine: String?
-    let time: Int?
-    let dietary: [String]?
-    let instructions: [instructions]?
+    var name: String
+    var cuisine: String?
+    var time: Int?
+    var dietary: [String]?
+    var instructions: [instructions]?
 }
 
-struct instructions: Codable, Hashable, Identifiable {
-    let id: String
-    let title: String
-    let description: String?
-    
+struct instructions: Codable, Hashable {
+    var title: String
+    var description: String
 }

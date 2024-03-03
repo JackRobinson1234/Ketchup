@@ -12,6 +12,7 @@ struct UploadPostView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
     @Binding var cover: Bool
+    @State var showAddRecipe: Bool = false
     private let postType: PostType
     
     private let restaurant: Restaurant?
@@ -75,7 +76,7 @@ struct UploadPostView: View {
                 .disabled(viewModel.isLoading)
             }
             .padding()
-            .navigationTitle("Post")
+            .navigationTitle("Restaurant Post")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .toolbar {
@@ -118,35 +119,102 @@ struct UploadPostView: View {
                         .padding(.top, 60)
                     Divider()
                     
-                    //MARK: Ingredients
-                    ForEach($viewModel.ingredients.indices, id: \.self) { index in
-                        TextField("Add Ingredient...", text: $viewModel.ingredients[index], axis: .vertical)
-                            .font(.subheadline)
+                    //MARK: ADD RECIPE
+                    Button{
+                        showAddRecipe.toggle()
+                    } label: {
+                        HStack{
+                            Text("Add your Recipe (Optional)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Spacer()
+                            if !showAddRecipe{
+                                Image(systemName: "chevron.down")
+                            }
+                            else {
+                                Image(systemName: "chevron.up")
+                            }
+                            
+                            
+                        }
                         Divider()
                     }
-                    //MARK: Ingredients Adding
-                    if $viewModel.ingredients.count < 25 {
+                    .padding(.top, 30)
+                    
+                    if showAddRecipe {
+                        
+                        //MARK: Ingredients
+                        Text("Ingredients")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                            .padding(.top, 10)
+                    
+                        ForEach($viewModel.ingredients.indices, id: \.self) { index in
+                            TextField("Add Ingredient...", text: $viewModel.ingredients[index], axis: .vertical)
+                                .font(.subheadline)
+                            Divider()
+                        }.padding(.top, 10)
+                        
+                        //MARK: Ingredients Adding
+                        
+                    
+                        if $viewModel.ingredients.count < 25 {
+                            Button {
+                                viewModel.addEmptyIngredient()
+                            } label: {
+                                VStack{
+                                    Image(systemName: "plus.circle")
+                                        .foregroundColor(.blue)
+                                        .font(.subheadline)
+                                        .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                    Text("Add Another Ingredient")
+                                        .font(.caption)
+                                        .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                }
+                            }
+                            .padding(.top, 10)
+                            .disabled(viewModel.isLastIngredientEmpty)
+                        }
+                        else {
+                            Text("Maximim Ingredients Reached")
+                                .font(.caption)
+                        }
+                        //MARK: Instructions
+                        Text("Instructions")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                            .padding(.top, 10)
+                        ForEach($viewModel.instructions.indices, id: \.self) { index in
+                            VStack{
+                                TextField("Step \(Int(index)+1) Title...", text: $viewModel.instructions[index].title, axis: .vertical)
+                                    .font(.subheadline)
+                                
+                                TextField("Step \(Int(index)+1) Description...", text: $viewModel.instructions[index].description, axis: .vertical)
+                                    .font(.subheadline)
+                            }
+                            
+                            .padding(.top, 10)
+                            Divider()
+                        }
+                        //MARK: ADD INSTRUCTION
                         Button {
-                            viewModel.addEmptyIngredient()
+                            viewModel.addEmptyInstruction()
                         } label: {
                             VStack{
                                 Image(systemName: "plus.circle")
                                     .foregroundColor(.blue)
                                     .font(.subheadline)
-                                    .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
-                                Text("Add New Ingredient")
+                                    .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
+                                Text("Add a New Step")
                                     .font(.caption)
-                                    .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                    .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
                             }
                         }
-                        .disabled(viewModel.isLastIngredientEmpty)
+                        .padding(.top, 10)
                     }
                     
-                        else {
-                            Text("Maximim Ingredients Reached")
-                                .font(.caption)
-                        }
                     Spacer()
+                    
                     Button {
                         //MARK: Post Button
                         Task {
@@ -173,7 +241,7 @@ struct UploadPostView: View {
                     .disabled(viewModel.isLoading)
                 }
                 .padding()
-                .navigationTitle("Post")
+                .navigationTitle("Recipe Post")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarBackButtonHidden()
                 .toolbar {
