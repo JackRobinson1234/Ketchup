@@ -42,13 +42,14 @@ struct PostGridView: View {
                                 VStack{
                                     HStack{
                                         VStack (alignment: .leading) {
-                                            Text("\(post.restaurant.name)")
-                                                .lineLimit(2)
-                                                .truncationMode(.tail)
-                                                .foregroundColor(.white)
-                                                .font(.footnote)
-                                                .bold()
-                                            
+                                            if let restaurant = post.restaurant {
+                                                Text("\(restaurant.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            }
                                         }
                                         
                                         Spacer()

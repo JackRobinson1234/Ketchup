@@ -40,27 +40,29 @@ struct FeedCell: View {
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
                                 // restaurant profile image
-                                NavigationLink(value: post.restaurant) {
-                                    RestaurantCircularProfileImageView(imageUrl: post.restaurant.profileImageUrl, size: .large)
-                                }
-                                //restaurant name
-                                VStack (alignment: .leading) {
-                                NavigationLink(value: post.restaurant) {
-                                    Text("\(post.restaurant.name)")
-                                        .font(.title3)
-                                        .bold()
-                                        .multilineTextAlignment(.leading)
-                                }
-                                //address
-                                Text("📍 \(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
-                                
-                                    NavigationLink(value: post.user) {
-                                        Text("by \(post.user.fullname)")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.white)
-                                            .bold()
-                                            .multilineTextAlignment(.leading)
+                                if let restaurant = post.restaurant{
+                                    NavigationLink(value: restaurant) {
+                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                                    }
+                                    //restaurant name
+                                    VStack (alignment: .leading) {
+                                        NavigationLink(value: restaurant) {
+                                            Text("\(restaurant.name)")
+                                                .font(.title3)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        //address
+                                        Text("📍 \(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                                        
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
                                     }
                                 }
                             }
@@ -74,19 +76,19 @@ struct FeedCell: View {
                                     .font(.footnote)
                             }
                             else {
-                                //cuisine
-                                Text("Cuisine: \(post.restaurant.cuisine ?? "")")
-                                
-                                // price
-                                Text("Price: \(post.restaurant.price ?? "")")
-                                
-                                //Menu Button
-                                
-                                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id, currentSection: .menu)) {
+                                if let restaurant = post.restaurant{
+                                    Text("Cuisine: \(restaurant.cuisine ?? "")")
+                                    
+                                    // price
+                                    Text("Price: \(restaurant.price ?? "")")
+                                    
+                                    //Menu Button
+                                    
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
-                                
+                                }
                             }
                         }
                         //controls box size
