@@ -17,7 +17,7 @@ class RestaurantListViewModel: ObservableObject {
     private var restaurantService: RestaurantService = RestaurantService()
     init(restaurantService: RestaurantService) {
         self.restaurantService = restaurantService
-        Task {await fetchRestaurants()}
+        //Task {await fetchRestaurants()}
     }
     
     
