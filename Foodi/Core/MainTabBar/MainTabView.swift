@@ -46,7 +46,8 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 1 }
                 .tag(1)
             
-            RestaurantSelectorView(tabIndex: $selectedTab)
+            //RestaurantSelectorView(tabIndex: $selectedTab)
+            CreatePostSelection(tabIndex: $selectedTab)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)

@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct UploadPostView: View {
-    @ObservedObject var viewModel: UploadPostViewModel
+struct RestaurantUploadPostView: View {
+    @ObservedObject var viewModel: RestaurantUploadPostViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
     private let restaurant: Restaurant
     private let movie: Movie
-    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
+    init(movie: Movie, viewModel: RestaurantUploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
         self.restaurant = restaurant
         self.movie = movie
         self.viewModel = viewModel
@@ -22,9 +22,7 @@ struct UploadPostView: View {
     var body: some View {
         VStack {
             HStack() {
-                
                 SelectedRestaurantView(restaurant: restaurant)
-                
                 Spacer()
                 
                 if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {

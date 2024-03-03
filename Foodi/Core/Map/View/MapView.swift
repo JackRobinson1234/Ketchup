@@ -36,7 +36,7 @@ struct MapView: View {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
-                        await viewModel.fetchRestaurants()
+                        try await viewModel.fetchRestaurants()
                         isLoading = false
                     }
                 }

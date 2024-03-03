@@ -22,6 +22,7 @@ struct SearchView: View {
     
     var body: some View {
         // Conditionally embed in NavigationStack only when searchSlideBar is true
+
         if searchSlideBar {
             NavigationStack {
                 internalBody
@@ -62,7 +63,9 @@ struct SearchView: View {
                 switch restaurantListConfig {
                 case .upload:
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
+                        .modifier(BackButtonModifier())
                         .navigationBarBackButtonHidden()
+                        .navigationBarTitleDisplayMode(.inline)
                 case .restaurants:
                     RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
                         .modifier(BackButtonModifier())

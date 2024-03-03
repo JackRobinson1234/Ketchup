@@ -9,28 +9,22 @@ import SwiftUI
 
 struct RestaurantSelectorView: View {
     @Binding var tabIndex: Int
+    @Environment(\.dismiss) var dismiss
     init(tabIndex: Binding<Int>) {
         self._tabIndex = tabIndex
     }
+    
     var body: some View {
         NavigationStack{
             ScrollView {
                 SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
             }
             .navigationDestination(for: Restaurant.self) { restaurant in
-                MediaSelectorView(tabIndex: $tabIndex, restaurant: restaurant)}
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        tabIndex = 0
-                    } label: {
-                        Text("Cancel")
-                    }
-                }
-            }
-            .toolbar(.hidden, for: .tabBar)
+                RestaurantMediaSelectorView(tabIndex: $tabIndex, restaurant: restaurant)}
         }
+        .navigationBarBackButtonHidden()
+        .toolbar(.hidden, for: .tabBar)
+        
     }
 }
 

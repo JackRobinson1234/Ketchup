@@ -8,9 +8,9 @@
 import SwiftUI
 import AVKit
 
-struct MediaSelectorView: View {
+struct RestaurantMediaSelectorView: View {
     @State private var player = AVPlayer()
-    @StateObject var viewModel: UploadPostViewModel
+    @StateObject var viewModel: RestaurantUploadPostViewModel
     @State private var showImagePicker = false
     @Binding var tabIndex: Int
     private let restaurant: Restaurant
@@ -19,7 +19,7 @@ struct MediaSelectorView: View {
     init(tabIndex: Binding<Int>, restaurant: Restaurant) {
         self._tabIndex = tabIndex
         self.restaurant = restaurant
-        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
+        self._viewModel = StateObject(wrappedValue: RestaurantUploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
     }
         var body: some View {
             VStack {
@@ -71,7 +71,7 @@ struct MediaSelectorView: View {
                 // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
+                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
                             Text("Next")
                         }
                     }
@@ -103,7 +103,8 @@ struct MediaSelectorView: View {
             .toolbar(.hidden, for: .tabBar)
         }
     }
-
+/*
 #Preview {
     MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }
+*/

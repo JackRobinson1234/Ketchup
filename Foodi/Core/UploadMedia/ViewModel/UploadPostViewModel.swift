@@ -10,7 +10,7 @@ import Firebase
 import PhotosUI
 
 @MainActor
-class UploadPostViewModel: ObservableObject {
+class RestaurantUploadPostViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     @Published var mediaPreview: Movie?
@@ -19,11 +19,11 @@ class UploadPostViewModel: ObservableObject {
     @Published var selectedItem: PhotosPickerItem? {
         didSet { Task { await loadVideo(fromItem: selectedItem) } }
     }
-    private let restaurant: Restaurant
+    private let restaurant: Restaurant?
     private let service: UploadPostService
     
     
-    init(service: UploadPostService, restaurant: Restaurant) {
+    init(service: UploadPostService, restaurant: Restaurant?) {
         self.service = service
         self.restaurant = restaurant
     }
@@ -32,15 +32,15 @@ class UploadPostViewModel: ObservableObject {
         guard !caption.isEmpty else { return }
         guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
         isLoading = true
-        
-        do {
-            print("running upload post")
-            print(restaurant)
-            try await service.uploadPost(caption: caption, videoUrlString: videoUrlString, restaurant: restaurant)
-            isLoading = false
-        } catch {
-            self.error = error
-            isLoading = false
+        if let restaurant {
+            do {
+                print("running upload post")
+                try await service.uploadPost(caption: caption, videoUrlString: videoUrlString, restaurant: restaurant)
+                isLoading = false
+            } catch {
+                self.error = error
+                isLoading = false
+            }
         }
     }
     

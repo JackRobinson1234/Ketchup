@@ -118,8 +118,8 @@
 		F88E0AFF2B6B095A00EC159B /* PostListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AFE2B6B095A00EC159B /* PostListView.swift */; };
 		F88E0B052B6B09E400EC159B /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B042B6B09E400EC159B /* Movie.swift */; };
 		F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B062B6B09FF00EC159B /* UploadPostService.swift */; };
-		F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */; };
-		F88E0B0D2B6B0A5400EC159B /* UploadPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */; };
+		F88E0B092B6B0A1A00EC159B /* RestaurantMediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B082B6B0A1A00EC159B /* RestaurantMediaSelectorView.swift */; };
+		F88E0B0D2B6B0A5400EC159B /* RestaurantUploadPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */; };
 		F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */; };
 		F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */; };
 		F88E0B132B6B0AA700EC159B /* FIrestore + Query.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */; };
@@ -255,8 +255,8 @@
 		F88E0AFE2B6B095A00EC159B /* PostListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListView.swift; sourceTree = "<group>"; };
 		F88E0B042B6B09E400EC159B /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		F88E0B062B6B09FF00EC159B /* UploadPostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostService.swift; sourceTree = "<group>"; };
-		F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSelectorView.swift; sourceTree = "<group>"; };
-		F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostView.swift; sourceTree = "<group>"; };
+		F88E0B082B6B0A1A00EC159B /* RestaurantMediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantMediaSelectorView.swift; sourceTree = "<group>"; };
+		F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantUploadPostView.swift; sourceTree = "<group>"; };
 		F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
 		F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperPreview.swift; sourceTree = "<group>"; };
 		F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FIrestore + Query.swift"; sourceTree = "<group>"; };
@@ -353,6 +353,30 @@
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		F82F5A002B94488200499499 /* Restaurant */ = {
+			isa = PBXGroup;
+			children = (
+				F88E0B082B6B0A1A00EC159B /* RestaurantMediaSelectorView.swift */,
+				F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */,
+				F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */,
+			);
+			path = Restaurant;
+			sourceTree = "<group>";
+		};
+		F82F5A012B94488D00499499 /* Recipe */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Recipe;
+			sourceTree = "<group>";
+		};
+		F82F5A022B94489A00499499 /* Brand */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Brand;
 			sourceTree = "<group>";
 		};
 		F84FE23F2B6A531200144F01 = {
@@ -500,7 +524,6 @@
 				F88E0A822B6B00F600EC159B /* UserCircularImageProfileView.swift */,
 				F88E0A842B6B013D00EC159B /* VideoPlayer.swift */,
 				F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */,
-				F823E17F2B70C16600E18135 /* CreatePostSelection.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1001,9 +1024,10 @@
 		F88E0B012B6B09BA00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */,
-				F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */,
-				F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */,
+				F823E17F2B70C16600E18135 /* CreatePostSelection.swift */,
+				F82F5A022B94489A00499499 /* Brand */,
+				F82F5A012B94488D00499499 /* Recipe */,
+				F82F5A002B94488200499499 /* Restaurant */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1236,11 +1260,11 @@
 				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
 				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
-				F88E0B0D2B6B0A5400EC159B /* UploadPostView.swift in Sources */,
+				F88E0B0D2B6B0A5400EC159B /* RestaurantUploadPostView.swift in Sources */,
 				F88E0B2A2B6CA03900EC159B /* FirestoreConstants.swift in Sources */,
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
-				F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */,
+				F88E0B092B6B0A1A00EC159B /* RestaurantMediaSelectorView.swift in Sources */,
 				F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */,
 				F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */,
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,

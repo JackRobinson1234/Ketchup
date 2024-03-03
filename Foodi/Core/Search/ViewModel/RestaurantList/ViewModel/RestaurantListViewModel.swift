@@ -17,12 +17,17 @@ class RestaurantListViewModel: ObservableObject {
     private var restaurantService: RestaurantService = RestaurantService()
     init(restaurantService: RestaurantService) {
         self.restaurantService = restaurantService
-        //Task {await fetchRestaurants()}
     }
     
     
-    
-    func fetchRestaurants() async {
+    func fetchRestaurants() async throws {
+        self.restaurants = try await FirestoreConstants
+        .RestaurantCollection
+        .limit(to: 20)
+        .getDocuments(as: Restaurant.self)
+        
+    }
+    /*func fetchRestaurants() async {
         let query = FirestoreConstants.RestaurantCollection.limit(to: 20)
         
         
@@ -64,7 +69,7 @@ class RestaurantListViewModel: ObservableObject {
                 let restaurant = try await restaurantService.fetchRestaurant(withId: doc.documentID)
                 restaurants.append(restaurant)
             }
-        }*/
+        }*/*/
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()
             return restaurants.filter({
