@@ -16,12 +16,14 @@ struct MediaSelectorView: View {
     private let restaurant: Restaurant?
     @Environment(\.dismiss) var dismiss
     @Binding var cover: Bool
+    private let postType: PostType
         
-    init(tabIndex: Binding<Int>, restaurant: Restaurant?, cover: Binding<Bool>) {
+    init(tabIndex: Binding<Int>, restaurant: Restaurant? = nil, cover: Binding<Bool>, postType: PostType) {
         self._cover = cover
         self._tabIndex = tabIndex
         self.restaurant = restaurant
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
+        self.postType = postType
     }
         var body: some View {
             VStack {
@@ -73,7 +75,7 @@ struct MediaSelectorView: View {
                 // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover)) {
+                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover, postType: postType)) {
                             Text("Next")
                         }
                     }

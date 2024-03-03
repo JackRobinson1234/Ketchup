@@ -12,15 +12,17 @@ struct RestaurantUploadPostView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
     @Binding var cover: Bool
+    private let postType: PostType
     
     private let restaurant: Restaurant?
     private let movie: Movie
-    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant?,cover: Binding<Bool> ) {
+    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant?, cover: Binding<Bool>, postType: PostType ) {
         self.restaurant = restaurant
         self.movie = movie
         self.viewModel = viewModel
         self._tabIndex = tabIndex
         self._cover = cover
+        self.postType = postType
     }
     var body: some View {
         VStack {
@@ -28,6 +30,7 @@ struct RestaurantUploadPostView: View {
             HStack() {
                 if let restaurant{
                     SelectedRestaurantView(restaurant: restaurant)}
+                
                 Spacer()
                 
                 if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
@@ -51,19 +54,13 @@ struct RestaurantUploadPostView: View {
                 Task {
                     try await viewModel.uploadRestaurantPost()
                     if viewModel.uploadSuccess{
-                        
                     }
                     else if viewModel.uploadFailure{
-                        
                     }
                     viewModel.reset()
                     cover = false
                     tabIndex = 0
-                    
-                    
-                    
                 }
-                
             } label: {
                 Text(viewModel.isLoading ? "" : "Post")
                     .modifier(StandardButtonModifier())

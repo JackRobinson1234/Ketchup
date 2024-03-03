@@ -121,7 +121,7 @@
 		F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B062B6B09FF00EC159B /* UploadPostService.swift */; };
 		F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */; };
 		F88E0B0D2B6B0A5400EC159B /* RestaurantUploadPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */; };
-		F88E0B0F2B6B0A7100EC159B /* RestaurantUploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0E2B6B0A7100EC159B /* RestaurantUploadPostViewModel.swift */; };
+		F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */; };
 		F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */; };
 		F88E0B132B6B0AA700EC159B /* FIrestore + Query.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */; };
 		F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B142B6B0AD300EC159B /* Firestore+Timestamp.swift */; };
@@ -259,7 +259,7 @@
 		F88E0B062B6B09FF00EC159B /* UploadPostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostService.swift; sourceTree = "<group>"; };
 		F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSelectorView.swift; sourceTree = "<group>"; };
 		F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantUploadPostView.swift; sourceTree = "<group>"; };
-		F88E0B0E2B6B0A7100EC159B /* RestaurantUploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantUploadPostViewModel.swift; sourceTree = "<group>"; };
+		F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
 		F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperPreview.swift; sourceTree = "<group>"; };
 		F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FIrestore + Query.swift"; sourceTree = "<group>"; };
 		F88E0B142B6B0AD300EC159B /* Firestore+Timestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Firestore+Timestamp.swift"; sourceTree = "<group>"; };
@@ -1018,7 +1018,7 @@
 		F88E0B002B6B09B900EC159B /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0B0E2B6B0A7100EC159B /* RestaurantUploadPostViewModel.swift */,
+				F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1297,7 +1297,7 @@
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
-				F88E0B0F2B6B0A7100EC159B /* RestaurantUploadPostViewModel.swift in Sources */,
+				F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
 				F88E0A832B6B00F600EC159B /* UserCircularImageProfileView.swift in Sources */,

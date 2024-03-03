@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
-
+enum PostType {
+    case restaurant
+    case recipe
+    case brand
+}
 struct CreatePostSelection: View {
     @Binding var tabIndex: Int
     @State var restaurantPostCover: Bool = false
+    @State var recipePostCover: Bool = false
+    
     
     init(tabIndex: Binding<Int>){
         self._tabIndex = tabIndex}
@@ -21,8 +27,9 @@ struct CreatePostSelection: View {
                 Button{restaurantPostCover.toggle()}
             label: {postOption(image:"building.2", title: "Post About a Restaurant", description: "Restaurant posts appear on the Discover Feed and on the selected restaurant's profile")}
                 
-                postOption(image: "fork.knife.circle", title: "Post your own Recipe", description: "Recipe posts appear on the Discover Feed")
-                
+                Button{recipePostCover.toggle() } label: {
+                    postOption(image: "fork.knife.circle", title: "Post your own Recipe", description: "Recipe posts appear on the Discover Feed")
+                }
                 postOption(image: "bag", title: "Post About a Brand", description: "Brand posts appear on the Discover Feed")
                 Spacer()
             }
@@ -36,7 +43,8 @@ struct CreatePostSelection: View {
                 }
             }
             .toolbar(.hidden, for: .tabBar)
-            .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover)}
+            .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .restaurant)}
+            .fullScreenCover(isPresented: $recipePostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .recipe)}}
         }
     }
 }

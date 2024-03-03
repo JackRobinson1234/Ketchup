@@ -21,6 +21,11 @@ class UploadPostViewModel: ObservableObject {
     }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
+    
+    @Published var recipeTitle = ""
+    @Published var ingredients: [String]?
+    @Published var instructions: [instructions]?
+    
     private let restaurant: Restaurant?
     private let service: UploadPostService
     
@@ -29,7 +34,7 @@ class UploadPostViewModel: ObservableObject {
         self.service = service
         self.restaurant = restaurant
     }
-    
+    //MARK: Upload restaurants
     func uploadRestaurantPost() async throws {
         guard !caption.isEmpty else { return }
         guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
@@ -59,6 +64,11 @@ class UploadPostViewModel: ObservableObject {
         error = nil
         selectedItem = nil
         selectedMediaForUpload = nil
+        recipeTitle = ""
+        ingredients = nil
+        instructions = nil
+        
+        
     }
     
     func loadVideo(fromItem item: PhotosPickerItem?) async {
