@@ -12,7 +12,6 @@
 		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */; };
-		F82F5A042B944ADB00499499 /* RecipeMediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F5A032B944ADB00499499 /* RecipeMediaSelectorView.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -171,7 +170,6 @@
 		F823E17F2B70C16600E18135 /* CreatePostSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostSelection.swift; sourceTree = "<group>"; };
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentProfileSlideBar.swift; sourceTree = "<group>"; };
-		F82F5A032B944ADB00499499 /* RecipeMediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeMediaSelectorView.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -355,30 +353,6 @@
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 			);
 			path = Profile;
-			sourceTree = "<group>";
-		};
-		F82F5A002B94488200499499 /* Restaurant */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */,
-				F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */,
-			);
-			path = Restaurant;
-			sourceTree = "<group>";
-		};
-		F82F5A012B94488D00499499 /* Recipe */ = {
-			isa = PBXGroup;
-			children = (
-				F82F5A032B944ADB00499499 /* RecipeMediaSelectorView.swift */,
-			);
-			path = Recipe;
-			sourceTree = "<group>";
-		};
-		F82F5A022B94489A00499499 /* Brand */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Brand;
 			sourceTree = "<group>";
 		};
 		F84FE23F2B6A531200144F01 = {
@@ -1028,9 +1002,8 @@
 			children = (
 				F823E17F2B70C16600E18135 /* CreatePostSelection.swift */,
 				F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */,
-				F82F5A022B94489A00499499 /* Brand */,
-				F82F5A012B94488D00499499 /* Recipe */,
-				F82F5A002B94488200499499 /* Restaurant */,
+				F88E0B0C2B6B0A5400EC159B /* RestaurantUploadPostView.swift */,
+				F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1280,7 +1253,6 @@
 				F88E0AAC2B6B03CA00EC159B /* NotificationCell.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
-				F82F5A042B944ADB00499499 /* RecipeMediaSelectorView.swift in Sources */,
 				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
 				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,

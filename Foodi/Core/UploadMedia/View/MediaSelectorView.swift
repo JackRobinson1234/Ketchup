@@ -25,6 +25,7 @@ struct MediaSelectorView: View {
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
         self.postType = postType
     }
+    
         var body: some View {
             VStack {
                 // If a movie is selected, creates a player for the user to preview the video
@@ -75,7 +76,7 @@ struct MediaSelectorView: View {
                 // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover, postType: postType)) {
+                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover, postType: postType)) {
                             Text("Next")
                         }
                     }

@@ -23,12 +23,15 @@ class UploadPostViewModel: ObservableObject {
     @Published var uploadFailure: Bool = false
     @Published var recipeDescription = ""
     @Published var recipeTitle = ""
-    @Published var ingredients: [String]?
+    @Published var ingredients: [String] = [""]
     @Published var instructions: [instructions]?
     
     private let restaurant: Restaurant?
     private let service: UploadPostService
     
+    var isLastIngredientEmpty: Bool {
+            return ingredients.last?.isEmpty == true
+        }
     
     init(service: UploadPostService, restaurant: Restaurant?) {
         self.service = service
@@ -65,12 +68,15 @@ class UploadPostViewModel: ObservableObject {
         selectedItem = nil
         selectedMediaForUpload = nil
         recipeTitle = ""
-        ingredients = nil
+        ingredients = [""]
         instructions = nil
         recipeDescription = ""
         
         
     }
+    func addEmptyIngredient() {
+            ingredients.append("")
+        }
     
     func loadVideo(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
