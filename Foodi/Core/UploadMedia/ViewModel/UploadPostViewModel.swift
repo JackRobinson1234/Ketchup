@@ -21,7 +21,7 @@ class UploadPostViewModel: ObservableObject {
     }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
-    
+    @Published var recipeDescription = ""
     @Published var recipeTitle = ""
     @Published var ingredients: [String]?
     @Published var instructions: [instructions]?
@@ -67,6 +67,7 @@ class UploadPostViewModel: ObservableObject {
         recipeTitle = ""
         ingredients = nil
         instructions = nil
+        recipeDescription = ""
         
         
     }
