@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ShareView: View {
     @StateObject var downloadViewModel: DownloadViewModel = .init()
+    @State var isShowingMessageView: Bool = false
+    
     var post: Post
     
     var body: some View {
@@ -59,7 +62,7 @@ struct ShareView: View {
             VStack{
                 
                 Button(action: {
-                    // Handle message action
+                    isShowingMessageView.toggle()
                 }) {
                     Image(systemName: "message.fill")
                         .font(.title)
@@ -76,24 +79,30 @@ struct ShareView: View {
                 
             }
             VStack{
-                Button(action: {
-                    // Handle more actions
-                }) {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundColor(.blue)
-                        .font(.system(size: 40))
-                }
-                Text("More")
-                    .font(.subheadline)
-                    .padding(.top, 1)
+//Debug: Needs to be transferable
+                if let image = (URL(string: post.thumbnailUrl)) {
+                    ShareLink(item: image, preview: SharePreview("Big Ben", image: image)) {
+                        VStack{
+                            Image(systemName: "ellipsis.circle")
+                                .foregroundColor(.blue)
+                                .font(.system(size: 40))
+                            Text("More")
+                                .font(.subheadline)
+                                .padding(.top, 1)
+                        }
+                    }
                     
+                }
             }
             
             Spacer()
         }
-                .padding()
+        //.sheet(isPresented: $isShowingMessageView) {
+            //MessageComposeView(messageBody: "Hello, check out this content!")}
+        .padding()
                 
     }
+    
 }
 
 #Preview {
