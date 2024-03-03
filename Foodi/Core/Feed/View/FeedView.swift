@@ -39,7 +39,6 @@ struct FeedView: View {
                     Task {
                         await viewModel.fetchPosts()
                         isLoading = false
-                        
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)

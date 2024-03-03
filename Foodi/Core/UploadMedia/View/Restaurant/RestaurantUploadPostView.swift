@@ -8,21 +8,26 @@
 import SwiftUI
 
 struct RestaurantUploadPostView: View {
-    @ObservedObject var viewModel: RestaurantUploadPostViewModel
+    @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var tabIndex: Int
-    private let restaurant: Restaurant
+    @Binding var cover: Bool
+    
+    private let restaurant: Restaurant?
     private let movie: Movie
-    init(movie: Movie, viewModel: RestaurantUploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant) {
+    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant?,cover: Binding<Bool> ) {
         self.restaurant = restaurant
         self.movie = movie
         self.viewModel = viewModel
         self._tabIndex = tabIndex
+        self._cover = cover
     }
     var body: some View {
         VStack {
+           
             HStack() {
-                SelectedRestaurantView(restaurant: restaurant)
+                if let restaurant{
+                    SelectedRestaurantView(restaurant: restaurant)}
                 Spacer()
                 
                 if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
@@ -44,10 +49,21 @@ struct RestaurantUploadPostView: View {
             
             Button {
                 Task {
-                    await viewModel.uploadPost()
-                    tabIndex = 0
+                    try await viewModel.uploadRestaurantPost()
+                    if viewModel.uploadSuccess{
+                        
+                    }
+                    else if viewModel.uploadFailure{
+                        
+                    }
                     viewModel.reset()
+                    cover = false
+                    tabIndex = 0
+                    
+                    
+                    
                 }
+                
             } label: {
                 Text(viewModel.isLoading ? "" : "Post")
                     .modifier(StandardButtonModifier())
@@ -56,6 +72,7 @@ struct RestaurantUploadPostView: View {
                             ProgressView()
                                 .tint(.white)
                         }
+                        
                     }
             }
             .disabled(viewModel.isLoading)

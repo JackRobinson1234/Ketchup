@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CreatePostSelection: View {
     @Binding var tabIndex: Int
-    @State var restaurantPost: Bool = false
+    @State var restaurantPostCover: Bool = false
     
     init(tabIndex: Binding<Int>){
         self._tabIndex = tabIndex}
@@ -18,7 +18,7 @@ struct CreatePostSelection: View {
     var body: some View {
         NavigationStack{
             VStack{
-                Button{restaurantPost.toggle()}
+                Button{restaurantPostCover.toggle()}
             label: {postOption(image:"building.2", title: "Post About a Restaurant", description: "Restaurant posts appear on the Discover Feed and on the selected restaurant's profile")}
                 
                 postOption(image: "fork.knife.circle", title: "Post your own Recipe", description: "Recipe posts appear on the Discover Feed")
@@ -36,7 +36,7 @@ struct CreatePostSelection: View {
                 }
             }
             .toolbar(.hidden, for: .tabBar)
-            .fullScreenCover(isPresented: $restaurantPost){RestaurantSelectorView(tabIndex: $tabIndex)}
+            .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover)}
         }
     }
 }

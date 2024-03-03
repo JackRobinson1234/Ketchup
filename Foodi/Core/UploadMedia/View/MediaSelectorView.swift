@@ -8,18 +8,20 @@
 import SwiftUI
 import AVKit
 
-struct RestaurantMediaSelectorView: View {
+struct MediaSelectorView: View {
     @State private var player = AVPlayer()
-    @StateObject var viewModel: RestaurantUploadPostViewModel
+    @StateObject var viewModel: UploadPostViewModel
     @State private var showImagePicker = false
     @Binding var tabIndex: Int
-    private let restaurant: Restaurant
+    private let restaurant: Restaurant?
     @Environment(\.dismiss) var dismiss
+    @Binding var cover: Bool
         
-    init(tabIndex: Binding<Int>, restaurant: Restaurant) {
+    init(tabIndex: Binding<Int>, restaurant: Restaurant?, cover: Binding<Bool>) {
+        self._cover = cover
         self._tabIndex = tabIndex
         self.restaurant = restaurant
-        self._viewModel = StateObject(wrappedValue: RestaurantUploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
+        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
     }
         var body: some View {
             VStack {
@@ -71,7 +73,7 @@ struct RestaurantMediaSelectorView: View {
                 // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
+                        NavigationLink(destination: RestaurantUploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover)) {
                             Text("Next")
                         }
                     }
@@ -99,7 +101,7 @@ struct RestaurantMediaSelectorView: View {
             // if showImagePicker is true, the photospicker appears
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             
-            
+            .onDisappear{player.pause()}
             .toolbar(.hidden, for: .tabBar)
         }
     }
