@@ -37,6 +37,10 @@ class UploadPostViewModel: ObservableObject {
             return ingredients.last?.isEmpty == true
         }
     
+    var isLastRestrictionEmpty: Bool {
+            return dietaryRestrictions.last?.isEmpty == true
+        }
+    
     var isLastInstructionEmpty: Bool {
         return instructions.last?.title.isEmpty == true
         }
@@ -87,6 +91,10 @@ class UploadPostViewModel: ObservableObject {
     }
     func addEmptyIngredient() {
             ingredients.append("")
+        }
+    
+    func addEmptyRestriction() {
+            dietaryRestrictions.append("")
         }
     
     func addEmptyInstruction() {
