@@ -90,7 +90,6 @@ struct UploadPostView: View {
                 }
             }
         case .recipe:
-            
                 VStack {
                     HStack {
                         Spacer()
@@ -120,6 +119,16 @@ struct UploadPostView: View {
                         .padding(.top, 60)
                     Divider()
                     
+                    TextField("Enter the cuisine...", text: $viewModel.recipeCuisine, axis: .vertical)
+                        .font(.subheadline)
+                        .padding(.top, 60)
+                    Divider()
+                    /*
+                    TextField("Enter Dietary Restrictions", text: $viewModel.recipeCuisine, axis: .vertical)
+                        .font(.subheadline)
+                        .padding(.top, 60)
+                    Divider()
+                    */
                     //MARK: ADD RECIPE
                     Button{
                         showAddRecipe.toggle()
