@@ -28,6 +28,7 @@ struct MediaSelectorView: View {
     
         var body: some View {
             VStack {
+                
                 // If a movie is selected, creates a player for the user to preview the video
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)

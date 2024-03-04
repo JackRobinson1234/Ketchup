@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+ 
 struct UploadPostView: View {
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
@@ -51,6 +51,7 @@ struct UploadPostView: View {
                 Divider()
                 Spacer()
                 //MARK: Post Button
+                
                 Button {
                     Task {
                         try await viewModel.uploadRestaurantPost()
@@ -89,7 +90,7 @@ struct UploadPostView: View {
                 }
             }
         case .recipe:
-            ScrollView{
+            
                 VStack {
                     HStack {
                         Spacer()
@@ -124,95 +125,32 @@ struct UploadPostView: View {
                         showAddRecipe.toggle()
                     } label: {
                         HStack{
-                            Text("Add your Recipe (Optional)")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Spacer()
-                            if !showAddRecipe{
-                                Image(systemName: "chevron.down")
-                            }
-                            else {
-                                Image(systemName: "chevron.up")
-                            }
-                            
-                            
-                        }
-                        Divider()
-                    }
-                    .padding(.top, 30)
-                    
-                    if showAddRecipe {
-                        
-                        //MARK: Ingredients
-                        Text("Ingredients")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                            .padding(.top, 10)
-                    
-                        ForEach($viewModel.ingredients.indices, id: \.self) { index in
-                            TextField("Add Ingredient...", text: $viewModel.ingredients[index], axis: .vertical)
-                                .font(.subheadline)
-                            Divider()
-                        }.padding(.top, 10)
-                        
-                        //MARK: Ingredients Adding
-                        
-                    
-                        if $viewModel.ingredients.count < 25 {
-                            Button {
-                                viewModel.addEmptyIngredient()
-                            } label: {
-                                VStack{
-                                    Image(systemName: "plus.circle")
-                                        .foregroundColor(.blue)
-                                        .font(.subheadline)
-                                        .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
-                                    Text("Add Another Ingredient")
+                            VStack (alignment: .leading) {
+                                Text("Add your Recipe (Optional)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                
+                                if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
+                                    viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty
+                                {
+                                    Text("Recipe Added")
                                         .font(.caption)
-                                        .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                        .foregroundStyle(.black)
+                                }
+                                else {
+                                    Text("No Recipe Added")
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
                                 }
                             }
-                            .padding(.top, 10)
-                            .disabled(viewModel.isLastIngredientEmpty)
+                            Spacer()
+                            Image(systemName: "chevron.right")
                         }
-                        else {
-                            Text("Maximim Ingredients Reached")
-                                .font(.caption)
-                        }
-                        //MARK: Instructions
-                        Text("Instructions")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                            .padding(.top, 10)
-                        ForEach($viewModel.instructions.indices, id: \.self) { index in
-                            VStack{
-                                TextField("Step \(Int(index)+1) Title...", text: $viewModel.instructions[index].title, axis: .vertical)
-                                    .font(.subheadline)
-                                
-                                TextField("Step \(Int(index)+1) Description...", text: $viewModel.instructions[index].description, axis: .vertical)
-                                    .font(.subheadline)
-                            }
-                            
-                            .padding(.top, 10)
-                            Divider()
-                        }
-                        //MARK: ADD INSTRUCTION
-                        Button {
-                            viewModel.addEmptyInstruction()
-                        } label: {
-                            VStack{
-                                Image(systemName: "plus.circle")
-                                    .foregroundColor(.blue)
-                                    .font(.subheadline)
-                                    .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
-                                Text("Add a New Step")
-                                    .font(.caption)
-                                    .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
-                            }
-                        }
-                        .padding(.top, 10)
+                        
                     }
-                    
+                    .padding(.top, 30)
+                    Divider()
                     Spacer()
                     
                     Button {
@@ -240,6 +178,7 @@ struct UploadPostView: View {
                     }
                     .disabled(viewModel.isLoading)
                 }
+                .fullScreenCover(isPresented: $showAddRecipe){EditMenuView(viewModel: viewModel)}
                 .padding()
                 .navigationTitle("Recipe Post")
                 .navigationBarTitleDisplayMode(.inline)
@@ -253,7 +192,7 @@ struct UploadPostView: View {
                         }
                     }
                 }
-            }
+            
         case .brand:
             Text("Hello")
         }
