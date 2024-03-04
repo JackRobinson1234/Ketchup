@@ -92,7 +92,6 @@ struct UploadPostView: View {
         case .recipe:
                 VStack {
                     HStack {
-                        Spacer()
                         VStack{
                             //MARK: Recipe Title
                             TextField("Add a Recipe Title...", text: $viewModel.recipeTitle, axis: .vertical)
