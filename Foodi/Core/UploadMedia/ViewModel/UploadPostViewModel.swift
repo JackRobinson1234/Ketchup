@@ -27,6 +27,8 @@ class UploadPostViewModel: ObservableObject {
     @Published var ingredients: [String] = [""]
     @Published var recipeCuisine = ""
     @Published var dietaryRestrictions: [String] = [""]
+    @Published var recipeHours: Int = 0
+    @Published var recipeMinutes: Int = 0
     
     @Published var instructions: [instructions] = [Foodi.instructions(title: "", description: "")]
     
@@ -67,6 +69,25 @@ class UploadPostViewModel: ObservableObject {
             }
         }
     }
+    
+    func uploadRecipePost() async throws {
+        guard !caption.isEmpty else { return }
+        guard !recipeTitle.isEmpty else { return }
+        guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
+        isLoading = true
+        //let recipe = postRecipe(name: recipeTitle, cuisine: recipeCuisine, dietary: dietaryRestrictions, instructions: instructions)
+            do {
+                print("running upload recipe post")
+                //try await service.uploadRecipePost(caption: caption, videoUrlString: videoUrlString, recipe: <#T##postRecipe#>)
+                isLoading = false
+                uploadSuccess = true
+            } catch {
+                self.error = error
+                isLoading = false
+                uploadFailure = true
+            }
+        }
+    
     
     func setMediaItemForUpload() {
         selectedMediaForUpload = mediaPreview

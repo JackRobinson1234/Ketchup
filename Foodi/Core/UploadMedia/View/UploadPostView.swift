@@ -15,6 +15,7 @@ struct UploadPostView: View {
     @State var showAddRecipe: Bool = false
     private let postType: PostType
     @State var showDietary: Bool = false
+    @State private var showTimePicker = false
     private let restaurant: Restaurant?
     private let movie: Movie
     
@@ -30,40 +31,41 @@ struct UploadPostView: View {
     var body: some View {
         switch postType {
         case .restaurant:
-            ScrollView{
                 VStack {
-                    HStack() {
-                        //MARK: Restaurant
-                        if let restaurant{
-                            SelectedRestaurantView(restaurant: restaurant)}
-                        Spacer()
-                        //MARK: Thumbnail
-                        if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 125)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                    ScrollView{
+                        HStack() {
+                            //MARK: Restaurant
+                            if let restaurant{
+                                SelectedRestaurantView(restaurant: restaurant)}
+                            Spacer()
+                            //MARK: Thumbnail
+                            if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 125)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
                         }
-                    }
-                    //MARK: Caption
-                    TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
-                        .font(.subheadline)
-                        .padding(.top, 60)
-                        .onChange(of: viewModel.caption) {oldvalue, newValue in
-                            // Limit the text to 150 characters
-                            if newValue.count > 1000 {
-                                viewModel.caption = String(newValue.prefix(1000))
-                            }}
-                    HStack {
+                        //MARK: Caption
+                        TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
+                            .font(.subheadline)
+                            .padding(.top, 60)
+                            .onChange(of: viewModel.caption) {oldvalue, newValue in
+                                // Limit the text to 150 characters
+                                if newValue.count > 1000 {
+                                    viewModel.caption = String(newValue.prefix(1000))
+                                }}
+                        HStack {
+                            Spacer()
+                            Text("\(viewModel.caption.count)/1000")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                                .padding(.horizontal)
+                        }
+                        Divider()
                         Spacer()
-                        Text("\(viewModel.caption.count)/1000")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                            .padding(.horizontal)
                     }
-                    Divider()
-                    Spacer()
                     //MARK: Post Button
                     Button {
                         Task {
@@ -89,7 +91,7 @@ struct UploadPostView: View {
                     }
                     .disabled(viewModel.isLoading)
                 }
-            }
+            
             .padding()
             .navigationTitle("Restaurant Post")
             .navigationBarTitleDisplayMode(.inline)
@@ -105,107 +107,210 @@ struct UploadPostView: View {
             }
         case .recipe:
                 VStack {
-                    HStack {
+                    ScrollView{
+                        HStack {
                             //MARK: Recipe Title
                             TextField("Add a Recipe Title...", text: $viewModel.recipeTitle, axis: .vertical)
                                 .font(.title)
-                                
-                        
-                        Spacer()
-                        //MARK: thumbnail
-                        if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 125)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            
+                            
+                            Spacer()
+                            //MARK: thumbnail
+                            if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 125)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
                         }
-                    }
-                    //MARK: Recipe Caption
-                    TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
-                        .font(.subheadline)
-                        .padding(.top, 60)
-                        .onChange(of: viewModel.caption) {oldvalue, newValue in
-                            // Limit the text to 150 characters
-                            if newValue.count > 1000 {
-                                viewModel.caption = String(newValue.prefix(1000))
-                            }}
-                    HStack {
-                       Spacer()
-                       Text("\(viewModel.caption.count)/1000")
-                           .foregroundColor(.gray)
-                           .font(.caption)
-                           .padding(.horizontal)
-                               }
-                    Divider()
-                    //MARK: Recipe Cuisine
-                    TextField("Enter the cuisine...", text: $viewModel.recipeCuisine, axis: .vertical)
-                        .font(.subheadline)
+                        //MARK: Recipe Caption
+                        TextField("Enter your caption...", text: $viewModel.caption, axis: .vertical)
+                            .font(.subheadline)
+                            .padding(.top, 60)
+                            .onChange(of: viewModel.caption) {oldvalue, newValue in
+                                // Limit the text to 150 characters
+                                if newValue.count > 1000 {
+                                    viewModel.caption = String(newValue.prefix(1000))
+                                }}
+                        HStack {
+                            Spacer()
+                            Text("\(viewModel.caption.count)/1000")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                                .padding(.horizontal)
+                        }
+                        Divider()
+                        //MARK: Recipe Cuisine
+                        TextField("Enter the cuisine...", text: $viewModel.recipeCuisine, axis: .vertical)
+                            .font(.subheadline)
+                            .padding(.top, 30)
+                            .onChange(of: viewModel.recipeCuisine) {oldvalue, newValue in
+                                // Limit the text to 150 characters
+                                if newValue.count > 1000 {
+                                    viewModel.recipeCuisine = String(newValue.prefix(1000))
+                                }}
+                        Divider()
+                        
+                        // MARK: Recipe Dietary
+                        Button{
+                            showDietary.toggle()
+                        } label: {
+                            HStack{
+                                VStack (alignment: .leading) {
+                                    Text("Add Dietary Restrictions (Optional)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                            }
+                        }
                         .padding(.top, 30)
-                        .onChange(of: viewModel.recipeCuisine) {oldvalue, newValue in
-                            // Limit the text to 150 characters
-                            if newValue.count > 1000 {
-                                viewModel.recipeCuisine = String(newValue.prefix(1000))
-                            }}
-                    Divider()
-                    
-                    // MARK: Recipe Dietary
-                    Button{
-                        showDietary.toggle()
-                    } label: {
-                        HStack{
-                            VStack (alignment: .leading) {
-                                Text("Add Dietary Restrictions (Optional)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                        }
-                    }
-                    .padding(.top, 30)
-                    Divider()
-                    /*
-                    TextField("Enter Dietary Restrictions", text: $viewModel.recipeCuisine, axis: .vertical)
-                        .font(.subheadline)
-                        .padding(.top, 60)
-                    Divider()
-                    */
-                    //MARK: Add Recipe
-                    Button{
-                        showAddRecipe.toggle()
-                    } label: {
-                        HStack{
-                            VStack (alignment: .leading) {
-                                Text("Add your Recipe (Optional)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                
-                                // if the ingredients, instructions, or viewmodel is empty, then it won't show that the user edited the recipe.
-                                if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
-                                    viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty ||
-                                    !viewModel.recipeDescription.isEmpty
-                                    
-                                {
-                                    Text("Recipe Added")
-                                        .font(.caption)
-                                        .foregroundStyle(.black)
-                                }
-                                else {
-                                    Text("No Recipe Added")
-                                        .font(.caption)
-                                        .foregroundStyle(.gray)
-                                }
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                        }
+                        Divider()
                         
+                        //MARK: Add Recipe
+                        Button{
+                            showAddRecipe.toggle()
+                        } label: {
+                            HStack{
+                                VStack (alignment: .leading) {
+                                    Text("Add your Recipe (Optional)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                    // if the ingredients, instructions, or viewmodel is empty, then it won't show that the user edited the recipe.
+                                    if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
+                                        viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty ||
+                                        !viewModel.recipeDescription.isEmpty
+                                        
+                                    {
+                                        Text("Recipe Added")
+                                            .font(.caption)
+                                            .foregroundStyle(.black)
+                                    }
+                                    else {
+                                        Text("No Recipe Added")
+                                            .font(.caption)
+                                            .foregroundStyle(.gray)
+                                    }
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                            }
+                            
+                        }
+                        .padding(.top, 30)
+                        Divider()
+                        
+                        //MARK: Recipe Time
+                        Button{
+                            showTimePicker.toggle()
+                        } label: {
+                            HStack{
+                                VStack (alignment: .leading) {
+                                    Text("Add Total Recipe Time...")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                    // if hours/ minutes are 0, show correct logic
+                                    if viewModel.recipeMinutes == 0 && viewModel.recipeHours == 0
+                                        
+                                    {Text("No Time Added")
+                                            .font(.caption)
+                                            .foregroundStyle(.gray)
+                                    }
+                                    else {
+                                        Text("\(viewModel.recipeHours) hours, \(viewModel.recipeMinutes) minutes")
+                                            .font(.caption)
+                                            .foregroundStyle(.gray)
+                                    }
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                            }
+                        }
+                        .padding(.top, 30)
+                        .popover(isPresented: $showTimePicker, arrowEdge: .bottom) {
+                            VStack{
+                                HStack{
+                                    Spacer()
+                                    Button{
+                                        dismiss()
+                                    } label: {
+                                        Text("Done")
+                                            .font(.subheadline)
+                                    }
+                                    
+                                }
+                                .padding()
+                                Spacer()
+                                VStack{
+                                    Text("Select a Total Recipe Time")
+                                        .font(.subheadline)
+                                    HStack {
+                                        // Hours Picker
+                                        Picker("Hours", selection: $viewModel.recipeHours) {
+                                            ForEach(0..<24) { hour in
+                                                Text("\(hour)")
+                                            }
+                                        }
+                                        .pickerStyle(WheelPickerStyle())
+                                        .frame(width: 80)
+                                        .padding(.top, 30)
+                                        
+                                        Text("hours")
+                                        
+                                        // Minutes Picker
+                                        Picker("Minutes", selection: $viewModel.recipeMinutes) {
+                                            ForEach(0..<60) { minute in
+                                                Text("\(minute)")
+                                            }
+                                        }
+                                        .pickerStyle(WheelPickerStyle())
+                                        
+                                        .padding(.top, 30)
+                                        
+                                        Text("minutes")
+                                    }
+                                    .padding()
+                                    Spacer()
+                                }
+                            }
+                        }
+                        Divider()
+                        /*
+                            HStack {
+                                // Hours Picker
+                                Picker("Hours", selection: $viewModel.recipeHours) {
+                                    ForEach(0..<24) { hour in
+                                        Text("\(hour)")
+                                    }
+                                }
+                                .pickerStyle(WheelPickerStyle())
+                                .frame(width: 80)
+                                .padding(.top, 30)
+                                
+                                Text("hours")
+                                
+                                // Minutes Picker
+                                Picker("Minutes", selection: $viewModel.recipeMinutes) {
+                                    ForEach(0..<60) { minute in
+                                        Text("\(minute)")
+                                    }
+                                }
+                                .pickerStyle(WheelPickerStyle())
+                                .frame(width: 80)
+                                .padding(.top, 30)
+                                
+                                Text("minutes")
+                            }
+                            
+                        */
                     }
-                    .padding(.top, 30)
-                    Divider()
                     Spacer()
-                    
+                    Divider()
+                
                     Button {
                         //MARK: Post Button
                         Task {
@@ -230,22 +335,24 @@ struct UploadPostView: View {
                             }
                     }
                     .disabled(viewModel.isLoading)
-                }
-                .fullScreenCover(isPresented: $showAddRecipe){EditMenuView(viewModel: viewModel)}
-                .fullScreenCover(isPresented: $showDietary){EditDietaryRestrictionsView(viewModel: viewModel)}
-                .padding()
-                .navigationTitle("Recipe Post")
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationBarBackButtonHidden()
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.left")
-                        }
+                
+            }
+            .fullScreenCover(isPresented: $showAddRecipe){EditMenuView(viewModel: viewModel)}
+            .fullScreenCover(isPresented: $showDietary){EditDietaryRestrictionsView(viewModel: viewModel)}
+            
+            .padding()
+            .navigationTitle("Recipe Post")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
                     }
                 }
+            }
             
         case .brand:
             Text("Hello")
