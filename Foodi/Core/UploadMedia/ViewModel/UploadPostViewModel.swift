@@ -75,10 +75,12 @@ class UploadPostViewModel: ObservableObject {
         guard !recipeTitle.isEmpty else { return }
         guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
         isLoading = true
-        //let recipe = postRecipe(name: recipeTitle, cuisine: recipeCuisine, dietary: dietaryRestrictions, instructions: instructions)
+        let time = recipeHours * 60 + recipeMinutes
+        let recipe = postRecipe(name: recipeTitle, cuisine: recipeCuisine, time: time, dietary: dietaryRestrictions, instructions: instructions)
             do {
                 print("running upload recipe post")
-                //try await service.uploadRecipePost(caption: caption, videoUrlString: videoUrlString, recipe: <#T##postRecipe#>)
+                print(recipe)
+                try await service.uploadRecipePost(caption: caption, videoUrlString: videoUrlString, recipe: recipe)
                 isLoading = false
                 uploadSuccess = true
             } catch {

@@ -44,7 +44,7 @@ struct CreatePostSelection: View {
             }
             .toolbar(.hidden, for: .tabBar)
             .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .restaurant)}
-            .fullScreenCover(isPresented: $recipePostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .recipe)}}
+            .fullScreenCover(isPresented: $recipePostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $recipePostCover, postType: .recipe)}}
         }
     }
 }

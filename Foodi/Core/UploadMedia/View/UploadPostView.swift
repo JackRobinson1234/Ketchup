@@ -179,7 +179,7 @@ struct UploadPostView: View {
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                     
-                                    // if the ingredients, instructions, or viewmodel is empty, then it won't show that the user edited the recipe.
+                                    // if the ingredients, instructions, or viewModel is empty, then it won't show that the user edited the recipe.
                                     if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
                                         viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty ||
                                         !viewModel.recipeDescription.isEmpty
@@ -268,8 +268,9 @@ struct UploadPostView: View {
                     Button {
                         //MARK: Post Button
                         Task {
-                            try await viewModel.uploadRestaurantPost()
+                            try await viewModel.uploadRecipePost()
                             if viewModel.uploadSuccess{
+                                print("upload success")
                             }
                             else if viewModel.uploadFailure{
                             }
