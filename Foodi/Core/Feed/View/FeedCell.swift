@@ -15,15 +15,15 @@ struct FeedCell: View {
     @State private var expandCaption = false
     @State private var showComments = false
     @State private var showShareView = false
-    @State private var timeString = "Not Specified"
-            
+    @State private var showRecipe = false
+    
     private var didLike: Bool { return post.didLike }
     
     var body: some View {
         ZStack {
             VideoPlayer(player: player)
                 .containerRelativeFrame([.horizontal, .vertical])
-                    
+            
             VStack {
                 Spacer()
                 
@@ -70,13 +70,13 @@ struct FeedCell: View {
                                     }
                                     //MARK: Recipe Scenario
                                 } else if let recipe = post.recipe{
-                                    RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)
+                                    /*RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)*/
                                     VStack (alignment: .leading) {
                                         
                                         Text("\(recipe.name)")
-                                                .font(.title3)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
+                                            .font(.title3)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
                                         
                                         
                                         NavigationLink(value: post.user) {
@@ -118,31 +118,11 @@ struct FeedCell: View {
                                     //MARK: Recipe Time
                                     Text("Cuisine: \(recipe.cuisine ?? "Not Specified")")
                                     
-                                    // price
-                                    if let timeInMinutes = recipe.time {
-                                        if timeInMinutes > 0 {
-                                            let hours = timeInMinutes / 60
-                                            let minutes = timeInMinutes % 60
-                                            
-                                            
-                                            if hours > 0 {
-                                                if minutes > 0 {
-                                                    var timeString = "\(hours) hours, \(minutes) minutes"
-                                                } else {
-                                                    var timeString = "\(hours) hours"
-                                                }
-                                            } else {
-                                                var timeString = "\(minutes) minutes"
-                                            }
-                                            
-                                            Text("Time: \(timeString)")
-                                        }
-                                        else {
-                                            Text("Time: Not Specified")
-                                        }
-                                    }
+                                    let timeString = formattedTime(time: (recipe.time))
+                                    Text("Time: \(timeString)")
+                                    
                                     if let dietaryRestrictions = recipe.dietary, !dietaryRestrictions.isEmpty {
-                                            Text("Dietary Restrictions: \(dietaryRestrictions.joined(separator: ", "))")
+                                        Text("Dietary Restrictions: \(dietaryRestrictions.joined(separator: ", "))")
                                     } else {
                                         Text("Dietary Restrictions: Not Specified")
                                     }
@@ -150,12 +130,13 @@ struct FeedCell: View {
                                     //Menu Button
                                     
                                     Button{
+                                        showRecipe.toggle()
                                         player.pause()
                                     } label: {
                                         Text("View Recipe")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
-                                
+                                    
                                 }
                             }
                         }
@@ -223,6 +204,10 @@ struct FeedCell: View {
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                     .onDisappear{player.play()}
             }
+            .sheet(isPresented: $showRecipe) {
+                RecipeView(post: post)
+                    .onDisappear{player.play()}
+            }
             .onTapGesture {
                 switch player.timeControlStatus {
                 case .paused:
@@ -240,6 +225,25 @@ struct FeedCell: View {
     // like and unlike functionality
     private func handleLikeTapped() {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
+    }
+    private func formattedTime(time: Int?) -> String {
+        guard let time = time else {
+            return "Not specified"
+        }
+        
+        let hours = time / 60
+        let minutes = time % 60
+        var timeString = ""
+        
+        if hours > 0 {
+            timeString += "\(hours)h"
+        }
+        
+        if minutes > 0 {
+            timeString += " \(minutes)m"
+        }
+        
+        return timeString.isEmpty ? "Not specified" : timeString
     }
 }
 
