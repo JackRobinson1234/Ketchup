@@ -13,6 +13,7 @@ struct CurrentUserProfileView: View {
     private let userService: UserService
     @State var currentProfileSection: currentProfileSection
     @State var isLoading = true
+    @State var showNotifications = false
     init(authService: AuthService, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
         self.authService = authService
         
@@ -56,6 +57,16 @@ struct CurrentUserProfileView: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showNotifications.toggle()
+                        } label : {
+                            Image(systemName: "bell")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding()
+                    }
                 }
                 
                 
@@ -68,6 +79,9 @@ struct CurrentUserProfileView: View {
                     SearchView(userService: UserService(), searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
                 .refreshable { await profileViewModel.fetchCurrentUser() }
+                .fullScreenCover(isPresented: $showNotifications) {
+                    NotificationsView(userService: userService)
+                }
             }
         }
     }

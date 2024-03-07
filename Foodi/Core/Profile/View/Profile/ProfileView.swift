@@ -69,8 +69,8 @@ struct ProfileView: View {
         }
     }
 }
-/*
+
 #Preview {
-    ProfileView(user: DeveloperPreview.user, userService: UserService())
+    ProfileView(uid: DeveloperPreview.user.id, userService: UserService())
 }
-*/
+

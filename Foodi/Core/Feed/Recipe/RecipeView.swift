@@ -17,7 +17,7 @@ struct RecipeView: View {
                 KFImage(URL(string: post.thumbnailUrl))
                     .resizable()
                     .scaledToFill()
-                    .frame(height: 300)
+                    .frame(height: 250)
                     .clipped()
                 
                 VStack(spacing: 4) {

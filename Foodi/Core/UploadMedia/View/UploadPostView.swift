@@ -53,13 +53,13 @@ struct UploadPostView: View {
                             .padding(.top, 60)
                             .onChange(of: viewModel.caption) {oldvalue, newValue in
                                 // Limit the text to 150 characters
-                                if newValue.count > 1000 {
-                                    viewModel.caption = String(newValue.prefix(1000))
+                                if newValue.count > 500 {
+                                    viewModel.caption = String(newValue.prefix(500))
                                 }}
                         HStack {
                             Spacer()
-                            Text("\(viewModel.caption.count)/1000")
-                                .foregroundColor(.gray)
+                            Text("\(viewModel.caption.count)/500")
+                                .foregroundColor(viewModel.caption.isEmpty ? .red : .gray)
                                 .font(.caption)
                                 .padding(.horizontal)
                         }
@@ -110,10 +110,23 @@ struct UploadPostView: View {
                     ScrollView{
                         HStack {
                             //MARK: Recipe Title
-                            TextField("Add a Recipe Title...", text: $viewModel.recipeTitle, axis: .vertical)
-                                .font(.title)
-                            
-                            
+                            VStack{
+                                TextField("Add a Recipe Title...", text: $viewModel.recipeTitle, axis: .vertical)
+                                    .font(.title)
+                                    .onChange(of: viewModel.recipeTitle) {oldvalue, newValue in
+                                        // Limit the text to 150 characters
+                                        if newValue.count > 100 {
+                                            viewModel.recipeTitle = String(newValue.prefix(100))
+                                        }}
+                                
+                                HStack {
+                                    Spacer()
+                                    Text("\(viewModel.recipeTitle.count)/100")
+                                        .foregroundColor(viewModel.recipeTitle.isEmpty ? .red : .gray)
+                                        .font(.caption)
+                                        .padding(.horizontal)
+                                }
+                            }
                             Spacer()
                             //MARK: thumbnail
                             if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
@@ -130,26 +143,35 @@ struct UploadPostView: View {
                             .padding(.top, 60)
                             .onChange(of: viewModel.caption) {oldvalue, newValue in
                                 // Limit the text to 150 characters
-                                if newValue.count > 1000 {
-                                    viewModel.caption = String(newValue.prefix(1000))
+                                if newValue.count > 500 {
+                                    viewModel.caption = String(newValue.prefix(500))
                                 }}
                         HStack {
                             Spacer()
-                            Text("\(viewModel.caption.count)/1000")
-                                .foregroundColor(.gray)
+                            Text("\(viewModel.caption.count)/500")
+                                .foregroundColor(viewModel.caption.isEmpty ? .red : .gray)
                                 .font(.caption)
                                 .padding(.horizontal)
                         }
                         Divider()
-                        //MARK: Recipe Cuisine
-                        TextField("Enter the cuisine...", text: $viewModel.recipeCuisine, axis: .vertical)
-                            .font(.subheadline)
-                            .padding(.top, 30)
-                            .onChange(of: viewModel.recipeCuisine) {oldvalue, newValue in
-                                // Limit the text to 150 characters
-                                if newValue.count > 1000 {
-                                    viewModel.recipeCuisine = String(newValue.prefix(1000))
-                                }}
+                        VStack{
+                            //MARK: Recipe Cuisine
+                            TextField("Enter the cuisine...", text: $viewModel.recipeCuisine, axis: .vertical)
+                                .font(.subheadline)
+                                .padding(.top, 30)
+                                .onChange(of: viewModel.recipeCuisine) {oldvalue, newValue in
+                                    // Limit the text to 150 characters
+                                    if newValue.count > 50 {
+                                        viewModel.recipeCuisine = String(newValue.prefix(50))
+                                    }}
+                            HStack {
+                                Spacer()
+                                Text("\(viewModel.recipeCuisine.count)/50")
+                                    .foregroundColor(viewModel.recipeCuisine.isEmpty ? .red : .gray)
+                                    .font(.caption)
+                                    .padding(.horizontal)
+                            }
+                        }
                         Divider()
                         
                         // MARK: Recipe Dietary
@@ -157,18 +179,22 @@ struct UploadPostView: View {
                             showDietary.toggle()
                         } label: {
                             HStack{
-                                
                                 VStack (alignment: .leading) {
-                                    Text("Add Dietary Restrictions (Optional)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
                                     
                                     if viewModel.dietaryRestrictions.count > 0 && !viewModel.dietaryRestrictions[0].isEmpty {
+                                        Text("Add Dietary Restrictions (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.black)
+                                            
                                         Text("\(viewModel.dietaryRestrictions.joined(separator: ", "))")
                                             .lineLimit(1)
                                             .font(.caption)
                                             .foregroundStyle(.black)
+                                            .bold()
                                     } else {
+                                        Text("Add Dietary Restrictions (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
                                         Text("No Dietary Restrictions Added")
                                             .font(.caption)
                                             .foregroundStyle(.gray)
@@ -187,20 +213,23 @@ struct UploadPostView: View {
                         } label: {
                             HStack{
                                 VStack (alignment: .leading) {
-                                    Text("Add your Recipe (Optional)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
                                     
                                     // if the ingredients, instructions, or viewModel is empty, then it won't show that the user edited the recipe.
                                     if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].item.isEmpty ||
                                         viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty
                                         
                                     {
+                                        Text("Add your Recipe (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.black)
                                         Text("Recipe Added")
                                             .font(.caption)
                                             .foregroundStyle(.black)
                                     }
                                     else {
+                                        Text("Add your Recipe (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
                                         Text("No Recipe Added")
                                             .font(.caption)
                                             .foregroundStyle(.gray)
@@ -220,21 +249,27 @@ struct UploadPostView: View {
                         } label: {
                             HStack{
                                 VStack (alignment: .leading) {
-                                    Text("Add Total Recipe Time...")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
                                     
                                     // if hours/ minutes are 0, show correct logic
-                                    if viewModel.recipeMinutes == 0 && viewModel.recipeHours == 0
+                                    if viewModel.recipeMinutes == 0 && viewModel.recipeHours == 0{
+                                        Text("Add Total Recipe Time (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                            
                                         
-                                    {Text("No Time Added")
+                                    Text("No Time Added")
                                             .font(.caption)
                                             .foregroundStyle(.gray)
                                     }
                                     else {
+                                        Text("Add Total Recipe Time (Optional)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.black)
+                                            
                                         Text("\(viewModel.recipeHours) hours, \(viewModel.recipeMinutes) minutes")
                                             .font(.caption)
                                             .foregroundStyle(.black)
+                                            .bold()
                                     }
                                 }
                                 Spacer()
@@ -274,7 +309,6 @@ struct UploadPostView: View {
                         */
                     }
                     Spacer()
-                    Divider()
                 
                     Button {
                         //MARK: Post Button

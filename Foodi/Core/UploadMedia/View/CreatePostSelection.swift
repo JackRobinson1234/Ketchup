@@ -28,9 +28,9 @@ struct CreatePostSelection: View {
             label: {postOption(image:"building.2", title: "Post About a Restaurant", description: "Restaurant posts appear on the Discover Feed and on the selected restaurant's profile")}
                 
                 Button{recipePostCover.toggle() } label: {
-                    postOption(image: "fork.knife.circle", title: "Post your own Recipe", description: "Recipe posts appear on the Discover Feed")
+                    postOption(image: "fork.knife.circle", title: "Post Food You Cooked", description: "Food you Cooked posts appear on the Discover Feed")
                 }
-                postOption(image: "bag", title: "Post About a Brand", description: "Brand posts appear on the Discover Feed")
+                postOption(image: "bag", title: "Post About a Food Brand", description: "Brand posts appear on the Discover Feed")
                 Spacer()
             }
             .toolbar {
