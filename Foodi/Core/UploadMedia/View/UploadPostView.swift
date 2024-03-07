@@ -157,20 +157,22 @@ struct UploadPostView: View {
                             showDietary.toggle()
                         } label: {
                             HStack{
+                                
                                 VStack (alignment: .leading) {
                                     Text("Add Dietary Restrictions (Optional)")
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
-                                }
-                                if viewModel.dietaryRestrictions.count > 0 && !viewModel.dietaryRestrictions[0].isEmpty {
-                                    Text("\(viewModel.dietaryRestrictions.joined(separator: ", "))")
-                                        .lineLimit(1)
-                                        .font(.caption)
-                                        .foregroundStyle(.black)
-                                } else {
-                                    Text("No Dietary Restrictions Added")
-                                        .font(.caption)
-                                        .foregroundStyle(.gray)
+                                    
+                                    if viewModel.dietaryRestrictions.count > 0 && !viewModel.dietaryRestrictions[0].isEmpty {
+                                        Text("\(viewModel.dietaryRestrictions.joined(separator: ", "))")
+                                            .lineLimit(1)
+                                            .font(.caption)
+                                            .foregroundStyle(.black)
+                                    } else {
+                                        Text("No Dietary Restrictions Added")
+                                            .font(.caption)
+                                            .foregroundStyle(.gray)
+                                    }
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
