@@ -115,6 +115,7 @@ struct postRecipe: Codable, Hashable {
     var time: Int?
     var dietary: [String]?
     var instructions: [instructions]?
+    var ingredients: [String]?
 }
 
 struct instructions: Codable, Hashable {

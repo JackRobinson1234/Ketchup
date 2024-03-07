@@ -15,7 +15,8 @@ struct FeedCell: View {
     @State private var expandCaption = false
     @State private var showComments = false
     @State private var showShareView = false
-        
+    @State private var timeString = "Not Specified"
+            
     private var didLike: Bool { return post.didLike }
     
     var body: some View {
@@ -35,15 +36,18 @@ struct FeedCell: View {
                     
                     HStack(alignment: .bottom) {
                         
-                        // MARK: LEFT (POST META-DATA) VSTACK
+                        // MARK: Expandable Caption
                         
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
+                                //MARK: Restaurant Scenario
                                 // restaurant profile image
                                 if let restaurant = post.restaurant{
-                                    NavigationLink(value: restaurant) {
-                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
-                                    }
+                                    if let image = restaurant.profileImageUrl{
+                                        NavigationLink(value: restaurant) {
+                                            RestaurantCircularProfileImageView(imageUrl: image, size: .large)
+                                        }}
+                                    
                                     //restaurant name
                                     VStack (alignment: .leading) {
                                         NavigationLink(value: restaurant) {
@@ -64,8 +68,29 @@ struct FeedCell: View {
                                                 .multilineTextAlignment(.leading)
                                         }
                                     }
+                                    //MARK: Recipe Scenario
+                                } else if let recipe = post.recipe{
+                                    RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)
+                                    VStack (alignment: .leading) {
+                                        
+                                        Text("\(recipe.name)")
+                                                .font(.title3)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        
+                                        
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                    }
                                 }
                             }
+                            
                             //caption
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
@@ -89,6 +114,49 @@ struct FeedCell: View {
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                 }
+                                else if let recipe = post.recipe {
+                                    //MARK: Recipe Time
+                                    Text("Cuisine: \(recipe.cuisine ?? "Not Specified")")
+                                    
+                                    // price
+                                    if let timeInMinutes = recipe.time {
+                                        if timeInMinutes > 0 {
+                                            let hours = timeInMinutes / 60
+                                            let minutes = timeInMinutes % 60
+                                            
+                                            
+                                            if hours > 0 {
+                                                if minutes > 0 {
+                                                    var timeString = "\(hours) hours, \(minutes) minutes"
+                                                } else {
+                                                    var timeString = "\(hours) hours"
+                                                }
+                                            } else {
+                                                var timeString = "\(minutes) minutes"
+                                            }
+                                            
+                                            Text("Time: \(timeString)")
+                                        }
+                                        else {
+                                            Text("Time: Not Specified")
+                                        }
+                                    }
+                                    if let dietaryRestrictions = recipe.dietary, !dietaryRestrictions.isEmpty {
+                                            Text("Dietary Restrictions: \(dietaryRestrictions.joined(separator: ", "))")
+                                    } else {
+                                        Text("Dietary Restrictions: Not Specified")
+                                    }
+                                    
+                                    //Menu Button
+                                    
+                                    Button{
+                                        player.pause()
+                                    } label: {
+                                        Text("View Recipe")
+                                    }
+                                    .modifier(StandardButtonModifier(width: 175))
+                                
+                                }
                             }
                         }
                         //controls box size
@@ -100,7 +168,7 @@ struct FeedCell: View {
                         .padding()
                         
                         Spacer()
-                        //MARK: Right hand Vstack
+                        //MARK: Right hand VStack
                         VStack(spacing: 28) {
                             //user profile image
                             NavigationLink(value: post.user) {

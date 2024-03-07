@@ -75,8 +75,26 @@ class UploadPostViewModel: ObservableObject {
         guard !recipeTitle.isEmpty else { return }
         guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
         isLoading = true
+        
+        let filteredIngredients = ingredients.filter { !$0.isEmpty }
+        let filteredDietaryRestrictions = dietaryRestrictions.filter { !$0.isEmpty }
+        let filteredInstructions = instructions.filter { !$0.title.isEmpty || !$0.description.isEmpty }
         let time = recipeHours * 60 + recipeMinutes
-        let recipe = postRecipe(name: recipeTitle, cuisine: recipeCuisine, time: time, dietary: dietaryRestrictions, instructions: instructions)
+        let nonEmptyIngredients = filteredIngredients.isEmpty ? nil : filteredIngredients
+        let nonEmptyDietaryRestrictions = filteredDietaryRestrictions.isEmpty ? nil : filteredDietaryRestrictions
+        let nonEmptyInstructions = filteredInstructions.isEmpty ? nil : filteredInstructions
+        let nonEmptyCuisine = recipeCuisine.isEmpty ? nil : recipeCuisine
+        var recipe = postRecipe(
+            name: recipeTitle,
+            cuisine: nonEmptyCuisine,
+            dietary: nonEmptyDietaryRestrictions,
+            instructions: nonEmptyInstructions,
+            ingredients: nonEmptyIngredients
+        )
+
+        if time > 0 {
+            recipe.time = time
+        }
             do {
                 print("running upload recipe post")
                 print(recipe)

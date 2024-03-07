@@ -57,7 +57,7 @@ struct FeedView: View {
                     }
                     .scrollTargetLayout()
                 }
-                //MARK: Seach + Filters
+                //MARK: Search + Filters
                 HStack{
                     Button{
                         showSearchView.toggle()
