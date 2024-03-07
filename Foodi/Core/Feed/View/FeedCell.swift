@@ -146,7 +146,7 @@ struct FeedCell: View {
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
-                        .padding()
+                        .padding(.horizontal)
                         
                         Spacer()
                         //MARK: Right hand VStack
@@ -189,7 +189,7 @@ struct FeedCell: View {
                         }
                         .padding()
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 22)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 110 : 50)
                 }
             }
             //MARK: CLICKING CONTROLS
