@@ -22,7 +22,7 @@ class UploadPostViewModel: ObservableObject {
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
-    @Published var recipeDescription = ""
+
     @Published var recipeTitle = ""
     @Published var ingredients: [String] = [""]
     @Published var recipeCuisine = ""
@@ -123,7 +123,7 @@ class UploadPostViewModel: ObservableObject {
         recipeTitle = ""
         ingredients = [""]
         instructions = [Foodi.instructions(title: "", description: "")]
-        recipeDescription = ""
+        
         recipeCuisine = ""
         dietaryRestrictions = [""]
 

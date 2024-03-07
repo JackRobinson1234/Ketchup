@@ -20,49 +20,71 @@ struct RecipeView: View {
                     .frame(height: 200)
                     .clipped()
                 
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(spacing: 16) {
                     // Recipe Title and User
-                    Text(post.recipe?.name ?? "")
+                    Text(post.recipe?.name ?? "Title")
                         .font(.title)
                         .bold()
                     
+                    
                     Text("By: \(post.user.fullname)")
                         .font(.subheadline)
-                    
+                }
                     // Cuisine, Time, and Dietary Restrictions
-                    HStack {
-                        Text(post.recipe?.cuisine ?? "Cuisine not specified")
-                        Spacer()
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Cuisine: \(post.recipe?.cuisine ?? "Not specified")")
+                        
                         Text("Time: \(formattedTime(time: post.recipe?.time ?? 0))")
-                        Spacer()
+                        
                         Text("Dietary: \(formattedDietaryRestrictions(dietary: post.recipe?.dietary ?? []))")
                     }
                     .font(.subheadline)
-                    
+                    Spacer()
+                }
+                .padding()
                     // Ingredients
-                    Text("Ingredients:")
-                        .font(.headline)
+                VStack{
                     
+                    Text("Ingredients")
+                        .font(.title3)
+                        .bold()
+                    
+                }
+                .padding(.horizontal)
+                VStack{
                     ForEach(post.recipe?.ingredients ?? [], id: \.self) { ingredient in
                         Text("- \(ingredient)")
                     }
+                }
                     
                     // Instructions
-                    Text("Instructions:")
-                        .font(.headline)
+                    Text("Instructions")
+                        .font(.title3)
+                        .bold()
                     
-                    ForEach(post.recipe?.instructions ?? [], id: \.self) { instruction in
-                        VStack(alignment: .leading) {
-                            Text(instruction.title)
+                if let instructions = post.recipe?.instructions {
+                    ForEach(instructions.indices, id: \.self) { index in
+                        VStack{
+                            HStack{
+                                Text("Step \(Int(index)+1): \(instructions[index].title)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                    .bold()
+                                Spacer()
+                                
+                            }
+                            Text("Step \(Int(index)+1) Description:  \(instructions[index].description)")
                                 .font(.subheadline)
-                                .bold()
-                            
-                            Text(instruction.description)
-                                .font(.body)
                         }
+                        
+                        
+                        Divider()
                     }
+                    .padding(.leading)
                 }
-                .padding()
+                
+                
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarTitle("Recipe Details", displayMode: .inline)

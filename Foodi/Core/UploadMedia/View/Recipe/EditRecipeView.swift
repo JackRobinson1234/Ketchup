@@ -15,17 +15,10 @@ struct EditRecipeView: View {
         NavigationStack{
             //MARK: Ingredients
             ScrollView{
+              
+               
                 HStack{
-                    Text("Recipe Description")
-                        .font(.headline)
-                        .padding()
                     Spacer()
-                }
-                TextField("Add a Recipe Description...", text: $viewModel.recipeDescription, axis: .vertical)
-                    .font(.subheadline)
-                    .padding()
-                
-                HStack{
                     Text("Ingredients")
                         .font(.headline)
                         .padding()
@@ -63,6 +56,7 @@ struct EditRecipeView: View {
                 }
                 //MARK: Instructions
                 HStack{
+                    Spacer()
                     Text("Instructions")
                         .font(.headline)
                     

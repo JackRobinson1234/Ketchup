@@ -181,8 +181,7 @@ struct UploadPostView: View {
                                     
                                     // if the ingredients, instructions, or viewModel is empty, then it won't show that the user edited the recipe.
                                     if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
-                                        viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty ||
-                                        !viewModel.recipeDescription.isEmpty
+                                        viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty
                                         
                                     {
                                         Text("Recipe Added")
