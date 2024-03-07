@@ -15,6 +15,7 @@ struct EditDietaryRestrictionsView: View {
             //MARK: Title
             ScrollView{
                 VStack{
+
                     HStack{
                         Text("Dietary Restrictions")
                             .font(.headline)
@@ -49,19 +50,21 @@ struct EditDietaryRestrictionsView: View {
                         .disabled(viewModel.isLastRestrictionEmpty)
                     }
                     else {
-                        Text("Maximim Ingredients Reached")
+                        Text("Maximum Ingredients Reached")
                             .font(.caption)
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Add Dietary Restritions")
+                .navigationTitle("Add Dietary Restrictions")
                 .navigationBarBackButtonHidden()
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.left")
+                    ToolbarItem(placement: .topBarTrailing) {
+                            Button{
+                                dismiss()
+                            } label: {
+                                Text("Done")
+                                    .font(.subheadline)
+                            
                         }
                     }
                 }

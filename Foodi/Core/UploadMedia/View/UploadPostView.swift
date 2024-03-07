@@ -231,53 +231,7 @@ struct UploadPostView: View {
                             }
                         }
                         .padding(.top, 30)
-                        .popover(isPresented: $showTimePicker, arrowEdge: .bottom) {
-                            VStack{
-                                HStack{
-                                    Spacer()
-                                    Button{
-                                        dismiss()
-                                    } label: {
-                                        Text("Done")
-                                            .font(.subheadline)
-                                    }
-                                    
-                                }
-                                .padding()
-                                Spacer()
-                                VStack{
-                                    Text("Select a Total Recipe Time")
-                                        .font(.subheadline)
-                                    HStack {
-                                        // Hours Picker
-                                        Picker("Hours", selection: $viewModel.recipeHours) {
-                                            ForEach(0..<24) { hour in
-                                                Text("\(hour)")
-                                            }
-                                        }
-                                        .pickerStyle(WheelPickerStyle())
-                                        .frame(width: 80)
-                                        .padding(.top, 30)
-                                        
-                                        Text("hours")
-                                        
-                                        // Minutes Picker
-                                        Picker("Minutes", selection: $viewModel.recipeMinutes) {
-                                            ForEach(0..<60) { minute in
-                                                Text("\(minute)")
-                                            }
-                                        }
-                                        .pickerStyle(WheelPickerStyle())
-                                        
-                                        .padding(.top, 30)
-                                        
-                                        Text("minutes")
-                                    }
-                                    .padding()
-                                    Spacer()
-                                }
-                            }
-                        }
+                        
                         Divider()
                         /*
                             HStack {
@@ -337,9 +291,9 @@ struct UploadPostView: View {
                     .disabled(viewModel.isLoading)
                 
             }
-            .fullScreenCover(isPresented: $showAddRecipe){EditMenuView(viewModel: viewModel)}
-            .fullScreenCover(isPresented: $showDietary){EditDietaryRestrictionsView(viewModel: viewModel)}
-            
+            .sheet(isPresented: $showAddRecipe){EditRecipeView(viewModel: viewModel)}
+            .sheet(isPresented: $showDietary){EditDietaryRestrictionsView(viewModel: viewModel)}
+            .sheet(isPresented: $showTimePicker) {RecipeTimePicker(viewModel: viewModel)}
             .padding()
             .navigationTitle("Recipe Post")
             .navigationBarTitleDisplayMode(.inline)
