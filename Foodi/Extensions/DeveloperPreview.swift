@@ -105,7 +105,7 @@ struct DeveloperPreview {
             thumbnailUrl: "lewis-hamilton",
             timestamp: Timestamp(),
             user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
-            recipe: postRecipe(name: "Spaghetti", cuisine: "Chinese", time: 155, dietary: ["Vegan", "DF"], instructions: [instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat")], ingredients: ["Sausage", "Fried Rice", "Legumes"])
+            recipe: postRecipe(name: "Spaghetti", cuisine: "Chinese", time: 155, dietary: ["Vegan", "DF"], instructions: [instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat")], ingredients: [ingredient(quantity: "25oz", item: "Sausage"), ingredient(quantity: "5lb", item: "carrots")])
             
         ),
         .init(

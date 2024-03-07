@@ -24,19 +24,19 @@ class UploadPostViewModel: ObservableObject {
     
 
     @Published var recipeTitle = ""
-    @Published var ingredients: [String] = [""]
+    @Published var ingredients: [ingredient] = [ingredient(quantity: "", item: "")]
     @Published var recipeCuisine = ""
     @Published var dietaryRestrictions: [String] = [""]
     @Published var recipeHours: Int = 0
     @Published var recipeMinutes: Int = 0
     
-    @Published var instructions: [instructions] = [Foodi.instructions(title: "", description: "")]
+    @Published var instructions: [instruction] = [instruction(title: "", description: "")]
     
     private let restaurant: Restaurant?
     private let service: UploadPostService
     
     var isLastIngredientEmpty: Bool {
-            return ingredients.last?.isEmpty == true
+        return ingredients.last?.item.isEmpty == true
         }
     
     var isLastRestrictionEmpty: Bool {
@@ -76,7 +76,7 @@ class UploadPostViewModel: ObservableObject {
         guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
         isLoading = true
         
-        let filteredIngredients = ingredients.filter { !$0.isEmpty }
+        let filteredIngredients = ingredients.filter { !$0.item.isEmpty }
         let filteredDietaryRestrictions = dietaryRestrictions.filter { !$0.isEmpty }
         let filteredInstructions = instructions.filter { !$0.title.isEmpty || !$0.description.isEmpty }
         let time = recipeHours * 60 + recipeMinutes
@@ -121,8 +121,8 @@ class UploadPostViewModel: ObservableObject {
         selectedItem = nil
         selectedMediaForUpload = nil
         recipeTitle = ""
-        ingredients = [""]
-        instructions = [Foodi.instructions(title: "", description: "")]
+        ingredients = [ingredient(quantity: "", item: "")]
+        instructions = [instruction(title: "", description: "")]
         
         recipeCuisine = ""
         dietaryRestrictions = [""]
@@ -131,7 +131,7 @@ class UploadPostViewModel: ObservableObject {
         
     }
     func addEmptyIngredient() {
-            ingredients.append("")
+            ingredients.append(ingredient(quantity: "", item: ""))
         }
     
     func addEmptyRestriction() {
@@ -139,7 +139,7 @@ class UploadPostViewModel: ObservableObject {
         }
     
     func addEmptyInstruction() {
-        instructions.append(Foodi.instructions(title: "", description: ""))
+        instructions.append(instruction(title: "", description: ""))
         }
     
     func loadVideo(fromItem item: PhotosPickerItem?) async {

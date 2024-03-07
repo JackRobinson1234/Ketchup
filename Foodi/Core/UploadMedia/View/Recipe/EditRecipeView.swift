@@ -25,8 +25,17 @@ struct EditRecipeView: View {
                     Spacer()
                 }
                 ForEach($viewModel.ingredients.indices, id: \.self) { index in
-                    TextField("Add Ingredient...", text: $viewModel.ingredients[index], axis: .vertical)
-                        .font(.subheadline)
+                    HStack{
+                        TextField("Quantity...", text: $viewModel.ingredients[index].quantity, axis: .vertical)
+                            .frame(width: 80) // Set a fixed width for the quantity text field
+                                        .padding(8)
+                                        .font(.subheadline)
+                        Divider()
+                        TextField("Add Ingredient...", text: $viewModel.ingredients[index].item, axis: .vertical)
+                            .font(.subheadline)
+                            .padding(8)
+                            .padding(.trailing)
+                    }
                     Divider()
                 }.padding(.leading)
                 
@@ -41,10 +50,10 @@ struct EditRecipeView: View {
                             Image(systemName: "plus.circle")
                                 .foregroundColor(.blue)
                                 .font(.subheadline)
-                                .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                .opacity(viewModel.isLastIngredientEmpty ? 0.2 : 1.0)
                             Text("Add Another Ingredient")
                                 .font(.caption)
-                                .opacity(viewModel.isLastIngredientEmpty ? 0.5 : 1.0)
+                                .opacity(viewModel.isLastIngredientEmpty ? 0.2 : 1.0)
                         }
                     }
                     .padding(.top, 10)
@@ -91,10 +100,10 @@ struct EditRecipeView: View {
                         Image(systemName: "plus.circle")
                             .foregroundColor(.blue)
                             .font(.subheadline)
-                            .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
+                            .opacity(viewModel.isLastInstructionEmpty ? 0.2 : 1.0)
                         Text("Add a New Step")
                             .font(.caption)
-                            .opacity(viewModel.isLastInstructionEmpty ? 0.5 : 1.0)
+                            .opacity(viewModel.isLastInstructionEmpty ? 0.2 : 1.0)
                     }
                 }.padding()
                     .disabled(viewModel.isLastInstructionEmpty)

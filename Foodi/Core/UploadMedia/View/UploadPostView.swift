@@ -162,6 +162,16 @@ struct UploadPostView: View {
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
+                                if viewModel.dietaryRestrictions.count > 0 && !viewModel.dietaryRestrictions[0].isEmpty {
+                                    Text("\(viewModel.dietaryRestrictions.joined(separator: ", "))")
+                                        .lineLimit(1)
+                                        .font(.caption)
+                                        .foregroundStyle(.black)
+                                } else {
+                                    Text("No Dietary Restrictions Added")
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                             }
@@ -180,7 +190,7 @@ struct UploadPostView: View {
                                         .foregroundColor(.gray)
                                     
                                     // if the ingredients, instructions, or viewModel is empty, then it won't show that the user edited the recipe.
-                                    if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].isEmpty ||
+                                    if viewModel.ingredients.count > 0 && !viewModel.ingredients[0].item.isEmpty ||
                                         viewModel.instructions.count > 0 && !viewModel.instructions[0].title.isEmpty
                                         
                                     {
@@ -222,7 +232,7 @@ struct UploadPostView: View {
                                     else {
                                         Text("\(viewModel.recipeHours) hours, \(viewModel.recipeMinutes) minutes")
                                             .font(.caption)
-                                            .foregroundStyle(.gray)
+                                            .foregroundStyle(.black)
                                     }
                                 }
                                 Spacer()

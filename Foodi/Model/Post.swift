@@ -114,11 +114,16 @@ struct postRecipe: Codable, Hashable {
     var cuisine: String?
     var time: Int?
     var dietary: [String]?
-    var instructions: [instructions]?
-    var ingredients: [String]?
+    var instructions: [instruction]?
+    var ingredients: [ingredient]?
 }
 
-struct instructions: Codable, Hashable {
+struct instruction: Codable, Hashable {
     var title: String
     var description: String
+}
+
+struct ingredient: Codable, Hashable {
+    var quantity: String
+    var item: String
 }

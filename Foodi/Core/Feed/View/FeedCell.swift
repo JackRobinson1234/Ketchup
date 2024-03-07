@@ -72,12 +72,12 @@ struct FeedCell: View {
                                 } else if let recipe = post.recipe{
                                     /*RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)*/
                                     VStack (alignment: .leading) {
-                                        
-                                        Text("\(recipe.name)")
-                                            .font(.title3)
-                                            .bold()
-                                            .multilineTextAlignment(.leading)
-                                        
+                                        Button{showRecipe.toggle()} label: {
+                                            Text("\(recipe.name)")
+                                                .font(.title3)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
                                         
                                         NavigationLink(value: post.user) {
                                             Text("by \(post.user.fullname)")

@@ -17,7 +17,7 @@ struct RecipeView: View {
                 KFImage(URL(string: post.thumbnailUrl))
                     .resizable()
                     .scaledToFill()
-                    .frame(height: 200)
+                    .frame(height: 300)
                     .clipped()
                 
                 VStack(spacing: 4) {
@@ -57,8 +57,10 @@ struct RecipeView: View {
                 HStack{
                     VStack (alignment: .leading){
                         ForEach(post.recipe?.ingredients ?? [], id: \.self) { ingredient in
-                            Text("- \(ingredient)")
-                                .font(.subheadline)
+                            
+                            Text("- \(ingredient.quantity) \(ingredient.item)")
+                                    .font(.subheadline)
+                            
                         }
                     }
                     Spacer()
@@ -107,15 +109,20 @@ struct RecipeView: View {
                 
                 
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarTitle("Recipe Details", displayMode: .inline)
+            .ignoresSafeArea()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.white)
+                            .background(
+                                Circle()
+                                    .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                    .frame(width: 30, height: 30) // Adjust the size as needed
+                            )
+                            .padding()
                     }
                 }
             }
