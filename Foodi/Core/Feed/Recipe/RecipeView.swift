@@ -20,7 +20,7 @@ struct RecipeView: View {
                     .frame(height: 200)
                     .clipped()
                 
-                VStack(spacing: 16) {
+                VStack(spacing: 4) {
                     // Recipe Title and User
                     Text(post.recipe?.name ?? "Title")
                         .font(.title)
@@ -43,7 +43,7 @@ struct RecipeView: View {
                     .font(.subheadline)
                     Spacer()
                 }
-                .padding()
+                .padding(.horizontal)
                     // Ingredients
                 HStack{
                     
@@ -53,7 +53,7 @@ struct RecipeView: View {
                     Spacer()
                     
                 }
-                .padding(.horizontal)
+                .padding([.horizontal, .top])
                 HStack{
                     VStack (alignment: .leading){
                         ForEach(post.recipe?.ingredients ?? [], id: \.self) { ingredient in
@@ -63,7 +63,7 @@ struct RecipeView: View {
                     }
                     Spacer()
                 }
-                .padding()
+                .padding(.horizontal)
                     
                 HStack{
                     Text("Instructions")
@@ -71,28 +71,33 @@ struct RecipeView: View {
                         .bold()
                     Spacer()
                 }
-                .padding(.horizontal)
+                .padding([.horizontal,.top])
                 VStack{
                     if let instructions = post.recipe?.instructions {
                         ForEach(instructions.indices, id: \.self) { index in
                             VStack{
-                                Text("Step \(Int(index)+1)")
-                                    .font(.title3)
-                                    .bold()
-                                
-                                Text("\(instructions[index].title)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.black)
-                                    .bold()
-                                   .padding(.horizontal)
+                                HStack{
+                                    Text("Step \(Int(index)+1)")
+                                        .font(.title3)
+                                        .bold()
+                                    Spacer()
+                                }
+                                HStack{
+                                    Text("\(instructions[index].title)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.black)
+                                        .bold()
+                                        
+                                    Spacer()
+                                }
                                 HStack{
                                     Text("\(instructions[index].description)")
                                         .font(.caption)
                                     Spacer()
                                 }
-                                .padding(.horizontal)
+                                
                             }
-                            .padding()
+                            .padding([.horizontal])
                             
                             
                             Divider()
