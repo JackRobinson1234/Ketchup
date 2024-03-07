@@ -37,51 +37,67 @@ struct RecipeView: View {
                         
                         Text("Time: \(formattedTime(time: post.recipe?.time ?? 0))")
                         
-                        Text("Dietary: \(formattedDietaryRestrictions(dietary: post.recipe?.dietary ?? []))")
+                        Text("Dietary Restrictions: \(formattedDietaryRestrictions(dietary: post.recipe?.dietary ?? []))")
+                        
                     }
                     .font(.subheadline)
                     Spacer()
                 }
                 .padding()
                     // Ingredients
-                VStack{
+                HStack{
                     
                     Text("Ingredients")
-                        .font(.title3)
+                        .font(.title2)
                         .bold()
+                    Spacer()
                     
                 }
                 .padding(.horizontal)
-                VStack{
-                    ForEach(post.recipe?.ingredients ?? [], id: \.self) { ingredient in
-                        Text("- \(ingredient)")
+                HStack{
+                    VStack (alignment: .leading){
+                        ForEach(post.recipe?.ingredients ?? [], id: \.self) { ingredient in
+                            Text("- \(ingredient)")
+                                .font(.subheadline)
+                        }
                     }
+                    Spacer()
                 }
+                .padding()
                     
-                    // Instructions
+                HStack{
                     Text("Instructions")
-                        .font(.title3)
+                        .font(.title2)
                         .bold()
-                    
-                if let instructions = post.recipe?.instructions {
-                    ForEach(instructions.indices, id: \.self) { index in
-                        VStack{
-                            HStack{
-                                Text("Step \(Int(index)+1): \(instructions[index].title)")
+                    Spacer()
+                }
+                .padding(.horizontal)
+                VStack{
+                    if let instructions = post.recipe?.instructions {
+                        ForEach(instructions.indices, id: \.self) { index in
+                            VStack{
+                                Text("Step \(Int(index)+1)")
+                                    .font(.title3)
+                                    .bold()
+                                
+                                Text("\(instructions[index].title)")
                                     .font(.subheadline)
                                     .foregroundColor(.black)
                                     .bold()
-                                Spacer()
-                                
+                                   .padding(.horizontal)
+                                HStack{
+                                    Text("\(instructions[index].description)")
+                                        .font(.caption)
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
                             }
-                            Text("Step \(Int(index)+1) Description:  \(instructions[index].description)")
-                                .font(.subheadline)
+                            .padding()
+                            
+                            
+                            Divider()
                         }
-                        
-                        
-                        Divider()
                     }
-                    .padding(.leading)
                 }
                 
                 
@@ -125,5 +141,5 @@ struct RecipeView: View {
     }
 }
 #Preview {
-    RecipeView(post: DeveloperPreview.posts[0])
+    RecipeView(post: DeveloperPreview.posts[1])
 }

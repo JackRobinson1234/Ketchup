@@ -95,6 +95,21 @@ struct DeveloperPreview {
         ),
         .init(
             id: NSUUID().uuidString,
+            videoUrl: videoUrls[0],
+            caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
+            likes: 200,
+            commentCount: 57,
+            saveCount: 23,
+            shareCount: 9,
+            views: 567,
+            thumbnailUrl: "lewis-hamilton",
+            timestamp: Timestamp(),
+            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
+            recipe: postRecipe(name: "Spaghetti", cuisine: "Chinese", time: 155, dietary: ["Vegan", "DF"], instructions: [instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instructions(title: "Cook Meat", description: "Cook the meat in boiling water over high heat")], ingredients: ["Sausage", "Fried Rice", "Legumes"])
+            
+        ),
+        .init(
+            id: NSUUID().uuidString,
             videoUrl: videoUrls[1],
             caption: "This is some test caption for this post",
             likes: 500,
