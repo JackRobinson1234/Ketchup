@@ -21,11 +21,11 @@ struct FeedCellActionButtonView: View {
                 .frame(width: width, height: height)
                 .foregroundStyle(tintColor ?? .white)
             
-            if value > 0 {
+            
                 Text("\(value)")
                     .font(.caption)
                     .fontWeight(.bold)
-            }
+            
         }
         .foregroundStyle(.white)
     }

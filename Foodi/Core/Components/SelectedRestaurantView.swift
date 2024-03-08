@@ -16,6 +16,7 @@ import Kingfisher
 struct SelectedRestaurantView: View {
     var restaurant: Restaurant
     var body: some View {
+        
         VStack  {
             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
             Text(restaurant.name)

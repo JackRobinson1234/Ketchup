@@ -39,7 +39,6 @@ struct FeedView: View {
                     Task {
                         await viewModel.fetchPosts()
                         isLoading = false
-                        
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
@@ -58,7 +57,7 @@ struct FeedView: View {
                     }
                     .scrollTargetLayout()
                 }
-                //MARK: Seach + Filters
+                //MARK: Search + Filters
                 HStack{
                     Button{
                         showSearchView.toggle()

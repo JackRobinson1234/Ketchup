@@ -42,13 +42,29 @@ struct PostGridView: View {
                                 VStack{
                                     HStack{
                                         VStack (alignment: .leading) {
-                                            Text("\(post.restaurant.name)")
-                                                .lineLimit(2)
-                                                .truncationMode(.tail)
-                                                .foregroundColor(.white)
-                                                .font(.footnote)
-                                                .bold()
-                                            
+                                            if let restaurant = post.restaurant {
+                                                Text("\(restaurant.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            }
+                                            else if let recipe = post.recipe {
+                                                Text("\(recipe.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            } else if let brand = post.brand {
+                                                Text("\(brand.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            }
                                         }
                                         
                                         Spacer()
@@ -56,7 +72,16 @@ struct PostGridView: View {
                                     
                                     Spacer()
                                     HStack {
-                                        
+                                        /*
+                                        if post.restaurant != nil {
+                                            Image(systemName: "building.2.crop.circle.fill")
+                                                .font(.footnote)
+                                                .foregroundColor(.white)
+                                        } else if post.recipe != nil {
+                                            Image(systemName: "fork.knife.circle")
+                                                .font(.footnote)
+                                                .foregroundColor(.white)
+                                        }*/
                                         Spacer()
                                         
                                         Text("\(post.likes)")

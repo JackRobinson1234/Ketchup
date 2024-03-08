@@ -19,8 +19,12 @@ class MapViewModel: ObservableObject {
         self.restaurantService = restaurantService
     }
     
-    
-    func fetchRestaurants() async {
+    func fetchRestaurants() async throws {
+        self.restaurants = try await FirestoreConstants
+            .RestaurantCollection
+            .limit(to: 20)
+        .getDocuments(as: Restaurant.self)}
+    /*func fetchRestaurants() async {
         let query = FirestoreConstants.RestaurantCollection.limit(to: 20)
         
         
@@ -62,7 +66,7 @@ class MapViewModel: ObservableObject {
                 let restaurant = try await restaurantService.fetchRestaurant(withId: doc.documentID)
                 restaurants.append(restaurant)
             }
-        }
+        }*/
      
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()

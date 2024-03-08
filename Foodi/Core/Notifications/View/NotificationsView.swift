@@ -6,6 +6,7 @@
 //
 import SwiftUI
 struct NotificationsView: View {
+    @Environment(\.dismiss) var dismiss
     @StateObject var viewModel = NotificationsViewModel(service: NotificationService())
     private let userService: UserService
     init(userService: UserService){
@@ -39,8 +40,21 @@ struct NotificationsView: View {
                 ProfileView(uid: user.id, userService: userService)})
             .navigationDestination(for: SearchModelConfig.self) { config in
                 SearchView(userService: UserService(), searchConfig: config)}
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundStyle(.black)
+                            .padding()
+                    }
+                }
+            }
+
         }
     }
+    
 }
 
 #Preview {

@@ -23,7 +23,9 @@ struct Post: Identifiable, Codable {
     var thumbnailUrl: String
     var timestamp: Timestamp
     var user: postUser
-    var restaurant: postRestaurant
+    var restaurant: postRestaurant? = nil
+    var recipe: postRecipe? = nil
+    var brand: postBrand? = nil
     var didLike = false
     var didSave = false
     
@@ -40,9 +42,11 @@ struct Post: Identifiable, Codable {
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(postUser.self, forKey: .user)
-        self.restaurant = try container.decode(postRestaurant.self, forKey: .restaurant)
+        self.restaurant = try container.decodeIfPresent(postRestaurant.self, forKey: .restaurant)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
+        self.recipe = try container.decodeIfPresent(postRecipe.self, forKey: .recipe)
+        self.brand = try container.decodeIfPresent(postBrand.self, forKey: .brand)
     }
     
     init(
@@ -57,9 +61,11 @@ struct Post: Identifiable, Codable {
         thumbnailUrl: String,
         timestamp: Timestamp,
         user: postUser,
-        restaurant: postRestaurant,
+        restaurant: postRestaurant? = nil,
         didLike: Bool = false,
-        didSave: Bool = false
+        didSave: Bool = false,
+        recipe: postRecipe? = nil,
+        brand: postBrand? = nil
     ) {
         self.id = id
         self.videoUrl = videoUrl
@@ -75,6 +81,8 @@ struct Post: Identifiable, Codable {
         self.didLike = didLike
         self.restaurant = restaurant
         self.didSave = didSave
+        self.recipe = recipe
+        self.brand = brand
     }
 }
 
@@ -103,4 +111,28 @@ struct postUser: Codable, Hashable, Identifiable {
     let id: String
     let fullname: String
     let profileImageUrl: String?
+}
+
+struct postRecipe: Codable, Hashable {
+    var name: String
+    var cuisine: String?
+    var time: Int?
+    var dietary: [String]?
+    var instructions: [instruction]?
+    var ingredients: [ingredient]?
+}
+
+struct instruction: Codable, Hashable {
+    var title: String
+    var description: String
+}
+
+struct ingredient: Codable, Hashable {
+    var quantity: String
+    var item: String
+}
+
+struct postBrand: Codable, Hashable {
+    var name: String
+    var price: Int
 }

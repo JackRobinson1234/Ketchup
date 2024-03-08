@@ -15,14 +15,15 @@ struct FeedCell: View {
     @State private var expandCaption = false
     @State private var showComments = false
     @State private var showShareView = false
-        
+    @State private var showRecipe = false
+    
     private var didLike: Bool { return post.didLike }
     
     var body: some View {
         ZStack {
             VideoPlayer(player: player)
                 .containerRelativeFrame([.horizontal, .vertical])
-                    
+            
             VStack {
                 Spacer()
                 
@@ -35,35 +36,77 @@ struct FeedCell: View {
                     
                     HStack(alignment: .bottom) {
                         
-                        // MARK: LEFT (POST META-DATA) VSTACK
+                        // MARK: Expandable Caption
                         
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
+                                //MARK: Restaurant Scenario
                                 // restaurant profile image
-                                NavigationLink(value: post.restaurant) {
-                                    RestaurantCircularProfileImageView(imageUrl: post.restaurant.profileImageUrl, size: .large)
-                                }
-                                //restaurant name
-                                VStack (alignment: .leading) {
-                                NavigationLink(value: post.restaurant) {
-                                    Text("\(post.restaurant.name)")
-                                        .font(.title3)
-                                        .bold()
-                                        .multilineTextAlignment(.leading)
-                                }
-                                //address
-                                Text("📍 \(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
-                                
-                                    NavigationLink(value: post.user) {
-                                        Text("by \(post.user.fullname)")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.white)
+                                if let restaurant = post.restaurant{
+                                    if let image = restaurant.profileImageUrl{
+                                        NavigationLink(value: restaurant) {
+                                            RestaurantCircularProfileImageView(imageUrl: image, size: .large)
+                                        }}
+                                    
+                                    //restaurant name
+                                    VStack (alignment: .leading) {
+                                        NavigationLink(value: restaurant) {
+                                            Text("\(restaurant.name)")
+                                                .font(.title3)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        //address
+                                        Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                                        
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                    }
+                                    //MARK: Recipe Scenario
+                                } else if let recipe = post.recipe{
+                                    /*RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)*/
+                                    VStack (alignment: .leading) {
+                                        Button{showRecipe.toggle()} label: {
+                                            Text("\(recipe.name)")
+                                                .font(.title3)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                    }
+                                } else if let brand = post.brand {
+                                    VStack (alignment: .leading) {
+                                        Text("\(brand.name)")
+                                            .font(.title3)
                                             .bold()
                                             .multilineTextAlignment(.leading)
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
                                     }
                                 }
                             }
+                            
+                            
                             //caption
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
@@ -74,31 +117,59 @@ struct FeedCell: View {
                                     .font(.footnote)
                             }
                             else {
-                                //cuisine
-                                Text("Cuisine: \(post.restaurant.cuisine ?? "")")
-                                
-                                // price
-                                Text("Price: \(post.restaurant.price ?? "")")
-                                
-                                //Menu Button
-                                
-                                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id, currentSection: .menu)) {
+                                if let restaurant = post.restaurant{
+                                    Text("Cuisine: \(restaurant.cuisine ?? "")")
+                                    
+                                    // price
+                                    Text("Price: \(restaurant.price ?? "")")
+                                    
+                                    //Menu Button
+                                    
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
-                                
+                                }
+                                else if let recipe = post.recipe {
+                                    //MARK: Recipe Time
+                                    Text("Cuisine: \(recipe.cuisine ?? "Not Specified")")
+                                    
+                                    let timeString = formattedTime(time: (recipe.time))
+                                    Text("Time: \(timeString)")
+                                    
+                                    if let dietaryRestrictions = recipe.dietary, !dietaryRestrictions.isEmpty {
+                                        Text("Dietary Restrictions: \(dietaryRestrictions.joined(separator: ", "))")
+                                    } else {
+                                        Text("Dietary Restrictions: Not Specified")
+                                    }
+                                    
+                                    //Menu Button
+                                    
+                                    Button{
+                                        showRecipe.toggle()
+                                        player.pause()
+                                    } label: {
+                                        Text("View Recipe")
+                                    }
+                                    .modifier(StandardButtonModifier(width: 175))
+                                    
+                                }
+                                else if let brand = post.brand {
+                                    Text("Price: \(formattedPrice(price: brand.price))")
+                                }
                             }
                         }
+                        
                         //controls box size
                         .padding(10)
                         .background(Color.black.opacity(0.3))
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
-                        .padding()
+                        .padding(.horizontal)
                         
                         Spacer()
-                        //MARK: Right hand Vstack
+                        //MARK: Right hand VStack
                         VStack(spacing: 28) {
                             //user profile image
                             NavigationLink(value: post.user) {
@@ -136,9 +207,9 @@ struct FeedCell: View {
                                                          value: post.shareCount)
                             }
                         }
-                        .padding()
+                        .padding(.horizontal)
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 90 : 22)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
             //MARK: CLICKING CONTROLS
@@ -151,6 +222,10 @@ struct FeedCell: View {
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                    .onDisappear{player.play()}
+            }
+            .sheet(isPresented: $showRecipe) {
+                RecipeView(post: post)
                     .onDisappear{player.play()}
             }
             .onTapGesture {
@@ -171,8 +246,40 @@ struct FeedCell: View {
     private func handleLikeTapped() {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }
+    private func formattedTime(time: Int?) -> String {
+        guard let time = time else {
+            return "Not specified"
+        }
+        
+        let hours = time / 60
+        let minutes = time % 60
+        var timeString = ""
+        
+        if hours > 0 {
+            timeString += "\(hours)h"
+        }
+        
+        if minutes > 0 {
+            timeString += " \(minutes)m"
+        }
+        
+        return timeString.isEmpty ? "Not specified" : timeString
+    }
+    private func formattedPrice(price: Int?) -> String {
+        guard let price = price, price > 0 else {
+            return "Not specified"
+        }
+        
+        let dollars = price / 100
+        let cents = price % 100
+        
+        if cents == 0 {
+            return "$\(dollars).00"
+        } else {
+            return "$\(dollars).\(String(format: "%02d", cents))"
+        }
+    }
 }
-
 
 
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {

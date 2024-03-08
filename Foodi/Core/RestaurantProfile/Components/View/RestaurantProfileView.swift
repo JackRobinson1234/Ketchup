@@ -55,6 +55,12 @@ struct RestaurantProfileView: View {
                     } label: {
                         Image(systemName: "chevron.left")
                             .foregroundStyle(.white)
+                            .background(
+                                Circle()
+                                    .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                    .frame(width: 30, height: 30) // Adjust the size as needed
+                            )
+                            .padding()
                     }
                 }
             }

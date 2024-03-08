@@ -13,16 +13,22 @@ struct MediaSelectorView: View {
     @StateObject var viewModel: UploadPostViewModel
     @State private var showImagePicker = false
     @Binding var tabIndex: Int
-    private let restaurant: Restaurant
+    private let restaurant: Restaurant?
     @Environment(\.dismiss) var dismiss
+    @Binding var cover: Bool
+    private let postType: PostType
         
-    init(tabIndex: Binding<Int>, restaurant: Restaurant) {
+    init(tabIndex: Binding<Int>, restaurant: Restaurant? = nil, cover: Binding<Bool>, postType: PostType) {
+        self._cover = cover
         self._tabIndex = tabIndex
         self.restaurant = restaurant
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
+        self.postType = postType
     }
+    
         var body: some View {
             VStack {
+                
                 // If a movie is selected, creates a player for the user to preview the video
                 if let movie = viewModel.mediaPreview {
                     VideoPlayer(player: player)
@@ -71,7 +77,7 @@ struct MediaSelectorView: View {
                 // "Next" appears if a video is selected and navigates to upload post view
                 if let movie = viewModel.selectedMediaForUpload {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant)) {
+                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover, postType: postType)) {
                             Text("Next")
                         }
                     }
@@ -99,11 +105,12 @@ struct MediaSelectorView: View {
             // if showImagePicker is true, the photospicker appears
             .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             
-            
+            .onDisappear{player.pause()}
             .toolbar(.hidden, for: .tabBar)
         }
     }
-
+/*
 #Preview {
     MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }
+*/

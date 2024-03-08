@@ -15,6 +15,7 @@ struct RestaurantListView: View {
     @Binding var oldSelection: FavoriteRestaurant?
     @Binding var favoritesPreview: [FavoriteRestaurant]?
     @Environment(\.dismiss) var dismiss
+    @State var isLoading: Bool = true
     
     
     init(config: RestaurantListConfig, restaurantService: RestaurantService, userService: UserService, oldSelection: Binding<FavoriteRestaurant?> = .constant(nil), favoritesPreview: Binding<[FavoriteRestaurant]?> = .constant(nil)) {
@@ -25,34 +26,46 @@ struct RestaurantListView: View {
         self._favoritesPreview = favoritesPreview
     }
     
-    var restaurants: [Restaurant] {
-        return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
-    }
     var body: some View {
-                    switch config {
-                    case .upload, .restaurants:
-                        ScrollView {
-                            LazyVStack {
-                        ForEach(restaurants) { restaurant in
+        switch config {
+            case .upload, .restaurants:
+            if isLoading {
+                // Loading screen
+                ScrollView{
+                    ProgressView("Loading...")
+                        .onAppear {
+                            Task {
+                                try await viewModel.fetchRestaurants()
+                                isLoading = false
+                            }
+                        }
+                        .navigationTitle(config.navigationTitle)
+                        .searchable(text: $searchText, placement: .navigationBarDrawer)
+                    
+                }
+            }
+            else{
+                ScrollView {
+                    LazyVStack {
+                        ForEach(viewModel.restaurants) { restaurant in
                             NavigationLink(value: restaurant) {
                                 RestaurantCell(restaurant: restaurant)
                                     .padding(.leading)
-                                    .onAppear {
-                                        if restaurant.id == restaurants.last?.id ?? "" {
-                                        }
-                                    }
+                                
                             }
+                            
                         }
                         
                         .padding(.top)
                         
                     }
+                }
                     .navigationTitle(config.navigationTitle)
-                    .navigationBarTitleDisplayMode(.inline)
                     .searchable(text: $searchText, placement: .navigationBarDrawer)
-                        
+                    
+                
             }
-                        
+                
                         
         }
     }

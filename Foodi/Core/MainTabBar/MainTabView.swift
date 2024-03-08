@@ -22,7 +22,6 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             FeedView(player: $player, userService: userService)
-                .toolbarBackground(.black, for: .tabBar)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -46,18 +45,19 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 1 }
                 .tag(1)
             
-            RestaurantSelectorView(tabIndex: $selectedTab)
+            //RestaurantSelectorView(tabIndex: $selectedTab)
+            CreatePostSelection(tabIndex: $selectedTab)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)
             
-            NotificationsView(userService: userService)
+            ActivityView()
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 3 ? "heart.fill" : "heart")
+                        Image(systemName: selectedTab == 3 ? "bolt.fill" : "bolt")
                             .environment(\.symbolVariants, selectedTab == 3 ? .fill : .none)
                         
-                        Text("Inbox")
+                        Text("Activity")
                     }
                 }
                 .onAppear { selectedTab = 3 }
@@ -77,7 +77,7 @@ struct MainTabView: View {
         }
         .onAppear { configurePlaybackObserver() }
         .onDisappear { removePlaybackObserver() }
-        .tint(selectedTab == 0 ? .white : .black)
+        .tint(.black)
     }
     
     func configurePlaybackObserver() {
