@@ -57,6 +57,13 @@ struct PostGridView: View {
                                                     .foregroundColor(.white)
                                                     .font(.footnote)
                                                     .bold()
+                                            } else if let brand = post.brand {
+                                                Text("\(brand.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
                                             }
                                         }
                                         

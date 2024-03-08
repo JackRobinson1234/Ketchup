@@ -15,6 +15,7 @@ struct CreatePostSelection: View {
     @Binding var tabIndex: Int
     @State var restaurantPostCover: Bool = false
     @State var recipePostCover: Bool = false
+    @State var brandPostCover: Bool = false
     
     
     init(tabIndex: Binding<Int>){
@@ -30,7 +31,9 @@ struct CreatePostSelection: View {
                 Button{recipePostCover.toggle() } label: {
                     postOption(image: "fork.knife.circle", title: "Post Food You Cooked", description: "Food you Cooked posts appear on the Discover Feed")
                 }
-                postOption(image: "bag", title: "Post About a Food Brand", description: "Brand posts appear on the Discover Feed")
+                Button{brandPostCover.toggle()} label: {
+                    postOption(image: "bag", title: "Post About a Food Brand", description: "Brand posts appear on the Discover Feed")
+                }
                 Spacer()
             }
             .toolbar {
@@ -45,6 +48,7 @@ struct CreatePostSelection: View {
             .toolbar(.hidden, for: .tabBar)
             .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .restaurant)}
             .fullScreenCover(isPresented: $recipePostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $recipePostCover, postType: .recipe)}}
+            .fullScreenCover(isPresented: $brandPostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $brandPostCover, postType: .brand)}}
         }
     }
 }

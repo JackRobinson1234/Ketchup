@@ -88,8 +88,24 @@ struct FeedCell: View {
                                                 .multilineTextAlignment(.leading)
                                         }
                                     }
+                                } else if let brand = post.brand {
+                                    VStack (alignment: .leading) {
+                                        Text("\(brand.name)")
+                                            .font(.title3)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
+                                        NavigationLink(value: post.user) {
+                                            Text("by \(post.user.fullname)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundStyle(.white)
+                                                .bold()
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                    }
                                 }
                             }
+                            
                             
                             //caption
                             Text(post.caption)
@@ -138,8 +154,12 @@ struct FeedCell: View {
                                     .modifier(StandardButtonModifier(width: 175))
                                     
                                 }
+                                else if let brand = post.brand {
+                                    Text("Price: \(formattedPrice(price: brand.price))")
+                                }
                             }
                         }
+                        
                         //controls box size
                         .padding(10)
                         .background(Color.black.opacity(0.3))
@@ -245,8 +265,21 @@ struct FeedCell: View {
         
         return timeString.isEmpty ? "Not specified" : timeString
     }
+    private func formattedPrice(price: Int?) -> String {
+        guard let price = price, price > 0 else {
+            return "Not specified"
+        }
+        
+        let dollars = price / 100
+        let cents = price % 100
+        
+        if cents == 0 {
+            return "$\(dollars).00"
+        } else {
+            return "$\(dollars).\(String(format: "%02d", cents))"
+        }
+    }
 }
-
 
 
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {

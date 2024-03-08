@@ -25,6 +25,7 @@ struct Post: Identifiable, Codable {
     var user: postUser
     var restaurant: postRestaurant? = nil
     var recipe: postRecipe? = nil
+    var brand: postBrand? = nil
     var didLike = false
     var didSave = false
     
@@ -45,6 +46,7 @@ struct Post: Identifiable, Codable {
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
         self.recipe = try container.decodeIfPresent(postRecipe.self, forKey: .recipe)
+        self.brand = try container.decodeIfPresent(postBrand.self, forKey: .brand)
     }
     
     init(
@@ -62,7 +64,8 @@ struct Post: Identifiable, Codable {
         restaurant: postRestaurant? = nil,
         didLike: Bool = false,
         didSave: Bool = false,
-        recipe: postRecipe? = nil
+        recipe: postRecipe? = nil,
+        brand: postBrand? = nil
     ) {
         self.id = id
         self.videoUrl = videoUrl
@@ -79,6 +82,7 @@ struct Post: Identifiable, Codable {
         self.restaurant = restaurant
         self.didSave = didSave
         self.recipe = recipe
+        self.brand = brand
     }
 }
 
@@ -126,4 +130,9 @@ struct instruction: Codable, Hashable {
 struct ingredient: Codable, Hashable {
     var quantity: String
     var item: String
+}
+
+struct postBrand: Codable, Hashable {
+    var name: String
+    var price: Int
 }

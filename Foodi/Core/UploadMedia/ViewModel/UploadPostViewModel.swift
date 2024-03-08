@@ -35,6 +35,9 @@ class UploadPostViewModel: ObservableObject {
     private let restaurant: Restaurant?
     private let service: UploadPostService
     
+    @Published var brandTitle = ""
+    @Published var brandPrice = 0
+    
     var isLastIngredientEmpty: Bool {
         return ingredients.last?.item.isEmpty == true
         }
@@ -108,6 +111,22 @@ class UploadPostViewModel: ObservableObject {
             }
         }
     
+    func uploadBrandPost() async throws {
+        guard !caption.isEmpty else { return }
+        guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
+        isLoading = true
+        let brand = postBrand(name: brandTitle, price: brandPrice)
+            do {
+                print("running upload brand post")
+                try await service.uploadBrandPost(caption: caption, videoUrlString: videoUrlString, brand: brand)
+                isLoading = false
+                uploadSuccess = true
+            } catch {
+                self.error = error
+                isLoading = false
+                uploadFailure = true
+            }
+        }
     
     func setMediaItemForUpload() {
         selectedMediaForUpload = mediaPreview

@@ -1,5 +1,5 @@
 //
-//  CurrentUserProfileVIew.swift
+//  CurrentUserProfileView.swift
 //  Foodi
 //
 //  Created by Jack Robinson on 2/1/24.
@@ -79,7 +79,7 @@ struct CurrentUserProfileView: View {
                     SearchView(userService: UserService(), searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
                 .refreshable { await profileViewModel.fetchCurrentUser() }
-                .fullScreenCover(isPresented: $showNotifications) {
+                .sheet(isPresented: $showNotifications) {
                     NotificationsView(userService: userService)
                 }
             }
