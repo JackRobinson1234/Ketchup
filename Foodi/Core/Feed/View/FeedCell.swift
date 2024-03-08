@@ -207,9 +207,9 @@ struct FeedCell: View {
                                                          value: post.shareCount)
                             }
                         }
-                        .padding()
+                        .padding(.horizontal)
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 110 : 50)
+                    .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
             //MARK: CLICKING CONTROLS
