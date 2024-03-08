@@ -30,7 +30,7 @@ class FeedViewModel: ObservableObject {
         do {
             if posts.isEmpty {
                 posts = try await postService.fetchPosts()
-                posts.shuffle()
+                posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             }
             isLoading = false
             showEmptyView = posts.isEmpty
