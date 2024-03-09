@@ -7,12 +7,18 @@
 
 import SwiftUI
 
+enum FeedType: String, CaseIterable {
+    case discover = "Discover"
+    case following = "Following"
+}
+
 @MainActor
 class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var isLoading = false
     @Published var showEmptyView = false
     
+    private var currentFeedType: FeedType = .discover // default
     
     private let postService: PostService
     var isContainedInTabBar = true
@@ -25,13 +31,21 @@ class FeedViewModel: ObservableObject {
     
     
     func fetchPosts() async {
+        print("DEBUG: Fetching posts from feedviewmodel")
         isLoading = true
         
         do {
-            if posts.isEmpty {
+            posts.removeAll()
+            switch currentFeedType {
+            case .discover:
+                print("DEBUG: went in fetch discover")
                 posts = try await postService.fetchPosts()
-                posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
+            case .following:
+                print("DEBUG: went in fetch following")
+                posts = try await postService.fetchFollowingPosts()
             }
+            posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
+    
             isLoading = false
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
@@ -53,6 +67,11 @@ class FeedViewModel: ObservableObject {
             isLoading = false
             print("DEBUG: Failed to refresh posts with error: \(error.localizedDescription)")
         }
+    }
+    
+
+    func setFeedType(_ feedType: FeedType) {
+        currentFeedType = feedType
     }
 }
 

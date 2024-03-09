@@ -66,6 +66,12 @@ struct FeedView: View {
                     // Button for "Following"
                     Button(action: {
                         selectedFeed = .following
+                        viewModel.setFeedType(.following)
+                        Task {
+                            player.replaceCurrentItem(with: nil)
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
                     }) {
                         Text("Following")
                             .foregroundColor(selectedFeed == .following ? .white : .gray)
@@ -81,6 +87,12 @@ struct FeedView: View {
                     // Button for "Recommended"
                     Button(action: {
                         selectedFeed = .discover
+                        viewModel.setFeedType(.discover)
+                        Task {
+                            player.replaceCurrentItem(with: nil) 
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
                     }) {
                         Text("Discover")
                             .foregroundColor(selectedFeed == .discover ?
@@ -168,9 +180,6 @@ struct FeedView: View {
         }
     }
 }
-    private func toggleFeed() {
-            selectedFeed = selectedFeed == .discover ? .following : .discover
-        }
     
     //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
@@ -197,7 +206,3 @@ struct FeedView: View {
 }
 
 
-enum FeedType: String, CaseIterable {
-    case discover = "Discover"
-    case following = "Following"
-}
