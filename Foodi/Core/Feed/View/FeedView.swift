@@ -67,10 +67,11 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .following
                         viewModel.setFeedType(.following)
+                        player.replaceCurrentItem(with: nil)
                         Task {
-                            player.replaceCurrentItem(with: nil)
                             await viewModel.fetchPosts()
                             isLoading = false
+                            updatePlayerWithFirstPostVideo()
                         }
                     }) {
                         Text("Following")
@@ -88,10 +89,11 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
+                        player.replaceCurrentItem(with: nil)
                         Task {
-                            player.replaceCurrentItem(with: nil) 
                             await viewModel.fetchPosts()
                             isLoading = false
+                            updatePlayerWithFirstPostVideo()
                         }
                     }) {
                         Text("Discover")
@@ -198,6 +200,13 @@ struct FeedView: View {
         let playerItem = AVPlayerItem(url: URL(string: currentPost.videoUrl)!)
         player.replaceCurrentItem(with: playerItem)
     }
+    
+    func updatePlayerWithFirstPostVideo() {
+        guard let firstPostVideoUrl = viewModel.posts.first?.videoUrl, let url = URL(string: firstPostVideoUrl) else { return }
+        let playerItem = AVPlayerItem(url: url)
+        player.replaceCurrentItem(with: playerItem)
+    }
+    
 }
 
 
