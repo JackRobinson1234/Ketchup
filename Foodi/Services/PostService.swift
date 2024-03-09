@@ -71,6 +71,24 @@ class PostService {
         }*/
         return posts
     }
+    
+    func fetchFollowingPosts() async throws -> [Post] {
+        print("DEBUG: Fetching Following Post")
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        // Fetch the list of users that the current user is following
+        let followingUsers = try await userService.fetchFollowingUsers()
+        // Fetch posts from each of the following users
+        var followingPosts = [Post]()
+        for user in followingUsers {
+            let userPosts = try await fetchUserPosts(user: user)
+            followingPosts.append(contentsOf: userPosts)
+        }
+        
+        return followingPosts
+    }
 
     /*private func fetchPostUserData(_ post: Post) async throws {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }

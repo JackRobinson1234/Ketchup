@@ -8,6 +8,7 @@
 import SwiftUI
 import AVKit
 
+
 struct FeedView: View {
     
     //MARK: Variables
@@ -18,6 +19,7 @@ struct FeedView: View {
     @State private var showSearchView = false
     @State private var showFilters = false
     @State private var isLoading = true
+    @State private var selectedFeed: FeedType = .discover
     private let userService: UserService
     
     
@@ -58,6 +60,51 @@ struct FeedView: View {
                     .scrollTargetLayout()
                 }
                 //MARK: Search + Filters
+                // Toggle Button
+                
+                HStack() {
+                    // Button for "Following"
+                    Button(action: {
+                        selectedFeed = .following
+                        viewModel.setFeedType(.following)
+                        Task {
+                            player.replaceCurrentItem(with: nil)
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
+                    }) {
+                        Text("Following")
+                            .foregroundColor(selectedFeed == .following ? .white : .gray)
+                            .fontWeight(selectedFeed == .following ? .bold : .regular)
+                            .frame(width: 78)
+                    }
+                    
+                    // Vertical Line
+                    Rectangle()
+                        .frame(width: 2, height: 18)
+                        .foregroundColor(.gray)
+                    
+                    // Button for "Recommended"
+                    Button(action: {
+                        selectedFeed = .discover
+                        viewModel.setFeedType(.discover)
+                        Task {
+                            player.replaceCurrentItem(with: nil) 
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
+                    }) {
+                        Text("Discover")
+                            .foregroundColor(selectedFeed == .discover ?
+                                .white : .gray)
+                            .fontWeight(selectedFeed == .discover ? .bold : .regular)
+                            .frame(width: 78)
+                    }
+                }
+                .padding(.top, 70)
+                .padding(.horizontal)
+                .frame(maxWidth: .infinity)
+                
                 HStack{
                     Button{
                         showSearchView.toggle()
@@ -133,6 +180,7 @@ struct FeedView: View {
         }
     }
 }
+    
     //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
@@ -156,3 +204,5 @@ struct FeedView: View {
 #Preview {
     FeedView(player: .constant(AVPlayer()), posts: DeveloperPreview.posts, userService: UserService())
 }
+
+

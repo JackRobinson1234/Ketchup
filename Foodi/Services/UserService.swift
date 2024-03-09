@@ -26,6 +26,37 @@ class UserService {
         print("DEBUG: Ran fetchUser()")
         return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
     }
+    
+    func fetchFollowingUsers() async throws -> [User] {
+        print("DEBUG: fetching following users")
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        // Initialize an empty array to hold following users
+        var followingUsers = [User]()
+        
+        // Fetch the following documents from Firestore
+        let querySnapshot = try await Firestore.firestore()
+            .collection("following")
+            .document(currentUser.uid)
+            .collection("user-following")
+            .getDocuments()
+        
+        // Iterate through the documents and fetch user details for each following user
+        for document in querySnapshot.documents {
+            let followingUID = document.documentID
+            
+            // Fetch user details for the following user
+            let user = try await fetchUser(withUid: followingUID)
+            
+            // Add the user to the array
+            followingUsers.append(user)
+        }
+        
+        return followingUsers
+    }
+    
 }
 
 // MARK: - Following
