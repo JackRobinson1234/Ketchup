@@ -14,6 +14,8 @@ struct MainTabView: View {
     @State private var player = AVPlayer()
     @State private var playbackObserver: NSObjectProtocol?
     
+    @State private var capturedImage: UIImage? = nil
+    
     init(authService: AuthService, userService: UserService) {
         self.authService = authService
         self.userService = userService
@@ -46,7 +48,8 @@ struct MainTabView: View {
                 .tag(1)
             
             //RestaurantSelectorView(tabIndex: $selectedTab)
-            CreatePostSelection(tabIndex: $selectedTab)
+            //CreatePostSelection(tabIndex: $selectedTab) // This will turn into camera view with option to upload media
+            CustomCameraView(capturedImage: $capturedImage)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)

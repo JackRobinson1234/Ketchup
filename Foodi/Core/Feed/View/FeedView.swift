@@ -14,7 +14,7 @@ struct FeedView: View {
     //MARK: Variables
     @Binding var player: AVPlayer
     @StateObject var viewModel: FeedViewModel
-    @State private var scrollPosition: String?
+    @State private var visiblePostID: String?
     @State private var path = NavigationPath()
     @State private var showSearchView = false
     @State private var showFilters = false
@@ -143,7 +143,7 @@ struct FeedView: View {
                 }
             }
             //MARK: Navigation
-            .scrollPosition(id: $scrollPosition)
+            .scrollPosition(id: $visiblePostID)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
             .navigationDestination(for: postUser.self) { user in
@@ -176,7 +176,8 @@ struct FeedView: View {
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }
-            .onChange(of: scrollPosition, { oldValue, newValue in
+            .onChange(of: visiblePostID, { oldValue, newValue in
+                print("DEBUG: Scroll position changed from \(oldValue ?? "nil") to \(newValue ?? "nil")")
                 playVideoOnChangeOfScrollPosition(postId: newValue)
             })
         }
@@ -186,7 +187,7 @@ struct FeedView: View {
     //MARK: Playing/ pausing
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
-            scrollPosition == nil,
+            visiblePostID == nil,
             let post = viewModel.posts.first,
             player.currentItem == nil else { return }
         
@@ -195,7 +196,6 @@ struct FeedView: View {
     
     func playVideoOnChangeOfScrollPosition(postId: String?) {
         guard let currentPost = viewModel.posts.first(where: {$0.id == postId }) else { return }
-        
         player.replaceCurrentItem(with: nil)
         let playerItem = AVPlayerItem(url: URL(string: currentPost.videoUrl)!)
         player.replaceCurrentItem(with: playerItem)
