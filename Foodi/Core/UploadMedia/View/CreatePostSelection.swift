@@ -30,7 +30,7 @@ struct CreatePostSelection: View {
                 
                 Button{recipePostCover.toggle() } label: {
                     postOption(image: "fork.knife.circle", title: "Post Food You Cooked", description: "Food you Cooked posts appear on the Discover Feed")
-                }
+                }  
                 Button{brandPostCover.toggle()} label: {
                     postOption(image: "bag", title: "Post About a Food Brand", description: "Brand posts appear on the Discover Feed")
                 }

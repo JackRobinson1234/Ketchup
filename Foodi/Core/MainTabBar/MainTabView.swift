@@ -8,19 +8,20 @@
 import SwiftUI
 import AVKit
 struct MainTabView: View {
+    
+    
     private let authService: AuthService
     private let userService: UserService
     @State private var selectedTab = 0
     @State private var player = AVPlayer()
     @State private var playbackObserver: NSObjectProtocol?
-    
-    @State private var capturedImage: UIImage? = nil
+    @State var visibility = Visibility.visible
     
     init(authService: AuthService, userService: UserService) {
         self.authService = authService
         self.userService = userService
     }
-        
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             FeedView(player: $player, userService: userService)
@@ -49,10 +50,12 @@ struct MainTabView: View {
             
             //RestaurantSelectorView(tabIndex: $selectedTab)
             //CreatePostSelection(tabIndex: $selectedTab) // This will turn into camera view with option to upload media
-            CustomCameraView(capturedImage: $capturedImage)
+            CustomCameraView(tabIndex: $selectedTab, visibility: $visibility)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)
+                .toolbar(visibility, for: .tabBar)
+            
             
             ActivityView()
                 .tabItem {
@@ -65,7 +68,7 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 3 }
                 .tag(3)
-
+            
             CurrentUserProfileView(authService: authService, userService: userService)
                 .tabItem {
                     VStack {
