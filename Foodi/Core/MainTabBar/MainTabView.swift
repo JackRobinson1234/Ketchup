@@ -21,6 +21,23 @@ struct MainTabView: View {
         
     var body: some View {
         TabView(selection: $selectedTab) {
+            
+            
+            VideoTest()
+                .tabItem {
+                VStack {
+                    Image(systemName: selectedTab == 7 ? "house.fill" : "house")
+                        .environment(\.symbolVariants, selectedTab == 7 ? .fill : .none)
+                    
+                    Text("Home")
+                }
+            }
+            .onAppear { selectedTab = 7 }
+            .tag(7)
+            
+            
+            
+            
             FeedView(player: $player, userService: userService)
                 .tabItem {
                     VStack {
