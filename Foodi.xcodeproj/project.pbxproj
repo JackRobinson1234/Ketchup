@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F6171FF2B9E937C00664399 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6171FE2B9E937C00664399 /* CameraViewModel.swift */; };
+		6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172002BA2927D00664399 /* ImageEditView.swift */; };
+		6F6172062BA612D500664399 /* PreparePostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172052BA612D500664399 /* PreparePostView.swift */; };
+		6F6172082BA62A6E00664399 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172072BA62A6E00664399 /* Photo.swift */; };
+		6F61720A2BA641C000664399 /* PrintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172092BA641C000664399 /* PrintView.swift */; };
+		6F681F182B9E4416003D62DE /* CustomCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F681F172B9E4416003D62DE /* CustomCameraView.swift */; };
+		6F704F3B2B9D0D1800C11DD4 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */; };
+		6F704F3D2B9E3AC400C11DD4 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */; };
 		F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
@@ -171,6 +179,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6F6171FE2B9E937C00664399 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
+		6F6172002BA2927D00664399 /* ImageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEditView.swift; sourceTree = "<group>"; };
+		6F6172052BA612D500664399 /* PreparePostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparePostView.swift; sourceTree = "<group>"; };
+		6F6172072BA62A6E00664399 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		6F6172092BA641C000664399 /* PrintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintView.swift; sourceTree = "<group>"; };
+		6F681F172B9E4416003D62DE /* CustomCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCameraView.swift; sourceTree = "<group>"; };
+		6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
+		6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSelectorView.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E17F2B70C16600E18135 /* CreatePostSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostSelection.swift; sourceTree = "<group>"; };
@@ -349,6 +365,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F6172042BA612A600664399 /* UploadPostJoe */ = {
+			isa = PBXGroup;
+			children = (
+				6F6172052BA612D500664399 /* PreparePostView.swift */,
+			);
+			path = UploadPostJoe;
+			sourceTree = "<group>";
+		};
+		6F704F392B9D0CF800C11DD4 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */,
+				6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */,
+				6F681F172B9E4416003D62DE /* CustomCameraView.swift */,
+				6F6171FE2B9E937C00664399 /* CameraViewModel.swift */,
+				6F6172002BA2927D00664399 /* ImageEditView.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 		F823E1852B74D3BF00E18135 /* CurrentUserProfile */ = {
 			isa = PBXGroup;
 			children = (
@@ -441,6 +477,7 @@
 				F871B0052B8AA16400E4EB5F /* NavigationLazyView.swift */,
 				F871B00A2B912CA500E4EB5F /* LocationRequest.swift */,
 				F871B00F2B914B6900E4EB5F /* photosRequest.swift */,
+				6F6172092BA641C000664399 /* PrintView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -479,6 +516,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				6F704F392B9D0CF800C11DD4 /* Camera */,
 				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F84FE27D2B6A54BC00144F01 /* Comments */,
@@ -492,6 +530,7 @@
 				F84FE28A2B6A554300144F01 /* RestaurantProfile */,
 				F84FE28B2B6A555400144F01 /* Root */,
 				F84FE28C2B6A555B00144F01 /* Search */,
+				6F6172042BA612A600664399 /* UploadPostJoe */,
 				F84FE28D2B6A556400144F01 /* UploadMedia */,
 			);
 			path = Core;
@@ -1043,6 +1082,7 @@
 			isa = PBXGroup;
 			children = (
 				F88E0B042B6B09E400EC159B /* Movie.swift */,
+				6F6172072BA62A6E00664399 /* Photo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1217,6 +1257,7 @@
 				F88E0A452B6A600A00EC159B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F88E0A7F2B6B001B00EC159B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F8901C6A2B9B14E700FBE778 /* XCRemoteSwiftPackageReference "swiftui-currency-field" */,
+				6F704F342B9CFD2A00C11DD4 /* XCRemoteSwiftPackageReference "IGListKit" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1261,6 +1302,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F704F3B2B9D0D1800C11DD4 /* CameraService.swift in Sources */,
 				F88E0AF62B6B08A800EC159B /* RestaurantCell.swift in Sources */,
 				F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */,
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
@@ -1286,6 +1328,9 @@
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
+				6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */,
+				6F6172062BA612D500664399 /* PreparePostView.swift in Sources */,
+				6F6172082BA62A6E00664399 /* Photo.swift in Sources */,
 				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
 				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
@@ -1294,6 +1339,7 @@
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
 				F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */,
+				6F61720A2BA641C000664399 /* PrintView.swift in Sources */,
 				F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */,
 				F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */,
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,
@@ -1308,6 +1354,8 @@
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
 				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
+				6F681F182B9E4416003D62DE /* CustomCameraView.swift in Sources */,
+				6F6171FF2B9E937C00664399 /* CameraViewModel.swift in Sources */,
 				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
@@ -1344,6 +1392,7 @@
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
 				F88E0AC52B6B058700EC159B /* CTAButtonOverlay.swift in Sources */,
 				F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */,
+				6F704F3D2B9E3AC400C11DD4 /* CameraView.swift in Sources */,
 				F88E0B1D2B6B0B3500EC159B /* MediaUploader.swift in Sources */,
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
@@ -1529,10 +1578,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos and videos";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -1550,7 +1600,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ciminelli.foodi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1569,10 +1619,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos and videos";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -1590,7 +1641,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ciminelli.foodi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1728,6 +1779,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6F704F342B9CFD2A00C11DD4 /* XCRemoteSwiftPackageReference "IGListKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Instagram/IGListKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 		F88E0A452B6A600A00EC159B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";

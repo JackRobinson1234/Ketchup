@@ -12,14 +12,18 @@ enum PostType {
     case brand
 }
 struct CreatePostSelection: View {
-    @Binding var tabIndex: Int
+    @Binding var selectedTab: Int
     @State var restaurantPostCover: Bool = false
     @State var recipePostCover: Bool = false
     @State var brandPostCover: Bool = false
+    @ObservedObject var viewModel: UploadPostViewModel
     
+    init(selectedTab: Binding<Int>, viewModel: UploadPostViewModel) {
+        self._selectedTab = selectedTab
+        self.viewModel = viewModel
+    }
+        
     
-    init(tabIndex: Binding<Int>){
-        self._tabIndex = tabIndex}
     
     
     var body: some View {
@@ -36,19 +40,10 @@ struct CreatePostSelection: View {
                 }
                 Spacer()
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        tabIndex = 0
-                    } label: {
-                        Text("Cancel")
-                    }
-                }
-            }
             .toolbar(.hidden, for: .tabBar)
-            .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $tabIndex, cover: $restaurantPostCover, postType: .restaurant)}
-            .fullScreenCover(isPresented: $recipePostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $recipePostCover, postType: .recipe)}}
-            .fullScreenCover(isPresented: $brandPostCover){NavigationStack{MediaSelectorView(tabIndex: $tabIndex, cover: $brandPostCover, postType: .brand)}}
+            .fullScreenCover(isPresented: $restaurantPostCover){RestaurantSelectorView(tabIndex: $selectedTab, cover: $restaurantPostCover, postType: .restaurant)}
+            .fullScreenCover(isPresented: $recipePostCover){NavigationStack{UploadPostView(viewModel: viewModel, tabIndex: $selectedTab, restaurant: nil, cover: $recipePostCover, postType: .recipe)}}
+            .fullScreenCover(isPresented: $brandPostCover){NavigationStack{MediaSelectorView(tabIndex: $selectedTab, cover: $brandPostCover, postType: .brand)}}
         }
     }
 }
@@ -84,6 +79,4 @@ struct postOption: View {
         .padding()
     }
 }
-#Preview {
-    CreatePostSelection(tabIndex: .constant(1))
-}
+

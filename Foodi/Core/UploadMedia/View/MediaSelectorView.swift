@@ -25,7 +25,6 @@ struct MediaSelectorView: View {
         self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: restaurant))
         self.postType = postType
     }
-    
         var body: some View {
             VStack {
                 
@@ -62,44 +61,6 @@ struct MediaSelectorView: View {
             }
             
             // back button clears the viewmodel if gone back
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        player.pause()
-                        player = AVPlayer(playerItem: nil)
-                        viewModel.reset()
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .imageScale(.large)
-                    }
-                }
-                // "Next" appears if a video is selected and navigates to upload post view
-                if let movie = viewModel.selectedMediaForUpload {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(destination: UploadPostView(movie: movie, viewModel: viewModel, tabIndex: $tabIndex, restaurant: restaurant, cover: $cover, postType: postType)) {
-                            Text("Next")
-                        }
-                    }
-                }
-                // "Select Different Video Appears" if a video is selected
-                if let _ = viewModel.selectedMediaForUpload, !viewModel.isLoading {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button("Select Different Video") {
-                            viewModel.reset()
-                            showImagePicker.toggle()
-                        }
-                    }
-                    // Select Video appears if no video is selected
-                } else {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button("Select Video") {
-                            viewModel.reset()
-                            showImagePicker.toggle()
-                        }
-                    }
-                }
-            }
             .navigationBarBackButtonHidden()
             
             // if showImagePicker is true, the photospicker appears

@@ -50,7 +50,7 @@ struct MainTabView: View {
             
             //RestaurantSelectorView(tabIndex: $selectedTab)
             //CreatePostSelection(tabIndex: $selectedTab) // This will turn into camera view with option to upload media
-            CustomCameraView(tabIndex: $selectedTab, visibility: $visibility)
+            CustomCameraView(selectedTab: $selectedTab, visibility: $visibility)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)
@@ -80,6 +80,11 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 4 }
                 .tag(4)
+        }
+        .onChange(of: selectedTab) { newValue in
+            print("DEBUG: visibility on entering is \(visibility)")
+            visibility = newValue == 2 ? .hidden : .visible
+            print("DEBUG: visibility on leaving is \(visibility)")
         }
         .onAppear { configurePlaybackObserver() }
         .onDisappear { removePlaybackObserver() }

@@ -17,21 +17,22 @@ struct UploadPostView: View {
     @State var showDietary: Bool = false
     @State private var showTimePicker = false
     private let restaurant: Restaurant?
-    private let movie: Movie
+    @State var media: MediaType
     /*private let priceFormatter: NumberFormatter = {
            let formatter = NumberFormatter()
            formatter.numberStyle = .currency
            return formatter
        }()*/
     
-    init(movie: Movie, viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant?, cover: Binding<Bool>, postType: PostType ) {
+    init(viewModel: UploadPostViewModel, tabIndex: Binding<Int>, restaurant: Restaurant?, cover: Binding<Bool>, postType: PostType) {
         self.restaurant = restaurant
-        self.movie = movie
         self.viewModel = viewModel
         self._tabIndex = tabIndex
         self._cover = cover
         self.postType = postType
+        self.media = viewModel.mediaPreview!
     }
+    
     var body: some View {
         switch postType {
         case .restaurant:
@@ -43,7 +44,7 @@ struct UploadPostView: View {
                             SelectedRestaurantView(restaurant: restaurant)}
                         Spacer()
                         //MARK: Thumbnail
-                        if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                        if let uiImage = MediaHelpers.generateThumbnail(path: viewModel.mediaPreview!.url.absoluteString) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFill()
@@ -133,7 +134,7 @@ struct UploadPostView: View {
                         }
                         Spacer()
                         //MARK: thumbnail
-                        if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                        if let uiImage = MediaHelpers.generateThumbnail(path: media.url.absoluteString) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFill()
@@ -292,10 +293,12 @@ struct UploadPostView: View {
                     Task {
                         try await viewModel.uploadRecipePost()
                         if viewModel.uploadSuccess{
-                            print("upload success")
+                            print("DEBUG: upload success")
                         }
                         else if viewModel.uploadFailure{
+                            print("DEBUG: Mission failed, we'll get em next time")
                         }
+
                         viewModel.reset()
                         cover = false
                         tabIndex = 0
@@ -355,7 +358,7 @@ struct UploadPostView: View {
                         }
                         Spacer()
                         //MARK: thumbnail
-                        if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                        if let uiImage = MediaHelpers.generateThumbnail(path: viewModel.mediaPreview!.url.absoluteString) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFill()

@@ -8,21 +8,44 @@
 import SwiftUI
 
 struct ImageEditView: View {
-    var image: UIImage?
     @State private var readyToPost = false
+    @Binding var selectedTab: Int
+    @ObservedObject var viewModel: UploadPostViewModel
+    
+    init(selectedTab: Binding<Int>, viewModel: UploadPostViewModel) {
+        self._selectedTab = selectedTab
+        self.viewModel = viewModel
+    }
+    
 
     var body: some View {
         // Display the image and add your edit/post functionality here
         ZStack {
-            if let image = image {
-                VStack{
-                    Image(uiImage: image)
+            switch viewModel.mediaPreview {
+            case .photo(let photo):
+                // For a photo, you would display it similar to before
+                // You'll need to adjust how you obtain a UIImage from your Photo structure
+                if let uiImage = UIImage(contentsOfFile: photo.url.path) {
+                    Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
-                    Spacer()
+                } else {
+                    Text("No image found")
                 }
-            } else {
-                Text("No image found")
+                
+            case .movie(let movie):
+                // For a movie, you could display a thumbnail
+                // You'll need to implement logic to extract a thumbnail from the movie's URL
+                if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Text("No video thumbnail found")
+                }
+                
+            default:
+                Text("No media found")
             }
             
             VStack {
@@ -40,13 +63,17 @@ struct ImageEditView: View {
                 .padding(.bottom, 40)
             }
         }
+        .navigationDestination(isPresented: $readyToPost) {
+            CreatePostSelection(selectedTab: $selectedTab, viewModel: viewModel)
+        }
     }
 }
 
 // This struct provides a preview for the SwiftUI canvas and is only needed for development purposes.
-struct ImageEditView_Previews: PreviewProvider {
-    static var previews: some View {
-        // You can provide a dummy UIImage for preview purposes
-        ImageEditView(image: UIImage(systemName: "photo"))
-    }
-}
+//struct ImageEditView_Previews: PreviewProvider {
+//    @State static var selectedTabPreview: Int = 2
+//    static var previews: some View {
+//        // You can provide a dummy UIImage for preview purposes
+//        ImageEditView(image: UIImage(systemName: "photo"), selectedTab: .constant(2))
+//    }
+//}

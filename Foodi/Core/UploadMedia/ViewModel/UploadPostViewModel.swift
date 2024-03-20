@@ -9,15 +9,33 @@ import SwiftUI
 import Firebase
 import PhotosUI
 
+enum MediaType: Equatable {
+    case photo(Photo)
+    case movie(Movie)
+    
+    var url: URL {
+        switch self {
+        case .photo(let photo):
+            return photo.url
+        case .movie(let movie):
+            return movie.url
+        }
+    }
+}
+
 @MainActor
 class UploadPostViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
-    @Published var mediaPreview: Movie?
+    @Published var mediaPreview: MediaType?
     @Published var caption = ""
-    @Published var selectedMediaForUpload: Movie?
+    @Published var selectedMediaForUpload: MediaType?
     @Published var selectedItem: PhotosPickerItem? {
-        didSet { Task { await loadVideo(fromItem: selectedItem) } }
+        didSet {
+            Task {
+                await loadMediafromPhotosPicker(fromItem: selectedItem)
+            }
+        }
     }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
@@ -142,7 +160,6 @@ class UploadPostViewModel: ObservableObject {
         recipeTitle = ""
         ingredients = [ingredient(quantity: "", item: "")]
         instructions = [instruction(title: "", description: "")]
-        
         recipeCuisine = ""
         dietaryRestrictions = [""]
 
@@ -161,16 +178,22 @@ class UploadPostViewModel: ObservableObject {
         instructions.append(instruction(title: "", description: ""))
         }
     
-    func loadVideo(fromItem item: PhotosPickerItem?) async {
+    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         isLoading = true
         
         do {
-            guard let movie = try await item.loadTransferable(type: Movie.self) else { return }
-            self.mediaPreview = movie
-            isLoading = false
+            if let movie = try await item.loadTransferable(type: Movie.self) {
+                self.mediaPreview = .movie(movie)
+            } else if let photo = try await item.loadTransferable(type: Photo.self) {
+                self.mediaPreview = .photo(photo)
+            } else {
+                print("DEBUG: Unsupported media type")
+            }
         } catch {
             print("DEBUG: Failed with error \(error.localizedDescription)")
         }
+        
+        isLoading = false
     }
 }
