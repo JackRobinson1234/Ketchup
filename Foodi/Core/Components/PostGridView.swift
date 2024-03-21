@@ -101,7 +101,7 @@ struct PostGridView: View {
                 }
                 
                 .sheet(item: $selectedPost) { post in
-                    FeedView(player: $player, posts: [post], userService: userService)
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: userService)
                         .onDisappear {
                             player.replaceCurrentItem(with: nil)
                         }

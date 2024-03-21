@@ -21,11 +21,11 @@ struct VideoTest: View {
     var body: some View {
         VStack {
             if videoReady{
-                VideoPlayerViewWrapper(coordinator: coordinator)
+                VideoPlayerView(coordinator: coordinator)
                 }
                 
             
-            Button{coordinator.configurePlayer(url: videoURL, fileExtension: fileExtension, size: (1080, 1080))
+            Button{coordinator.configurePlayer(url: videoURL, fileExtension: fileExtension)
                 videoReady.toggle()
                 } label: {Text("Testing")}
         }

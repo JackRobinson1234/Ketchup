@@ -11,7 +11,7 @@ struct MainTabView: View {
     private let authService: AuthService
     private let userService: UserService
     @State private var selectedTab = 0
-    @State private var player = AVPlayer()
+    @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     
     init(authService: AuthService, userService: UserService) {
@@ -38,7 +38,7 @@ struct MainTabView: View {
             
             
             
-            FeedView(player: $player, userService: userService)
+            FeedView(videoCoordinator: videoCoordinator, userService: userService)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -92,11 +92,11 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 4 }
                 .tag(4)
         }
-        .onAppear { configurePlaybackObserver() }
-        .onDisappear { removePlaybackObserver() }
+        //.onAppear { configurePlaybackObserver() }
+        //.onDisappear { removePlaybackObserver() }
         .tint(.black)
     }
-    
+    /*
     func configurePlaybackObserver() {
         self.playbackObserver = NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
                                                                        object: nil,
@@ -114,7 +114,7 @@ struct MainTabView: View {
                                                       name: AVPlayerItem.didPlayToEndTimeNotification,
                                                       object: nil)
         }
-    }
+    } */
 }
 
 #Preview {

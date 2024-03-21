@@ -10,7 +10,7 @@ import AVKit
 import Photos
 struct FeedCell: View {
     @Binding var post: Post
-    var player: AVPlayer
+    @ObservedObject var videoCoordinator: VideoPlayerCoordinator
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
@@ -21,7 +21,7 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            VideoPlayer(player: player)
+            VideoPlayerView(coordinator: videoCoordinator)
                 .containerRelativeFrame([.horizontal, .vertical])
             
             VStack {
@@ -147,7 +147,7 @@ struct FeedCell: View {
                                     
                                     Button{
                                         showRecipe.toggle()
-                                        player.pause()
+                                        videoCoordinator.pause()
                                     } label: {
                                         Text("View Recipe")
                                     }
@@ -190,7 +190,7 @@ struct FeedCell: View {
                             }
                             //comment button
                             Button {
-                                player.pause()
+                                videoCoordinator.pause()
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
@@ -199,7 +199,7 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
-                                player.pause()
+                                videoCoordinator.pause()
                                 showShareView.toggle()
                                 
                             } label: {
@@ -217,27 +217,29 @@ struct FeedCell: View {
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear{player.play()}
+                    .onDisappear{videoCoordinator.play()}
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear{player.play()}
+                    .onDisappear{videoCoordinator.play()}
             }
             .sheet(isPresented: $showRecipe) {
                 RecipeView(post: post)
-                    .onDisappear{player.play()}
+                    .onDisappear{videoCoordinator.play()}
             }
             .onTapGesture {
-                switch player.timeControlStatus {
-                case .paused:
-                    player.play()
-                case .waitingToPlayAtSpecifiedRate:
-                    break
-                case .playing:
-                    player.pause()
-                @unknown default:
-                    break
+                if let player = videoCoordinator.videoPlayerManager.queuePlayer{
+                    switch player.timeControlStatus {
+                    case .paused:
+                        videoCoordinator.play()
+                    case .waitingToPlayAtSpecifiedRate:
+                        break
+                    case .playing:
+                        videoCoordinator.pause()
+                    @unknown default:
+                        break
+                    }
                 }
             }
         }
@@ -309,7 +311,7 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
 #Preview {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
-        player: AVPlayer(),
+        videoCoordinator: VideoPlayerCoordinator(),
              viewModel: FeedViewModel(
                 postService: PostService()
              )

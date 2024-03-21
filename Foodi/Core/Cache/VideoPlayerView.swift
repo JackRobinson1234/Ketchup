@@ -2,40 +2,16 @@
 //  VideoPlayerView.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 3/15/24.
+//  Created by Jack Robinson on 3/21/24.
 //
 
 import Foundation
 import AVFoundation
 import SwiftUI
 import AVKit
-class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, ObservableObject {
-    let d = print("coordinator created")
-    var videoPlayerManager = VideoPlayerManager()
-    
-    func configurePlayer(url: URL?, fileExtension: String?, size: (Int, Int)) {
-        videoPlayerManager.configure(url: url, fileExtension: fileExtension, size: size)
-    }
-    
-    func play() {
-        videoPlayerManager.play()
-    }
-    
-    func pause() {
-        videoPlayerManager.pause()
-    }
-    
-    func replay() {
-        videoPlayerManager.replay()
-    }
-    
-    func cancelLoading() {
-        videoPlayerManager.cancelAllLoadingRequest()
-    }
-}
 
-struct VideoPlayerViewWrapper: UIViewControllerRepresentable {
-    //typealias UIViewControllerType = AVPlayerViewController
+struct VideoPlayerView: UIViewControllerRepresentable {
+    
     
     @StateObject var coordinator: VideoPlayerCoordinator
     
@@ -60,7 +36,31 @@ struct VideoPlayerViewWrapper: UIViewControllerRepresentable {
     }
 }
 
-class VideoPlayerManager: UIView {
+class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, ObservableObject {
+    var videoPlayerManager = VideoPlayerManager()
+    
+    func configurePlayer(url: URL?, fileExtension: String?) {
+        videoPlayerManager.configure(url: url, fileExtension: fileExtension)
+    }
+    
+    func play() {
+        videoPlayerManager.play()
+    }
+    
+    func pause() {
+        videoPlayerManager.pause()
+    }
+    
+    func replay() {
+        videoPlayerManager.replay()
+    }
+    
+    func cancelLoading() {
+        videoPlayerManager.cancelAllLoadingRequest()
+    }
+}
+
+class VideoPlayerManager: NSObject {
     
     // MARK: - Variables
     var videoURL: URL?
@@ -79,34 +79,27 @@ class VideoPlayerManager: UIView {
     private var fileExtension: String?
     
     // MARK: - Initializers
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    override init() {
+            super.init()
+            setupView()
+        }
     
     deinit {
         removeObserver()
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        backgroundColor = .clear
-    }
+    
     
     func setupView(){
         let operationQueue = OperationQueue()
-        operationQueue.name = "com.VideoPlayer.URLSeesion"
+        operationQueue.name = "com.VideoPlayer.URLSession"
         operationQueue.maxConcurrentOperationCount = 1
         session = URLSession.init(configuration: .default, delegate: self, delegateQueue: operationQueue)
         cancelLoadingQueue = DispatchQueue.init(label: "com.cancelLoadingQueue")
         videoData = Data()
     }
     
-    func configure(url: URL?, fileExtension: String?, size: (Int, Int)){
+    func configure(url: URL?, fileExtension: String?){
         guard let url = url else {
             print("URL Error from Tableview Cell")
             return
