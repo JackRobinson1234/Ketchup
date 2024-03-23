@@ -9,48 +9,72 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: UIViewControllerRepresentable {
+    
+    
+    @ObservedObject var viewModel: CameraViewModel
+    
     typealias UIViewControllerType = UIViewController
     
-    let cameraService: CameraService
-    let didFinishProcessingPhoto: (Result<AVCapturePhoto, Error>) -> ()
+    //let didFinishProcessingPhoto: (Result<AVCapturePhoto, Error>) -> ()
     
     func makeUIViewController(context: Context) -> UIViewController {
         
-        cameraService.start(delegate: context.coordinator) { err in
+        viewModel.cameraService.start(delegate: context.coordinator) { err in
             if let err = err {
-                didFinishProcessingPhoto(.failure(err))
+                //TODO want to pass error into context or something like that here
+                print(err)
+                viewModel.alertItem = AlertContext.deviceInput
                 return
             }
         }
         
         let viewController = UIViewController()
         viewController.view.backgroundColor = .black
-        viewController.view.layer.addSublayer(cameraService.previewLayer)
-        cameraService.previewLayer.frame = viewController.view.bounds
+        viewController.view.layer.addSublayer(viewModel.cameraService.previewLayer)
+        viewModel.cameraService.previewLayer.frame = viewController.view.bounds
         return viewController
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self, didFinishProcessingPhoto: didFinishProcessingPhoto)
     }
     
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
     
+//    func makeCoordinator() -> Coordinator {
+//        Coordinator(self, didFinishProcessingPhoto: didFinishProcessingPhoto)
+//    }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(cameraView: self)
+    }
+    
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
-        let parent: CameraView
-        private var didFinishProcessingPhoto: (Result<AVCapturePhoto, Error>) -> ()
+        let cameraView: CameraView
+        //private var didFinishProcessingPhoto: (Result<AVCapturePhoto, Error>) -> ()
         
-        init(_ parent: CameraView, didFinishProcessingPhoto: @escaping (Result<AVCapturePhoto, Error>) -> ()) {
-            self.parent = parent
-            self.didFinishProcessingPhoto = didFinishProcessingPhoto
+//        init(_ cameraView: CameraView, didFinishProcessingPhoto: @escaping (Result<AVCapturePhoto, Error>) -> ()) {
+//            self.cameraView = cameraView
+//            self.didFinishProcessingPhoto = didFinishProcessingPhoto
+//        }
+        
+        init(cameraView: CameraView) {
+            self.cameraView = cameraView
         }
         
-        func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
+        
+        //func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
+        @MainActor func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
             if let error = error {
-                didFinishProcessingPhoto(.failure(error))
+                //didFinishProcessingPhoto(.failure(error))
+                // TODO use the error here
+                print(error)
+                cameraView.viewModel.alertItem = AlertContext.deviceInput
                 return
             }
-            didFinishProcessingPhoto(.success(photo))
+            if let data = photo.fileDataRepresentation(), let image = UIImage(data: data) {
+                cameraView.viewModel.capturedPhoto = image
+                cameraView.viewModel.isImageCaptured = true
+            } else {
+                print("Error: No image data found")
+            }
+
+//            didFinishProcessingPhoto(.success(photo))
         }
         
     }

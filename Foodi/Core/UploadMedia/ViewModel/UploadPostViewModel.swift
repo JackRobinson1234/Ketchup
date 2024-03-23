@@ -30,13 +30,13 @@ class UploadPostViewModel: ObservableObject {
     @Published var mediaPreview: MediaType?
     @Published var caption = ""
     @Published var selectedMediaForUpload: MediaType?
-    @Published var selectedItem: PhotosPickerItem? {
-        didSet {
-            Task {
-                await loadMediafromPhotosPicker(fromItem: selectedItem)
-            }
-        }
-    }
+//    @Published var selectedItem: PhotosPickerItem? {
+//        didSet {
+//            Task {
+//                await loadMediafromPhotosPicker(fromItem: selectedItem)
+//            }
+//        }
+//    }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
@@ -155,7 +155,7 @@ class UploadPostViewModel: ObservableObject {
         caption = ""
         mediaPreview = nil
         error = nil
-        selectedItem = nil
+        //selectedItem = nil
         selectedMediaForUpload = nil
         recipeTitle = ""
         ingredients = [ingredient(quantity: "", item: "")]

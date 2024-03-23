@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F4BE7652BAF540A008D86A3 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4BE7642BAF540A008D86A3 /* Alert.swift */; };
 		6F6171FF2B9E937C00664399 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6171FE2B9E937C00664399 /* CameraViewModel.swift */; };
 		6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172002BA2927D00664399 /* ImageEditView.swift */; };
-		6F6172062BA612D500664399 /* PreparePostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172052BA612D500664399 /* PreparePostView.swift */; };
 		6F6172082BA62A6E00664399 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172072BA62A6E00664399 /* Photo.swift */; };
 		6F61720A2BA641C000664399 /* PrintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172092BA641C000664399 /* PrintView.swift */; };
 		6F681F182B9E4416003D62DE /* CustomCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F681F172B9E4416003D62DE /* CustomCameraView.swift */; };
@@ -179,9 +179,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6F4BE7642BAF540A008D86A3 /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		6F6171FE2B9E937C00664399 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		6F6172002BA2927D00664399 /* ImageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEditView.swift; sourceTree = "<group>"; };
-		6F6172052BA612D500664399 /* PreparePostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparePostView.swift; sourceTree = "<group>"; };
 		6F6172072BA62A6E00664399 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		6F6172092BA641C000664399 /* PrintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintView.swift; sourceTree = "<group>"; };
 		6F681F172B9E4416003D62DE /* CustomCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCameraView.swift; sourceTree = "<group>"; };
@@ -365,14 +365,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6F6172042BA612A600664399 /* UploadPostJoe */ = {
-			isa = PBXGroup;
-			children = (
-				6F6172052BA612D500664399 /* PreparePostView.swift */,
-			);
-			path = UploadPostJoe;
-			sourceTree = "<group>";
-		};
 		6F704F392B9D0CF800C11DD4 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
@@ -381,6 +373,7 @@
 				6F681F172B9E4416003D62DE /* CustomCameraView.swift */,
 				6F6171FE2B9E937C00664399 /* CameraViewModel.swift */,
 				6F6172002BA2927D00664399 /* ImageEditView.swift */,
+				6F4BE7642BAF540A008D86A3 /* Alert.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -530,7 +523,6 @@
 				F84FE28A2B6A554300144F01 /* RestaurantProfile */,
 				F84FE28B2B6A555400144F01 /* Root */,
 				F84FE28C2B6A555B00144F01 /* Search */,
-				6F6172042BA612A600664399 /* UploadPostJoe */,
 				F84FE28D2B6A556400144F01 /* UploadMedia */,
 			);
 			path = Core;
@@ -1320,6 +1312,7 @@
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
+				6F4BE7652BAF540A008D86A3 /* Alert.swift in Sources */,
 				F88E0AFF2B6B095A00EC159B /* PostListView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
 				F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */,
@@ -1329,7 +1322,6 @@
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
 				6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */,
-				6F6172062BA612D500664399 /* PreparePostView.swift in Sources */,
 				6F6172082BA62A6E00664399 /* Photo.swift in Sources */,
 				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,

@@ -10,9 +10,9 @@ import SwiftUI
 struct ImageEditView: View {
     @State private var readyToPost = false
     @Binding var selectedTab: Int
-    @ObservedObject var viewModel: UploadPostViewModel
+    @ObservedObject var viewModel: CameraViewModel
     
-    init(selectedTab: Binding<Int>, viewModel: UploadPostViewModel) {
+    init(selectedTab: Binding<Int>, viewModel: CameraViewModel) {
         self._selectedTab = selectedTab
         self.viewModel = viewModel
     }
@@ -21,32 +21,36 @@ struct ImageEditView: View {
     var body: some View {
         // Display the image and add your edit/post functionality here
         ZStack {
-            switch viewModel.mediaPreview {
-            case .photo(let photo):
-                // For a photo, you would display it similar to before
-                // You'll need to adjust how you obtain a UIImage from your Photo structure
-                if let uiImage = UIImage(contentsOfFile: photo.url.path) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                } else {
-                    Text("No image found")
-                }
-                
-            case .movie(let movie):
-                // For a movie, you could display a thumbnail
-                // You'll need to implement logic to extract a thumbnail from the movie's URL
-                if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                } else {
-                    Text("No video thumbnail found")
-                }
-                
-            default:
-                Text("No media found")
-            }
+            Image(uiImage: viewModel.capturedPhoto ?? UIImage(systemName: "photo")!)
+                .resizable()
+                .scaledToFit()
+            
+//            switch viewModel.mediaPreview {
+//            case .photo(let photo):
+//                // For a photo, you would display it similar to before
+//                // You'll need to adjust how you obtain a UIImage from your Photo structure
+//                if let uiImage = UIImage(contentsOfFile: photo.url.path) {
+//                    Image(uiImage: uiImage)
+//                        .resizable()
+//                        .scaledToFit()
+//                } else {
+//                    Text("No image found")
+//                }
+//                
+//            case .movie(let movie):
+//                // For a movie, you could display a thumbnail
+//                // You'll need to implement logic to extract a thumbnail from the movie's URL
+//                if let uiImage = MediaHelpers.generateThumbnail(path: movie.url.absoluteString) {
+//                    Image(uiImage: uiImage)
+//                        .resizable()
+//                        .scaledToFit()
+//                } else {
+//                    Text("No video thumbnail found")
+//                }
+//                
+//            default:
+//                Text("No media found")
+//            }
             
             VStack {
                 Spacer()
@@ -63,9 +67,9 @@ struct ImageEditView: View {
                 .padding(.bottom, 40)
             }
         }
-        .navigationDestination(isPresented: $readyToPost) {
-            CreatePostSelection(selectedTab: $selectedTab, viewModel: viewModel)
-        }
+//        .navigationDestination(isPresented: $readyToPost) {
+//            CreatePostSelection(selectedTab: $selectedTab, viewModel: viewModel)
+//        }
     }
 }
 

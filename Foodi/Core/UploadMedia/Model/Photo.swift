@@ -33,7 +33,7 @@ struct Photo: Transferable {
 }
 
 extension URL {
-    /// Helper to get the documents directory URL
+    // Helper to get the documents directory URL
     static var documentsDirectory: URL {
         // Use the user domain mask to get the documents directory
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)

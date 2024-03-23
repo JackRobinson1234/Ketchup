@@ -10,56 +10,29 @@ import SwiftUI
 struct CustomCameraView: View {
     
     @StateObject private var cameraViewModel = CameraViewModel()
+
+    
     @Binding var selectedTab: Int
-    @State private var isImageCaptured = false
     @Binding var visibility: Visibility
     @State private var selectingMedia = false
-    @StateObject var viewModel: UploadPostViewModel
     @State private var capturedPhotoUrl: URL?
-    @State private var navigateToCreatePostSelection = false
+    @State private var navigateToCreatePostSelection =   false
+
     
     init(selectedTab: Binding<Int>, visibility: Binding<Visibility>) {
         self._selectedTab = selectedTab
         self._visibility = visibility
-        self._viewModel = StateObject(wrappedValue: UploadPostViewModel(service: UploadPostService(), restaurant: nil))
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                CameraView(cameraService: cameraViewModel.cameraService) { result in
-                    switch result {
-                    case .success(let photo):
-                            if let data = photo.fileDataRepresentation(), let image = UIImage(data: data) {
-                                if let imageURL = cameraViewModel.saveImageToFileSystem(image) {
-                                    capturedPhotoUrl = imageURL
-                                    viewModel.mediaPreview = .photo(Photo(url: capturedPhotoUrl!))
-                                    isImageCaptured = true
-                            } else {
-                                print("Error: No image data found")
-                            }
-                        }
-                    case .failure(let err):
-                        print(err.localizedDescription)
-                    }
-                }
-                .ignoresSafeArea(.all)
-
-                VStack {
-                    HStack {
-                        Button {
-                            selectedTab = 0
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
-                        }
-                        Spacer()
-                    }
-                    .padding([.top, .leading], 30)
+                
+                CameraView(viewModel: cameraViewModel)
+                    .ignoresSafeArea()
+                
+                ExitButtonView(selectedTab: $selectedTab)
             
-                    Spacer()
-                }
                            
                 VStack {
                     Spacer()
@@ -88,29 +61,64 @@ struct CustomCameraView: View {
                     .padding(.bottom, 15)
                 }
             }
+            .alert(item: $cameraViewModel.alertItem) { alertItem in
+                Alert(title: Text(alertItem.title),
+                      message: Text(alertItem.message),
+                      dismissButton: alertItem.dismissButton)
+            }
             .onAppear {
-                viewModel.mediaPreview = nil
+                //viewModel.mediaPreview = nil
                 navigateToCreatePostSelection = false
-                isImageCaptured = false
+                cameraViewModel.isImageCaptured = false
             }
             
-            .navigationDestination(isPresented: $isImageCaptured) {
-                ImageEditView(selectedTab: $selectedTab, viewModel: viewModel)
+            .navigationDestination(isPresented: $cameraViewModel.isImageCaptured) {
+                ImageEditView(selectedTab: $selectedTab, viewModel: cameraViewModel)
             }
             
-            .onChange(of: viewModel.selectedItem) {
-                if viewModel.selectedItem != nil {
+            .onChange(of: cameraViewModel.selectedItem) {
+                if cameraViewModel.selectedItem != nil {
                     navigateToCreatePostSelection = true
                 }
             }
             
-            .navigationDestination(isPresented: $navigateToCreatePostSelection) {
-                CreatePostSelection(selectedTab: $selectedTab, viewModel: viewModel)
-            }
+//            .navigationDestination(isPresented: $navigateToCreatePostSelection) {
+//                CreatePostSelection(selectedTab: $selectedTab, viewModel: cameraViewModel)
+//            }
         }
-        .photosPicker(isPresented: $selectingMedia, selection: $viewModel.selectedItem)
+        .photosPicker(isPresented: $selectingMedia, selection: $cameraViewModel.selectedItem)
     }
 }
+
+
+struct ExitButtonView: View {
+    
+    @Binding var selectedTab: Int
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Button {
+                    selectedTab = 0
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 30))
+                        .foregroundColor(.white)
+                }
+                Spacer()
+            }
+            .padding([.top, .leading], 30)
+    
+            Spacer()
+        }
+    }
+}
+
+
+
+
+
+
 
 
 struct CustomCameraView_Previews: PreviewProvider {

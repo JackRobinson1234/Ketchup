@@ -64,7 +64,7 @@ struct MediaSelectorView: View {
             .navigationBarBackButtonHidden()
             
             // if showImagePicker is true, the photospicker appears
-            .photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
+            //.photosPicker(isPresented: $showImagePicker, selection: $viewModel.selectedItem, matching: .videos)
             
             .onDisappear{player.pause()}
             .toolbar(.hidden, for: .tabBar)
