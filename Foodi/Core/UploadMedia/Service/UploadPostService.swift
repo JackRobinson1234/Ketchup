@@ -17,6 +17,7 @@ struct UploadPostService {
         do {
             guard let url = URL(string: videoUrlString) else { return }
             guard let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: url) else { return }
+            
                         
             let post = Post(
                 id: ref.documentID,

@@ -14,8 +14,9 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     
     
     @StateObject var coordinator: VideoPlayerCoordinator
+    @State var newVideo = false
     
-    func makeUIViewController(context: Context) -> UIViewController {
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
         let playerVC = AVPlayerViewController()
         playerVC.player = coordinator.videoPlayerManager.queuePlayer
         playerVC.delegate = context.coordinator
@@ -27,7 +28,7 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         return playerVC
     }
     
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         // Update logic here if needed
     }
     
@@ -198,7 +199,7 @@ extension VideoPlayerManager {
                 // Player item failed. See error.
                 print("Status: failed Error: " + item.error!.localizedDescription )
             case .unknown:
-                // Player item is not yet ready.bn m
+                // Player item is not yet ready
                 print("Status: unknown")
             @unknown default:
                 fatalError("Status is not yet ready to present")

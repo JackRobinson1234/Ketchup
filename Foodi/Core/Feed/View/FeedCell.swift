@@ -8,6 +8,7 @@
 import SwiftUI
 import AVKit
 import Photos
+import Kingfisher
 struct FeedCell: View {
     @Binding var post: Post
     @ObservedObject var videoCoordinator: VideoPlayerCoordinator
@@ -16,13 +17,20 @@ struct FeedCell: View {
     @State private var showComments = false
     @State private var showShareView = false
     @State private var showRecipe = false
+    @State private var videoConfigured = false
     
     private var didLike: Bool { return post.didLike }
     
     var body: some View {
         ZStack {
-            VideoPlayerView(coordinator: videoCoordinator)
-                .containerRelativeFrame([.horizontal, .vertical])
+            if !videoConfigured{
+                KFImage(URL(string: post.thumbnailUrl))
+                    .resizable()
+                    .containerRelativeFrame([.horizontal, .vertical])
+            } else {
+                VideoPlayerView(coordinator: videoCoordinator)
+                    .containerRelativeFrame([.horizontal, .vertical])
+                }
             
             VStack {
                 Spacer()
@@ -210,6 +218,14 @@ struct FeedCell: View {
                         .padding(.horizontal)
                     }
                     .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
+                }
+            }
+            .onAppear {
+                if !videoConfigured {
+                    Task{
+                        videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                        videoConfigured = true
+                    }
                 }
             }
             //MARK: CLICKING CONTROLS

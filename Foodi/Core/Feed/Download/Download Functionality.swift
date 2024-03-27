@@ -20,18 +20,24 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var downloadSuccess: Bool = false
     @Published var downloadFailure: Bool = false
     func downloadVideo(url: URL) {
-        isDownloading = true
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
-        let task = session.dataTask(with: url) { (data, response, error) in
-            guard error == nil else {
-                return
+        PHPhotoLibrary.requestAuthorization { status in
+            if status == .authorized {
+                // Proceed with saving or modifying assets
+                
+                
+                self.isDownloading = true
+                let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+                let task = session.dataTask(with: url) { (data, response, error) in
+                    guard error == nil else {
+                        return
+                    }
+                    let downloadTask = session.downloadTask(with: url)
+                    downloadTask.resume()
+                }
+                task.resume()
             }
-            let downloadTask = session.downloadTask(with: url)
-            downloadTask.resume()
         }
-        task.resume()
     }
-   
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let data = try? Data(contentsOf: location) else {
             return

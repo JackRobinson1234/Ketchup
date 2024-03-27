@@ -94,7 +94,8 @@ struct MainTabView: View {
         }
         //.onAppear { configurePlaybackObserver() }
         //.onDisappear { removePlaybackObserver() }
-        .tint(.black)
+        
+                .tint(.black)
     }
     /*
     func configurePlaybackObserver() {
