@@ -11,10 +11,7 @@ import SwiftUI
 import AVKit
 
 struct VideoPlayerView: UIViewControllerRepresentable {
-    
-    
     @StateObject var coordinator: VideoPlayerCoordinator
-    @State var newVideo = false
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let playerVC = AVPlayerViewController()
@@ -25,6 +22,7 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         playerVC.allowsPictureInPicturePlayback = true
         playerVC.videoGravity = .resizeAspectFill
         playerVC.allowsVideoFrameAnalysis = false
+        
         return playerVC
     }
     
@@ -35,10 +33,13 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     func makeCoordinator() -> VideoPlayerCoordinator {
         return coordinator
     }
+   
 }
 
 class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, ObservableObject {
     var videoPlayerManager = VideoPlayerManager()
+    @Published var shouldReplay = false
+    
     
     func configurePlayer(url: URL?, fileExtension: String?) {
         videoPlayerManager.configure(url: url, fileExtension: fileExtension)
@@ -59,10 +60,10 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     func cancelLoading() {
         videoPlayerManager.cancelAllLoadingRequest()
     }
+    
 }
 
 class VideoPlayerManager: NSObject {
-    
     // MARK: - Variables
     var videoURL: URL?
     var originalURL: URL?
@@ -70,7 +71,7 @@ class VideoPlayerManager: NSObject {
     var playerItem: AVPlayerItem?
     var queuePlayer: AVQueuePlayer?
     var observer: NSKeyValueObservation?
-    
+    var playerLooper: AVPlayerLooper!
     private var session: URLSession?
     private var loadingRequests = [AVAssetResourceLoadingRequest]()
     private var task: URLSessionDataTask?
@@ -133,14 +134,16 @@ class VideoPlayerManager: NSObject {
                 } else {
                     self.queuePlayer = AVQueuePlayer(playerItem: self.playerItem)
                 }
+                self.playerLooper = AVPlayerLooper(player: self.queuePlayer!, templateItem: self.queuePlayer!.currentItem!)
             }
+            
         })
     }
     
     /// Clear all remote or local request
     func cancelAllLoadingRequest(){
         removeObserver()
-        
+        playerLooper = nil
         videoURL = nil
         originalURL = nil
         asset = nil
@@ -205,7 +208,14 @@ extension VideoPlayerManager {
                 fatalError("Status is not yet ready to present")
             }
         })
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: self.playerItem)
     }
+    @objc func playerDidFinishPlaying() {
+            // Video playback reached the end, trigger replay functionality
+            replay()
+        }
+    
+    
 }
 
 // MARK: - URL Session Delegate
