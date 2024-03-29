@@ -41,9 +41,9 @@ struct FeedView: View {
                     Task {
                         await viewModel.fetchPosts()
                         print(viewModel.posts.first?.videoUrl)
-                        if let postUrl = viewModel.posts.first?.videoUrl {
+                        /*if let postUrl = viewModel.posts.first?.videoUrl {
                             videoCoordinator.configurePlayer(url: URL(string: postUrl), fileExtension: "")
-                        }
+                        }*/
                         isLoading = false
                     }
                 }
@@ -55,9 +55,9 @@ struct FeedView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, videoCoordinator: videoCoordinator, viewModel: viewModel)
+                            FeedCell(post: post, viewModel: viewModel)
                                 .id(post.id)
-                                .onAppear { playInitialVideoIfNecessary(forPost: post.wrappedValue) }
+                                //.onAppear { playInitialVideoIfNecessary(forPost: post.wrappedValue) }
                             
                         }
                     }
@@ -75,7 +75,7 @@ struct FeedView: View {
                         Task {
                             await viewModel.fetchPosts()
                             isLoading = false
-                            updatePlayerWithFirstPostVideo()
+                            //updatePlayerWithFirstPostVideo()
                         }
                     }) {
                         Text("Following")
@@ -93,11 +93,12 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
+                        // TODO: Figure this out
                         videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
                             isLoading = false
-                            updatePlayerWithFirstPostVideo()
+                            //updatePlayerWithFirstPostVideo()
                         }
                     }) {
                         Text("Discover")
@@ -180,14 +181,15 @@ struct FeedView: View {
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }
-            .onChange(of: scrollPosition, { oldValue, newValue in
-                playVideoOnChangeOfScrollPosition(postId: newValue)
-            })
+            //.onChange(of: scrollPosition, { oldValue, newValue in
+                //playVideoOnChangeOfScrollPosition(postId: newValue)
+            //})
         }
     }
 }
     
     //MARK: Playing/ pausing
+    /*
     func playInitialVideoIfNecessary(forPost post: Post) {
         guard
             scrollPosition == nil,
@@ -211,7 +213,7 @@ struct FeedView: View {
         let playerItem = AVPlayerItem(url: url)
         videoCoordinator.configurePlayer(url: url, fileExtension: "mp4")
     }
-    
+    */
 }
 
 

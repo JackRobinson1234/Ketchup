@@ -11,7 +11,7 @@ import Photos
 import Kingfisher
 struct FeedCell: View {
     @Binding var post: Post
-    @ObservedObject var videoCoordinator: VideoPlayerCoordinator
+    @StateObject var videoCoordinator = VideoPlayerCoordinator()
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
@@ -223,7 +223,7 @@ struct FeedCell: View {
             .onAppear {
                 if !videoConfigured {
                     Task{
-                        videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                        await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
                         videoConfigured = true
                     }
                 }

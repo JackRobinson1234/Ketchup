@@ -24,13 +24,13 @@ struct VideoTest: View {
                 VideoPlayerView(coordinator: coordinator)
                 }
                 
-            
+            /*
             Button{coordinator.configurePlayer(url: videoURL, fileExtension: fileExtension)
                 videoReady.toggle()
                 } label: {Text("Testing")}
             Button{coordinator.configurePlayer(url: videoURLs[0], fileExtension: fileExtension)
                 
-                } label: {Text("Testing2")}
+                } label: {Text("Testing2")} */
         }
         
         .onTapGesture {

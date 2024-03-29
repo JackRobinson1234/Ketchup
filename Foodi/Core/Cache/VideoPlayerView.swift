@@ -41,8 +41,8 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     @Published var shouldReplay = false
     
     
-    func configurePlayer(url: URL?, fileExtension: String?) {
-        videoPlayerManager.configure(url: url, fileExtension: fileExtension)
+    func configurePlayer(url: URL?, fileExtension: String?) async {
+        await videoPlayerManager.configure(url: url, fileExtension: fileExtension)
     }
     
     func play() {
