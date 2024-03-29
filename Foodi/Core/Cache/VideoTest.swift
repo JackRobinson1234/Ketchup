@@ -37,9 +37,13 @@ struct VideoTest: View {
             print("touched")
                             isPlaying.toggle()
                             if isPlaying {
-                                coordinator.play()
+                                Task{
+                                    await coordinator.play()
+                                }
                             } else {
-                                coordinator.pause()
+                                Task{
+                                    await coordinator.pause()
+                                }
                             }
                         }
     }

@@ -18,8 +18,8 @@ struct FeedCell: View {
     @State private var showShareView = false
     @State private var showRecipe = false
     @State private var videoConfigured = false
-    
     private var didLike: Bool { return post.didLike }
+    @Binding var scrollPosition: String?
     
     var body: some View {
         ZStack {
@@ -155,7 +155,9 @@ struct FeedCell: View {
                                     
                                     Button{
                                         showRecipe.toggle()
-                                        videoCoordinator.pause()
+                                        Task{
+                                            await videoCoordinator.pause()
+                                        }
                                     } label: {
                                         Text("View Recipe")
                                     }
@@ -198,7 +200,9 @@ struct FeedCell: View {
                             }
                             //comment button
                             Button {
-                                videoCoordinator.pause()
+                                Task{
+                                    await videoCoordinator.pause()
+                                }
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
@@ -207,7 +211,9 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
-                                videoCoordinator.pause()
+                                Task{
+                                    await videoCoordinator.pause()
+                                }
                                 showShareView.toggle()
                                 
                             } label: {
@@ -220,12 +226,30 @@ struct FeedCell: View {
                     .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
+            .onChange(of: scrollPosition) {oldValue, newValue in
+                if newValue == post.id {
+                    Task {
+                        await videoCoordinator.replay()
+                    }
+                } else {
+                    Task {
+                        await videoCoordinator.pause()
+                    }
+                }
+            }
+               
             .onAppear {
                 if !videoConfigured {
                     Task{
                         await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                        
                         videoConfigured = true
                     }
+                }
+            }
+            .onDisappear{
+                Task{
+                    await videoCoordinator.cancelLoading()
                 }
             }
             //MARK: CLICKING CONTROLS
@@ -233,26 +257,26 @@ struct FeedCell: View {
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear{videoCoordinator.play()}
+                    .onDisappear{Task{ await videoCoordinator.play()}}
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear{videoCoordinator.play()}
+                    .onDisappear{Task { await videoCoordinator.play()}}
             }
             .sheet(isPresented: $showRecipe) {
                 RecipeView(post: post)
-                    .onDisappear{videoCoordinator.play()}
+                    .onDisappear{Task { await videoCoordinator.play()}}
             }
             .onTapGesture {
                 if let player = videoCoordinator.videoPlayerManager.queuePlayer{
                     switch player.timeControlStatus {
                     case .paused:
-                        videoCoordinator.play()
+                        Task{await videoCoordinator.play()}
                     case .waitingToPlayAtSpecifiedRate:
                         break
                     case .playing:
-                        videoCoordinator.pause()
+                        Task{ await videoCoordinator.pause()}
                     @unknown default:
                         break
                     }
@@ -329,7 +353,8 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         post: .constant(DeveloperPreview.posts[0]),
         videoCoordinator: VideoPlayerCoordinator(),
              viewModel: FeedViewModel(
-                postService: PostService()
-             )
+                postService: PostService()             )
+        ,scrollPosition: .constant("")
     )
 }
+

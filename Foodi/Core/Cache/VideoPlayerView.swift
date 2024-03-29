@@ -45,19 +45,19 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         await videoPlayerManager.configure(url: url, fileExtension: fileExtension)
     }
     
-    func play() {
-        videoPlayerManager.play()
+    func play() async {
+        await videoPlayerManager.play()
     }
     
-    func pause() {
-        videoPlayerManager.pause()
+    func pause() async {
+        await videoPlayerManager.pause()
     }
     
-    func replay() {
-        videoPlayerManager.replay()
+    func replay() async {
+        await videoPlayerManager.replay()
     }
     
-    func cancelLoading() {
+    func cancelLoading() async {
         videoPlayerManager.cancelAllLoadingRequest()
     }
     
@@ -166,16 +166,16 @@ class VideoPlayerManager: NSObject {
     }
     
     
-    func replay(){
-        self.queuePlayer?.seek(to: .zero)
-        play()
+    func replay() async {
+        await self.queuePlayer?.seek(to: .zero)
+        await play()
     }
     
-    func play() {
+    func play() async {
         self.queuePlayer?.play()
     }
     
-    func pause(){
+    func pause() async {
         self.queuePlayer?.pause()
     }
     
@@ -208,12 +208,8 @@ extension VideoPlayerManager {
                 fatalError("Status is not yet ready to present")
             }
         })
-        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: self.playerItem)
     }
-    @objc func playerDidFinishPlaying() {
-            // Video playback reached the end, trigger replay functionality
-            replay()
-        }
+
     
     
 }

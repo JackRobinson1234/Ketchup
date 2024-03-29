@@ -21,7 +21,8 @@ struct FeedView: View {
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
     private let userService: UserService
-    
+
+        
     
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService) {
         self.videoCoordinator = videoCoordinator
@@ -40,10 +41,6 @@ struct FeedView: View {
                 .onAppear {
                     Task {
                         await viewModel.fetchPosts()
-                        print(viewModel.posts.first?.videoUrl)
-                        /*if let postUrl = viewModel.posts.first?.videoUrl {
-                            videoCoordinator.configurePlayer(url: URL(string: postUrl), fileExtension: "")
-                        }*/
                         isLoading = false
                     }
                 }
@@ -55,9 +52,9 @@ struct FeedView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, viewModel: viewModel)
+                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition)
                                 .id(post.id)
-                                //.onAppear { playInitialVideoIfNecessary(forPost: post.wrappedValue) }
+                                
                             
                         }
                     }
@@ -71,11 +68,10 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .following
                         viewModel.setFeedType(.following)
-                        videoCoordinator.cancelLoading()
+                        //videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
                             isLoading = false
-                            //updatePlayerWithFirstPostVideo()
                         }
                     }) {
                         Text("Following")
@@ -94,7 +90,7 @@ struct FeedView: View {
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
                         // TODO: Figure this out
-                        videoCoordinator.cancelLoading()
+                        //videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
                             isLoading = false
@@ -137,8 +133,10 @@ struct FeedView: View {
                 .foregroundStyle(.white)
             }
             .background(.black)
-            .onAppear { videoCoordinator.play() }
-            .onDisappear { videoCoordinator.pause() }
+            //.onAppear { videoCoordinator.play() }
+            //.onDisappear { videoCoordinator.pause()
+               // videoCoordinator.cancelLoading()
+            //}
             
             //MARK: Loading/ No posts
             .overlay {
@@ -158,6 +156,7 @@ struct FeedView: View {
                 SearchView(userService: UserService(), searchConfig: config)}
             .navigationDestination(for: postRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)}
+            /*
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
                     videoCoordinator.pause()
@@ -166,18 +165,18 @@ struct FeedView: View {
                     videoCoordinator.play()
                 }
             }
-            
+            */
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
             }
-            .onChange(of: showFilters) { oldValue, newValue in
+            /*.onChange(of: showFilters) { oldValue, newValue in
                 if newValue {
                     videoCoordinator.pause()
                 }
                 else {
                     videoCoordinator.play()
                 }
-            }
+            }*/
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }

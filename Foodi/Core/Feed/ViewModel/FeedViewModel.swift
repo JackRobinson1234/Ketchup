@@ -17,6 +17,7 @@ class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var isLoading = false
     @Published var showEmptyView = false
+    @Published var currentlyPlayingPostID: String?
     
     private var currentFeedType: FeedType = .discover // default
     
@@ -126,4 +127,10 @@ extension FeedViewModel {
         
         posts = copy
     }
+}
+
+extension FeedViewModel {
+    func updateCurrentlyPlayingPostID(_ postID: String?) {
+        self.currentlyPlayingPostID = postID
+        }
 }
