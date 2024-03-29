@@ -101,7 +101,7 @@ class VideoPlayerManager: NSObject {
         videoData = Data()
     }
     
-    func configure(url: URL?, fileExtension: String?){
+    func configure(url: URL?, fileExtension: String?) async {
         guard let url = url else {
             print("URL Error from Tableview Cell")
             return
