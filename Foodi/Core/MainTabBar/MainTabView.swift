@@ -21,23 +21,6 @@ struct MainTabView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            
-            
-            VideoTest()
-                .tabItem {
-                    VStack {
-                        Image(systemName: selectedTab == 7 ? "house.fill" : "house")
-                            .environment(\.symbolVariants, selectedTab == 7 ? .fill : .none)
-                        
-                        Text("Home")
-                    }
-                }
-                .onAppear { selectedTab = 7 }
-                .tag(7)
-            
-            
-            
-            
             FeedView(videoCoordinator: videoCoordinator, userService: userService)
                 .tabItem {
                     VStack {
@@ -92,8 +75,6 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 4 }
                 .tag(4)
         }
-        //.onAppear { configurePlaybackObserver() }
-        //.onDisappear { removePlaybackObserver() }
         .tint(.black)
     }
 }

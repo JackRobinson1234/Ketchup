@@ -53,16 +53,17 @@ struct FeedView: View {
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
-                                .id(post.id)
-                                
+                        LazyVStack(spacing: 0) {
+                                ForEach($viewModel.posts) { post in
+                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                        .id(post.id)
+                                    
+                                }
+                                .scrollTargetLayout()
                             
-                        }
                     }
-                    .scrollTargetLayout()
                 }
+                
                 //MARK: Search + Filters
                 // Toggle Button
                 
@@ -71,7 +72,6 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .following
                         viewModel.setFeedType(.following)
-                        //videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
                             
@@ -82,6 +82,7 @@ struct FeedView: View {
                             .fontWeight(selectedFeed == .following ? .bold : .regular)
                             .frame(width: 78)
                     }
+                    .disabled(selectedFeed == .following)
                     
                     // Vertical Line
                     Rectangle()
@@ -106,6 +107,7 @@ struct FeedView: View {
                             .fontWeight(selectedFeed == .discover ? .bold : .regular)
                             .frame(width: 78)
                     }
+                    .disabled(selectedFeed == .discover)
                 }
                 .padding(.top, 70)
                 .padding(.horizontal)
@@ -136,20 +138,21 @@ struct FeedView: View {
                 .padding(.top, 20)
                 .foregroundStyle(.white)
             }
-            .background(.black)
-            //.onAppear { videoCoordinator.play() }
-            //.onDisappear { videoCoordinator.pause()
-               // videoCoordinator.cancelLoading()
-            //}
+            
+            
+            
             
             //MARK: Loading/ No posts
+            
+            //MARK: Navigation
             .overlay {
                 if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                         .foregroundStyle(.white)
                 }
             }
-            //MARK: Navigation
+            .background(.black)
+            .toolbarBackground(.white, for: .tabBar)
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
