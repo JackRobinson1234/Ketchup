@@ -244,6 +244,9 @@ struct FeedCell: View {
                         await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
                         
                         videoConfigured = true
+                        if scrollPosition == nil {
+                            await videoCoordinator.replay()
+                        }
                     }
                 }
             }
