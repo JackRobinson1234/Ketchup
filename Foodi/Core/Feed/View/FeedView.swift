@@ -60,7 +60,6 @@ struct FeedView: View {
                                     
                                 }
                                 .scrollTargetLayout()
-                            
                     }
                 }
                 
@@ -93,12 +92,10 @@ struct FeedView: View {
                     Button(action: {
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
-                        // TODO: Figure this out
-                        //videoCoordinator.cancelLoading()
+                    
                         Task {
                             await viewModel.fetchPosts()
-                            
-                            //updatePlayerWithFirstPostVideo()
+                        
                         }
                     }) {
                         Text("Discover")
@@ -145,6 +142,7 @@ struct FeedView: View {
             //MARK: Loading/ No posts
             
             //MARK: Navigation
+            
             .overlay {
                 if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
@@ -152,7 +150,6 @@ struct FeedView: View {
                 }
             }
             .background(.black)
-            .toolbarBackground(.white, for: .tabBar)
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()

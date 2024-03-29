@@ -32,7 +32,8 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 0 }
                 .tag(0)
-            
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             MapView()
                 .tabItem {
                     VStack {
@@ -76,6 +77,7 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(.black)
+        
     }
 }
     
