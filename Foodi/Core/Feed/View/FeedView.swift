@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVKit
-
+import Combine
 
 struct FeedView: View {
     
@@ -23,12 +23,14 @@ struct FeedView: View {
     private let userService: UserService
     @State var pauseVideo = false
     private var posts: [Post]
+    @State private var debouncer = Debouncer(delay: 0.5)
+    @State private var fetchTask: Task<Void, Error>?
+    
 
         
     
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService) {
         self.videoCoordinator = videoCoordinator
-        
         let viewModel = FeedViewModel(
             postService: PostService(),
             posts: posts)
@@ -38,6 +40,7 @@ struct FeedView: View {
     }
     
     var body: some View {
+        /// Loading screen will only appear when the app first opens and will fetch posts
         if isLoading && posts.isEmpty {
             // Loading screen
                 ProgressView("Loading...")
@@ -49,7 +52,7 @@ struct FeedView: View {
                     }
                     .toolbar(.hidden, for: .tabBar)
         } else {
-        //MARK: Video
+        //MARK: Video Cells
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
                 ScrollView {
@@ -63,16 +66,18 @@ struct FeedView: View {
                     }
                 }
                 
-                //MARK: Search + Filters
-                // Toggle Button
+                
+               //MARK: Discover and Following
                 
                 HStack() {
                     // Button for "Following"
                     Button(action: {
+                        fetchTask?.cancel()
+                        viewModel.posts.removeAll()
                         selectedFeed = .following
                         viewModel.setFeedType(.following)
-                        Task {
-                            await viewModel.fetchPosts()
+                        fetchTask = Task {
+                                await viewModel.fetchPosts()
                             
                         }
                     }) {
@@ -90,13 +95,15 @@ struct FeedView: View {
                     
                     // Button for "Recommended"
                     Button(action: {
+                        fetchTask?.cancel()
+                        viewModel.posts.removeAll()
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
-                    
-                        Task {
-                            await viewModel.fetchPosts()
+                        fetchTask = Task {
+                                await viewModel.fetchPosts()
+                                
+                            }
                         
-                        }
                     }) {
                         Text("Discover")
                             .foregroundColor(selectedFeed == .discover ?
@@ -109,7 +116,7 @@ struct FeedView: View {
                 .padding(.top, 70)
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity)
-                
+                //MARK: Filters and Search Buttons
                 HStack{
                     Button{
                         showSearchView.toggle()

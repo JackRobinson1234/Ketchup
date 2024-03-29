@@ -45,7 +45,7 @@ struct FeedCell: View {
                     
                     HStack(alignment: .bottom) {
                         
-                        // MARK: Expandable Caption
+                        // MARK: Caption Box
                         
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
@@ -97,7 +97,9 @@ struct FeedCell: View {
                                                 .multilineTextAlignment(.leading)
                                         }
                                     }
-                                } else if let brand = post.brand {
+                                } 
+                                //MARK: Brand Scenario
+                                else if let brand = post.brand {
                                     VStack (alignment: .leading) {
                                         Text("\(brand.name)")
                                             .font(.title3)

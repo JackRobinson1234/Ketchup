@@ -15,7 +15,7 @@ enum FeedType: String, CaseIterable {
 @MainActor
 class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
-    @Published var isLoading = false
+    //@Published var isLoading = false
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     
@@ -33,7 +33,7 @@ class FeedViewModel: ObservableObject {
     
     func fetchPosts() async {
         print("DEBUG: Fetching posts from feedviewmodel")
-        isLoading = true
+        //isLoading = true
         
         do {
             posts.removeAll()
@@ -46,26 +46,25 @@ class FeedViewModel: ObservableObject {
                 posts = try await postService.fetchFollowingPosts()
             }
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
-    
-            isLoading = false
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
+            //isLoading = false
         } catch {
-            isLoading = false
+            //isLoading = false
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
     }
     
     func refreshFeed() async {
         posts.removeAll()
-        isLoading = true
+        //isLoading = true
         
         do {
             posts = try await postService.fetchPosts()
             posts.shuffle()
-            isLoading = false
+            //isLoading = false
         } catch {
-            isLoading = false
+            //isLoading = false
             print("DEBUG: Failed to refresh posts with error: \(error.localizedDescription)")
         }
     }
