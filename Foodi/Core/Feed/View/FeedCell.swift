@@ -20,6 +20,7 @@ struct FeedCell: View {
     @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
+    @Binding var pauseVideo: Bool
     
     var body: some View {
         ZStack {
@@ -237,22 +238,39 @@ struct FeedCell: View {
                     }
                 }
             }
-               
+            .onChange(of: pauseVideo) {oldValue, newValue in
+                if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
+                    if newValue == true {
+                        Task {
+                            await videoCoordinator.pause()
+                        }
+                    } else {
+                        Task {
+                            await videoCoordinator.play()
+                        }
+                    }
+                }
+            }
+            
             .onAppear {
                 if !videoConfigured {
                     Task{
                         await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
                         
                         videoConfigured = true
-                        if scrollPosition == nil {
+                        if viewModel.posts.first?.id == post.id && scrollPosition == nil{
                             await videoCoordinator.replay()
                         }
+                    }
+                } else {
+                    Task {
+                        await videoCoordinator.replay()
                     }
                 }
             }
             .onDisappear{
                 Task{
-                    await videoCoordinator.cancelLoading()
+                    await videoCoordinator.pause()
                 }
             }
             //MARK: CLICKING CONTROLS
@@ -357,7 +375,8 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         videoCoordinator: VideoPlayerCoordinator(),
              viewModel: FeedViewModel(
                 postService: PostService()             )
-        ,scrollPosition: .constant("")
+        ,scrollPosition: .constant(""),
+        pauseVideo: .constant(true)
     )
 }
 

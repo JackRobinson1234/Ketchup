@@ -21,6 +21,8 @@ struct FeedView: View {
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
     private let userService: UserService
+    @State var pauseVideo = false
+    private var posts: [Post]
 
         
     
@@ -32,19 +34,20 @@ struct FeedView: View {
             posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
+        self.posts = posts
     }
     
     var body: some View {
-        if isLoading {
+        if isLoading && posts.isEmpty {
             // Loading screen
-            ProgressView("Loading...")
-                .onAppear {
-                    Task {
-                        await viewModel.fetchPosts()
-                        isLoading = false
+                ProgressView("Loading...")
+                    .onAppear {
+                        Task {
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
                     }
-                }
-                .toolbar(.hidden, for: .tabBar)
+                    .toolbar(.hidden, for: .tabBar)
         } else {
         //MARK: Video
         NavigationStack(path: $path) {
@@ -52,7 +55,7 @@ struct FeedView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition)
+                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
                                 .id(post.id)
                                 
                             
@@ -71,7 +74,7 @@ struct FeedView: View {
                         //videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
-                            isLoading = false
+                            
                         }
                     }) {
                         Text("Following")
@@ -93,7 +96,7 @@ struct FeedView: View {
                         //videoCoordinator.cancelLoading()
                         Task {
                             await viewModel.fetchPosts()
-                            isLoading = false
+                            
                             //updatePlayerWithFirstPostVideo()
                         }
                     }) {
@@ -119,6 +122,7 @@ struct FeedView: View {
                     Spacer()
                     Button {
                         showFilters.toggle()
+                        
                     }
                 label: {
                     Image(systemName: "slider.horizontal.3")
@@ -156,63 +160,34 @@ struct FeedView: View {
                 SearchView(userService: UserService(), searchConfig: config)}
             .navigationDestination(for: postRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)}
-            /*
+            
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
-                    videoCoordinator.pause()
+                    pauseVideo = true
                 }
                 else {
-                    videoCoordinator.play()
+                    pauseVideo = false
                 }
             }
-            */
+            
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
             }
-            /*.onChange(of: showFilters) { oldValue, newValue in
+            .onChange(of: showFilters) { oldValue, newValue in
                 if newValue {
-                    videoCoordinator.pause()
+                    pauseVideo = true
                 }
                 else {
-                    videoCoordinator.play()
+                    pauseVideo = false
                 }
-            }*/
+            }
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }
-            //.onChange(of: scrollPosition, { oldValue, newValue in
-                //playVideoOnChangeOfScrollPosition(postId: newValue)
-            //})
         }
     }
 }
     
-    //MARK: Playing/ pausing
-    /*
-    func playInitialVideoIfNecessary(forPost post: Post) {
-        guard
-            scrollPosition == nil,
-            let post = viewModel.posts.first,
-                videoCoordinator.videoPlayerManager.queuePlayer?.currentItem == nil else { return }
-        videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
-    }
-    
-    func playVideoOnChangeOfScrollPosition(postId: String?) {
-        guard let currentPost = viewModel.posts.first(where: {$0.id == postId }) else { return }
-        videoCoordinator.configurePlayer(url: URL(string: currentPost.videoUrl), fileExtension: "mp4")
-        /*
-        player.replaceCurrentItem(with: nil)
-        let playerItem = AVPlayerItem(url: URL(string: currentPost.videoUrl)!)
-        player.replaceCurrentItem(with: playerItem)
-         */
-    }
-    
-    func updatePlayerWithFirstPostVideo() {
-        guard let firstPostVideoUrl = viewModel.posts.first?.videoUrl, let url = URL(string: firstPostVideoUrl) else { return }
-        let playerItem = AVPlayerItem(url: url)
-        videoCoordinator.configurePlayer(url: url, fileExtension: "mp4")
-    }
-    */
 }
 
 
