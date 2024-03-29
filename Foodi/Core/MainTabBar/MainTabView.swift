@@ -11,17 +11,17 @@ struct MainTabView: View {
     private let authService: AuthService
     private let userService: UserService
     @State private var selectedTab = 0
-    @State private var player = AVPlayer()
+    @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     
     init(authService: AuthService, userService: UserService) {
         self.authService = authService
         self.userService = userService
     }
-        
+    
     var body: some View {
         TabView(selection: $selectedTab) {
-            FeedView(player: $player, userService: userService)
+            FeedView(videoCoordinator: videoCoordinator, userService: userService)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -32,7 +32,8 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 0 }
                 .tag(0)
-            
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             MapView()
                 .tabItem {
                     VStack {
@@ -62,7 +63,7 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 3 }
                 .tag(3)
-
+            
             CurrentUserProfileView(authService: authService, userService: userService)
                 .tabItem {
                     VStack {
@@ -75,18 +76,19 @@ struct MainTabView: View {
                 .onAppear { selectedTab = 4 }
                 .tag(4)
         }
-        .onAppear { configurePlaybackObserver() }
-        .onDisappear { removePlaybackObserver() }
         .tint(.black)
+        
     }
+}
     
-    func configurePlaybackObserver() {
+    /*func configurePlaybackObserver() {
         self.playbackObserver = NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
                                                                        object: nil,
                                                                        queue: .main) { _ in
-            if player.timeControlStatus == .playing {
-                self.player.seek(to: CMTime.zero)
-                self.player.play()
+            let player = videoCoordinator.videoPlayerManager.queuePlayer
+            if player?.timeControlStatus == .playing {
+                player?.seek(to: CMTime.zero)
+                player?.play()
             }
         }
     }
@@ -97,8 +99,8 @@ struct MainTabView: View {
                                                       name: AVPlayerItem.didPlayToEndTimeNotification,
                                                       object: nil)
         }
-    }
-}
+    } 
+}*/
 
 #Preview {
     MainTabView(authService: AuthService(), userService: UserService())

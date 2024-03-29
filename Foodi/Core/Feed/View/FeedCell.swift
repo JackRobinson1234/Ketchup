@@ -8,21 +8,30 @@
 import SwiftUI
 import AVKit
 import Photos
+import Kingfisher
 struct FeedCell: View {
     @Binding var post: Post
-    var player: AVPlayer
+    @StateObject var videoCoordinator = VideoPlayerCoordinator()
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
     @State private var showShareView = false
     @State private var showRecipe = false
-    
+    @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
+    @Binding var scrollPosition: String?
+    @Binding var pauseVideo: Bool
     
     var body: some View {
         ZStack {
-            VideoPlayer(player: player)
-                .containerRelativeFrame([.horizontal, .vertical])
+            if !videoConfigured{
+                KFImage(URL(string: post.thumbnailUrl))
+                    .resizable()
+                    .containerRelativeFrame([.horizontal, .vertical])
+            } else {
+                VideoPlayerView(coordinator: videoCoordinator)
+                    .containerRelativeFrame([.horizontal, .vertical])
+                }
             
             VStack {
                 Spacer()
@@ -36,7 +45,7 @@ struct FeedCell: View {
                     
                     HStack(alignment: .bottom) {
                         
-                        // MARK: Expandable Caption
+                        // MARK: Caption Box
                         
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
@@ -88,7 +97,9 @@ struct FeedCell: View {
                                                 .multilineTextAlignment(.leading)
                                         }
                                     }
-                                } else if let brand = post.brand {
+                                } 
+                                //MARK: Brand Scenario
+                                else if let brand = post.brand {
                                     VStack (alignment: .leading) {
                                         Text("\(brand.name)")
                                             .font(.title3)
@@ -147,7 +158,9 @@ struct FeedCell: View {
                                     
                                     Button{
                                         showRecipe.toggle()
-                                        player.pause()
+                                        Task{
+                                            await videoCoordinator.pause()
+                                        }
                                     } label: {
                                         Text("View Recipe")
                                     }
@@ -190,7 +203,9 @@ struct FeedCell: View {
                             }
                             //comment button
                             Button {
-                                player.pause()
+                                Task{
+                                    await videoCoordinator.pause()
+                                }
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
@@ -199,7 +214,9 @@ struct FeedCell: View {
                             
                             //share button
                             Button {
-                                player.pause()
+                                Task{
+                                    await videoCoordinator.pause()
+                                }
                                 showShareView.toggle()
                                 
                             } label: {
@@ -212,32 +229,80 @@ struct FeedCell: View {
                     .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
+            .onChange(of: scrollPosition) {oldValue, newValue in
+                if newValue == post.id {
+                    Task {
+                        await videoCoordinator.replay()
+                    }
+                } else {
+                    Task {
+                        await videoCoordinator.pause()
+                    }
+                }
+            }
+            .onChange(of: pauseVideo) {oldValue, newValue in
+                if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
+                    if newValue == true {
+                        Task {
+                            await videoCoordinator.pause()
+                        }
+                    } else {
+                        Task {
+                            await videoCoordinator.play()
+                        }
+                    }
+                }
+            }
+            
+            .onAppear {
+                if !videoConfigured {
+                    Task{
+                        await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                        
+                        videoConfigured = true
+                        if viewModel.posts.first?.id == post.id && scrollPosition == nil{
+                            await videoCoordinator.replay()
+                        }
+                    }
+                } else {
+                    Task {
+                        await videoCoordinator.replay()
+                    }
+                }
+            }
+            .onDisappear{
+                Task{
+                    await videoCoordinator.pause()
+                }
+            }
             //MARK: CLICKING CONTROLS
             //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear{player.play()}
+                    .onDisappear{Task{ await videoCoordinator.play()}}
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear{player.play()}
+                    .onDisappear{Task { await videoCoordinator.play()}}
             }
             .sheet(isPresented: $showRecipe) {
                 RecipeView(post: post)
-                    .onDisappear{player.play()}
+                    .onDisappear{Task { await videoCoordinator.play()}}
             }
             .onTapGesture {
-                switch player.timeControlStatus {
-                case .paused:
-                    player.play()
-                case .waitingToPlayAtSpecifiedRate:
-                    break
-                case .playing:
-                    player.pause()
-                @unknown default:
-                    break
+                if let player = videoCoordinator.videoPlayerManager.queuePlayer{
+                    switch player.timeControlStatus {
+                    case .paused:
+                        Task{await videoCoordinator.play()}
+                    case .waitingToPlayAtSpecifiedRate:
+                        break
+                    case .playing:
+                        Task{ await videoCoordinator.pause()}
+                    @unknown default:
+                        break
+                    }
                 }
             }
         }
@@ -309,9 +374,11 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
 #Preview {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
-        player: AVPlayer(),
+        videoCoordinator: VideoPlayerCoordinator(),
              viewModel: FeedViewModel(
-                postService: PostService()
-             )
+                postService: PostService()             )
+        ,scrollPosition: .constant(""),
+        pauseVideo: .constant(true)
     )
 }
+

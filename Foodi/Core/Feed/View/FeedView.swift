@@ -7,12 +7,12 @@
 
 import SwiftUI
 import AVKit
-
+import Combine
 
 struct FeedView: View {
     
     //MARK: Variables
-    @Binding var player: AVPlayer
+    @ObservedObject var videoCoordinator: VideoPlayerCoordinator
     @StateObject var viewModel: FeedViewModel
     @State private var scrollPosition: String?
     @State private var path = NavigationPath()
@@ -21,57 +21,64 @@ struct FeedView: View {
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
     private let userService: UserService
+    @State var pauseVideo = false
+    private var posts: [Post]
+    @State private var debouncer = Debouncer(delay: 0.5)
+    @State private var fetchTask: Task<Void, Error>?
     
-    
-    init(player: Binding<AVPlayer>, posts: [Post] = [], userService: UserService) {
-        self._player = player
+
         
+    
+    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService) {
+        self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(
             postService: PostService(),
             posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
+        self.posts = posts
     }
     
     var body: some View {
-        if isLoading {
+        /// Loading screen will only appear when the app first opens and will fetch posts
+        if isLoading && posts.isEmpty {
             // Loading screen
-            ProgressView("Loading...")
-                .onAppear {
-                    Task {
-                        await viewModel.fetchPosts()
-                        isLoading = false
+                ProgressView("Loading...")
+                    .onAppear {
+                        Task {
+                            await viewModel.fetchPosts()
+                            isLoading = false
+                        }
                     }
-                }
-                .toolbar(.hidden, for: .tabBar)
+                    .toolbar(.hidden, for: .tabBar)
         } else {
-        //MARK: Video
+        //MARK: Video Cells
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, player: player, viewModel: viewModel)
-                                .id(post.id)
-                                .onAppear { playInitialVideoIfNecessary(forPost: post.wrappedValue) }
-                            
-                        }
+                        LazyVStack(spacing: 0) {
+                                ForEach($viewModel.posts) { post in
+                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                        .id(post.id)
+                                    
+                                }
+                                .scrollTargetLayout()
                     }
-                    .scrollTargetLayout()
                 }
-                //MARK: Search + Filters
-                // Toggle Button
+                
+                
+               //MARK: Discover and Following
                 
                 HStack() {
                     // Button for "Following"
                     Button(action: {
+                        fetchTask?.cancel()
+                        viewModel.posts.removeAll()
                         selectedFeed = .following
                         viewModel.setFeedType(.following)
-                        player.replaceCurrentItem(with: nil)
-                        Task {
-                            await viewModel.fetchPosts()
-                            isLoading = false
-                            updatePlayerWithFirstPostVideo()
+                        fetchTask = Task {
+                                await viewModel.fetchPosts()
+                            
                         }
                     }) {
                         Text("Following")
@@ -79,6 +86,7 @@ struct FeedView: View {
                             .fontWeight(selectedFeed == .following ? .bold : .regular)
                             .frame(width: 78)
                     }
+                    .disabled(selectedFeed == .following)
                     
                     // Vertical Line
                     Rectangle()
@@ -87,14 +95,15 @@ struct FeedView: View {
                     
                     // Button for "Recommended"
                     Button(action: {
+                        fetchTask?.cancel()
+                        viewModel.posts.removeAll()
                         selectedFeed = .discover
                         viewModel.setFeedType(.discover)
-                        player.replaceCurrentItem(with: nil)
-                        Task {
-                            await viewModel.fetchPosts()
-                            isLoading = false
-                            updatePlayerWithFirstPostVideo()
-                        }
+                        fetchTask = Task {
+                                await viewModel.fetchPosts()
+                                
+                            }
+                        
                     }) {
                         Text("Discover")
                             .foregroundColor(selectedFeed == .discover ?
@@ -102,11 +111,12 @@ struct FeedView: View {
                             .fontWeight(selectedFeed == .discover ? .bold : .regular)
                             .frame(width: 78)
                     }
+                    .disabled(selectedFeed == .discover)
                 }
                 .padding(.top, 70)
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity)
-                
+                //MARK: Filters and Search Buttons
                 HStack{
                     Button{
                         showSearchView.toggle()
@@ -118,6 +128,7 @@ struct FeedView: View {
                     Spacer()
                     Button {
                         showFilters.toggle()
+                        
                     }
                 label: {
                     Image(systemName: "slider.horizontal.3")
@@ -131,18 +142,21 @@ struct FeedView: View {
                 .padding(.top, 20)
                 .foregroundStyle(.white)
             }
-            .background(.black)
-            .onAppear { player.play() }
-            .onDisappear { player.pause() }
+            
+            
+            
             
             //MARK: Loading/ No posts
+            
+            //MARK: Navigation
+            
             .overlay {
                 if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                         .foregroundStyle(.white)
                 }
             }
-            //MARK: Navigation
+            .background(.black)
             .scrollPosition(id: $scrollPosition)
             .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
@@ -153,12 +167,13 @@ struct FeedView: View {
                 SearchView(userService: UserService(), searchConfig: config)}
             .navigationDestination(for: postRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)}
+            
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
-                    player.pause()
+                    pauseVideo = true
                 }
                 else {
-                    player.play()
+                    pauseVideo = false
                 }
             }
             
@@ -167,51 +182,24 @@ struct FeedView: View {
             }
             .onChange(of: showFilters) { oldValue, newValue in
                 if newValue {
-                    player.pause()
+                    pauseVideo = true
                 }
                 else {
-                    player.play()
+                    pauseVideo = false
                 }
             }
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }
-            .onChange(of: scrollPosition, { oldValue, newValue in
-                playVideoOnChangeOfScrollPosition(postId: newValue)
-            })
         }
     }
 }
-    
-    //MARK: Playing/ pausing
-    func playInitialVideoIfNecessary(forPost post: Post) {
-        guard
-            scrollPosition == nil,
-            let post = viewModel.posts.first,
-            player.currentItem == nil else { return }
-        
-        player.replaceCurrentItem(with: AVPlayerItem(url: URL(string: post.videoUrl)!))
-    }
-    
-    func playVideoOnChangeOfScrollPosition(postId: String?) {
-        guard let currentPost = viewModel.posts.first(where: {$0.id == postId }) else { return }
-        
-        player.replaceCurrentItem(with: nil)
-        let playerItem = AVPlayerItem(url: URL(string: currentPost.videoUrl)!)
-        player.replaceCurrentItem(with: playerItem)
-    }
-    
-    func updatePlayerWithFirstPostVideo() {
-        guard let firstPostVideoUrl = viewModel.posts.first?.videoUrl, let url = URL(string: firstPostVideoUrl) else { return }
-        let playerItem = AVPlayerItem(url: url)
-        player.replaceCurrentItem(with: playerItem)
-    }
     
 }
 
 
 #Preview {
-    FeedView(player: .constant(AVPlayer()), posts: DeveloperPreview.posts, userService: UserService())
+    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: DeveloperPreview.posts, userService: UserService())
 }
 
 

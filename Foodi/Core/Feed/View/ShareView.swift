@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Kingfisher
-
+import Photos
 struct ShareView: View {
     @StateObject var downloadViewModel: DownloadViewModel = .init()
     @State var isShowingMessageView: Bool = false
@@ -34,9 +34,19 @@ struct ShareView: View {
                         .padding(.top,1)
                 } else {
                     Button(action: {
-                        if let url = URL(string: post.videoUrl) {
-                            downloadViewModel.downloadVideo(url: url)
-                        }}) {
+                        PHPhotoLibrary.requestAuthorization { status in
+                                       if status == .authorized {
+                                           // Photo access granted, proceed with downloading the video
+                                           if let url = URL(string: post.videoUrl) {
+                                               downloadViewModel.downloadVideo(url: url)
+                                           }
+                                       } else {
+                                           // Handle denied or restricted access
+                                           print("Photo library access denied or restricted.")
+                                       }
+                                   }
+                               })
+               {
                             if downloadViewModel.isDownloading {
                                 if downloadViewModel.progress == 0 {
                                     ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .blue))
