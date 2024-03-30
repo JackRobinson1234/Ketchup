@@ -12,7 +12,9 @@ struct MainTabView: View {
     
     private let authService: AuthService
     private let userService: UserService
-    @State private var selectedTab = 0
+    
+    @EnvironmentObject var tabBarController: TabBarController
+    
     @State private var player = AVPlayer()
     @State private var playbackObserver: NSObjectProtocol?
     @State var visibility = Visibility.visible
@@ -23,36 +25,34 @@ struct MainTabView: View {
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $tabBarController.selectedTab) {
             FeedView(player: $player, userService: userService)
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 0 ? "house.fill" : "house")
-                            .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .fill : .none)
                         
                         Text("Home")
                     }
                 }
-                .onAppear { selectedTab = 0 }
+                .onAppear { tabBarController.selectedTab = 0 }
                 .tag(0)
             
             MapView()
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 1 ? "location.fill" : "location")
-                            .environment(\.symbolVariants, selectedTab == 1 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .fill : .none)
                         
                         Text("Map")
                     }
                 }
-                .onAppear { selectedTab = 1 }
+                .onAppear { tabBarController.selectedTab = 1 }
                 .tag(1)
             
-            //RestaurantSelectorView(tabIndex: $selectedTab)
-            //CreatePostSelection(tabIndex: $selectedTab) // This will turn into camera view with option to upload media
-            CustomCameraView(selectedTab: $selectedTab, visibility: $visibility)
+            CustomCameraView()
                 .tabItem { Image(systemName: "plus") }
-                .onAppear { selectedTab = 2 }
+                .onAppear { tabBarController.selectedTab = 2 }
                 .tag(2)
                 .toolbar(visibility, for: .tabBar)
             
@@ -60,31 +60,29 @@ struct MainTabView: View {
             ActivityView()
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 3 ? "bolt.fill" : "bolt")
-                            .environment(\.symbolVariants, selectedTab == 3 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 3 ? "bolt.fill" : "bolt")
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .fill : .none)
                         
                         Text("Activity")
                     }
                 }
-                .onAppear { selectedTab = 3 }
+                .onAppear { tabBarController.selectedTab = 3 }
                 .tag(3)
             
             CurrentUserProfileView(authService: authService, userService: userService)
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 4 ? "person.fill" : "person")
-                            .environment(\.symbolVariants, selectedTab == 4 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .fill : .none)
                         
                         Text("Profile")
                     }
                 }
-                .onAppear { selectedTab = 4 }
+                .onAppear { tabBarController.selectedTab = 4 }
                 .tag(4)
         }
-        .onChange(of: selectedTab) { newValue in
-            print("DEBUG: visibility on entering is \(visibility)")
-            visibility = newValue == 2 ? .hidden : .visible
-            print("DEBUG: visibility on leaving is \(visibility)")
+        .onChange(of: tabBarController.selectedTab) {
+            visibility = tabBarController.selectedTab == 2 ? .hidden : .visible
         }
         .onAppear { configurePlaybackObserver() }
         .onDisappear { removePlaybackObserver() }
@@ -110,6 +108,7 @@ struct MainTabView: View {
         }
     }
 }
+
 
 #Preview {
     MainTabView(authService: AuthService(), userService: UserService())

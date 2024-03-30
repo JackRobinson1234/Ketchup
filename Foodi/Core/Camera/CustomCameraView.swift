@@ -10,19 +10,12 @@ import SwiftUI
 struct CustomCameraView: View {
     
     @StateObject private var cameraViewModel = CameraViewModel()
-
     
-    @Binding var selectedTab: Int
-    @Binding var visibility: Visibility
+    @EnvironmentObject var tabBarController: TabBarController
+
     @State private var selectingMedia = false
     @State private var capturedPhotoUrl: URL?
     @State private var navigateToCreatePostSelection =   false
-
-    
-    init(selectedTab: Binding<Int>, visibility: Binding<Visibility>) {
-        self._selectedTab = selectedTab
-        self._visibility = visibility
-    }
 
     var body: some View {
         NavigationStack {
@@ -31,7 +24,21 @@ struct CustomCameraView: View {
                 CameraView(viewModel: cameraViewModel)
                     .ignoresSafeArea()
                 
-                ExitButtonView(selectedTab: $selectedTab)
+                VStack {
+                    HStack {
+                        Button {
+                            tabBarController.selectedTab = 0
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
+                        }
+                        Spacer()
+                    }
+                    .padding([.top, .leading], 30)
+                    
+                    Spacer()
+                }
             
                            
                 VStack {
@@ -73,7 +80,7 @@ struct CustomCameraView: View {
             }
             
             .navigationDestination(isPresented: $cameraViewModel.isImageCaptured) {
-                ImageEditView(selectedTab: $selectedTab, viewModel: cameraViewModel)
+                ImageEditView(viewModel: cameraViewModel)
             }
             
             .onChange(of: cameraViewModel.selectedItem) {
@@ -124,6 +131,6 @@ struct ExitButtonView: View {
 struct CustomCameraView_Previews: PreviewProvider {
     static var previews: some View {
         // Provide mock values for the bindings and other required data
-        CustomCameraView(selectedTab: .constant(2), visibility: .constant(.hidden))
+        CustomCameraView()
     }
 }

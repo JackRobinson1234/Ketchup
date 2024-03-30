@@ -9,11 +9,9 @@ import SwiftUI
 
 struct ImageEditView: View {
     @State private var readyToPost = false
-    @Binding var selectedTab: Int
     @ObservedObject var viewModel: CameraViewModel
     
-    init(selectedTab: Binding<Int>, viewModel: CameraViewModel) {
-        self._selectedTab = selectedTab
+    init(viewModel: CameraViewModel) {
         self.viewModel = viewModel
     }
     
@@ -68,7 +66,7 @@ struct ImageEditView: View {
             }
         }
 //        .navigationDestination(isPresented: $readyToPost) {
-//            CreatePostSelection(selectedTab: $selectedTab, viewModel: viewModel)
+//            CreatePostSelection(viewModel: viewModel)
 //        }
     }
 }

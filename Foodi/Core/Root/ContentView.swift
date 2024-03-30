@@ -11,6 +11,8 @@ struct ContentView: View {
     private let authService: AuthService
     private let userService: UserService
     
+    var tabBarController = TabBarController()
+    
     @StateObject var viewModel: ContentViewModel
     
     init(authService: AuthService, userService: UserService) {
@@ -26,7 +28,7 @@ struct ContentView: View {
             if viewModel.userSession != nil {
                     MainTabView(authService: authService, userService: userService)
                         .environmentObject(viewModel)
-                    
+                        .environmentObject(tabBarController)
                 } else {
                 LoginView(service: authService)
             }
