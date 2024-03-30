@@ -45,13 +45,15 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 1 }
                 .tag(1)
-            
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             //RestaurantSelectorView(tabIndex: $selectedTab)
             CreatePostSelection(tabIndex: $selectedTab)
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)
-            
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             ActivityView()
                 .tabItem {
                     VStack {
@@ -63,7 +65,8 @@ struct MainTabView: View {
                 }
                 .onAppear { selectedTab = 3 }
                 .tag(3)
-            
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             CurrentUserProfileView(authService: authService, userService: userService)
                 .tabItem {
                     VStack {
