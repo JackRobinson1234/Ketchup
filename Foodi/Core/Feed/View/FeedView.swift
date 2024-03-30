@@ -23,7 +23,6 @@ struct FeedView: View {
     private let userService: UserService
     @State var pauseVideo = false
     private var posts: [Post]
-    @State private var debouncer = Debouncer(delay: 0.5)
     @State private var fetchTask: Task<Void, Error>?
     
 
@@ -62,8 +61,9 @@ struct FeedView: View {
                                         .id(post.id)
                                     
                                 }
-                                .scrollTargetLayout()
+                                
                     }
+                        .scrollTargetLayout()
                 }
                 
                 
@@ -149,7 +149,8 @@ struct FeedView: View {
             //MARK: Loading/ No posts
             
             //MARK: Navigation
-            
+            .scrollPosition(id: $scrollPosition)
+            .scrollTargetBehavior(.paging)
             .overlay {
                 if viewModel.showEmptyView {
                     ContentUnavailableView("No posts to show", systemImage: "eye.slash")
@@ -157,8 +158,6 @@ struct FeedView: View {
                 }
             }
             .background(.black)
-            .scrollPosition(id: $scrollPosition)
-            .scrollTargetBehavior(.paging)
             .ignoresSafeArea()
             .navigationDestination(for: postUser.self) { user in
                 ProfileView(uid: user.id, userService: userService)
@@ -176,6 +175,9 @@ struct FeedView: View {
                     pauseVideo = false
                 }
             }
+            .onChange(of: scrollPosition, { oldValue, newValue in
+                print("Scroll Position : \(newValue)")
+            })
             
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
