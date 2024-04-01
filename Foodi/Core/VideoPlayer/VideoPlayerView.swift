@@ -40,6 +40,9 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     var videoPlayerManager = VideoPlayerManager()
     @Published var shouldReplay = false
     
+    func downloadToCache(url: URL?, fileExtension: String?) async {
+        await videoPlayerManager.downloadToCache(url: url, fileExtension: fileExtension)
+    }
     
     func configurePlayer(url: URL?, fileExtension: String?) async {
         await videoPlayerManager.configure(url: url, fileExtension: fileExtension)
@@ -101,12 +104,11 @@ class VideoPlayerManager: NSObject {
         videoData = Data()
     }
     
-    func configure(url: URL?, fileExtension: String?) async {
+    func downloadToCache(url: URL?, fileExtension: String?) async {
         guard let url = url else {
-            print("URL Error from Tableview Cell")
+            print("URL Error from Cell")
             return
         }
-        self.fileExtension = fileExtension
         VideoCacheManager.shared.queryURLFromCache(key: url.absoluteString, fileExtension: fileExtension, completion: {[weak self] (data) in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -121,11 +123,30 @@ class VideoPlayerManager: NSObject {
                     self.videoURL = redirectUrl
                 }
                 self.originalURL = url
-                
-                
                 self.asset = AVURLAsset(url: self.videoURL!)
                 self.asset!.resourceLoader.setDelegate(self, queue: .main)
                 
+            }
+        }
+        )
+    }
+
+    func configure(url: URL?, fileExtension: String?) async {
+        guard let url = url else {
+            print("URL Error from Tableview Cell")
+            return
+        }
+        self.fileExtension = fileExtension
+        VideoCacheManager.shared.queryURLFromCache(key: url.absoluteString, fileExtension: fileExtension, completion: {[weak self] (data) in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                if let path = data as? String {
+                    self.videoURL = URL(fileURLWithPath: path)
+                    self.asset = AVURLAsset(url: self.videoURL!)
+                } else {
+                    // Adding Redirect URL(customized prefix schema) to trigger AVAssetResourceLoaderDelegate
+                    self.asset = AVURLAsset(url: url)
+                    }
                 self.playerItem = AVPlayerItem(asset: self.asset!)
                 self.addObserverToPlayerItem()
                 
@@ -136,9 +157,9 @@ class VideoPlayerManager: NSObject {
                 }
                 self.playerLooper = AVPlayerLooper(player: self.queuePlayer!, templateItem: self.queuePlayer!.currentItem!)
             }
-            
         })
     }
+                                                   
     
     /// Clear all remote or local request
     func cancelAllLoadingRequest(){
@@ -218,6 +239,7 @@ extension VideoPlayerManager {
 extension VideoPlayerManager: URLSessionTaskDelegate, URLSessionDataDelegate {
     // Get Responses From URL Request
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        //print("firebase Received response:", response)
         self.infoResponse = response
         self.processLoadingRequest()
         completionHandler(.allow)
@@ -225,6 +247,7 @@ extension VideoPlayerManager: URLSessionTaskDelegate, URLSessionDataDelegate {
     
     // Receive Data From Responses and Download
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        print("firebase Received data of size:", data.count)
         self.videoData?.append(data)
         self.processLoadingRequest()
     }
@@ -234,11 +257,13 @@ extension VideoPlayerManager: URLSessionTaskDelegate, URLSessionDataDelegate {
         if let error = error {
             print("AVURLAsset Download Data Error: " + error.localizedDescription)
         } else {
+            //print("firebase Task completed successfully.")
             VideoCacheManager.shared.storeDataToCache(data: self.videoData, key: self.originalURL!.absoluteString, fileExtension: self.fileExtension)
         }
     }
     
     private func processLoadingRequest(){
+        //print("firebase Should wait for loading request:", self.loadingRequests)
         var finishedRequests = Set<AVAssetResourceLoadingRequest>()
         self.loadingRequests.forEach {
             var request = $0
@@ -292,7 +317,9 @@ extension VideoPlayerManager: URLSessionTaskDelegate, URLSessionDataDelegate {
 // MARK: - AVAssetResourceLoader Delegate
 extension VideoPlayerManager: AVAssetResourceLoaderDelegate {
     func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+        print("Should wait for loading of requested resource:", loadingRequest)
         if task == nil, let url = originalURL {
+            print("Creating data task for URL:", url)
             let request = URLRequest.init(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 60)
             task = session?.dataTask(with: request)
             task?.resume()

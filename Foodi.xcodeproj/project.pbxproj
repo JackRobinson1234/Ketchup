@@ -154,6 +154,7 @@
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
+		F8EE6E272BB8E803006A86F3 /* VideoTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EE6E262BB8E803006A86F3 /* VideoTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -299,6 +300,7 @@
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
+		F8EE6E262BB8E803006A86F3 /* VideoTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1081,6 +1083,7 @@
 			children = (
 				F8901C852BA436A100FBE778 /* VideoCache.swift */,
 				F875D7EF2BAB930E00FC32C8 /* VideoPlayerView.swift */,
+				F8EE6E262BB8E803006A86F3 /* VideoTest.swift */,
 			);
 			path = VideoPlayer;
 			sourceTree = "<group>";
@@ -1234,6 +1237,7 @@
 				F88E0A452B6A600A00EC159B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F88E0A7F2B6B001B00EC159B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F8901C6A2B9B14E700FBE778 /* XCRemoteSwiftPackageReference "swiftui-currency-field" */,
+				F8EE6E282BBB21A1006A86F3 /* XCRemoteSwiftPackageReference "amplify-ios" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1379,6 +1383,7 @@
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
 				F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */,
+				F8EE6E272BB8E803006A86F3 /* VideoTest.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListVIew.swift in Sources */,
@@ -1770,6 +1775,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.2;
+			};
+		};
+		F8EE6E282BBB21A1006A86F3 /* XCRemoteSwiftPackageReference "amplify-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/amplify-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.28.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

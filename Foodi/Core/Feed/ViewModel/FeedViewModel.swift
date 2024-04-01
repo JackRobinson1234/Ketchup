@@ -18,6 +18,8 @@ class FeedViewModel: ObservableObject {
     //@Published var isLoading = false
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
+    @Binding var scrollPosition: String?
+    @StateObject var videoCoordinator = VideoPlayerCoordinator()
     
     private var currentFeedType: FeedType = .discover // default
     
@@ -48,10 +50,22 @@ class FeedViewModel: ObservableObject {
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
-            //isLoading = false
+            await updateCache()
         } catch {
-            //isLoading = false
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+        }
+    }
+    
+    func updateCache() async {
+        guard !posts.isEmpty, let scrollPosition = scrollPosition, let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else { return }
+        
+        DispatchQueue.global().async { [weak self] in
+            let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 4, posts.count))
+            for index in nextIndexes {
+                let post = posts[index]
+                await videoCoordinator.downloadToCache(url: post.videoUrl, fileExtension: "mp4")
+            }
+            
         }
     }
     

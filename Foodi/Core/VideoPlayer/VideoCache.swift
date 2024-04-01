@@ -74,11 +74,14 @@ class VideoCacheManager: NSObject {
      */
     func queryDataFromCache(key: String, fileExtension: String?, completion: @escaping (_ data: Any?) -> Void){
         if let data = dataFromMemoryCache(key: key) {
+            print("file exists on memory cache")
             completion(data)
         } else if let data = dataFromDiskCache(key: key, fileExtension: fileExtension) {
             storeDataToMemoryCache(data: data, key: key)
+            print("file exists on disk cache")
             completion(data)
         } else {
+            print("file doesnt exist on cache")
             completion(nil)
         }
     }
@@ -88,8 +91,10 @@ class VideoCacheManager: NSObject {
         dispatchQueue?.sync {
             let path = diskCachePathForKey(key: key, fileExtension: fileExtension) ?? ""
             if diskCache.fileExists(atPath: path) {
+                print("file exists on cache")
                 completion(path)
             } else {
+                print("file doesnt exist on cache")
                 completion(nil)
             }
         }

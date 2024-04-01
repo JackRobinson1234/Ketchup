@@ -175,9 +175,6 @@ struct FeedView: View {
                     pauseVideo = false
                 }
             }
-            .onChange(of: scrollPosition, { oldValue, newValue in
-                print("Scroll Position : \(newValue)")
-            })
             
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
