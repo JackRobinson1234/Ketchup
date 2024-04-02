@@ -116,15 +116,21 @@ class VideoPlayerManager: NSObject {
                     self.videoURL = URL(fileURLWithPath: path)
                 } else {
                     // Adding Redirect URL(customized prefix schema) to trigger AVAssetResourceLoaderDelegate
-                    guard let redirectUrl = url.convertToRedirectURL(scheme: "streaming") else {
-                        print("\(url)\nCould not convert the url to a redirect url.")
-                        return
-                    }
-                    self.videoURL = redirectUrl
-                }
-                self.originalURL = url
-                self.asset = AVURLAsset(url: self.videoURL!)
-                self.asset!.resourceLoader.setDelegate(self, queue: .main)
+                    let downloadTask = URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
+                           // Handle download completion
+                           guard let data = data, error == nil else {
+                               print("Error downloading video:", error?.localizedDescription ?? "Unknown error")
+                               return
+                           }
+                           // Save the downloaded data to cache
+                           VideoCacheManager.shared.storeDataToCache(data: data, key: url.absoluteString, fileExtension: fileExtension)
+                           // Update videoURL and asset properties
+                           self?.videoURL = url
+                           self?.asset = AVURLAsset(url: url)
+                           // Handle asset setup after download
+                       }
+                       downloadTask.resume()
+                   }
                 
             }
         }
@@ -213,7 +219,7 @@ extension VideoPlayerManager {
     fileprivate func addObserverToPlayerItem() {
         // Register as an observer of the player item's status property
         self.observer = self.playerItem!.observe(\.status, options: [.initial, .new], changeHandler: { item, _ in
-            let status = item.status
+            /*let status = item.status
             // Switch over the status
             switch status {
             case .readyToPlay:
@@ -227,7 +233,7 @@ extension VideoPlayerManager {
                 print("Status: unknown")
             @unknown default:
                 fatalError("Status is not yet ready to present")
-            }
+            }*/
         })
     }
 
@@ -239,7 +245,7 @@ extension VideoPlayerManager {
 extension VideoPlayerManager: URLSessionTaskDelegate, URLSessionDataDelegate {
     // Get Responses From URL Request
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        //print("firebase Received response:", response)
+        print("firebase Received response:", response)
         self.infoResponse = response
         self.processLoadingRequest()
         completionHandler(.allow)

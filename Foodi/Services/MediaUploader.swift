@@ -43,18 +43,16 @@ struct ImageUploader {
     }
 }
 
-import UIKit
-import Firebase
 
 struct VideoUploader {
     static func uploadVideoToStorage(withUrl url: URL) async throws -> String? {
         let filename = NSUUID().uuidString
         let ref = Storage.storage().reference(withPath: "/post_videos/").child(filename)
         let metadata = StorageMetadata()
-        metadata.contentType = "video/mp4"
-        let mp4Url = URL( string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4")
+        metadata.contentType = "video/quicktime"
+        
         do {
-            let data = try Data(contentsOf: mp4Url!)
+            let data = try Data(contentsOf: url)
             let _ = try await ref.putDataAsync(data, metadata: metadata)
             let url = try await ref.downloadURL()
             return url.absoluteString
@@ -63,29 +61,4 @@ struct VideoUploader {
             throw error
         }
     }
-    static func convertVideoToMP4(from url: URL) async throws -> URL {
-            let asset = AVURLAsset(url: url)
-            let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality)
-            
-            guard let session = exportSession else {
-                throw NSError(domain: "VideoUploaderErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to create export session"])
-            }
-            
-            let mp4Filename = NSUUID().uuidString
-            let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let mp4Url = documentsUrl.appendingPathComponent("\(mp4Filename).mp4")
-            
-            session.outputURL = mp4Url
-            session.outputFileType = .mp4
-            
-            await session.export()
-            
-            if session.status == .completed {
-                return mp4Url
-            } else if let error = session.error {
-                throw error
-            } else {
-                throw NSError(domain: "VideoUploaderErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unknown error during video conversion"])
-            }
-        }
 }

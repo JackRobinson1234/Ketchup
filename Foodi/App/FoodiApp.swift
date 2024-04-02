@@ -7,9 +7,6 @@
 
 import SwiftUI
 import FirebaseCore
-import Amplify
-import AWSAPIPlugin
-import AWSDataStorePlugin
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,

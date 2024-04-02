@@ -21,7 +21,8 @@ class VideoCacheManager: NSObject {
     var diskCache: FileManager = FileManager.default
     var diskDirectoryURL: URL?
     var dispatchQueue: DispatchQueue?
-    
+    private let maxCacheSize = 6
+    private var cachedVideoKeys = [String]()
     // MARK: - Initializer
     private override init() {
         super.init()
@@ -45,14 +46,37 @@ class VideoCacheManager: NSObject {
     // MARK: - Write Data
     // Keys are the absolute string of url
     
-    /// Store Data in Cache
+    /// Store Data in Cache and makes sure that the cache only contain the maxCacheSize
     func storeDataToCache(data: Data?, key: String, fileExtension: String?) {
         dispatchQueue?.async {
             self.storeDataToMemoryCache(data: data, key: key)
             self.storeDataToDiskCache(data: data, key: key, fileExtension: fileExtension)
+            self.cachedVideoKeys.append(key)
+            self.manageCacheSize()
+            print("DEBUG: cache \(self.cachedVideoKeys.count)")
         }
     }
     
+    /// regulates the cache to only contain the maxCacheSize # of keys
+    private func manageCacheSize() {
+           while cachedVideoKeys.count > maxCacheSize {
+               if let oldestKey = cachedVideoKeys.first {
+                   removeDataFromCache(key: oldestKey)
+               }
+           }
+       }
+    /// removes an object from the cache
+    private func removeDataFromCache(key: String) {
+            memoryCache?.removeObject(forKey: key as NSString)
+            cachedVideoKeys.removeAll { $0 == key }
+            if let diskCachePath = diskCachePathForKey(key: key, fileExtension: nil) {
+                do {
+                    try diskCache.removeItem(atPath: diskCachePath)
+                } catch {
+                    print("Error removing item from disk cache: \(error.localizedDescription)")
+                }
+            }
+        }
     /// Store Data in Memory Cache
     private func storeDataToMemoryCache(data: Data?, key: String){
         memoryCache?.setObject(data as AnyObject, forKey: key as NSString)

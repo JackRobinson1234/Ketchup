@@ -15,28 +15,29 @@ enum FeedType: String, CaseIterable {
 @MainActor
 class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
-    //@Published var isLoading = false
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
-    @StateObject var videoCoordinator = VideoPlayerCoordinator()
+    var videoCoordinator = VideoPlayerCoordinator()
     
     private var currentFeedType: FeedType = .discover // default
     
     private let postService: PostService
     var isContainedInTabBar = true
 
-    init(postService: PostService, posts: [Post] = []) {
+    init(postService: PostService, scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.postService = postService
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
+        videoCoordinator = VideoPlayerCoordinator()
+        self._scrollPosition = scrollPosition
+
+
     }
     
-    
+    /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts() async {
         print("DEBUG: Fetching posts from feedviewmodel")
-        //isLoading = true
-        
         do {
             posts.removeAll()
             switch currentFeedType {
@@ -50,25 +51,44 @@ class FeedViewModel: ObservableObject {
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
-            await updateCache()
+            updateCache(scrollPosition: posts.first?.id)
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
     }
     
-    func updateCache() async {
-        guard !posts.isEmpty, let scrollPosition = scrollPosition, let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else { return }
+    /// updates the cache with the next 3 post videos saved
+    func updateCache(scrollPosition: String?) {
+        guard !posts.isEmpty else {
+            print("Posts array is empty")
+            return
+        }
+
+        guard let scrollPosition = scrollPosition else {
+            print("Scroll position is nil")
+            return
+        }
+
+        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+            print("Current index not found in posts array")
+            print("scroll position = \(scrollPosition)")
+            return
+        }
         
+        let posts = self.posts
         DispatchQueue.global().async { [weak self] in
+            print("ran update cache")
+            guard let self = self else {return}
             let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 4, posts.count))
             for index in nextIndexes {
                 let post = posts[index]
-                await videoCoordinator.downloadToCache(url: post.videoUrl, fileExtension: "mp4")
+                Task{
+                    await self.videoCoordinator.downloadToCache(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                }
             }
-            
         }
     }
-    
+    /*
     func refreshFeed() async {
         posts.removeAll()
         //isLoading = true
@@ -82,7 +102,7 @@ class FeedViewModel: ObservableObject {
             print("DEBUG: Failed to refresh posts with error: \(error.localizedDescription)")
         }
     }
-    
+    */
 
     func setFeedType(_ feedType: FeedType) {
         currentFeedType = feedType
