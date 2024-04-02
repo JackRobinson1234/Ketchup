@@ -24,14 +24,14 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            if !videoConfigured{
-                KFImage(URL(string: post.thumbnailUrl))
-                    .resizable()
-                    .containerRelativeFrame([.horizontal, .vertical])
-            } else {
+            if videoConfigured {
                 VideoPlayerView(coordinator: videoCoordinator)
                     .containerRelativeFrame([.horizontal, .vertical])
                 }
+            else {
+                ProgressView()
+                    .containerRelativeFrame([.horizontal, .vertical])
+            }
             
             VStack {
                 Spacer()

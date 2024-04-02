@@ -9,6 +9,8 @@ import Foundation
 import UIKit
 import Firebase
 import FirebaseStorage
+import AVKit
+import AVFoundation
 
 enum UploadType {
     case profile
@@ -41,8 +43,6 @@ struct ImageUploader {
     }
 }
 
-import UIKit
-import Firebase
 
 struct VideoUploader {
     static func uploadVideoToStorage(withUrl url: URL) async throws -> String? {

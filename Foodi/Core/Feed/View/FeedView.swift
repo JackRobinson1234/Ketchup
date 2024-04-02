@@ -157,16 +157,27 @@ struct FeedView: View {
                         .foregroundStyle(.white)
                 }
             }
+            /// loads the next 3 videos in the cache
+            .onChange(of: scrollPosition) {oldValue, newValue in
+                viewModel.updateCache(scrollPosition: newValue)
+            }
             .background(.black)
             .ignoresSafeArea()
+            
+            /// sets destination of user profile links
             .navigationDestination(for: postUser.self) { user in
                 ProfileView(uid: user.id, userService: userService)
             }
+            
+            /// sets destination of searchview for the search button
             .navigationDestination(for: SearchModelConfig.self) { config in
                 SearchView(userService: UserService(), searchConfig: config)}
+            
+            /// sets the destination of the restaurant profile when the restaurant profile is clicked
             .navigationDestination(for: postRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)}
             
+            /// pauses the video when search button is clicked
             .onChange(of: showSearchView) { oldValue, newValue in
                 if newValue {
                     pauseVideo = true
@@ -175,13 +186,11 @@ struct FeedView: View {
                     pauseVideo = false
                 }
             }
-            .onChange(of: scrollPosition, { oldValue, newValue in
-                print("Scroll Position : \(newValue)")
-            })
-            
+            /// puts the search view in view when search button is clicked
             .fullScreenCover(isPresented: $showSearchView) {
                 SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
             }
+            /// pauses the video when filters are shown
             .onChange(of: showFilters) { oldValue, newValue in
                 if newValue {
                     pauseVideo = true
@@ -190,6 +199,8 @@ struct FeedView: View {
                     pauseVideo = false
                 }
             }
+            
+            /// presents the filters view when filters are clicked
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView()
             }
