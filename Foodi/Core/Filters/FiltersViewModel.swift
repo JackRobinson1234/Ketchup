@@ -9,13 +9,15 @@ import SwiftUI
 
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
+    var filters: [String: [Any]] = [:]
+    
     init(feedViewModel: FeedViewModel) {
             self.feedViewModel = feedViewModel
         }
 
-    /// fetches filtered from firebase and preloads the next 3 posts in the cache, pass in an array of [filter: filtered query] ex: ["cuisine" : "Chinese"]
-    func fetchFilteredPosts(filters: [String: Any]) async {
-        print("DEBUG: Fetching filtered posts from feedviewmodel")
-        await feedViewModel.fetchPosts(withFilters: filters)
+    /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
+    func fetchFilteredPosts() async {
+        print("DEBUG: \(filters)")
+        await feedViewModel.fetchPosts(withFilters: self.filters)
     }
 }

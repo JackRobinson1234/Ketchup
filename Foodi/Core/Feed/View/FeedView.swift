@@ -24,6 +24,8 @@ struct FeedView: View {
     @State var pauseVideo = false
     private var posts: [Post]
     @State private var fetchTask: Task<Void, Error>?
+    @StateObject var filtersViewModel: FiltersViewModel
+
     
 
         
@@ -36,6 +38,8 @@ struct FeedView: View {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.userService = userService
         self.posts = posts
+        self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
+    
     }
     
     var body: some View {
@@ -202,7 +206,7 @@ struct FeedView: View {
             
             /// presents the filters view when filters are clicked
             .fullScreenCover(isPresented: $showFilters) {
-                FiltersView()
+                FiltersView(feedViewModel: viewModel, filtersViewModel: filtersViewModel)
             }
         }
     }

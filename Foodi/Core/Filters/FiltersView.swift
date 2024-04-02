@@ -6,18 +6,23 @@
 //
 
 import SwiftUI
-enum FiltersViewOptions{
-    case location
-    case cuisine
-    case price
-    case noneSelected
-}
+
 struct FiltersView: View {
+    
     @Environment(\.dismiss) var dismiss
     @State private var selectedOption: FiltersViewOptions = .location
     @State private var locationText = ""
     @State private var cuisineText = ""
     @State var selectedCuisines: [String] = []
+    @ObservedObject var feedViewModel: FeedViewModel
+    @ObservedObject var filtersViewModel: FiltersViewModel
+
+    
+    
+    init(feedViewModel: FeedViewModel, filtersViewModel: FiltersViewModel) {
+            self.feedViewModel = feedViewModel
+            self.filtersViewModel = filtersViewModel
+        }
     
     
     
@@ -132,13 +137,32 @@ struct FiltersView: View {
                         )
                 }
             }
-        }
+            if !selectedCuisines.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        saveFilters()
+                        dismiss()
+                    } label: {
+                        Text("Save")
+                            .foregroundColor(.blue)
+                            .padding(6)
+                    }
+                }
+            }
+            }
         }
     }
+    private func saveFilters() {
+        self.filtersViewModel.filters["recipe.cuisine"] = selectedCuisines
+            Task {
+                await filtersViewModel.fetchFilteredPosts()
+            }
+            dismiss()
+        }
 }
 
 #Preview {
-    FiltersView()
+    FiltersView(feedViewModel: FeedViewModel(postService: PostService(), scrollPosition: .constant(""), posts: []), filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
 
 
@@ -165,4 +189,11 @@ struct CollapsedPickerView: View {
         .shadow(radius: 10)
         
     }
+}
+
+enum FiltersViewOptions{
+    case location
+    case cuisine
+    case price
+    case noneSelected
 }

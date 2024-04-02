@@ -137,7 +137,7 @@ struct MapView: View {
                     }
                     .sheet(isPresented: $isFiltersPresented) {
                         NavigationStack {
-                            FiltersView()
+                            //TODO: FiltersView(feedViewModel:)
                         }
                     }
                     .mapStyle(.standard(elevation: .realistic))

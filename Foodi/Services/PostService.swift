@@ -56,11 +56,11 @@ class PostService {
         return posts
     }
     /// fetches all posts from firebase
-    func fetchPosts(withFilters filters: [String: Any]? = nil) async throws -> [Post] {
+    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters {
                 for (field, value) in filters {
-                    query = query.whereField(field, isEqualTo: value)
+                    query = query.whereField(field, in: value)
                 }
             }
             self.posts = try await query.getDocuments(as: Post.self)
