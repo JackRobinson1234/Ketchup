@@ -17,6 +17,7 @@ struct FiltersView: View {
     @State private var selectedOption: FiltersViewOptions = .location
     @State private var locationText = ""
     @State private var cuisineText = ""
+    @State var selectedCuisines: [String] = []
     
     
     
@@ -36,7 +37,7 @@ struct FiltersView: View {
             VStack {
                 if selectedOption == .location {
                     VStack(alignment: .leading){
-                        Text("Where to?")
+                        Text("Filter by Location")
                             .font(.title2)
                             .fontWeight(.semibold)
                         HStack{
@@ -71,15 +72,9 @@ struct FiltersView: View {
                 VStack{
                     if selectedOption == .cuisine {
                         VStack(alignment: .leading){
-                            Text("Which Cuisine?")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                            cuisineFilters()
+                            cuisineFilters(selectedCuisines: $selectedCuisines)
                         }
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 200))
+                        .modifier(CollapsibleFilterViewModifier(frame: 275))
                     }
                     else {
                         CollapsedPickerView(title: "Cuisine", description: "Filter Cuisine")
