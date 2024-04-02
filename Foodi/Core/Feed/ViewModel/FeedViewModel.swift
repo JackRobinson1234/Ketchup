@@ -36,16 +36,14 @@ class FeedViewModel: ObservableObject {
     }
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
-    func fetchPosts() async {
+    func fetchPosts(withFilters filters: [String: Any]? = nil) async {
         print("DEBUG: Fetching posts from feedviewmodel")
         do {
             posts.removeAll()
             switch currentFeedType {
             case .discover:
-                print("DEBUG: went in fetch discover")
                 posts = try await postService.fetchPosts()
             case .following:
-                print("DEBUG: went in fetch following")
                 posts = try await postService.fetchFollowingPosts()
             }
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })

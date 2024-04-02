@@ -55,40 +55,52 @@ class PostService {
         } */
         return posts
     }
-    
-    func fetchPosts() async throws -> [Post] {
-        print("DEBUG: Ran fetchPosts()")
-        self.posts = try await FirestoreConstants
-            .PostsCollection
-            .order(by: "timestamp", descending: true)
-            .getDocuments(as: Post.self)
-        
-        /*await withThrowingTaskGroup(of: Void.self) { group in
-            for post in posts {
-                group.addTask { try await self.fetchPostUserData(post) }
-                //group.addTask { try await self.fetchPostRestaurantData(post)}
+    /// fetches all posts from firebase
+    func fetchPosts(withFilters filters: [String: Any]? = nil) async throws -> [Post] {
+        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
+        if let filters = filters {
+                for (field, value) in filters {
+                    query = query.whereField(field, isEqualTo: value)
+                }
             }
-        }*/
-        return posts
+            self.posts = try await query.getDocuments(as: Post.self)
+            return posts
     }
-    
+    /// fetches all posts from user that the user is following
+    ///
+    ///
+    /// TODO DEBUG THIS
     func fetchFollowingPosts() async throws -> [Post] {
         print("DEBUG: Fetching Following Post")
-        guard let currentUser = Auth.auth().currentUser else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-        }
-        
-        // Fetch the list of users that the current user is following
-        let followingUsers = try await userService.fetchFollowingUsers()
-        // Fetch posts from each of the following users
-        var followingPosts = [Post]()
-        for user in followingUsers {
-            let userPosts = try await fetchUserPosts(user: user)
-            followingPosts.append(contentsOf: userPosts)
-        }
-        
-        return followingPosts
-    }
+           guard let currentUser = Auth.auth().currentUser else {
+               throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+           }
+           
+           // Fetch the list of users that the current user is following
+           let followingUsers = try await userService.fetchFollowingUsers()
+           
+           // Get user IDs of followingUsers
+           let followingUserIDs = followingUsers.map { $0.id }
+           
+           // Fetch posts from followingUsers using 'in' operator
+           let query = FirestoreConstants.PostsCollection
+               .whereField("userID", in: followingUserIDs)
+               .order(by: "timestamp", descending: true)
+           
+           let querySnapshot = try await query.getDocuments()
+           
+           // Map query results to Post objects
+           let followingPosts = querySnapshot.documents.compactMap { document -> Post? in
+               do {
+                   return try document.data(as: Post.self)
+               } catch {
+                   print("Error decoding post: \(error.localizedDescription)")
+                   return nil
+               }
+           }
+           
+           return followingPosts
+       }
 
     /*private func fetchPostUserData(_ post: Post) async throws {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
