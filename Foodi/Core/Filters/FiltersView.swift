@@ -56,10 +56,10 @@ struct FiltersView: View {
                                 .foregroundStyle(Color(.systemGray4))
                         )
                     }
+                    .modifier(CollapsibleFilterViewModifier())
                     .onTapGesture(count:2){
                         withAnimation(.snappy){ selectedOption = .noneSelected}
                     }
-                    .modifier(CollapsibleFilterViewModifier())
                     
                 } else {
                     CollapsedPickerView(title: "Location", description: "Filter Location")
@@ -75,12 +75,22 @@ struct FiltersView: View {
                             cuisineFilters(selectedCuisines: $selectedCuisines)
                         }
                         .modifier(CollapsibleFilterViewModifier(frame: 275))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
                     else {
-                        CollapsedPickerView(title: "Cuisine", description: "Filter Cuisine")
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .cuisine}
-                            }
+                        if selectedCuisines.isEmpty {
+                            CollapsedPickerView(title: "Cuisine", description: "Filter Cuisine")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .cuisine}
+                                }
+                        } else {
+                            let count = selectedCuisines.count
+                            CollapsedPickerView(title: "Cuisine", description: "\(count) Filters Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .cuisine}
+                                }
+                        }
                     }
                 }
                 VStack{
@@ -90,10 +100,10 @@ struct FiltersView: View {
                             
                             Spacer()
                         }
+                        .modifier(CollapsibleFilterViewModifier())
                         .onTapGesture (count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}
                         }
-                        .modifier(CollapsibleFilterViewModifier())
                     }
                     else {
                         CollapsedPickerView(title: "Price", description: "Filter Price")

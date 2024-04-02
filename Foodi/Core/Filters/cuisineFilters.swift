@@ -33,7 +33,9 @@ struct cuisineFilters: View {
                                 Image(systemName: "xmark")
                                     .foregroundColor(.red)
                                     .onTapGesture {
-                                        selectedCuisines.removeAll(where: { $0 == cuisine })
+                                        withAnimation(.snappy) {
+                                            selectedCuisines.removeAll(where: { $0 == cuisine })
+                                        }
                                     }
                                 Text(cuisine)
                                     .font(.caption)
@@ -84,9 +86,10 @@ struct cuisineFilters: View {
                             Text(cuisine)
                                 .font(.subheadline)
                                 .onTapGesture {
-                                    if !selectedCuisines.contains(cuisine) {
-                                        selectedCuisines.insert(cuisine, at: 0)}
-                                    print(selectedCuisines)
+                                    withAnimation(.snappy) {
+                                        if !selectedCuisines.contains(cuisine) {
+                                            selectedCuisines.insert(cuisine, at: 0)}
+                                    }
                                 }
                                 .padding()
                                 .background(Color.white)
