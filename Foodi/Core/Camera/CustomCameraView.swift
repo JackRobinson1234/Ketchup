@@ -16,6 +16,7 @@ struct CustomCameraView: View {
     @State private var selectingMedia = false
     @State private var capturedPhotoUrl: URL?
     @State private var navigateToCreatePostSelection =   false
+    @State private var isRecording = false
 
     var body: some View {
         NavigationStack {

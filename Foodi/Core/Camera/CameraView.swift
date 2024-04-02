@@ -10,7 +10,6 @@ import AVFoundation
 
 struct CameraView: UIViewControllerRepresentable {
     
-    
     @ObservedObject var viewModel: CameraViewModel
     
     typealias UIViewControllerType = UIViewController
@@ -37,28 +36,17 @@ struct CameraView: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
     
-//    func makeCoordinator() -> Coordinator {
-//        Coordinator(self, didFinishProcessingPhoto: didFinishProcessingPhoto)
-//    }
     func makeCoordinator() -> Coordinator {
         Coordinator(cameraView: self)
     }
     
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
         let cameraView: CameraView
-        //private var didFinishProcessingPhoto: (Result<AVCapturePhoto, Error>) -> ()
-        
-//        init(_ cameraView: CameraView, didFinishProcessingPhoto: @escaping (Result<AVCapturePhoto, Error>) -> ()) {
-//            self.cameraView = cameraView
-//            self.didFinishProcessingPhoto = didFinishProcessingPhoto
-//        }
         
         init(cameraView: CameraView) {
             self.cameraView = cameraView
         }
         
-        
-        //func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
         @MainActor func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
             if let error = error {
                 //didFinishProcessingPhoto(.failure(error))
@@ -73,9 +61,6 @@ struct CameraView: UIViewControllerRepresentable {
             } else {
                 print("Error: No image data found")
             }
-
-//            didFinishProcessingPhoto(.success(photo))
         }
-        
     }
 }

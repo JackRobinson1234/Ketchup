@@ -1,5 +1,5 @@
 {
-  "originHash" : "f5e9288441827d180373c1a9bd9b8ab35ef64f72ceeff43f1dd0f2d53b0b4f41",
+  "originHash" : "032995b3d4aba5de33977a0b56e22986bcca6f3b6fcac554901f1060928b1a92",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -71,15 +71,6 @@
       "state" : {
         "revision" : "76135c9f4e1ac85459d5fec61b6f76ac47ab3a4c",
         "version" : "3.3.1"
-      }
-    },
-    {
-      "identity" : "iglistkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Instagram/IGListKit.git",
-      "state" : {
-        "revision" : "36da20119ca70c0a8b46ef0acc93b3bcb5a9ea69",
-        "version" : "4.0.0"
       }
     },
     {
