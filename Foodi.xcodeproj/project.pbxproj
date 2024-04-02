@@ -155,6 +155,7 @@
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
 		F8EE6E272BB8E803006A86F3 /* VideoTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EE6E262BB8E803006A86F3 /* VideoTest.swift */; };
+		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -301,6 +302,7 @@
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		F8EE6E262BB8E803006A86F3 /* VideoTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTest.swift; sourceTree = "<group>"; };
+		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -565,6 +567,7 @@
 			isa = PBXGroup;
 			children = (
 				F88E0A932B6B026D00EC159B /* FiltersView.swift */,
+				F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -1303,6 +1306,7 @@
 				F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */,
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */,
+				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
