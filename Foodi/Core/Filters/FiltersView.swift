@@ -13,14 +13,11 @@ struct FiltersView: View {
     @State private var selectedOption: FiltersViewOptions = .location
     @State private var locationText = ""
     @State private var cuisineText = ""
-    @State var selectedCuisines: [String] = []
-    @ObservedObject var feedViewModel: FeedViewModel
     @ObservedObject var filtersViewModel: FiltersViewModel
 
     
     
-    init(feedViewModel: FeedViewModel, filtersViewModel: FiltersViewModel) {
-            self.feedViewModel = feedViewModel
+    init(filtersViewModel: FiltersViewModel) {
             self.filtersViewModel = filtersViewModel
         }
     
@@ -77,21 +74,21 @@ struct FiltersView: View {
                 VStack{
                     if selectedOption == .cuisine {
                         VStack(alignment: .leading){
-                            cuisineFilters(selectedCuisines: $selectedCuisines)
+                            cuisineFilters(filtersViewModel: filtersViewModel)
                         }
                         .modifier(CollapsibleFilterViewModifier(frame: 275))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
                     else {
-                        if selectedCuisines.isEmpty {
+                        if filtersViewModel.selectedCuisines.isEmpty {
                             CollapsedPickerView(title: "Cuisine", description: "Filter Cuisine")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .cuisine}
                                 }
                         } else {
-                            let count = selectedCuisines.count
-                            CollapsedPickerView(title: "Cuisine", description: "\(count) Filters Selected")
+                            let count = filtersViewModel.selectedCuisines.count
+                            CollapsedPickerView(title: "Cuisine", description: "\(count) Filter Selected")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .cuisine}
                                 }
@@ -137,7 +134,6 @@ struct FiltersView: View {
                         )
                 }
             }
-            if !selectedCuisines.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         saveFilters()
@@ -149,20 +145,17 @@ struct FiltersView: View {
                     }
                 }
             }
-            }
         }
     }
     private func saveFilters() {
-        self.filtersViewModel.filters["recipe.cuisine"] = selectedCuisines
             Task {
                 await filtersViewModel.fetchFilteredPosts()
             }
-            dismiss()
         }
 }
 
 #Preview {
-    FiltersView(feedViewModel: FeedViewModel(postService: PostService(), scrollPosition: .constant(""), posts: []), filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    FiltersView(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
 
 

@@ -206,7 +206,7 @@ struct FeedView: View {
             
             /// presents the filters view when filters are clicked
             .fullScreenCover(isPresented: $showFilters) {
-                FiltersView(feedViewModel: viewModel, filtersViewModel: filtersViewModel)
+                FiltersView(filtersViewModel: filtersViewModel)
             }
         }
     }

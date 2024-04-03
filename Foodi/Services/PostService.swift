@@ -58,7 +58,7 @@ class PostService {
     /// fetches all posts from firebase
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
-        if let filters = filters {
+        if let filters = filters, !filters.isEmpty {
                 for (field, value) in filters {
                     query = query.whereField(field, in: value)
                 }

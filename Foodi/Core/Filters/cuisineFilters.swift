@@ -10,7 +10,8 @@ import SwiftUI
 struct cuisineFilters: View {
     @State private var filteredCuisines: [String] = cuisineCategories
     @State private var searchText = ""
-    @Binding var selectedCuisines: [String]
+    @ObservedObject var filtersViewModel: FiltersViewModel
+    @State private var selectedCuisinesTracker: [String] = []
     
     
     var body: some View {
@@ -25,16 +26,16 @@ struct cuisineFilters: View {
             .padding(.leading)
             
             /// Selected cuisines from the list to be filtered by
-            if !selectedCuisines.isEmpty{
+            if !filtersViewModel.selectedCuisines.isEmpty{
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(selectedCuisines, id: \.self) { cuisine in
+                        ForEach(filtersViewModel.selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(.red)
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            selectedCuisines.removeAll(where: { $0 == cuisine })
+                                            filtersViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })
                                         }
                                     }
                                 Text(cuisine)
@@ -87,8 +88,8 @@ struct cuisineFilters: View {
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !selectedCuisines.contains(cuisine) {
-                                            selectedCuisines.insert(cuisine, at: 0)}
+                                        if !filtersViewModel.selectedCuisines.contains(cuisine) {
+                                            filtersViewModel.selectedCuisines.insert(cuisine, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -108,21 +109,21 @@ struct cuisineFilters: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: selectedCuisines) {oldValue, newValue in
+        .onChange(of: filtersViewModel.selectedCuisines) {oldValue, newValue in
             filteredCuisines = filteredCuisine(searchText)
         }
     }
     func filteredCuisine(_ query: String) -> [String] {
         if query.isEmpty{
             return cuisineCategories.filter { cuisine in
-                !selectedCuisines.contains(cuisine)}
+                !filtersViewModel.selectedCuisines.contains(cuisine)}
         } else {
             let lowercasedQuery = query.lowercased()
             let filtered = cuisineCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
             }).map { $0.capitalized }
             return filtered.filter { cuisine in
-                !selectedCuisines.contains(cuisine)
+                !filtersViewModel.selectedCuisines.contains(cuisine)
             }
         }
     }
@@ -131,5 +132,5 @@ struct cuisineFilters: View {
 
 
 #Preview {
-    cuisineFilters(selectedCuisines: .constant([""]))
+    cuisineFilters(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
