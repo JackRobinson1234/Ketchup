@@ -48,7 +48,8 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             //RestaurantSelectorView(tabIndex: $selectedTab)
-            CreatePostSelection(tabIndex: $selectedTab)
+            //CreatePostSelection(tabIndex: $selectedTab)
+            ActivityView()
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { selectedTab = 2 }
                 .tag(2)

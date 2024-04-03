@@ -28,8 +28,6 @@ struct FeedView: View {
 
     
 
-        
-    
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService) {
         self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(
@@ -169,7 +167,7 @@ struct FeedView: View {
             .ignoresSafeArea()
             
             /// sets destination of user profile links
-            .navigationDestination(for: postUser.self) { user in
+            .navigationDestination(for: PostUser.self) { user in
                 ProfileView(uid: user.id, userService: userService)
             }
             
@@ -178,7 +176,7 @@ struct FeedView: View {
                 SearchView(userService: UserService(), searchConfig: config)}
             
             /// sets the destination of the restaurant profile when the restaurant profile is clicked
-            .navigationDestination(for: postRestaurant.self) { restaurant in
+            .navigationDestination(for: PostRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)}
             
             /// pauses the video when search button is clicked

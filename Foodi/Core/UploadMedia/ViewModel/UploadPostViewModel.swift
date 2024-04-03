@@ -4,7 +4,7 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
+/*
 import SwiftUI
 import Firebase
 import PhotosUI
@@ -174,3 +174,4 @@ class UploadPostViewModel: ObservableObject {
         }
     }
 }
+*/

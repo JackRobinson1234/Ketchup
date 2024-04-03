@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVKit
-
+/*
 struct MediaSelectorView: View {
     @State private var player = AVPlayer()
     @StateObject var viewModel: UploadPostViewModel
@@ -113,4 +113,5 @@ struct MediaSelectorView: View {
 #Preview {
     MediaSelectorView(tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 }
+*/
 */

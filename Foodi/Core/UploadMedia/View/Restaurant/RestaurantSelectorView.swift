@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+/*
 struct RestaurantSelectorView: View {
     @Binding var tabIndex: Int
     @Binding var cover: Bool
@@ -37,4 +37,5 @@ struct RestaurantSelectorView: View {
 #Preview {
     RestaurantSelectorView(tabIndex: .constant(0), cover: .constant(true), postType: .constant(.restaurant))
 }
+*/
 */

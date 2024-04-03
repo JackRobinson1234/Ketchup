@@ -27,15 +27,15 @@ struct RecipeView: View {
                         .bold()
                     
                     
-                    Text("By: \(post.user.fullname)")
+                    Text("By: \(post.user.fullName)")
                         .font(.subheadline)
                 }
                     // Cuisine, Time, and Dietary Restrictions
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Cuisine: \(post.recipe?.cuisine ?? "Not specified")")
+                        Text("Cuisine: \(post.cuisine ?? "Not specified")")
                         
-                        Text("Time: \(formattedTime(time: post.recipe?.time ?? 0))")
+                        Text("Time: \(formattedTime(time: post.recipe?.cookingTime ?? 0))")
                         
                         Text("Dietary Restrictions: \(formattedDietaryRestrictions(dietary: post.recipe?.dietary ?? []))")
                         

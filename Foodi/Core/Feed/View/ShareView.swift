@@ -37,8 +37,10 @@ struct ShareView: View {
                         PHPhotoLibrary.requestAuthorization { status in
                                        if status == .authorized {
                                            // Photo access granted, proceed with downloading the video
-                                           if let url = URL(string: post.videoUrl) {
-                                               downloadViewModel.downloadVideo(url: url)
+                                           if let videoURL = post.mediaUrls.first{
+                                               if let url = URL(string: videoURL) {
+                                                   downloadViewModel.downloadVideo(url: url)
+                                               }
                                            }
                                        } else {
                                            // Handle denied or restricted access
