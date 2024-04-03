@@ -29,7 +29,7 @@ class FiltersViewModel: ObservableObject {
         if selectedCuisines.isEmpty {
             filters.removeValue(forKey: "recipe.cuisine")
         } else {
-            filters["recipe.cuisine"] = selectedCuisines
+            filters["cuisine"] = selectedCuisines
         }
         /// checks to see if selectedPostTypes has all three. If it does, it doesn't pass it as a paramater to fetchposts. If some are unselected, it will filter by the other two.
         updateSelectedPostTypes()
