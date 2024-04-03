@@ -44,7 +44,7 @@ class FeedViewModel: ObservableObject {
             case .discover:
                 posts = try await postService.fetchPosts(withFilters: filters)
             case .following:
-                posts = try await postService.fetchFollowingPosts()
+                posts = try await postService.fetchFollowingPosts(withFilters: filters)
             }
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
