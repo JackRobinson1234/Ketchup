@@ -57,36 +57,28 @@ class PostService {
     ///
     ///
     /// TODO DEBUG THIS
-    func fetchFollowingPosts() async throws -> [Post] {
+    func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         print("DEBUG: Fetching Following Post")
-           guard let currentUser = Auth.auth().currentUser else {
-               throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-           }
+        guard let currentUser = Auth.auth().currentUser else {
+           throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+       }
+       
+       // Fetch the list of users that the current user is following
+       let followingUsers = try await userService.fetchFollowingUsers()
+        if followingUsers.isEmpty {return []}
+       let followingUserIDs = followingUsers.map { $0.id }
+       
+       // Fetch posts from followingUsers using 'in' operator
+        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
+        if let filters = filters, !filters.isEmpty {
+                for (field, value) in filters {
+                    query = query.whereField(field, in: value)
+                }
+            }
            
-           // Fetch the list of users that the current user is following
-           let followingUsers = try await userService.fetchFollowingUsers()
-           
-           // Get user IDs of followingUsers
-           let followingUserIDs = followingUsers.map { $0.id }
-           
-           // Fetch posts from followingUsers using 'in' operator
-           let query = FirestoreConstants.PostsCollection
-               .whereField("userID", in: followingUserIDs)
-               .order(by: "timestamp", descending: true)
-           
-           let querySnapshot = try await query.getDocuments()
-           
-           // Map query results to Post objects
-           let followingPosts = querySnapshot.documents.compactMap { document -> Post? in
-               do {
-                   return try document.data(as: Post.self)
-               } catch {
-                   print("Error decoding post: \(error.localizedDescription)")
-                   return nil
-               }
-           }
-           
-           return followingPosts
+       
+        self.posts = try await query.getDocuments(as: Post.self)
+        return posts
        }
 }
 
