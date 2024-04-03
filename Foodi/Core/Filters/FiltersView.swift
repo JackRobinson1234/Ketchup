@@ -10,7 +10,7 @@ import SwiftUI
 struct FiltersView: View {
     
     @Environment(\.dismiss) var dismiss
-    @State private var selectedOption: FiltersViewOptions = .noneSelected
+    @State private var selectedOption: FiltersViewOptions = .postType
     @State private var locationText = ""
     @State private var cuisineText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
@@ -42,7 +42,7 @@ struct FiltersView: View {
             VStack {
                 if selectedOption == .postType {
                     VStack(alignment: .leading){
-                        PostTypeFilter()
+                        PostTypeFilter(filtersViewModel: filtersViewModel)
                     }
                     .modifier(CollapsibleFilterViewModifier(frame: 175))
                     .onTapGesture(count:2){
