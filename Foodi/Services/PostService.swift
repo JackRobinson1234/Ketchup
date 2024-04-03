@@ -50,6 +50,7 @@ class PostService {
                 }
             }
             self.posts = try await query.getDocuments(as: Post.self)
+            print(posts)
             return posts
     }
     /// fetches all posts from user that the user is following
