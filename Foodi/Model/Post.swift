@@ -13,13 +13,12 @@ import AVKit
 
 struct Post: Identifiable, Codable {
     let id: String
-    var postType: String
-    let mediaType: String
+    var postType: String // either "restaurant" or "atHome"
+    let mediaType: String //either "video" or "image"
     let mediaUrls: [String]
     let caption: String
     var likes: Int
     var commentCount: Int
-    var saveCount: Int
     var shareCount: Int
     var thumbnailUrl: String
     var timestamp: Timestamp
@@ -40,7 +39,6 @@ struct Post: Identifiable, Codable {
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
-        self.saveCount = try container.decode(Int.self, forKey: .saveCount)
         self.shareCount = try container.decode(Int.self, forKey: .shareCount)
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
@@ -61,7 +59,6 @@ struct Post: Identifiable, Codable {
         caption: String,
         likes: Int,
         commentCount: Int,
-        saveCount: Int,
         shareCount: Int,
         views: Int,
         thumbnailUrl: String,
@@ -82,7 +79,6 @@ struct Post: Identifiable, Codable {
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount
-        self.saveCount = saveCount
         self.shareCount = shareCount
         self.thumbnailUrl = thumbnailUrl
         self.timestamp = timestamp
