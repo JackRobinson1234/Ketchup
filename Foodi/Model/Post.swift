@@ -7,51 +7,57 @@
 
 import Foundation
 import Firebase
-import FirebaseFirestoreSwift
+import FirebaseFirestore
 import SwiftUI
 import AVKit
 
 struct Post: Identifiable, Codable {
     let id: String
-    let videoUrl: String
+    var postType: String
+    let mediaType: String
+    let mediaUrls: [String]
     let caption: String
     var likes: Int
     var commentCount: Int
     var saveCount: Int
     var shareCount: Int
-    var views: Int
     var thumbnailUrl: String
     var timestamp: Timestamp
-    var user: postUser
-    var restaurant: postRestaurant? = nil
-    var recipe: postRecipe? = nil
-    var brand: postBrand? = nil
+    var user: PostUser
+    var restaurant: PostRestaurant? = nil
+    var recipe: PostRecipe? = nil
+    var cuisine: String?
+    var price: String?
     var didLike = false
     var didSave = false
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.videoUrl = try container.decode(String.self, forKey: .videoUrl)
+        self.postType = try container.decode(String.self, forKey: .postType)
+        self.mediaType = try container.decode(String.self, forKey: .mediaType)
+        self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
         self.saveCount = try container.decode(Int.self, forKey: .saveCount)
         self.shareCount = try container.decode(Int.self, forKey: .shareCount)
-        self.views = try container.decode(Int.self, forKey: .views)
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
-        self.user = try container.decode(postUser.self, forKey: .user)
-        self.restaurant = try container.decodeIfPresent(postRestaurant.self, forKey: .restaurant)
+        self.user = try container.decode(PostUser.self, forKey: .user)
+        self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
+        self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
+        self.cuisine = try container.decodeIfPresent(String.self, forKey: .cuisine)
+        self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
-        self.recipe = try container.decodeIfPresent(postRecipe.self, forKey: .recipe)
-        self.brand = try container.decodeIfPresent(postBrand.self, forKey: .brand)
     }
     
     init(
         id: String,
-        videoUrl: String,
+        postType: String,
+        mediaType: String,
+        mediaUrls: [String],
         caption: String,
         likes: Int,
         commentCount: Int,
@@ -60,29 +66,33 @@ struct Post: Identifiable, Codable {
         views: Int,
         thumbnailUrl: String,
         timestamp: Timestamp,
-        user: postUser,
-        restaurant: postRestaurant? = nil,
+        user: PostUser,
+        restaurant: PostRestaurant? = nil,
+        recipe: PostRecipe? = nil,
+        cuisine: String? = nil,
+        price: String? = nil,
         didLike: Bool = false,
-        didSave: Bool = false,
-        recipe: postRecipe? = nil,
-        brand: postBrand? = nil
-    ) {
+        didSave: Bool = false
+    ) 
+    {
         self.id = id
-        self.videoUrl = videoUrl
+        self.postType = postType
+        self.mediaType = mediaType
+        self.mediaUrls = mediaUrls
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount
         self.saveCount = saveCount
         self.shareCount = shareCount
-        self.views = views
         self.thumbnailUrl = thumbnailUrl
         self.timestamp = timestamp
         self.user = user
-        self.didLike = didLike
         self.restaurant = restaurant
-        self.didSave = didSave
         self.recipe = recipe
-        self.brand = brand
+        self.cuisine = cuisine
+        self.price = price
+        self.didLike = didLike
+        self.didSave = didSave
     }
 }
 
@@ -94,10 +104,8 @@ extension Post: Equatable {
     }
 }
 
-struct postRestaurant: Codable, Hashable, Identifiable {
+struct PostRestaurant: Codable, Hashable, Identifiable {
     let id: String
-    let cuisine: String?
-    let price: String?
     let name: String
     let geoPoint: GeoPoint?
     let address: String?
@@ -107,32 +115,28 @@ struct postRestaurant: Codable, Hashable, Identifiable {
     
 }
 
-struct postUser: Codable, Hashable, Identifiable {
+struct PostUser: Codable, Hashable, Identifiable {
     let id: String
     let fullname: String
     let profileImageUrl: String?
 }
 
-struct postRecipe: Codable, Hashable {
+struct PostRecipe: Codable, Hashable {
     var name: String
-    var cuisine: String?
-    var time: Int?
+    var cookingTime: Int?
     var dietary: [String]?
-    var instructions: [instruction]?
-    var ingredients: [ingredient]?
+    var instructions: [Instruction]?
+    var ingredients: [Ingredient]?
 }
 
-struct instruction: Codable, Hashable {
+struct Instruction: Codable, Hashable {
     var title: String
     var description: String
 }
 
-struct ingredient: Codable, Hashable {
+struct Ingredient: Codable, Hashable {
     var quantity: String
     var item: String
 }
 
-struct postBrand: Codable, Hashable {
-    var name: String
-    var price: Int
-}
+
