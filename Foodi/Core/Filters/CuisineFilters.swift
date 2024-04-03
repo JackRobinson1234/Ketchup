@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct cuisineFilters: View {
+struct CuisineFilter: View {
     @State private var filteredCuisines: [String] = cuisineCategories
     @State private var searchText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
@@ -128,6 +128,9 @@ struct cuisineFilters: View {
         .onChange(of: filtersViewModel.selectedCuisines) {oldValue, newValue in
             filteredCuisines = filteredCuisine(searchText)
         }
+        .onAppear{
+            filteredCuisines = filteredCuisine(searchText)
+        }
     }
     func filteredCuisine(_ query: String) -> [String] {
         if query.isEmpty{
@@ -148,5 +151,5 @@ struct cuisineFilters: View {
 
 
 #Preview {
-    cuisineFilters(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }

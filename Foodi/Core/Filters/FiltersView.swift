@@ -10,7 +10,7 @@ import SwiftUI
 struct FiltersView: View {
     
     @Environment(\.dismiss) var dismiss
-    @State private var selectedOption: FiltersViewOptions = .location
+    @State private var selectedOption: FiltersViewOptions = .noneSelected
     @State private var locationText = ""
     @State private var cuisineText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
@@ -36,6 +36,28 @@ struct FiltersView: View {
                 }
             }
             .padding()
+            
+            
+            //MARK: Post Type
+            VStack {
+                if selectedOption == .postType {
+                    VStack(alignment: .leading){
+                        PostTypeFilter()
+                    }
+                    .modifier(CollapsibleFilterViewModifier(frame: 175))
+                    .onTapGesture(count:2){
+                        withAnimation(.snappy){ selectedOption = .noneSelected}
+                    }
+                    
+                } else {
+                    CollapsedPickerView(title: "Post Type", description: "Filter Post Type")
+                        .onTapGesture{
+                            withAnimation(.snappy){ selectedOption = .postType}
+                        }
+                }
+            }
+            
+            //MARK: Location
             VStack {
                 if selectedOption == .location {
                     VStack(alignment: .leading){
@@ -70,13 +92,13 @@ struct FiltersView: View {
                         }
                 }
                 
-                
+                //MARK: Cuisine
                 VStack{
                     if selectedOption == .cuisine {
                         VStack(alignment: .leading){
-                            cuisineFilters(filtersViewModel: filtersViewModel)
+                            CuisineFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier(frame: 275))
+                        .modifier(CollapsibleFilterViewModifier(frame: 260))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
@@ -86,15 +108,25 @@ struct FiltersView: View {
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .cuisine}
                                 }
-                        } else {
+                        } else if filtersViewModel.selectedCuisines.count == 1 {
                             let count = filtersViewModel.selectedCuisines.count
                             CollapsedPickerView(title: "Cuisine", description: "\(count) Filter Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .cuisine}
+                                }
+                        } else {
+                            let count = filtersViewModel.selectedCuisines.count
+                            CollapsedPickerView(title: "Cuisine", description: "\(count) Filters Selected")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .cuisine}
                                 }
                         }
                     }
                 }
+                
+                
+                
+                //MARK: Price
                 VStack{
                     if selectedOption == .price {
                         HStack{
@@ -185,6 +217,7 @@ struct CollapsedPickerView: View {
 }
 
 enum FiltersViewOptions{
+    case postType
     case location
     case cuisine
     case price
