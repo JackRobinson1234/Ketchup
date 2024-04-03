@@ -25,22 +25,28 @@ struct PostTypeFilter: View {
                 Spacer()
             }
             Toggle("Restaurant Posts", isOn: $filtersViewModel.restaurantChecked)
-            Toggle("Brand Posts", isOn: $filtersViewModel.brandChecked)
-            Toggle("Recipe Posts", isOn: $filtersViewModel.recipeChecked)
+            Toggle("At Home Posts", isOn: $filtersViewModel.atHomeChecked)
         }
         .padding(.horizontal)
         .cornerRadius(8)
         .padding(.vertical, 8)
-        .onChange(of: [filtersViewModel.restaurantChecked, filtersViewModel.brandChecked, filtersViewModel.recipeChecked]) {
-                    oneToggleSelected()
+        
+        ///Ensure that only one toggle is selected when the user clicks
+        .onChange(of: [filtersViewModel.atHomeChecked]) {
+            oneToggleSelected(lastChanged: "atHome")
+                }
+        .onChange(of: [filtersViewModel.restaurantChecked]) {
+            oneToggleSelected(lastChanged: "restaurant")
                 }
     }
     ///Ensures that there is at least one toggle selected
-    private func oneToggleSelected() {
-        if !filtersViewModel.restaurantChecked && !filtersViewModel.brandChecked && !filtersViewModel.recipeChecked {
-                    // If none of the toggles are selected, you can handle this situation here
-                    // For example, you can set one of the toggles to true by default
-                    filtersViewModel.restaurantChecked = true
+    private func oneToggleSelected(lastChanged: String) {
+        if !filtersViewModel.restaurantChecked && !filtersViewModel.atHomeChecked {
+            if lastChanged == "restaurant" {
+                filtersViewModel.atHomeChecked = true
+            } else if lastChanged == "atHome" {
+                filtersViewModel.restaurantChecked = true
+            }
         }
     }
 }

@@ -10,13 +10,12 @@ import SwiftUI
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     @Published var selectedCuisines: [String] = []
-    @Published var selectedPostTypes: [String] = ["brand", "restaurant", "recipe"]
+    @Published var selectedPostTypes: [String] = [ "restaurant", "atHome"]
     var filters: [String: [Any]] = [:]
     
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
-    @Published var brandChecked: Bool = true
-    @Published var recipeChecked: Bool = true
+    @Published var atHomeChecked: Bool = true
     
     init(feedViewModel: FeedViewModel) {
             self.feedViewModel = feedViewModel
@@ -25,13 +24,13 @@ class FiltersViewModel: ObservableObject {
     /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
     func fetchFilteredPosts() async {
         
-        /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a paramater to be passed into fetchposts
+        /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
         if selectedCuisines.isEmpty {
             filters.removeValue(forKey: "recipe.cuisine")
         } else {
             filters["cuisine"] = selectedCuisines
         }
-        /// checks to see if selectedPostTypes has all three. If it does, it doesn't pass it as a paramater to fetchposts. If some are unselected, it will filter by the other two.
+        /// checks to see if selectedPostTypes has all three. If it does, it doesn't pass it as a parameter to fetchPosts. If some are unselected, it will filter by the other two.
         updateSelectedPostTypes()
         if selectedPostTypes.isEmpty {
             filters.removeValue(forKey: "postType")
@@ -43,7 +42,7 @@ class FiltersViewModel: ObservableObject {
     }
     
     private func updateSelectedPostTypes() {
-        if restaurantChecked && brandChecked && recipeChecked {
+        if restaurantChecked && atHomeChecked {
                 // If all toggles are on, make selectedPosts a blank array
                 selectedPostTypes = []
             }
@@ -52,11 +51,8 @@ class FiltersViewModel: ObservableObject {
             if restaurantChecked {
                 updatedPostTypes.append("restaurant")
             }
-            if brandChecked {
-                updatedPostTypes.append("brand")
-            }
-            if recipeChecked {
-                updatedPostTypes.append("recipe")
+            if atHomeChecked {
+                updatedPostTypes.append("atHome")
             }
             selectedPostTypes = updatedPostTypes
         }
