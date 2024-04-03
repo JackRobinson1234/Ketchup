@@ -12,6 +12,7 @@ struct cuisineFilters: View {
     @State private var searchText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
     @State private var selectedCuisinesTracker: [String] = []
+    @State private var maximumSelections: Int = 10
     
     
     var body: some View {
@@ -21,6 +22,13 @@ struct cuisineFilters: View {
                 Text("Filter by Cuisine")
                     .font(.title2)
                     .fontWeight(.semibold)
+                Spacer()
+            }
+            .padding(.leading)
+            
+            HStack{
+                Text("(Max 10)")
+                    .font(.caption)
                 Spacer()
             }
             .padding(.leading)
@@ -54,7 +62,7 @@ struct cuisineFilters: View {
                 HStack{
                     Text("No Cuisine Filters Selected")
                         .font(.subheadline)
-                    Spacer()
+                        .bold()
                 }
                 .padding()
             }
@@ -79,8 +87,8 @@ struct cuisineFilters: View {
                     .stroke(lineWidth: 1.0)
                     .foregroundStyle(Color(.systemGray4)))
             
-            /// Selectable cuisine filter options
-            if !filteredCuisines.isEmpty{
+            /// If there are no selections and they haven't reached the maximum # of selections
+            if !filteredCuisines.isEmpty && filtersViewModel.selectedCuisines.count < maximumSelections{
                 ScrollView(.horizontal){
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
@@ -101,10 +109,18 @@ struct cuisineFilters: View {
                     .padding()
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                /// if maximum filters are selected, display this message
+            } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
+                Text("Maximum filters selected (max 10)")
+                    .font(.subheadline)
+                    .padding()
             }
-            else {
+            
+            /// if the search doesn't return any results
+            else if filteredCuisines.isEmpty {
                 Text("No cuisines matching \"\(searchText)\" found")
                     .font(.subheadline)
+                    .padding()
             }
             
         }
