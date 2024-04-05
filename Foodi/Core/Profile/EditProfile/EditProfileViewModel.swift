@@ -7,7 +7,6 @@
 
 import SwiftUI
 import PhotosUI
-import FirebaseFirestoreSwift
 import Firebase
 
 @MainActor

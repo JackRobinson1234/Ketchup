@@ -7,7 +7,7 @@
 
 import Foundation
 import CryptoKit
-import FirebaseStorage
+import Firebase
 
 class VideoCacheManager: NSObject {
 

@@ -7,6 +7,9 @@ target 'Foodi' do
 
   # Pods for Foodi
 pod 'GeoFire'
+pod 'Firebase/Auth'
+pod 'Firebase/Storage'
+pod 'Firebase/Firestore'
 
   target 'FoodiTests' do
     inherit! :search_paths

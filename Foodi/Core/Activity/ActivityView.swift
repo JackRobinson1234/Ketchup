@@ -21,7 +21,7 @@ struct ActivityView: View {
 }
 func setupGeofire() {
     let geofireRef = Database.database().reference()
-    let geoFire = GeoFire(firebaseRef: geofireRef.child("your_geofire_node"))
+    let geoFire = GeoFire(firebaseRef: geofireRef)
 }
 #Preview {
     ActivityView()
