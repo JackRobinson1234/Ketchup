@@ -7,64 +7,99 @@
 
 import Foundation
 import SwiftUI
+import AVKit
 
 struct ReelsHomeView: View {
+    @StateObject var cameraModel = ReelsCameraViewModel()
+    
+    @State var longPress = false
+    @State var longPressTimer: Timer?
+    
+    @State private var isDragging = false
+    @State private var dragDirection = "left"
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 85)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                            if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                                self.dragDirection = "left"
+                                self.isDragging = false
+                            } else {
+                                self.dragDirection = "right"
+                                self.isDragging = false
+                            }
+                        }
+    }
+
     var body: some View {
         
         ZStack(alignment: .bottom) {
             
-            // MARK: Camera View
-            
-            // MARK: Controls
-            ZStack {
+            // WHAT THE CAMERA SEES
+            CameraPreview(cameraModel: cameraModel, size: CGSize(width: 390.0, height: 844.0))
+                .environmentObject(cameraModel)
+                .cornerRadius(10)
+                .onAppear { cameraModel.checkPermission() }
+                .gesture(drag)
                 
-                Button {
-                    
-                } label: {
-                    Image("Reels")
-                        .resizable()
-                        .renderingMode(.template)
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(.black)
-                        .padding(12)
-                        .frame(width: 60, height: 60)
-                        .background {
-                            Circle()
-                                .stroke(.black)
-                        }
-                        .padding(6)
-                        .background {
-                            Circle()
-                                .fill(.white)
-                        }
+            
+            // MARK: CameraControls
+            ZStack {
+                if self.dragDirection == "left" {
+                    VideoCameraControls(cameraModel: cameraModel)
+                } else {
+                    PhotoCameraControls(cameraModel: cameraModel)
                 }
-
-                Button {
-                    
-                } label: {
-                    Label {
-                      Image(systemName: "chevron.right")
-                            .font(.callout)
-                    } icon: {
-                        Text("Preview")
-                    }
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background {
-                        Capsule()
-                            .fill(.white)
-                    }
-                    
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .frame(maxHeight: .infinity, alignment: .bottom )
-            .padding(.bottom, 10)
-            .padding(.bottom, 30)
+            
+            
+            // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
+            VStack {
+                
+                Spacer()
+                
+                HStack {
+                    Image(systemName: "photo.on.rectangle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height:50)
+                        .padding(.leading, 60)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 20)
+                
+                HStack {
+                    Text("Video")
+                        .foregroundColor(self.dragDirection == "left" ? .white : .gray)
+                        .fontWeight(self.dragDirection == "left" ? .bold : .regular)
+                        .onTapGesture {
+                            self.dragDirection = "left"
+                        }
+                    
+                    Text("Photo")
+                        .foregroundColor(self.dragDirection == "right" ? .white : .gray)
+                        .fontWeight(self.dragDirection == "right" ? .bold : .regular)
+                        .onTapGesture {
+                            self.dragDirection = "right"
+                        }
+                }
+                .padding(.bottom, 10)
+                
+            }
+            .opacity(cameraModel.isPhotoTaken || (cameraModel.previewURL != nil || !cameraModel.recordedURLs.isEmpty) || cameraModel.isRecording ? 0 : 1)
+
+            
         }
+        .overlay(content: {
+            if let url = cameraModel.previewURL, cameraModel.showPreview {
+                FinalVideoPreview(url: url, showPreview: $cameraModel.showPreview)
+                    .transition(.move(edge: .trailing))
+            }
+        })
+        .animation(.easeInOut, value: cameraModel.showPreview)
         .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-        
     }
 }
 
@@ -73,4 +108,228 @@ struct ReelsCameraView_Preview: PreviewProvider {
     static var previews: some View {
         ReelsHomeView()
     }
+}
+
+
+struct FinalVideoPreview: View {
+    var url: URL
+    @Binding var showPreview: Bool
+    
+    var body: some View {
+        GeometryReader{proxy in
+            let player = AVPlayer(url: url)
+            VideoPlayer(player: player)
+                .cornerRadius(10)
+                .overlay(alignment: .topLeading) {
+                    Button {
+                        showPreview.toggle()
+                    } label: {
+                        Label {
+                            Text("Back")
+                        } icon: {
+                            Image(systemName: "chevron.left")
+                        }
+                        .foregroundColor(.white)
+                    }
+                    .padding(.leading)
+                    .padding(.top, 22)
+                }
+                .onAppear { player.play() }
+        }
+    }
+}
+
+
+struct VideoCameraControls: View {
+    
+    @ObservedObject var cameraModel: ReelsCameraViewModel
+    
+    var body: some View {
+        
+        VStack {
+            
+            // VIDEO PROGRESS BAR
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(.black.opacity(0.25))
+                
+                Rectangle()
+                    .fill(Color.red)
+                    .frame(width: 390 * (cameraModel.recordedDuration / cameraModel.maxDuration))
+            }
+            .frame(height: 15)
+            .cornerRadius(10)
+            
+            // X BUTTON
+            HStack {
+                Button {
+                    cameraModel.recordedDuration = 0
+                    cameraModel.previewURL = nil
+                    cameraModel.recordedURLs.removeAll()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title)
+                        .foregroundColor(.white)
+                }
+                .opacity((cameraModel.previewURL == nil && cameraModel.recordedURLs.isEmpty) || cameraModel.isRecording ? 0 : 1)
+                .padding(.top)
+                .padding(.leading)
+                
+                Spacer()
+            }
+            
+            
+            Spacer()
+            
+            // BOTTOM BUTTONS
+            HStack(spacing: 30) {
+                
+                Rectangle()
+                    .frame(width: 100, height: 50) // Outer frame
+                    .hidden()
+                
+                
+                // RECORD BUTTON
+                Button {
+                    if cameraModel.isRecording {
+                        cameraModel.stopRecording()
+                    } else {
+                        cameraModel.startRecording()
+                        if cameraModel.previewURL == nil {
+                            cameraModel.previewURL = URL(string: "_")
+                        }
+                    }
+                } label: {
+                    ZStack {
+                        Circle()
+                            .stroke(.white, lineWidth: 5)
+                            .frame(width: 70, height: 70)
+                        
+                        Circle()
+                            .fill(cameraModel.isRecording ? .clear : .red)
+                            .frame(width: 60, height: 60)
+                    }
+                }
+                
+                
+                // PREVIEW BUTTON
+                Button {
+                    if let _ = cameraModel.previewURL{
+                        cameraModel.showPreview.toggle()
+                    }
+                } label: {
+                    Group{
+                        if cameraModel.previewURL == nil && !cameraModel.recordedURLs.isEmpty{
+                            // Merging Videos
+                            ProgressView()
+                                .tint(.black)
+                        }
+                        else{
+                            Label {
+                                Image(systemName: "chevron.right")
+                                    .font(.callout)
+                            } icon: {
+                                Text("Preview")
+                            }
+                            .foregroundColor(.black)
+                        }
+                    }
+                    .padding(.horizontal,10)
+                    .padding(.vertical,5)
+                    .background {
+                        Capsule()
+                            .fill(.white)
+                    }
+                }
+                .frame(width: 100)
+                .opacity((cameraModel.previewURL == nil && cameraModel.recordedURLs.isEmpty) || cameraModel.isRecording ? 0 : 1)
+                
+                
+            }
+            .padding(.bottom, 50)
+            
+        }
+        .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
+            if cameraModel.recordedDuration <= cameraModel.maxDuration && cameraModel.isRecording{
+                cameraModel.recordedDuration += 0.01
+            }
+            if cameraModel.recordedDuration >= cameraModel.maxDuration && cameraModel.isRecording{
+                cameraModel.stopRecording()
+                cameraModel.isRecording = false
+            }
+        }
+    }
+}
+
+struct PhotoCameraControls: View {
+    
+    @ObservedObject var cameraModel: ReelsCameraViewModel
+    
+    var body: some View {
+        
+        
+        VStack {
+            
+            
+            HStack {
+                Button {
+                    cameraModel.untakePic()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title)
+                        .foregroundColor(.white)
+                }
+                .opacity(cameraModel.isPhotoTaken ? 1 : 0)
+                .padding(.top)
+                .padding(.leading)
+                
+                Spacer()
+            }
+            
+            
+            Spacer()
+            
+            // TAKE PIC BUTTON
+            Button {
+                cameraModel.takePic()
+            } label: {
+                ZStack {
+                    Circle()
+                        .stroke(.white, lineWidth: 5)
+                        .frame(width: 70, height: 70)
+                    
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 60, height: 60)
+                }
+            }
+            .padding(.bottom, 50)
+        }
+    }
+}
+
+struct CameraPreview: UIViewRepresentable {
+    
+    @ObservedObject var cameraModel: ReelsCameraViewModel
+    var size: CGSize
+    
+    func makeUIView(context: Context) -> UIView {
+        
+        let view = UIView()
+        
+        cameraModel.preview = AVCaptureVideoPreviewLayer(session: cameraModel.session)
+        cameraModel.preview.frame.size = size
+        
+        // adjust to our own properties
+        cameraModel.preview.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(cameraModel.preview)
+        
+        cameraModel.session.startRunning()
+        
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+    }
+    
 }

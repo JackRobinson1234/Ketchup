@@ -56,7 +56,7 @@ struct MainTabView: View {
 //                .tag(2)
 //                .toolbar(visibility, for: .tabBar)
             
-            NewCameraView()
+            ReelsHomeView()
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { tabBarController.selectedTab = 2 }
                 .tag(2)
