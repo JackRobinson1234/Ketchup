@@ -10,26 +10,26 @@ import AVFoundation
 
 // MARK: Camera View Model
 class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
-    
-    @Published var isPhotoTaken = false
-    
+        
+    // SESSION
     @Published var session = AVCaptureSession()
     
+    // ERROR CATCHING
     @Published var alert = false
     
-    // this cause pictures are data
+    // PHOTO AND VID OUTPUT
     @Published var photoOutput = AVCapturePhotoOutput()
-    
     @Published var videoOutput = AVCaptureMovieFileOutput()
     
     // this the preview
     @Published var preview: AVCaptureVideoPreviewLayer!
     
-    // picture data
-    @Published var isPhotoSaved = false
-    @Published var picData = Data(count: 0)
+    // PHOTO PROPERTIES
+    // @Published var isPhotoSaved = false
+    @Published var picData: [Data] = []
+    @Published var isPhotoTaken = false
     
-    // recorder properties
+    // VIDEO PROPERTIES
     @Published var isRecording: Bool = false
     @Published var recordedURLs: [URL] = []
     @Published var previewURL: URL?
@@ -212,19 +212,28 @@ class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDel
     
     
     func takePic() {
-        DispatchQueue.global(qos:.background).async {
+        
+        if picData.count < 3 {
+            DispatchQueue.global(qos:.background).async {
+                
+                self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
 
-            self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-
-            DispatchQueue.main.async {
-                withAnimation {self.isPhotoTaken.toggle()}
+                DispatchQueue.main.async {
+                    withAnimation {self.isPhotoTaken = true}
+                }
+            }
+        }
+        
+        
+        
+        if picData.count >= 3 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.session.stopRunning()
+                self.isPhotoTaken = false
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-          self.session.stopRunning()
-        }
-
+        
     }
     
 
@@ -235,8 +244,9 @@ class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDel
             self.session.startRunning()
 
             DispatchQueue.main.async {
+                self.picData.removeAll()
                 self.isPhotoTaken.toggle()
-                self.isPhotoSaved = false
+                // self.isPhotoSaved = false
             }
 
         }
@@ -256,7 +266,7 @@ class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDel
             return
         }
 
-        self.picData = imageData
+        self.picData.append(imageData)
     }
     
     

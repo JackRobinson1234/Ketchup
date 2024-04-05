@@ -214,7 +214,7 @@ struct VideoCameraControls: View {
                 
                 // PREVIEW BUTTON
                 Button {
-                    if let _ = cameraModel.previewURL{
+                    if let _ = cameraModel.previewURL {
                         cameraModel.showPreview.toggle()
                     }
                 } label: {
@@ -270,7 +270,7 @@ struct PhotoCameraControls: View {
         
         VStack {
             
-            
+            // TOP BUTTONS
             HStack {
                 Button {
                     cameraModel.untakePic()
@@ -284,24 +284,88 @@ struct PhotoCameraControls: View {
                 .padding(.leading)
                 
                 Spacer()
+                
+                HStack {
+                    Text("\(cameraModel.picData.count)/3")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                    
+                    HStack(spacing: -30) {
+                        ForEach((0..<3).reversed(), id: \.self) { index in
+                            if index < cameraModel.picData.count {
+                                Image(uiImage: UIImage(data: cameraModel.picData[cameraModel.picData.count - 1 - index]) ?? UIImage())
+                                    .resizable()
+                                    .frame(width: 30, height: 45)
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                    .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
+                            } else {
+                                Rectangle()
+                                    .fill(Color.gray)
+                                    .frame(width: 30, height: 45)
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                    .overlay(
+                                        Text("+")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(.white)
+                                    )
+                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                    .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                            }
+                        }
+                    }
+                }
+                .padding(.top)
+                .padding(.trailing, 30)
             }
-            
             
             Spacer()
             
-            // TAKE PIC BUTTON
-            Button {
-                cameraModel.takePic()
-            } label: {
-                ZStack {
-                    Circle()
-                        .stroke(.white, lineWidth: 5)
-                        .frame(width: 70, height: 70)
-                    
-                    Circle()
-                        .fill(.white)
-                        .frame(width: 60, height: 60)
+            
+            HStack(spacing: 30) {
+                Rectangle()
+                    .frame(width: 100, height: 50) // Outer frame
+                    .hidden()
+                
+                
+                // TAKE PIC BUTTON
+                Button {
+                    cameraModel.takePic()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .stroke(.white, lineWidth: 5)
+                            .frame(width: 70, height: 70)
+                        
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 60, height: 60)
+                    }
                 }
+                
+                
+                // PREVIEW BUTTON
+                Button {
+                    if cameraModel.isPhotoTaken {
+                        cameraModel.showPreview.toggle()
+                    }
+                } label: {
+                    Label {
+                        Image(systemName: "chevron.right")
+                            .font(.callout)
+                    } icon: {
+                        Text("Preview")
+                    }
+                    .foregroundColor(.black)
+                    .padding(.horizontal,10)
+                    .padding(.vertical,5)
+                    .background {
+                        Capsule()
+                            .fill(.white)
+                    }
+                }
+                .frame(width: 100)
+                .opacity(cameraModel.isPhotoTaken ? 1 : 0)
             }
             .padding(.bottom, 50)
         }
