@@ -10,6 +10,7 @@ pod 'GeoFire'
 pod 'Firebase/Auth'
 pod 'Firebase/Storage'
 pod 'Firebase/Firestore'
+pod 'Kingfisher', '~> 7.0'
 
   target 'FoodiTests' do
     inherit! :search_paths
