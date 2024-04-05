@@ -15,7 +15,7 @@ class PostService {
     
     
     func fetchPost(postId: String) async throws -> Post {
-        print("DEBUG: Ran fetchPost")
+        //print("DEBUG: Ran fetchPost")
         let post = try await FirestoreConstants
                 .PostsCollection
                 .document(postId)
@@ -25,7 +25,7 @@ class PostService {
     }
     
     func fetchUserPosts(user: User) async throws -> [Post] {
-        print("DEBUG: Ran fetchUserPost")
+        //print("DEBUG: Ran fetchUserPost")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .whereField("user.id", isEqualTo: user.id)
@@ -34,7 +34,7 @@ class PostService {
     }
     
     func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
-        print("DEBUG: Ran fetchRestaurantPosts")
+        //print("DEBUG: Ran fetchRestaurantPosts")
         self.posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
@@ -46,11 +46,16 @@ class PostService {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters, !filters.isEmpty {
                 for (field, value) in filters {
-                    query = query.whereField(field, in: value)
+                    print("DEBUG: filters ", field, value)
+                    if field == "recipe.dietary" {
+                        query = query.whereField(field, arrayContainsAny: value)
+                    } else {
+                        query = query.whereField(field, in: value)
+                    }
                 }
             }
             self.posts = try await query.getDocuments(as: Post.self)
-            print(posts)
+        //print("DEBUG: posts fetched", posts.count)
             return posts
     }
     /// fetches all posts from user that the user is following
@@ -58,7 +63,7 @@ class PostService {
     ///
     /// TODO DEBUG THIS
     func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-        print("DEBUG: Fetching Following Post")
+        //print("DEBUG: Fetching Following Post")
         guard let currentUser = Auth.auth().currentUser else {
            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
        }
@@ -72,7 +77,11 @@ class PostService {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
         if let filters = filters, !filters.isEmpty {
                 for (field, value) in filters {
-                    query = query.whereField(field, in: value)
+                    if field == "recipe.dietary" {
+                        query = query.whereField(field, arrayContainsAny: value)
+                    } else {
+                        query = query.whereField(field, in: value)
+                    }
                 }
             }
            

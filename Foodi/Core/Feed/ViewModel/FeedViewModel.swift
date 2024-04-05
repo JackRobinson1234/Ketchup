@@ -37,7 +37,6 @@ class FeedViewModel: ObservableObject {
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async {
-        print("DEBUG: Fetching posts from feedviewmodel")
         do {
             posts.removeAll()
             switch currentFeedType {

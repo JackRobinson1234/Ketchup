@@ -30,7 +30,7 @@ class FiltersViewModel: ObservableObject {
         
         /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
         if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "recipe.cuisine")
+            filters.removeValue(forKey: "cuisine")
         } else {
             filters["cuisine"] = selectedCuisines
         }
@@ -41,16 +41,22 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["postType"] = selectedPostTypes
         }
-        
+        ///Price checking if there are any selected
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
         } else {
             filters["price"] = selectedPrice
         }
+        ///DIetary checking if there are any selected
+        if selectedDietary.isEmpty {
+            filters.removeValue(forKey: "recipe.dietary")
+        } else {
+            filters["recipe.dietary"] = selectedDietary
+        }
         
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
-    
+    /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
     private func updateSelectedPostTypes() {
         if restaurantChecked && atHomeChecked {
                 /// If all postType toggles are on, make selectedPosts a blank array

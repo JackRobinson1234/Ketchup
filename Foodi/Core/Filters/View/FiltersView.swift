@@ -50,7 +50,7 @@ struct FiltersView: View {
                     }
                     
                 } else {
-                    CollapsedPickerView(title: "Post Type", description: "Filter Post Type")
+                    CollapsedPickerView(title: "Post Type", description: "Filter by Post Type")
                         .onTapGesture{
                             withAnimation(.snappy){ selectedOption = .postType}
                         }
@@ -86,7 +86,7 @@ struct FiltersView: View {
                     }
                     
                 } else {
-                    CollapsedPickerView(title: "Location", description: "Filter Location")
+                    CollapsedPickerView(title: "Location", description: "Filter by Location")
                         .onTapGesture{
                             withAnimation(.snappy){ selectedOption = .location}
                         }
@@ -104,7 +104,7 @@ struct FiltersView: View {
                     }
                     else {
                         if filtersViewModel.selectedCuisines.isEmpty {
-                            CollapsedPickerView(title: "Cuisine", description: "Filter Cuisine")
+                            CollapsedPickerView(title: "Cuisine", description: "Filter by Cuisine")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .cuisine}
                                 }
@@ -139,7 +139,7 @@ struct FiltersView: View {
                     else {
                         /// "Filter Price" if no options selected
                         if filtersViewModel.selectedPrice.isEmpty {
-                            CollapsedPickerView(title: "Price", description: "Filter Price")
+                            CollapsedPickerView(title: "Price", description: "Filter by Price")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .price}
                                 }
@@ -167,20 +167,20 @@ struct FiltersView: View {
                         VStack(alignment: .leading){
                             DietaryFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier(frame: 260))
+                        .modifier(CollapsibleFilterViewModifier(frame: 270))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
                     else {
                         /// "Filter Dietary" if no options selected
                         if filtersViewModel.selectedDietary.isEmpty {
-                            CollapsedPickerView(title: "Dietary Restrictions", description: "Filter Dietary")
+                            CollapsedPickerView(title: "Dietary Restrictions", description: "Filter by Dietary")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .dietary}
                                 }
                             /// "1 filter" instead of "filter" if  1 filter is selected
                         } else if filtersViewModel.selectedDietary.count == 1 {
-                            let count = filtersViewModel.selectedPrice.count
+                            let count = filtersViewModel.selectedDietary.count
                             CollapsedPickerView(title: "Dietary Restrictions", description: "\(count) Filter Selected")
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .dietary}
