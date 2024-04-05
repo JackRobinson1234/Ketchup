@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */; };
+		ACAB518993C9290DE42EEFB1 /* Pods_FoodiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */; };
+		D770486F7DB5BCC50E038E9B /* Pods_Foodi_FoodiUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */; };
 		F801F1882BBDBE5700D3FBE2 /* PostTypeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F801F1872BBDBE5700D3FBE2 /* PostTypeFilter.swift */; };
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
 		F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */; };
@@ -184,6 +187,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0F6C78FC53652C6651957831 /* Pods-FoodiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FoodiTests.release.xcconfig"; path = "Target Support Files/Pods-FoodiTests/Pods-FoodiTests.release.xcconfig"; sourceTree = "<group>"; };
+		179E43BA43D0FC3E338EF6C9 /* Pods-Foodi-FoodiUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi-FoodiUITests.debug.xcconfig"; path = "Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.release.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.release.xcconfig"; sourceTree = "<group>"; };
+		1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foodi_FoodiUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi-FoodiUITests.release.xcconfig"; path = "Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests.release.xcconfig"; sourceTree = "<group>"; };
+		9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FoodiTests.debug.xcconfig"; path = "Target Support Files/Pods-FoodiTests/Pods-FoodiTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.debug.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.debug.xcconfig"; sourceTree = "<group>"; };
+		E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FoodiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foodi.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F801F1872BBDBE5700D3FBE2 /* PostTypeFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTypeFilter.swift; sourceTree = "<group>"; };
 		F81D30E52BB72FFC008673E6 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSelectorView.swift; sourceTree = "<group>"; };
@@ -355,6 +367,7 @@
 				F88E0A612B6A600A00EC159B /* FirebaseFirestoreCombine-Community in Frameworks */,
 				F88E0A712B6A600A00EC159B /* FirebaseMessaging in Frameworks */,
 				F88E0A6D2B6A600A00EC159B /* FirebaseInstallations in Frameworks */,
+				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +375,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACAB518993C9290DE42EEFB1 /* Pods_FoodiTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,12 +383,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D770486F7DB5BCC50E038E9B /* Pods_Foodi_FoodiUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7763BF9F6AA6FE5FA0A9306B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */,
+				1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */,
+				179E43BA43D0FC3E338EF6C9 /* Pods-Foodi-FoodiUITests.debug.xcconfig */,
+				3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */,
+				9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */,
+				0F6C78FC53652C6651957831 /* Pods-FoodiTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		F823E1852B74D3BF00E18135 /* CurrentUserProfile */ = {
 			isa = PBXGroup;
 			children = (
@@ -401,6 +429,7 @@
 				F84FE2662B6A531300144F01 /* FoodiUITests */,
 				F84FE2492B6A531200144F01 /* Products */,
 				F871B0172B93E71700E4EB5F /* Frameworks */,
+				7763BF9F6AA6FE5FA0A9306B /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -762,6 +791,9 @@
 			isa = PBXGroup;
 			children = (
 				F871B0182B93E71700E4EB5F /* MessageUI.framework */,
+				F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */,
+				1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */,
+				E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1172,9 +1204,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F84FE26D2B6A531300144F01 /* Build configuration list for PBXNativeTarget "Foodi" */;
 			buildPhases = (
+				381977BC9A90EF027AFF9BFD /* [CP] Check Pods Manifest.lock */,
 				F84FE2442B6A531200144F01 /* Sources */,
 				F84FE2452B6A531200144F01 /* Frameworks */,
 				F84FE2462B6A531200144F01 /* Resources */,
+				62DE8F23EF57B6D44040219C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1220,6 +1254,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F84FE2702B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiTests" */;
 			buildPhases = (
+				67A2DA2C657D2C4A67E8C894 /* [CP] Check Pods Manifest.lock */,
 				F84FE2552B6A531300144F01 /* Sources */,
 				F84FE2562B6A531300144F01 /* Frameworks */,
 				F84FE2572B6A531300144F01 /* Resources */,
@@ -1238,9 +1273,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F84FE2732B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiUITests" */;
 			buildPhases = (
+				3043F02E9A14FCCE85DDC9A6 /* [CP] Check Pods Manifest.lock */,
 				F84FE25F2B6A531300144F01 /* Sources */,
 				F84FE2602B6A531300144F01 /* Frameworks */,
 				F84FE2612B6A531300144F01 /* Resources */,
+				197A7B5420802C1ECFCF79CE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1326,6 +1363,109 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		197A7B5420802C1ECFCF79CE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3043F02E9A14FCCE85DDC9A6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Foodi-FoodiUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		381977BC9A90EF027AFF9BFD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Foodi-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		62DE8F23EF57B6D44040219C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		67A2DA2C657D2C4A67E8C894 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FoodiTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F84FE2442B6A531200144F01 /* Sources */ = {
@@ -1527,7 +1667,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1588,7 +1728,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1606,6 +1746,7 @@
 		};
 		F84FE26E2B6A531300144F01 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1646,6 +1787,7 @@
 		};
 		F84FE26F2B6A531300144F01 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1686,6 +1828,7 @@
 		};
 		F84FE2712B6A531300144F01 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1708,6 +1851,7 @@
 		};
 		F84FE2722B6A531300144F01 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0F6C78FC53652C6651957831 /* Pods-FoodiTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1730,6 +1874,7 @@
 		};
 		F84FE2742B6A531300144F01 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 179E43BA43D0FC3E338EF6C9 /* Pods-Foodi-FoodiUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1751,6 +1896,7 @@
 		};
 		F84FE2752B6A531300144F01 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
