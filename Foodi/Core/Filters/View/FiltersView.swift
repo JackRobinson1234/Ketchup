@@ -160,6 +160,41 @@ struct FiltersView: View {
                         }
                     }
                 }
+                //MARK: Dietary Restrictions
+                
+                VStack{
+                    if selectedOption == .dietary {
+                        VStack(alignment: .leading){
+                            DietaryFilter(filtersViewModel: filtersViewModel)
+                        }
+                        .modifier(CollapsibleFilterViewModifier(frame: 260))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}}
+                    }
+                    else {
+                        /// "Filter Dietary" if no options selected
+                        if filtersViewModel.selectedDietary.isEmpty {
+                            CollapsedPickerView(title: "Dietary Restrictions", description: "Filter Dietary")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .dietary}
+                                }
+                            /// "1 filter" instead of "filter" if  1 filter is selected
+                        } else if filtersViewModel.selectedDietary.count == 1 {
+                            let count = filtersViewModel.selectedPrice.count
+                            CollapsedPickerView(title: "Dietary Restrictions", description: "\(count) Filter Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .dietary}
+                                }
+                            /// "_ filters" instead of "filter" if more than 1 filter is selected
+                        } else {
+                            let count = filtersViewModel.selectedDietary.count
+                            CollapsedPickerView(title: "Dietary Restrictions", description: "\(count) Filters Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .dietary}
+                                }
+                        }
+                    }
+                }
             }
                 Spacer()
                     .navigationTitle("Add Filters")
@@ -235,5 +270,6 @@ enum FiltersViewOptions{
     case location
     case cuisine
     case price
+    case dietary
     case noneSelected
 }

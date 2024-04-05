@@ -1,14 +1,14 @@
 //
-//  cuisineFilters.swift
+//  DietaryFilter.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 4/2/24.
+//  Created by Jack Robinson on 4/4/24.
 //
 
 import SwiftUI
 
-struct CuisineFilter: View {
-    @State private var filteredCuisines: [String] = cuisineCategories
+struct DietaryFilter: View {
+    @State private var filteredDietary: [String] = dietaryCategories
     @State private var searchText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
     
@@ -20,7 +20,7 @@ struct CuisineFilter: View {
         VStack {
             /// Title
             HStack{
-                Text("Filter by Cuisine")
+                Text("Filter by Dietary Restrictions")
                     .font(.title2)
                     .fontWeight(.semibold)
                 Spacer()
@@ -28,26 +28,26 @@ struct CuisineFilter: View {
             .padding(.leading)
             
             HStack{
-                Text("Cuisine Filters Selected (Max 10):")
+                Text("Dietary Restriction Filters Selected (Max 10):")
                     .font(.caption)
                 Spacer()
             }
             .padding(.leading)
-            
-            /// Selected cuisines from the list to be filtered by
-            if !filtersViewModel.selectedCuisines.isEmpty{
+            //MARK: Selected Dietary
+            /// Selected dietaries  from the list to be filtered by
+            if !filtersViewModel.selectedDietary.isEmpty{
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(filtersViewModel.selectedCuisines, id: \.self) { cuisine in
+                        ForEach(filtersViewModel.selectedDietary, id: \.self) { dietary in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(.red)
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            filtersViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })
+                                            filtersViewModel.selectedDietary.removeAll(where: { $0 == dietary })
                                         }
                                     }
-                                Text(cuisine)
+                                Text(dietary)
                                     .font(.caption)
                             }
                             .padding()
@@ -61,7 +61,7 @@ struct CuisineFilter: View {
                 }
             } else {
                 HStack{
-                    Text("No Cuisine Filters Selected")
+                    Text("No Dietary Filters Selected")
                         .font(.subheadline)
                         .bold()
                     Spacer()
@@ -69,16 +69,16 @@ struct CuisineFilter: View {
                 .padding()
             }
             
-            /// Search Bar
+            //MARK: Search Bar
             HStack{
                 Image(systemName: "magnifyingglass")
                     .imageScale(.small)
-                TextField("Search Cuisines", text: $searchText)
+                TextField("Search Dietary", text: $searchText)
                     .font(.subheadline)
                     .frame(height:44)
                     .padding(.horizontal)
                     .onChange(of: searchText) {oldValue, newValue in
-                        filteredCuisines = filteredCuisine(newValue)
+                        filteredDietary = filteredDietary(newValue)
                     }
             }
             
@@ -88,18 +88,18 @@ struct CuisineFilter: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(lineWidth: 1.0)
                     .foregroundStyle(Color(.systemGray4)))
-            
+            //MARK: Dietary options
             /// If there are no selections and they haven't reached the maximum # of selections
-            if !filteredCuisines.isEmpty && filtersViewModel.selectedCuisines.count < maximumSelections{
+            if !filteredDietary.isEmpty && filtersViewModel.selectedDietary.count < maximumSelections {
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(filteredCuisines, id: \.self) { cuisine in
-                            Text(cuisine)
+                        ForEach(filteredDietary, id: \.self) { dietary in
+                            Text(dietary)
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !filtersViewModel.selectedCuisines.contains(cuisine) {
-                                            filtersViewModel.selectedCuisines.insert(cuisine, at: 0)}
+                                        if !filtersViewModel.selectedDietary.contains(dietary) {
+                                            filtersViewModel.selectedDietary.insert(dietary, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -112,46 +112,44 @@ struct CuisineFilter: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 /// if maximum filters are selected, display this message
-            } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
+            } else if filtersViewModel.selectedDietary.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
                     .font(.subheadline)
                     .padding()
             }
             
             /// if the search doesn't return any results
-            else if filteredCuisines.isEmpty {
-                Text("No cuisines matching \"\(searchText)\" found")
+            else if filteredDietary.isEmpty {
+                Text("No Dietary Restrictions matching \"\(searchText)\" found")
                     .font(.subheadline)
                     .padding()
             }
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: filtersViewModel.selectedCuisines) {oldValue, newValue in
-            filteredCuisines = filteredCuisine(searchText)
+        .onChange(of: filtersViewModel.selectedDietary) {oldValue, newValue in
+            filteredDietary = filteredDietary(searchText)
         }
         .onAppear{
-            filteredCuisines = filteredCuisine(searchText)
+            filteredDietary = filteredDietary(searchText)
         }
     }
-    func filteredCuisine(_ query: String) -> [String] {
+    func filteredDietary(_ query: String) -> [String] {
         if query.isEmpty{
-            return cuisineCategories.filter { cuisine in
-                !filtersViewModel.selectedCuisines.contains(cuisine)}
+            return dietaryCategories.filter { dietary in
+                !filtersViewModel.selectedDietary.contains(dietary)}
         } else {
             let lowercasedQuery = query.lowercased()
-            let filtered = cuisineCategories.filter({
+            let filtered = dietaryCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
             }).map { $0.capitalized }
-            return filtered.filter { cuisine in
-                !filtersViewModel.selectedCuisines.contains(cuisine)
+            return filtered.filter { dietary in
+                !filtersViewModel.selectedDietary.contains(dietary)
             }
         }
     }
 }
 
-
-
 #Preview {
-    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    DietaryFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }

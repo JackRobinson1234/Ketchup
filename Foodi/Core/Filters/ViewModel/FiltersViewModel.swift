@@ -9,14 +9,17 @@ import SwiftUI
 
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
+    
+    var filters: [String: [Any]] = [:]
+    
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
-    @Published var selectedPostTypes: [String] = [ "restaurant", "atHome"]
-    var filters: [String: [Any]] = [:]
+    @Published var selectedDietary: [String] = []
     
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
     @Published var atHomeChecked: Bool = true
+    @Published var selectedPostTypes: [String] = [ "restaurant", "atHome"]
     
     init(feedViewModel: FeedViewModel) {
             self.feedViewModel = feedViewModel
