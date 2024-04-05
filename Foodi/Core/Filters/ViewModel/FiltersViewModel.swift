@@ -43,12 +43,11 @@ class FiltersViewModel: ObservableObject {
         }
         
         if selectedPrice.isEmpty {
-            filters.removeValue(forKey: "postType")
+            filters.removeValue(forKey: "price")
         } else {
             filters["price"] = selectedPrice
         }
         
-        print("DEBUG: \(filters)")
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
     
@@ -65,7 +64,7 @@ class FiltersViewModel: ObservableObject {
             if atHomeChecked {
                 updatedPostTypes.append("atHome")
             }
-            selectedPostTypes = updatedPostTypes
+            self.selectedPostTypes = updatedPostTypes
         }
     }
 }
