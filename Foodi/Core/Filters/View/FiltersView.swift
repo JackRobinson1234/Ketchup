@@ -44,7 +44,7 @@ struct FiltersView: View {
                     VStack(alignment: .leading){
                         PostTypeFilter(filtersViewModel: filtersViewModel)
                     }
-                    .modifier(CollapsibleFilterViewModifier(frame: 175))
+                    .modifier(CollapsibleFilterViewModifier(frame: 140))
                     .onTapGesture(count:2){
                         withAnimation(.snappy){ selectedOption = .noneSelected}
                     }
@@ -129,54 +129,68 @@ struct FiltersView: View {
                 //MARK: Price
                 VStack{
                     if selectedOption == .price {
-                        HStack{
-                            Text("Show Expanded View")
-                            
-                            Spacer()
+                        VStack(alignment: .leading){
+                            PriceFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier())
-                        .onTapGesture (count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}
-                        }
+                        .modifier(CollapsibleFilterViewModifier(frame: 210))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
                     else {
-                        CollapsedPickerView(title: "Price", description: "Filter Price")
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .price}
+                        /// "Filter Price" if no options selected
+                        if filtersViewModel.selectedPrice.isEmpty {
+                            CollapsedPickerView(title: "Price", description: "Filter Price")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .price}
+                                }
+                            /// "1 filter" instead of "filter" if  1 filter is selected
+                        } else if filtersViewModel.selectedPrice.count == 1 {
+                            let count = filtersViewModel.selectedPrice.count
+                            CollapsedPickerView(title: "Price", description: "\(count) Filter Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .price}
+                                }
+                            /// "_ filters" instead of "filter" if more than 1 filter is selected
+                        } else {
+                            let count = filtersViewModel.selectedPrice.count
+                            CollapsedPickerView(title: "Price", description: "\(count) Filters Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .price}
+                                }
+                        }
+                    }
+                }
+            }
+                Spacer()
+                    .navigationTitle("Add Filters")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .imageScale(.small)
+                                    .foregroundColor(.black)
+                                    .padding(6)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(lineWidth: 1.0)
+                                            .foregroundColor(.gray)
+                                    )
                             }
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                saveFilters()
+                                dismiss()
+                            } label: {
+                                Text("Save")
+                                    .foregroundColor(.blue)
+                                    .padding(6)
+                            }
+                        }
                     }
-                }
-            }
-            Spacer()
-        .navigationTitle("Add Filters")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .imageScale(.small)
-                        .foregroundColor(.black)
-                        .padding(6)
-                        .overlay(
-                            Circle()
-                                .stroke(lineWidth: 1.0)
-                                .foregroundColor(.gray)
-                        )
-                }
-            }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        saveFilters()
-                        dismiss()
-                    } label: {
-                        Text("Save")
-                            .foregroundColor(.blue)
-                            .padding(6)
-                    }
-                }
-            }
         }
     }
     private func saveFilters() {

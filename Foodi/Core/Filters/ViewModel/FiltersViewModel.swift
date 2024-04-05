@@ -10,6 +10,7 @@ import SwiftUI
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     @Published var selectedCuisines: [String] = []
+    @Published var selectedPrice: [String] = []
     @Published var selectedPostTypes: [String] = [ "restaurant", "atHome"]
     var filters: [String: [Any]] = [:]
     
@@ -37,13 +38,20 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["postType"] = selectedPostTypes
         }
+        
+        if selectedPrice.isEmpty {
+            filters.removeValue(forKey: "postType")
+        } else {
+            filters["price"] = selectedPrice
+        }
+        
         print("DEBUG: \(filters)")
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
     
     private func updateSelectedPostTypes() {
         if restaurantChecked && atHomeChecked {
-                // If all toggles are on, make selectedPosts a blank array
+                /// If all postType toggles are on, make selectedPosts a blank array
                 selectedPostTypes = []
             }
         else {

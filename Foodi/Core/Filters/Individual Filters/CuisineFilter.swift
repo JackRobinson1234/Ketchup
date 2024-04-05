@@ -11,7 +11,8 @@ struct CuisineFilter: View {
     @State private var filteredCuisines: [String] = cuisineCategories
     @State private var searchText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
-    @State private var selectedCuisinesTracker: [String] = []
+    
+    ///Maximum # of filters allowed to select
     @State private var maximumSelections: Int = 10
     
     
@@ -27,7 +28,7 @@ struct CuisineFilter: View {
             .padding(.leading)
             
             HStack{
-                Text("(Max 10)")
+                Text("Cuisine Filters Selected (Max 10):")
                     .font(.caption)
                 Spacer()
             }
@@ -111,7 +112,7 @@ struct CuisineFilter: View {
                 }
                 /// if maximum filters are selected, display this message
             } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
-                Text("Maximum filters selected (max 10)")
+                Text("Maximum filters selected (max \(maximumSelections)")
                     .font(.subheadline)
                     .padding()
             }

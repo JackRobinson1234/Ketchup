@@ -10,8 +10,6 @@ import SwiftUI
 struct PostTypeFilter: View {
     @ObservedObject var filtersViewModel: FiltersViewModel
     
-    
-    
     var body: some View {
         VStack(alignment: .leading) {
             HStack{
