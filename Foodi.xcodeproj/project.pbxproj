@@ -27,6 +27,8 @@
 		F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */; };
 		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
 		F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29D2B6A590700144F01 /* MockAuthService.swift */; };
+		F85288B12BC067B500153126 /* CookingTimeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85288B02BC067B500153126 /* CookingTimeFilter.swift */; };
+		F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85288B22BC069BE00153126 /* CookingTimeCategories.swift */; };
 		F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050BE2BBC91EE00318080 /* CuisineCategories.swift */; };
 		F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050C02BBC95E200318080 /* CuisineFilter.swift */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
@@ -206,6 +208,8 @@
 		F84FE2992B6A58B900144F01 /* AuthenticationFormProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFormProtocol.swift; sourceTree = "<group>"; };
 		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F84FE29D2B6A590700144F01 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
+		F85288B02BC067B500153126 /* CookingTimeFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingTimeFilter.swift; sourceTree = "<group>"; };
+		F85288B22BC069BE00153126 /* CookingTimeCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingTimeCategories.swift; sourceTree = "<group>"; };
 		F86050BE2BBC91EE00318080 /* CuisineCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineCategories.swift; sourceTree = "<group>"; };
 		F86050C02BBC95E200318080 /* CuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineFilter.swift; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
@@ -486,6 +490,7 @@
 				F88E0B1A2B6B0B0800EC159B /* User.swift */,
 				F86050BE2BBC91EE00318080 /* CuisineCategories.swift */,
 				F8F494F72BBF98950043B515 /* DietaryCategories.swift */,
+				F85288B22BC069BE00153126 /* CookingTimeCategories.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1139,6 +1144,7 @@
 				F801F1872BBDBE5700D3FBE2 /* PostTypeFilter.swift */,
 				F8F494F02BBF8C190043B515 /* PriceFilter.swift */,
 				F8F494F52BBF98610043B515 /* DietaryFilter.swift */,
+				F85288B02BC067B500153126 /* CookingTimeFilter.swift */,
 			);
 			path = "Individual Filters";
 			sourceTree = "<group>";
@@ -1331,6 +1337,7 @@
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
 				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
+				F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */,
 				F871B0062B8AA16400E4EB5F /* NavigationLazyView.swift in Sources */,
 				F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */,
 				F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */,
@@ -1352,6 +1359,7 @@
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
+				F85288B12BC067B500153126 /* CookingTimeFilter.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,

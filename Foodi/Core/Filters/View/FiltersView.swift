@@ -195,6 +195,34 @@ struct FiltersView: View {
                         }
                     }
                 }
+                
+                //MARK: Cooking Time
+                VStack{
+                    if selectedOption == .cookingTime {
+                        VStack(alignment: .leading){
+                            CookingTimeFilter(filtersViewModel: filtersViewModel)
+                        }
+                        .modifier(CollapsibleFilterViewModifier(frame: 190))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}}
+                    }
+                    else {
+                        /// "Filter by Time" if no options selected
+                        if filtersViewModel.selectedCookingTime.isEmpty {
+                            CollapsedPickerView(title: "Cooking Time", description: "Filter by Time")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .cookingTime}
+                                }
+                            /// "1 filter" instead of "filter" if  1 filter is selected
+                        } else {
+                            let count = filtersViewModel.selectedCookingTime.count
+                            CollapsedPickerView(title: "Cooking Time", description: "\(count) Filter Selected")
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .cookingTime}
+                                }
+                        }
+                    }
+                }
             }
                 Spacer()
                     .navigationTitle("Add Filters")
@@ -271,5 +299,6 @@ enum FiltersViewOptions{
     case cuisine
     case price
     case dietary
+    case cookingTime
     case noneSelected
 }

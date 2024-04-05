@@ -45,14 +45,7 @@ class PostService {
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters, !filters.isEmpty {
-                for (field, value) in filters {
-                    print("DEBUG: filters ", field, value)
-                    if field == "recipe.dietary" {
-                        query = query.whereField(field, arrayContainsAny: value)
-                    } else {
-                        query = query.whereField(field, in: value)
-                    }
-                }
+            query = applyFilters(toQuery: query, filters: filters)
             }
             self.posts = try await query.getDocuments(as: Post.self)
         //print("DEBUG: posts fetched", posts.count)
@@ -76,19 +69,32 @@ class PostService {
        // Fetch posts from followingUsers using 'in' operator
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
         if let filters = filters, !filters.isEmpty {
-                for (field, value) in filters {
-                    if field == "recipe.dietary" {
-                        query = query.whereField(field, arrayContainsAny: value)
-                    } else {
-                        query = query.whereField(field, in: value)
-                    }
-                }
+            query = applyFilters(toQuery: query, filters: filters)
             }
            
        
         self.posts = try await query.getDocuments(as: Post.self)
         return posts
        }
+    
+    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
+        var updatedQuery = query
+        
+        for (field, value) in filters {
+            switch field {
+            case "recipe.dietary":
+                updatedQuery = updatedQuery.whereField(field, arrayContainsAny: value)
+            case "recipe.cookingTime":
+                if let cookingTime = value.first as? Int {
+                    updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
+                }
+            default:
+                updatedQuery = updatedQuery.whereField(field, in: value)
+            }
+        }
+        
+        return updatedQuery
+    }
 }
 
     

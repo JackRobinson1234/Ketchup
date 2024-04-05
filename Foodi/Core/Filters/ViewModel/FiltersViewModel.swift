@@ -15,6 +15,7 @@ class FiltersViewModel: ObservableObject {
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedDietary: [String] = []
+    @Published var selectedCookingTime: [Int] = []
     
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
@@ -52,6 +53,12 @@ class FiltersViewModel: ObservableObject {
             filters.removeValue(forKey: "recipe.dietary")
         } else {
             filters["recipe.dietary"] = selectedDietary
+        }
+        /// Cooking Time checking if there are any selected
+        if selectedCookingTime.isEmpty {
+            filters.removeValue(forKey: "recipe.cookingTime")
+        } else {
+            filters["recipe.cookingTime"] = selectedCookingTime
         }
         
         await feedViewModel.fetchPosts(withFilters: self.filters)
