@@ -890,6 +890,7 @@ PODS:
     - Firebase/Database (< 12.0.0, > 7.0.0)
     - GeoFire/Utils
   - GeoFire/Utils (5.0.0)
+  - GooglePlaces (8.3.0)
   - GoogleUtilities/AppDelegateSwizzler (7.13.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -1006,6 +1007,7 @@ DEPENDENCIES:
   - Firebase/Firestore
   - Firebase/Storage
   - GeoFire
+  - GooglePlaces (= 8.3.0)
   - Kingfisher (~> 7.0)
 
 SPEC REPOS:
@@ -1025,6 +1027,7 @@ SPEC REPOS:
     - FirebaseSharedSwift
     - FirebaseStorage
     - GeoFire
+    - GooglePlaces
     - GoogleUtilities
     - "gRPC-C++"
     - gRPC-Core
@@ -1051,6 +1054,7 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: c92645b392db3c41a83a0aa967de16f8bad25568
   FirebaseStorage: 96fd765b2ef632c53b214057691e257538b8c496
   GeoFire: a579ffdcdcf6fe74ef9efd7f887d4082598d6d1f
+  GooglePlaces: b922e192c50994436900ef14d19f84971950250b
   GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
   "gRPC-C++": 12f33a422dcab88dcd0c53e52cd549a929f0f244
   gRPC-Core: 6ec9002832e1e22c5bb8c54994b050b0ee4205c6
@@ -1061,6 +1065,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
 
-PODFILE CHECKSUM: f92a0cfa6c7923069545f3e7f99ef47e53b0bbb6
+PODFILE CHECKSUM: 99036f48c0e451463ba0d4454a887c0d23293737
 
 COCOAPODS: 1.15.2
