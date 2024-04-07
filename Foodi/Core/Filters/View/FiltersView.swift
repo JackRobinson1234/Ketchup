@@ -60,26 +60,7 @@ struct FiltersView: View {
             //MARK: Location
             VStack {
                 if selectedOption == .location {
-                    VStack(alignment: .leading){
-                        Text("Filter by Location")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        HStack{
-                            Image(systemName: "magnifyingglass")
-                                .imageScale(.small)
-                            TextField("Search destinations", text: $locationText)
-                                .font(.subheadline)
-                                .frame(height:44)
-                                .padding(.horizontal)
-                        }
-                        .frame(height: 44)
-                        .padding(.horizontal)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(lineWidth: 1.0)
-                                .foregroundStyle(Color(.systemGray4))
-                        )
-                    }
+                        LocationFilter(filtersViewModel: filtersViewModel)
                     .modifier(CollapsibleFilterViewModifier())
                     .onTapGesture(count:2){
                         withAnimation(.snappy){ selectedOption = .noneSelected}

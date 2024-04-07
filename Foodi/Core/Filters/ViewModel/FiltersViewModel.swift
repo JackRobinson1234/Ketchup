@@ -17,6 +17,13 @@ class FiltersViewModel: ObservableObject {
     @Published var selectedDietary: [String] = []
     @Published var selectedCookingTime: [Int] = []
     
+    
+    /// variables for the location filter
+    @Published var latitudeFilter: Int = 0
+    @Published var longitudeFilter: Int = 0
+    @Published var radius: Int = 0
+    
+    
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
     @Published var atHomeChecked: Bool = true
