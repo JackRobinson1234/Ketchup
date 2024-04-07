@@ -56,7 +56,6 @@ class PostService {
     /// fetches all posts from user that the user is following
     ///
     ///
-    /// TODO DEBUG THIS
     func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         //print("DEBUG: Fetching Following Post")
         guard let currentUser = Auth.auth().currentUser else {
@@ -79,6 +78,12 @@ class PostService {
         return posts
        }
     
+    //MARK: Apply Filters
+    /// Applies .whereFields to an existing query that are associated with the filters
+    /// - Parameters:
+    ///   - query: the existing query that needs to have filters applied to it
+    ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
+    /// - Returns: the original query with .whereFields attached to it
     func applyFilters(toQuery query: Query, filters: [String: [Any]]) async -> Query {
         var updatedQuery = query
         
@@ -104,6 +109,15 @@ class PostService {
         return updatedQuery
     }
     
+    
+    
+    //MARK: LocationQuery
+    /// Uses GeoFire to fetch locations. If no locations are found, will give a query that will not return any posts
+    /// - Parameters:
+    ///   - query: existing query to have another .whereField appended to it
+    ///   - coordinates: coordinates of the center of the radius
+    /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
+    
     func locationQuery(toQuery query: Query, coordinates: CLLocation) async -> Query {
         let geoFire = GeoFireManager.shared.geoFire
         let circleQuery = geoFire.query(at: coordinates, withRadius: 50)
@@ -122,12 +136,12 @@ class PostService {
                     print("Completion:", nearbyPostIDs)
                     continuation.resume(returning: updatedQuery)
                 } else {
-                    print("Problem with fetching posts")
-                    continuation.resume(returning: query)
+                    let updatedQuery = query.whereField("id", in: ["No Post Found"])
+                    print("Completion:", nearbyPostIDs)
+                    continuation.resume(returning: updatedQuery)
                 }
             }
         }
-        
         // Return the modified query asynchronously
         return circleQueryResult
     }
