@@ -34,6 +34,7 @@ struct ReelsHomeView: View {
 
     var body: some View {
         
+        
         ZStack(alignment: .bottom) {
             
             // WHAT THE CAMERA SEES
@@ -92,37 +93,73 @@ struct ReelsHomeView: View {
 
             
         }
-        .overlay(content: {
-            if let url = cameraModel.previewURL, cameraModel.showPreview {
-                FinalVideoPreview(url: url, showPreview: $cameraModel.showPreview)
-                    .transition(.move(edge: .trailing))
-            }
-        })
+        .sheet(isPresented: $cameraModel.showPreview) {
+            ReelsUploadView(cameraModel: cameraModel)
+        }
+    
+//        .overlay(content: {
+//            if cameraModel.showPreview {
+//                if cameraModel.previewType == "video" {
+//                    
+//                    FinalVideoPreview(cameraModel: cameraModel)
+//                        .transition(.move(edge: .trailing))
+//                    
+//                } else if cameraModel.previewType == "photo" {
+//                    
+//                    FinalPhotoPreview(cameraModel: cameraModel)
+//                        .transition(.move(edge: .trailing))
+//                    
+//                } else {
+//                    let _ = print("NO PREVIEW TYPE")
+//                }
+//                
+//                VStack {
+//                    
+//                    Spacer()
+//                    
+//                    HStack {
+//                
+//                        Spacer()
+//                        
+//                        NavigationLink(destination: ReelsUploadView()) {
+//                            Label {
+//                                Image(systemName: "chevron.right")
+//                                    .font(.callout)
+//                            } icon: {
+//                                Text("Done")
+//                            }
+//                            .foregroundColor(.black)
+//                            .padding(.horizontal, 10)
+//                            .padding(.vertical, 5)
+//                            .background(Capsule().fill(.white))
+//                        }
+//                        .padding(.bottom, 50)
+//                        .padding(.trailing, 30)
+//                    }
+//                }
+//                
+//                
+//            }
+//        })
         .animation(.easeInOut, value: cameraModel.showPreview)
-        .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-    }
-}
-
-
-struct ReelsCameraView_Preview: PreviewProvider {
-    static var previews: some View {
-        ReelsHomeView()
+        .preferredColorScheme(.dark)
     }
 }
 
 
 struct FinalVideoPreview: View {
-    var url: URL
-    @Binding var showPreview: Bool
+    
+    @ObservedObject var cameraModel: ReelsCameraViewModel
     
     var body: some View {
-        GeometryReader{proxy in
+        
+        if let url = cameraModel.previewURL {
             let player = AVPlayer(url: url)
             VideoPlayer(player: player)
                 .cornerRadius(10)
                 .overlay(alignment: .topLeading) {
                     Button {
-                        showPreview.toggle()
+                        cameraModel.showPreview.toggle()
                     } label: {
                         Label {
                             Text("Back")
@@ -139,6 +176,47 @@ struct FinalVideoPreview: View {
     }
 }
 
+struct FinalPhotoPreview: View {
+    
+    @ObservedObject var cameraModel: ReelsCameraViewModel
+    
+    @State private var currentPage = 0
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+
+                TabView(selection: $currentPage) {
+                    ForEach(cameraModel.picData.indices, id: \.self) { index in
+                        Image(uiImage: UIImage(data: cameraModel.picData[index]) ?? UIImage())
+                            .resizable()
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .cornerRadius(10)
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                .frame(width: geometry.size.width, height: geometry.size.height)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            Button {
+                cameraModel.showPreview.toggle()
+            } label: {
+                Label {
+                    Text("Back")
+                } icon: {
+                    Image(systemName: "chevron.left")
+                }
+                .foregroundColor(.white)
+            }
+            .padding(.leading)
+            .padding(.top, 22)
+        }
+    }
+}
 
 struct VideoCameraControls: View {
     
@@ -155,9 +233,9 @@ struct VideoCameraControls: View {
                 
                 Rectangle()
                     .fill(Color.red)
-                    .frame(width: 390 * (cameraModel.recordedDuration / cameraModel.maxDuration))
+                    .frame(width: 390.0 * (cameraModel.recordedDuration / cameraModel.maxDuration))
             }
-            .frame(height: 15)
+            .frame(height: 20)
             .cornerRadius(10)
             
             // X BUTTON
@@ -166,6 +244,7 @@ struct VideoCameraControls: View {
                     cameraModel.recordedDuration = 0
                     cameraModel.previewURL = nil
                     cameraModel.recordedURLs.removeAll()
+                    cameraModel.previewType = "none"
                 } label: {
                     Image(systemName: "xmark")
                         .font(.title)
@@ -216,6 +295,7 @@ struct VideoCameraControls: View {
                 Button {
                     if let _ = cameraModel.previewURL {
                         cameraModel.showPreview.toggle()
+                        cameraModel.previewType = "video"
                     }
                 } label: {
                     Group{
@@ -265,109 +345,128 @@ struct PhotoCameraControls: View {
     
     @ObservedObject var cameraModel: ReelsCameraViewModel
     
+    @State private var showFlash = false
+    
     var body: some View {
         
         
-        VStack {
-            
-            // TOP BUTTONS
-            HStack {
-                Button {
-                    cameraModel.untakePic()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.title)
-                        .foregroundColor(.white)
-                }
-                .opacity(cameraModel.isPhotoTaken ? 1 : 0)
-                .padding(.top)
-                .padding(.leading)
+        ZStack {
+            VStack {
                 
-                Spacer()
-                
+                // TOP BUTTONS
                 HStack {
-                    Text("\(cameraModel.picData.count)/3")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
+                    Button {
+                        cameraModel.untakePic()
+                        cameraModel.previewType = "none"
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.title)
+                            .foregroundColor(.white)
+                    }
+                    .opacity(cameraModel.isPhotoTaken ? 1 : 0)
+                    .padding(.top)
+                    .padding(.leading)
                     
-                    HStack(spacing: -30) {
-                        ForEach((0..<3).reversed(), id: \.self) { index in
-                            if index < cameraModel.picData.count {
-                                Image(uiImage: UIImage(data: cameraModel.picData[cameraModel.picData.count - 1 - index]) ?? UIImage())
-                                    .resizable()
-                                    .frame(width: 30, height: 45)
-                                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                    .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
-                            } else {
-                                Rectangle()
-                                    .fill(Color.gray)
-                                    .frame(width: 30, height: 45)
-                                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                                    .overlay(
-                                        Text("+")
-                                            .font(.system(size: 20))
-                                            .foregroundColor(.white)
-                                    )
-                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                    .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                    Spacer()
+                    
+                    HStack {
+                        Text("\(cameraModel.picData.count)/3")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                        
+                        HStack(spacing: -30) {
+                            ForEach((0..<3).reversed(), id: \.self) { index in
+                                if index < cameraModel.picData.count {
+                                    Image(uiImage: UIImage(data: cameraModel.picData[cameraModel.picData.count - 1 - index]) ?? UIImage())
+                                        .resizable()
+                                        .frame(width: 30, height: 45)
+                                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                        .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
+                                } else {
+                                    Rectangle()
+                                        .fill(Color.gray)
+                                        .frame(width: 30, height: 45)
+                                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                                        .overlay(
+                                            Text("+")
+                                                .font(.system(size: 20))
+                                                .foregroundColor(.white)
+                                        )
+                                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                        .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                }
                             }
                         }
                     }
+                    .padding(.top)
+                    .padding(.trailing, 30)
                 }
-                .padding(.top)
-                .padding(.trailing, 30)
+                
+                Spacer()
+                
+                
+                HStack(spacing: 30) {
+                    Rectangle()
+                        .frame(width: 100, height: 50) // Outer frame
+                        .hidden()
+                    
+                    
+                    // TAKE PIC BUTTON
+                    Button {
+                        cameraModel.takePic()
+                        withAnimation {
+                            showFlash = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                showFlash = false
+                            }
+                        }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .stroke(.white, lineWidth: 5)
+                                .frame(width: 70, height: 70)
+                            
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 60, height: 60)
+                        }
+                    }
+                    
+                    
+                    // PREVIEW BUTTON
+                    Button {
+                        if cameraModel.isPhotoTaken {
+                            cameraModel.showPreview.toggle()
+                            cameraModel.previewType = "photo"
+                        }
+                    } label: {
+                        Label {
+                            Image(systemName: "chevron.right")
+                                .font(.callout)
+                        } icon: {
+                            Text("Preview")
+                        }
+                        .foregroundColor(.black)
+                        .padding(.horizontal,10)
+                        .padding(.vertical,5)
+                        .background {
+                            Capsule()
+                                .fill(.white)
+                        }
+                    }
+                    .frame(width: 100)
+                    .opacity(cameraModel.isPhotoTaken ? 1 : 0)
+                }
+                .padding(.bottom, 50)
             }
             
-            Spacer()
-            
-            
-            HStack(spacing: 30) {
-                Rectangle()
-                    .frame(width: 100, height: 50) // Outer frame
-                    .hidden()
-                
-                
-                // TAKE PIC BUTTON
-                Button {
-                    cameraModel.takePic()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .stroke(.white, lineWidth: 5)
-                            .frame(width: 70, height: 70)
-                        
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 60, height: 60)
-                    }
-                }
-                
-                
-                // PREVIEW BUTTON
-                Button {
-                    if cameraModel.isPhotoTaken {
-                        cameraModel.showPreview.toggle()
-                    }
-                } label: {
-                    Label {
-                        Image(systemName: "chevron.right")
-                            .font(.callout)
-                    } icon: {
-                        Text("Preview")
-                    }
-                    .foregroundColor(.black)
-                    .padding(.horizontal,10)
-                    .padding(.vertical,5)
-                    .background {
-                        Capsule()
-                            .fill(.white)
-                    }
-                }
-                .frame(width: 100)
-                .opacity(cameraModel.isPhotoTaken ? 1 : 0)
+            if showFlash {
+                Color.white
+                    .opacity(0.8)
+                    .transition(.opacity)
+                    .animation(.easeOut(duration: 0.3), value: showFlash)
             }
-            .padding(.bottom, 50)
         }
     }
 }

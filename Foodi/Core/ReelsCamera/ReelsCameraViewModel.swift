@@ -8,7 +8,7 @@
 import SwiftUI
 import AVFoundation
 
-// MARK: Camera View Model
+@MainActor
 class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
         
     // SESSION
@@ -33,7 +33,10 @@ class ReelsCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDel
     @Published var isRecording: Bool = false
     @Published var recordedURLs: [URL] = []
     @Published var previewURL: URL?
+    
+    // EDIT/PREVIEW VIEW PROPERTIES
     @Published var showPreview: Bool = false
+    @Published var previewType: String = "none"
     
     // top progress bar
     @Published var recordedDuration: CGFloat = 0
