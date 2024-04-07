@@ -60,8 +60,11 @@ struct FiltersView: View {
             //MARK: Location
             VStack {
                 if selectedOption == .location {
+                    VStack{
                         LocationFilter(filtersViewModel: filtersViewModel)
-                    .modifier(CollapsibleFilterViewModifier())
+                        
+                    }
+                    .modifier(CollapsibleFilterViewModifier(frame: 250))
                     .onTapGesture(count:2){
                         withAnimation(.snappy){ selectedOption = .noneSelected}
                     }
@@ -79,7 +82,7 @@ struct FiltersView: View {
                         VStack(alignment: .leading){
                             CuisineFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier(frame: 500))
+                        .modifier(CollapsibleFilterViewModifier(frame: 260))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }

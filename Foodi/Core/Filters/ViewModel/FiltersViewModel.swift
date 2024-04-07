@@ -20,7 +20,9 @@ class FiltersViewModel: ObservableObject {
     
     /// variables for the location filter
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
-    @Published var radius: Int = 0
+    @Published var selectedCity: String = ""
+    @Published var selectedState: String = ""
+    
     
     
     /// variables for the postType filter
@@ -48,6 +50,13 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["postType"] = selectedPostTypes
         }
+        
+        if selectedLocation.isEmpty {
+            filters.removeValue(forKey: "location")
+        } else {
+            filters["location"] = selectedLocation
+        }
+        
         ///Price checking if there are any selected
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
@@ -66,7 +75,6 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["recipe.cookingTime"] = selectedCookingTime
         }
-        
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to

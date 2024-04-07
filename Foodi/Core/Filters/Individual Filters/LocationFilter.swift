@@ -1,7 +1,7 @@
 //
 //  LocationFilter.swift
 //  Foodi
-//
+//  ref: "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
 //  Created by Jack Robinson on 4/6/24.
 //
 import SwiftUI
@@ -12,27 +12,23 @@ import MapKit
 struct LocationFilter: View {
     @ObservedObject var filtersViewModel: FiltersViewModel
     @StateObject private var mapSearch = MapSearch()
-
     @FocusState private var isFocused: Bool
+    var autoCompleteNumber: Int = 4 // # of autocomplete suggestions
 
-    @State private var btnHover = false
-    @State private var isBtnActive = false
-
-    @State private var address = ""
-    @State private var city = ""
-    @State private var state = ""
-    @State private var zip = ""
-
-// Main UI
 
     var body: some View {
-            VStack{
-                HStack{
-                    Text("Filter by Location")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Spacer()
-                }
+        
+        // MARK: Title
+        VStack{
+            HStack{
+                Text("Filter by Location")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Spacer()
+            }
+            //MARK: Search
+            /// if no filters are selected, search bar
+            if filtersViewModel.selectedLocation.isEmpty{
                 HStack{
                     Image(systemName: "magnifyingglass")
                         .imageScale(.small)
@@ -49,9 +45,9 @@ struct LocationFilter: View {
                         .foregroundStyle(Color(.systemGray4))
                 )
                 
-                // Show auto-complete results
-                if address != mapSearch.searchTerm && isFocused == false {
-                    ForEach(mapSearch.locationResults, id: \.self) { location in
+                // MARK: Auto-complete results
+                if isFocused == false {
+                    ForEach(mapSearch.locationResults.prefix(autoCompleteNumber), id: \.self) { location in
                         Button {
                             reverseGeo(location: location)
                             print("test", location)
@@ -69,10 +65,34 @@ struct LocationFilter: View {
                         }
                     }
                 }
+                //MARK: Selected Restaurant
+            } else {
+                HStack{
+                    HStack {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.red)
+                            .onTapGesture {
+                                withAnimation(.snappy) {
+                                    filtersViewModel.selectedLocation.removeAll()
+                                    filtersViewModel.selectedCity = ""
+                                    filtersViewModel.selectedState = ""
+                                }
+                            }
+                        Text("\(filtersViewModel.selectedCity), \(filtersViewModel.selectedState)")
+                            .font(.caption)
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .shadow(radius: 5)
+                    Spacer()
+                }
             }
+        }
 
     }
-
+    //MARK: ReverseGeo
+/// takes in a MKLocalSearchCompletion, gets the coordinates, then reverse geocodes to get the data, which is added to the view model as the selected restaruant
     private func reverseGeo(location: MKLocalSearchCompletion) {
         let searchRequest = MKLocalSearch.Request(completion: location)
         let search = MKLocalSearch(request: searchRequest)
@@ -93,16 +113,16 @@ struct LocationFilter: View {
             }
             
             let reversedGeoLocation = ReversedGeoLocation(with: placemark)
-            address = "\(reversedGeoLocation.streetNumber) \(reversedGeoLocation.streetName)"
-            city = "\(reversedGeoLocation.city)"
-            state = "\(reversedGeoLocation.state)"
-            zip = "\(reversedGeoLocation.zipCode)"
+                let city = "\(reversedGeoLocation.city)"
+                let state = "\(reversedGeoLocation.state)"
+
             mapSearch.searchTerm = ""
             mapSearch.locationResults = []
+            ///adds the selected location to the view model
             filtersViewModel.selectedLocation = [c]
+            filtersViewModel.selectedCity = city
+            filtersViewModel.selectedState = state
             isFocused = false
-                //print("DEBUG", address)
-                
 
                 }
             }
@@ -114,7 +134,7 @@ struct LocationFilter: View {
 #Preview{
     LocationFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
-
+//MARK: ViewModel
 class MapSearch : NSObject, ObservableObject {
     @Published var locationResults : [MKLocalSearchCompletion] = []
     @Published var searchTerm = ""
