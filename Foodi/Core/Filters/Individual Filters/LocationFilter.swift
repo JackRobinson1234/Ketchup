@@ -10,10 +10,8 @@ import CoreLocation
 import MapKit
 
 struct LocationFilter: View {
+    @ObservedObject var filtersViewModel: FiltersViewModel
     @StateObject private var mapSearch = MapSearch()
-
-
-    // Form Variables
 
     @FocusState private var isFocused: Bool
 
@@ -28,61 +26,53 @@ struct LocationFilter: View {
 // Main UI
 
     var body: some View {
-
-            VStack {
-                List {
-                    
-                    VStack{
-                        HStack{
-                            Text("Filter by Location")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                        HStack{
-                            Image(systemName: "magnifyingglass")
-                                .imageScale(.small)
-                            TextField("Search destinations", text: $mapSearch.searchTerm)
-                                .font(.subheadline)
-                                .frame(height:44)
-                                .padding(.horizontal)
-                        }
-                        .frame(height: 44)
+            VStack{
+                HStack{
+                    Text("Filter by Location")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    Spacer()
+                }
+                HStack{
+                    Image(systemName: "magnifyingglass")
+                        .imageScale(.small)
+                    TextField("Search destinations", text: $mapSearch.searchTerm)
+                        .font(.subheadline)
+                        .frame(height:44)
                         .padding(.horizontal)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(lineWidth: 1.0)
-                                .foregroundStyle(Color(.systemGray4))
-                        )
-                        
-                        // Show auto-complete results
-                        if address != mapSearch.searchTerm && isFocused == false {
-                            ForEach(mapSearch.locationResults, id: \.self) { location in
-                                Button {
-                                    reverseGeo(location: location)
-                                } label: {
-                                    HStack{
-                                        VStack(alignment: .leading) {
-                                            Text(location.title)
-                                                .foregroundColor(Color.black)
-                                            Text(location.subtitle)
-                                                .font(.system(.caption))
-                                                .foregroundColor(Color.black)
-                                        }
-                                        Spacer()
-                                    }
+                }
+                .frame(height: 44)
+                .padding(.horizontal)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(lineWidth: 1.0)
+                        .foregroundStyle(Color(.systemGray4))
+                )
+                
+                // Show auto-complete results
+                if address != mapSearch.searchTerm && isFocused == false {
+                    ForEach(mapSearch.locationResults, id: \.self) { location in
+                        Button {
+                            reverseGeo(location: location)
+                            print("test", location)
+                        } label: {
+                            HStack{
+                                VStack(alignment: .leading) {
+                                    Text(location.title)
+                                        .foregroundColor(Color.black)
+                                    Text(location.subtitle)
+                                        .font(.system(.caption))
+                                        .foregroundColor(Color.black)
                                 }
+                                Spacer()
                             }
-                        }                         // End show auto-complete results
-                        
-                        
+                        }
                     }
+                }
+            }
 
-            } // End List
+    }
 
-            } // End Main VStack
-
-    } 
     private func reverseGeo(location: MKLocalSearchCompletion) {
         let searchRequest = MKLocalSearch.Request(completion: location)
         let search = MKLocalSearch(request: searchRequest)
@@ -101,16 +91,18 @@ struct LocationFilter: View {
                 print("Unable to reverse geocode the given location. Error: \(errorString)")
                 return
             }
-
+            
             let reversedGeoLocation = ReversedGeoLocation(with: placemark)
-
             address = "\(reversedGeoLocation.streetNumber) \(reversedGeoLocation.streetName)"
             city = "\(reversedGeoLocation.city)"
             state = "\(reversedGeoLocation.state)"
             zip = "\(reversedGeoLocation.zipCode)"
             mapSearch.searchTerm = ""
-                mapSearch.locationResults = []
+            mapSearch.locationResults = []
+            filtersViewModel.selectedLocation = [c]
             isFocused = false
+                //print("DEBUG", address)
+                
 
                 }
             }
@@ -120,15 +112,13 @@ struct LocationFilter: View {
 } // End Struct
 
 #Preview{
-    LocationFilter()
+    LocationFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
 
 class MapSearch : NSObject, ObservableObject {
     @Published var locationResults : [MKLocalSearchCompletion] = []
     @Published var searchTerm = ""
-    
     private var cancellables : Set<AnyCancellable> = []
-    
     private var searchCompleter = MKLocalSearchCompleter()
     private var currentPromise : ((Result<[MKLocalSearchCompletion], Error>) -> Void)?
 

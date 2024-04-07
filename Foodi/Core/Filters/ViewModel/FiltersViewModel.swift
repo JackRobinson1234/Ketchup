@@ -6,7 +6,7 @@
 //
 import Foundation
 import SwiftUI
-
+import MapKit
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
@@ -19,8 +19,7 @@ class FiltersViewModel: ObservableObject {
     
     
     /// variables for the location filter
-    @Published var latitudeFilter: Int = 0
-    @Published var longitudeFilter: Int = 0
+    @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var radius: Int = 0
     
     

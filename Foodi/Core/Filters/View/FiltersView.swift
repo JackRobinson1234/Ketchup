@@ -79,7 +79,7 @@ struct FiltersView: View {
                         VStack(alignment: .leading){
                             CuisineFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier(frame: 260))
+                        .modifier(CollapsibleFilterViewModifier(frame: 500))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
