@@ -7,6 +7,8 @@
 
 import Foundation
 import Firebase
+import MapKit
+import GeoFire
 
 class PostService {
     private var posts = [Post]()
@@ -87,6 +89,21 @@ class PostService {
             case "recipe.cookingTime":
                 if let cookingTime = value.first as? Int {
                     updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
+                }
+            case "location":
+                let geoFire = GeoFireManager.shared.geoFire
+                if let coordinates = value.first as? CLLocation {
+                    let circleQuery = geoFire.query(at: coordinates, withRadius: 5.0)
+                    var nearbyPostIDs: [String] = []
+                    circleQuery.observe(.keyEntered, with: { (key, location) in
+                        print("Key: \(key), Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                        nearbyPostIDs.append(key)
+                    })
+                    if !nearbyPostIDs.isEmpty{
+                        updatedQuery = updatedQuery.whereField("id", in: [nearbyPostIDs])
+                    } else {
+                        print("problem with fetching posts")
+                    }
                 }
             default:
                 updatedQuery = updatedQuery.whereField(field, in: value)

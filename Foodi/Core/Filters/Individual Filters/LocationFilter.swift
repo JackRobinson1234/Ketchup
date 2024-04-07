@@ -119,7 +119,7 @@ struct LocationFilter: View {
             mapSearch.searchTerm = ""
             mapSearch.locationResults = []
             ///adds the selected location to the view model
-            filtersViewModel.selectedLocation = [c]
+            filtersViewModel.selectedLocation = [location]
             filtersViewModel.selectedCity = city
             filtersViewModel.selectedState = state
             isFocused = false
