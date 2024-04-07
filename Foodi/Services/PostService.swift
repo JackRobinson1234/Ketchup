@@ -47,7 +47,7 @@ class PostService {
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters, !filters.isEmpty {
-            query = applyFilters(toQuery: query, filters: filters)
+            query = await applyFilters(toQuery: query, filters: filters)
             }
             self.posts = try await query.getDocuments(as: Post.self)
         //print("DEBUG: posts fetched", posts.count)
@@ -71,7 +71,7 @@ class PostService {
        // Fetch posts from followingUsers using 'in' operator
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
         if let filters = filters, !filters.isEmpty {
-            query = applyFilters(toQuery: query, filters: filters)
+            query = await applyFilters(toQuery: query, filters: filters)
             }
            
        
@@ -79,7 +79,7 @@ class PostService {
         return posts
        }
     
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
+    func applyFilters(toQuery query: Query, filters: [String: [Any]]) async -> Query {
         var updatedQuery = query
         
         for (field, value) in filters {
@@ -91,26 +91,45 @@ class PostService {
                     updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
                 }
             case "location":
-                let geoFire = GeoFireManager.shared.geoFire
                 if let coordinates = value.first as? CLLocation {
-                    let circleQuery = geoFire.query(at: coordinates, withRadius: 5.0)
-                    var nearbyPostIDs: [String] = []
-                    circleQuery.observe(.keyEntered, with: { (key, location) in
-                        print("Key: \(key), Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-                        nearbyPostIDs.append(key)
-                    })
-                    if !nearbyPostIDs.isEmpty{
-                        updatedQuery = updatedQuery.whereField("id", in: [nearbyPostIDs])
-                    } else {
-                        print("problem with fetching posts")
-                    }
+                    let modifiedQuery = await locationQuery(toQuery: updatedQuery, coordinates: coordinates)
+                   updatedQuery = modifiedQuery
+                   print("modified query", modifiedQuery)
                 }
             default:
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
         }
-        
+        print("final query", updatedQuery)
         return updatedQuery
+    }
+    
+    func locationQuery(toQuery query: Query, coordinates: CLLocation) async -> Query {
+        let geoFire = GeoFireManager.shared.geoFire
+        let circleQuery = geoFire.query(at: coordinates, withRadius: 50)
+        var nearbyPostIDs: [String] = []
+        
+        // Perform the asynchronous GeoFire query
+        let circleQueryResult = await withCheckedContinuation { continuation in
+            circleQuery.observe(.keyEntered, with: { (key, location) in
+                print("Key: \(key), Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                nearbyPostIDs.append(key)
+            })
+            
+            circleQuery.observeReady {
+                if !nearbyPostIDs.isEmpty {
+                    let updatedQuery = query.whereField("id", in: nearbyPostIDs)
+                    print("Completion:", nearbyPostIDs)
+                    continuation.resume(returning: updatedQuery)
+                } else {
+                    print("Problem with fetching posts")
+                    continuation.resume(returning: query)
+                }
+            }
+        }
+        
+        // Return the modified query asynchronously
+        return circleQueryResult
     }
 }
 

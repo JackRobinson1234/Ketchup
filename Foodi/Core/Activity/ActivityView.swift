@@ -22,7 +22,7 @@ struct ActivityView: View {
     func setupGeofire() {
         let geofireRef = Database.database().reference()
         let geoFire = GeoFire(firebaseRef: geofireRef)
-        geoFire.setLocation(CLLocation(latitude: 37.7853889, longitude: -122.4056973), forKey: "firebase-hq") { (error) in
+        geoFire.setLocation(CLLocation(latitude: 34.0168871, longitude: -118.5013209), forKey: "VSi3d9KUlIsEc60rhAZs") { (error) in
             if (error != nil) {
                 print("An error occured: \(error)")
             } else {

@@ -24,11 +24,9 @@ class FiltersViewModel: ObservableObject {
     @Published var selectedState: String = ""
     
     
-    
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
     @Published var atHomeChecked: Bool = true
-    @Published var selectedPostTypes: [String] = [ "restaurant", "atHome"]
     
     init(feedViewModel: FeedViewModel) {
             self.feedViewModel = feedViewModel
@@ -43,8 +41,8 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["cuisine"] = selectedCuisines
         }
-        /// checks to see if selectedPostTypes has all three. If it does, it doesn't pass it as a parameter to fetchPosts. If some are unselected, it will filter by the other two.
-        updateSelectedPostTypes()
+        /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
+        let selectedPostTypes = updateSelectedPostTypes()
         if selectedPostTypes.isEmpty {
             filters.removeValue(forKey: "postType")
         } else {
@@ -63,7 +61,7 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["price"] = selectedPrice
         }
-        ///DIetary checking if there are any selected
+        ///Dietary checking if there are any selected
         if selectedDietary.isEmpty {
             filters.removeValue(forKey: "recipe.dietary")
         } else {
@@ -77,11 +75,13 @@ class FiltersViewModel: ObservableObject {
         }
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
+    
+    
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
-    private func updateSelectedPostTypes() {
+    func updateSelectedPostTypes() -> [String] {
         if restaurantChecked && atHomeChecked {
                 /// If all postType toggles are on, make selectedPosts a blank array
-                selectedPostTypes = []
+                return []
             }
         else {
             var updatedPostTypes: [String] = []
@@ -91,7 +91,7 @@ class FiltersViewModel: ObservableObject {
             if atHomeChecked {
                 updatedPostTypes.append("atHome")
             }
-            self.selectedPostTypes = updatedPostTypes
+            return updatedPostTypes
         }
     }
 }
