@@ -10,7 +10,6 @@ import Foundation
 import Firebase
 
 struct DeveloperPreview {
-    
     static var user = User(
         id: NSUUID().uuidString,
         username: "lewis.hamilton",
@@ -72,84 +71,34 @@ struct DeveloperPreview {
     
     static var posts: [Post] = [
         .init(
-            id: NSUUID().uuidString,
-            videoUrl: videoUrls[0],
-            caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
-            likes: 200,
-            commentCount: 57,
-            saveCount: 23,
-            shareCount: 9,
-            views: 567,
-            thumbnailUrl: "lewis-hamilton",
-            timestamp: Timestamp(),
-            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
-            restaurant: postRestaurant(id: NSUUID().uuidString,
-                                       cuisine: "Chinese",
-                                       price: "$",
-                                       name: "Greenbaum's Money Pit",
-                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
-                                       address: "2311 Piedmont Ave",
-                                       city: "Berkeley",
-                                       state: "CA")
+                id: "1",
+                postType: "restaurant",
+                mediaType: "video",
+                mediaUrls: ["https://example.com/video.mp4"],
+                caption: "Check out this delicious dish!",
+                likes: 100,
+                commentCount: 20,
+                shareCount: 10,
+                thumbnailUrl: "https://example.com/thumbnail.jpg",
+                timestamp: Timestamp(date: Date()),
+                user: PostUser(
+                    id: "user1",
+                    fullName: "John Doe",
+                    profileImageUrl: "https://example.com/profile.jpg"
+                ),
+                restaurant: PostRestaurant(
+                    id: "restaurant1",
+                    name: "Example Restaurant",
+                    geoPoint: nil,
+                    address: "123 Main St",
+                    city: "Cityville",
+                    state: "Stateville",
+                    profileImageUrl: "https://example.com/restaurant.jpg"
+                ),
+                cuisine: "Italian",
+                price: "$$$"
             
-        ),
-        .init(
-            id: NSUUID().uuidString,
-            videoUrl: videoUrls[0],
-            caption: "This is some test caption for this post asjdfkjansdflkjnasldkfjnaslkdjfnlaksjnfkjasndfkjnasdkfjnaskjdnfkasjndf;kjansfe;kjnasdfjnsadk;fjnsa;kdfjn;kasjndfk;jnasdjkfnaskdjnf",
-            likes: 200,
-            commentCount: 57,
-            saveCount: 23,
-            shareCount: 9,
-            views: 567,
-            thumbnailUrl: "lewis-hamilton",
-            timestamp: Timestamp(),
-            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
-            recipe: postRecipe(name: "Spaghetti", cuisine: "Chinese", time: 155, dietary: ["Vegan", "DF"], instructions: [instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat"), instruction(title: "Cook Meat", description: "Cook the meat in boiling water over high heat")], ingredients: [ingredient(quantity: "25oz", item: "Sausage"), ingredient(quantity: "5lb", item: "carrots")])
-            
-        ),
-        .init(
-            id: NSUUID().uuidString,
-            videoUrl: videoUrls[1],
-            caption: "This is some test caption for this post",
-            likes: 500,
-            commentCount: 62,
-            saveCount: 23,
-            shareCount: 98,
-            views: 841,
-            thumbnailUrl: "max-verstappen",
-            timestamp: Timestamp(),
-            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
-            restaurant: postRestaurant(id: NSUUID().uuidString,
-                                       cuisine: "Chinese",
-                                       price: "$",
-                                       name: "Greenbaum's Money Pit",
-                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
-                                       address: "2311 Piedmont Ave",
-                                       city: "Berkeley",
-                                       state: "CA")
-        ),
-        .init(
-            id: NSUUID().uuidString,
-            videoUrl: videoUrls[2],
-            caption: "This is some test caption for this post",
-            likes: 197,
-            commentCount: 23,
-            saveCount: 51,
-            shareCount: 98,
-            views: 937,
-            thumbnailUrl: "fernando-alonso",
-            timestamp: Timestamp(),
-            user: postUser(id: NSUUID().uuidString, fullname: "Test", profileImageUrl: ""),
-            restaurant: postRestaurant(id: NSUUID().uuidString,
-                                       cuisine: "Chinese",
-                                       price: "$",
-                                       name: "Greenbaum's Money Pit",
-                                       geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),
-                                       address: "2311 Piedmont Ave",
-                                       city: "Berkeley",
-                                       state: "CA")
-        ),
+        )
     ]
     
     static var comment = Comment(

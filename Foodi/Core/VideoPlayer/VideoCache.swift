@@ -7,7 +7,7 @@
 
 import Foundation
 import CryptoKit
-import FirebaseStorage
+import Firebase
 
 class VideoCacheManager: NSObject {
 
@@ -53,7 +53,6 @@ class VideoCacheManager: NSObject {
             self.storeDataToDiskCache(data: data, key: key, fileExtension: fileExtension)
             self.cachedVideoKeys.append(key)
             self.manageCacheSize()
-            print("DEBUG: cache \(self.cachedVideoKeys.count)")
         }
     }
     

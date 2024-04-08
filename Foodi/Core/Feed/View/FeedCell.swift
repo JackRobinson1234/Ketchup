@@ -27,7 +27,7 @@ struct FeedCell: View {
             if videoConfigured {
                 VideoPlayerView(coordinator: videoCoordinator)
                     .containerRelativeFrame([.horizontal, .vertical])
-                }
+            }
             else {
                 ProgressView()
                     .containerRelativeFrame([.horizontal, .vertical])
@@ -51,11 +51,10 @@ struct FeedCell: View {
                             HStack{
                                 //MARK: Restaurant Scenario
                                 // restaurant profile image
-                                if let restaurant = post.restaurant{
-                                    if let image = restaurant.profileImageUrl{
-                                        NavigationLink(value: restaurant) {
-                                            RestaurantCircularProfileImageView(imageUrl: image, size: .large)
-                                        }}
+                                if let restaurant = post.restaurant {
+                                    NavigationLink(value: restaurant) {
+                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                                    }
                                     
                                     //restaurant name
                                     VStack (alignment: .leading) {
@@ -69,7 +68,7 @@ struct FeedCell: View {
                                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                                         
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
+                                            Text("by \(post.user.fullName)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
@@ -79,7 +78,6 @@ struct FeedCell: View {
                                     }
                                     //MARK: Recipe Scenario
                                 } else if let recipe = post.recipe{
-                                    /*RestaurantCircularProfileImageView(imageUrl: post.thumbnailUrl, size: .large)*/
                                     VStack (alignment: .leading) {
                                         Button{showRecipe.toggle()} label: {
                                             Text("\(recipe.name)")
@@ -89,24 +87,7 @@ struct FeedCell: View {
                                         }
                                         
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(.white)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                    }
-                                } 
-                                //MARK: Brand Scenario
-                                else if let brand = post.brand {
-                                    VStack (alignment: .leading) {
-                                        Text("\(brand.name)")
-                                            .font(.title3)
-                                            .bold()
-                                            .multilineTextAlignment(.leading)
-                                        NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
+                                            Text("by \(post.user.fullName)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
@@ -128,33 +109,22 @@ struct FeedCell: View {
                                     .font(.footnote)
                             }
                             else {
-                                if let restaurant = post.restaurant{
-                                    Text("Cuisine: \(restaurant.cuisine ?? "")")
-                                    
-                                    // price
-                                    Text("Price: \(restaurant.price ?? "")")
-                                    
-                                    //Menu Button
-                                    
+                                
+                                Text("Cuisine: \(post.cuisine ?? "")")
+                                
+                                // price
+                                Text("Price: \(post.price ?? "")")
+                                
+                                //Menu Button
+                                
+                                if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
-                                }
-                                else if let recipe = post.recipe {
-                                    //MARK: Recipe Time
-                                    Text("Cuisine: \(recipe.cuisine ?? "Not Specified")")
+                                } else if let recipe = post.recipe {
                                     
-                                    let timeString = formattedTime(time: (recipe.time))
-                                    Text("Time: \(timeString)")
                                     
-                                    if let dietaryRestrictions = recipe.dietary, !dietaryRestrictions.isEmpty {
-                                        Text("Dietary Restrictions: \(dietaryRestrictions.joined(separator: ", "))")
-                                    } else {
-                                        Text("Dietary Restrictions: Not Specified")
-                                    }
-                                    
-                                    //Menu Button
                                     
                                     Button{
                                         showRecipe.toggle()
@@ -166,9 +136,6 @@ struct FeedCell: View {
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     
-                                }
-                                else if let brand = post.brand {
-                                    Text("Price: \(formattedPrice(price: brand.price))")
                                 }
                             }
                         }
@@ -257,8 +224,9 @@ struct FeedCell: View {
             .onAppear {
                 if !videoConfigured {
                     Task{
-                        await videoCoordinator.configurePlayer(url: URL(string: post.videoUrl), fileExtension: "mp4")
-                        
+                        if let videoURL = post.mediaUrls.first {
+                            await videoCoordinator.configurePlayer(url: URL(string: videoURL), fileExtension: "mp4")
+                        }
                         videoConfigured = true
                         if viewModel.posts.first?.id == post.id && scrollPosition == nil {
                             await videoCoordinator.replay()
@@ -330,23 +298,7 @@ struct FeedCell: View {
         
         return timeString.isEmpty ? "Not specified" : timeString
     }
-    private func formattedPrice(price: Int?) -> String {
-        guard let price = price, price > 0 else {
-            return "Not specified"
-        }
-        
-        let dollars = price / 100
-        let cents = price % 100
-        
-        if cents == 0 {
-            return "$\(dollars).00"
-        } else {
-            return "$\(dollars).\(String(format: "%02d", cents))"
-        }
-    }
 }
-
-
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     PHPhotoLibrary.requestAuthorization { status in
         switch status {

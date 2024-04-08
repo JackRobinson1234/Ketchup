@@ -36,17 +36,14 @@ class FeedViewModel: ObservableObject {
     }
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
-    func fetchPosts() async {
-        print("DEBUG: Fetching posts from feedviewmodel")
+    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async {
         do {
             posts.removeAll()
             switch currentFeedType {
             case .discover:
-                print("DEBUG: went in fetch discover")
-                posts = try await postService.fetchPosts()
+                posts = try await postService.fetchPosts(withFilters: filters)
             case .following:
-                print("DEBUG: went in fetch following")
-                posts = try await postService.fetchFollowingPosts()
+                posts = try await postService.fetchFollowingPosts(withFilters: filters)
             }
             posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
@@ -83,7 +80,9 @@ class FeedViewModel: ObservableObject {
             for index in nextIndexes {
                 let post = posts[index]
                 Task{
-                    await self.videoCoordinator.downloadToCache(url: URL(string: post.videoUrl), fileExtension: "mp4")
+                    if let videoURL = post.mediaUrls.first {
+                        await self.videoCoordinator.downloadToCache(url: URL(string: videoURL), fileExtension: "mp4")
+                    }
                 }
             }
         }

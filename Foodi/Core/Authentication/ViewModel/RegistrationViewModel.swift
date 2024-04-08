@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FirebaseAuth
+import Firebase
 
 class RegistrationViewModel: ObservableObject {
     @Published var email = ""

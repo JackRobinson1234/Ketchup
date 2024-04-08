@@ -22,7 +22,6 @@ struct PostGridView: View {
     private let posts: [Post]?
     private let width = (UIScreen.main.bounds.width / 3) - 2
     init(posts: [Post]?, userService: UserService) {
-        //self.viewModel = viewModel
         self.userService = userService
         self.posts = posts
     }
@@ -52,13 +51,6 @@ struct PostGridView: View {
                                             }
                                             else if let recipe = post.recipe {
                                                 Text("\(recipe.name)")
-                                                    .lineLimit(2)
-                                                    .truncationMode(.tail)
-                                                    .foregroundColor(.white)
-                                                    .font(.footnote)
-                                                    .bold()
-                                            } else if let brand = post.brand {
-                                                Text("\(brand.name)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)

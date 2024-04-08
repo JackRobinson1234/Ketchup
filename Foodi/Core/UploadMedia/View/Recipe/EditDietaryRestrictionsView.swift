@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+/*
 struct EditDietaryRestrictionsView: View {
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
@@ -76,3 +76,4 @@ struct EditDietaryRestrictionsView: View {
 #Preview {
     EditDietaryRestrictionsView(viewModel: UploadPostViewModel(service: UploadPostService(), restaurant: nil))
 }
+*/

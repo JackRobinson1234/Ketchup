@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+/*
 struct EditRecipeView: View {
     @ObservedObject var viewModel: UploadPostViewModel
     @Environment(\.dismiss) var dismiss
@@ -136,3 +136,4 @@ struct EditRecipeView: View {
 #Preview {
     EditRecipeView(viewModel: UploadPostViewModel(service: UploadPostService(), restaurant: nil))
 }
+*/

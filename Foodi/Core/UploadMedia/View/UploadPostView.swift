@@ -4,7 +4,7 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
+/*
 import SwiftUI
 import CurrencyField
 struct UploadPostView: View {
@@ -445,3 +445,4 @@ struct UploadPostView: View {
                    viewModel: UploadPostViewModel(service: UploadPostService(restaurantId: restaurants.id[)),
                    tabIndex: .constant(0), restaurant: DeveloperPreview.restaurants[0])
 } */
+*/

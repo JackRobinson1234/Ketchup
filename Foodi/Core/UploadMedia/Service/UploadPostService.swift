@@ -4,7 +4,7 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
+/*
 import Foundation
 import Firebase
 
@@ -66,7 +66,7 @@ struct UploadPostService {
         }
     }
     
-    func uploadRecipePost(caption: String, videoUrlString: String, recipe: postRecipe) async throws {
+    func uploadRecipePost(caption: String, videoUrlString: String, recipe: PostRecipe) async throws {
         let user = try await userService.fetchCurrentUser()
         let ref = FirestoreConstants.PostsCollection.document()
         
@@ -136,3 +136,4 @@ func uploadBrandPost(caption: String, videoUrlString: String, brand: postBrand) 
     }
 }
 }
+*/

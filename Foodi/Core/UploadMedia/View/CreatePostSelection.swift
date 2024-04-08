@@ -4,7 +4,7 @@
 //
 //  Created by Jack Robinson on 2/5/24.
 //
-
+/*
 import SwiftUI
 enum PostType {
     case restaurant
@@ -87,3 +87,4 @@ struct postOption: View {
 #Preview {
     CreatePostSelection(tabIndex: .constant(1))
 }
+*/
