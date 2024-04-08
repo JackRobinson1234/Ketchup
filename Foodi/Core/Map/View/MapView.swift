@@ -83,7 +83,7 @@ struct MapView: View {
                         }
                     }
                     
-                    //MARK: Initial Map Camera
+                    //MARK: Initial Camera
                     /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
                     .onAppear{
                         let losAngeles = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
@@ -115,11 +115,30 @@ struct MapView: View {
                                         .font(.system(size: 27))
                                         .shadow(color: .gray, radius: 10)
                                 }
-                                
-                                
+                                //MARK: Zoom Notice
+                                if !cameraZoomedEnough {
                                 Spacer()
-                                    .padding(.top)
-                                
+                                    Text("Zoom Map to Show Restaurants")
+                                                .font(.subheadline)
+                                                .foregroundColor(.black)
+                                                .padding(10)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .foregroundColor(Color.white)
+                                                )
+                                } else if viewModel.restaurants.isEmpty {
+                                    Spacer()
+                                    Text("No Restaurants Nearby")
+                                                .font(.subheadline)
+                                                .foregroundColor(.black)
+                                                .padding(10)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .foregroundColor(Color.white)
+                                                )
+                                }
+                                Spacer()
+    
                                 
                                 //MARK: Filter Button
                                 Button {
@@ -240,6 +259,6 @@ struct MapView: View {
 
 
 
-//#Preview {
-//    MapView()
-//}
+#Preview {
+    MapView()
+}
