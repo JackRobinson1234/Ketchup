@@ -76,7 +76,7 @@ class FiltersViewModel: ObservableObject {
         await feedViewModel.fetchPosts(withFilters: self.filters)
     }
     
-    
+    //MARK: update selected posts
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
     func updateSelectedPostTypes() -> [String] {
         if restaurantChecked && atHomeChecked {

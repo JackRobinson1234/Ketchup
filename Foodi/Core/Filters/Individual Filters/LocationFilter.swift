@@ -1,7 +1,6 @@
 //
 //  LocationFilter.swift
 //  Foodi
-//  ref: "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
 //  Created by Jack Robinson on 4/6/24.
 //
 import SwiftUI
@@ -14,10 +13,8 @@ struct LocationFilter: View {
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
     var autoCompleteNumber: Int = 4 // # of autocomplete suggestions
-
-
+    
     var body: some View {
-        
         // MARK: Title
         VStack{
             HStack{
@@ -65,7 +62,7 @@ struct LocationFilter: View {
                         }
                     }
                 }
-                //MARK: Selected Restaurant
+            //MARK: Selected Restaurant
             } else {
                 HStack{
                     HStack {
@@ -89,59 +86,62 @@ struct LocationFilter: View {
                 }
             }
         }
-
+        
     }
     //MARK: ReverseGeo
-/// takes in a MKLocalSearchCompletion, gets the coordinates, then reverse geocodes to get the data, which is added to the view model as the selected restaruant
+    
+    /// Takes in the selected MKLocalSearchCompletion value and makes it into a coordinate, the reverses that coordinate into a geocode to get the address information.
+    /// - Parameter location: Selected MKocalSearchCompletion from the autocomplete suggestions
     private func reverseGeo(location: MKLocalSearchCompletion) {
         let searchRequest = MKLocalSearch.Request(completion: location)
         let search = MKLocalSearch(request: searchRequest)
         var coordinateK : CLLocationCoordinate2D?
         search.start { (response, error) in
-        if error == nil, let coordinate = response?.mapItems.first?.placemark.coordinate {
-            coordinateK = coordinate
-        }
-
-        if let c = coordinateK {
-            let location = CLLocation(latitude: c.latitude, longitude: c.longitude)
-            CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
-
-            guard let placemark = placemarks?.first else {
-                let errorString = error?.localizedDescription ?? "Unexpected Error"
-                print("Unable to reverse geocode the given location. Error: \(errorString)")
-                return
+            if error == nil, let coordinate = response?.mapItems.first?.placemark.coordinate {
+                coordinateK = coordinate
             }
             
-            let reversedGeoLocation = ReversedGeoLocation(with: placemark)
-                let city = "\(reversedGeoLocation.city)"
-                let state = "\(reversedGeoLocation.state)"
-
-            mapSearch.searchTerm = ""
-            mapSearch.locationResults = []
-            ///adds the selected location to the view model
-            filtersViewModel.selectedLocation = [location]
-            filtersViewModel.selectedCity = city
-            filtersViewModel.selectedState = state
-            isFocused = false
-
+            if let c = coordinateK {
+                let location = CLLocation(latitude: c.latitude, longitude: c.longitude)
+                CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
+                    
+                    guard let placemark = placemarks?.first else {
+                        let errorString = error?.localizedDescription ?? "Unexpected Error"
+                        print("Unable to reverse geocode the given location. Error: \(errorString)")
+                        return
+                    }
+                    
+                    let reversedGeoLocation = ReversedGeoLocation(with: placemark)
+                    let city = "\(reversedGeoLocation.city)"
+                    let state = "\(reversedGeoLocation.state)"
+                    
+                    mapSearch.searchTerm = ""
+                    mapSearch.locationResults = []
+                    ///adds the selected location to the view model
+                    filtersViewModel.selectedLocation = [location]
+                    filtersViewModel.selectedCity = city
+                    filtersViewModel.selectedState = state
+                    isFocused = false
+                    
                 }
             }
         }
     }
-
+    
 } // End Struct
 
 #Preview{
     LocationFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
 }
 //MARK: ViewModel
+/// Taken from "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
 class MapSearch : NSObject, ObservableObject {
     @Published var locationResults : [MKLocalSearchCompletion] = []
     @Published var searchTerm = ""
     private var cancellables : Set<AnyCancellable> = []
     private var searchCompleter = MKLocalSearchCompleter()
     private var currentPromise : ((Result<[MKLocalSearchCompletion], Error>) -> Void)?
-
+    
     override init() {
         super.init()
         searchCompleter.delegate = self
@@ -169,10 +169,11 @@ class MapSearch : NSObject, ObservableObject {
     }
 }
 
+
 extension MapSearch : MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-            currentPromise?(.success(completer.results))
-        }
+        currentPromise?(.success(completer.results))
+    }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
         //could deal with the error here, but beware that it will finish the Combine publisher stream
@@ -188,7 +189,7 @@ struct ReversedGeoLocation {
     let zipCode: String         // eg. 95014
     let country: String         // eg. United States
     let isoCountryCode: String  // eg. US
-
+    
     var formattedAddress: String {
         return """
         \(streetNumber) \(streetName),
@@ -196,7 +197,7 @@ struct ReversedGeoLocation {
         \(country)
         """
     }
-
+    
     // Handle optionals as needed
     init(with placemark: CLPlacemark) {
         self.streetName     = placemark.thoroughfare ?? ""

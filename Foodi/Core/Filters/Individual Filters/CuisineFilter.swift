@@ -18,7 +18,7 @@ struct CuisineFilter: View {
     
     var body: some View {
         VStack {
-            /// Title
+            //MARK: Title
             HStack{
                 Text("Filter by Cuisine")
                     .font(.title2)
@@ -26,14 +26,14 @@ struct CuisineFilter: View {
                 Spacer()
             }
             .padding(.leading)
-            
+            //MARK: Subtitle
             HStack{
                 Text("Cuisine Filters Selected (Max 10):")
                     .font(.caption)
                 Spacer()
             }
             .padding(.leading)
-            
+            //MARK: Selected Cuisines
             /// Selected cuisines from the list to be filtered by
             if !filtersViewModel.selectedCuisines.isEmpty{
                 ScrollView(.horizontal){
@@ -69,7 +69,7 @@ struct CuisineFilter: View {
                 .padding()
             }
             
-            /// Search Bar
+            //MARK: Search Bar
             HStack{
                 Image(systemName: "magnifyingglass")
                     .imageScale(.small)
@@ -88,7 +88,7 @@ struct CuisineFilter: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(lineWidth: 1.0)
                     .foregroundStyle(Color(.systemGray4)))
-            
+            //MARK: Selection Options
             /// If there are no selections and they haven't reached the maximum # of selections
             if !filteredCuisines.isEmpty && filtersViewModel.selectedCuisines.count < maximumSelections{
                 ScrollView(.horizontal){
@@ -134,6 +134,10 @@ struct CuisineFilter: View {
             filteredCuisines = filteredCuisine(searchText)
         }
     }
+    
+    /// Takes in search text and returns the options that match the text
+    /// - Parameter query: Search text from the search bar
+    /// - Returns: Array of strings that match the query
     func filteredCuisine(_ query: String) -> [String] {
         if query.isEmpty{
             return cuisineCategories.filter { cuisine in

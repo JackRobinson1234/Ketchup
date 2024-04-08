@@ -11,6 +11,7 @@ struct PostTypeFilter: View {
     @ObservedObject var filtersViewModel: FiltersViewModel
     
     var body: some View {
+        //MARK: Check Boxes
         VStack(alignment: .leading) {
             HStack{
                 VStack (alignment: .leading) {
@@ -37,7 +38,9 @@ struct PostTypeFilter: View {
             oneToggleSelected(lastChanged: "restaurant")
                 }
     }
-    ///Ensures that there is at least one toggle selected
+    /// Ensures that there is at least one toggle selected
+    /// - Parameter lastChanged: last parameter that got toggled
+    
     private func oneToggleSelected(lastChanged: String) {
         if !filtersViewModel.restaurantChecked && !filtersViewModel.atHomeChecked {
             if lastChanged == "restaurant" {
