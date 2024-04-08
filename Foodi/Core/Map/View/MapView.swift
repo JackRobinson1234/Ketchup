@@ -20,6 +20,7 @@ struct MapView: View {
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
     @Namespace var mapScope /// Sets a range for how big the map is so that the user button gets set in the right spot
     @State var cameraZoomedEnough = true /// Whether or not the longitude delta is zoomed in enough to view spots
+    @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0) /// used to track when more restaurants need to be fetched
     
     
     
@@ -78,10 +79,7 @@ struct MapView: View {
                         if cameraZoomedEnough {
                             let center = mapCameraUpdateContext.region.center
                             let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
-                            viewModel.selectedLocation = [location]
-                            Task{
-                                await viewModel.fetchFilteredRestaurants()
-                            }
+                            fetchRestaurantsInView(center: location)
                         }
                     }
                     
@@ -202,14 +200,40 @@ struct MapView: View {
             
         }
     }
-    //MARK: clears the selected restaurant
+    //MARK: clearSelectedListing
     func clearSelectedListing() {
         selectedRestaurant = nil
     }
-    
+    //MARK: isZoomedEnough
     private func isZoomedInEnough(span: MKCoordinateSpan) {
         let update = span.longitudeDelta < 0.15
         cameraZoomedEnough = update
+    }
+    
+    //MARK: fetchRestaurantsInView
+    /// fetches another batch of restaurants if the new location is outside the radius of the last batch
+    /// - Parameter center: CLLocation of the center of the camera view
+    private func fetchRestaurantsInView(center: CLLocation) {
+        if cameraZoomedEnough {
+            /// Makes sure that there was a last location fetched from, and that it is far enough away from the new query
+            if let lastLocation = viewModel.selectedLocation.first {
+                let distanceInKilometers = center.distance(from: lastLocation) / 1000
+                if distanceInKilometers > 10 {
+                    viewModel.selectedLocation = [center]
+                    print("fetching new restaurants")
+                    Task{
+                        await viewModel.fetchFilteredRestaurants()
+                    }
+                }
+            }
+            else {
+                print("fetching new restaurants")
+                viewModel.selectedLocation = [center]
+                Task{
+                    await viewModel.fetchFilteredRestaurants()
+                }
+            }
+        }
     }
 }
 
