@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import MapKit
 import CoreLocation
+import FirebaseFirestore
 
 struct Restaurant: Identifiable, Codable, Hashable {
     let id: String

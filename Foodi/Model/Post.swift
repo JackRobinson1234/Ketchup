@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import SwiftUI
 import AVKit
+import FirebaseFirestore
 
 struct Post: Identifiable, Codable {
     let id: String

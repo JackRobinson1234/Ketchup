@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import MapKit
 import GeoFire
+import FirebaseFirestoreInternal
 
 class PostService {
     private var posts = [Post]()
@@ -135,7 +136,7 @@ class PostService {
     /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
     
     func locationQuery(toQuery query: Query, coordinates: CLLocation, radius: Double? = 10.0) async -> Query {
-        var radius: Double = 10.0
+        let radius: Double = 10.0
         let geoFire = GeoFireManager.shared.geoFire
         let circleQuery = geoFire.query(at: coordinates, withRadius: radius)
         var nearbyPostIDs: [String] = []
@@ -147,11 +148,11 @@ class PostService {
             })
             circleQuery.observeReady {
                 if !nearbyPostIDs.isEmpty {
-                    let updatedQuery = query.whereField("id", in: nearbyPostIDs)
+                    let updatedQuery = query.whereField("restaurant.id", in: nearbyPostIDs)
                     continuation.resume(returning: updatedQuery)
                 } else {
                     /// Sets the query to an object where no posts will be found
-                    let updatedQuery = query.whereField("id", in: ["No Post Found"])
+                    let updatedQuery = query.whereField("restaurant.id", in: ["No Post Found"])
                     continuation.resume(returning: updatedQuery)
                 }
             }

@@ -3,7 +3,7 @@
 //  Foodi
 //
 //  Created by Jack Robinson on 2/12/24.
-//
+//  View that appears when you click on a restaurant
 
 import SwiftUI
 import Kingfisher
