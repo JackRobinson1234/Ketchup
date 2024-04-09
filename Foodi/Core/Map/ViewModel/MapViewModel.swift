@@ -25,7 +25,7 @@ class MapViewModel: ObservableObject {
     
     
     /// variables for the location filter
-    @Published var selectedLocation: [CLLocation] = []
+    @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var selectedCity: String = ""
     @Published var selectedState: String = ""
     
@@ -33,7 +33,7 @@ class MapViewModel: ObservableObject {
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
     @Published var atHomeChecked: Bool = true
-    
+    //MARK: fetchFilteredRestaurants
     func fetchFilteredRestaurants() async {
         do{
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
@@ -62,7 +62,7 @@ class MapViewModel: ObservableObject {
         }
     }
 
-     
+     //MARK: filteredRestaurants
         func filteredRestaurants(_ query: String) -> [Restaurant] {
             let lowercasedQuery = query.lowercased()
             return restaurants.filter({

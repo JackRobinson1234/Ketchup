@@ -23,27 +23,24 @@ class RestaurantService {
     }
     
     
-    
     //MARK: fetchRestaurants
     /// Fetches an array of restaurants that match the provided filters
     /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
     /// - Returns: array of restaurants
     func fetchRestaurants(withFilters filters: [String: [Any]]? = nil) async throws -> [Restaurant] {
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
-        if let filters = filters, !filters.isEmpty {
-            query = await applyFilters(toQuery: query, filters: filters)
-        }
-        if let filters = filters, let location = filters["location"], filters.keys.contains("location") {
-            if let coordinates = location.first as? CLLocationCoordinate2D {
-                let restaurants = try await fetchLocation(coordinates: coordinates, query: query)
-                return restaurants
+            if let filters = filters, !filters.isEmpty {
+                if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+                    let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates)
+                    return restaurants
+                }
+                
+                query = await applyFilters(toQuery: query, filters: filters)
             }
-        } else {
             let restaurants = try await query.getDocuments(as: Restaurant.self)
-            //print("DEBUG: restaurants fetched", restaurants.count)
+            print("DEBUG: restaurants fetched", restaurants.count)
             return restaurants
         }
-    }
     
     
     //MARK: applyFilters
@@ -58,10 +55,6 @@ class RestaurantService {
             switch field {
             case "location":
                 continue
-//                if let coordinates = value.first as? CLLocation {
-//                    let modifiedQuery = await locationQuery(toQuery: updatedQuery, coordinates: coordinates)
-//                    updatedQuery = modifiedQuery
-//                }
             default:
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
@@ -70,10 +63,8 @@ class RestaurantService {
     }
     
     
-    
-    func fetchLocation(coordinates: CLLocationCoordinate2D, query: Query) async -> [Restaurant] {
-        let center = coordinates
-        let radiusInM: Double = 1 * 1000
+    func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D) async throws -> [Restaurant] {
+        let radiusInM: Double = 3 * 1000
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         let queries = queryBounds.map { bound -> Query in
@@ -81,13 +72,19 @@ class RestaurantService {
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
                 .end(at: [bound.endValue])
+                .whereField("cuisine", in: ["Coffee & Tea"])
         }
         // After all callbacks have executed, matchingDocs contains the result. Note that this code
         // executes all queries serially, which may not be optimal for performance.
-        do {let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
+        do {
+            let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
                 for query in queries {
                     group.addTask {
-                        try await query.getDocuments(as: Restaurant.self)}
+                        let snapshot = try await query.getDocuments()
+                        return snapshot.documents.compactMap { document in
+                            try? document.data(as: Restaurant.self)
+                        }
+                    }
                 }
                 var matchingDocs = [Restaurant]()
                 for try await documents in group {
@@ -95,12 +92,12 @@ class RestaurantService {
                 }
                 return matchingDocs
             }
+            return matchingDocs
         } catch {
-            print("Unable to fetch snapshot data. \(error)")
+            throw error
         }
     }
 
-    
     
     
     

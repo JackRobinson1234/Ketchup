@@ -19,7 +19,7 @@ struct ActivityView: View {
             Button{setupGeofire()}
         label: {Text("Put in geofire")}
             //
-            Button{Task{ await fetchLocation()}}
+            Button{Task{try await fetchLocation()}}
         label: {Text("fetch All Restaurants")}
             
             //
@@ -45,34 +45,40 @@ struct ActivityView: View {
             }
         }
     }
-    func fetchLocation() async {
-        let center = CLLocationCoordinate2D(latitude: 34.02838036237139, longitude: -118.48004444947522)
-        let radiusInM: Double = 1 * 1000
-        let queryBounds = GFUtils.queryBounds(forLocation: center,
-                                              withRadius: radiusInM)
-        let queries = queryBounds.map { bound -> Query in
-            return FirestoreConstants.RestaurantCollection
-                .order(by: "geoHash")
-                .start(at: [bound.startValue])
-                .end(at: [bound.endValue])
-        }
-        // After all callbacks have executed, matchingDocs contains the result. Note that this code
-        // executes all queries serially, which may not be optimal for performance.
-        do {let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
-                for query in queries {
-                    group.addTask {
-                        try await query.getDocuments(as: Restaurant.self)}
-                }
-                var matchingDocs = [Restaurant]()
-                for try await documents in group {
-                    matchingDocs.append(contentsOf: documents)
-                }
-                return matchingDocs
+    func fetchLocation() async throws -> [Restaurant] {
+            let center = CLLocationCoordinate2D(latitude: 34.02838036237139, longitude: -118.48004444947522)
+            let radiusInM: Double = 1 * 1000
+            let queryBounds = GFUtils.queryBounds(forLocation: center, withRadius: radiusInM)
+            let queries = queryBounds.map { bound -> Query in
+                return FirestoreConstants.RestaurantCollection
+                    .order(by: "geoHash")
+                    .start(at: [bound.startValue])
+                    .end(at: [bound.endValue])
+                    .whereField("cuisine", in: ["Coffee & Tea"])
             }
-        } catch {
-            print("Unable to fetch snapshot data. \(error)")
+            
+            do {
+                let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
+                    for query in queries {
+                        group.addTask {
+                            let snapshot = try await query.getDocuments()
+                            return snapshot.documents.compactMap { document in
+                                try? document.data(as: Restaurant.self)
+                            }
+                        }
+                    }
+                    var matchingDocs = [Restaurant]()
+                    for try await documents in group {
+                        matchingDocs.append(contentsOf: documents)
+                    }
+                    return matchingDocs
+                }
+                print(matchingDocs)
+                return matchingDocs
+            } catch {
+                throw error
+            }
         }
-    }
     func fetchAllRestaurants() {
         Task{
             print("Running Fetch Restaurants")

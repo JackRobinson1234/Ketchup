@@ -67,8 +67,8 @@ struct MapView: View {
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
                     if cameraZoomedEnough {
                         let center = mapCameraUpdateContext.region.center
-                        let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
-                        fetchRestaurantsInView(center: location)
+                        //let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
+                        fetchRestaurantsInView(center: center)
                     }
                 }
                 
@@ -221,12 +221,11 @@ struct MapView: View {
     //MARK: fetchRestaurantsInView
     /// fetches another batch of restaurants if the new location is outside the radius of the last batch
     /// - Parameter center: CLLocation of the center of the camera view
-    private func fetchRestaurantsInView(center: CLLocation) {
+    private func fetchRestaurantsInView(center: CLLocationCoordinate2D) {
         if cameraZoomedEnough {
             /// Makes sure that there was a last location fetched from, and that it is far enough away from the new query
             if let lastLocation = viewModel.selectedLocation.first {
-                let distanceInKilometers = center.distance(from: lastLocation) / 1000
-                if distanceInKilometers > 10 {
+                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: 3.0) {
                     viewModel.selectedLocation = [center]
                     print("fetching new restaurants")
                     Task{
@@ -243,6 +242,14 @@ struct MapView: View {
             }
         }
     }
+    private func calculateDistanceInKilometers(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D, minDistanceKm: Double) -> Bool {
+        let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
+        let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
+        let distanceInMeters = location1.distance(from: location2)
+        let distanceInKilometers = distanceInMeters / 1000
+        return distanceInKilometers > minDistanceKm
+    }
+
 }
 
 #Preview {

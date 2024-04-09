@@ -72,7 +72,7 @@ struct NotificationCell: View {
         .padding(.horizontal)
     }
 }
-
-#Preview {
-    NotificationCell(notification: DeveloperPreview.notifications[0])
-}
+//
+//#Preview {
+//    NotificationCell(notification: DeveloperPreview.notifications[0])
+//}
