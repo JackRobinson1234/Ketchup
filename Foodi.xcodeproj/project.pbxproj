@@ -131,6 +131,9 @@
 		F8A98C282B9A66A700D399AB /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* ActivityView.swift */; };
 		F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */; };
 		F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */; };
+		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
+		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
+		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
 		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
@@ -297,6 +300,9 @@
 		F8A98C272B9A66A700D399AB /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDietaryRestrictionsView.swift; sourceTree = "<group>"; };
 		F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTimePicker.swift; sourceTree = "<group>"; };
+		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
+		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
+		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
 		F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -570,9 +576,8 @@
 		F84FE2852B6A550000144F01 /* Filters */ = {
 			isa = PBXGroup;
 			children = (
-				F8F494F42BBF8C440043B515 /* ViewModel */,
-				F8F494F32BBF8C350043B515 /* View */,
-				F8F494F22BBF8C230043B515 /* Individual Filters */,
+				F8BD81562BC5B108007C2CFC /* Feed */,
+				F8BD81552BC5B101007C2CFC /* Map */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -1132,6 +1137,42 @@
 			path = Restaurant;
 			sourceTree = "<group>";
 		};
+		F8BD81552BC5B101007C2CFC /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				F8BD81582BC5B161007C2CFC /* Indiividual Filters */,
+				F8BD81572BC5B158007C2CFC /* View */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		F8BD81562BC5B108007C2CFC /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				F8F494F22BBF8C230043B515 /* Individual Filters */,
+				F8F494F32BBF8C350043B515 /* View */,
+				F8F494F42BBF8C440043B515 /* ViewModel */,
+			);
+			path = Feed;
+			sourceTree = "<group>";
+		};
+		F8BD81572BC5B158007C2CFC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F8BD81582BC5B161007C2CFC /* Indiividual Filters */ = {
+			isa = PBXGroup;
+			children = (
+				F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */,
+				F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */,
+			);
+			path = "Indiividual Filters";
+			sourceTree = "<group>";
+		};
 		F8F494F22BBF8C230043B515 /* Individual Filters */ = {
 			isa = PBXGroup;
 			children = (
@@ -1441,6 +1482,7 @@
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
 				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
+				F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */,
 				F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */,
 				F871B0062B8AA16400E4EB5F /* NavigationLazyView.swift in Sources */,
 				F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */,
@@ -1515,6 +1557,7 @@
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
+				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
 				F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */,
 				F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */,
@@ -1543,6 +1586,7 @@
 				F88E0AD42B6B070300EC159B /* ContentVIewModel.swift in Sources */,
 				F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */,
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
+				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
 				F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */,

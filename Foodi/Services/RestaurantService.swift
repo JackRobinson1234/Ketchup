@@ -69,12 +69,11 @@ class RestaurantService {
     ///   - center: CLLocationCoordinate2D that represents the center point of the query
     /// - Returns: Array of restaurants that match all of the filters
     func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D) async throws -> [Restaurant] {
-        let radiusInM: Double = 3 * 1000
+        let radiusInM: Double = 2 * 1000
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         let queries = queryBounds.map { bound -> Query in
             return applyFilters(toQuery: FirestoreConstants.RestaurantCollection
-                //.whereField("cuisine", in: ["Coffee & Tea"])
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
                 .end(at: [bound.endValue]), filters: filters)

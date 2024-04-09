@@ -20,19 +20,12 @@ class MapViewModel: ObservableObject {
     
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
-    @Published var selectedDietary: [String] = []
-    @Published var selectedCookingTime: [Int] = []
-    
-    
-    /// variables for the location filter
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
-    @Published var selectedCity: String = ""
-    @Published var selectedState: String = ""
+    
     
     
     /// variables for the postType filter
-    @Published var restaurantChecked: Bool = true
-    @Published var atHomeChecked: Bool = true
+    
     //MARK: fetchFilteredRestaurants
     func fetchFilteredRestaurants() async {
         do{

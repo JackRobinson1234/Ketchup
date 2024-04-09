@@ -60,6 +60,31 @@ struct MapView: View {
                     /// User Icon
                     UserAnnotation()
                 }
+                .overlay{if !cameraZoomedEnough {
+                    Spacer()
+                    Text("Zoom Map to Show Restaurants")
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                        .padding(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .foregroundColor(Color.white)
+                                .opacity(0.5)
+                        )
+                    //MARK: No Restaurants Notice
+                } else if viewModel.restaurants.isEmpty {
+                    Spacer()
+                    Text("No Restaurants Nearby")
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                        .padding(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .foregroundColor(Color.white)
+                                .opacity(0.5)
+                        )
+                }
+                }
                 
                 //MARK: Fetching Restaurants
                 ///Based on zoom level and the center of the camera
@@ -67,7 +92,6 @@ struct MapView: View {
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
                     if cameraZoomedEnough {
                         let center = mapCameraUpdateContext.region.center
-                        //let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
                         fetchRestaurantsInView(center: center)
                     }
                 }
@@ -105,28 +129,7 @@ struct MapView: View {
                                     .shadow(color: .gray, radius: 10)
                             }
                             //MARK: Zoom Notice
-                            if !cameraZoomedEnough {
-                                Spacer()
-                                Text("Zoom Map to Show Restaurants")
-                                    .font(.subheadline)
-                                    .foregroundColor(.black)
-                                    .padding(10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .foregroundColor(Color.white)
-                                    )
-                                //MARK: No Restaurants Notice
-                            } else if viewModel.restaurants.isEmpty {
-                                Spacer()
-                                Text("No Restaurants Nearby")
-                                    .font(.subheadline)
-                                    .foregroundColor(.black)
-                                    .padding(10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .foregroundColor(Color.white)
-                                    )
-                            }
+                            
                             Spacer()
                             
                             
@@ -176,17 +179,15 @@ struct MapView: View {
                     }
                 })
                 
-                //MARK: MapSearchView
+                //MARK: Search
                 .sheet(isPresented: $isSearchPresented) {
                     NavigationStack {
                         MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
                     }
                 }
-                //MARK: Filters Button
-                .sheet(isPresented: $isFiltersPresented) {
-                    NavigationStack {
-                        //TODO: FiltersView(feedViewModel:)
-                    }
+                //MARK: Filters
+                .fullScreenCover(isPresented: $isFiltersPresented) {
+                    MapFiltersView(mapViewModel: viewModel)
                 }
                 .mapStyle(.standard(elevation: .realistic))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -214,7 +215,7 @@ struct MapView: View {
     }
     //MARK: isZoomedEnough
     private func isZoomedInEnough(span: MKCoordinateSpan) {
-        let update = span.longitudeDelta < 0.15
+        let update = span.longitudeDelta < 0.10
         cameraZoomedEnough = update
     }
     
@@ -225,7 +226,7 @@ struct MapView: View {
         if cameraZoomedEnough {
             /// Makes sure that there was a last location fetched from, and that it is far enough away from the new query
             if let lastLocation = viewModel.selectedLocation.first {
-                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: 3.0) {
+                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: 2.0) {
                     viewModel.selectedLocation = [center]
                     print("fetching new restaurants")
                     Task{
@@ -242,6 +243,13 @@ struct MapView: View {
             }
         }
     }
+    //MARK: calculateDistanceInKilometers
+    ///  Provides a boolean of if 2 CLLocationCoordinate2Ds are outside the minimum range of eachother
+    /// - Parameters:
+    ///   - coordinate1: CLLocationCoordinate2D
+    ///   - coordinate2: CLLocationCoordinate2D
+    ///   - minDistanceKm: checks to see if the coordiates
+    /// - Returns: Boolean of whether the distance is greater than the mindistance
     private func calculateDistanceInKilometers(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D, minDistanceKm: Double) -> Bool {
         let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
         let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)

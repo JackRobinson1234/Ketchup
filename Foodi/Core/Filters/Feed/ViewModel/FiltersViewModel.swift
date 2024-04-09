@@ -19,7 +19,7 @@ class FiltersViewModel: ObservableObject {
     
     
     /// variables for the location filter
-    @Published var selectedLocation: [CLLocation] = []
+    @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var selectedCity: String = ""
     @Published var selectedState: String = ""
     
