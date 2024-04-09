@@ -19,9 +19,10 @@ struct MapView: View {
     @ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
     @Namespace var mapScope /// Sets a range for how big the map is so that the user button gets set in the right spot
-    @State var cameraZoomedEnough = true /// Whether or not the longitude delta is zoomed in enough to view spots
-    @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0) /// used to track when more restaurants need to be fetched
-    
+    @State var cameraZoomedEnough = false /// Whether or not the longitude delta is zoomed in enough to view spots
+    @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
+    private var isZoomedEnoughLongitudeSpan: Double = 0.1
+    private var kmChangeToUpdateFetch: Double = 2.0 //EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
     
     
     init() {
@@ -36,23 +37,16 @@ struct MapView: View {
             ZStack(alignment: .bottom) {
                 Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
                     /// No specific Restaurant has been selected from the search view
-                    if !inSearchView{
+                    
                         if cameraZoomedEnough {
                             //MARK: Restaurant Annotations
                             ForEach(viewModel.restaurants, id: \.self) { restaurant in
                                 if let coordinates = restaurant.coordinates {
                                     Annotation(restaurant.name, coordinate: coordinates) {
-                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        /// Restaurants have been selected from the search bar
-                        ForEach(viewModel.searchPreview, id: \.self) { restaurant in
-                            if let coordinates = restaurant.coordinates {
-                                Annotation(restaurant.name, coordinate: coordinates) {
-                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .small)
+                                                                                Circle()
+                                            .foregroundStyle(.blue)
+                                                                                    .frame(width: 15, height: 15)
+//                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                                 }
                             }
                         }
@@ -60,6 +54,7 @@ struct MapView: View {
                     /// User Icon
                     UserAnnotation()
                 }
+                //MARK: Zoom Message
                 .overlay{if !cameraZoomedEnough {
                     Spacer()
                     Text("Zoom Map to Show Restaurants")
@@ -74,25 +69,43 @@ struct MapView: View {
                     //MARK: No Restaurants Notice
                 } else if viewModel.restaurants.isEmpty {
                     Spacer()
-                    Text("No Restaurants Nearby")
-                        .font(.subheadline)
-                        .foregroundColor(.black)
-                        .padding(10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .foregroundColor(Color.white)
-                                .opacity(0.5)
-                        )
+                    VStack{
+                        Text("No Restaurants Nearby")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                            .padding(10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .foregroundColor(Color.white)
+                                    .opacity(0.5)
+                            )
+                        Button{
+                        } label: {
+                            Text("Find Nearest Restaurant")
+                                .font(.subheadline)
+                                .foregroundColor(.black)
+                                .padding(10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundColor(Color.white)
+                                        .opacity(0.5)
+                                )
+                        }
+                    }
                 }
                 }
-                
                 //MARK: Fetching Restaurants
                 ///Based on zoom level and the center of the camera
                 .onMapCameraChange { mapCameraUpdateContext in
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
                     if cameraZoomedEnough {
                         let center = mapCameraUpdateContext.region.center
-                        fetchRestaurantsInView(center: center)
+                        Task {
+                            await fetchRestaurantsInView(center: center)
+                        }
+                    }
+                    else {
+                        showRestaurantPreview = false
                     }
                 }
                 
@@ -152,20 +165,9 @@ struct MapView: View {
                     
                     else {
                         VStack{
-                            HStack{
-                                //MARK: Cancel Search
-                                Button{
-                                    inSearchView = false
-                                    position = .userLocation(fallback: .automatic)
-                                } label: {
-                                    Text("Cancel")
-                                        .foregroundStyle(.blue)
-                                        .bold()
-                                }
-                                Spacer()
-                            }
-                            .padding(32)
-                            .padding(.top, 20)
+                            MapSearchView(cameraPosition: $position, inSearchView: $inSearchView)
+                                .padding(32)
+                                .padding(.top, 20)
                             Spacer()
                         }
                     }
@@ -179,12 +181,6 @@ struct MapView: View {
                     }
                 })
                 
-                //MARK: Search
-                .sheet(isPresented: $isSearchPresented) {
-                    NavigationStack {
-                        MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
-                    }
-                }
                 //MARK: Filters
                 .fullScreenCover(isPresented: $isFiltersPresented) {
                     MapFiltersView(mapViewModel: viewModel)
@@ -215,18 +211,18 @@ struct MapView: View {
     }
     //MARK: isZoomedEnough
     private func isZoomedInEnough(span: MKCoordinateSpan) {
-        let update = span.longitudeDelta < 0.10
+        let update = span.longitudeDelta < isZoomedEnoughLongitudeSpan
         cameraZoomedEnough = update
     }
     
     //MARK: fetchRestaurantsInView
     /// fetches another batch of restaurants if the new location is outside the radius of the last batch
     /// - Parameter center: CLLocation of the center of the camera view
-    private func fetchRestaurantsInView(center: CLLocationCoordinate2D) {
+    private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
         if cameraZoomedEnough {
             /// Makes sure that there was a last location fetched from, and that it is far enough away from the new query
             if let lastLocation = viewModel.selectedLocation.first {
-                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: 2.0) {
+                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: kmChangeToUpdateFetch) {
                     viewModel.selectedLocation = [center]
                     print("fetching new restaurants")
                     Task{

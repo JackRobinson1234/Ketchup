@@ -21,6 +21,8 @@ class MapViewModel: ObservableObject {
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
+    @Published var selectedCity: String = ""
+    @Published var selectedState: String = ""
     
     
     

@@ -4,9 +4,11 @@
 //
 //  Created by Jack Robinson on 4/1/24.
 //
-import Foundation
 import SwiftUI
+import Combine
+import CoreLocation
 import MapKit
+
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
