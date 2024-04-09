@@ -21,6 +21,7 @@ struct CustomCameraView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+            
                 
                 CameraView(viewModel: cameraViewModel)
                     .ignoresSafeArea()

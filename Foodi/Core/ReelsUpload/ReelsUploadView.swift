@@ -43,7 +43,6 @@ struct ReelsUploadView: View {
                 .padding(.top, 60)
                 .blur(radius: dropdownShown ? 10 : 0)
             }
-        
             //  SELECT POST TYPE DROP DOWN
             VStack(spacing: 0) {
                 // Dropdown header
@@ -137,13 +136,33 @@ struct ReelsUploadView: View {
                 Spacer() // Pushes everything else down
             }
         }
+        .preferredColorScheme(.light)
         .onAppear {
             withAnimation {
                 dropdownShown = true
             }
         }
-        .preferredColorScheme(.light)
+        
+        //POSS Check if keyboard is active here 
+        .onTapGesture {
+            dismissKeyboard()
+        }
+        .gesture(
+            DragGesture().onChanged { value in
+                if value.translation.height > 50 {
+                    dismissKeyboard()
+                }
+            }
+        )
     }
+    
+    
+    // Dismiss keyboard method
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    
 }
 
 struct CaptionBox: View {
@@ -205,12 +224,11 @@ struct CaptionBox: View {
                     .font(.caption)
                     .foregroundColor(caption.count > maxCharacters ? .red : .gray)
                     .padding(.horizontal, 30)
-                    .padding(.bottom, 10)
             }
 
             Spacer()
         }
-        .frame(maxHeight: 150)
+        .frame(maxHeight: 130)
     }
 }
 

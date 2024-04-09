@@ -34,115 +34,75 @@ struct ReelsHomeView: View {
 
     var body: some View {
         
-        
-        ZStack(alignment: .bottom) {
-            
-            // WHAT THE CAMERA SEES
-            CameraPreview(cameraModel: cameraModel, size: CGSize(width: 390.0, height: 844.0))
-                .environmentObject(cameraModel)
-                .cornerRadius(10)
-                .onAppear { cameraModel.checkPermission() }
-                .gesture(drag)
+        NavigationStack {
+            ZStack(alignment: .bottom) {
                 
-            
-            // MARK: CameraControls
-            ZStack {
-                if self.dragDirection == "left" {
-                    VideoCameraControls(cameraModel: cameraModel)
-                } else {
-                    PhotoCameraControls(cameraModel: cameraModel)
+                Color.black
+                    .ignoresSafeArea()
+                
+                // WHAT THE CAMERA SEES
+                CameraPreview(cameraModel: cameraModel, size: CGSize(width: 390.0, height: 844.0))
+                    .environmentObject(cameraModel)
+                    .cornerRadius(10)
+                    .onAppear { cameraModel.checkPermission() }
+                    .gesture(drag)
+                    
+                
+                // MARK: CameraControls
+                ZStack {
+                    if self.dragDirection == "left" {
+                        VideoCameraControls(cameraModel: cameraModel)
+                    } else {
+                        PhotoCameraControls(cameraModel: cameraModel)
+                    }
                 }
-            }
-            
-            
-            // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
-            VStack {
                 
-                Spacer()
                 
-                HStack {
-                    Image(systemName: "photo.on.rectangle")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50, height:50)
-                        .padding(.leading, 60)
+                // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
+                VStack {
                     
                     Spacer()
-                }
-                .padding(.bottom, 20)
-                
-                HStack {
-                    Text("Video")
-                        .foregroundColor(self.dragDirection == "left" ? .white : .gray)
-                        .fontWeight(self.dragDirection == "left" ? .bold : .regular)
-                        .onTapGesture {
-                            self.dragDirection = "left"
-                        }
                     
-                    Text("Photo")
-                        .foregroundColor(self.dragDirection == "right" ? .white : .gray)
-                        .fontWeight(self.dragDirection == "right" ? .bold : .regular)
-                        .onTapGesture {
-                            self.dragDirection = "right"
-                        }
+                    HStack {
+                        Image(systemName: "photo.on.rectangle")
+                            .resizable()
+                            .foregroundColor(.white)
+                            .scaledToFit()
+                            .frame(width: 50, height:50)
+                            .padding(.leading, 60)
+                        
+                        Spacer()
+                    }
+                    .padding(.bottom, 20)
+                    
+                    HStack {
+                        Text("Video")
+                            .foregroundColor(self.dragDirection == "left" ? .white : .gray)
+                            .fontWeight(self.dragDirection == "left" ? .bold : .regular)
+                            .onTapGesture {
+                                self.dragDirection = "left"
+                            }
+                        
+                        Text("Photo")
+                            .foregroundColor(self.dragDirection == "right" ? .white : .gray)
+                            .fontWeight(self.dragDirection == "right" ? .bold : .regular)
+                            .onTapGesture {
+                                self.dragDirection = "right"
+                            }
+                    }
+                    .padding(.bottom, 10)
+                    
                 }
-                .padding(.bottom, 10)
+                .opacity(cameraModel.isPhotoTaken || (cameraModel.previewURL != nil || !cameraModel.recordedURLs.isEmpty) || cameraModel.isRecording ? 0 : 1)
+
                 
             }
-            .opacity(cameraModel.isPhotoTaken || (cameraModel.previewURL != nil || !cameraModel.recordedURLs.isEmpty) || cameraModel.isRecording ? 0 : 1)
+            .navigationDestination(isPresented: $cameraModel.showPreview) {
+                ReelsUploadView(cameraModel: cameraModel)
+            }
+            .animation(.easeInOut, value: cameraModel.showPreview)
+        }
 
-            
-        }
-        .sheet(isPresented: $cameraModel.showPreview) {
-            ReelsUploadView(cameraModel: cameraModel)
-        }
-    
-//        .overlay(content: {
-//            if cameraModel.showPreview {
-//                if cameraModel.previewType == "video" {
-//                    
-//                    FinalVideoPreview(cameraModel: cameraModel)
-//                        .transition(.move(edge: .trailing))
-//                    
-//                } else if cameraModel.previewType == "photo" {
-//                    
-//                    FinalPhotoPreview(cameraModel: cameraModel)
-//                        .transition(.move(edge: .trailing))
-//                    
-//                } else {
-//                    let _ = print("NO PREVIEW TYPE")
-//                }
-//                
-//                VStack {
-//                    
-//                    Spacer()
-//                    
-//                    HStack {
-//                
-//                        Spacer()
-//                        
-//                        NavigationLink(destination: ReelsUploadView()) {
-//                            Label {
-//                                Image(systemName: "chevron.right")
-//                                    .font(.callout)
-//                            } icon: {
-//                                Text("Done")
-//                            }
-//                            .foregroundColor(.black)
-//                            .padding(.horizontal, 10)
-//                            .padding(.vertical, 5)
-//                            .background(Capsule().fill(.white))
-//                        }
-//                        .padding(.bottom, 50)
-//                        .padding(.trailing, 30)
-//                    }
-//                }
-//                
-//                
-//            }
-//        })
-        .animation(.easeInOut, value: cameraModel.showPreview)
-        .preferredColorScheme(.dark)
     }
 }
 

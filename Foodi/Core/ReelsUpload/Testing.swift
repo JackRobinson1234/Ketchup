@@ -16,13 +16,13 @@ struct Testing: View {
         
         VStack {
             CaptionBox(caption: $caption)
-            
+                .frame(maxHeight: 130)
             Button {
                 isPickingRestaurant.toggle()
             } label: {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.gray, lineWidth: 5)
-                    .padding()
+                    .padding(.bottom)
                     
             }
             Spacer()
