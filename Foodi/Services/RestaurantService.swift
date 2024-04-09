@@ -49,7 +49,7 @@ class RestaurantService {
     ///   - query: the existing query that needs to have filters applied to it
     ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
     /// - Returns: the original query with .whereFields attached to it
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) async -> Query {
+    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
@@ -63,22 +63,27 @@ class RestaurantService {
     }
     
     
+    /// Fetches restaurants that fall within the "radiusInM" range and applies any additional filters selected to that query
+    /// - Parameters:
+    ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
+    ///   - center: CLLocationCoordinate2D that represents the center point of the query
+    /// - Returns: Array of restaurants that match all of the filters
     func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D) async throws -> [Restaurant] {
         let radiusInM: Double = 3 * 1000
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         let queries = queryBounds.map { bound -> Query in
-            return FirestoreConstants.RestaurantCollection
+            return applyFilters(toQuery: FirestoreConstants.RestaurantCollection
+                //.whereField("cuisine", in: ["Coffee & Tea"])
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
-                .end(at: [bound.endValue])
-                .whereField("cuisine", in: ["Coffee & Tea"])
+                .end(at: [bound.endValue]), filters: filters)
         }
-        // After all callbacks have executed, matchingDocs contains the result. Note that this code
-        // executes all queries serially, which may not be optimal for performance.
+        // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
         do {
             let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
                 for query in queries {
+                    //await applyFilters(toQuery: query, filters: filters)
                     group.addTask {
                         let snapshot = try await query.getDocuments()
                         return snapshot.documents.compactMap { document in
@@ -96,70 +101,5 @@ class RestaurantService {
         } catch {
             throw error
         }
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //MARK: locationQuery
-    /// Uses GeoFire to fetch locations. If no locations are found, will give a query that will not return any restaurants
-    /// - Parameters:
-    ///   - query: existing query to have another .whereField appended to it
-    ///   - coordinates: coordinates of the center of the radius
-    /// - Returns: an updated query that finds restaurantIds based on returned restaurantIds from GeoFire
-    func locationQuery(toQuery query: Query, coordinates: CLLocation, radius: Double? = 10.0) async -> Query {
-        let radius: Double = 10.0
-        let geoFire = GeoFireManager.shared.geoFire
-        let circleQuery = geoFire.query(at: coordinates, withRadius: radius)
-        var nearbyRestaurants: [String] = []
-        // Perform the asynchronous GeoFire query
-        let circleQueryResult = await withCheckedContinuation { continuation in
-            circleQuery.observe(.keyEntered, with: { (key, location) in
-                nearbyRestaurants.append(key)
-            })
-            circleQuery.observeReady {
-                if !nearbyRestaurants.isEmpty {
-                    let updatedQuery = query.whereField("id", in: nearbyRestaurants)
-                    continuation.resume(returning: updatedQuery)
-                } else {
-                    /// Sets the query to an object where no restaurants will be found
-                    let updatedQuery = query.whereField("id", in: ["No restaurant Found"])
-                    continuation.resume(returning: updatedQuery)
-                }
-            }
-        }
-        /// Return the modified query asynchronously
-        return circleQueryResult
     }
 }
