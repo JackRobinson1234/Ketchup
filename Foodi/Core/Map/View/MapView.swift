@@ -31,193 +31,182 @@ struct MapView: View {
     
     
     var body: some View {
-        
-        //MARK: Loading Screen
-        if isLoading {
-            // Loading screen
-            ProgressView("Loading...")
-                .onAppear {
-                    Task {
-                        //try await viewModel.fetchRestaurants()
-                        isLoading = false
-                    }
-                }
-        } else {
-            //MARK: Restaurant Annotations
-            NavigationStack{
-                ZStack(alignment: .bottom) {
-                    Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
-                        /// No specific Restaurant has been selected from the search view
-                        if !inSearchView{
-                            if cameraZoomedEnough {
-                                ForEach(viewModel.restaurants, id: \.self) { restaurant in
-                                    if let coordinates = restaurant.coordinates {
-                                        Annotation(restaurant.name, coordinate: coordinates) {
-                                            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            /// Restaurants have been selected from the search bar
-                            ForEach(viewModel.searchPreview, id: \.self) { restaurant in
+        //MARK: Map
+        NavigationStack{
+            ZStack(alignment: .bottom) {
+                Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
+                    /// No specific Restaurant has been selected from the search view
+                    if !inSearchView{
+                        if cameraZoomedEnough {
+                            //MARK: Restaurant Annotations
+                            ForEach(viewModel.restaurants, id: \.self) { restaurant in
                                 if let coordinates = restaurant.coordinates {
                                     Annotation(restaurant.name, coordinate: coordinates) {
-                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .small)
+                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                                     }
                                 }
                             }
                         }
-                        /// User Icon
-                        UserAnnotation()
-                    }
-                    
-                    //MARK: Fetching Restaurants
-                    ///Based on zoom level and the center of the camera
-                    .onMapCameraChange { mapCameraUpdateContext in
-                        isZoomedInEnough(span: mapCameraUpdateContext.region.span)
-                        if cameraZoomedEnough {
-                            let center = mapCameraUpdateContext.region.center
-                            let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
-                            fetchRestaurantsInView(center: location)
+                    } else {
+                        /// Restaurants have been selected from the search bar
+                        ForEach(viewModel.searchPreview, id: \.self) { restaurant in
+                            if let coordinates = restaurant.coordinates {
+                                Annotation(restaurant.name, coordinate: coordinates) {
+                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .small)
+                                }
+                            }
                         }
                     }
-                    
-                    //MARK: Initial Camera
-                    /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
-                    .onAppear{
-                        let losAngeles = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
-                        let losAngelesSpan = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
-                        let losAngelesRegion = MKCoordinateRegion(center: losAngeles, span: losAngelesSpan)
-                        position = .userLocation(fallback: .region(losAngelesRegion))
+                    /// User Icon
+                    UserAnnotation()
+                }
+                
+                //MARK: Fetching Restaurants
+                ///Based on zoom level and the center of the camera
+                .onMapCameraChange { mapCameraUpdateContext in
+                    isZoomedInEnough(span: mapCameraUpdateContext.region.span)
+                    if cameraZoomedEnough {
+                        let center = mapCameraUpdateContext.region.center
+                        let location = CLLocation(latitude: center.latitude, longitude: center.longitude)
+                        fetchRestaurantsInView(center: location)
                     }
-                    // MARK: User Location button
-                    .overlay(alignment: .bottomTrailing) {
-                        VStack {
-                            MapUserLocationButton(scope: mapScope)
-                        }
-                        .padding([.bottom, .trailing], 20)
-                        .buttonBorderShape(.circle)
-                    }
-                    .mapScope(mapScope)
-                    
+                }
+                
+                //MARK: Initial Camera
+                /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
+                .onAppear{
+                    let losAngeles = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
+                    let losAngelesSpan = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+                    let losAngelesRegion = MKCoordinateRegion(center: losAngeles, span: losAngelesSpan)
+                    position = .userLocation(fallback: .region(losAngelesRegion))
+                }
+                // MARK: User Location button
+                .overlay(alignment: .bottomTrailing) {
                     VStack {
-                        if !inSearchView{
-                            HStack {
-                                // MARK: Search Button
-                                Button(action: {
-                                    inSearchView.toggle()
-                                    isSearchPresented.toggle()
-                                    position = .automatic
-                                }) {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundStyle(.white)
-                                        .font(.system(size: 27))
-                                        .shadow(color: .gray, radius: 10)
-                                }
-                                //MARK: Zoom Notice
-                                if !cameraZoomedEnough {
+                        MapUserLocationButton(scope: mapScope)
+                    }
+                    .padding([.bottom, .trailing], 20)
+                    .buttonBorderShape(.circle)
+                }
+                .mapScope(mapScope)
+                
+                VStack {
+                    if !inSearchView{
+                        HStack {
+                            // MARK: Search Button
+                            Button(action: {
+                                inSearchView.toggle()
+                                isSearchPresented.toggle()
+                                position = .automatic
+                            }) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 27))
+                                    .shadow(color: .gray, radius: 10)
+                            }
+                            //MARK: Zoom Notice
+                            if !cameraZoomedEnough {
                                 Spacer()
-                                    Text("Zoom Map to Show Restaurants")
-                                                .font(.subheadline)
-                                                .foregroundColor(.black)
-                                                .padding(10)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundColor(Color.white)
-                                                )
-                                } else if viewModel.restaurants.isEmpty {
-                                    Spacer()
-                                    Text("No Restaurants Nearby")
-                                                .font(.subheadline)
-                                                .foregroundColor(.black)
-                                                .padding(10)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundColor(Color.white)
-                                                )
-                                }
+                                Text("Zoom Map to Show Restaurants")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                    .padding(10)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .foregroundColor(Color.white)
+                                    )
+                                //MARK: No Restaurants Notice
+                            } else if viewModel.restaurants.isEmpty {
                                 Spacer()
-    
+                                Text("No Restaurants Nearby")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                    .padding(10)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .foregroundColor(Color.white)
+                                    )
+                            }
+                            Spacer()
+                            
+                            
+                            //MARK: Filter Button
+                            Button {
+                                isFiltersPresented.toggle()
+                            } label: {
+                                Image(systemName: "slider.horizontal.3")
+                                    .imageScale(.large)
+                                    .shadow(radius: 10)
+                                    .font(.system(size: 23))
                                 
-                                //MARK: Filter Button
-                                Button {
-                                    isFiltersPresented.toggle()
+                            }
+                        }
+                        .padding(32)
+                        .padding(.top, 20)
+                        .foregroundStyle(.white)
+                        Spacer()
+                    }
+                    
+                    else {
+                        VStack{
+                            HStack{
+                                //MARK: Cancel Search
+                                Button{
+                                    inSearchView = false
+                                    position = .userLocation(fallback: .automatic)
                                 } label: {
-                                    Image(systemName: "slider.horizontal.3")
-                                        .imageScale(.large)
-                                        .shadow(radius: 10)
-                                        .font(.system(size: 23))
-                                    
+                                    Text("Cancel")
+                                        .foregroundStyle(.blue)
+                                        .bold()
                                 }
+                                Spacer()
                             }
                             .padding(32)
                             .padding(.top, 20)
-                            .foregroundStyle(.white)
                             Spacer()
-                        }
-                        
-                        else {
-                            VStack{
-                                HStack{
-                                    //MARK: Cancel Search
-                                    Button{
-                                        inSearchView = false
-                                        position = .userLocation(fallback: .automatic)
-                                    } label: {
-                                        Text("Cancel")
-                                            .foregroundStyle(.blue)
-                                            .bold()
-                                    }
-                                    Spacer()
-                                }
-                                .padding(32)
-                                .padding(.top, 20)
-                                Spacer()
-                            }
-                        }
-                    }
-                    /// triggers restaurant preview if the user clicks on empty space
-                    .onChange(of: selectedRestaurant, { oldValue, newValue in
-                        if newValue != nil {
-                            showRestaurantPreview = true
-                        } else {
-                            showRestaurantPreview = false
-                        }
-                    })
-                    
-                    //MARK: MapSearchView
-                    .sheet(isPresented: $isSearchPresented) {
-                        NavigationStack {
-                            MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
-                        }
-                    }
-                    //MARK: Filters Button
-                    .sheet(isPresented: $isFiltersPresented) {
-                        NavigationStack {
-                            //TODO: FiltersView(feedViewModel:)
-                        }
-                    }
-                    .mapStyle(.standard(elevation: .realistic))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .ignoresSafeArea()
-                    
-                    //MARK: Restaurant Preview
-                    if showRestaurantPreview, let restaurant = selectedRestaurant {
-                        withAnimation(.snappy) {
-                            MapRestaurantView(restaurant: restaurant)
-                                .onTapGesture {
-                                    showRestaurantPreview.toggle()
-                                }
-                            
                         }
                     }
                 }
-                /// Asks for location permission
-                .onAppear{LocationManager.shared.requestLocation()}
+                /// triggers restaurant preview if the user clicks on empty space
+                .onChange(of: selectedRestaurant, { oldValue, newValue in
+                    if newValue != nil {
+                        showRestaurantPreview = true
+                    } else {
+                        showRestaurantPreview = false
+                    }
+                })
+                
+                //MARK: MapSearchView
+                .sheet(isPresented: $isSearchPresented) {
+                    NavigationStack {
+                        MapSearchView(restaurantService: RestaurantService(), mapViewModel: viewModel, inSearchView: $inSearchView)
+                    }
+                }
+                //MARK: Filters Button
+                .sheet(isPresented: $isFiltersPresented) {
+                    NavigationStack {
+                        //TODO: FiltersView(feedViewModel:)
+                    }
+                }
+                .mapStyle(.standard(elevation: .realistic))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .ignoresSafeArea()
+                
+                //MARK: Restaurant Preview
+                if showRestaurantPreview, let restaurant = selectedRestaurant {
+                    withAnimation(.snappy) {
+                        MapRestaurantView(restaurant: restaurant)
+                            .onTapGesture {
+                                showRestaurantPreview.toggle()
+                            }
+                        
+                    }
+                }
             }
-            
+            /// Asks for location permission
+            .onAppear{LocationManager.shared.requestLocation()}
         }
+        
     }
     //MARK: clearSelectedListing
     func clearSelectedListing() {
@@ -255,9 +244,6 @@ struct MapView: View {
         }
     }
 }
-
-
-
 
 #Preview {
     MapView()

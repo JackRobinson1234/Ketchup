@@ -8,41 +8,93 @@
 import SwiftUI
 import FirebaseDatabase
 import GeoFire
-
+import FirebaseFirestore
+import Firebase
 
 struct ActivityView: View {
+    @State var restaurants: [Restaurant] = []
+    
     var body: some View {
         VStack{
             Button{setupGeofire()}
-        label: {Text("Test")}
-            Button{fetchLocation()}
-        label: {Text("Test")}
+        label: {Text("Put in geofire")}
+            //
+            Button{Task{ await fetchLocation()}}
+        label: {Text("fetch All Restaurants")}
+            
+            //
+            
         }
     }
     func setupGeofire() {
-        let geofireRef = Database.database().reference()
-        let geoFire = GeoFire(firebaseRef: geofireRef)
-        geoFire.setLocation(CLLocation(latitude: 34.0168871, longitude: -118.5013209), forKey: "-1QvxFtMgOLpSbO-oAtUgA") { (error) in
-            if (error != nil) {
-                print("An error occured: \(error)")
-            } else {
-                print("Saved location successfully!")
+        for restaurant in restaurants {
+            if let geoPoint = restaurant.geoPoint {
+                let location = CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+                let hash = GFUtils.geoHash(forLocation: location)
+                let documentData: [String: Any] = [
+                    "geoHash": hash
+                ]
+                let restaurantRef = FirestoreConstants.RestaurantCollection.document(restaurant.id)
+                restaurantRef.setData(documentData, merge: true) { error in
+                    if let error = error {
+                        print("Error updating geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
+                    } else {
+                        print("Geohash updated successfully for restaurant \(restaurant.id)")
+                    }
+                }
             }
         }
     }
-    func fetchLocation() {
-        let geofireRef = Database.database().reference()
-        let geoFire = GeoFire(firebaseRef: geofireRef)
-        let center = CLLocation(latitude: 37.7832889, longitude: -122.4056973)
-        let radius = 0.6 // in kilometers
-        
-        // Query locations within the specified radius from the center
-        let circleQuery = geoFire.query(at: center, withRadius: radius)
-        circleQuery.observe(.keyEntered, with: { (key, location) in
-            print("Key: \(key), Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-        })
+    func fetchLocation() async {
+        let center = CLLocationCoordinate2D(latitude: 34.02838036237139, longitude: -118.48004444947522)
+        let radiusInM: Double = 1 * 1000
+        let queryBounds = GFUtils.queryBounds(forLocation: center,
+                                              withRadius: radiusInM)
+        let queries = queryBounds.map { bound -> Query in
+            return FirestoreConstants.RestaurantCollection
+                .order(by: "geoHash")
+                .start(at: [bound.startValue])
+                .end(at: [bound.endValue])
+        }
+        // After all callbacks have executed, matchingDocs contains the result. Note that this code
+        // executes all queries serially, which may not be optimal for performance.
+        do {let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
+                for query in queries {
+                    group.addTask {
+                        try await query.getDocuments(as: Restaurant.self)}
+                }
+                var matchingDocs = [Restaurant]()
+                for try await documents in group {
+                    matchingDocs.append(contentsOf: documents)
+                }
+                return matchingDocs
+            }
+        } catch {
+            print("Unable to fetch snapshot data. \(error)")
+        }
+    }
+    func fetchAllRestaurants() {
+        Task{
+            print("Running Fetch Restaurants")
+            restaurants = try await RestaurantService().fetchRestaurants()
+            print("Finished Running Fetch Restaurants")
+            print(restaurants.count)
+        }
+    }
+    func deleteOld() async {
+        for restaurant in restaurants {
+            let restaurantRef = FirestoreConstants.RestaurantCollection.document(restaurant.id)
+            restaurantRef.updateData(["geohash": FieldValue.delete()]) { error in
+                if let error = error {
+                    print("Error deleting geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
+                } else {
+                    print("Geohash deleted successfully for restaurant \(restaurant.id)")
+                }
+            }
+        }
     }
 }
+    
 #Preview {
     ActivityView()
 }

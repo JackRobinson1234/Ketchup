@@ -17,6 +17,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let price: String?
     let name: String
     let geoPoint: GeoPoint?
+    let geoHash: String?
     let address: String?
     let city: String?
     let state: String?
@@ -31,6 +32,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.name = try container.decode(String.self, forKey: .name)
         self.geoPoint = try container.decodeIfPresent(GeoPoint.self, forKey: .geoPoint)
+        self.geoHash = try container.decodeIfPresent(String.self, forKey: .geoHash)
         self.address = try container.decodeIfPresent(String.self, forKey: .address)
         self.city = try container.decodeIfPresent(String.self, forKey: .city)
         self.state = try container.decodeIfPresent(String.self, forKey: .state)
@@ -39,26 +41,27 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
     }
     
-    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
-            self.id = id
-            self.cuisine = cuisine
-            self.price = price
-            self.name = name
-            self.geoPoint = geoPoint
-            self.address = address
-            self.city = city
-            self.state = state
-            self.imageURLs = imageURLs
-            self.profileImageUrl = profileImageUrl
-            self.bio = bio
-        }
+    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
+        self.id = id
+        self.cuisine = cuisine
+        self.price = price
+        self.name = name
+        self.geoPoint = geoPoint
+        self.geoHash = geoHash
+        self.address = address
+        self.city = city
+        self.state = state
+        self.imageURLs = imageURLs
+        self.profileImageUrl = profileImageUrl
+        self.bio = bio
+    }
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)}
-            else{
-                return nil
-            }
+        else{
+            return nil
         }
     }
+}
 
 

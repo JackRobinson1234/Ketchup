@@ -33,9 +33,16 @@ class RestaurantService {
         if let filters = filters, !filters.isEmpty {
             query = await applyFilters(toQuery: query, filters: filters)
         }
-        let restaurants = try await query.getDocuments(as: Restaurant.self)
-        //print("DEBUG: restaurants fetched", restaurants.count)
-        return restaurants
+        if let filters = filters, let location = filters["location"], filters.keys.contains("location") {
+            if let coordinates = location.first as? CLLocationCoordinate2D {
+                let restaurants = try await fetchLocation(coordinates: coordinates, query: query)
+                return restaurants
+            }
+        } else {
+            let restaurants = try await query.getDocuments(as: Restaurant.self)
+            //print("DEBUG: restaurants fetched", restaurants.count)
+            return restaurants
+        }
     }
     
     
@@ -50,16 +57,82 @@ class RestaurantService {
         for (field, value) in filters {
             switch field {
             case "location":
-                if let coordinates = value.first as? CLLocation {
-                    let modifiedQuery = await locationQuery(toQuery: updatedQuery, coordinates: coordinates)
-                    updatedQuery = modifiedQuery
-                }
+                continue
+//                if let coordinates = value.first as? CLLocation {
+//                    let modifiedQuery = await locationQuery(toQuery: updatedQuery, coordinates: coordinates)
+//                    updatedQuery = modifiedQuery
+//                }
             default:
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
         }
         return updatedQuery
     }
+    
+    
+    
+    func fetchLocation(coordinates: CLLocationCoordinate2D, query: Query) async -> [Restaurant] {
+        let center = coordinates
+        let radiusInM: Double = 1 * 1000
+        let queryBounds = GFUtils.queryBounds(forLocation: center,
+                                              withRadius: radiusInM)
+        let queries = queryBounds.map { bound -> Query in
+            return FirestoreConstants.RestaurantCollection
+                .order(by: "geoHash")
+                .start(at: [bound.startValue])
+                .end(at: [bound.endValue])
+        }
+        // After all callbacks have executed, matchingDocs contains the result. Note that this code
+        // executes all queries serially, which may not be optimal for performance.
+        do {let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
+                for query in queries {
+                    group.addTask {
+                        try await query.getDocuments(as: Restaurant.self)}
+                }
+                var matchingDocs = [Restaurant]()
+                for try await documents in group {
+                    matchingDocs.append(contentsOf: documents)
+                }
+                return matchingDocs
+            }
+        } catch {
+            print("Unable to fetch snapshot data. \(error)")
+        }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     //MARK: locationQuery
@@ -92,6 +165,4 @@ class RestaurantService {
         /// Return the modified query asynchronously
         return circleQueryResult
     }
-    
-    
 }
