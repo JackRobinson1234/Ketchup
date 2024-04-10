@@ -47,7 +47,13 @@ struct CollectionItem: Codable, Hashable {
     var name: String
     var image: String?
     var notes: String?
+    
+    //atHome post type specific
+    var postUsername: String?
+    
+    //restaurant post type Specific
     var city: String?
     var state: String?
-    var postUsername: String?
+    var geoPoint: GeoPoint?
+    
 }
