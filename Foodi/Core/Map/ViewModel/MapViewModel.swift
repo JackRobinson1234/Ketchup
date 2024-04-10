@@ -29,7 +29,8 @@ class MapViewModel: ObservableObject {
     /// variables for the postType filter
     
     //MARK: fetchFilteredRestaurants
-    func fetchFilteredRestaurants() async {
+    func fetchFilteredRestaurants(radius: Double = 2000) async -> Bool {
+        let fetchedRestaurants: [Restaurant] = []
         do{
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
             if selectedCuisines.isEmpty {
@@ -41,20 +42,23 @@ class MapViewModel: ObservableObject {
             if selectedLocation.isEmpty {
                 filters.removeValue(forKey: "location")
             } else {
-                filters["location"] = selectedLocation
+                filters["location"] = selectedLocation + [radius]
+                print(filters["Location"])
             }
-            
             ///Price checking if there are any selected
             if selectedPrice.isEmpty {
                 filters.removeValue(forKey: "price")
             } else {
                 filters["price"] = selectedPrice
             }
-            self.restaurants = try await restaurantService.fetchRestaurants(withFilters: self.filters)
+            let fetchedRestaurants = try await restaurantService.fetchRestaurants(withFilters: self.filters)
+            self.restaurants = fetchedRestaurants
+            print(restaurants.count)
         }
         catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
+        return restaurants.count > 0
     }
 
      //MARK: filteredRestaurants
@@ -65,5 +69,15 @@ class MapViewModel: ObservableObject {
                 $0.name.contains(lowercasedQuery)
             })
         }
+    
+    func checkForNearbyRestaurants() async {
+        let kmRadiusToCheck = [5.0, 10.0, 20.0]
+        for radius in kmRadiusToCheck {
+            let restaurants = await fetchFilteredRestaurants(radius: radius * 1000)
+            if restaurants {
+                break
+            }
+        }
+    }
 }
     

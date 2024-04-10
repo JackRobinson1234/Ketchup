@@ -25,6 +25,7 @@ struct MapView: View {
     private var photosLongitudeSpan: Double = 0.015
     @State var isZoomedEnoughForPhotos: Bool = false
     private var kmChangeToUpdateFetch: Double = 2.0 //EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     
     
     
@@ -43,10 +44,12 @@ struct MapView: View {
                     
                         if cameraZoomedEnough {
                             //MARK: Restaurant Annotations
+                            /// If the restaurants are within showable distance (cameraZoomedEnough), then use blue dots. If they are inside of  minDistanceKm, then show the photos.
                             ForEach(viewModel.restaurants, id: \.self) { restaurant in
                                 if let coordinates = restaurant.coordinates {
                                     Annotation(restaurant.name, coordinate: coordinates) {
-                                        if isZoomedEnoughForPhotos{
+                                        let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: 0.4)
+                                        if isZoomedEnoughForPhotos,  distanceFromCenter{
                                             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                                         } else {
                                             Circle()
@@ -63,39 +66,29 @@ struct MapView: View {
                 //MARK: Zoom Message
                 .overlay{if !cameraZoomedEnough {
                     Spacer()
-                    Text("Zoom Map to Show Restaurants")
-                        .font(.subheadline)
-                        .foregroundColor(.black)
-                        .padding(10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .foregroundColor(Color.white)
-                                .opacity(0.5)
-                        )
+                    Text("Zoom In to Show Restaurants")
+                        .modifier(OverlayModifier())
                     //MARK: No Restaurants Notice
                 } else if viewModel.restaurants.isEmpty {
                     Spacer()
                     VStack{
+                        Spacer()
                         Text("No Restaurants Nearby")
-                            .font(.subheadline)
-                            .foregroundColor(.black)
-                            .padding(10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .foregroundColor(Color.white)
-                                    .opacity(0.5)
-                            )
+                            .modifier(OverlayModifier())
+                        Spacer()
+                        /// MARK: Fetch Nearby Restaurants
                         Button{
+                            Task{
+                                await viewModel.checkForNearbyRestaurants()
+                                /// Resets the camera position to the closest restaurant
+                                    if let restaurant = viewModel.restaurants.first, let lat = restaurant.geoPoint?.latitude, let long = restaurant.geoPoint?.longitude {
+                                            let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: lat, longitude: long), latitudinalMeters: 1000, longitudinalMeters: 1000)
+                                            position = .region(region)
+                                }
+                            }
                         } label: {
                             Text("Find Nearest Restaurant")
-                                .font(.subheadline)
-                                .foregroundColor(.black)
-                                .padding(10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundColor(Color.white)
-                                        .opacity(0.5)
-                                )
+                                .modifier(OverlayModifier())
                         }
                     }
                 }
@@ -105,7 +98,7 @@ struct MapView: View {
                 .onMapCameraChange { mapCameraUpdateContext in
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
                     if cameraZoomedEnough {
-                        let center = mapCameraUpdateContext.region.center
+                        center = mapCameraUpdateContext.region.center
                         Task {
                             await fetchRestaurantsInView(center: center)
                         }
@@ -118,9 +111,7 @@ struct MapView: View {
                 //MARK: Initial Camera
                 /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
                 .onAppear{
-                    let losAngeles = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
-                    let losAngelesSpan = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
-                    let losAngelesRegion = MKCoordinateRegion(center: losAngeles, span: losAngelesSpan)
+                    let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))
                     position = .userLocation(fallback: .region(losAngelesRegion))
                 }
                 // MARK: User Location button
@@ -147,7 +138,6 @@ struct MapView: View {
                                     .font(.system(size: 27))
                                     .shadow(color: .gray, radius: 10)
                             }
-                            //MARK: Zoom Notice
                             
                             Spacer()
                             
@@ -168,7 +158,7 @@ struct MapView: View {
                         .foregroundStyle(.white)
                         Spacer()
                     }
-                    
+                    //MARK: SearchView
                     else {
                         VStack{
                             MapSearchView(cameraPosition: $position, inSearchView: $inSearchView)
@@ -230,7 +220,7 @@ struct MapView: View {
         if cameraZoomedEnough {
             /// Makes sure that there was a last location fetched from, and that it is far enough away from the new query
             if let lastLocation = viewModel.selectedLocation.first {
-                if calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: kmChangeToUpdateFetch) {
+                if !calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: kmChangeToUpdateFetch) {
                     viewModel.selectedLocation = [center]
                     print("fetching new restaurants")
                     Task{
@@ -248,18 +238,18 @@ struct MapView: View {
         }
     }
     //MARK: calculateDistanceInKilometers
-    ///  Provides a boolean of if 2 CLLocationCoordinate2Ds are outside the minimum range of eachother
+    ///  Provides a boolean of if 2 CLLocationCoordinate2Ds are inside he minimum range of eachother
     /// - Parameters:
     ///   - coordinate1: CLLocationCoordinate2D
     ///   - coordinate2: CLLocationCoordinate2D
     ///   - minDistanceKm: checks to see if the coordiates
-    /// - Returns: Boolean of whether the distance is greater than the mindistance
+    /// - Returns: Boolean of whether the distance is inside the mindistance
     private func calculateDistanceInKilometers(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D, minDistanceKm: Double) -> Bool {
         let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
         let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
         let distanceInMeters = location1.distance(from: location2)
         let distanceInKilometers = distanceInMeters / 1000
-        return distanceInKilometers > minDistanceKm
+        return distanceInKilometers < minDistanceKm
     }
 
 }

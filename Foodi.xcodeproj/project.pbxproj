@@ -136,6 +136,7 @@
 		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
 		F8BD815F2BC6053C007C2CFC /* UIKitMapVIew.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815E2BC6053C007C2CFC /* UIKitMapVIew.swift */; };
 		F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */; };
+		F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81632BC60F17007C2CFC /* MapModifiers.swift */; };
 		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
@@ -307,6 +308,7 @@
 		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
 		F8BD815E2BC6053C007C2CFC /* UIKitMapVIew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitMapVIew.swift; sourceTree = "<group>"; };
 		F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMapViewTest.swift; sourceTree = "<group>"; };
+		F8BD81632BC60F17007C2CFC /* MapModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapModifiers.swift; sourceTree = "<group>"; };
 		F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -597,6 +599,7 @@
 		F84FE2872B6A553000144F01 /* Map */ = {
 			isa = PBXGroup;
 			children = (
+				F8BD81622BC60F02007C2CFC /* Components */,
 				F871B0092B8DC30D00E4EB5F /* ViewModel */,
 				F871AFED2B7832A000E4EB5F /* View */,
 			);
@@ -1179,6 +1182,14 @@
 			path = "Indiividual Filters";
 			sourceTree = "<group>";
 		};
+		F8BD81622BC60F02007C2CFC /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F8BD81632BC60F17007C2CFC /* MapModifiers.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		F8F494F22BBF8C230043B515 /* Individual Filters */ = {
 			isa = PBXGroup;
 			children = (
@@ -1560,6 +1571,7 @@
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
 				F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */,
+				F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */,
 				F8BD815F2BC6053C007C2CFC /* UIKitMapVIew.swift in Sources */,
 				F88E0A832B6B00F600EC159B /* UserCircularImageProfileView.swift in Sources */,
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,

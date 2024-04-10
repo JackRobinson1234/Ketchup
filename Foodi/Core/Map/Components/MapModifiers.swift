@@ -1,0 +1,22 @@
+//
+//  MapModifiers.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 4/9/24.
+//
+
+import Foundation
+import SwiftUI
+struct OverlayModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline)
+            .foregroundColor(.black)
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundColor(Color.white)
+                    .opacity(0.5)
+            )
+    }
+}
