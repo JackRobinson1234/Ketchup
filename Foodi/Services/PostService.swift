@@ -65,104 +65,122 @@ class PostService {
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters, !filters.isEmpty {
+            if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+                self.posts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
+                return posts
+            }
+            
             query = await applyFilters(toQuery: query, filters: filters)
         }
         self.posts = try await query.getDocuments(as: Post.self)
-        //print("DEBUG: posts fetched", posts.count)
+        print("DEBUG: posts fetched", posts.count)
         return posts
     }
-    
-    
-    //MARK: fetchfollowingPosts
-    /// Fetches posts of users that the user is following
-    /// - Parameter filters: dictionary of f filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
-    /// - Returns: array of posts (that match filters)
-    func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-        //print("DEBUG: Fetching Following Post")
-        guard let currentUser = Auth.auth().currentUser else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+            
+            //TODO: MAKE THIS WORK IN BATCHES OF 30
+            //MARK: fetchfollowingPosts
+            /// Fetches posts of users that the user is following
+            /// - Parameter filters: dictionary of f filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
+            /// - Returns: array of posts (that match filters)
+        func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
+            guard let currentUser = Auth.auth().currentUser else {
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+            }
+            
+            // Fetch the list of users that the current user is following
+            let followingUsers = try await userService.fetchFollowingUsers()
+            if followingUsers.isEmpty { return [] }
+            let followingUserIDs = followingUsers.map { $0.id }
+            
+            // Append userId to filters if filters exist
+            var updatedFilters = filters ?? [:]
+            updatedFilters["user.id"] = followingUserIDs
+            
+            // Fetch posts from followingUsers using 'in' operator
+            var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
+            
+            // Apply additional filters if they exist
+            if let locationFilters = updatedFilters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+                self.posts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
+                return posts
+            }
+            
+            query = await applyFilters(toQuery: query, filters: updatedFilters)
+            self.posts = try await query.getDocuments(as: Post.self)
+            
+            print("DEBUG: posts fetched", posts.count)
+            return posts
         }
-        // Fetch the list of users that the current user is following
-        let followingUsers = try await userService.fetchFollowingUsers()
-        if followingUsers.isEmpty {return []}
-        let followingUserIDs = followingUsers.map { $0.id }
-        // Fetch posts from followingUsers using 'in' operator
-        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
-        if let filters = filters, !filters.isEmpty {
-            query = await applyFilters(toQuery: query, filters: filters)
-        }
-        self.posts = try await query.getDocuments(as: Post.self)
-        return posts
-    }
-    
-    
-    //MARK: applyFilters
-    /// Applies .whereFields to an existing query that are associated with the filters
-    /// - Parameters:
-    ///   - query: the existing query that needs to have filters applied to it
-    ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
-    /// - Returns: the original query with .whereFields attached to it
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) async -> Query {
-        var updatedQuery = query
-        for (field, value) in filters {
-            switch field {
-            case "recipe.dietary":
-                updatedQuery = updatedQuery.whereField(field, arrayContainsAny: value)
-            case "recipe.cookingTime":
-                if let cookingTime = value.first as? Int {
-                    updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
+            
+            
+            //MARK: applyFilters
+            /// Applies .whereFields to an existing query that are associated with the filters
+            /// - Parameters:
+            ///   - query: the existing query that needs to have filters applied to it
+            ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
+            /// - Returns: the original query with .whereFields attached to it
+            func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
+                var updatedQuery = query
+                for (field, value) in filters {
+                    switch field {
+                    case "recipe.dietary":
+                        updatedQuery = updatedQuery.whereField(field, arrayContainsAny: value)
+                    case "recipe.cookingTime":
+                        if let cookingTime = value.first as? Int {
+                            updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
+                        }
+                    case "location":
+                        continue
+                    default:
+                        updatedQuery = updatedQuery.whereField(field, in: value)
+                    }
                 }
-            case "location":
-                if let coordinates = value.first as? CLLocation {
-                    let modifiedQuery = await locationQuery(toQuery: updatedQuery, coordinates: coordinates)
-                    updatedQuery = modifiedQuery
-                    print("modified query", modifiedQuery)
+                print("final query", updatedQuery)
+                return updatedQuery
+            }
+            
+            
+            
+            //MARK: locationQuery
+            /// Uses GeoFire to fetch locations. If no locations are found, will give a query that will not return any posts
+            /// - Parameters:
+            ///   - query: existing query to have another .whereField appended to it
+            ///   - coordinates: coordinates of the center of the radius
+            /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
+            
+            func fetchPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 1000) async throws -> [Post] {
+                let queryBounds = GFUtils.queryBounds(forLocation: center,
+                                                      withRadius: radiusInM)
+                let queries = queryBounds.map { bound -> Query in
+                    return applyFilters(toQuery: FirestoreConstants.PostsCollection
+                        .order(by: "restaurant.geoHash")
+                        .start(at: [bound.startValue])
+                        .end(at: [bound.endValue]), filters: filters)
                 }
-            default:
-                updatedQuery = updatedQuery.whereField(field, in: value)
+                // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
+                do {
+                    let matchingDocs = try await withThrowingTaskGroup(of: [Post].self) { group -> [Post] in
+                        for query in queries {
+                            //await applyFilters(toQuery: query, filters: filters)
+                            group.addTask {
+                                let snapshot = try await query.getDocuments()
+                                return snapshot.documents.compactMap { document in
+                                    try? document.data(as: Post.self)
+                                }
+                            }
+                        }
+                        var matchingDocs = [Post]()
+                        for try await documents in group {
+                            matchingDocs.append(contentsOf: documents)
+                        }
+                        return matchingDocs
+                    }
+                    return matchingDocs
+                } catch {
+                    throw error
+                }
             }
         }
-        print("final query", updatedQuery)
-        return updatedQuery
-    }
-    
-    
-    
-    //MARK: locationQuery
-    /// Uses GeoFire to fetch locations. If no locations are found, will give a query that will not return any posts
-    /// - Parameters:
-    ///   - query: existing query to have another .whereField appended to it
-    ///   - coordinates: coordinates of the center of the radius
-    /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
-    
-    func locationQuery(toQuery query: Query, coordinates: CLLocation, radius: Double? = 10.0) async -> Query {
-        let radius: Double = 10.0
-        let geoFire = GeoFireManager.shared.geoFire
-        let circleQuery = geoFire.query(at: coordinates, withRadius: radius)
-        var nearbyPostIDs: [String] = []
-        // Perform the asynchronous GeoFire query
-        let circleQueryResult = await withCheckedContinuation { continuation in
-            circleQuery.observe(.keyEntered, with: { (key, location) in
-                print("Key: \(key), Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-                nearbyPostIDs.append(key)
-            })
-            circleQuery.observeReady {
-                if !nearbyPostIDs.isEmpty {
-                    let updatedQuery = query.whereField("restaurant.id", in: nearbyPostIDs)
-                    continuation.resume(returning: updatedQuery)
-                } else {
-                    /// Sets the query to an object where no posts will be found
-                    let updatedQuery = query.whereField("restaurant.id", in: ["No Post Found"])
-                    continuation.resume(returning: updatedQuery)
-                }
-            }
-        }
-        // Return the modified query asynchronously
-        return circleQueryResult
-    }
-}
-
-
 
 
 extension PostService {
