@@ -58,6 +58,7 @@ struct MapRestaurantView: View {
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .padding()
+        .frame(width: UIScreen.main.bounds.width)
     }
 }
 

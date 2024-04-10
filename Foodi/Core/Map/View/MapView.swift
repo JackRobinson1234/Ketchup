@@ -18,9 +18,9 @@ struct MapView: View {
     @State private var isFiltersPresented: Bool = false /// Filters View Sheet
     @ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
-    @Namespace var mapScope /// Sets a range for how big the map is so that the user button gets set in the right spot
+    @Namespace var mapScope
     @State var cameraZoomedEnough = false
-    @State var isZoomedEnoughForPhotos: Bool = false/// Whether or not the longitude delta is zoomed in enough to view spots
+    @State var isZoomedEnoughForPhotos: Bool = false/// Is  zoomed in enough to view dots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
     private var isZoomedEnoughLongitudeSpan: Double = 0.03
     private var photosLongitudeSpan: Double = 0.015
@@ -82,8 +82,8 @@ struct MapView: View {
                             Task{
                                 await viewModel.checkForNearbyRestaurants()
                                 /// Resets the camera position to the closest restaurant
-                                    if let restaurant = viewModel.restaurants.first, let lat = restaurant.geoPoint?.latitude, let long = restaurant.geoPoint?.longitude {
-                                            let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: lat, longitude: long), latitudinalMeters: 1000, longitudinalMeters: 1000)
+                                if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
+                                        let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
                                             position = .region(region)
                                 }
                             }
@@ -112,7 +112,7 @@ struct MapView: View {
                 //MARK: Initial Camera
                 /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
                 .onAppear{
-                    let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))
+                    let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
                     position = .userLocation(fallback: .region(losAngelesRegion))
                 }
                 // MARK: User Location button

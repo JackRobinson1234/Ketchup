@@ -28,9 +28,8 @@ struct ActivityView: View {
     }
     func setupGeofire() {
         for restaurant in restaurants {
-            if let geoPoint = restaurant.geoPoint {
-                let location = CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
-                let hash = GFUtils.geoHash(forLocation: location)
+            if let coordinates = restaurant.coordinates {
+                let hash = GFUtils.geoHash(forLocation: coordinates)
                 let documentData: [String: Any] = [
                     "geoHash": hash
                 ]
