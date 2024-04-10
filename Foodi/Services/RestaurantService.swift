@@ -68,7 +68,7 @@ class RestaurantService {
     ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
     ///   - center: CLLocationCoordinate2D that represents the center point of the query
     /// - Returns: Array of restaurants that match all of the filters
-    func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 2000) async throws -> [Restaurant] {
+    func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500) async throws -> [Restaurant] {
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         let queries = queryBounds.map { bound -> Query in

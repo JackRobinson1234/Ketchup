@@ -29,8 +29,7 @@ class MapViewModel: ObservableObject {
     /// variables for the postType filter
     
     //MARK: fetchFilteredRestaurants
-    func fetchFilteredRestaurants(radius: Double = 2000) async -> Bool {
-        let fetchedRestaurants: [Restaurant] = []
+    func fetchFilteredRestaurants(radius: Double = 500) async -> Bool {
         do{
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
             if selectedCuisines.isEmpty {
@@ -51,8 +50,7 @@ class MapViewModel: ObservableObject {
             } else {
                 filters["price"] = selectedPrice
             }
-            let fetchedRestaurants = try await restaurantService.fetchRestaurants(withFilters: self.filters)
-            self.restaurants = fetchedRestaurants
+            self.restaurants = try await restaurantService.fetchRestaurants(withFilters: self.filters)
             print(restaurants.count)
         }
         catch {
@@ -71,7 +69,7 @@ class MapViewModel: ObservableObject {
         }
     
     func checkForNearbyRestaurants() async {
-        let kmRadiusToCheck = [5.0, 10.0, 20.0]
+        let kmRadiusToCheck = [1.0, 2.5, 5.0, 10.0, 20.0]
         for radius in kmRadiusToCheck {
             let restaurants = await fetchFilteredRestaurants(radius: radius * 1000)
             if restaurants {

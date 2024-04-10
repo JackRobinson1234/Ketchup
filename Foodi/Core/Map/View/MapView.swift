@@ -19,12 +19,13 @@ struct MapView: View {
     @ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
     @Namespace var mapScope /// Sets a range for how big the map is so that the user button gets set in the right spot
-    @State var cameraZoomedEnough = false /// Whether or not the longitude delta is zoomed in enough to view spots
+    @State var cameraZoomedEnough = false
+    @State var isZoomedEnoughForPhotos: Bool = false/// Whether or not the longitude delta is zoomed in enough to view spots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
-    private var isZoomedEnoughLongitudeSpan: Double = 0.1
+    private var isZoomedEnoughLongitudeSpan: Double = 0.03
     private var photosLongitudeSpan: Double = 0.015
-    @State var isZoomedEnoughForPhotos: Bool = false
-    private var kmChangeToUpdateFetch: Double = 2.0 //EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    private var kmChangeToUpdateFetch: Double = 1.0
+    private var kmToShowPhoto: Double = 0.5//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     
     
@@ -48,7 +49,7 @@ struct MapView: View {
                             ForEach(viewModel.restaurants, id: \.self) { restaurant in
                                 if let coordinates = restaurant.coordinates {
                                     Annotation(restaurant.name, coordinate: coordinates) {
-                                        let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: 0.4)
+                                        let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: kmToShowPhoto)
                                         if isZoomedEnoughForPhotos,  distanceFromCenter{
                                             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
                                         } else {
@@ -123,7 +124,7 @@ struct MapView: View {
                     .buttonBorderShape(.circle)
                 }
                 .mapScope(mapScope)
-                
+                .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 VStack {
                     if !inSearchView{
                         HStack {
