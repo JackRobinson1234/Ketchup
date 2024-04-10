@@ -15,9 +15,9 @@ struct RestaurantProfileView: View {
     
     private let restaurantService = RestaurantService()
     private let restaurantId: String
+    private let restaurant: Restaurant?
     
-    
-    init(restaurantId: String, currentSection: Section = .posts) {
+    init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
         let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId,
                                                       restaurantService: RestaurantService(),
@@ -25,6 +25,7 @@ struct RestaurantProfileView: View {
         
         self._viewModel = StateObject(wrappedValue: restaurantViewModel)
         self._currentSection = State(initialValue: currentSection)
+        self.restaurant = restaurant
     }
     
     
@@ -34,6 +35,7 @@ struct RestaurantProfileView: View {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
+                        viewModel.restaurant = restaurant
                         await viewModel.fetchRestaurant(id: restaurantId)
                         isLoading = false
                     }

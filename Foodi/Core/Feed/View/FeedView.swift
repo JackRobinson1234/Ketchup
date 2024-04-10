@@ -25,10 +25,11 @@ struct FeedView: View {
     private var posts: [Post]
     @State private var fetchTask: Task<Void, Error>?
     @StateObject var filtersViewModel: FiltersViewModel
+    private var hideFeedOptions: Bool
 
     
 
-    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService) {
+    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService, hideFeedOptions: Bool = false) {
         self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(
             postService: PostService(),
@@ -37,6 +38,7 @@ struct FeedView: View {
         self.userService = userService
         self.posts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
+        self.hideFeedOptions = hideFeedOptions
     
     }
     
@@ -57,94 +59,94 @@ struct FeedView: View {
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
                 ScrollView {
-                        LazyVStack(spacing: 0) {
-                                ForEach($viewModel.posts) { post in
-                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
-                                        .id(post.id)
-                                    
-                                }
-                                
+                    LazyVStack(spacing: 0) {
+                        ForEach($viewModel.posts) { post in
+                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                .id(post.id)
+                            
+                        }
+                        
                     }
-                        .scrollTargetLayout()
+                    .scrollTargetLayout()
                 }
                 
                 
-               //MARK: Discover and Following
-                
-                HStack() {
-                    // Button for "Following"
-                    Button(action: {
-                        fetchTask?.cancel()
-                        viewModel.posts.removeAll()
-                        selectedFeed = .following
-                        viewModel.setFeedType(.following)
-                        fetchTask = Task {
-                                await viewModel.fetchPosts()
-                            
-                        }
-                    }) {
-                        Text("Following")
-                            .foregroundColor(selectedFeed == .following ? .white : .gray)
-                            .fontWeight(selectedFeed == .following ? .bold : .regular)
-                            .frame(width: 78)
-                    }
-                    .disabled(selectedFeed == .following)
-                    
-                    // Vertical Line
-                    Rectangle()
-                        .frame(width: 2, height: 18)
-                        .foregroundColor(.gray)
-                    
-                    // Button for "Recommended"
-                    Button(action: {
-                        fetchTask?.cancel()
-                        viewModel.posts.removeAll()
-                        selectedFeed = .discover
-                        viewModel.setFeedType(.discover)
-                        fetchTask = Task {
+                //MARK: Discover and Following
+                if !hideFeedOptions {
+                    HStack() {
+                        // Button for "Following"
+                        Button(action: {
+                            fetchTask?.cancel()
+                            viewModel.posts.removeAll()
+                            selectedFeed = .following
+                            viewModel.setFeedType(.following)
+                            fetchTask = Task {
                                 await viewModel.fetchPosts()
                                 
                             }
+                        }) {
+                            Text("Following")
+                                .foregroundColor(selectedFeed == .following ? .white : .gray)
+                                .fontWeight(selectedFeed == .following ? .bold : .regular)
+                                .frame(width: 78)
+                        }
+                        .disabled(selectedFeed == .following)
                         
-                    }) {
-                        Text("Discover")
-                            .foregroundColor(selectedFeed == .discover ?
-                                .white : .gray)
-                            .fontWeight(selectedFeed == .discover ? .bold : .regular)
-                            .frame(width: 78)
-                    }
-                    .disabled(selectedFeed == .discover)
-                }
-                .padding(.top, 70)
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity)
-                //MARK: Filters and Search Buttons
-                HStack{
-                    Button{
-                        showSearchView.toggle()
+                        // Vertical Line
+                        Rectangle()
+                            .frame(width: 2, height: 18)
+                            .foregroundColor(.gray)
                         
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 27))
+                        // Button for "Recommended"
+                        Button(action: {
+                            fetchTask?.cancel()
+                            viewModel.posts.removeAll()
+                            selectedFeed = .discover
+                            viewModel.setFeedType(.discover)
+                            fetchTask = Task {
+                                await viewModel.fetchPosts()
+                                
+                            }
+                            
+                        }) {
+                            Text("Discover")
+                                .foregroundColor(selectedFeed == .discover ?
+                                    .white : .gray)
+                                .fontWeight(selectedFeed == .discover ? .bold : .regular)
+                                .frame(width: 78)
+                        }
+                        .disabled(selectedFeed == .discover)
                     }
-                    Spacer()
-                    Button {
-                        showFilters.toggle()
+                    .padding(.top, 70)
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+                    //MARK: Filters and Search Buttons
+                    HStack{
+                        Button{
+                            showSearchView.toggle()
+                            
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 27))
+                        }
+                        Spacer()
+                        Button {
+                            showFilters.toggle()
+                            
+                        }
+                    label: {
+                        Image(systemName: "slider.horizontal.3")
+                            .imageScale(.large)
+                            .shadow(radius: 4)
+                            .font(.system(size: 23))
+                    }
                         
                     }
-                label: {
-                    Image(systemName: "slider.horizontal.3")
-                        .imageScale(.large)
-                        .shadow(radius: 4)
-                        .font(.system(size: 23))
+                    .padding(32)
+                    .padding(.top, 20)
+                    .foregroundStyle(.white)
                 }
-                    
-                }
-                .padding(32)
-                .padding(.top, 20)
-                .foregroundStyle(.white)
             }
-            
             
             
             

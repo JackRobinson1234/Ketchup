@@ -11,7 +11,7 @@ import AVKit
 
 struct PostGridView: View {
     //var viewModel: any PostGridViewModelProtocol
-    @State private var player = AVPlayer()
+    //@State private var player = AVPlayer()
     @State private var selectedPost: Post?
     private let userService: UserService
     private let items = [
@@ -93,9 +93,9 @@ struct PostGridView: View {
                 }
                 
                 .sheet(item: $selectedPost) { post in
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: userService)
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: userService, hideFeedOptions: true)
                         .onDisappear {
-                            player.replaceCurrentItem(with: nil)
+                            //player.replaceCurrentItem(with: nil)
                         }
                 }
             }

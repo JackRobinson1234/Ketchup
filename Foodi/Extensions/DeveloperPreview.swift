@@ -141,9 +141,8 @@ struct DeveloperPreview {
             timestamp: Timestamp(),
             commentOwnerUid: "",
             user: users[2]
-        ),
-    ]
-    /*
+        )]
+        /*
     static var notifications: [Notification] = [
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .like, uid: "max-verstappen",  user: users[3]),
@@ -153,4 +152,32 @@ struct DeveloperPreview {
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", user: user),
     ]
       */
+    static var collections: [Collection] = [
+            .init(
+                id: NSUUID().uuidString,
+                name: "Italian Cuisine",
+                description: "A collection of delicious Italian dishes",
+                username: "@wilbond",
+                uid: "",
+                items: [
+                    .init(
+                        id: "QOxHzulwskv9pSS3vsSH",
+                        postType: "atHome",
+                        name: "Pasta Carbonara",
+                        image: "https://picsum.photos/200/300",
+                        notes: "Classic Italian dish",
+                        postUsername: "Will Bond"
+                    ),
+                    .init(
+                        id: "-1QvxFtMgOLpSbO-oAtUgA",
+                        postType: "restaurant",
+                        name: "Bella Italia",
+                        image: "https://picsum.photos/200/300",
+                        notes: "Italian restaurant in downtown",
+                        city: "Hermosa Beach",
+                        state: "CA"
+                    )
+                ]
+                )
+        ]
 }

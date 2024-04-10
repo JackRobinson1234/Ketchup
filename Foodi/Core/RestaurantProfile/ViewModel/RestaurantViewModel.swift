@@ -25,10 +25,12 @@ class RestaurantViewModel: ObservableObject {
         
     }
     func fetchRestaurant(id: String) async {
-        do {
-            self.restaurant = try await restaurantService.fetchRestaurant(withId: id)
-        } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        if self.restaurant == nil {
+            do {
+                self.restaurant = try await restaurantService.fetchRestaurant(withId: id)
+            } catch {
+                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            }
         }
         if let unwrappedRestaurant = self.restaurant{
             await withThrowingTaskGroup(of: Void.self) { group in
