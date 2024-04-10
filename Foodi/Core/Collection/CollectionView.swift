@@ -15,27 +15,44 @@ struct CollectionView: View {
     @State var showRestaurant: Bool = false
     private let restaurantService = RestaurantService()
     private let postService = PostService()
+    @State var searchText: String = ""
+    @State private var filteredItems: [CollectionItem] = []
     var body: some View {
         NavigationStack{
             VStack{
+                Text(collection.name)
+                    .font(.title)
+                    .bold()
+                Text("by: @\(collection.username)")
+                    .font(.title3)
+                if let description = collection.description {
+                    Text(description)
+                        .font(.subheadline)
+                }
+                HStack{
+                    Image(systemName: "magnifyingglass")
+                        .imageScale(.small)
+                    TextField("Search", text: $searchText)
+                        .font(.subheadline)
+                        .frame(height:44)
+                        .padding(.horizontal)
+                }
+                .frame(height: 44)
+                .padding(.horizontal)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(lineWidth: 1.0)
+                        .foregroundStyle(Color(.systemGray4)))
+                .padding(.horizontal)
                 ScrollView {
                     if let items = collection.items {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                            ForEach(items, id: \.id) { item in
+                            ForEach(filteredItems, id: \.id) { item in
                                 if item.postType == "restaurant" {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
                                         CollectionItemCell(item: item)
                                             .aspectRatio(1.0, contentMode: .fit)
                                     }
-                                    //                                Button{
-                                    //                                    Task{
-                                    //                                        selectedRestaurant = item.id
-                                    //                                        showRestaurant.toggle()
-                                    //                                    }
-                                    //                                } label: {
-                                    //                                    CollectionItemCell(item: item)
-                                    //                                        .aspectRatio(1.0, contentMode: .fit)
-                                    //                                }
                                 } else if item.postType == "atHome" {
                                     Button{
                                         Task{
@@ -50,8 +67,22 @@ struct CollectionView: View {
                                 }
                             }
                         }
-                        .padding()
+                        .padding(7)
                     }
+                }
+            }
+            .onAppear{
+                if let items = collection.items{
+                    filteredItems = items
+                }
+            }
+            .onChange(of: searchText) {
+                if searchText.isEmpty{
+                    if let items = collection.items{
+                        filteredItems = items
+                    }
+                } else {
+                    filteredItems = filterItems(searchText: searchText)
                 }
             }
             .sheet(isPresented: $showPost) {
@@ -67,6 +98,12 @@ struct CollectionView: View {
                 }
             }
         }
+    }
+    func filterItems(searchText: String) -> [CollectionItem] {
+        let lowercasedQuery = searchText.lowercased()
+        return collection.items?.filter { item in
+            item.name.lowercased().contains(lowercasedQuery)
+        } ?? []
     }
 }
 #Preview {

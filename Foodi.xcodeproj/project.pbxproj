@@ -1158,7 +1158,7 @@
 		F8BD81552BC5B101007C2CFC /* Map */ = {
 			isa = PBXGroup;
 			children = (
-				F8BD81582BC5B161007C2CFC /* Indiividual Filters */,
+				F8BD81582BC5B161007C2CFC /* Individual Filters */,
 				F8BD81572BC5B158007C2CFC /* View */,
 			);
 			path = Map;
@@ -1182,13 +1182,13 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		F8BD81582BC5B161007C2CFC /* Indiividual Filters */ = {
+		F8BD81582BC5B161007C2CFC /* Individual Filters */ = {
 			isa = PBXGroup;
 			children = (
 				F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */,
 				F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */,
 			);
-			path = "Indiividual Filters";
+			path = "Individual Filters";
 			sourceTree = "<group>";
 		};
 		F8BD81622BC60F02007C2CFC /* Components */ = {

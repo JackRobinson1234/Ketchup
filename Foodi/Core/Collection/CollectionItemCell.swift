@@ -10,7 +10,7 @@ import Kingfisher
 
 struct CollectionItemCell: View {
     var item: CollectionItem
-    var width: CGFloat = 175
+    var width: CGFloat = 190
     
     var body: some View {
         VStack(spacing: -50) {
@@ -25,7 +25,7 @@ struct CollectionItemCell: View {
             ZStack(alignment: .bottom){
                 Rectangle()
                     .frame(width: width, height: 70) // Height of the caption background
-                    .foregroundColor(Color.yellow.opacity(0.1)) // Light yellow background with opacity
+                    .foregroundColor(Color.gray.opacity(0.1)) // Light yellow background with opacity
                     .offset(y: 25)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 VStack{

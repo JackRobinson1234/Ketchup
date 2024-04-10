@@ -157,7 +157,7 @@ struct DeveloperPreview {
                 id: NSUUID().uuidString,
                 name: "Italian Cuisine",
                 description: "A collection of delicious Italian dishes",
-                username: "@wilbond",
+                username: "wilbond",
                 uid: "",
                 items: [
                     .init(
@@ -172,7 +172,7 @@ struct DeveloperPreview {
                         id: "-1QvxFtMgOLpSbO-oAtUgA",
                         postType: "restaurant",
                         name: "Bella Italia",
-                        image: "https://picsum.photos/200/300",
+                        image: "https://picsum.photos/250/350",
                         notes: "Italian restaurant in downtown",
                         city: "Hermosa Beach",
                         state: "CA"
