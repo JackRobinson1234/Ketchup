@@ -1,20 +1,19 @@
 //
-//  cuisineFilters.swift
+//  Cuisine.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 4/2/24.
+//  Created by Jack Robinson on 4/9/24.
 //
 
 import SwiftUI
 
-struct CuisineFilter: View {
+struct MapCuisineFilter: View {
     @State private var filteredCuisines: [String] = cuisineCategories
     @State private var searchText = ""
-    @ObservedObject var filtersViewModel: FiltersViewModel
+    @ObservedObject var mapViewModel: MapViewModel
     
     ///Maximum # of filters allowed to select
     @State private var maximumSelections: Int = 10
-    
     
     var body: some View {
         VStack {
@@ -35,16 +34,16 @@ struct CuisineFilter: View {
             .padding(.leading)
             //MARK: Selected Cuisines
             /// Selected cuisines from the list to be filtered by
-            if !filtersViewModel.selectedCuisines.isEmpty{
+            if !mapViewModel.selectedCuisines.isEmpty{
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(filtersViewModel.selectedCuisines, id: \.self) { cuisine in
+                        ForEach(mapViewModel.selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(.red)
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            filtersViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })
+                                            mapViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })
                                         }
                                     }
                                 Text(cuisine)
@@ -90,7 +89,7 @@ struct CuisineFilter: View {
                     .foregroundStyle(Color(.systemGray4)))
             //MARK: Selection Options
             /// If there are no selections and they haven't reached the maximum # of selections
-            if !filteredCuisines.isEmpty && filtersViewModel.selectedCuisines.count < maximumSelections{
+            if !filteredCuisines.isEmpty && mapViewModel.selectedCuisines.count < maximumSelections{
                 ScrollView(.horizontal){
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
@@ -98,8 +97,8 @@ struct CuisineFilter: View {
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !filtersViewModel.selectedCuisines.contains(cuisine) {
-                                            filtersViewModel.selectedCuisines.insert(cuisine, at: 0)}
+                                        if !mapViewModel.selectedCuisines.contains(cuisine) {
+                                            mapViewModel.selectedCuisines.insert(cuisine, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -112,7 +111,7 @@ struct CuisineFilter: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 /// if maximum filters are selected, display this message
-            } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
+            } else if mapViewModel.selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
                     .font(.subheadline)
                     .padding()
@@ -127,7 +126,7 @@ struct CuisineFilter: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: filtersViewModel.selectedCuisines) {oldValue, newValue in
+        .onChange(of: mapViewModel.selectedCuisines) {oldValue, newValue in
             filteredCuisines = filteredCuisine(searchText)
         }
         .onAppear{
@@ -141,14 +140,14 @@ struct CuisineFilter: View {
     func filteredCuisine(_ query: String) -> [String] {
         if query.isEmpty{
             return cuisineCategories.filter { cuisine in
-                !filtersViewModel.selectedCuisines.contains(cuisine)}
+                !mapViewModel.selectedCuisines.contains(cuisine)}
         } else {
             let lowercasedQuery = query.lowercased()
             let filtered = cuisineCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
             }).map { $0.capitalized }
             return filtered.filter { cuisine in
-                !filtersViewModel.selectedCuisines.contains(cuisine)
+                !mapViewModel.selectedCuisines.contains(cuisine)
             }
         }
     }
@@ -157,5 +156,5 @@ struct CuisineFilter: View {
 
 
 #Preview {
-    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+   MapCuisineFilter(mapViewModel: MapViewModel())
 }

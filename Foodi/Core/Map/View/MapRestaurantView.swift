@@ -3,7 +3,7 @@
 //  Foodi
 //
 //  Created by Jack Robinson on 2/12/24.
-//
+//  View that appears when you click on a restaurant
 
 import SwiftUI
 import Kingfisher
@@ -58,6 +58,7 @@ struct MapRestaurantView: View {
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .padding()
+        .frame(width: UIScreen.main.bounds.width)
     }
 }
 

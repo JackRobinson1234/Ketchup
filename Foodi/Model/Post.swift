@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import SwiftUI
 import AVKit
+import FirebaseFirestore
 
 struct Post: Identifiable, Codable {
     let id: String
@@ -102,6 +103,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     let id: String
     let name: String
     let geoPoint: GeoPoint?
+    let geoHash: String?
     let address: String?
     let city: String?
     let state: String?

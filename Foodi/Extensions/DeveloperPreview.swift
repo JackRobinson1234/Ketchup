@@ -8,6 +8,8 @@
 
 import Foundation
 import Firebase
+import FirebaseFirestore
+import SwiftUI
 
 struct DeveloperPreview {
     static var user = User(
@@ -90,6 +92,7 @@ struct DeveloperPreview {
                     id: "restaurant1",
                     name: "Example Restaurant",
                     geoPoint: nil,
+                    geoHash: "",
                     address: "123 Main St",
                     city: "Cityville",
                     state: "Stateville",
@@ -140,7 +143,7 @@ struct DeveloperPreview {
             user: users[2]
         ),
     ]
-    
+    /*
     static var notifications: [Notification] = [
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .like, uid: "max-verstappen",  user: users[3]),
@@ -149,5 +152,5 @@ struct DeveloperPreview {
         .init(id: NSUUID().uuidString, timestamp: Timestamp(), type: .follow, uid: "lewis-hamilton", user: users[1]),
         .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", user: user),
     ]
-            
+      */
 }

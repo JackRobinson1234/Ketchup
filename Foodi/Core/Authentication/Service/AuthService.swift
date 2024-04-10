@@ -7,7 +7,7 @@
 
 import Foundation
 import Firebase
-import Firebase
+import FirebaseFirestore
 
 @MainActor
 class AuthService {

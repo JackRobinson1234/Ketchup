@@ -4,9 +4,11 @@
 //
 //  Created by Jack Robinson on 4/1/24.
 //
-import Foundation
 import SwiftUI
+import Combine
+import CoreLocation
 import MapKit
+
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
@@ -19,7 +21,7 @@ class FiltersViewModel: ObservableObject {
     
     
     /// variables for the location filter
-    @Published var selectedLocation: [CLLocation] = []
+    @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var selectedCity: String = ""
     @Published var selectedState: String = ""
     
@@ -34,7 +36,6 @@ class FiltersViewModel: ObservableObject {
 
     /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
     func fetchFilteredPosts() async {
-        
         /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
         if selectedCuisines.isEmpty {
             filters.removeValue(forKey: "cuisine")
