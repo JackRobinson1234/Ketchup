@@ -22,7 +22,10 @@ struct MapView: View {
     @State var cameraZoomedEnough = false /// Whether or not the longitude delta is zoomed in enough to view spots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
     private var isZoomedEnoughLongitudeSpan: Double = 0.1
+    private var photosLongitudeSpan: Double = 0.015
+    @State var isZoomedEnoughForPhotos: Bool = false
     private var kmChangeToUpdateFetch: Double = 2.0 //EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    
     
     
     init() {
@@ -43,10 +46,13 @@ struct MapView: View {
                             ForEach(viewModel.restaurants, id: \.self) { restaurant in
                                 if let coordinates = restaurant.coordinates {
                                     Annotation(restaurant.name, coordinate: coordinates) {
-                                                                                Circle()
-                                            .foregroundStyle(.blue)
-                                                                                    .frame(width: 15, height: 15)
-//                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                                        if isZoomedEnoughForPhotos{
+                                            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                                        } else {
+                                            Circle()
+                                                .foregroundStyle(.blue)
+                                                .frame(width: 10, height: 10)
+                                        }
                                 }
                             }
                         }
@@ -211,8 +217,10 @@ struct MapView: View {
     }
     //MARK: isZoomedEnough
     private func isZoomedInEnough(span: MKCoordinateSpan) {
-        let update = span.longitudeDelta < isZoomedEnoughLongitudeSpan
-        cameraZoomedEnough = update
+        let anyUpdate = span.longitudeDelta < isZoomedEnoughLongitudeSpan
+        cameraZoomedEnough = anyUpdate
+        let photosUpdate = span.longitudeDelta < photosLongitudeSpan
+        isZoomedEnoughForPhotos = photosUpdate
     }
     
     //MARK: fetchRestaurantsInView
