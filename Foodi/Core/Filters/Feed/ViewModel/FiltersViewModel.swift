@@ -36,7 +36,6 @@ class FiltersViewModel: ObservableObject {
 
     /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
     func fetchFilteredPosts() async {
-        
         /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
         if selectedCuisines.isEmpty {
             filters.removeValue(forKey: "cuisine")

@@ -27,16 +27,19 @@ class RestaurantService {
     /// Fetches an array of restaurants that match the provided filters
     /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
     /// - Returns: array of restaurants
-    func fetchRestaurants(withFilters filters: [String: [Any]]? = nil) async throws -> [Restaurant] {
+    func fetchRestaurants(withFilters filters: [String: [Any]]? = nil, limit: Int = 0) async throws -> [Restaurant] {
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
             if let filters = filters, !filters.isEmpty {
                 if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D, let radiusInM = locationFilters[1] as? Double {
-                    let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM)
+                    let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM, limit: limit)
                     return restaurants
                 }
                 
                 query = await applyFilters(toQuery: query, filters: filters)
             }
+            if limit > 0 {
+                    query = query.limit(to: limit)
+                }
             let restaurants = try await query.getDocuments(as: Restaurant.self)
             print("DEBUG: restaurants fetched", restaurants.count)
             return restaurants
@@ -49,7 +52,7 @@ class RestaurantService {
     ///   - query: the existing query that needs to have filters applied to it
     ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
     /// - Returns: the original query with .whereFields attached to it
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
+    func applyFilters(toQuery query: Query, filters: [String: [Any]], limit: Int = 0) -> Query {
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
@@ -58,6 +61,9 @@ class RestaurantService {
             default:
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
+        }
+        if limit > 0 {
+            updatedQuery = updatedQuery.limit(to: limit)
         }
         return updatedQuery
     }
@@ -68,14 +74,14 @@ class RestaurantService {
     ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
     ///   - center: CLLocationCoordinate2D that represents the center point of the query
     /// - Returns: Array of restaurants that match all of the filters
-    func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500) async throws -> [Restaurant] {
+    func fetchRestaurantsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, limit: Int = 0) async throws -> [Restaurant] {
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         let queries = queryBounds.map { bound -> Query in
             return applyFilters(toQuery: FirestoreConstants.RestaurantCollection
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
-                .end(at: [bound.endValue]), filters: filters)
+                .end(at: [bound.endValue]), filters: filters, limit: limit)
         }
         // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
         do {
