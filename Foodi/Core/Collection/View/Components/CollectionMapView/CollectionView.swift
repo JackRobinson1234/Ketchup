@@ -62,7 +62,7 @@ struct CollectionView: View {
                 .padding()
                 // MARK: Section Logic
                 if currentSection == .map {
-                    //MapRestaurantProfileView(restaurant: restaurant)
+                    CollectionMapView(collection: collection)
                     
                 }
                 if currentSection == .grid {
