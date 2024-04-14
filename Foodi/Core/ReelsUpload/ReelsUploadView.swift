@@ -11,16 +11,17 @@ struct ReelsUploadView: View {
     
     //@ObservedObject var cameraModel: ReelsCameraViewModel
     @State var caption: String = ""
-    @State var postType: String = "At Home Post"
+    //@State var postType: String = "At Home Post"
     
-    @State private var selection = "Select Post Type"
-    let postTypeOptions = ["At Home Post", "Going out Post"]
+    @State var selection = "Select Post Type"
+    let postTypeOptions = ["At Home Post", "Going Out Post"]
 
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var isPickingRestaurant = false
     @State var selectedRestaurant: Restaurant?
     
+    @State var showPostTypeMenu: Bool = true
     
     
     var body: some View {
@@ -32,7 +33,6 @@ struct ReelsUploadView: View {
                         .fill(.green)
                         .cornerRadius(30)
                         .frame(width: 200, height: 300)
-                        .padding(.vertical)
 
                     
                     Button(action: {
@@ -41,8 +41,11 @@ struct ReelsUploadView: View {
                         CaptionBox(caption: $caption, isEditingCaption: $isEditingCaption)
                     }
                     PostOptions(isPickingRestaurant: $isPickingRestaurant, selectedRestaurant: $selectedRestaurant)
+                    
+                    Spacer()
                 }
-                //.blur(radius: dropdownShown ? 10 : 0)
+                .padding(.vertical)
+                .blur(radius: showPostTypeMenu ? 10 : 0)
                 
                 if isEditingCaption {
                     CaptionEditorView(caption: $caption, isEditingCaption: $isEditingCaption)
@@ -51,7 +54,12 @@ struct ReelsUploadView: View {
                             isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
                         }
                 }
+                
+                if showPostTypeMenu {
+                    PostTypeMenuView(showPostTypeMenu: $showPostTypeMenu, selection: $selection)
+                }
             }
+            .navigationBarHidden(showPostTypeMenu)
             .navigationTitle(selection)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarTitleMenu {
@@ -367,6 +375,74 @@ struct SelectRestaurantListView: View {
     }
 }
 
+struct PostTypeMenuView: View {
+    
+    @Binding var showPostTypeMenu: Bool
+    @Binding var selection: String
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            Text("Select Post Type")
+                .font(.headline)
+                .fontWeight(.bold)
+                .frame(height: 50)
+            
+            Divider()
+                .frame(width: 260)
+            
+            HStack(spacing: 0) {
+                Button(action: {
+                    selection = "At Home Post"
+                    showPostTypeMenu = false
+                }) {
+                    VStack {
+                        Image(systemName: "house.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .foregroundColor(.black)
+                            .opacity(0.6)
+                                    
+                        Text("At Home Post")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                    }
+                    .frame(width: 130, height: 100)
+                }
+                
+                Divider()
+                    .frame(height: 100)
+                
+                Button(action: {
+                    selection = "Going Out Post"
+                    showPostTypeMenu = false
+                }) {
+                    VStack {
+                        Image(systemName: "fork.knife")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .foregroundColor(.black)
+                            .opacity(0.6)
+                        
+                        Text("Going Out Post")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                    }
+                    .frame(width: 130, height: 100)
+                }
+            }
+            
+            Divider()
+        }
+        .frame(width: 260)
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 5)
+    }
+}
 #Preview {
     ReelsUploadView()
 }
