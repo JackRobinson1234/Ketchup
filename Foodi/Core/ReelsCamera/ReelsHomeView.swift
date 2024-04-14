@@ -98,7 +98,8 @@ struct ReelsHomeView: View {
                 
             }
             .navigationDestination(isPresented: $cameraModel.showPreview) {
-                ReelsUploadView(cameraModel: cameraModel)
+                ReelsUploadView()
+                    
             }
             .animation(.easeInOut, value: cameraModel.showPreview)
         }

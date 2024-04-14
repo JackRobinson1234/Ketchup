@@ -14,7 +14,7 @@ enum RestaurantListConfig: Hashable {
     var navigationTitle: String {
         switch self {
         case .restaurants: return "Explore"
-        case .upload: return "Create Post: Select Restaurant"
+        case .upload: return "Select Restaurant"
         }
     }
 }

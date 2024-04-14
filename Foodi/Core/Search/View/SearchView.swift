@@ -13,11 +13,14 @@ struct SearchView: View {
     @State var searchSlideBar: Bool
     private let userService: UserService
     @State var searchConfig: SearchModelConfig
+    var onRestaurantSelected: ((Restaurant) -> Void)?
+
     
-    init(userService: UserService, searchConfig: SearchModelConfig, searchSlideBar: Bool = false) {
+    init(userService: UserService, searchConfig: SearchModelConfig, searchSlideBar: Bool = false, onRestaurantSelected: ((Restaurant) -> Void)? = nil) {
         self.userService = userService
         self._searchConfig = State(initialValue: searchConfig)
         self._searchSlideBar = State(initialValue: searchSlideBar)
+        self.onRestaurantSelected = onRestaurantSelected
     }
     
     var body: some View {
@@ -32,7 +35,7 @@ struct SearchView: View {
                     .navigationDestination(for: SearchModelConfig.self) { config in
                         SearchView(userService: UserService(), searchConfig: config)}
                     .navigationDestination(for: Restaurant.self) { restaurant in
-                        RestaurantProfileView(restaurantId: restaurant.id)
+                            RestaurantProfileView(restaurantId: restaurant.id)
                     }
             }
         } else {
@@ -90,7 +93,7 @@ struct SearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView(userService: UserService(), searchConfig: .posts)
+        SearchView(userService: UserService(), searchConfig: .restaurants(restaurantListConfig: .upload))
     }
 }
 
