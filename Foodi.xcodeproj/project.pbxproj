@@ -7,19 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F4BE7652BAF540A008D86A3 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4BE7642BAF540A008D86A3 /* Alert.swift */; };
 		6F5F28DC2BB8BC10003D1811 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28DB2BB8BC10003D1811 /* TabBarController.swift */; };
-		6F5F28E52BBB6311003D1811 /* ReelsHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28E42BBB6311003D1811 /* ReelsHomeView.swift */; };
-		6F5F28E92BBCC632003D1811 /* ReelsCameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28E82BBCC632003D1811 /* ReelsCameraViewModel.swift */; };
+		6F5F28E52BBB6311003D1811 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28E42BBB6311003D1811 /* CameraView.swift */; };
+		6F5F28E92BBCC632003D1811 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28E82BBCC632003D1811 /* CameraViewModel.swift */; };
 		6F5F28F22BC205D1003D1811 /* ReelsUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28F12BC205D1003D1811 /* ReelsUploadView.swift */; };
 		6F5F28F42BC2F953003D1811 /* Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F28F32BC2F953003D1811 /* Testing.swift */; };
-		6F6171FF2B9E937C00664399 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6171FE2B9E937C00664399 /* CameraViewModel.swift */; };
-		6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172002BA2927D00664399 /* ImageEditView.swift */; };
 		6F6172082BA62A6E00664399 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172072BA62A6E00664399 /* Photo.swift */; };
 		6F61720A2BA641C000664399 /* PrintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6172092BA641C000664399 /* PrintView.swift */; };
-		6F681F182B9E4416003D62DE /* CustomCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F681F172B9E4416003D62DE /* CustomCameraView.swift */; };
-		6F704F3B2B9D0D1800C11DD4 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */; };
-		6F704F3D2B9E3AC400C11DD4 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */; };
 		F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
@@ -184,19 +178,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6F4BE7642BAF540A008D86A3 /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		6F5F28DB2BB8BC10003D1811 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
-		6F5F28E42BBB6311003D1811 /* ReelsHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelsHomeView.swift; sourceTree = "<group>"; };
-		6F5F28E82BBCC632003D1811 /* ReelsCameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelsCameraViewModel.swift; sourceTree = "<group>"; };
+		6F5F28E42BBB6311003D1811 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		6F5F28E82BBCC632003D1811 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		6F5F28F12BC205D1003D1811 /* ReelsUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelsUploadView.swift; sourceTree = "<group>"; };
 		6F5F28F32BC2F953003D1811 /* Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Testing.swift; sourceTree = "<group>"; };
-		6F6171FE2B9E937C00664399 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
-		6F6172002BA2927D00664399 /* ImageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEditView.swift; sourceTree = "<group>"; };
 		6F6172072BA62A6E00664399 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		6F6172092BA641C000664399 /* PrintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintView.swift; sourceTree = "<group>"; };
-		6F681F172B9E4416003D62DE /* CustomCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCameraView.swift; sourceTree = "<group>"; };
-		6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
-		6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		F823E1772B70B93100E18135 /* RestaurantSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSelectorView.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E17F2B70C16600E18135 /* CreatePostSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostSelection.swift; sourceTree = "<group>"; };
@@ -378,8 +366,6 @@
 		6F5F28E32BBB62E6003D1811 /* ReelsCamera */ = {
 			isa = PBXGroup;
 			children = (
-				6F5F28E42BBB6311003D1811 /* ReelsHomeView.swift */,
-				6F5F28E82BBCC632003D1811 /* ReelsCameraViewModel.swift */,
 			);
 			path = ReelsCamera;
 			sourceTree = "<group>";
@@ -393,15 +379,11 @@
 			path = ReelsUpload;
 			sourceTree = "<group>";
 		};
-		6F704F392B9D0CF800C11DD4 /* Camera */ = {
+		6F5F28F52BCC8BDF003D1811 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
-				6F704F3A2B9D0D1800C11DD4 /* CameraService.swift */,
-				6F704F3C2B9E3AC400C11DD4 /* CameraView.swift */,
-				6F681F172B9E4416003D62DE /* CustomCameraView.swift */,
-				6F6171FE2B9E937C00664399 /* CameraViewModel.swift */,
-				6F6172002BA2927D00664399 /* ImageEditView.swift */,
-				6F4BE7642BAF540A008D86A3 /* Alert.swift */,
+				6F5F28E42BBB6311003D1811 /* CameraView.swift */,
+				6F5F28E82BBCC632003D1811 /* CameraViewModel.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -537,9 +519,9 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				6F5F28F52BCC8BDF003D1811 /* Camera */,
 				6F5F28F02BC205B0003D1811 /* ReelsUpload */,
 				6F5F28E32BBB62E6003D1811 /* ReelsCamera */,
-				6F704F392B9D0CF800C11DD4 /* Camera */,
 				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F84FE27D2B6A54BC00144F01 /* Comments */,
@@ -1325,7 +1307,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F704F3B2B9D0D1800C11DD4 /* CameraService.swift in Sources */,
 				F88E0AF62B6B08A800EC159B /* RestaurantCell.swift in Sources */,
 				F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */,
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
@@ -1343,7 +1324,6 @@
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
-				6F4BE7652BAF540A008D86A3 /* Alert.swift in Sources */,
 				F88E0AFF2B6B095A00EC159B /* PostListView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
 				F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */,
@@ -1352,7 +1332,6 @@
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
-				6F6172012BA2927D00664399 /* ImageEditView.swift in Sources */,
 				6F6172082BA62A6E00664399 /* Photo.swift in Sources */,
 				F84FE29E2B6A590700144F01 /* MockAuthService.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
@@ -1377,8 +1356,6 @@
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
 				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
-				6F681F182B9E4416003D62DE /* CustomCameraView.swift in Sources */,
-				6F6171FF2B9E937C00664399 /* CameraViewModel.swift in Sources */,
 				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				6F5F28DC2BB8BC10003D1811 /* TabBarController.swift in Sources */,
@@ -1418,8 +1395,7 @@
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
 				F88E0AC52B6B058700EC159B /* CTAButtonOverlay.swift in Sources */,
 				F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */,
-				6F704F3D2B9E3AC400C11DD4 /* CameraView.swift in Sources */,
-				6F5F28E92BBCC632003D1811 /* ReelsCameraViewModel.swift in Sources */,
+				6F5F28E92BBCC632003D1811 /* CameraViewModel.swift in Sources */,
 				F88E0B1D2B6B0B3500EC159B /* MediaUploader.swift in Sources */,
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
@@ -1446,7 +1422,7 @@
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,
 				F88E0B212B6B0B8E00EC159B /* RestaurantService.swift in Sources */,
-				6F5F28E52BBB6311003D1811 /* ReelsHomeView.swift in Sources */,
+				6F5F28E52BBB6311003D1811 /* CameraView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
