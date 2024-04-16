@@ -26,31 +26,31 @@ struct ProfileCollectionsView: View {
                 .toolbar(.hidden, for: .tabBar)
         }
         else{
-            ScrollView{
-                VStack{
-                    if user.isCurrentUser {
-                        Button{
-                            showAddCollection.toggle()
-                        } label: {
-                            CreateCollectionButton()
-                        }
-                        Divider()
-                    }
-                    if !viewModel.collections.isEmpty {
-                        ForEach(viewModel.collections) { collection in
-                            NavigationLink(value: collection) {
-                                ProfileCollectionCell(collection: collection)
+                ScrollView{
+                    VStack{
+                        if user.isCurrentUser {
+                            Button{
+                                showAddCollection.toggle()
+                            } label: {
+                                CreateCollectionButton()
                             }
                             Divider()
                         }
+                        if !viewModel.collections.isEmpty {
+                            ForEach(viewModel.collections) { collection in
+                                NavigationLink(value: collection) {
+                                    ProfileCollectionCell(collection: collection)
+                                }
+                                Divider()
+                            }
+                        }
+                        else {
+                            Text("No Collections to Show")
+                        }
                     }
-                    else {
-                        Text("No Collections to Show")
-                    }
+                    .navigationDestination(for: Collection.self) {collection in CollectionView(collectionsViewModel: viewModel, collection: collection)}
+                    .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user)}
                 }
-                .navigationDestination(for: Collection.self) {collection in CollectionView(collectionsViewModel: viewModel, collection: collection)}
-                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user)}
-            }
         }
     }
 }

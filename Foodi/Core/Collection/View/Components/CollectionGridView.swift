@@ -38,14 +38,14 @@ struct CollectionGridView: View {
                     .foregroundStyle(Color(.systemGray4)))
             .padding(.horizontal)
             ScrollView {
-                if let items = collection.items, !items.isEmpty {
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                        //if collection.uid == Auth.auth().currentUser?.uid{
-                        Button{
-                            showAddItem.toggle()
-                        } label: {
-                            AddItemCollectionButton()
-                        }
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                    //if collection.uid == Auth.auth().currentUser?.uid{
+                    Button{
+                        showAddItem.toggle()
+                    } label: {
+                        AddItemCollectionButton()
+                    }
+                    if let items = collection.items, !items.isEmpty {
                         ForEach(filteredItems, id: \.id) { item in
                             if item.postType == "restaurant" {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
@@ -65,8 +65,8 @@ struct CollectionGridView: View {
                                 }
                             }
                         }
+                        .padding(7)
                     }
-                    .padding(7)
                 }
             }
         }

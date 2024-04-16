@@ -18,7 +18,6 @@ struct CollectionView: View {
     
     var body: some View {
         //MARK: Selecting Images
-        NavigationStack{
             VStack{
                 Text(collection.name)
                     .font(.title)
@@ -69,7 +68,6 @@ struct CollectionView: View {
             }
         }
     }
-}
 #Preview {
     CollectionView(collectionsViewModel: CollectionsViewModel(), collection: DeveloperPreview.collections[0])
 }
