@@ -4,9 +4,7 @@
 //
 //  Created by Jack Robinson on 2/8/24.
 //
-
-import SwiftUI
-
+/*
 import SwiftUI
 
 enum currentProfileSection {
@@ -94,4 +92,5 @@ struct CurrentProfileSlideBarView: View {
 #Preview {
     CurrentProfileSlideBarView(viewModel: ProfileViewModel(user: DeveloperPreview.users[0], userService: UserService(), postService: PostService()), userService: UserService(), currentProfileSection: .constant(.posts), likesViewModel: LikedVideosViewModel(user: DeveloperPreview.users[0], userService: UserService(), postService: PostService()))
 }
+*/
 */

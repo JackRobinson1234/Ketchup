@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, likes, messages //collections
+    case posts, likes, collections
 }
 
 struct ProfileSlideBar: View {
@@ -55,17 +55,17 @@ struct ProfileSlideBar: View {
                     
                 
                
-                Image(systemName: profileSection == .messages ? "message.fill" : "message")
+                Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                 
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .messages
+                            self.profileSection = .collections
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .messages))
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
                     .frame(maxWidth: .infinity)
             }
         }
@@ -83,6 +83,9 @@ struct ProfileSlideBar: View {
             LikedPostsView(user: viewModel.user, userService: userService, postService: PostService())
                 
             }
+        if profileSection == .collections {
+            ProfileCollectionsView(user: viewModel.user)
+        }
         }
     }
         

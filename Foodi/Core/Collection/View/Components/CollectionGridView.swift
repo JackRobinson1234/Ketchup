@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct CollectionGridView: View {
     var collection: Collection
@@ -37,6 +38,9 @@ struct CollectionGridView: View {
             ScrollView {
                 if let items = collection.items, !items.isEmpty {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                        //if collection.uid == Auth.auth().currentUser?.uid{
+                            AddItemCollectionButton()
+                        //}
                         ForEach(filteredItems, id: \.id) { item in
                             if item.postType == "restaurant" {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {

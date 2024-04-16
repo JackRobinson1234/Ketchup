@@ -1,14 +1,14 @@
 //
-//  FavoriteRestaurantSearchView.swift
+//  CollectionRestaurantSearch.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 2/21/24.
+//  Created by Jack Robinson on 4/15/24.
 //
 
 import SwiftUI
 
-struct FavoriteRestaurantSearchView: View {
-    @StateObject var viewModel: RestaurantListViewModel
+struct CollectionRestaurantSearch: View {
+    @StateObject var viewModel: CollectionsViewModel
     @State var searchText: String = ""
     @Binding var oldSelection: FavoriteRestaurant
     @Environment(\.dismiss) var dismiss
@@ -96,10 +96,3 @@ struct FavoriteRestaurantSearchView: View {
             }
         }
     }
-    
-
-/*
-#Preview {
-    FavoriteRestaurantSearchView()
-}
-*/

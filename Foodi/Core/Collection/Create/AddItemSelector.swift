@@ -1,23 +1,17 @@
 //
-//  RestaurantSelectorView.swift
+//  AddItemSelector.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 2/5/24.
+//  Created by Jack Robinson on 4/15/24.
 //
-/*
+
 import SwiftUI
 
-struct RestaurantSelectorView: View {
-    @Binding var tabIndex: Int
-    @Binding var cover: Bool
+struct AddItemSelector: View {
+    @ObservedObject var viewModel: ProfileCollectionsViewModel
+    //@Binding var cover: Bool
     @Environment(\.dismiss) var dismiss
-    private var postType: PostType
     
-    init(tabIndex: Binding<Int>, cover: Binding<Bool>, postType: PostType) {
-        self._tabIndex = tabIndex
-        self._cover = cover
-        self.postType = postType
-    }
     
     var body: some View {
         NavigationStack{
@@ -34,6 +28,5 @@ struct RestaurantSelectorView: View {
 
 
 #Preview {
-    RestaurantSelectorView(tabIndex: .constant(0), cover: .constant(true), postType: .constant(.restaurant))
+    AddItemSelector(tabIndex: .constant(0), cover: .constant(true), postType: .constant(.restaurant))
 }
-*/

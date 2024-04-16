@@ -175,7 +175,8 @@ struct DeveloperPreview {
                         image: "https://picsum.photos/250/350",
                         notes: "Italian restaurant in downtown",
                         city: "Hermosa Beach",
-                        state: "CA"
+                        state: "CA",
+                        geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
                     )
                 ]
                 )
