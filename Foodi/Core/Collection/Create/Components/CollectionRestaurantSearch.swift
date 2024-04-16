@@ -62,6 +62,7 @@ struct CollectionRestaurantSearch: View {
                                     let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
                                     Task{
                                         collectionsViewModel.addItemToCollection(item: newItem)
+                                        dismiss()
                                     }
                                 } label :{
                                     RestaurantCell(restaurant: restaurant)

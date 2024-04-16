@@ -43,7 +43,7 @@ class CreateCollectionViewModel: ObservableObject {
     
     func uploadCollection() async throws {
         isLoading = true
-        var descriptionToSend: String? = description.isEmpty ? nil : description
+        let descriptionToSend: String? = description.isEmpty ? nil : description
         try await collectionService.uploadCollection(uid: user.id, title: title, description: descriptionToSend, username: user.username, uiImage: uiImage)
         isLoading = false
     }

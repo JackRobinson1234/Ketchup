@@ -41,6 +41,7 @@ struct ProfileCollectionsView: View {
                                 NavigationLink(value: collection) {
                                     ProfileCollectionCell(collection: collection)
                                 }
+                                
                                 Divider()
                             }
                         }

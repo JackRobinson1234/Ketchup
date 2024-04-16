@@ -33,7 +33,7 @@ class CollectionsViewModel: ObservableObject {
                     collections[index].items = collectionItems
                     
                     // Optionally, you can update the Firestore collection here
-                    updateCollectionInFirestore(collection: collections[index])
+                    collectionService.addItemToCollection(item: item, collectionId: selectedCollection.id)
                 }
             } else {
                 // If the items array is nil, create a new array with the item
@@ -42,18 +42,11 @@ class CollectionsViewModel: ObservableObject {
                     collections[index].items = newItems
                     
                     // Optionally, you can update the Firestore collection here
-                    updateCollectionInFirestore(collection: collections[index])
+                    collectionService.addItemToCollection(item: item, collectionId: selectedCollection.id)
                 }
             }
         } else {
             print("error with selectedCollection")
         }
     }
-        
-        // Function to update the collection in Firestore (example implementation)
-        private func updateCollectionInFirestore(collection: Collection) {
-            // Update the collection in Firestore using your Firestore service or API
-            // Example:
-            // collectionService.updateCollection(collection)
-        }
-    }
+}

@@ -22,14 +22,14 @@ class CollectionService {
         return collections
     }
     
-    private func updateCollectionInFirestore(item: CollectionItem, collectionId: String) {
-        let db = Firestore.firestore()
-        let collectionRef = FirestoreConstants
-            .CollectionsCollection.document(collectionId)
+    func addItemToCollection(item: CollectionItem, collectionId: String) {
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId)
         
-        // Use FieldValue.arrayUnion to append the new item to the existing items array in Firestore
+        guard let itemData = try? Firestore.Encoder().encode(item) else {
+            print("not encoding collection right")
+            return }
         collectionRef.updateData([
-            "items": FieldValue.arrayUnion([item])
+            "items": FieldValue.arrayUnion([itemData])
         ]) { error in
             if let error = error {
                 print("Error appending item to Firestore collection: \(error.localizedDescription)")

@@ -41,6 +41,7 @@ struct CollectionGridView: View {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                     //if collection.uid == Auth.auth().currentUser?.uid{
                     Button{
+                        collectionsViewModel.selectedCollection = collection
                         showAddItem.toggle()
                     } label: {
                         AddItemCollectionButton()
