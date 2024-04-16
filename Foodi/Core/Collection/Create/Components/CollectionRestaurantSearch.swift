@@ -24,7 +24,6 @@ struct CollectionRestaurantSearch: View {
     var body: some View {
         if isLoading {
             // Loading screen
-            NavigationStack{
                 ScrollView{
                     ProgressView("Loading...")
                         .onAppear {
@@ -48,10 +47,8 @@ struct CollectionRestaurantSearch: View {
                         }
                         .toolbar(.hidden, for: .tabBar)
                     
-                }
             }
         } else {
-                NavigationStack{
                     ScrollView {
                         VStack{
                             ForEach(restaurants) { restaurant in
@@ -89,6 +86,5 @@ struct CollectionRestaurantSearch: View {
                     .toolbar(.hidden, for: .tabBar)
                     
                 }
-            }
         }
     }

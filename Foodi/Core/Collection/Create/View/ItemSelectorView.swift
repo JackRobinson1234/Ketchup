@@ -14,31 +14,34 @@ struct ItemSelectorView: View {
     @State var collectionItemOption: CollectionItemOption = .restaurants
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
-        VStack{
-            HStack(spacing: 30) {
-                Text("Restaurant")
-                    .onTapGesture {
-                        withAnimation {
-                            self.collectionItemOption = .restaurants
+        NavigationStack{
+            VStack{
+                HStack(spacing: 30) {
+                    Text("Restaurant")
+                        .onTapGesture {
+                            withAnimation {
+                                self.collectionItemOption = .restaurants
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .restaurants))
-                //.frame(maxWidth: .infinity)
-                
-                Text("At Home")
-                    .frame(width: 50, height: 25)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.collectionItemOption = .atHome
+                        .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .restaurants))
+                    //.frame(maxWidth: .infinity)
+                    
+                    Text("At Home")
+                        .frame(width: 50, height: 25)
+                    
+                        .onTapGesture {
+                            withAnimation {
+                                self.collectionItemOption = .atHome
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .atHome))
-                //.frame(maxWidth: .infinity)
-                
-            }
-            if collectionItemOption == .restaurants {
-            CollectionRestaurantSearch(restaurantService: RestaurantService(), collectionsViewModel: collectionsViewModel)
+                        .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .atHome))
+                    //.frame(maxWidth: .infinity)
+                    
+                }
+                .padding(.bottom)
+                if collectionItemOption == .restaurants {
+                    CollectionRestaurantSearch(restaurantService: RestaurantService(), collectionsViewModel: collectionsViewModel)
+                }
             }
         }
     }
