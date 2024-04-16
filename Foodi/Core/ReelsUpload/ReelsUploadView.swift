@@ -13,15 +13,19 @@ struct ReelsUploadView: View {
     @State var caption: String = ""
     //@State var postType: String = "At Home Post"
     
-    @State var selection = "Select Post Type"
+    @State var postTypeSelection = "Select Post Type"
     let postTypeOptions = ["At Home Post", "Going Out Post"]
 
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var isPickingRestaurant = false
     @State var selectedRestaurant: Restaurant?
-    
+    @State var isAddingRecipe = false
     @State var showPostTypeMenu: Bool = true
+    
+    @StateObject var uploadViewModel = UploadViewModel()
+
+    
     
     
     var body: some View {
@@ -40,7 +44,10 @@ struct ReelsUploadView: View {
                     }) {
                         CaptionBox(caption: $caption, isEditingCaption: $isEditingCaption)
                     }
-                    PostOptions(isPickingRestaurant: $isPickingRestaurant, selectedRestaurant: $selectedRestaurant)
+                    PostOptions(isPickingRestaurant: $isPickingRestaurant,
+                                selectedRestaurant: $selectedRestaurant,
+                                postTypeSelection: $postTypeSelection,
+                                isAddingRecipe: $isAddingRecipe)
                     
                     Spacer()
                 }
@@ -56,18 +63,18 @@ struct ReelsUploadView: View {
                 }
                 
                 if showPostTypeMenu {
-                    PostTypeMenuView(showPostTypeMenu: $showPostTypeMenu, selection: $selection)
+                    PostTypeMenuView(showPostTypeMenu: $showPostTypeMenu, postTypeSelection: $postTypeSelection)
                 }
             }
             .navigationBarHidden(showPostTypeMenu)
-            .navigationTitle(selection)
+            .navigationTitle(postTypeSelection)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarTitleMenu {
                 ForEach(postTypeOptions, id: \.self) { posttype in
                     Button {
-                        selection = posttype
+                        postTypeSelection = posttype
                     } label: {
-                        if selection == posttype {
+                        if postTypeSelection == posttype {
                             HStack {
                                 Text(posttype)
                                     .foregroundColor(.black)
@@ -232,48 +239,27 @@ struct CaptionEditorView: View {
 }
 
 struct PostOptions: View {
-    @State var caption: String = ""
-    @State var isEditingCaption = false
+
     @Binding var isPickingRestaurant: Bool
     @Binding var selectedRestaurant: Restaurant?
+    @Binding var postTypeSelection: String
+    @Binding var isAddingRecipe: Bool
     
     var body: some View {
         VStack {
             Divider()
-            if let restaurant = selectedRestaurant {
+            if postTypeSelection == "At Home Post" {
                 Button {
-                    isPickingRestaurant = true
-                } label: {
-                    HStack {
-                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .small)
-                            .frame(width: 40, height: 40, alignment: .center)
-                        
-                        Text(restaurant.name)
-                            .foregroundColor(.black)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "checkmark.circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.green)
-                            .frame(width: 20, height: 20)
-                    }
-                    .padding(.horizontal , 15)
-                    .padding(.vertical, 3)
-                }
-            } else {
-                Button {
-                    isPickingRestaurant = true
+                    isAddingRecipe = true
                 } label: {
                     // ADD RESTAURANT
                     HStack {
-                        Image(systemName: "fork.knife.circle")
+                        Image(systemName: "book.circle")
                             .resizable()
                             .foregroundColor(.black)
                             .frame(width: 40, height: 40, alignment: .center)
                         
-                        Text("Add restaurant")
+                        Text("Add recipe")
                             .foregroundColor(.black)
                         
                         Spacer()
@@ -286,8 +272,57 @@ struct PostOptions: View {
                     .padding(.horizontal , 15)
                     .padding(.vertical, 3)
                 }
+            } else if postTypeSelection == "Going Out Post" {
+                if let restaurant = selectedRestaurant {
+                    Button {
+                        isPickingRestaurant = true
+                    } label: {
+                        // REPLACE RESTAURANT
+                        HStack {
+                            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .small)
+                                .frame(width: 40, height: 40, alignment: .center)
+                            
+                            Text(restaurant.name)
+                                .foregroundColor(.black)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "checkmark.circle")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(.green)
+                                .frame(width: 20, height: 20)
+                        }
+                        .padding(.horizontal , 15)
+                        .padding(.vertical, 3)
+                    }
+                } else {
+                    Button {
+                        isPickingRestaurant = true
+                    } label: {
+                        // ADD RESTAURANT
+                        HStack {
+                            Image(systemName: "fork.knife.circle")
+                                .resizable()
+                                .foregroundColor(.black)
+                                .frame(width: 40, height: 40, alignment: .center)
+                            
+                            Text("Add restaurant")
+                                .foregroundColor(.black)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "plus")
+                                .resizable()
+                                .foregroundColor(.gray)
+                                .frame(width: 15, height: 15)
+                        }
+                        .padding(.horizontal , 15)
+                        .padding(.vertical, 3)
+                    }
+                }
             }
-            
+
             Divider()
             // TAG USER
             HStack {
@@ -335,6 +370,8 @@ struct PostOptions: View {
     }
 }
 
+
+
 struct SelectRestaurantListView: View {
 
     @StateObject var viewModel = RestaurantListViewModel(restaurantService: RestaurantService())
@@ -378,7 +415,7 @@ struct SelectRestaurantListView: View {
 struct PostTypeMenuView: View {
     
     @Binding var showPostTypeMenu: Bool
-    @Binding var selection: String
+    @Binding var postTypeSelection: String
     
     var body: some View {
         VStack(spacing: 0) {
@@ -394,7 +431,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    selection = "At Home Post"
+                    postTypeSelection = "At Home Post"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -416,7 +453,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    selection = "Going Out Post"
+                    postTypeSelection = "Going Out Post"
                     showPostTypeMenu = false
                 }) {
                     VStack {

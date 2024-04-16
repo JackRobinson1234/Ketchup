@@ -50,12 +50,7 @@ struct MainTabView: View {
                 .onAppear { tabBarController.selectedTab = 1 }
                 .tag(1)
             
-//            CustomCameraView()
-//                .tabItem { Image(systemName: "plus") }
-//                .onAppear { tabBarController.selectedTab = 2 }
-//                .tag(2)
-//                .toolbar(visibility, for: .tabBar)
-            
+        
             CameraView()
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { tabBarController.selectedTab = 2 }
