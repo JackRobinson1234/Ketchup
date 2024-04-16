@@ -417,6 +417,15 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
+		F832F9752BCE1D0A00EE7336 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F871CE0D2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift */,
+				F871CE132BCE1644003C9BE8 /* ItemSelectorView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		F84FE23F2B6A531200144F01 = {
 			isa = PBXGroup;
 			children = (
@@ -839,10 +848,9 @@
 		F871CE0C2BCDFCEC003C9BE8 /* Create */ = {
 			isa = PBXGroup;
 			children = (
+				F832F9752BCE1D0A00EE7336 /* View */,
 				F871CE1A2BCE1B69003C9BE8 /* ViewModel */,
 				F871CE152BCE1AB9003C9BE8 /* Components */,
-				F871CE0D2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift */,
-				F871CE132BCE1644003C9BE8 /* ItemSelectorView.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";

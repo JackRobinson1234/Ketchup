@@ -8,24 +8,22 @@
 import SwiftUI
 
 struct CollectionRestaurantSearch: View {
-    @StateObject var viewModel: CollectionsViewModel
+    @StateObject var restaurantListViewModel: RestaurantListViewModel
     @State var searchText: String = ""
     @Binding var oldSelection: FavoriteRestaurant
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var editProfileViewModel: EditProfileViewModel
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State var isLoading: Bool = true
-    var user: User {
-        return editProfileViewModel.user
-    }
-    
-    init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, editProfileViewModel: EditProfileViewModel) {
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
+    var collection: Collection
+    init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, collectionsViewModel: CollectionsViewModel, collection: Collection) {
+        self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
         
         self._oldSelection = oldSelection
-        self.editProfileViewModel = editProfileViewModel
+        self.collectionsViewModel = collectionsViewModel
+        self.collection = collection
     }
     var restaurants: [Restaurant] {
-        return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
+        return searchText.isEmpty ? restaurantListViewModel.restaurants : restaurantListViewModel.filteredRestaurants(searchText)
     }
     var body: some View {
         if isLoading {
@@ -35,11 +33,11 @@ struct CollectionRestaurantSearch: View {
                     ProgressView("Loading...")
                         .onAppear {
                             Task {
-                                try await viewModel.fetchRestaurants()
+                                try await restaurantListViewModel.fetchRestaurants()
                                 isLoading = false
                             }
                         }
-                        .navigationTitle("Select a Favorite")
+                        .navigationTitle("Add to Collection")
                         .navigationBarTitleDisplayMode(.inline)
                         .searchable(text: $searchText, placement: .navigationBarDrawer)
                         .navigationBarBackButtonHidden()
@@ -64,11 +62,13 @@ struct CollectionRestaurantSearch: View {
                                 Button{
                                     let name = restaurant.name
                                     let id = restaurant.id
-                                    let restaurantProfileImageUrl = restaurant.profileImageUrl ?? ""
-                                    let newSelection = FavoriteRestaurant(name: name, id: id, restaurantProfileImageUrl: restaurantProfileImageUrl)
-                                    if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
-                                        editProfileViewModel.favoritesPreview[index] = newSelection
-                                        dismiss()
+                                    let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
+                                    let city = restaurant.city ?? nil
+                                    let state = restaurant.state ?? nil
+                                    let geoPoint = restaurant.geoPoint ?? nil
+                                    let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
+                                    Task{
+                                        collectionsViewModel.addItemToCollection(item: newItem, collection: collection)
                                     }
                                 } label :{
                                     RestaurantCell(restaurant: restaurant)
@@ -77,7 +77,7 @@ struct CollectionRestaurantSearch: View {
                             }
                         }
                     }
-                    .navigationTitle("Select a Favorite")
+                    .navigationTitle("Add to Collection")
                     .navigationBarTitleDisplayMode(.inline)
                     .searchable(text: $searchText, placement: .navigationBarDrawer)
                     .navigationBarBackButtonHidden()

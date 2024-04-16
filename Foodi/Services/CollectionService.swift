@@ -20,4 +20,21 @@ class CollectionService {
             .getDocuments(as: Collection.self)
         return collections
     }
+    
+    private func updateCollectionInFirestore(item: CollectionItem, collectionId: String) {
+        let db = Firestore.firestore()
+        let collectionRef = FirestoreConstants
+            .CollectionsCollection.document(collectionId)
+        
+        // Use FieldValue.arrayUnion to append the new item to the existing items array in Firestore
+        collectionRef.updateData([
+            "items": FieldValue.arrayUnion([item])
+        ]) { error in
+            if let error = error {
+                print("Error appending item to Firestore collection: \(error.localizedDescription)")
+            } else {
+                print("Item appended successfully to Firestore collection")
+            }
+        }
+    }
 }

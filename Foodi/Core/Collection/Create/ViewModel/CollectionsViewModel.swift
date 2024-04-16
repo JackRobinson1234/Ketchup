@@ -17,4 +17,36 @@ class CollectionsViewModel: ObservableObject {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
     }
-}
+    
+    func addItemToCollection(item: CollectionItem, collection: Collection) {
+            // Make sure the collection's items array is not nil
+            if var collectionItems = collection.items {
+                // Append the new item to the items array
+                collectionItems.append(item)
+                
+                // Update the collection's items array
+                if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                    collections[index].items = collectionItems
+                    
+                    // Optionally, you can update the Firestore collection here
+                    updateCollectionInFirestore(collection: collections[index])
+                }
+            } else {
+                // If the items array is nil, create a new array with the item
+                let newItems = [item]
+                if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                    collections[index].items = newItems
+                    
+                    // Optionally, you can update the Firestore collection here
+                    updateCollectionInFirestore(collection: collections[index])
+                }
+            }
+        }
+        
+        // Function to update the collection in Firestore (example implementation)
+        private func updateCollectionInFirestore(collection: Collection) {
+            // Update the collection in Firestore using your Firestore service or API
+            // Example:
+            // collectionService.updateCollection(collection)
+        }
+    }
