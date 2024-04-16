@@ -13,10 +13,8 @@ enum collectionSection {
 
 struct CollectionView: View {
     @State var currentSection: collectionSection = .grid
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var collection: Collection
-    init(collection: Collection) {
-        self.collection = collection
-    }
     
     var body: some View {
         //MARK: Selecting Images
@@ -66,12 +64,12 @@ struct CollectionView: View {
                     
                 }
                 if currentSection == .grid {
-                    CollectionGridView(collection: collection)
+                    CollectionGridView(collection: collection, collectionsViewModel: collectionsViewModel)
                 }
             }
         }
     }
 }
 #Preview {
-    CollectionView(collection: DeveloperPreview.collections[0])
+    CollectionView(collectionsViewModel: CollectionsViewModel(), collection: DeveloperPreview.collections[0])
 }

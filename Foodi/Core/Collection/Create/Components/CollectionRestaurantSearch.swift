@@ -10,17 +10,13 @@ import SwiftUI
 struct CollectionRestaurantSearch: View {
     @StateObject var restaurantListViewModel: RestaurantListViewModel
     @State var searchText: String = ""
-    @Binding var oldSelection: FavoriteRestaurant
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State var isLoading: Bool = true
-    var collection: Collection
-    init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, collectionsViewModel: CollectionsViewModel, collection: Collection) {
+    init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
         self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
         
-        self._oldSelection = oldSelection
         self.collectionsViewModel = collectionsViewModel
-        self.collection = collection
     }
     var restaurants: [Restaurant] {
         return searchText.isEmpty ? restaurantListViewModel.restaurants : restaurantListViewModel.filteredRestaurants(searchText)
@@ -68,7 +64,7 @@ struct CollectionRestaurantSearch: View {
                                     let geoPoint = restaurant.geoPoint ?? nil
                                     let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
                                     Task{
-                                        collectionsViewModel.addItemToCollection(item: newItem, collection: collection)
+                                        collectionsViewModel.addItemToCollection(item: newItem)
                                     }
                                 } label :{
                                     RestaurantCell(restaurant: restaurant)

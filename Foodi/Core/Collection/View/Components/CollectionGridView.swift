@@ -18,6 +18,8 @@ struct CollectionGridView: View {
     private let postService = PostService()
     @State var searchText: String = ""
     @State private var filteredItems: [CollectionItem] = []
+    @State var showAddItem = false
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         VStack{
             HStack{
@@ -39,8 +41,11 @@ struct CollectionGridView: View {
                 if let items = collection.items, !items.isEmpty {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                         //if collection.uid == Auth.auth().currentUser?.uid{
+                        Button{
+                            showAddItem.toggle()
+                        } label: {
                             AddItemCollectionButton()
-                        //}
+                        }
                         ForEach(filteredItems, id: \.id) { item in
                             if item.postType == "restaurant" {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
@@ -79,6 +84,9 @@ struct CollectionGridView: View {
                     filteredItems = filterItems(searchText: searchText)
                 }
             }
+            .sheet(isPresented: $showAddItem) {
+                ItemSelectorView( collectionsViewModel: collectionsViewModel)
+                }
             .sheet(isPresented: $showPost) {
                 if let post = selectedPost {
                     FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: UserService(), hideFeedOptions: true)
@@ -100,5 +108,5 @@ struct CollectionGridView: View {
     }
 }
 #Preview {
-    CollectionGridView(collection: DeveloperPreview.collections[0])
+    CollectionGridView(collection: DeveloperPreview.collections[0], collectionsViewModel: CollectionsViewModel())
 }

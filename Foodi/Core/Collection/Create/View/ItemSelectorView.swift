@@ -12,6 +12,7 @@ enum CollectionItemOption {
 
 struct ItemSelectorView: View {
     @State var collectionItemOption: CollectionItemOption = .restaurants
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         VStack{
             HStack(spacing: 30) {
@@ -36,9 +37,12 @@ struct ItemSelectorView: View {
                 //.frame(maxWidth: .infinity)
                 
             }
+            if collectionItemOption == .restaurants {
+            CollectionRestaurantSearch(restaurantService: RestaurantService(), collectionsViewModel: collectionsViewModel)
+            }
         }
     }
 }
 #Preview {
-    ItemSelectorView()
+    ItemSelectorView(collectionsViewModel: CollectionsViewModel())
 }

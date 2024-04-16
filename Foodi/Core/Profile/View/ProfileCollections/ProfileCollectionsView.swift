@@ -43,7 +43,7 @@ struct ProfileCollectionsView: View {
                         Text("No Collections to Show")
                     }
                 }
-                .navigationDestination(for: Collection.self) {collection in CollectionView(collection: collection)}
+                .navigationDestination(for: Collection.self) {collection in CollectionView(collectionsViewModel: viewModel, collection: collection)}
             }
         }
     }
