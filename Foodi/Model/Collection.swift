@@ -17,6 +17,7 @@ struct Collection: Identifiable, Codable, Hashable {
     var uid: String
     var username: String
     var description: String?
+    var coverImageUrl: String?
     var items: [CollectionItem]?
     
     init(from decoder: Decoder) throws {
@@ -26,15 +27,18 @@ struct Collection: Identifiable, Codable, Hashable {
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.username = try container.decode(String.self, forKey: .username)
         self.uid = try container.decode(String.self, forKey: .uid)
+        self.coverImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.items = try container.decodeIfPresent([CollectionItem].self, forKey: .items)
+        
     }
     
-    init(id: String, name: String, description: String? = nil, username: String, uid: String, items: [CollectionItem]? = nil) {
+    init(id: String, name: String, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, items: [CollectionItem]? = nil) {
         self.id = id
         self.name = name
         self.description = description
         self.username = username
         self.uid = uid
+        self.coverImageUrl = coverImageUrl
         self.items = items
         
     }

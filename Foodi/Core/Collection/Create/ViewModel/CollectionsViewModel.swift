@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@MainActor
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
     @Published var selectedCollection: Collection?

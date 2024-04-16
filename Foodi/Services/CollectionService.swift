@@ -10,6 +10,7 @@ import Firebase
 import MapKit
 import GeoFire
 import FirebaseFirestoreInternal
+import SwiftUI
 class CollectionService {
     private var collections = [Collection]()
     func fetchCollections(user: String) async throws -> [Collection] {
@@ -35,6 +36,30 @@ class CollectionService {
             } else {
                 print("Item appended successfully to Firestore collection")
             }
+        }
+    }
+    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?) async throws {
+        let ref = FirestoreConstants.CollectionsCollection.document()
+        do {
+            var imageUrl: String? = nil
+            if let uiImage = uiImage {
+                do {
+                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                } catch {
+                    print("Error uploading image: \(error)")
+                    // Handle the error, such as showing an alert to the user
+                    return
+                }
+            }
+            let collection = Collection(id: ref.documentID, name: title, description: description, username: username, uid: uid, coverImageUrl: imageUrl)
+            print(collection)
+            guard let collectionData = try? Firestore.Encoder().encode(collection) else {
+                print("not encoding collection right")
+                return }
+            try await ref.setData(collectionData)
+        } catch {
+            print("DEBUG: Failed to upload Collection with error \(error.localizedDescription)")
+            throw error
         }
     }
 }

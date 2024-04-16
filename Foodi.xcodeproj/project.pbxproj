@@ -19,6 +19,7 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */; };
 		F82F5A062B954DF200499499 /* EditRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F5A052B954DF200499499 /* EditRecipeView.swift */; };
+		F832F9792BCEE98100EE7336 /* CreateCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -90,7 +91,6 @@
 		F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */; };
 		F88E0AB42B6B044C00EC159B /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB32B6B044C00EC159B /* EditProfileView.swift */; };
 		F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */; };
-		F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB72B6B049600EC159B /* ProfileService.swift */; };
 		F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB92B6B04B600EC159B /* CurrentUserProfileView.swift */; };
 		F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABB2B6B04D000EC159B /* PostGridView.swift */; };
 		F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */; };
@@ -198,6 +198,7 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentProfileSlideBar.swift; sourceTree = "<group>"; };
 		F82F5A052B954DF200499499 /* EditRecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipeView.swift; sourceTree = "<group>"; };
+		F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCollectionViewModel.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -276,7 +277,6 @@
 		F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewModel.swift; sourceTree = "<group>"; };
 		F88E0AB32B6B044C00EC159B /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
-		F88E0AB72B6B049600EC159B /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		F88E0AB92B6B04B600EC159B /* CurrentUserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUserProfileView.swift; sourceTree = "<group>"; };
 		F88E0ABB2B6B04D000EC159B /* PostGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGridView.swift; sourceTree = "<group>"; };
 		F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
@@ -508,6 +508,7 @@
 		F84FE2772B6A53DA00144F01 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0B062B6B09FF00EC159B /* UploadPostService.swift */,
 				F88E0B1C2B6B0B3500EC159B /* MediaUploader.swift */,
 				F88E0B1E2B6B0B6B00EC159B /* PostService.swift */,
 				F88E0B202B6B0B8E00EC159B /* RestaurantService.swift */,
@@ -661,7 +662,6 @@
 			isa = PBXGroup;
 			children = (
 				F88E0AB22B6B042300EC159B /* EditProfile */,
-				F88E0AB12B6B041E00EC159B /* Service */,
 				F88E0AB02B6B041900EC159B /* View */,
 				F88E0AAF2B6B040D00EC159B /* ViewModel */,
 			);
@@ -701,7 +701,6 @@
 			isa = PBXGroup;
 			children = (
 				F88E0B032B6B09BF00EC159B /* Model */,
-				F88E0B022B6B09BA00EC159B /* Service */,
 				F88E0B012B6B09BA00EC159B /* View */,
 				F88E0B002B6B09B900EC159B /* ViewModel */,
 			);
@@ -868,6 +867,7 @@
 			isa = PBXGroup;
 			children = (
 				F871CE002BCDBD8F003C9BE8 /* CollectionsViewModel.swift */,
+				F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -987,14 +987,6 @@
 				F871B0072B8C7F3000E4EB5F /* LikedPostsView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		F88E0AB12B6B041E00EC159B /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0AB72B6B049600EC159B /* ProfileService.swift */,
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		F88E0AB22B6B042300EC159B /* EditProfile */ = {
@@ -1168,14 +1160,6 @@
 				F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		F88E0B022B6B09BA00EC159B /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0B062B6B09FF00EC159B /* UploadPostService.swift */,
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		F88E0B032B6B09BF00EC159B /* Model */ = {
@@ -1611,7 +1595,7 @@
 				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
-				F88E0AB82B6B049600EC159B /* ProfileService.swift in Sources */,
+				F832F9792BCEE98100EE7336 /* CreateCollectionViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F871CE0E2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift in Sources */,

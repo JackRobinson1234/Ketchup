@@ -6,14 +6,249 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct CreateCollectionDetails: View {
     var user: User
+    @StateObject private var createCollectionViewModel: CreateCollectionViewModel
+    @Environment(\.dismiss) var dismiss
+    @State private var isEditingCaption = false
+    @State private var isEditingTitle = false
+    @FocusState private var isCaptionEditorFocused: Bool
+    @FocusState private var isTitleEditorFocused: Bool
+    
+    init(user: User) {
+        self.user = user
+        self._createCollectionViewModel = StateObject(wrappedValue: CreateCollectionViewModel(user: user))
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack{
+            ZStack {
+                VStack {
+                    CoverPhotoSelector(viewModel: createCollectionViewModel)
+                    //MARK: Title Box
+                    Button(action: {
+                        self.isEditingTitle = true
+                    }) {
+                        TextBox(text: $createCollectionViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                    }
+                    
+                    .padding(.vertical)
+                    //MARK: CaptionBox
+                    Button(action: {
+                        self.isEditingCaption = true
+                    }) {
+                        TextBox(text: $createCollectionViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                    }
+                    
+                    Spacer()
+                        .padding(.vertical)
+                }
+                Button {
+                    //MARK: Post Button
+                    Task {
+                        try await createCollectionViewModel.uploadCollection()
+                        dismiss()
+                    }
+                } label: {
+                    Text(createCollectionViewModel.isLoading ? "" : "Post")
+                        .modifier(StandardButtonModifier())
+                        .overlay {
+                            if createCollectionViewModel.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                        }
+                }
+                //MARK: Title Editor Overlay
+                if isEditingTitle {
+                    EditorView(text: $createCollectionViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                        .focused($isTitleEditorFocused) // Connects the focus state to the editor view
+                        .onAppear {
+                            isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
+                        }
+                }
+                //MARK: Caption Editor Overlay
+                if isEditingCaption {
+                    EditorView(text: $createCollectionViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                        .onAppear {
+                            isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                        }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Create a New Collection")
+            .preferredColorScheme(.light)
+            //POSS Check if keyboard is active here
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+            }
+        }
+    }
+}
+#Preview {
+    CreateCollectionDetails(user: DeveloperPreview.user)
+}
+
+
+//MARK: TextBox
+struct TextBox: View {
+    @Binding var text: String
+    @Binding var isEditing: Bool
+    let placeholder: String
+    let maxCharacters: Int
+
+    var body: some View {
+        VStack {
+            ScrollView {
+                ZStack(alignment: .leading) {
+                    TextEditor(text: $text)
+                        .foregroundColor(text.isEmpty ? .clear : .primary)
+                        .disabled(true)
+                        .frame(maxHeight: .infinity)
+                        .multilineTextAlignment(.leading)
+                        .onTapGesture {
+                            isEditing = true
+                        }
+
+                    if text.isEmpty {
+                        Text(placeholder)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 8)
+                    }
+                }
+            }
+            .frame(height: 80)
+            .padding(.horizontal)
+
+            HStack {
+                Spacer()
+                Text("\(maxCharacters - text.count) characters remaining")
+                    .font(.caption)
+                    .foregroundColor(text.count > maxCharacters ? .red : .gray)
+                    .padding(.horizontal, 10)
+            }
+            Divider()
+        }
     }
 }
 
-#Preview {
+//MARK: EditorView
+
+struct EditorView: View {
+    @Binding var text: String
+    @Binding var isEditing: Bool
+    let placeholder: String
+    let maxCharacters: Int
+    let title: String
+    @FocusState var isFocused: Bool
+
+    var body: some View {
+        VStack {
+            ZStack {
+                VStack {
+                    HStack() {
+                        Text(title)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Button {
+                            isEditing = false
+                            isFocused = false
+                        } label: {
+                            Text("Done")
+                                .fontWeight(.bold)
+                                
+                        }
+                        .padding(8)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 10)
+                        
+                    }
+                    .padding(.top, 10)
+                    .frame(width: 330)
+                    
+                    Divider()
+                    
+                    TextEditor(text: $text)
+                        .font(.subheadline)
+                        .background(Color.white)
+                        .frame(width: 330, height: 150)
+                        .focused($isFocused)
+                    
+                    HStack {
+                        Spacer()
+                        
+                        Text("\(maxCharacters - text.count) characters remaining")
+                            .font(.caption)
+                            .foregroundColor(text.count > maxCharacters ? .red : .gray)
+                            .padding(.horizontal, 10)
+                    }
+                    
+                }
+                .onChange(of: text) {
+                    if text.count > maxCharacters {
+                        text = String(text.prefix(maxCharacters))
+                    }
+                }
+                .padding(.bottom, 5)
+                .frame(width: 350)
+                .background(Color.white)
+                .cornerRadius(10)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.8))
+    }
+}
+#Preview{
     CreateCollectionDetails(user: DeveloperPreview.user)
+}
+
+struct CoverPhotoSelector: View{
+    @ObservedObject var viewModel: CreateCollectionViewModel
+    var body: some View {
+        PhotosPicker(selection: $viewModel.selectedImage) {
+            VStack {
+                if let image = viewModel.coverImage {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 200, height: 200)
+                        .clipShape(Rectangle())
+                        .foregroundColor(Color(.systemGray4))
+                        .cornerRadius(10)
+                } else {
+                    ZStack {
+                        //MARK: Cover Photo
+                        Rectangle()
+                            .fill(.gray.opacity(0.1))
+                            .cornerRadius(10)
+                            .frame(width: 200, height: 200)
+                        VStack{
+                            Image(systemName: "plus")
+                                .padding()
+                        }
+                        
+                    }
+                }
+                Text("Add a Cover Photo")
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+            }
+        }
+        .padding(.vertical, 8)
+    }
 }

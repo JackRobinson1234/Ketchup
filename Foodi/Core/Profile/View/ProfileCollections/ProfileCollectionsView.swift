@@ -11,6 +11,7 @@ import Firebase
 struct ProfileCollectionsView: View {
     @State private var isLoading = true
     @StateObject var viewModel: CollectionsViewModel = CollectionsViewModel()
+    @State var showAddCollection: Bool = false
     let user: User
     var body: some View {
         if isLoading && viewModel.collections.isEmpty {
@@ -28,7 +29,11 @@ struct ProfileCollectionsView: View {
             ScrollView{
                 VStack{
                     if user.isCurrentUser {
-                       CreateCollectionButton()
+                        Button{
+                            showAddCollection.toggle()
+                        } label: {
+                            CreateCollectionButton()
+                        }
                         Divider()
                     }
                     if !viewModel.collections.isEmpty {
@@ -44,6 +49,7 @@ struct ProfileCollectionsView: View {
                     }
                 }
                 .navigationDestination(for: Collection.self) {collection in CollectionView(collectionsViewModel: viewModel, collection: collection)}
+                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user)}
             }
         }
     }
