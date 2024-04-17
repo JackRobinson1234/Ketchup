@@ -156,6 +156,7 @@ struct DeveloperPreview {
             .init(
                 id: NSUUID().uuidString,
                 name: "Italian Cuisine",
+                timestamp: Timestamp(),
                 description: "A collection of delicious Italian dishes",
                 username: "wilbond",
                 uid: "",

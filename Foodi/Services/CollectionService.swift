@@ -18,6 +18,7 @@ class CollectionService {
         self.collections = try await FirestoreConstants
             .CollectionsCollection
             .whereField("uid", isEqualTo: user)
+            .order(by: "timestamp", descending: true)
             .getDocuments(as: Collection.self)
         return collections
     }
@@ -51,7 +52,7 @@ class CollectionService {
                     return
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, description: description, username: username, uid: uid, coverImageUrl: imageUrl)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")
