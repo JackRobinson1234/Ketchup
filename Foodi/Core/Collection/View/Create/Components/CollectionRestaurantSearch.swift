@@ -13,6 +13,7 @@ struct CollectionRestaurantSearch: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State var isLoading: Bool = true
+    
     init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
         self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
         

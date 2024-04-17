@@ -9,7 +9,6 @@ import SwiftUI
 import FirebaseAuth
 
 struct CollectionGridView: View {
-    var collection: Collection
     @State var selectedPost: Post?
     @State var selectedRestaurant: String?
     @State var showPost: Bool = false
@@ -41,12 +40,11 @@ struct CollectionGridView: View {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                     //if collection.uid == Auth.auth().currentUser?.uid{
                     Button{
-                        collectionsViewModel.selectedCollection = collection
                         showAddItem.toggle()
                     } label: {
                         AddItemCollectionButton()
                     }
-                    if let items = collection.items, !items.isEmpty {
+                    if let items = collectionsViewModel.selectedCollection?.items, !items.isEmpty {
                         ForEach(filteredItems, id: \.id) { item in
                             if item.postType == "restaurant" {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
@@ -71,43 +69,52 @@ struct CollectionGridView: View {
                 }
             }
         }
-            .onAppear{
-                if let items = collection.items{
+        .onAppear{
+            if let items = collectionsViewModel.selectedCollection?.items{
+                filteredItems = items
+            }
+        }
+        .onChange(of: searchText) {
+            if searchText.isEmpty{
+                if let items = collectionsViewModel.selectedCollection?.items{
                     filteredItems = items
                 }
+            } else {
+                filteredItems = filterItems(searchText: searchText)
             }
-            .onChange(of: searchText) {
-                if searchText.isEmpty{
-                    if let items = collection.items{
-                        filteredItems = items
-                    }
-                } else {
-                    filteredItems = filterItems(searchText: searchText)
-                }
+        }
+        .sheet(isPresented: $showAddItem) {
+            ItemSelectorView( collectionsViewModel: collectionsViewModel)
+        }
+        .sheet(isPresented: $showPost) {
+            if let post = selectedPost {
+                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: UserService(), hideFeedOptions: true)
             }
-            .sheet(isPresented: $showAddItem) {
-                ItemSelectorView( collectionsViewModel: collectionsViewModel)
-                }
-            .sheet(isPresented: $showPost) {
-                if let post = selectedPost {
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: UserService(), hideFeedOptions: true)
-                }
-            }
-            .sheet(isPresented: $showRestaurant) {
-                if let restaurant = selectedRestaurant {
-                    NavigationStack{
-                        RestaurantProfileView(restaurantId: restaurant)
-                    }
+        }
+        .sheet(isPresented: $showRestaurant) {
+            if let restaurant = selectedRestaurant {
+                NavigationStack{
+                    RestaurantProfileView(restaurantId: restaurant)
                 }
             }
         }
+        .onChange(of: collectionsViewModel.updateItems) {
+            print("Changed")
+            print("grid items", collectionsViewModel.selectedCollection?.items!.count)
+            if let items = collectionsViewModel.selectedCollection?.items{
+                searchText = ""
+                print("search text ", searchText)
+                filteredItems = items
+            }
+        }
+    }
     func filterItems(searchText: String) -> [CollectionItem] {
         let lowercasedQuery = searchText.lowercased()
-        return collection.items?.filter { item in
+        return collectionsViewModel.selectedCollection?.items?.filter { item in
             item.name.lowercased().contains(lowercasedQuery)
         } ?? []
     }
 }
 #Preview {
-    CollectionGridView(collection: DeveloperPreview.collections[0], collectionsViewModel: CollectionsViewModel())
+    CollectionGridView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }

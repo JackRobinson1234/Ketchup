@@ -55,7 +55,7 @@ struct MainTabView: View {
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
-            CollectionView(collectionsViewModel: CollectionsViewModel(), collection: DeveloperPreview.collections[0])
+            ActivityView()
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 3 ? "bolt.fill" : "bolt")

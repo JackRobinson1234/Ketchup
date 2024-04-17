@@ -33,6 +33,7 @@ struct CollectionItemCell: View {
                             .font(.subheadline)
                             .bold()
                             .foregroundStyle(.black)
+                            .lineLimit(1)
                         if let city = item.city, let state = item.state {
                             Text("\(city), \(state)")
                                 .font(.caption)

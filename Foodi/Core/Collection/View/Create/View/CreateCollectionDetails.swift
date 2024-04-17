@@ -10,28 +10,28 @@ import PhotosUI
 
 struct CreateCollectionDetails: View {
     var user: User
-    @StateObject private var createCollectionViewModel: CreateCollectionViewModel
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     @Environment(\.dismiss) var dismiss
     @State private var isEditingCaption = false
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
     
-    init(user: User) {
+    /*init(user: User) {
         self.user = user
         self._createCollectionViewModel = StateObject(wrappedValue: CreateCollectionViewModel(user: user))
-    }
+    }*/
     
     var body: some View {
         NavigationStack{
             ZStack {
                 VStack {
-                    CoverPhotoSelector(viewModel: createCollectionViewModel)
+                    CoverPhotoSelector(viewModel: collectionsViewModel)
                     //MARK: Title Box
                     Button(action: {
                         self.isEditingTitle = true
                     }) {
-                        TextBox(text: $createCollectionViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                        TextBox(text: $collectionsViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
                     }
                     
                     .padding(.vertical)
@@ -39,31 +39,32 @@ struct CreateCollectionDetails: View {
                     Button(action: {
                         self.isEditingCaption = true
                     }) {
-                        TextBox(text: $createCollectionViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                        TextBox(text: $collectionsViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
                     }
                     
                     Spacer()
                         .padding(.vertical)
-                }
-                Button {
-                    //MARK: Post Button
-                    Task {
-                        try await createCollectionViewModel.uploadCollection()
-                        dismiss()
-                    }
-                } label: {
-                    Text(createCollectionViewModel.isLoading ? "" : "Post")
-                        .modifier(StandardButtonModifier())
-                        .overlay {
-                            if createCollectionViewModel.isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                            }
+                    
+                    Button {
+                        //MARK: Post Button
+                        Task {
+                            try await collectionsViewModel.uploadCollection()
+                            dismiss()
                         }
+                    } label: {
+                        Text(collectionsViewModel.isLoading ? "" : "Post")
+                            .modifier(StandardButtonModifier())
+                            .overlay {
+                                if collectionsViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            }
+                    }
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
-                    EditorView(text: $createCollectionViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                    EditorView(text: $collectionsViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
                         .focused($isTitleEditorFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -71,7 +72,7 @@ struct CreateCollectionDetails: View {
                 }
                 //MARK: Caption Editor Overlay
                 if isEditingCaption {
-                    EditorView(text: $createCollectionViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                    EditorView(text: $collectionsViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
                         .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -95,7 +96,7 @@ struct CreateCollectionDetails: View {
     }
 }
 #Preview {
-    CreateCollectionDetails(user: DeveloperPreview.user)
+    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
 
 
@@ -214,11 +215,11 @@ struct EditorView: View {
     }
 }
 #Preview{
-    CreateCollectionDetails(user: DeveloperPreview.user)
+    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
 
 struct CoverPhotoSelector: View{
-    @ObservedObject var viewModel: CreateCollectionViewModel
+    @ObservedObject var viewModel: CollectionsViewModel
     var body: some View {
         PhotosPicker(selection: $viewModel.selectedImage) {
             VStack {

@@ -10,9 +10,16 @@ import FirebaseAuth
 import Firebase
 struct ProfileCollectionsView: View {
     @State private var isLoading = true
-    @StateObject var viewModel: CollectionsViewModel = CollectionsViewModel()
+    @StateObject var viewModel: CollectionsViewModel
     @State var showAddCollection: Bool = false
+    @State var showCollection: Bool = false
     let user: User
+    
+    init(user: User) {
+        self.user = user
+        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user))
+    }
+    
     var body: some View {
         if isLoading && viewModel.collections.isEmpty {
             // Loading screen
@@ -38,10 +45,12 @@ struct ProfileCollectionsView: View {
                         }
                         if !viewModel.collections.isEmpty {
                             ForEach(viewModel.collections) { collection in
-                                NavigationLink(value: collection) {
+                                Button{
+                                    viewModel.selectedCollection = collection
+                                    showCollection.toggle()
+                                } label: {
                                     ProfileCollectionCell(collection: collection)
                                 }
-                                
                                 Divider()
                             }
                         }
@@ -49,8 +58,10 @@ struct ProfileCollectionsView: View {
                             Text("No Collections to Show")
                         }
                     }
-                    .navigationDestination(for: Collection.self) {collection in CollectionView(collectionsViewModel: viewModel, collection: collection)}
-                    .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user)}
+                    .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
+                    //.navigationDestination(for: Collection.self) {collection in
+                        //CollectionView(collectionsViewModel: viewModel, collection: collection)}
+                    .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user, collectionsViewModel: viewModel)}
                 }
         }
     }

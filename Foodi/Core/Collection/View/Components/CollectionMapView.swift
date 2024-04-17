@@ -8,9 +8,9 @@
 import SwiftUI
 import MapKit
 struct CollectionMapView: View {
-    var collection: Collection
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
-        if let items = collection.items {
+        if let collection = collectionsViewModel.selectedCollection, let items = collection.items {
         Map(initialPosition: .automatic) {
             ForEach(items, id: \.self) { item in
                 if let geoPoint = item.geoPoint {
@@ -35,5 +35,5 @@ struct CollectionMapView: View {
     }
 }
 #Preview {
-    CollectionMapView(collection: DeveloperPreview.collections[0])
+    CollectionMapView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }

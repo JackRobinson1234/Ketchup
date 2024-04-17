@@ -19,7 +19,6 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */; };
 		F82F5A062B954DF200499499 /* EditRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F5A052B954DF200499499 /* EditRecipeView.swift */; };
-		F832F9792BCEE98100EE7336 /* CreateCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -198,7 +197,6 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentProfileSlideBar.swift; sourceTree = "<group>"; };
 		F82F5A052B954DF200499499 /* EditRecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipeView.swift; sourceTree = "<group>"; };
-		F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCollectionViewModel.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -424,6 +422,14 @@
 				F871CE132BCE1644003C9BE8 /* ItemSelectorView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		F832F97A2BCF191300EE7336 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F871CE002BCDBD8F003C9BE8 /* CollectionsViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F84FE23F2B6A531200144F01 = {
@@ -809,8 +815,8 @@
 		F871CDEB2BC6F620003C9BE8 /* Collection */ = {
 			isa = PBXGroup;
 			children = (
-				F871CE0C2BCDFCEC003C9BE8 /* Create */,
 				F871CDF62BC750A4003C9BE8 /* View */,
+				F832F97A2BCF191300EE7336 /* ViewModel */,
 			);
 			path = Collection;
 			sourceTree = "<group>";
@@ -819,6 +825,7 @@
 			isa = PBXGroup;
 			children = (
 				F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */,
+				F871CE0C2BCDFCEC003C9BE8 /* Create */,
 				F871CDFA2BC753CC003C9BE8 /* Components */,
 			);
 			path = View;
@@ -848,7 +855,6 @@
 			isa = PBXGroup;
 			children = (
 				F832F9752BCE1D0A00EE7336 /* View */,
-				F871CE1A2BCE1B69003C9BE8 /* ViewModel */,
 				F871CE152BCE1AB9003C9BE8 /* Components */,
 			);
 			path = Create;
@@ -861,15 +867,6 @@
 				F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */,
 			);
 			path = Components;
-			sourceTree = "<group>";
-		};
-		F871CE1A2BCE1B69003C9BE8 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				F871CE002BCDBD8F003C9BE8 /* CollectionsViewModel.swift */,
-				F832F9782BCEE98100EE7336 /* CreateCollectionViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F88E0A332B6A5D5D00EC159B /* ViewModel */ = {
@@ -1595,7 +1592,6 @@
 				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
-				F832F9792BCEE98100EE7336 /* CreateCollectionViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F871CE0E2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift in Sources */,

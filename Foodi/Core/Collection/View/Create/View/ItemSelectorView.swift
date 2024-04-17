@@ -27,8 +27,6 @@ struct ItemSelectorView: View {
                     //.frame(maxWidth: .infinity)
                     
                     Text("At Home")
-                        .frame(width: 50, height: 25)
-                    
                         .onTapGesture {
                             withAnimation {
                                 self.collectionItemOption = .atHome
@@ -47,5 +45,5 @@ struct ItemSelectorView: View {
     }
 }
 #Preview {
-    ItemSelectorView(collectionsViewModel: CollectionsViewModel())
+    ItemSelectorView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
