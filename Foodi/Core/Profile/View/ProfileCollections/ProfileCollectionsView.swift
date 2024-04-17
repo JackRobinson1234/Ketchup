@@ -33,36 +33,34 @@ struct ProfileCollectionsView: View {
                 .toolbar(.hidden, for: .tabBar)
         }
         else{
-                ScrollView{
-                    VStack{
-                        if user.isCurrentUser {
-                            Button{
-                                showAddCollection.toggle()
-                            } label: {
-                                CreateCollectionButton()
-                            }
-                            Divider()
-                        }
-                        if !viewModel.collections.isEmpty {
-                            ForEach(viewModel.collections) { collection in
-                                Button{
-                                    viewModel.selectedCollection = collection
-                                    showCollection.toggle()
-                                } label: {
-                                    ProfileCollectionCell(collection: collection)
-                                }
-                                Divider()
-                            }
-                        }
-                        else {
-                            Text("No Collections to Show")
-                        }
+            VStack{
+                if user.isCurrentUser {
+                    Button{
+                        showAddCollection.toggle()
+                    } label: {
+                        CreateCollectionButton()
                     }
-                    .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
-                    //.navigationDestination(for: Collection.self) {collection in
-                        //CollectionView(collectionsViewModel: viewModel, collection: collection)}
-                    .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user, collectionsViewModel: viewModel)}
+                    Divider()
                 }
+                if !viewModel.collections.isEmpty {
+                    ForEach(viewModel.collections) { collection in
+                        Button{
+                            viewModel.selectedCollection = collection
+                            showCollection.toggle()
+                        } label: {
+                            ProfileCollectionCell(collection: collection)
+                        }
+                        Divider()
+                    }
+                }
+                else {
+                    Text("No Collections to Show")
+                }
+            }
+            .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
+            //.navigationDestination(for: Collection.self) {collection in
+            //CollectionView(collectionsViewModel: viewModel, collection: collection)}
+            .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user, collectionsViewModel: viewModel)}
         }
     }
 }

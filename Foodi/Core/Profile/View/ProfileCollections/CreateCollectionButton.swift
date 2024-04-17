@@ -13,10 +13,10 @@ struct CreateCollectionButton: View {
             Image(systemName: "plus")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 30, height: 30)
+                .frame(width: 20, height: 20)
             VStack(alignment: .leading){
                 Text("Create a New Collection")
-                    .font(.title3)
+                    .font(.subheadline)
             }
             Spacer()
             

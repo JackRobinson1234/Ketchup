@@ -36,7 +36,7 @@ struct CollectionGridView: View {
                     .stroke(lineWidth: 1.0)
                     .foregroundStyle(Color(.systemGray4)))
             .padding(.horizontal)
-            ScrollView {
+
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                     //if collection.uid == Auth.auth().currentUser?.uid{
                     Button{
@@ -68,7 +68,6 @@ struct CollectionGridView: View {
                     }
                 }
             }
-        }
         .onAppear{
             if let items = collectionsViewModel.selectedCollection?.items{
                 filteredItems = items
@@ -99,12 +98,10 @@ struct CollectionGridView: View {
             }
         }
         .onChange(of: collectionsViewModel.updateItems) {
-            print("Changed")
-            print("grid items", collectionsViewModel.selectedCollection?.items!.count)
             if let items = collectionsViewModel.selectedCollection?.items{
                 searchText = ""
-                print("search text ", searchText)
                 filteredItems = items
+                collectionsViewModel.updateItems = false
             }
         }
     }

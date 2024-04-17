@@ -29,6 +29,9 @@ struct CollectionMapView: View {
                     }
                 }
             }
+        .frame(height: 500)
+        .cornerRadius(10)
+
         } else {
             Text("No Restaurant locations Found")
         }

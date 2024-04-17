@@ -6,15 +6,25 @@
 //
 
 import SwiftUI
-
+import Kingfisher
 struct ProfileCollectionCell: View {
     var collection: Collection
+    var size: CGFloat = 50
     var body: some View {
         HStack{
-            Image(systemName: "folder")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 50, height: 50)
+            if let imageUrl = collection.coverImageUrl  {
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Rectangle())
+                    .cornerRadius(10)
+            } else {
+                Image(systemName: "folder")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size, height:size)
+            }
             VStack(alignment: .leading){
                 Text(collection.name)
                     .font(.title3)
