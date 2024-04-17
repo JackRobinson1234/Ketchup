@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import PhotosUI
+import FirebaseFirestore
 @MainActor
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
@@ -26,6 +27,7 @@ class CollectionsViewModel: ObservableObject {
     var editTitle = ""
     var editDescription = ""
     var editImageUrl = ""
+    var editItems: [CollectionItem] = []
                 
     init(user: User) {
         self.user = user
@@ -82,7 +84,7 @@ class CollectionsViewModel: ObservableObject {
         guard let uiImage = UIImage(data: data) else { return }
         self.uiImage = uiImage
         self.coverImage = Image(uiImage: uiImage)
-
+        self.selectedImage = nil
     }
     
     func uploadCollection() async throws {
@@ -106,5 +108,63 @@ class CollectionsViewModel: ObservableObject {
         self.editTitle = ""
         self.editDescription = ""
         self.editImageUrl = ""
+        self.coverImage = nil
+        self.uiImage = nil
+    }
+    
+    func clearEdits() {
+        if let collection = self.selectedCollection {
+            self.selectedCollection = collection
+            self.editTitle = collection.name
+            self.editDescription = collection.description ?? ""
+            self.editImageUrl = collection.coverImageUrl ?? ""
+            self.coverImage = nil
+            self.uiImage = nil
+        }
+    }
+    
+    func saveEditedCollection() async throws {
+        if let collection = self.selectedCollection {
+            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                var data: [String: Any] = [:]
+                //handles updating the image
+                if coverImage != nil, let uiImage = self.uiImage {
+                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                    data["coverImageUrl"] = imageUrl
+                    //updates selectedCollection with the new image
+                    if let image = collection.coverImageUrl {
+                        try await ImageUploader.deleteImage(fromUrl: image)
+                    }
+                    self.selectedCollection?.coverImageUrl = imageUrl
+                    // updates the collections array with the updated image
+                    collections[index].coverImageUrl = imageUrl
+                }
+                
+                if self.editDescription != collection.description {
+                    self.selectedCollection?.description = self.editDescription
+                    data["description"] = self.editDescription
+                    collections[index].description = self.editDescription
+                }
+                
+                if self.editTitle != collection.name {
+                    self.selectedCollection?.name = self.editTitle
+                    data["name"] = self.editTitle
+                    collections[index].name = self.editTitle
+                }
+                
+                if  collection.items != self.editItems {
+                    guard let cleanedData = try? Firestore.Encoder().encode(self.editItems) else {
+                        print("not encoding editItems right")
+                        return }
+                    data["items"] = cleanedData
+                    self.selectedCollection?.items = editItems
+                    collections[index].items = self.editItems
+                    
+                }
+                try await FirestoreConstants.CollectionsCollection.document(collection.id).updateData(data)
+                clearEdits()
+            }
+        }
     }
 }
+

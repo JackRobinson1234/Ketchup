@@ -35,7 +35,7 @@ class RestaurantService {
                     return restaurants
                 }
                 
-                query = await applyFilters(toQuery: query, filters: filters)
+                query = applyFilters(toQuery: query, filters: filters)
             }
             if limit > 0 {
                     query = query.limit(to: limit)

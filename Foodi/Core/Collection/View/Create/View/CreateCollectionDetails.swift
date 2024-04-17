@@ -236,7 +236,7 @@ struct CoverPhotoSelector: View{
                         .clipShape(Rectangle())
                         .foregroundColor(Color(.systemGray4))
                         .cornerRadius(10)
-                } else if !viewModel.editImageUrl.isEmpty {
+                } else if let image = viewModel.selectedCollection?.coverImageUrl, !image.isEmpty {
                     KFImage(URL(string: viewModel.editImageUrl))
                         .resizable()
                         .scaledToFill()

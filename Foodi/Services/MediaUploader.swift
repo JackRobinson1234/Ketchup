@@ -41,6 +41,18 @@ struct ImageUploader {
             return nil
         }
     }
+    static func deleteImage(fromUrl urlString: String) async throws {
+            guard let url = URL(string: urlString) else {
+                throw StorageError.invalidUrl
+            }
+            let ref = Storage.storage().reference(forURL: url.absoluteString)
+            
+            do {
+                try await ref.delete()
+            } catch {
+                throw StorageError.deleteError(error.localizedDescription)
+            }
+        }
 }
 
 
@@ -61,4 +73,20 @@ struct VideoUploader {
             throw error
         }
     }
+    static func deleteVideo(fromUrl urlString: String) async throws {
+            guard let url = URL(string: urlString) else {
+                throw StorageError.invalidUrl
+            }
+            let ref = Storage.storage().reference(forURL: url.absoluteString)
+            
+            do {
+                try await ref.delete()
+            } catch {
+                throw StorageError.deleteError(error.localizedDescription)
+            }
+        }
+}
+enum StorageError: Error {
+    case invalidUrl
+    case deleteError(String)
 }

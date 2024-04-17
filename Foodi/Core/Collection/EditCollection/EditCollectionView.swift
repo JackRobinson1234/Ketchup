@@ -38,22 +38,6 @@ struct EditCollectionView: View {
                     Spacer()
                         .padding(.vertical)
                     
-                    /*Button {
-                        //MARK: Post Button
-                        Task {
-                            try await collectionsViewModel.uploadCollection()
-                            dismiss()
-                        }
-                    } label: {
-                        Text(collectionsViewModel.isLoading ? "" : "Post")
-                            .modifier(StandardButtonModifier())
-                            .overlay {
-                                if collectionsViewModel.isLoading {
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            }
-                    }*/
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
@@ -79,12 +63,26 @@ struct EditCollectionView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        collectionsViewModel.clearEdits()
                         dismiss()
                     } label: {
                         Text("Cancel")
                     }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task{
+                            try await collectionsViewModel.saveEditedCollection()
+                            dismiss()
+                        }
+                    } label: {
+                        Text("Save")
+                    }
+                }
             }
+        }
+        .onDisappear {
+            collectionsViewModel.clearEdits()
         }
     }
 }
