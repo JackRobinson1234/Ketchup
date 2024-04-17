@@ -16,6 +16,9 @@ struct CollectionView: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @Environment(\.dismiss) var dismiss
     @State var showEditCollection: Bool = false
+    @State var deletedCollection: Bool = false
+    //@Binding var newCollection: Bool?
+    
     var body: some View {
         //MARK: Selecting Images
         NavigationStack{
@@ -113,7 +116,12 @@ struct CollectionView: View {
                             }
                         }
                     }
-                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel)}
+                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel, deletedCollection: $deletedCollection)}
+                    .onChange(of: deletedCollection) {
+                        if deletedCollection {
+                            dismiss()
+                        }
+                    }
                 }
             }
         }

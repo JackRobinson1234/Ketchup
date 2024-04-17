@@ -28,7 +28,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var editDescription = ""
     @Published var editImageUrl = ""
     @Published var editItems: [CollectionItem] = []
-                
+    
     init(user: User) {
         self.user = user
     }
@@ -51,7 +51,7 @@ class CollectionsViewModel: ObservableObject {
                 // Update the collection's items array
                 if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
                     collections[index].items = collectionItems
-
+                    
                     
                     // Optionally, you can update the Firestore collection here
                     collectionService.addItemToCollection(item: item, collectionId: selectedCollection.id)
@@ -162,12 +162,12 @@ class CollectionsViewModel: ObservableObject {
                 if  collection.items != self.editItems {
                     var encodedItems: [Any] = []
                     for item in self.editItems {
-                            guard let encodedItem = try? Firestore.Encoder().encode(item) else {
-                                print("Failed to encode item:", item)
-                                return
-                            }
-                            encodedItems.append(encodedItem)
+                        guard let encodedItem = try? Firestore.Encoder().encode(item) else {
+                            print("Failed to encode item:", item)
+                            return
                         }
+                        encodedItems.append(encodedItem)
+                    }
                     data["items"] = encodedItems
                     self.selectedCollection?.items = editItems
                     collections[index].items = self.editItems
@@ -183,5 +183,30 @@ class CollectionsViewModel: ObservableObject {
             }
         }
     }
+    
+    func deleteCollection() async throws {
+        if let collectionId = self.selectedCollection?.id {
+        guard let index = collections.firstIndex(where: { $0.id == collectionId }) else {
+            print("Collection with ID \(collectionId) not found.")
+            return
+        }
+            let collection = collections[index]
+            
+            // Delete the collection from Firestore
+            try await FirestoreConstants.CollectionsCollection.document(collectionId).delete()
+            
+            // Optionally, delete the collection's cover image from storage
+            if let imageUrl = collection.coverImageUrl {
+                try await ImageUploader.deleteImage(fromUrl: imageUrl)
+            }
+            
+            // Update the collections array and selectedCollection
+            collections.remove(at: index)
+            if selectedCollection?.id == collectionId {
+                selectedCollection = nil
+                clearEdits()
+            }
+            print("Collection deleted successfully.")
+        }
+    }
 }
-

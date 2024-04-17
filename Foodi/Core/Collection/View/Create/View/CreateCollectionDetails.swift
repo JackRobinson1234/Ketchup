@@ -143,11 +143,13 @@ struct TextBox: View {
         .onAppear {
             text += " "
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                text.removeLast()
+                    if text.last == " " {
+                        text.removeLast() // Removes the space after 0.1 seconds if it was added
+                    }
+                }
             }
         }
     }
-}
 
 //MARK: EditorView
 

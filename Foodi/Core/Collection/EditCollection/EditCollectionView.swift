@@ -14,49 +14,62 @@ struct EditCollectionView: View {
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
+    @Binding var deletedCollection: Bool
     
     var body: some View {
         NavigationStack{
-            ScrollView{
                 ZStack {
-                    VStack {
-                        //Image Selector
-                        CoverPhotoSelector(viewModel: collectionsViewModel)
-                        //MARK: Title Box
-                        Button(action: {
-                            self.isEditingTitle = true
-                        }) {
-                            TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
-                        }
-                        
-                        .padding(.vertical)
-                        //MARK: Caption Box
-                        Button(action: {
-                            self.isEditingCaption = true
-                        }) {
-                            TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
-                        }
-                        // MARK: Items
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                            //if collection.uid == Auth.auth().currentUser?.uid{
-                            ForEach(collectionsViewModel.editItems, id: \.id) { item in
-                                VStack{
-                                    CollectionItemCell(item: item)
-                                        .aspectRatio(1.0, contentMode: .fit)
-                                    Button{
-                                        collectionsViewModel.editItems.removeAll(where: {$0.id == item.id})
-                                        print(collectionsViewModel.editItems)
-                                    } label: {
-                                        Text("Remove")
-                                            .foregroundStyle(.red)
-                                            .font(.subheadline)
-                                    }
+                    ScrollView{
+                        VStack {
+                            Button{
+                                Task{
+                                    deletedCollection.toggle()
+                                    dismiss()
+                                    try await collectionsViewModel.deleteCollection()
                                 }
-                                .padding(7)
+                            } label: {
+                                Text("Delete Collection")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.red)
                             }
-                            Spacer()
-                                .padding(.vertical)
+                            //Image Selector
+                            CoverPhotoSelector(viewModel: collectionsViewModel)
+                            //MARK: Title Box
+                            Button(action: {
+                                self.isEditingTitle = true
+                            }) {
+                                TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                            }
                             
+                            .padding(.vertical)
+                            //MARK: Caption Box
+                            Button(action: {
+                                self.isEditingCaption = true
+                            }) {
+                                TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                            }
+                            // MARK: Items
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                //if collection.uid == Auth.auth().currentUser?.uid{
+                                ForEach(collectionsViewModel.editItems, id: \.id) { item in
+                                    VStack{
+                                        CollectionItemCell(item: item)
+                                            .aspectRatio(1.0, contentMode: .fit)
+                                        Button{
+                                            collectionsViewModel.editItems.removeAll(where: {$0.id == item.id})
+                                            print(collectionsViewModel.editItems)
+                                        } label: {
+                                            Text("Remove")
+                                                .foregroundStyle(.red)
+                                                .font(.subheadline)
+                                        }
+                                    }
+                                    .padding(7)
+                                }
+                                Spacer()
+                                    .padding(.vertical)
+                                
+                            }
                         }
                     }
                     //MARK: Title Editor Overlay
@@ -76,7 +89,6 @@ struct EditCollectionView: View {
                             }
                     }
                 }
-            }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("Edit Collection")
             .preferredColorScheme(.light)
@@ -108,5 +120,5 @@ struct EditCollectionView: View {
     }
 }
 #Preview {
-    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user), deletedCollection: .constant(false))
 }
