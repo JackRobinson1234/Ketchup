@@ -85,6 +85,7 @@ struct CollectionView: View {
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) {
                             Button {
+                                collectionsViewModel.resetViewModel()
                                 dismiss()
                             } label: {
                                 Image(systemName: "chevron.left")

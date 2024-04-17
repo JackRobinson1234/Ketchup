@@ -17,10 +17,6 @@ struct CreateCollectionDetails: View {
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
     
-    /*init(user: User) {
-        self.user = user
-        self._createCollectionViewModel = StateObject(wrappedValue: CreateCollectionViewModel(user: user))
-    }*/
     
     var body: some View {
         NavigationStack{
@@ -31,7 +27,7 @@ struct CreateCollectionDetails: View {
                     Button(action: {
                         self.isEditingTitle = true
                     }) {
-                        TextBox(text: $collectionsViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
                     }
                     
                     .padding(.vertical)
@@ -39,7 +35,7 @@ struct CreateCollectionDetails: View {
                     Button(action: {
                         self.isEditingCaption = true
                     }) {
-                        TextBox(text: $collectionsViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                        TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
                     }
                     
                     Spacer()
@@ -64,7 +60,7 @@ struct CreateCollectionDetails: View {
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
-                    EditorView(text: $collectionsViewModel.title, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                    EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
                         .focused($isTitleEditorFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -72,7 +68,7 @@ struct CreateCollectionDetails: View {
                 }
                 //MARK: Caption Editor Overlay
                 if isEditingCaption {
-                    EditorView(text: $collectionsViewModel.description, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                    EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
                         .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -252,4 +248,5 @@ struct CoverPhotoSelector: View{
         }
         .padding(.vertical, 8)
     }
+    
 }

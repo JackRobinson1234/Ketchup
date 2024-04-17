@@ -45,7 +45,7 @@ struct ProfileCollectionsView: View {
                 if !viewModel.collections.isEmpty {
                     ForEach(viewModel.collections) { collection in
                         Button{
-                            viewModel.selectedCollection = collection
+                            viewModel.updateSelectedCollection(collection: collection) 
                             showCollection.toggle()
                         } label: {
                             ProfileCollectionCell(collection: collection)

@@ -19,6 +19,7 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F823E1842B74C0AC00E18135 /* CurrentProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */; };
 		F82F5A062B954DF200499499 /* EditRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F5A052B954DF200499499 /* EditRecipeView.swift */; };
+		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -197,6 +198,7 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F823E1832B74C0AC00E18135 /* CurrentProfileSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentProfileSlideBar.swift; sourceTree = "<group>"; };
 		F82F5A052B954DF200499499 /* EditRecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipeView.swift; sourceTree = "<group>"; };
+		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -430,6 +432,14 @@
 				F871CE002BCDBD8F003C9BE8 /* CollectionsViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		F832F97B2BCF73B900EE7336 /* EditCollection */ = {
+			isa = PBXGroup;
+			children = (
+				F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */,
+			);
+			path = EditCollection;
 			sourceTree = "<group>";
 		};
 		F84FE23F2B6A531200144F01 = {
@@ -815,6 +825,7 @@
 		F871CDEB2BC6F620003C9BE8 /* Collection */ = {
 			isa = PBXGroup;
 			children = (
+				F832F97B2BCF73B900EE7336 /* EditCollection */,
 				F871CDF62BC750A4003C9BE8 /* View */,
 				F832F97A2BCF191300EE7336 /* ViewModel */,
 			);
@@ -1653,6 +1664,7 @@
 				F871CDEF2BC6F9BC003C9BE8 /* CollectionItemCell.swift in Sources */,
 				F88E0B052B6B09E400EC159B /* Movie.swift in Sources */,
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
+				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */,

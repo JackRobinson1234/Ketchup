@@ -23,8 +23,9 @@ class CollectionsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var updateItems = false
     private var uiImage: UIImage?
-    var title = ""
-    var description = ""
+    var editTitle = ""
+    var editDescription = ""
+    var editImageUrl = ""
                 
     init(user: User) {
         self.user = user
@@ -66,7 +67,6 @@ class CollectionsViewModel: ObservableObject {
                     
                     // Optionally, you can update the Firestore collection here
                     collectionService.addItemToCollection(item: item, collectionId: selectedCollection.id)
-                    print("view model count", selectedCollection.items!.count)
                     updateItems.toggle()
                     print(updateItems)
                 }
@@ -87,9 +87,24 @@ class CollectionsViewModel: ObservableObject {
     
     func uploadCollection() async throws {
         isLoading = true
-        let descriptionToSend: String? = description.isEmpty ? nil : description
-        try await collectionService.uploadCollection(uid: user.id, title: title, description: descriptionToSend, username: user.username, uiImage: uiImage)
+        let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
+        try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage)
         await fetchCollections(user: user.id)
         isLoading = false
+    }
+    
+    func updateSelectedCollection(collection: Collection){
+        self.selectedCollection = collection
+        self.editTitle = collection.name
+        self.editDescription = collection.description ?? ""
+        self.editImageUrl = collection.coverImageUrl ?? ""
+        
+    }
+    
+    func resetViewModel() {
+        self.selectedCollection = nil
+        self.editTitle = ""
+        self.editDescription = ""
+        self.editImageUrl = ""
     }
 }
