@@ -22,6 +22,7 @@ struct CollectionView: View {
             ScrollView{
                 if let collection = collectionsViewModel.selectedCollection {
                     VStack{
+                        //MARK: Cover Image
                         if let imageUrl = collection.coverImageUrl  {
                             KFImage(URL(string: imageUrl))
                                 .resizable()
@@ -35,9 +36,11 @@ struct CollectionView: View {
                                 .scaledToFit()
                                 .frame(width: 200, height: 200)
                         }
+                        //MARK: Title
                         Text(collection.name)
                             .font(.title)
                             .bold()
+                        //MARK: UserName
                         Text("by: @\(collection.username)")
                             .font(.title3)
                         if let description = collection.description {

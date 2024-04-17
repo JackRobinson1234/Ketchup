@@ -43,13 +43,13 @@ struct CreateCollectionDetails: View {
                         .padding(.vertical)
                     
                     Button {
-                        //MARK: Post Button
+                        //MARK: Create Collection Button
                         Task {
                             try await collectionsViewModel.uploadCollection()
                             dismiss()
                         }
                     } label: {
-                        Text(collectionsViewModel.isLoading ? "" : "Post")
+                        Text(collectionsViewModel.isLoading ? "" : "Create Collection")
                             .modifier(StandardButtonModifier())
                             .overlay {
                                 if collectionsViewModel.isLoading {
@@ -76,6 +76,7 @@ struct CreateCollectionDetails: View {
                         }
                 }
             }
+            .onDisappear{collectionsViewModel.resetViewModel()}
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("Create a New Collection")
             .preferredColorScheme(.light)

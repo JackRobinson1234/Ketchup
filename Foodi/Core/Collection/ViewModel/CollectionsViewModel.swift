@@ -24,10 +24,10 @@ class CollectionsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var updateItems = false
     private var uiImage: UIImage?
-    var editTitle = ""
-    var editDescription = ""
-    var editImageUrl = ""
-    var editItems: [CollectionItem] = []
+    @Published var editTitle = ""
+    @Published var editDescription = ""
+    @Published var editImageUrl = ""
+    @Published var editItems: [CollectionItem] = []
                 
     init(user: User) {
         self.user = user
@@ -42,7 +42,7 @@ class CollectionsViewModel: ObservableObject {
     
     func addItemToCollection(item: CollectionItem) {
         // Make sure the collection's items array is not nil
-        if var selectedCollection {
+        if let selectedCollection {
             if var collectionItems = selectedCollection.items {
                 // Append the new item to the items array
                 collectionItems.append(item)
@@ -100,6 +100,7 @@ class CollectionsViewModel: ObservableObject {
         self.editTitle = collection.name
         self.editDescription = collection.description ?? ""
         self.editImageUrl = collection.coverImageUrl ?? ""
+        self.editItems = collection.items ?? []
         
     }
     
@@ -110,6 +111,7 @@ class CollectionsViewModel: ObservableObject {
         self.editImageUrl = ""
         self.coverImage = nil
         self.uiImage = nil
+        self.editItems = []
     }
     
     func clearEdits() {
@@ -120,10 +122,12 @@ class CollectionsViewModel: ObservableObject {
             self.editImageUrl = collection.coverImageUrl ?? ""
             self.coverImage = nil
             self.uiImage = nil
+            self.editItems = collection.items ?? []
         }
     }
     
     func saveEditedCollection() async throws {
+        var changed = false
         if let collection = self.selectedCollection {
             if let index = collections.firstIndex(where: { $0.id == collection.id }) {
                 var data: [String: Any] = [:]
@@ -138,30 +142,43 @@ class CollectionsViewModel: ObservableObject {
                     self.selectedCollection?.coverImageUrl = imageUrl
                     // updates the collections array with the updated image
                     collections[index].coverImageUrl = imageUrl
+                    changed = true
                 }
                 
                 if self.editDescription != collection.description {
                     self.selectedCollection?.description = self.editDescription
                     data["description"] = self.editDescription
                     collections[index].description = self.editDescription
+                    changed = true
                 }
                 
                 if self.editTitle != collection.name {
                     self.selectedCollection?.name = self.editTitle
                     data["name"] = self.editTitle
                     collections[index].name = self.editTitle
+                    changed = true
                 }
                 
                 if  collection.items != self.editItems {
-                    guard let cleanedData = try? Firestore.Encoder().encode(self.editItems) else {
-                        print("not encoding editItems right")
-                        return }
-                    data["items"] = cleanedData
+                    var encodedItems: [Any] = []
+                    for item in self.editItems {
+                            guard let encodedItem = try? Firestore.Encoder().encode(item) else {
+                                print("Failed to encode item:", item)
+                                return
+                            }
+                            encodedItems.append(encodedItem)
+                        }
+                    data["items"] = encodedItems
                     self.selectedCollection?.items = editItems
                     collections[index].items = self.editItems
-                    
+                    updateItems = true
                 }
-                try await FirestoreConstants.CollectionsCollection.document(collection.id).updateData(data)
+                
+                if changed{
+                    try await FirestoreConstants.CollectionsCollection.document(collection.id).updateData(data)
+                    print("ran collections update")
+                }
+                print("no updates")
                 clearEdits()
             }
         }

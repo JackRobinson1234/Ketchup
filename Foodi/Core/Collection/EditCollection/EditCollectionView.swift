@@ -17,43 +17,64 @@ struct EditCollectionView: View {
     
     var body: some View {
         NavigationStack{
-            ZStack {
-                VStack {
-                    CoverPhotoSelector(viewModel: collectionsViewModel)
-                    //MARK: Title Box
-                    Button(action: {
-                        self.isEditingTitle = true
-                    }) {
-                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
-                    }
-                    
-                    .padding(.vertical)
-                    //MARK: CaptionBox
-                    Button(action: {
-                        self.isEditingCaption = true
-                    }) {
-                        TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
-                    }
-                    
-                    Spacer()
+            ScrollView{
+                ZStack {
+                    VStack {
+                        //Image Selector
+                        CoverPhotoSelector(viewModel: collectionsViewModel)
+                        //MARK: Title Box
+                        Button(action: {
+                            self.isEditingTitle = true
+                        }) {
+                            TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                        }
+                        
                         .padding(.vertical)
-                    
-                }
-                //MARK: Title Editor Overlay
-                if isEditingTitle {
-                    EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
-                        .focused($isTitleEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
+                        //MARK: Caption Box
+                        Button(action: {
+                            self.isEditingCaption = true
+                        }) {
+                            TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
                         }
-                }
-                //MARK: Caption Editor Overlay
-                if isEditingCaption {
-                    EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
-                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                        // MARK: Items
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                            //if collection.uid == Auth.auth().currentUser?.uid{
+                            ForEach(collectionsViewModel.editItems, id: \.id) { item in
+                                VStack{
+                                    CollectionItemCell(item: item)
+                                        .aspectRatio(1.0, contentMode: .fit)
+                                    Button{
+                                        collectionsViewModel.editItems.removeAll(where: {$0.id == item.id})
+                                        print(collectionsViewModel.editItems)
+                                    } label: {
+                                        Text("Remove")
+                                            .foregroundStyle(.red)
+                                            .font(.subheadline)
+                                    }
+                                }
+                                .padding(7)
+                            }
+                            Spacer()
+                                .padding(.vertical)
+                            
                         }
+                    }
+                    //MARK: Title Editor Overlay
+                    if isEditingTitle {
+                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                            .focused($isTitleEditorFocused) // Connects the focus state to the editor view
+                            .onAppear {
+                                isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
+                            }
+                    }
+                    //MARK: Caption Editor Overlay
+                    if isEditingCaption {
+                        EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                            .onAppear {
+                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                            }
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -87,5 +108,5 @@ struct EditCollectionView: View {
     }
 }
 #Preview {
-    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
