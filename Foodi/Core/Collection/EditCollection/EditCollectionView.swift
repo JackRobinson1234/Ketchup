@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct EditCollectionView: View {
-    var user: User
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @Environment(\.dismiss) var dismiss
     @State private var isEditingCaption = false
@@ -39,7 +38,7 @@ struct EditCollectionView: View {
                     Spacer()
                         .padding(.vertical)
                     
-                    Button {
+                    /*Button {
                         //MARK: Post Button
                         Task {
                             try await collectionsViewModel.uploadCollection()
@@ -54,7 +53,7 @@ struct EditCollectionView: View {
                                         .tint(.white)
                                 }
                             }
-                    }
+                    }*/
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
@@ -74,7 +73,7 @@ struct EditCollectionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("Create a New Collection")
+            .navigationTitle("Edit Collection")
             .preferredColorScheme(.light)
             //POSS Check if keyboard is active here
             .toolbar {

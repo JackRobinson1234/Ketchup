@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct CreateCollectionDetails: View {
     var user: User
@@ -108,13 +109,14 @@ struct TextBox: View {
             ScrollView {
                 ZStack(alignment: .leading) {
                     TextEditor(text: $text)
-                        .foregroundColor(text.isEmpty ? .clear : .primary)
+                        .foregroundColor(text.isEmpty ? .clear : .black)
                         .disabled(true)
                         .frame(maxHeight: .infinity)
                         .multilineTextAlignment(.leading)
                         .onTapGesture {
                             isEditing = true
                         }
+                        
 
                     if text.isEmpty {
                         Text(placeholder)
@@ -135,6 +137,13 @@ struct TextBox: View {
                     .padding(.horizontal, 10)
             }
             Divider()
+        }
+        //Makes sure that the text shows up
+        .onAppear {
+            text += " "
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                text.removeLast()
+            }
         }
     }
 }
@@ -227,6 +236,14 @@ struct CoverPhotoSelector: View{
                         .clipShape(Rectangle())
                         .foregroundColor(Color(.systemGray4))
                         .cornerRadius(10)
+                } else if !viewModel.editImageUrl.isEmpty {
+                    KFImage(URL(string: viewModel.editImageUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 200, height: 200)
+                        .clipShape(Rectangle())
+                        .foregroundColor(Color(.systemGray4))
+                        .cornerRadius(10)
                 } else {
                     ZStack {
                         //MARK: Cover Photo
@@ -241,9 +258,15 @@ struct CoverPhotoSelector: View{
                         
                     }
                 }
-                Text("Add a Cover Photo")
-                    .font(.footnote)
-                    .fontWeight(.semibold)
+                if viewModel.coverImage == nil && viewModel.editImageUrl.isEmpty {
+                    Text("Add a Cover Photo")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("Edit Cover Photo")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                }
             }
         }
         .padding(.vertical, 8)

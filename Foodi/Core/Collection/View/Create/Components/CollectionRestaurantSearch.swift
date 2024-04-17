@@ -25,51 +25,12 @@ struct CollectionRestaurantSearch: View {
     var body: some View {
         if isLoading {
             // Loading screen
-                ScrollView{
-                    ProgressView("Loading...")
-                        .onAppear {
-                            Task {
-                                try await restaurantListViewModel.fetchRestaurants()
-                                isLoading = false
-                            }
-                        }
-                        .navigationTitle("Add to Collection")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .searchable(text: $searchText, placement: .navigationBarDrawer)
-                        .navigationBarBackButtonHidden()
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    dismiss()
-                                } label: {
-                                    Text("Cancel")
-                                }
-                            }
-                        }
-                        .toolbar(.hidden, for: .tabBar)
-                    
-            }
-        } else {
-                    ScrollView {
-                        VStack{
-                            ForEach(restaurants) { restaurant in
-                                Button{
-                                    let name = restaurant.name
-                                    let id = restaurant.id
-                                    let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
-                                    let city = restaurant.city ?? nil
-                                    let state = restaurant.state ?? nil
-                                    let geoPoint = restaurant.geoPoint ?? nil
-                                    let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
-                                    Task{
-                                        collectionsViewModel.addItemToCollection(item: newItem)
-                                        dismiss()
-                                    }
-                                } label :{
-                                    RestaurantCell(restaurant: restaurant)
-                                        .padding(.leading)
-                                }
-                            }
+            ScrollView{
+                ProgressView("Loading...")
+                    .onAppear {
+                        Task {
+                            try await restaurantListViewModel.fetchRestaurants()
+                            isLoading = false
                         }
                     }
                     .navigationTitle("Add to Collection")
@@ -86,7 +47,46 @@ struct CollectionRestaurantSearch: View {
                         }
                     }
                     .toolbar(.hidden, for: .tabBar)
-                    
+                
+            }
+        } else {
+            ScrollView {
+                VStack{
+                    ForEach(restaurants) { restaurant in
+                        Button{
+                            let name = restaurant.name
+                            let id = restaurant.id
+                            let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
+                            let city = restaurant.city ?? nil
+                            let state = restaurant.state ?? nil
+                            let geoPoint = restaurant.geoPoint ?? nil
+                            let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
+                            Task{
+                                collectionsViewModel.addItemToCollection(item: newItem)
+                                dismiss()
+                            }
+                        } label :{
+                            RestaurantCell(restaurant: restaurant)
+                                .padding(.leading)
+                        }
+                    }
                 }
+            }
+            .navigationTitle("Add to Collection")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, placement: .navigationBarDrawer)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+            }
+            .toolbar(.hidden, for: .tabBar)
+            
         }
     }
+}

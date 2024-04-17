@@ -15,6 +15,7 @@ struct CollectionView: View {
     @State var currentSection: collectionSection = .grid
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @Environment(\.dismiss) var dismiss
+    @State var showEditCollection: Bool = false
     var body: some View {
         //MARK: Selecting Images
         NavigationStack{
@@ -98,7 +99,18 @@ struct CollectionView: View {
                                     .padding()
                             }
                         }
+                        if collectionsViewModel.user.isCurrentUser{
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                showEditCollection.toggle()
+                            } label: {
+                                Text("Edit")
+                                    .padding()
+                                }
+                            }
+                        }
                     }
+                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel)}
                 }
             }
         }
