@@ -23,6 +23,7 @@ struct FeedCell: View {
     @Binding var pauseVideo: Bool
     
     var body: some View {
+        //MARK: Loading Screen
         ZStack {
             if videoConfigured {
                 VideoPlayerView(coordinator: videoCoordinator)
@@ -35,7 +36,7 @@ struct FeedCell: View {
             
             VStack {
                 Spacer()
-                
+                //MARK: Black Background
                 ZStack(alignment: .bottom) {
                     Rectangle()
                         .fill(LinearGradient(colors: [.clear, .black.opacity(0.15)],
@@ -49,14 +50,13 @@ struct FeedCell: View {
                         
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
-                                //MARK: Restaurant Scenario
-                                // restaurant profile image
+                                //MARK:  restaurant profile image
                                 if let restaurant = post.restaurant {
                                     NavigationLink(value: restaurant) {
                                         RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
                                     }
                                     
-                                    //restaurant name
+                                    //MARK: Restaurant Name
                                     VStack (alignment: .leading) {
                                         NavigationLink(value: restaurant) {
                                             Text("\(restaurant.name)")
@@ -64,9 +64,9 @@ struct FeedCell: View {
                                                 .bold()
                                                 .multilineTextAlignment(.leading)
                                         }
-                                        //address
+                                        //MARK: Address
                                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                                        
+                                            //MARK: Recipe Fullname
                                         NavigationLink(value: post.user) {
                                             Text("by \(post.user.fullName)")
                                                 .font(.subheadline)
@@ -85,7 +85,7 @@ struct FeedCell: View {
                                                 .bold()
                                                 .multilineTextAlignment(.leading)
                                         }
-                                        
+                                        //MARK: recipe fullname
                                         NavigationLink(value: post.user) {
                                             Text("by \(post.user.fullName)")
                                                 .font(.subheadline)
@@ -99,33 +99,30 @@ struct FeedCell: View {
                             }
                             
                             
-                            //caption
+                            //MARK: caption
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
                             
-                            //see more
+                            //MARK: see more
                             if !expandCaption{
                                 Text("See more...")
                                     .font(.footnote)
                             }
                             else {
-                                
                                 Text("Cuisine: \(post.cuisine ?? "")")
                                 
-                                // price
+                                //MARKL  price
                                 Text("Price: \(post.price ?? "")")
                                 
-                                //Menu Button
+                                //MARK: Menu Button
                                 
                                 if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
                                         Text("View Menu")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
+                                    //MARK: Show recipe
                                 } else if let recipe = post.recipe {
-                                    
-                                    
-                                    
                                     Button{
                                         showRecipe.toggle()
                                         Task{
@@ -151,7 +148,7 @@ struct FeedCell: View {
                         Spacer()
                         //MARK: Right hand VStack
                         VStack(spacing: 28) {
-                            //user profile image
+                            //MARK: user profile image
                             NavigationLink(value: post.user) {
                                 ZStack(alignment: .bottom) {
                                     UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
@@ -160,7 +157,7 @@ struct FeedCell: View {
                                         .offset(y: 8)
                                 }
                             }
-                            //like button
+                            //MARK: like button
                             Button {
                                 handleLikeTapped()
                             } label: {
@@ -168,7 +165,7 @@ struct FeedCell: View {
                                                          value: post.likes,
                                                          tintColor: didLike ? .red : .white)
                             }
-                            //comment button
+                            //MARK: comment button
                             Button {
                                 Task{
                                     await videoCoordinator.pause()
@@ -179,7 +176,7 @@ struct FeedCell: View {
                             }
                             // Bookmark button
                             
-                            //share button
+                            //MARK: share button
                             Button {
                                 Task{
                                     await videoCoordinator.pause()
@@ -196,6 +193,7 @@ struct FeedCell: View {
                     .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
+            //MARK: Scroll Position replay/ pause
             .onChange(of: scrollPosition) {oldValue, newValue in
                 if newValue == post.id {
                     Task {
@@ -207,6 +205,7 @@ struct FeedCell: View {
                     }
                 }
             }
+            //MARK: Scroll Position play/pause
             .onChange(of: pauseVideo) {oldValue, newValue in
                 if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
                     if newValue == true {
@@ -220,7 +219,7 @@ struct FeedCell: View {
                     }
                 }
             }
-            
+            //MARK: Configure Player
             .onAppear {
                 if !videoConfigured {
                     Task{
@@ -243,7 +242,7 @@ struct FeedCell: View {
                     await videoCoordinator.pause()
                 }
             }
-            //MARK: CLICKING CONTROLS
+            //MARK: sheets
             //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
                 CommentsView(post: post)
@@ -259,6 +258,7 @@ struct FeedCell: View {
                 RecipeView(post: post)
                     .onDisappear{Task { await videoCoordinator.play()}}
             }
+            //MARK: Tap to play/pause
             .onTapGesture {
                 if let player = videoCoordinator.videoPlayerManager.queuePlayer{
                     switch player.timeControlStatus {
@@ -275,7 +275,7 @@ struct FeedCell: View {
             }
         }
     }
-    // like and unlike functionality
+    //MARK: like and unlike functionality
     private func handleLikeTapped() {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }
@@ -299,6 +299,7 @@ struct FeedCell: View {
         return timeString.isEmpty ? "Not specified" : timeString
     }
 }
+//MARK: Photo Library Acess
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     PHPhotoLibrary.requestAuthorization { status in
         switch status {

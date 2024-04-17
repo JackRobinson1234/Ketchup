@@ -16,14 +16,18 @@ struct CollectionMapView: View {
                 if let geoPoint = item.geoPoint {
                        let lat = geoPoint.latitude
                        let long = geoPoint.longitude
-                        if let image = item.image {
+                    if let image = item.image {
                             Annotation(item.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: long)) {
-                                RestaurantCircularProfileImageView(imageUrl: image, size: .medium)
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
+                                    RestaurantCircularProfileImageView(imageUrl: image, size: .medium)
+                                }
                             }
                         } else{
                             Annotation(item.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: long)) {
-                                Circle()
-                                    .foregroundStyle(.blue)
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
+                                    Circle()
+                                        .foregroundStyle(.blue)
+                                }
                             }
                         }
                     }
