@@ -38,7 +38,7 @@ struct EditCollectionView: View {
                             Button(action: {
                                 self.isEditingTitle = true
                             }) {
-                                TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                                TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
                             }
                             
                             .padding(.vertical)
@@ -74,7 +74,7 @@ struct EditCollectionView: View {
                     }
                     //MARK: Title Editor Overlay
                     if isEditingTitle {
-                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title*...", maxCharacters: 100, title: "Title")
                             .focused($isTitleEditorFocused) // Connects the focus state to the editor view
                             .onAppear {
                                 isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -110,7 +110,9 @@ struct EditCollectionView: View {
                         }
                     } label: {
                         Text("Save")
+                            .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
                     }
+                    .disabled(collectionsViewModel.editTitle.isEmpty)
                 }
             }
         }

@@ -17,7 +17,6 @@ struct CollectionView: View {
     @Environment(\.dismiss) var dismiss
     @State var showEditCollection: Bool = false
     @State var deletedCollection: Bool = false
-    //@Binding var newCollection: Bool?
     
     var body: some View {
         //MARK: Selecting Images

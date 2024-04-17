@@ -28,7 +28,7 @@ struct CreateCollectionDetails: View {
                     Button(action: {
                         self.isEditingTitle = true
                     }) {
-                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100)
+                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
                     }
                     
                     .padding(.vertical)
@@ -41,9 +41,12 @@ struct CreateCollectionDetails: View {
                     
                     Spacer()
                         .padding(.vertical)
-                    
+                    //MARK: Create Collection Button
+                    if collectionsViewModel.editTitle.isEmpty{
+                        Text("Add a title to continue")
+                            .font(.caption)
+                    }
                     Button {
-                        //MARK: Create Collection Button
                         Task {
                             try await collectionsViewModel.uploadCollection()
                             dismiss()
@@ -51,6 +54,7 @@ struct CreateCollectionDetails: View {
                     } label: {
                         Text(collectionsViewModel.isLoading ? "" : "Create Collection")
                             .modifier(StandardButtonModifier())
+                            .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
                             .overlay {
                                 if collectionsViewModel.isLoading {
                                     ProgressView()
@@ -58,6 +62,7 @@ struct CreateCollectionDetails: View {
                                 }
                             }
                     }
+                    .disabled(collectionsViewModel.editTitle.isEmpty)
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
@@ -225,7 +230,7 @@ struct EditorView: View {
 #Preview{
     CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
-
+//MARK: COVER PHOTO SELECTOR
 struct CoverPhotoSelector: View{
     @ObservedObject var viewModel: CollectionsViewModel
     var body: some View {
