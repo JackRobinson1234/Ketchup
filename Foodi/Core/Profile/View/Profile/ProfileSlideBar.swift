@@ -84,7 +84,7 @@ struct ProfileSlideBar: View {
                 
             }
         if profileSection == .collections {
-            ProfileCollectionsView(user: viewModel.user)
+            CollectionsListView(user: viewModel.user)
         }
         
         }

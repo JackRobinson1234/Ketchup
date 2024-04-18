@@ -8,11 +8,12 @@
 import SwiftUI
 import FirebaseAuth
 import Firebase
-struct ProfileCollectionsView: View {
+struct CollectionsListView: View {
     @State private var isLoading = true
     @StateObject var viewModel: CollectionsViewModel
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
+    var post: Post?
     let user: User
     
     init(user: User) {
@@ -48,7 +49,7 @@ struct ProfileCollectionsView: View {
                             viewModel.updateSelectedCollection(collection: collection) 
                             showCollection.toggle()
                         } label: {
-                            ProfileCollectionCell(collection: collection)
+                            CollectionListCell(collection: collection)
                         }
                         Divider()
                     }
@@ -66,5 +67,30 @@ struct ProfileCollectionsView: View {
 }
 
 #Preview {
-    ProfileCollectionsView(user: DeveloperPreview.user)
+    CollectionsListView(user: DeveloperPreview.user)
+}
+
+struct CreateCollectionButton: View {
+    var body: some View {
+        HStack{
+            Image(systemName: "plus")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+            VStack(alignment: .leading){
+                Text("Create a New Collection")
+                    .font(.subheadline)
+            }
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.black)
+                .padding(.horizontal)
+        }
+        .padding(.horizontal)
+    }
+}
+
+#Preview {
+    CreateCollectionButton()
 }

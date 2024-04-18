@@ -38,11 +38,12 @@ struct CollectionGridView: View {
             .padding(.horizontal)
 
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                    //if collection.uid == Auth.auth().currentUser?.uid{
-                    Button{
-                        showAddItem.toggle()
-                    } label: {
-                        AddItemCollectionButton()
+                    if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid, let items = collectionsViewModel.selectedCollection?.items, items.count < 50{
+                        Button{
+                            showAddItem.toggle()
+                        } label: {
+                            AddItemCollectionButton()
+                        }
                     }
                     if let items = collectionsViewModel.selectedCollection?.items, !items.isEmpty {
                         ForEach(filteredItems, id: \.id) { item in

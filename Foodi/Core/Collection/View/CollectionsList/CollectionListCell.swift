@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Kingfisher
-struct ProfileCollectionCell: View {
+struct CollectionListCell: View {
     var collection: Collection
     var size: CGFloat = 50
     var body: some View {
@@ -48,5 +48,5 @@ struct ProfileCollectionCell: View {
 }
 
 #Preview {
-    ProfileCollectionCell(collection: DeveloperPreview.collections[0])
+    CollectionListCell(collection: DeveloperPreview.collections[0])
 }

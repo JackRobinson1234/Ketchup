@@ -17,6 +17,7 @@ struct FeedCell: View {
     @State private var showComments = false
     @State private var showShareView = false
     @State private var showRecipe = false
+    @State private var showCollections = false
     @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
@@ -122,7 +123,7 @@ struct FeedCell: View {
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
-                                } else if let recipe = post.recipe {
+                                } else if post.recipe != nil {
                                     Button{
                                         showRecipe.toggle()
                                         Task{
@@ -157,11 +158,20 @@ struct FeedCell: View {
                                         .offset(y: 8)
                                 }
                             }
-                            //MARK: like button
+                            //MARK: Collection Button
+                            Button {
+                                Task{
+                                    await videoCoordinator.pause()
+                                }
+                                showCollections.toggle()
+                            } label: {
+                                FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
+                            }
+                            //MARK: Like button
                             Button {
                                 handleLikeTapped()
                             } label: {
-                                FeedCellActionButtonView(imageName: "heart.fill",
+                                FeedCellActionButtonView(imageName: didLike ? "heart.fill": "heart.fill",
                                                          value: post.likes,
                                                          tintColor: didLike ? .red : .white)
                             }
@@ -257,6 +267,9 @@ struct FeedCell: View {
             .sheet(isPresented: $showRecipe) {
                 RecipeView(post: post)
                     .onDisappear{Task { await videoCoordinator.play()}}
+            }
+            .sheet(isPresented: $showCollections) {
+                CollectionsListView(user: viewModel.user)
             }
             //MARK: Tap to play/pause
             .onTapGesture {

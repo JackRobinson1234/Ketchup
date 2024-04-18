@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FeedCellActionButtonView: View {
     let imageName: String
-    let value: Int
+    var value: Int?
     var height: CGFloat? = 28
     var width: CGFloat? = 28
     var tintColor: Color?
@@ -18,13 +18,15 @@ struct FeedCellActionButtonView: View {
         VStack {
             Image(systemName: imageName)
                 .resizable()
+                .scaledToFill()
                 .frame(width: width, height: height)
                 .foregroundStyle(tintColor ?? .white)
             
-            
+            if let value{
                 Text("\(value)")
                     .font(.caption)
                     .fontWeight(.bold)
+            }
             
         }
         .foregroundStyle(.white)

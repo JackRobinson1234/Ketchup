@@ -13,7 +13,6 @@ import FirebaseFirestore
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
     @Published var selectedCollection: Collection?
-    
     private let collectionService: CollectionService = CollectionService()
     @Published var user: User
     @Published var uploadComplete = false
