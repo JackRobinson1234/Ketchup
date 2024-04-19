@@ -105,7 +105,6 @@ class CollectionsViewModel: ObservableObject {
                     postType: post.postType,
                     name: name,
                     image: post.restaurant?.profileImageUrl,
-                    postUserFullname: post.user.fullName, // Assuming this is the username of the post's user
                     city: post.restaurant?.city,
                     state: post.restaurant?.state,
                     geoPoint: post.restaurant?.geoPoint
@@ -133,7 +132,6 @@ class CollectionsViewModel: ObservableObject {
                     postType: post.postType,
                     name: name,
                     image: post.restaurant?.profileImageUrl,
-                    postUserFullname: post.user.fullName, // Assuming this is the username of the post's user
                     city: post.restaurant?.city,
                     state: post.restaurant?.state,
                     geoPoint: post.restaurant?.geoPoint

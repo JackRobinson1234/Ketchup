@@ -20,23 +20,37 @@ struct AddItemCollectionList: View {
         self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post))
     }
     var body: some View {
-        VStack{
-            if post != nil {
-                if let item = viewModel.convertPostToCollectionItem() {
-                    CollectionItemCell(item: item)
+        NavigationStack{
+            VStack{
+                if post != nil {
+                    if let item = viewModel.convertPostToCollectionItem() {
+                        CollectionItemCell(item: item)
+                    }
+                }
+                CollectionsListView(viewModel: viewModel)
+                Spacer()
+            }
+            .onChange(of: viewModel.dismissListView) {
+                if viewModel.dismissListView {
+                    dismiss()
+                    viewModel.dismissListView = false
                 }
             }
-            CollectionsListView(viewModel: viewModel)
-        }
-        .onChange(of: viewModel.dismissListView) {
-            if viewModel.dismissListView {
-                dismiss()
-                viewModel.dismissListView = false
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Add Item to a Collection")
+            
         }
     }
 }
-
 #Preview {
     AddItemCollectionList(user: DeveloperPreview.user, post: DeveloperPreview.posts[0])
 }

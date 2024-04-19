@@ -39,6 +39,7 @@ struct CollectionsListView: View {
                         } label: {
                             CreateCollectionButton()
                         }
+                        .padding(.vertical)
                         Divider()
                     }
                     if !viewModel.collections.isEmpty {
@@ -62,7 +63,15 @@ struct CollectionsListView: View {
                         }
                     }
                     else {
-                        Text("No Collections to Show")
+                        if viewModel.user.isCurrentUser{
+                            Text("You don't have any collections yet!")
+                                .font(.subheadline)
+                                .padding()
+                        } else {
+                            Text("\(viewModel.user.fullname) doesn't have any collections yet!")
+                                .font(.subheadline)
+                                .padding()
+                        }
                     }
                 }
                 .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
@@ -73,17 +82,23 @@ struct CollectionsListView: View {
                 
             }
         }
-        .onAppear {
-            Task {
-                await viewModel.fetchCollections(user: viewModel.user.id)
-                isLoading = false
-            }
-        }
         .onChange(of: viewModel.dismissListView) {
             if viewModel.dismissListView {
                 Task{
                     dismiss()
                     viewModel.dismissListView = false
+                }
+            }
+        }
+        
+        .onAppear {
+            if viewModel.dismissListView {
+                print("Dismissing")
+            }
+            if !viewModel.dismissListView {
+                Task {
+                    await viewModel.fetchCollections(user: viewModel.user.id)
+                    isLoading = false
                 }
             }
         }
@@ -99,10 +114,12 @@ struct CreateCollectionButton: View {
             Image(systemName: "plus")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 20, height: 20)
+                .frame(width: 20)
+                .foregroundStyle(.blue.opacity(1))
             VStack(alignment: .leading){
                 Text("Create a New Collection")
                     .font(.subheadline)
+                    .foregroundStyle(.gray)
             }
             Spacer()
             

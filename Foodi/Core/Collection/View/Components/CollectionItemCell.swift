@@ -29,11 +29,12 @@ struct CollectionItemCell: View {
                     .offset(y: 25)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 VStack{
-                        Text(item.name)
-                            .font(.subheadline)
-                            .bold()
-                            .foregroundStyle(.black)
-                            .lineLimit(1)
+                    Text(item.name)
+                        .font(.subheadline)
+                        .bold()
+                        .foregroundStyle(.black)
+                        .lineLimit(1)
+                    HStack{
                         if let city = item.city, let state = item.state {
                             Text("\(city), \(state)")
                                 .font(.caption)
@@ -44,8 +45,19 @@ struct CollectionItemCell: View {
                                 .font(.caption)
                                 .lineLimit(1)
                                 .foregroundStyle(.black)
+                        } else if let city = item.city {
+                            Text("\(city)")
+                                .font(.caption)
+                                .lineLimit(1)
+                                .foregroundStyle(.black)
+                        } else if let state = item.state {
+                            Text("\(state)")
+                                .font(.caption)
+                                .lineLimit(1)
+                                .foregroundStyle(.black)
                         }
                     }
+                }
                 .padding(7)
                 }
         }

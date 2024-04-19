@@ -22,53 +22,63 @@ struct CreateCollectionDetails: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                VStack {
-                    CoverPhotoSelector(viewModel: collectionsViewModel)
-                    //MARK: Title Box
-                    Button(action: {
-                        self.isEditingTitle = true
-                    }) {
-                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
-                    }
-                    
-                    .padding(.vertical)
-                    //MARK: CaptionBox
-                    Button(action: {
-                        self.isEditingCaption = true
-                    }) {
-                        TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
-                    }
-                    
-                    Spacer()
-                        .padding(.vertical)
-                    //MARK: Create Collection Button
-                    if collectionsViewModel.editTitle.isEmpty{
-                        Text("Add a title to continue")
-                            .font(.caption)
-                    }
-                    Button {
-                        Task {
-                            try await collectionsViewModel.uploadCollection()
-                            // Dismiss all the views
-                            if collectionsViewModel.post != nil {
-                                collectionsViewModel.dismissListView.toggle()
-                            } else {
-                                collectionsViewModel.dismissCollectionView.toggle()
-                            }
-                            dismiss()
+                ScrollView{
+                    VStack {
+                        CoverPhotoSelector(viewModel: collectionsViewModel)
+                        //MARK: Title Box
+                        Button(action: {
+                            self.isEditingTitle = true
+                        }) {
+                            TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
                         }
-                    } label: {
-                        if collectionsViewModel.post != nil {
-                            Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
-                                .modifier(StandardButtonModifier())
-                                .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
-                                .overlay {
-                                    if collectionsViewModel.isLoading {
-                                        ProgressView()
-                                            .tint(.white)
-                                    }
+                        
+                        .padding(.vertical)
+                        //MARK: CaptionBox
+                        Button(action: {
+                            self.isEditingCaption = true
+                        }) {
+                            TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                        }
+                        
+                        //MARK: Item Preview if theres an item
+                        if let item = collectionsViewModel.convertPostToCollectionItem() {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                CollectionItemCell(item: item)
+                            }
+                            .padding(.top)
+                        }
+                        
+                        Spacer()
+                            .padding(.vertical)
+                    }
+                }
+                .overlay(alignment: .bottom) { 
+                    //MARK: Create Collection Button
+                    //MARK: Title warning
+                        Button {
+                            Task {
+                                if collectionsViewModel.post != nil {
+                                    collectionsViewModel.dismissListView.toggle()
+                                    print("dismisslisttoggled")
+                                } else {
+                                    collectionsViewModel.dismissCollectionView.toggle()
                                 }
-                        } else {
+                                try await collectionsViewModel.uploadCollection()
+                                // Dismiss all the views
+                                dismiss()
+                            }
+                        } label: {
+                            if collectionsViewModel.post != nil {
+                                Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
+                                    .modifier(StandardButtonModifier())
+                                    .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
+                                    .overlay {
+                                        if collectionsViewModel.isLoading {
+                                            ProgressView()
+                                                .tint(.white)
+                                        }
+                                    }
+                            } else {
                                 Text(collectionsViewModel.isLoading ? "" : "Create Collection")
                                     .modifier(StandardButtonModifier())
                                     .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
@@ -79,8 +89,13 @@ struct CreateCollectionDetails: View {
                                         }
                                     }
                             }
-                    }
+                        }
+                        
                     .disabled(collectionsViewModel.editTitle.isEmpty)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top)
+                    .background(.white)
+                    
                 }
                 //MARK: Title Editor Overlay
                 if isEditingTitle {
