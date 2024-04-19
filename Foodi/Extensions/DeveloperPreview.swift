@@ -166,7 +166,7 @@ struct DeveloperPreview {
                         postType: "atHome",
                         name: "Pasta Carbonara",
                         image: "https://picsum.photos/200/300",
-                        postUsername: "Will Bond"
+                        postUserFullname: "Will Bond"
                     ),
                     .init(
                         id: "-1QvxFtMgOLpSbO-oAtUgA",

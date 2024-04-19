@@ -14,65 +14,75 @@ struct CollectionsListView: View {
     @StateObject var viewModel: CollectionsViewModel
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
+    @State var dismissCollectionsList: Bool = false
     var post: Post?
     let user: User
     
     init(user: User, post: Post? = nil) {
         self.user = user
         self.post = post
-        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user))
+        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post))
     }
     
     var body: some View {
-        if isLoading && viewModel.collections.isEmpty {
-            // Loading screen
-            ProgressView("Loading...")
-                .onAppear {
-                    Task {
-                        await viewModel.fetchCollections(user: user.id)
-                        isLoading = false
-                    }
-                }
-                .toolbar(.hidden, for: .tabBar)
-        }
-        else{
-            VStack{
-                if user.isCurrentUser {
-                    Button{
-                        showAddCollection.toggle()
-                    } label: {
-                        CreateCollectionButton()
-                    }
-                    Divider()
-                }
-                if !viewModel.collections.isEmpty {
-                    // if post isn't passed in, then go to the selected collection, else add the post as an item to the collection
-                    ForEach(viewModel.collections) { collection in
+        VStack{
+            if viewModel.isLoading {
+                // Loading screen
+                ProgressView("Loading...")
+                    .toolbar(.hidden, for: .tabBar)
+            }
+            else{
+                VStack{
+                    if user.isCurrentUser {
                         Button{
-                            if post == nil {
-                                viewModel.updateSelectedCollection(collection: collection)
-                                showCollection.toggle()
-                            } else {
-                                if let post {
-                                    viewModel.updateSelectedCollection(collection: collection)
-                                    viewModel.addPostToCollection(post: post)
-                                    dismiss()
-                                }
-                            }
+                            showAddCollection.toggle()
                         } label: {
-                            CollectionListCell(collection: collection)
+                            CreateCollectionButton()
                         }
                         Divider()
                     }
+                    if !viewModel.collections.isEmpty {
+                        // if post isn't passed in, then go to the selected collection, else add the post as an item to the collection
+                        ForEach(viewModel.collections) { collection in
+                            Button{
+                                if post == nil {
+                                    viewModel.updateSelectedCollection(collection: collection)
+                                    showCollection.toggle()
+                                } else {
+                                    if post != nil {
+                                        viewModel.updateSelectedCollection(collection: collection)
+                                        viewModel.addPostToCollection()
+                                        dismiss()
+                                    }
+                                }
+                            } label: {
+                                CollectionListCell(collection: collection)
+                            }
+                            Divider()
+                        }
+                    }
+                    else {
+                        Text("No Collections to Show")
+                    }
                 }
-                else {
-                    Text("No Collections to Show")
+                .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
+                //.navigationDestination(for: Collection.self) {collection in
+                //CollectionView(collectionsViewModel: viewModel, collection: collection)}
+                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)}
+                // Dismisses this view if a new collection is made
+                .onChange(of: dismissCollectionsList) {
+                    if dismissCollectionsList == true{
+                        dismiss()
+                        dismissCollectionsList = false
+                    }
                 }
             }
-            .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
-            //.navigationDestination(for: Collection.self) {collection in
-            //CollectionView(collectionsViewModel: viewModel, collection: collection)}
-            .sheet(isPresented: $showAddCollection) {if post == nil {CreateCollectionDetails(user: user, collectionsViewModel: viewModel)}}
+        }
+        .onAppear {
+            Task {
+                await viewModel.fetchCollections(user: user.id)
+                isLoading = false
+            }
         }
     }
 }

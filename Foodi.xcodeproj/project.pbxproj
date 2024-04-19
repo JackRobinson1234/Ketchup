@@ -437,6 +437,14 @@
 			path = EditCollection;
 			sourceTree = "<group>";
 		};
+		F832F9802BD2DD9100EE7336 /* CollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */,
+			);
+			path = CollectionView;
+			sourceTree = "<group>";
+		};
 		F84FE23F2B6A531200144F01 = {
 			isa = PBXGroup;
 			children = (
@@ -830,8 +838,8 @@
 		F871CDF62BC750A4003C9BE8 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F832F9802BD2DD9100EE7336 /* CollectionView */,
 				F871CE072BCDF8C5003C9BE8 /* CollectionsList */,
-				F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */,
 				F871CE0C2BCDFCEC003C9BE8 /* Create */,
 				F871CDFA2BC753CC003C9BE8 /* Components */,
 			);

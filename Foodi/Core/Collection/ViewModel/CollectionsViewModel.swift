@@ -27,18 +27,25 @@ class CollectionsViewModel: ObservableObject {
     @Published var editDescription = ""
     @Published var editImageUrl = ""
     @Published var editItems: [CollectionItem] = []
+    var post: Post?
     
-    init(user: User) {
+    init(user: User, post: Post? = nil) {
         self.user = user
+        self.post = post
     }
+    //MARK: fetchCollections
     func fetchCollections(user: String) async {
+        isLoading = true
+        print("fetching Collections")
         do {
             self.collections = try await collectionService.fetchCollections(user: user)
+            isLoading = false
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            isLoading = false
         }
     }
-    
+    //MARK: addItemToCollection
     func addItemToCollection(item: CollectionItem) {
         // Make sure the collection's items array is not nil
         if let selectedCollection {
@@ -76,38 +83,40 @@ class CollectionsViewModel: ObservableObject {
             print("error with selectedCollection")
         }
     }
-    
-    func addPostToCollection(post: Post) {
-        if post.postType == "atHome" {
-            let collectionItem = CollectionItem(
-                id: post.id,
-                postType: post.postType,
-                name: post.caption,
-                image: post.thumbnailUrl,
-                postUsername: post.user.fullName
-            )
-            addItemToCollection(item: collectionItem)
-        } else if post.postType == "restaurant",
-                  let id = post.restaurant?.id,
-                  let name = post.restaurant?.name{
-            let collectionItem = CollectionItem(
-                id: id,
-                postType: post.postType,
-                name: name,
-                image: post.restaurant?.profileImageUrl,
-                postUsername: post.user.fullName, // Assuming this is the username of the post's user
-                city: post.restaurant?.city,
-                state: post.restaurant?.state,
-                geoPoint: post.restaurant?.geoPoint
-            )
-            addItemToCollection(item: collectionItem)
+    //MARK: addPostToCollection
+    func addPostToCollection() {
+        if let post = self.post {
+            if post.postType == "atHome" {
+                let collectionItem = CollectionItem(
+                    id: post.id,
+                    postType: post.postType,
+                    name: post.caption,
+                    image: post.thumbnailUrl,
+                    postUserFullname: post.user.fullName
+                )
+                addItemToCollection(item: collectionItem)
+            } else if post.postType == "restaurant",
+                      let id = post.restaurant?.id,
+                      let name = post.restaurant?.name{
+                let collectionItem = CollectionItem(
+                    id: id,
+                    postType: post.postType,
+                    name: name,
+                    image: post.restaurant?.profileImageUrl,
+                    postUserFullname: post.user.fullName, // Assuming this is the username of the post's user
+                    city: post.restaurant?.city,
+                    state: post.restaurant?.state,
+                    geoPoint: post.restaurant?.geoPoint
+                )
+                addItemToCollection(item: collectionItem)
+            }
         }
             
             
             // Add the collection item to the selected collection
             
     }
-    
+    //MARK: loadImage
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         
@@ -117,15 +126,19 @@ class CollectionsViewModel: ObservableObject {
         self.coverImage = Image(uiImage: uiImage)
         self.selectedImage = nil
     }
-    
+    //MARK: uploadCollection
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage)
+        let collection = try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage)
         await fetchCollections(user: user.id)
+        if let post = self.post, let collection = collection{
+            updateSelectedCollection(collection: collection)
+            addPostToCollection()
+        }
         isLoading = false
     }
-    
+    //MARK: updateSelectedCollection
     func updateSelectedCollection(collection: Collection){
         self.selectedCollection = collection
         self.editTitle = collection.name
@@ -134,7 +147,7 @@ class CollectionsViewModel: ObservableObject {
         self.editItems = collection.items ?? []
         
     }
-    
+    //MARK: resetViewModel
     func resetViewModel() {
         self.selectedCollection = nil
         self.editTitle = ""
@@ -144,7 +157,7 @@ class CollectionsViewModel: ObservableObject {
         self.uiImage = nil
         self.editItems = []
     }
-    
+    //MARK: clearEdits
     func clearEdits() {
         if let collection = self.selectedCollection {
             self.selectedCollection = collection
@@ -156,7 +169,7 @@ class CollectionsViewModel: ObservableObject {
             self.editItems = collection.items ?? []
         }
     }
-    
+    //MARK: saveEditedCollection
     func saveEditedCollection() async throws {
         var changed = false
         if let collection = self.selectedCollection {
@@ -214,7 +227,7 @@ class CollectionsViewModel: ObservableObject {
             }
         }
     }
-    
+    //MARK: deleteCollection
     func deleteCollection() async throws {
         if let collectionId = self.selectedCollection?.id {
         guard let index = collections.firstIndex(where: { $0.id == collectionId }) else {

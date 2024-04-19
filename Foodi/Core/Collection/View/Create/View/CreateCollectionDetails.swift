@@ -17,7 +17,7 @@ struct CreateCollectionDetails: View {
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
-    
+    @Binding var dismissCollectionsList: Bool
     
     var body: some View {
         NavigationStack{
@@ -49,17 +49,32 @@ struct CreateCollectionDetails: View {
                     Button {
                         Task {
                             try await collectionsViewModel.uploadCollection()
+                            if collectionsViewModel.post != nil {
+                                dismissCollectionsList.toggle()
+                            }
                             dismiss()
                         }
                     } label: {
-                        Text(collectionsViewModel.isLoading ? "" : "Create Collection")
-                            .modifier(StandardButtonModifier())
-                            .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
-                            .overlay {
-                                if collectionsViewModel.isLoading {
-                                    ProgressView()
-                                        .tint(.white)
+                        if let post = collectionsViewModel.post {
+                            Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
+                                .modifier(StandardButtonModifier())
+                                .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
+                                .overlay {
+                                    if collectionsViewModel.isLoading {
+                                        ProgressView()
+                                            .tint(.white)
+                                    }
                                 }
+                        } else {
+                                Text(collectionsViewModel.isLoading ? "" : "Create Collection")
+                                    .modifier(StandardButtonModifier())
+                                    .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
+                                    .overlay {
+                                        if collectionsViewModel.isLoading {
+                                            ProgressView()
+                                                .tint(.white)
+                                        }
+                                    }
                             }
                     }
                     .disabled(collectionsViewModel.editTitle.isEmpty)
@@ -99,7 +114,7 @@ struct CreateCollectionDetails: View {
     }
 }
 #Preview {
-    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user), dismissCollectionsList: .constant(false))
 }
 
 
@@ -227,9 +242,8 @@ struct EditorView: View {
         .background(Color.black.opacity(0.8))
     }
 }
-#Preview{
-    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
-}
+
+
 //MARK: COVER PHOTO SELECTOR
 struct CoverPhotoSelector: View{
     @ObservedObject var viewModel: CollectionsViewModel

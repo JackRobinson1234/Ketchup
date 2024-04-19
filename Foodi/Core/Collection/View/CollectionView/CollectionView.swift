@@ -116,9 +116,11 @@ struct CollectionView: View {
                         }
                     }
                     .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel, deletedCollection: $deletedCollection)}
+                    // if the collection is deleted in the edit collection view, navigate back to the collectionListview
                     .onChange(of: deletedCollection) {
                         if deletedCollection {
                             dismiss()
+                            deletedCollection = false
                         }
                     }
                 }

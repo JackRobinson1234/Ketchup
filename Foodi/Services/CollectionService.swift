@@ -39,7 +39,7 @@ class CollectionService {
             }
         }
     }
-    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?) async throws {
+    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?) async throws -> Collection? {
         let ref = FirestoreConstants.CollectionsCollection.document()
         do {
             var imageUrl: String? = nil
@@ -49,15 +49,16 @@ class CollectionService {
                 } catch {
                     print("Error uploading image: \(error)")
                     // Handle the error, such as showing an alert to the user
-                    return
+                    return nil
                 }
             }
             let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")
-                return }
+                return nil}
             try await ref.setData(collectionData)
+            return collection
         } catch {
             print("DEBUG: Failed to upload Collection with error \(error.localizedDescription)")
             throw error

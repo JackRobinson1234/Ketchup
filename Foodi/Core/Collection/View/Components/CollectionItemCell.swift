@@ -39,7 +39,7 @@ struct CollectionItemCell: View {
                                 .font(.caption)
                                 .lineLimit(1)
                                 .foregroundStyle(.black)
-                        } else if let name = item.postUsername {
+                        } else if let name = item.postUserFullname {
                             Text("by @\(name)")
                                 .font(.caption)
                                 .lineLimit(1)
@@ -112,3 +112,4 @@ struct CollectionItemCell: View {
 //#Preview {
 //MapRestaurantView(restaurant: DeveloperPreview.restaurants[0])
 //}
+

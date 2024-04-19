@@ -55,7 +55,7 @@ struct CollectionItem: Codable, Hashable {
     //var notes: String? deleting for now
     
     //atHome post type specific
-    var postUsername: String?
+    var postUserFullname: String?
     
     //restaurant post type Specific
     var city: String?
