@@ -49,13 +49,16 @@ struct CreateCollectionDetails: View {
                     Button {
                         Task {
                             try await collectionsViewModel.uploadCollection()
+                            // Dismiss all the views
                             if collectionsViewModel.post != nil {
-                                dismissCollectionsList.toggle()
+                                collectionsViewModel.dismissListView.toggle()
+                            } else {
+                                collectionsViewModel.dismissCollectionView.toggle()
                             }
                             dismiss()
                         }
                     } label: {
-                        if let post = collectionsViewModel.post {
+                        if collectionsViewModel.post != nil {
                             Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
                                 .modifier(StandardButtonModifier())
                                 .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)

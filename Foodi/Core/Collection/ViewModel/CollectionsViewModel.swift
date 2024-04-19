@@ -27,6 +27,8 @@ class CollectionsViewModel: ObservableObject {
     @Published var editDescription = ""
     @Published var editImageUrl = ""
     @Published var editItems: [CollectionItem] = []
+    @Published var dismissListView: Bool = false
+    @Published var dismissCollectionView: Bool = false
     var post: Post?
     
     init(user: User, post: Post? = nil) {

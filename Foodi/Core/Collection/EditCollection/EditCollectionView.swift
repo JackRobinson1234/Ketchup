@@ -14,7 +14,6 @@ struct EditCollectionView: View {
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
-    @Binding var deletedCollection: Bool
     
     var body: some View {
         NavigationStack{
@@ -23,7 +22,7 @@ struct EditCollectionView: View {
                         VStack {
                             Button{
                                 Task{
-                                    deletedCollection.toggle()
+                                    collectionsViewModel.dismissCollectionView = true
                                     dismiss()
                                     try await collectionsViewModel.deleteCollection()
                                 }
@@ -122,5 +121,5 @@ struct EditCollectionView: View {
     }
 }
 #Preview {
-    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user), deletedCollection: .constant(false))
+    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }

@@ -115,12 +115,15 @@ struct CollectionView: View {
                             }
                         }
                     }
-                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel, deletedCollection: $deletedCollection)}
+                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel)}
                     // if the collection is deleted in the edit collection view, navigate back to the collectionListview
-                    .onChange(of: deletedCollection) {
-                        if deletedCollection {
-                            dismiss()
-                            deletedCollection = false
+                    .onChange(of: collectionsViewModel.dismissCollectionView) {
+                        print(collectionsViewModel.dismissCollectionView)
+                        if collectionsViewModel.dismissCollectionView {
+                            Task{
+                                dismiss()
+                                collectionsViewModel.dismissCollectionView = false
+                            }
                         }
                     }
                 }

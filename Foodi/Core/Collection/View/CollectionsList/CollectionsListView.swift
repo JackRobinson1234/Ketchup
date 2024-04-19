@@ -11,18 +11,18 @@ import Firebase
 struct CollectionsListView: View {
     @Environment(\.dismiss) var dismiss
     @State private var isLoading = true
-    @StateObject var viewModel: CollectionsViewModel
+    @ObservedObject var viewModel: CollectionsViewModel
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
     @State var dismissCollectionsList: Bool = false
-    var post: Post?
-    let user: User
+    //var post: Post?
+    //let user: User
     
-    init(user: User, post: Post? = nil) {
+    /*init(user: User, post: Post? = nil) {
         self.user = user
         self.post = post
         self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post))
-    }
+    }*/
     
     var body: some View {
         VStack{
@@ -32,13 +32,8 @@ struct CollectionsListView: View {
                     .toolbar(.hidden, for: .tabBar)
             }
             else{
-                if post != nil {
-                    if let item = viewModel.convertPostToCollectionItem() {
-                        CollectionItemCell(item: item)
-                    }
-                }
                 VStack{
-                    if user.isCurrentUser {
+                    if viewModel.user.isCurrentUser {
                         Button{
                             showAddCollection.toggle()
                         } label: {
@@ -50,11 +45,11 @@ struct CollectionsListView: View {
                         // if post isn't passed in, then go to the selected collection, else add the post as an item to the collection
                         ForEach(viewModel.collections) { collection in
                             Button{
-                                if post == nil {
+                                if viewModel.post == nil {
                                     viewModel.updateSelectedCollection(collection: collection)
                                     showCollection.toggle()
                                 } else {
-                                    if post != nil {
+                                    if viewModel.post != nil {
                                         viewModel.updateSelectedCollection(collection: collection)
                                         viewModel.addPostToCollection()
                                         dismiss()
@@ -73,29 +68,31 @@ struct CollectionsListView: View {
                 .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
                 //.navigationDestination(for: Collection.self) {collection in
                 //CollectionView(collectionsViewModel: viewModel, collection: collection)}
-                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)}
+                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: viewModel.user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)}
                 // Dismisses this view if a new collection is made
-                .onChange(of: dismissCollectionsList) {
-                    if dismissCollectionsList == true{
-                        dismiss()
-                        dismissCollectionsList = false
-                    }
-                }
+                
             }
         }
         .onAppear {
             Task {
-                await viewModel.fetchCollections(user: user.id)
+                await viewModel.fetchCollections(user: viewModel.user.id)
                 isLoading = false
+            }
+        }
+        .onChange(of: viewModel.dismissListView) {
+            if viewModel.dismissListView {
+                Task{
+                    dismiss()
+                    viewModel.dismissListView = false
+                }
             }
         }
     }
 }
 
 #Preview {
-    CollectionsListView(user: DeveloperPreview.user)
+    CollectionsListView(viewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }
-
 struct CreateCollectionButton: View {
     var body: some View {
         HStack{
