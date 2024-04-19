@@ -21,14 +21,17 @@ struct AddItemCollectionList: View {
     }
     var body: some View {
         NavigationStack{
-            VStack{
-                if post != nil {
-                    if let item = viewModel.convertPostToCollectionItem() {
-                        CollectionItemCell(item: item)
+            ScrollView{
+                VStack{
+                    if post != nil {
+                        if let item = viewModel.convertPostToCollectionItem() {
+                            CollectionItemCell(item: item)
+                                .padding()
+                        }
                     }
+                    CollectionsListView(viewModel: viewModel)
+                    Spacer()
                 }
-                CollectionsListView(viewModel: viewModel)
-                Spacer()
             }
             .onChange(of: viewModel.dismissListView) {
                 if viewModel.dismissListView {

@@ -15,16 +15,9 @@ struct CollectionsListView: View {
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
     @State var dismissCollectionsList: Bool = false
-    //var post: Post?
-    //let user: User
-    
-    /*init(user: User, post: Post? = nil) {
-        self.user = user
-        self.post = post
-        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post))
-    }*/
     
     var body: some View {
+        //MARK: isLoading
         VStack{
             if viewModel.isLoading {
                 // Loading screen
@@ -32,8 +25,10 @@ struct CollectionsListView: View {
                     .toolbar(.hidden, for: .tabBar)
             }
             else{
+                //MARK: Add Collection Button
                 VStack{
                     if viewModel.user.isCurrentUser {
+                        Divider()
                         Button{
                             showAddCollection.toggle()
                         } label: {
@@ -42,6 +37,7 @@ struct CollectionsListView: View {
                         .padding(.vertical)
                         Divider()
                     }
+                    //MARK: CollectionsList
                     if !viewModel.collections.isEmpty {
                         // if post isn't passed in, then go to the selected collection, else add the post as an item to the collection
                         ForEach(viewModel.collections) { collection in
@@ -62,6 +58,7 @@ struct CollectionsListView: View {
                             Divider()
                         }
                     }
+                    //MARK: No Collections Message
                     else {
                         if viewModel.user.isCurrentUser{
                             Text("You don't have any collections yet!")
@@ -82,24 +79,19 @@ struct CollectionsListView: View {
                 
             }
         }
-        .onChange(of: viewModel.dismissListView) {
-            if viewModel.dismissListView {
-                Task{
-                    dismiss()
-                    viewModel.dismissListView = false
-                }
-            }
-        }
         
         .onAppear {
-            if viewModel.dismissListView {
-                print("Dismissing")
-            }
             if !viewModel.dismissListView {
                 Task {
                     await viewModel.fetchCollections(user: viewModel.user.id)
                     isLoading = false
                 }
+            }
+        }
+        .onChange(of: viewModel.dismissListView) {
+            if viewModel.dismissListView {
+                dismiss()
+                viewModel.dismissListView = false
             }
         }
     }
@@ -116,10 +108,11 @@ struct CreateCollectionButton: View {
                 .scaledToFit()
                 .frame(width: 20)
                 .foregroundStyle(.blue.opacity(1))
+                .padding(.horizontal)
             VStack(alignment: .leading){
                 Text("Create a New Collection")
                     .font(.subheadline)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
             }
             Spacer()
             

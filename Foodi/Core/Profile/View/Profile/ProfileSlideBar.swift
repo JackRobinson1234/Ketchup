@@ -14,12 +14,14 @@ enum ProfileSectionEnum {
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
+    @StateObject var collectionsViewModel: CollectionsViewModel
     private let userService: UserService
     
     init(viewModel: ProfileViewModel, userService: UserService, profileSection: Binding<ProfileSectionEnum>) {
         self.userService = userService
         self._profileSection = profileSection
         self.viewModel = viewModel
+        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
         }
 
     var body: some View {
@@ -84,7 +86,7 @@ struct ProfileSlideBar: View {
                 
             }
         if profileSection == .collections {
-            CollectionsListView(viewModel: CollectionsViewModel(user: viewModel.user))
+            CollectionsListView(viewModel: collectionsViewModel)
         }
         
         }

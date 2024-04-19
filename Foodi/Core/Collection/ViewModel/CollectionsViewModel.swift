@@ -156,7 +156,10 @@ class CollectionsViewModel: ObservableObject {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
         let collection = try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage)
-        await fetchCollections(user: user.id)
+        if let collection{
+            print(collection)
+            self.collections.insert(collection, at: 0)
+        }
         if let post = self.post, let collection = collection{
             updateSelectedCollection(collection: collection)
             addPostToCollection()

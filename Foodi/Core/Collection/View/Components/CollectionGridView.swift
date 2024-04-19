@@ -20,6 +20,7 @@ struct CollectionGridView: View {
     @State var showAddItem = false
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
+        //MARK: Search Bar
         VStack{
             HStack{
                 Image(systemName: "magnifyingglass")
@@ -37,14 +38,24 @@ struct CollectionGridView: View {
                     .foregroundStyle(Color(.systemGray4)))
             .padding(.horizontal)
 
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                    if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid, let items = collectionsViewModel.selectedCollection?.items, items.count < 50{
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                //MARK: Add Item Button
+                if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid {
+                    if collectionsViewModel.selectedCollection?.items == nil {
+                            Button{
+                                showAddItem.toggle()
+                            } label: {
+                                AddItemCollectionButton()
+                            }
+                    } else if let itemCount = collectionsViewModel.selectedCollection?.items?.count, itemCount < 50 {
                         Button{
                             showAddItem.toggle()
                         } label: {
                             AddItemCollectionButton()
                         }
                     }
+                    }
+                //MARK: VGrid of Items
                     if let items = collectionsViewModel.selectedCollection?.items, !items.isEmpty {
                         ForEach(filteredItems, id: \.id) { item in
                             if item.postType == "restaurant" {
@@ -69,11 +80,13 @@ struct CollectionGridView: View {
                     }
                 }
             }
+        //Sets the initial items
         .onAppear{
             if let items = collectionsViewModel.selectedCollection?.items{
                 filteredItems = items
             }
         }
+        // updates the search text
         .onChange(of: searchText) {
             if searchText.isEmpty{
                 if let items = collectionsViewModel.selectedCollection?.items{
@@ -83,14 +96,17 @@ struct CollectionGridView: View {
                 filteredItems = filterItems(searchText: searchText)
             }
         }
+        //MARK: Add Item Sheet
         .sheet(isPresented: $showAddItem) {
             ItemSelectorView( collectionsViewModel: collectionsViewModel)
         }
+        //MARK: Show Post Sheet
         .sheet(isPresented: $showPost) {
             if let post = selectedPost {
                 FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: UserService(), hideFeedOptions: true)
             }
         }
+        //MARK: Restaurant Sheet
         .sheet(isPresented: $showRestaurant) {
             if let restaurant = selectedRestaurant {
                 NavigationStack{
@@ -98,6 +114,7 @@ struct CollectionGridView: View {
                 }
             }
         }
+        //Updates the view of items if an item is added in the view model
         .onChange(of: collectionsViewModel.updateItems) {
             if let items = collectionsViewModel.selectedCollection?.items{
                 searchText = ""
@@ -106,6 +123,7 @@ struct CollectionGridView: View {
             }
         }
     }
+    //MARK: filterItems
     func filterItems(searchText: String) -> [CollectionItem] {
         let lowercasedQuery = searchText.lowercased()
         return collectionsViewModel.selectedCollection?.items?.filter { item in
