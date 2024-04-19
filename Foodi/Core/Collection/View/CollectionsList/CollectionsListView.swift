@@ -32,6 +32,11 @@ struct CollectionsListView: View {
                     .toolbar(.hidden, for: .tabBar)
             }
             else{
+                if post != nil {
+                    if let item = viewModel.convertPostToCollectionItem() {
+                        CollectionItemCell(item: item)
+                    }
+                }
                 VStack{
                     if user.isCurrentUser {
                         Button{

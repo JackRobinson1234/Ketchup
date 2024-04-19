@@ -111,10 +111,35 @@ class CollectionsViewModel: ObservableObject {
                 addItemToCollection(item: collectionItem)
             }
         }
-            
-            
-            // Add the collection item to the selected collection
-            
+    }
+    func convertPostToCollectionItem() -> CollectionItem? {
+        if let post = self.post {
+            if post.postType == "atHome" {
+                let collectionItem = CollectionItem(
+                    id: post.id,
+                    postType: post.postType,
+                    name: post.caption,
+                    image: post.thumbnailUrl,
+                    postUserFullname: post.user.fullName
+                )
+               return collectionItem
+            } else if post.postType == "restaurant",
+                      let id = post.restaurant?.id,
+                      let name = post.restaurant?.name{
+                let collectionItem = CollectionItem(
+                    id: id,
+                    postType: post.postType,
+                    name: name,
+                    image: post.restaurant?.profileImageUrl,
+                    postUserFullname: post.user.fullName, // Assuming this is the username of the post's user
+                    city: post.restaurant?.city,
+                    state: post.restaurant?.state,
+                    geoPoint: post.restaurant?.geoPoint
+                )
+                return collectionItem
+            }
+        }
+        return nil
     }
     //MARK: loadImage
     func loadImage(fromItem item: PhotosPickerItem?) async {
