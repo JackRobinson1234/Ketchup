@@ -52,7 +52,7 @@ struct CollectionItem: Codable, Hashable {
     var postType: String
     var name: String
     var image: String?
-    var notes: String?
+    //var notes: String? deleting for now
     
     //atHome post type specific
     var postUsername: String?

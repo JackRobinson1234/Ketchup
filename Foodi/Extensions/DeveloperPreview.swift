@@ -166,7 +166,6 @@ struct DeveloperPreview {
                         postType: "atHome",
                         name: "Pasta Carbonara",
                         image: "https://picsum.photos/200/300",
-                        notes: "Classic Italian dish",
                         postUsername: "Will Bond"
                     ),
                     .init(
@@ -174,7 +173,6 @@ struct DeveloperPreview {
                         postType: "restaurant",
                         name: "Bella Italia",
                         image: "https://picsum.photos/250/350",
-                        notes: "Italian restaurant in downtown",
                         city: "Hermosa Beach",
                         state: "CA",
                         geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)

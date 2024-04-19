@@ -76,6 +76,38 @@ class CollectionsViewModel: ObservableObject {
             print("error with selectedCollection")
         }
     }
+    
+    func addPostToCollection(post: Post) {
+        if post.postType == "atHome" {
+            let collectionItem = CollectionItem(
+                id: post.id,
+                postType: post.postType,
+                name: post.caption,
+                image: post.thumbnailUrl,
+                postUsername: post.user.fullName
+            )
+            addItemToCollection(item: collectionItem)
+        } else if post.postType == "restaurant",
+                  let id = post.restaurant?.id,
+                  let name = post.restaurant?.name{
+            let collectionItem = CollectionItem(
+                id: id,
+                postType: post.postType,
+                name: name,
+                image: post.restaurant?.profileImageUrl,
+                postUsername: post.user.fullName, // Assuming this is the username of the post's user
+                city: post.restaurant?.city,
+                state: post.restaurant?.state,
+                geoPoint: post.restaurant?.geoPoint
+            )
+            addItemToCollection(item: collectionItem)
+        }
+            
+            
+            // Add the collection item to the selected collection
+            
+    }
+    
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         
@@ -208,4 +240,5 @@ class CollectionsViewModel: ObservableObject {
             print("Collection deleted successfully.")
         }
     }
+    
 }

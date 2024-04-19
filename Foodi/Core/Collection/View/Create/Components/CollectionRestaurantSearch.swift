@@ -60,7 +60,7 @@ struct CollectionRestaurantSearch: View {
                             let city = restaurant.city ?? nil
                             let state = restaurant.state ?? nil
                             let geoPoint = restaurant.geoPoint ?? nil
-                            let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, notes: "", city: city, state: state, geoPoint: geoPoint)
+                            let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, city: city, state: state, geoPoint: geoPoint)
                             Task{
                                 collectionsViewModel.addItemToCollection(item: newItem)
                                 dismiss()
