@@ -46,20 +46,25 @@ struct CreateCollectionDetails: View {
                                 CollectionItemCell(item: item)
                             }
                             .padding(.top)
+                            //Restaurant preview
+                        } else if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                CollectionItemCell(item: item)
+                            }
+                            .padding(.top)
+                            
+                            Spacer()
+                                .padding(.vertical)
                         }
-                        
-                        Spacer()
-                            .padding(.vertical)
                     }
                 }
-                .overlay(alignment: .bottom) { 
-                    //MARK: Create Collection Button
-                    //MARK: Title warning
+                    .overlay(alignment: .bottom) {
+                        //MARK: Create Collection Button
+                        
                         Button {
                             Task {
-                                if collectionsViewModel.post != nil {
+                                if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil {
                                     collectionsViewModel.dismissListView.toggle()
-                                    print("dismisslisttoggled")
                                 } else {
                                     collectionsViewModel.dismissCollectionView.toggle()
                                 }
@@ -68,7 +73,7 @@ struct CreateCollectionDetails: View {
                                 dismiss()
                             }
                         } label: {
-                            if collectionsViewModel.post != nil {
+                            if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil{
                                 Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
                                     .modifier(StandardButtonModifier())
                                     .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
@@ -91,46 +96,46 @@ struct CreateCollectionDetails: View {
                             }
                         }
                         
-                    .disabled(collectionsViewModel.editTitle.isEmpty)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top)
-                    .background(.white)
-                    
+                        .disabled(collectionsViewModel.editTitle.isEmpty)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                        .background(.white)
+                        
+                    }
+                    //MARK: Title Editor Overlay
+                    if isEditingTitle {
+                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                            .focused($isTitleEditorFocused) // Connects the focus state to the editor view
+                            .onAppear {
+                                isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
+                            }
+                    }
+                    //MARK: Caption Editor Overlay
+                    if isEditingCaption {
+                        EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                            .onAppear {
+                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                            }
+                    }
                 }
-                //MARK: Title Editor Overlay
-                if isEditingTitle {
-                    EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
-                        .focused($isTitleEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
+                .onDisappear{collectionsViewModel.resetViewModel()}
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Create a New Collection")
+                .preferredColorScheme(.light)
+                //POSS Check if keyboard is active here
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Cancel")
                         }
-                }
-                //MARK: Caption Editor Overlay
-                if isEditingCaption {
-                    EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
-                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
-                        }
-                }
-            }
-            .onDisappear{collectionsViewModel.resetViewModel()}
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("Create a New Collection")
-            .preferredColorScheme(.light)
-            //POSS Check if keyboard is active here
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Cancel")
                     }
                 }
             }
         }
     }
-}
 #Preview {
     CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user), dismissCollectionsList: .constant(false))
 }

@@ -21,18 +21,27 @@ struct ListingImageCarouselView: View {
             TabView {
                 ForEach(unwrappedImages, id: \.self) { image in
                     KFImage(URL(string: image))
-                        .placeholder {ProgressView()}
                         .resizable()
                         .scaledToFill()
                 }
             }
             .frame(height: height)
             .tabViewStyle(.page)
+        } else {
+            TabView {
+                Image(systemName: "building.2.crop.circle")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 20, height: 70)
+                    
+
+            }
+            .frame(height: height)
         }
     }
 }
-/*
+
 #Preview {
-    ListingImageCarouselView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
+    ListingImageCarouselView()
 }
-*/
+

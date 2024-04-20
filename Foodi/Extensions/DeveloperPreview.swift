@@ -26,12 +26,12 @@ struct DeveloperPreview {
             id: NSUUID().uuidString,
             cuisine: "Italian",
             price: "$$",
-            name: "Amir B's Pizzeria",
+            name: "Amir B's Pizzeria kajnsdflnasdfnasfnajsdnfasnfdnaskd",
             geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
             address: "2425 Piedmont Ave",
-            city: "Berkeley",
+            city: "Berkeleyanjsdfk;jna;kdfjnas;kdfjn;kasnf;kasnjfkjanfkas;kf",
             state: "CA",
-            imageURLs: ["listing-1","listing-2", "listing-3","listing-4"]
+            imageURLs: nil
         ),
         .init(
             id: NSUUID().uuidString,

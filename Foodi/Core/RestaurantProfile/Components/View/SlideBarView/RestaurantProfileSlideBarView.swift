@@ -15,13 +15,7 @@ enum Section {
 
 struct RestaurantProfileSlideBarView: View {
     @Binding var currentSection: Section
-    private var restaurant: Restaurant
-    private var posts: [Post]?
-    init(restaurant: Restaurant, posts: [Post]?, currentSection: Binding<Section> = .constant(.posts)) {
-        self._currentSection = currentSection
-        self.restaurant = restaurant
-        self.posts = posts
-        }
+    @ObservedObject var viewModel: RestaurantViewModel
 
     var body: some View {
         //MARK: Selecting Images
@@ -85,11 +79,11 @@ struct RestaurantProfileSlideBarView: View {
         
         // MARK: Section Logic
         if currentSection == .map {
-                MapRestaurantProfileView(restaurant: restaurant)
+            MapRestaurantProfileView(viewModel: viewModel)
 
         }
         if currentSection == .posts {
-            PostGridView(posts: posts, userService: UserService())
+            PostGridView(posts: viewModel.posts, userService: UserService())
         }
     }
 }

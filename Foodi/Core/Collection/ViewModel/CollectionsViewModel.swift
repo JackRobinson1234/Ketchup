@@ -30,10 +30,12 @@ class CollectionsViewModel: ObservableObject {
     @Published var dismissListView: Bool = false
     @Published var dismissCollectionView: Bool = false
     var post: Post?
+    var restaurant: Restaurant?
     
-    init(user: User, post: Post? = nil) {
+    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil) {
         self.user = user
         self.post = post
+        self.restaurant = restaurant
     }
     //MARK: fetchCollections
     func fetchCollections(user: String) async {
@@ -87,29 +89,11 @@ class CollectionsViewModel: ObservableObject {
     }
     //MARK: addPostToCollection
     func addPostToCollection() {
-        if let post = self.post {
-            if post.postType == "atHome" {
-                let collectionItem = CollectionItem(
-                    id: post.id,
-                    postType: post.postType,
-                    name: post.caption,
-                    image: post.thumbnailUrl,
-                    postUserFullname: post.user.fullName
-                )
+        if self.post != nil {
+            if let collectionItem = convertPostToCollectionItem() {
                 addItemToCollection(item: collectionItem)
-            } else if post.postType == "restaurant",
-                      let id = post.restaurant?.id,
-                      let name = post.restaurant?.name{
-                let collectionItem = CollectionItem(
-                    id: id,
-                    postType: post.postType,
-                    name: name,
-                    image: post.restaurant?.profileImageUrl,
-                    city: post.restaurant?.city,
-                    state: post.restaurant?.state,
-                    geoPoint: post.restaurant?.geoPoint
-                )
-                addItemToCollection(item: collectionItem)
+            } else {
+                print("Error converting post to collection Item")
             }
         }
     }
@@ -141,6 +125,34 @@ class CollectionsViewModel: ObservableObject {
         }
         return nil
     }
+        //MARK: addRestaurantToCollection
+        func addRestaurantToCollection() {
+            if self.restaurant != nil {
+                if let collectionItem = convertRestaurantToCollectionItem() {
+                    addItemToCollection(item: collectionItem)
+                } else {
+                    print("Error converting restaurant to collection Item")
+                }
+            } else {
+                print("No restaurant found")
+            }
+        }
+            //MARK: convertRestaurantToCollectionItem
+        func convertRestaurantToCollectionItem() -> CollectionItem? {
+            if let restaurant = self.restaurant {
+                    let collectionItem = CollectionItem(
+                        id: restaurant.id,
+                        postType: "restaurant",
+                        name: restaurant.name,
+                        image: restaurant.profileImageUrl,
+                        city: restaurant.city,
+                        state: restaurant.state,
+                        geoPoint: restaurant.geoPoint
+                    )
+                   return collectionItem
+            }
+            return nil
+        }
     //MARK: loadImage
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
@@ -160,9 +172,15 @@ class CollectionsViewModel: ObservableObject {
             print(collection)
             self.collections.insert(collection, at: 0)
         }
-        if let post = self.post, let collection = collection{
+        // Adds post if there is one selected
+        if self.post != nil, let collection = collection{
             updateSelectedCollection(collection: collection)
             addPostToCollection()
+        }
+        
+        if self.restaurant != nil, let collection = collection {
+            updateSelectedCollection(collection: collection)
+            addRestaurantToCollection()
         }
         isLoading = false
     }

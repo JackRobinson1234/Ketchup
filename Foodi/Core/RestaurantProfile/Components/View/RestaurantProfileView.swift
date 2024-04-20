@@ -12,10 +12,11 @@ struct RestaurantProfileView: View {
     @State var currentSection: Section
     @StateObject var viewModel: RestaurantViewModel
     @State private var isLoading = true
-    
     private let restaurantService = RestaurantService()
     private let restaurantId: String
     private let restaurant: Restaurant?
+    @State var showAddToCollection = false
+    @State var user: User? = nil
     
     init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
@@ -44,9 +45,27 @@ struct RestaurantProfileView: View {
             
             VStack{
                 if let restaurant = viewModel.restaurant{
-                    RestaurantProfileHeaderView( restaurant: restaurant, currentSection: $currentSection, posts: viewModel.posts)
+                    RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                Button{
+                    Task{
+                        try await self.user = UserService().fetchCurrentUser()
+                        if let user {
+                            showAddToCollection.toggle()
+                        }
+                    }
+                } label: {
+                    Image(systemName: "folder.badge.plus")
+                        .resizable()
+                        .scaledToFill()
+                        .foregroundStyle(.black)
+                        .frame(width: 30, height: 30)
+            }
+                .padding(20)
+            }
+
             .navigationBarBackButtonHidden()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
@@ -62,7 +81,6 @@ struct RestaurantProfileView: View {
                                     .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
                                     .frame(width: 30, height: 30) // Adjust the size as needed
                             )
-                            .padding()
                     }
                 }
             }
@@ -70,6 +88,11 @@ struct RestaurantProfileView: View {
             .overlay(alignment: .bottom) {
                 CTAButtonOverlay()
                 
+            }
+            .sheet(isPresented: $showAddToCollection) {
+                if let user {
+                    AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
+                }
             }
         }
     }

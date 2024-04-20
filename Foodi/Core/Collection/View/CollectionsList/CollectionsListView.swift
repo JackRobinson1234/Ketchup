@@ -39,18 +39,12 @@ struct CollectionsListView: View {
                     }
                     //MARK: CollectionsList
                     if !viewModel.collections.isEmpty {
-                        // if post isn't passed in, then go to the selected collection, else add the post as an item to the collection
+                        // if post isn't passed in, then go to the selected collection
                         ForEach(viewModel.collections) { collection in
                             Button{
-                                if viewModel.post == nil {
+                                if viewModel.post == nil && viewModel.restaurant == nil {
                                     viewModel.updateSelectedCollection(collection: collection)
                                     showCollection.toggle()
-                                } else {
-                                    if viewModel.post != nil {
-                                        viewModel.updateSelectedCollection(collection: collection)
-                                        viewModel.addPostToCollection()
-                                        dismiss()
-                                    }
                                 }
                             } label: {
                                 CollectionListCell(collection: collection)
