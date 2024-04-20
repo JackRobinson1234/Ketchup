@@ -38,6 +38,9 @@ class CollectionsViewModel: ObservableObject {
         self.restaurant = restaurant
     }
     //MARK: fetchCollections
+    
+    /// fetches all collections for a user
+    /// - Parameter user: user to fetch collections for
     func fetchCollections(user: String) async {
         isLoading = true
         print("fetching Collections")
@@ -50,6 +53,9 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     //MARK: addItemToCollection
+    
+    /// Adds an item to selectedCollection and on firebase. Updates the selectedCollection variable as well, which is what is actually displayed for the user to reduce networking, Also updates the collections array to reduce networking.
+    /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(item: CollectionItem) {
         // Make sure the collection's items array is not nil
         if let selectedCollection {
@@ -88,6 +94,7 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     //MARK: addPostToCollection
+    /// adds self.post as a CollectionItem to selectedCollection on Firebase
     func addPostToCollection() {
         if self.post != nil {
             if let collectionItem = convertPostToCollectionItem() {
@@ -97,6 +104,9 @@ class CollectionsViewModel: ObservableObject {
             }
         }
     }
+    
+    /// Converts a Post object into a CollectionItem
+    /// - Returns: A CollectionItem
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
             if post.postType == "atHome" {
@@ -126,6 +136,8 @@ class CollectionsViewModel: ObservableObject {
         return nil
     }
         //MARK: addRestaurantToCollection
+    
+    /// adds self.restaurant to selectedCollection on Firebase
         func addRestaurantToCollection() {
             if self.restaurant != nil {
                 if let collectionItem = convertRestaurantToCollectionItem() {
@@ -138,6 +150,9 @@ class CollectionsViewModel: ObservableObject {
             }
         }
             //MARK: convertRestaurantToCollectionItem
+    
+    /// converts a Restaurant Object to a CollectionItem object
+    /// - Returns: CollectionItemObject
         func convertRestaurantToCollectionItem() -> CollectionItem? {
             if let restaurant = self.restaurant {
                     let collectionItem = CollectionItem(
@@ -154,6 +169,9 @@ class CollectionsViewModel: ObservableObject {
             return nil
         }
     //MARK: loadImage
+    
+    /// Loads an image selected from the photopicker, puts it into self.uiImage. Self.coverImage is only shown when there is a new image, if the user doesnt interact with the cover photo, no cover image will be present. selectedImage is the actual photo that the user selects from photopicker, which we reset to nil after its selected, so there is no memory on the system of what photo is selected.
+    /// - Parameter item: <#item description#>
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         
@@ -164,6 +182,8 @@ class CollectionsViewModel: ObservableObject {
         self.selectedImage = nil
     }
     //MARK: uploadCollection
+    
+    /// uploads selectedCollection to Firebase. Makes the description nil if there isnt any.  Otherwise takes from the self variables assigned throughout the edit/ upload process
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
@@ -185,6 +205,8 @@ class CollectionsViewModel: ObservableObject {
         isLoading = false
     }
     //MARK: updateSelectedCollection
+    /// updates the selectedCollection when the user selects a collection to view
+    /// - Parameter collection: Collection that is selected
     func updateSelectedCollection(collection: Collection){
         self.selectedCollection = collection
         self.editTitle = collection.name
@@ -194,6 +216,7 @@ class CollectionsViewModel: ObservableObject {
         
     }
     //MARK: resetViewModel
+    /// clears every variable
     func resetViewModel() {
         self.selectedCollection = nil
         self.editTitle = ""
@@ -204,6 +227,7 @@ class CollectionsViewModel: ObservableObject {
         self.editItems = []
     }
     //MARK: clearEdits
+    /// resets the variables to the original selectedCollection that hasn't been updated
     func clearEdits() {
         if let collection = self.selectedCollection {
             self.selectedCollection = collection
@@ -216,6 +240,7 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     //MARK: saveEditedCollection
+    /// if there are any differencs from the original selectedCollection variables, this function puts them into the data array then  updates the firebase selectedCollection with the new variables.Then clears the edits after completing
     func saveEditedCollection() async throws {
         var changed = false
         if let collection = self.selectedCollection {
@@ -274,6 +299,7 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     //MARK: deleteCollection
+    /// deletes a collection from firebase and from the collections array. 
     func deleteCollection() async throws {
         if let collectionId = self.selectedCollection?.id {
         guard let index = collections.firstIndex(where: { $0.id == collectionId }) else {
