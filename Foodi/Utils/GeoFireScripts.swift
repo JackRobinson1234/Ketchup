@@ -11,7 +11,7 @@ import GeoFire
 import FirebaseFirestore
 import Firebase
 
-struct ActivityView: View {
+struct GeoFireScripts: View {
     @State var restaurants: [Restaurant] = []
     
     var body: some View {
@@ -101,5 +101,5 @@ struct ActivityView: View {
 }
     
 #Preview {
-    ActivityView()
+    GeoFireScripts()
 }

@@ -19,7 +19,6 @@ struct AddItemCollectionList: View {
         self.user = user
         self.post = post
         self.restaurant = restaurant
-        print(restaurant)
         self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post, restaurant: restaurant))
     }
     var body: some View {
@@ -60,8 +59,7 @@ struct AddItemCollectionList: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarTitle(post?.postType == "restaurant" ? "Add Restaurant to a Collection" : "Add Post to a Collection")
-            .navigationBarTitle("Add Restaurant to a Collection")
+            .navigationBarTitle(post?.postType == "atHome" ? "Add Post to a Collection" : "Add Restaurant to a Collection")
         }
     }
 }

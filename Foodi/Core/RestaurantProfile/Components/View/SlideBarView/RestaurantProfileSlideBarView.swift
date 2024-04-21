@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, menu, map, reviews
+    case posts, menu, map //collections?
 }
 
 struct RestaurantProfileSlideBarView: View {
@@ -59,18 +59,7 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
                     .frame(maxWidth: .infinity)
-                Image(systemName: currentSection == .reviews ? "message.fill" : "message")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 20)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.currentSection = .reviews
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
-                    .frame(maxWidth: .infinity)
+
             }
         }
         .padding()

@@ -17,6 +17,7 @@
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17F2B70C16600E18135 /* CreatePostSelection.swift */; };
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
+		F828A9A62BD5791000A15EBD /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = F828A9A52BD5791000A15EBD /* AlgoliaSearchClient */; };
 		F82F5A062B954DF200499499 /* EditRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F5A052B954DF200499499 /* EditRecipeView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
@@ -66,6 +67,7 @@
 		F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8726DC72BC214CE0091AD77 /* LocationFilter.swift */; };
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerView.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
+		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -96,7 +98,6 @@
 		F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */; };
 		F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ABF2B6B052700EC159B /* ProfileView.swift */; };
 		F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */; };
-		F88E0AC52B6B058700EC159B /* CTAButtonOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */; };
 		F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */; };
 		F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */; };
 		F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */; };
@@ -141,7 +142,8 @@
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
 		F88E0B3D2B6CA4A600EC159B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */; };
 		F8901C862BA436A100FBE778 /* VideoCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8901C852BA436A100FBE778 /* VideoCache.swift */; };
-		F8A98C282B9A66A700D399AB /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* ActivityView.swift */; };
+		F8A1FB762BD56B3000D006CC /* AlgoliaController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A1FB752BD56B3000D006CC /* AlgoliaController.swift */; };
+		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */; };
 		F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
@@ -151,6 +153,10 @@
 		F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */; };
 		F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81632BC60F17007C2CFC /* MapModifiers.swift */; };
 		F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81652BC6E9BA007C2CFC /* Collection.swift */; };
+		F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21902BD5810E00B4B329 /* InstantSearch */; };
+		F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21922BD5810E00B4B329 /* InstantSearchCore */; };
+		F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21942BD5810E00B4B329 /* InstantSearchInsights */; };
+		F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */; };
 		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
@@ -251,6 +257,7 @@
 		F8726DC72BC214CE0091AD77 /* LocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationFilter.swift; sourceTree = "<group>"; };
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityMetaData.swift; sourceTree = "<group>"; };
+		F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -282,7 +289,6 @@
 		F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0ABF2B6B052700EC159B /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F88E0AC12B6B055200EC159B /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
-		F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CTAButtonOverlay.swift; sourceTree = "<group>"; };
 		F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListingImageCarouselView.swift; sourceTree = "<group>"; };
 		F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapRestaurantProfileView.swift; sourceTree = "<group>"; };
 		F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileSlideBarView.swift; sourceTree = "<group>"; };
@@ -327,7 +333,8 @@
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
 		F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8901C852BA436A100FBE778 /* VideoCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCache.swift; sourceTree = "<group>"; };
-		F8A98C272B9A66A700D399AB /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		F8A1FB752BD56B3000D006CC /* AlgoliaController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaController.swift; sourceTree = "<group>"; };
+		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDietaryRestrictionsView.swift; sourceTree = "<group>"; };
 		F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTimePicker.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
@@ -353,7 +360,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
 				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
+				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
+				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
+				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
+				F828A9A62BD5791000A15EBD /* AlgoliaSearchClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,6 +530,7 @@
 		F84FE2762B6A53CF00144F01 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */,
 				F88E0B262B6C9FC600EC159B /* Constants */,
 				F88E0B252B6C9FC400EC159B /* Modifiers */,
 				F88E0B272B6CA00800EC159B /* Mediahelpers.swift */,
@@ -560,6 +573,7 @@
 				F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */,
 				F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */,
 				F88E0B142B6B0AD300EC159B /* Firestore+Timestamp.swift */,
+				F8A1FB752BD56B3000D006CC /* AlgoliaController.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1025,7 +1039,6 @@
 		F88E0AC32B6B057200EC159B /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0AC42B6B058700EC159B /* CTAButtonOverlay.swift */,
 				F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */,
 			);
 			path = Components;
@@ -1229,7 +1242,7 @@
 		F8A98C262B9A668D00D399AB /* Activity */ = {
 			isa = PBXGroup;
 			children = (
-				F8A98C272B9A66A700D399AB /* ActivityView.swift */,
+				F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */,
 			);
 			path = Activity;
 			sourceTree = "<group>";
@@ -1337,13 +1350,19 @@
 				F84FE2452B6A531200144F01 /* Frameworks */,
 				F84FE2462B6A531200144F01 /* Resources */,
 				62DE8F23EF57B6D44040219C /* [CP] Embed Pods Frameworks */,
-				AD64B3017BFA34E370EB02AD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = Foodi;
+			packageProductDependencies = (
+				F828A9A52BD5791000A15EBD /* AlgoliaSearchClient */,
+				F8CC21902BD5810E00B4B329 /* InstantSearch */,
+				F8CC21922BD5810E00B4B329 /* InstantSearchCore */,
+				F8CC21942BD5810E00B4B329 /* InstantSearchInsights */,
+				F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */,
+			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
 			productType = "com.apple.product-type.application";
@@ -1376,7 +1395,6 @@
 				F84FE2602B6A531300144F01 /* Frameworks */,
 				F84FE2612B6A531300144F01 /* Resources */,
 				197A7B5420802C1ECFCF79CE /* [CP] Embed Pods Frameworks */,
-				B2BF0D74F44BEF8F07FA3BB8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1420,6 +1438,10 @@
 				Base,
 			);
 			mainGroup = F84FE23F2B6A531200144F01;
+			packageReferences = (
+				F828A9A42BD5791000A15EBD /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
+			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1559,40 +1581,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AD64B3017BFA34E370EB02AD /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Foodi/Pods-Foodi-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B2BF0D74F44BEF8F07FA3BB8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1614,7 +1602,7 @@
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
 				F88E0AE82B6B07F900EC159B /* UserListConfig.swift in Sources */,
 				F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */,
-				F8A98C282B9A66A700D399AB /* ActivityView.swift in Sources */,
+				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8F494F62BBF98610043B515 /* DietaryFilter.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
 				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
@@ -1659,6 +1647,7 @@
 				F84FE2982B6A564F00144F01 /* AuthServiceProtocol.swift in Sources */,
 				F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */,
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
+				F8A1FB762BD56B3000D006CC /* AlgoliaController.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
 				F88E0AAC2B6B03CA00EC159B /* NotificationCell.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
@@ -1709,7 +1698,6 @@
 				F88E0B1B2B6B0B0800EC159B /* User.swift in Sources */,
 				F88E0A982B6B02A300EC159B /* MapView.swift in Sources */,
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
-				F88E0AC52B6B058700EC159B /* CTAButtonOverlay.swift in Sources */,
 				F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */,
 				F88E0B1D2B6B0B3500EC159B /* MediaUploader.swift in Sources */,
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
@@ -1733,6 +1721,7 @@
 				F8EE6E272BB8E803006A86F3 /* VideoTest.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
+				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListVIew.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,
 				F801F1882BBDBE5700D3FBE2 /* PostTypeFilter.swift in Sources */,
@@ -1833,6 +1822,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1889,6 +1879,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -2114,6 +2105,53 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F828A9A42BD5791000A15EBD /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 8.19.0;
+			};
+		};
+		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/instantsearch-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.26.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F828A9A52BD5791000A15EBD /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F828A9A42BD5791000A15EBD /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
+		};
+		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearch;
+		};
+		F8CC21922BD5810E00B4B329 /* InstantSearchCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchCore;
+		};
+		F8CC21942BD5810E00B4B329 /* InstantSearchInsights */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchInsights;
+		};
+		F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchSwiftUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F84FE2402B6A531200144F01 /* Project object */;
 }

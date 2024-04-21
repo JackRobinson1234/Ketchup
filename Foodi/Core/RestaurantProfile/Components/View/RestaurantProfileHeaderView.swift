@@ -38,7 +38,14 @@ struct RestaurantProfileHeaderView: View {
                             .font(.caption)
                             .multilineTextAlignment(.center)
                     }
-                    .padding([.leading, .trailing])
+                    Button{
+                    // Add Functionality
+                    } label: {
+                        Text("Order Now/ Make a Reservation")
+                            .modifier(StandardButtonModifier(width: 275))
+                    }
+                    .padding()
+                    
                     
                     Spacer()
                     RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)

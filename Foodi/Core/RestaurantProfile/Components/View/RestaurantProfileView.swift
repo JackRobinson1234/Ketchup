@@ -85,10 +85,6 @@ struct RestaurantProfileView: View {
                 }
             }
             
-            .overlay(alignment: .bottom) {
-                CTAButtonOverlay()
-                
-            }
             .sheet(isPresented: $showAddToCollection) {
                 if let user {
                     AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
