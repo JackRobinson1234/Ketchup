@@ -13,6 +13,8 @@ struct CameraView: View {
     
     @StateObject var cameraViewModel = CameraViewModel()
     
+    @StateObject var uploadViewModel = UploadViewModel()
+    
     var body: some View {
         
         NavigationStack {
@@ -32,9 +34,9 @@ struct CameraView: View {
                 // MARK: CameraControls
                 ZStack {
                     if cameraViewModel.dragDirection == "left" {
-                        VideoCameraControls(cameraViewModel: cameraViewModel)
+                        VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                     } else {
-                        PhotoCameraControls(cameraViewModel: cameraViewModel)
+                        PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                     }
                 }
                 
@@ -78,91 +80,22 @@ struct CameraView: View {
 
                 
             }
-            .navigationDestination(isPresented: $cameraViewModel.showPreview) {
-                ReelsUploadView()
+            .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
+                ReelsUploadView(uploadViewModel: uploadViewModel)
                     
             }
-            .animation(.easeInOut, value: cameraViewModel.showPreview)
+            .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
         }
 
     }
 }
 
-
-struct FinalVideoPreview: View {
-    
-    @ObservedObject var cameraViewModel: CameraViewModel
-    
-    var body: some View {
-        
-        if let url = cameraViewModel.previewURL {
-            let player = AVPlayer(url: url)
-            VideoPlayer(player: player)
-                .cornerRadius(10)
-                .overlay(alignment: .topLeading) {
-                    Button {
-                        cameraViewModel.showPreview.toggle()
-                    } label: {
-                        Label {
-                            Text("Back")
-                        } icon: {
-                            Image(systemName: "chevron.left")
-                        }
-                        .foregroundColor(.white)
-                    }
-                    .padding(.leading)
-                    .padding(.top, 22)
-                }
-                .onAppear { player.play() }
-        }
-    }
-}
-
-struct FinalPhotoPreview: View {
-    
-    @ObservedObject var cameraViewModel: CameraViewModel
-    
-    @State private var currentPage = 0
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Color.black
-                    .edgesIgnoringSafeArea(.all)
-
-                TabView(selection: $currentPage) {
-                    ForEach(cameraViewModel.picData.indices, id: \.self) { index in
-                        Image(uiImage: UIImage(data: cameraViewModel.picData[index]) ?? UIImage())
-                            .resizable()
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .cornerRadius(10)
-                            .tag(index)
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                .frame(width: geometry.size.width, height: geometry.size.height)
-            }
-        }
-        .overlay(alignment: .topLeading) {
-            Button {
-                cameraViewModel.showPreview.toggle()
-            } label: {
-                Label {
-                    Text("Back")
-                } icon: {
-                    Image(systemName: "chevron.left")
-                }
-                .foregroundColor(.white)
-            }
-            .padding(.leading)
-            .padding(.top, 22)
-        }
-    }
-}
 
 struct VideoCameraControls: View {
     
     @ObservedObject var cameraViewModel: CameraViewModel
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
     
     var body: some View {
         
@@ -186,7 +119,7 @@ struct VideoCameraControls: View {
                     cameraViewModel.recordedDuration = 0
                     cameraViewModel.previewURL = nil
                     cameraViewModel.recordedURLs.removeAll()
-                    cameraViewModel.previewType = "none"
+                    cameraViewModel.mediaType = "none"
                 } label: {
                     Image(systemName: "xmark")
                         .font(.title)
@@ -233,11 +166,15 @@ struct VideoCameraControls: View {
                 }
                 
                 
-                // PREVIEW BUTTON
+                // NAV TO UPLOAD BUTTON
                 Button {
                     if let _ = cameraViewModel.previewURL {
-                        cameraViewModel.showPreview.toggle()
-                        cameraViewModel.previewType = "video"
+                        cameraViewModel.navigateToUpload.toggle()
+                        cameraViewModel.mediaType = "video"
+                        
+                        uploadViewModel.videoURL = cameraViewModel.previewURL
+                        uploadViewModel.mediaType = "video"
+                        
                     }
                 } label: {
                     Group{
@@ -287,6 +224,8 @@ struct PhotoCameraControls: View {
     
     @ObservedObject var cameraViewModel: CameraViewModel
     
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
     @State private var showFlash = false
     
     var body: some View {
@@ -299,7 +238,7 @@ struct PhotoCameraControls: View {
                 HStack {
                     Button {
                         cameraViewModel.untakePic()
-                        cameraViewModel.previewType = "none"
+                        cameraViewModel.mediaType = "none"
                     } label: {
                         Image(systemName: "xmark")
                             .font(.title)
@@ -376,11 +315,15 @@ struct PhotoCameraControls: View {
                     }
                     
                     
-                    // PREVIEW BUTTON
+                    // NAV TO UPLOAD BUTTON
                     Button {
                         if cameraViewModel.isPhotoTaken {
-                            cameraViewModel.showPreview.toggle()
-                            cameraViewModel.previewType = "photo"
+                            cameraViewModel.navigateToUpload.toggle()
+                            cameraViewModel.mediaType = "photo"
+                            
+                            
+                            uploadViewModel.picData = cameraViewModel.picData
+                            uploadViewModel.mediaType = "photo"
                         }
                     } label: {
                         Label {

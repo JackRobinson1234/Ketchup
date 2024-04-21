@@ -24,21 +24,29 @@ class UploadViewModel: ObservableObject {
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
+    // MEDIA TO BE UPLOADED
+    @Published var videoURL: URL?
+    @Published var picData: [Data]?
+    @Published var mediaType: String = "none"
 
     @Published var recipeTitle = ""
-    @Published var ingredients: [ingredient] = [ingredient(quantity: "", item: "")]
+    @Published var ingredients: [Ingredient] = [Ingredient(quantity: "", item: "")]
     @Published var recipeCuisine = ""
     @Published var dietaryRestrictions: [String] = [""]
     @Published var recipeHours: Int = 0
     @Published var recipeMinutes: Int = 0
     
-    @Published var instructions: [instruction] = [instruction(title: "", description: "")]
+    @Published var recipeServings: Int = 0
+    
+    @Published var instructions: [Instruction] = [Instruction(title: "", description: "")]
     
     //private let restaurant: Restaurant?
     //private let service: UploadPostService
     
     @Published var brandTitle = ""
     @Published var brandPrice = 0
+    
+    @Published var savedRecipe = false
     
     var isLastIngredientEmpty: Bool {
         return ingredients.last?.item.isEmpty == true
@@ -49,7 +57,7 @@ class UploadViewModel: ObservableObject {
         }
     
     var isLastInstructionEmpty: Bool {
-        return instructions.last?.title.isEmpty == true
+        return instructions.last?.description.isEmpty == true
         }
     
 //    init(service: UploadPostService, restaurant: Restaurant?) {
@@ -66,8 +74,8 @@ class UploadViewModel: ObservableObject {
         //selectedItem = nil
         selectedMediaForUpload = nil
         recipeTitle = ""
-        ingredients = [ingredient(quantity: "", item: "")]
-        instructions = [instruction(title: "", description: "")]
+        ingredients = [Ingredient(quantity: "", item: "")]
+        instructions = [Instruction(title: "", description: "")]
         recipeCuisine = ""
         dietaryRestrictions = [""]
 
@@ -75,7 +83,7 @@ class UploadViewModel: ObservableObject {
         
     }
     func addEmptyIngredient() {
-            ingredients.append(ingredient(quantity: "", item: ""))
+            ingredients.append(Ingredient(quantity: "", item: ""))
         }
     
     func addEmptyRestriction() {
@@ -83,7 +91,7 @@ class UploadViewModel: ObservableObject {
         }
     
     func addEmptyInstruction() {
-        instructions.append(instruction(title: "", description: ""))
+        instructions.append(Instruction(title: "", description: ""))
         }
     
 //    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {

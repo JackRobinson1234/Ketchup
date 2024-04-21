@@ -34,7 +34,10 @@ struct ShareView: View {
                         .padding(.top,1)
                 } else {
                     Button(action: {
-                        if let url = URL(string: post.videoUrl) {
+                        
+                        // Need to grab all URLS 
+                        
+                        if let url = URL(string: post.mediaUrls[0]) {
                             downloadViewModel.downloadVideo(url: url)
                         }}) {
                             if downloadViewModel.isDownloading {

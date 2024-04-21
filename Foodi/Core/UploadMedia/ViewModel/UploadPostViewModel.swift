@@ -42,13 +42,13 @@ class UploadPostViewModel: ObservableObject {
     
 
     @Published var recipeTitle = ""
-    @Published var ingredients: [ingredient] = [ingredient(quantity: "", item: "")]
+    @Published var ingredients: [Ingredient] = [Ingredient(quantity: "", item: "")]
     @Published var recipeCuisine = ""
     @Published var dietaryRestrictions: [String] = [""]
     @Published var recipeHours: Int = 0
     @Published var recipeMinutes: Int = 0
     
-    @Published var instructions: [instruction] = [instruction(title: "", description: "")]
+    @Published var instructions: [Instruction] = [Instruction(title: "", description: "")]
     
     private let restaurant: Restaurant?
     private let service: UploadPostService

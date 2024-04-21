@@ -35,8 +35,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var previewURL: URL?
     
     // EDIT/PREVIEW VIEW PROPERTIES
-    @Published var showPreview: Bool = false
-    @Published var previewType: String = "none"
+    @Published var navigateToUpload: Bool = false
+    @Published var mediaType: String = "none"
     
     // TOP PROGRESS BAR
     @Published var recordedDuration: CGFloat = 0

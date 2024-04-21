@@ -6,12 +6,11 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ReelsUploadView: View {
-    
-    //@ObservedObject var cameraModel: ReelsCameraViewModel
+
     @State var caption: String = ""
-    //@State var postType: String = "At Home Post"
     
     @State var postTypeSelection = "Select Post Type"
     let postTypeOptions = ["At Home Post", "Going Out Post"]
@@ -23,31 +22,44 @@ struct ReelsUploadView: View {
     @State var isAddingRecipe = false
     @State var showPostTypeMenu: Bool = true
     
-    @StateObject var uploadViewModel = UploadViewModel()
-
-    
-    
-    
+    @ObservedObject var uploadViewModel: UploadViewModel
+ 
     var body: some View {
         
             ZStack {
                 VStack {
                     
-                    Rectangle()
-                        .fill(.green)
-                        .cornerRadius(30)
-                        .frame(width: 200, height: 300)
-
+                    if uploadViewModel.mediaType == "video" {
+                        FinalVideoPreview(uploadViewModel: uploadViewModel)
+                            .cornerRadius(30)
+                            .frame(width: 200, height: 300)
+                    } else if uploadViewModel.mediaType == "photo" {
+                        FinalPhotoPreview(uploadViewModel: uploadViewModel)
+                            .cornerRadius(30)
+                            .frame(width: 200, height: 300)
+                    }
+                    
                     
                     Button(action: {
                         self.isEditingCaption = true
                     }) {
                         CaptionBox(caption: $caption, isEditingCaption: $isEditingCaption)
                     }
-                    PostOptions(isPickingRestaurant: $isPickingRestaurant,
+                    PostOptions(uploadViewModel: uploadViewModel,
+                                isPickingRestaurant: $isPickingRestaurant,
                                 selectedRestaurant: $selectedRestaurant,
                                 postTypeSelection: $postTypeSelection,
                                 isAddingRecipe: $isAddingRecipe)
+                    
+                    Button {
+                        print("Posting")
+                    } label: {
+                         Text("Post")
+                            .frame(width: 90, height: 45)
+                            .background(.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(7)
+                    }
                     
                     Spacer()
                 }
@@ -114,6 +126,10 @@ struct ReelsUploadView: View {
                 SelectRestaurantListView(selectedRestaurant: $selectedRestaurant, isPickingRestaurant: $isPickingRestaurant)
                     .navigationTitle("Select Restaurant")
             }
+            .navigationDestination(isPresented: $isAddingRecipe) {
+                JoeRecipeView(uploadViewModel: uploadViewModel)
+                    .navigationTitle("Create Recipe")
+            }
     }
     
     
@@ -167,6 +183,50 @@ struct CaptionBox: View {
         }
     }
 }
+
+
+struct FinalVideoPreview: View {
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
+    var body: some View {
+        
+        if let url = uploadViewModel.videoURL {
+            let player = AVPlayer(url: url)
+            VideoPlayer(player: player)
+                .cornerRadius(10)
+                .onAppear { player.play() }
+        }
+    }
+}
+
+struct FinalPhotoPreview: View {
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
+    @State private var currentPage = 0
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+
+                TabView(selection: $currentPage) {
+                    ForEach(uploadViewModel.picData!.indices, id: \.self) { index in
+                        Image(uiImage: UIImage(data: uploadViewModel.picData![index]) ?? UIImage())
+                            .resizable()
+                            .cornerRadius(10)
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                .frame(width: geometry.size.width, height: geometry.size.height)
+            }
+        }
+    }
+}
+
 
 struct CaptionEditorView: View {
     
@@ -240,6 +300,7 @@ struct CaptionEditorView: View {
 
 struct PostOptions: View {
 
+    @ObservedObject var uploadViewModel: UploadViewModel
     @Binding var isPickingRestaurant: Bool
     @Binding var selectedRestaurant: Restaurant?
     @Binding var postTypeSelection: String
@@ -249,28 +310,54 @@ struct PostOptions: View {
         VStack {
             Divider()
             if postTypeSelection == "At Home Post" {
+      
                 Button {
                     isAddingRecipe = true
                 } label: {
-                    // ADD RESTAURANT
-                    HStack {
-                        Image(systemName: "book.circle")
-                            .resizable()
-                            .foregroundColor(.black)
-                            .frame(width: 40, height: 40, alignment: .center)
-                        
-                        Text("Add recipe")
-                            .foregroundColor(.black)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "plus")
-                            .resizable()
-                            .foregroundColor(.gray)
-                            .frame(width: 15, height: 15)
+                    // ADD RECIPE
+                    
+                    if !uploadViewModel.savedRecipe {
+                        HStack {
+                            Image(systemName: "book.circle")
+                                .resizable()
+                                .foregroundColor(.black)
+                                .frame(width: 40, height: 40, alignment: .center)
+                            
+                            Text("Add recipe")
+                                .foregroundColor(.black)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "plus")
+                                .resizable()
+                                .foregroundColor(.gray)
+                                .frame(width: 15, height: 15)
+                        }
+                        .padding(.horizontal , 15)
+                        .padding(.vertical, 3)
+                    } else {
+                        HStack {
+                            Image(systemName: "book.circle")
+                                .resizable()
+                                .foregroundColor(.black)
+                                .frame(width: 40, height: 40, alignment: .center)
+                            
+                            Text("Recipe Saved")
+                                .foregroundColor(.black)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "checkmark.circle")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(.green)
+                                .frame(width: 20, height: 20)
+                        }
+                        .padding(.horizontal , 15)
+                        .padding(.vertical, 3)
                     }
-                    .padding(.horizontal , 15)
-                    .padding(.vertical, 3)
+                    
+                    
                 }
             } else if postTypeSelection == "Going Out Post" {
                 if let restaurant = selectedRestaurant {
@@ -480,7 +567,5 @@ struct PostTypeMenuView: View {
         .shadow(radius: 5)
     }
 }
-#Preview {
-    ReelsUploadView()
-}
+
 
