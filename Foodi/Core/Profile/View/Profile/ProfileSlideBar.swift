@@ -8,18 +8,20 @@
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, likes, messages //collections
+    case posts, likes, collections
 }
 
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
+    @StateObject var collectionsViewModel: CollectionsViewModel
     private let userService: UserService
     
     init(viewModel: ProfileViewModel, userService: UserService, profileSection: Binding<ProfileSectionEnum>) {
         self.userService = userService
         self._profileSection = profileSection
         self.viewModel = viewModel
+        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
         }
 
     var body: some View {
@@ -55,17 +57,17 @@ struct ProfileSlideBar: View {
                     
                 
                
-                Image(systemName: profileSection == .messages ? "message.fill" : "message")
+                Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                 
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .messages
+                            self.profileSection = .collections
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .messages))
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
                     .frame(maxWidth: .infinity)
             }
         }
@@ -83,7 +85,12 @@ struct ProfileSlideBar: View {
             LikedPostsView(user: viewModel.user, userService: userService, postService: PostService())
                 
             }
+        if profileSection == .collections {
+            CollectionsListView(viewModel: collectionsViewModel)
         }
+        
+        }
+    
     }
         
 

@@ -4,9 +4,9 @@
 //
 //  Created by Jack Robinson on 2/5/24.
 //
-
-import SwiftUI
 /*
+import SwiftUI
+
 struct RestaurantSelectorView: View {
     @Binding var tabIndex: Int
     @Binding var cover: Bool
@@ -29,13 +29,11 @@ struct RestaurantSelectorView: View {
         }
         .navigationBarBackButtonHidden()
         .toolbar(.hidden, for: .tabBar)
-        
     }
 }
 
-/*
+
 #Preview {
     RestaurantSelectorView(tabIndex: .constant(0), cover: .constant(true), postType: .constant(.restaurant))
 }
-*/
 */

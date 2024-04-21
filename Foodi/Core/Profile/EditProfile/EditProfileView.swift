@@ -28,7 +28,6 @@ struct EditProfileView: View {
             VStack {
                 VStack(spacing: 8) {
                     Divider()
-                    
                     PhotosPicker(selection: $editProfileViewModel.selectedImage) {
                             VStack {
                                 if let image = editProfileViewModel.profileImage {

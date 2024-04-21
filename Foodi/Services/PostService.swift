@@ -105,7 +105,7 @@ class PostService {
                 return posts
             }
             
-            query = await applyFilters(toQuery: query, filters: updatedFilters)
+            query = applyFilters(toQuery: query, filters: updatedFilters)
             self.posts = try await query.getDocuments(as: Post.self)
             
             print("DEBUG: posts fetched", posts.count)

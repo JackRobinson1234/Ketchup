@@ -10,18 +10,12 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, menu, map, reviews
+    case posts, menu, map //collections?
 }
 
 struct RestaurantProfileSlideBarView: View {
     @Binding var currentSection: Section
-    private var restaurant: Restaurant
-    private var posts: [Post]?
-    init(restaurant: Restaurant, posts: [Post]?, currentSection: Binding<Section> = .constant(.posts)) {
-        self._currentSection = currentSection
-        self.restaurant = restaurant
-        self.posts = posts
-        }
+    @ObservedObject var viewModel: RestaurantViewModel
 
     var body: some View {
         //MARK: Selecting Images
@@ -65,18 +59,7 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
                     .frame(maxWidth: .infinity)
-                Image(systemName: currentSection == .reviews ? "message.fill" : "message")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 20)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.currentSection = .reviews
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
-                    .frame(maxWidth: .infinity)
+
             }
         }
         .padding()
@@ -85,11 +68,11 @@ struct RestaurantProfileSlideBarView: View {
         
         // MARK: Section Logic
         if currentSection == .map {
-                MapRestaurantProfileView(restaurant: restaurant)
+            MapRestaurantProfileView(viewModel: viewModel)
 
         }
         if currentSection == .posts {
-            PostGridView(posts: posts, userService: UserService())
+            PostGridView(posts: viewModel.posts, userService: UserService())
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import FirebaseFirestore
 struct FirestoreConstants {
     private static let Root = Firestore.firestore()
     
@@ -23,6 +24,8 @@ struct FirestoreConstants {
     static let ReportsCollection = Root.collection("reports")
     
     static let RestaurantCollection = Root.collection("restaurants")
+    
+    static let CollectionsCollection = Root.collection("collections")
     
     static func UserFeedCollection(uid: String) -> CollectionReference {
         return UserCollection.document(uid).collection("user-feed")

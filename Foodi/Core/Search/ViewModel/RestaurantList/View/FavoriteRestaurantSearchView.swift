@@ -56,7 +56,7 @@ struct FavoriteRestaurantSearchView: View {
                     
                 }
             }
-        }else {
+        } else {
                 NavigationStack{
                     ScrollView {
                         VStack{

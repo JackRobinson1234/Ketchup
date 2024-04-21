@@ -18,6 +18,8 @@ class FeedViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
+    @Published var user = User(id: "", username: "", email: "", fullname: "")
+    
     var videoCoordinator = VideoPlayerCoordinator()
     
     private var currentFeedType: FeedType = .discover // default
@@ -165,4 +167,12 @@ extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
         }
+    func fetchCurrentUser() async {
+        do{
+            self.user = try await UserService().fetchCurrentUser()
+        }
+        catch {
+            print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
+        }
+    }
 }

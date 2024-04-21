@@ -11,10 +11,10 @@ struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     
     private let userService: UserService
-    @State var currentProfileSection: currentProfileSection
+    @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
     @State var showNotifications = false
-    init(authService: AuthService, userService: UserService, currentProfileSection: currentProfileSection = .posts) {
+    init(authService: AuthService, userService: UserService, currentProfileSection: ProfileSectionEnum = .posts) {
         self.authService = authService
         
         let viewModel = ProfileViewModel(uid: "",
@@ -44,7 +44,7 @@ struct CurrentUserProfileView: View {
                         
                         ProfileHeaderView(viewModel: profileViewModel)
                             .padding(.top)
-                        CurrentProfileSlideBarView(viewModel: profileViewModel, userService: userService, currentProfileSection: $currentProfileSection)
+                        ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $currentProfileSection)
                         
                         
                     }

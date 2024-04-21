@@ -14,7 +14,6 @@ struct FavoriteRestaurantsView: View {
     @State private var restaurantProfileId: String = ""
    
     var body: some View {
-        
             HStack(alignment: .top, spacing: 8){
                 Spacer()
                 if let favorites {

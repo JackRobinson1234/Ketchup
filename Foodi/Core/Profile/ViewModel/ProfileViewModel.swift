@@ -23,8 +23,8 @@ class ProfileViewModel: ObservableObject {
         self.uid = uid
         self.userService = userService
         self.postService = postService
-        print(uid)
     }
+    
     func fetchUser() async {
         do {
             self.user = try await userService.fetchUser(withUid: uid)
@@ -103,7 +103,6 @@ extension ProfileViewModel {
     
     
     func fetchUserLikedPosts() async {
-        
             do {
                 self.posts = try await postService.fetchUserLikedPosts(user: user)
             } catch {

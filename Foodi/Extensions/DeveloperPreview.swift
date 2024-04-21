@@ -26,12 +26,12 @@ struct DeveloperPreview {
             id: NSUUID().uuidString,
             cuisine: "Italian",
             price: "$$",
-            name: "Amir B's Pizzeria",
+            name: "Amir B's Pizzeria kajnsdflnasdfnasfnajsdnfasnfdnaskd",
             geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
             address: "2425 Piedmont Ave",
-            city: "Berkeley",
+            city: "Berkeleyanjsdfk;jna;kdfjnas;kdfjn;kasnf;kasnjfkjanfkas;kf",
             state: "CA",
-            imageURLs: ["listing-1","listing-2", "listing-3","listing-4"]
+            imageURLs: nil
         ),
         .init(
             id: NSUUID().uuidString,
@@ -156,8 +156,9 @@ struct DeveloperPreview {
             .init(
                 id: NSUUID().uuidString,
                 name: "Italian Cuisine",
+                timestamp: Timestamp(),
                 description: "A collection of delicious Italian dishes",
-                username: "@wilbond",
+                username: "wilbond",
                 uid: "",
                 items: [
                     .init(
@@ -165,17 +166,16 @@ struct DeveloperPreview {
                         postType: "atHome",
                         name: "Pasta Carbonara",
                         image: "https://picsum.photos/200/300",
-                        notes: "Classic Italian dish",
-                        postUsername: "Will Bond"
+                        postUserFullname: "Will Bond"
                     ),
                     .init(
                         id: "-1QvxFtMgOLpSbO-oAtUgA",
                         postType: "restaurant",
                         name: "Bella Italia",
-                        image: "https://picsum.photos/200/300",
-                        notes: "Italian restaurant in downtown",
+                        image: "https://picsum.photos/250/350",
                         city: "Hermosa Beach",
-                        state: "CA"
+                        state: "CA",
+                        geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
                     )
                 ]
                 )

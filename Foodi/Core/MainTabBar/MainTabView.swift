@@ -27,7 +27,6 @@ struct MainTabView: View {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
                             .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
                         
-                        Text("Home")
                     }
                 }
                 .onAppear { selectedTab = 0 }
@@ -40,7 +39,6 @@ struct MainTabView: View {
                         Image(systemName: selectedTab == 1 ? "location.fill" : "location")
                             .environment(\.symbolVariants, selectedTab == 1 ? .fill : .none)
                         
-                        Text("Map")
                     }
                 }
                 .onAppear { selectedTab = 1 }
@@ -55,13 +53,12 @@ struct MainTabView: View {
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
-            CollectionView(collection: DeveloperPreview.collections[0])
+            ActivityView()
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 3 ? "bolt.fill" : "bolt")
                             .environment(\.symbolVariants, selectedTab == 3 ? .fill : .none)
                         
-                        Text("Activity")
                     }
                 }
                 .onAppear { selectedTab = 3 }
@@ -74,7 +71,6 @@ struct MainTabView: View {
                         Image(systemName: selectedTab == 4 ? "person.fill" : "person")
                             .environment(\.symbolVariants, selectedTab == 4 ? .fill : .none)
                         
-                        Text("Profile")
                     }
                 }
                 .onAppear { selectedTab = 4 }

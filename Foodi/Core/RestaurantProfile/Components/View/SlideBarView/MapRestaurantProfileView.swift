@@ -10,16 +10,10 @@ import MapKit
 import Kingfisher
 
 struct MapRestaurantProfileView: View {
-    private var restaurant: Restaurant
-    private var coordinates: CLLocationCoordinate2D?
-    
-    init(restaurant: Restaurant) {
-        self.restaurant = restaurant
-        self.coordinates = restaurant.coordinates
-    }
+    @ObservedObject var viewModel: RestaurantViewModel
     
     var body: some View {
-        if let coordinates {
+        if let restaurant = viewModel.restaurant, let coordinates = restaurant.coordinates {
             Map(initialPosition: .region(MKCoordinateRegion(center: coordinates, span: (MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015))))){
                     Annotation(restaurant.name, coordinate: coordinates) {
                         RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
