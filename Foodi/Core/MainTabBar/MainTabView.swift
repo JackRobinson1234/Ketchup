@@ -14,6 +14,9 @@ struct MainTabView: View {
     @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     
+    @EnvironmentObject var tabBarController: TabBarController
+    @State var visibility = Visibility.visible
+    
     init(authService: AuthService, userService: UserService) {
         self.authService = authService
         self.userService = userService
@@ -29,7 +32,7 @@ struct MainTabView: View {
                         
                     }
                 }
-                .onAppear { selectedTab = 0 }
+                .onAppear { tabBarController.selectedTab = 0 }
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
@@ -41,18 +44,17 @@ struct MainTabView: View {
                         
                     }
                 }
-                .onAppear { selectedTab = 1 }
+                .onAppear { tabBarController.selectedTab = 1 }
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
             //RestaurantSelectorView(tabIndex: $selectedTab)
             //CreatePostSelection(tabIndex: $selectedTab)
-            ActivityView()
+            CameraView()
                 .tabItem { Image(systemName: "plus") }
-                .onAppear { selectedTab = 2 }
+                .onAppear { tabBarController.selectedTab = 2 }
                 .tag(2)
-                .toolbarBackground(.visible, for: .tabBar)
-                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                .toolbar(visibility, for: .tabBar)
             ActivityView()
                 .tabItem {
                     VStack {
@@ -61,7 +63,7 @@ struct MainTabView: View {
                         
                     }
                 }
-                .onAppear { selectedTab = 3 }
+                .onAppear { tabBarController.selectedTab = 3 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
@@ -73,7 +75,7 @@ struct MainTabView: View {
                         
                     }
                 }
-                .onAppear { selectedTab = 4 }
+                .onAppear { tabBarController.selectedTab = 4 }
                 .tag(4)
         }
         .tint(.black)
@@ -81,27 +83,6 @@ struct MainTabView: View {
     }
 }
     
-    /*func configurePlaybackObserver() {
-        self.playbackObserver = NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
-                                                                       object: nil,
-                                                                       queue: .main) { _ in
-            let player = videoCoordinator.videoPlayerManager.queuePlayer
-            if player?.timeControlStatus == .playing {
-                player?.seek(to: CMTime.zero)
-                player?.play()
-            }
-        }
-    }
-    
-    func removePlaybackObserver() {
-        if let playbackObserver {
-            NotificationCenter.default.removeObserver(playbackObserver,
-                                                      name: AVPlayerItem.didPlayToEndTimeNotification,
-                                                      object: nil)
-        }
-    } 
-}*/
-
 #Preview {
     MainTabView(authService: AuthService(), userService: UserService())
 }
