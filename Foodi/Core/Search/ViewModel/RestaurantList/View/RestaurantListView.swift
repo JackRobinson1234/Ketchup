@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import InstantSearchSwiftUI
 
 struct RestaurantListView: View {
     @StateObject var viewModel: RestaurantListViewModel
@@ -21,53 +22,74 @@ struct RestaurantListView: View {
     init(config: RestaurantListConfig, restaurantService: RestaurantService, userService: UserService, oldSelection: Binding<FavoriteRestaurant?> = .constant(nil), favoritesPreview: Binding<[FavoriteRestaurant]?> = .constant(nil)) {
         self.config = config
         self.restaurantService = restaurantService
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel( restaurantService: restaurantService))
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
         self._oldSelection = oldSelection
         self._favoritesPreview = favoritesPreview
     }
     
     var body: some View {
         switch config {
-            case .upload, .restaurants:
-            if isLoading {
-                // Loading screen
-                ScrollView{
-                    ProgressView("Loading...")
-                        .onAppear {
-                            Task {
-                                try await viewModel.fetchRestaurants()
-                                isLoading = false
-                            }
-                        }
-                        .navigationTitle(config.navigationTitle)
-                        .searchable(text: $searchText, placement: .navigationBarDrawer)
-                    
+        case .upload, .restaurants:
+            InfiniteList(viewModel.hits, itemView: { hit in
+                RestaurantCell(restaurant: hit.object)
+                    .padding()
+                Divider()
+            }, noResults: {
+                Text("No results found")
+            })
+            .navigationTitle("Query suggestions")
+            .searchable(text: $viewModel.searchQuery,
+                        prompt: "Laptop, smartphone, tv",
+                        suggestions: {
+                ForEach(viewModel.suggestions, id: \.query) { suggestion in
+                    SuggestionRow(suggestion: suggestion,
+                                  onSelection: viewModel.submitSuggestion,
+                                  onTypeAhead: viewModel.completeSuggestion)
                 }
-            }
-            else{
-                ScrollView {
-                    LazyVStack {
-                        ForEach(viewModel.restaurants) { restaurant in
-                            NavigationLink(value: restaurant) {
-                                RestaurantCell(restaurant: restaurant)
-                                    .padding(.leading)
-                                
-                            }
-                            
-                        }
-                        
-                        .padding(.top)
-                        
-                    }
-                }
-                    .navigationTitle(config.navigationTitle)
-                    .searchable(text: $searchText, placement: .navigationBarDrawer)
-                    
-                
-            }
-                
-                        
+            })
+            .onSubmit(of: .search, viewModel.submitSearch)
+            
         }
+            
+            
+            
+//            if isLoading {
+//                // Loading screen
+//                ScrollView{
+//                    ProgressView("Loading...")
+//                        .onAppear {
+//                            Task {
+//                                try await viewModel.fetchRestaurants()
+//                                isLoading = false
+//                            }
+//                        }
+//                        .navigationTitle(config.navigationTitle)
+//                        .searchable(text: $searchText, placement: .navigationBarDrawer)
+//                    
+//                }
+//            }
+//            else{
+//                ScrollView {
+//                    LazyVStack {
+//                        ForEach(viewModel.suggestions, id: \.query) { suggestion in
+//                            SuggestionRow(suggestion: suggestion,
+//                                            onSelection: viewModel.submitSuggestion,
+//                                            onTypeAhead: viewModel.completeSuggestion)
+//                            }
+//                            
+//                        
+//                        .padding(.top)
+//                        
+//                    }
+//                }
+//                    .navigationTitle(config.navigationTitle)
+//                    .searchable(text: $searchText, placement: .navigationBarDrawer)
+//                    
+//                
+//            }
+//                
+//                        
+//        }
     }
 }
 

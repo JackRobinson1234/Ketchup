@@ -24,26 +24,22 @@ final class RestaurantListViewModel: ObservableObject {
             notifyQueryChanged()
         }
     }
-    
     @Published var suggestions: [QuerySuggestion]
-    
     var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Restaurant>>>
-    
     private var itemsSearcher: HitsSearcher
-    
     private var suggestionsSearcher: HitsSearcher
     @State var didSubmitSuggestion = false
     
     init() {
-        let appID: ApplicationID = "latency"
-        let apiKey: APIKey = "af044fb0788d6bb15f807e4420592bc5"
+        let appID: ApplicationID = "74A8XPTT50"
+        let apiKey: APIKey = "d7d6db8cc90a900cd8fa87fb302b3448"
         let itemsSearcher = HitsSearcher(appID: appID,
                                          apiKey: apiKey,
-                                         indexName: "instant_search")
+                                         indexName: "restaurants")
         self.itemsSearcher = itemsSearcher
         self.suggestionsSearcher = HitsSearcher(appID: appID,
                                                 apiKey: apiKey,
-                                                indexName: "query_suggestions")
+                                                indexName: "restaurants")
         self.hits = itemsSearcher.paginatedData(of: Hit<Restaurant>.self)
         searchQuery = ""
         suggestions = []

@@ -19,14 +19,15 @@ struct FavoriteRestaurantSearchView: View {
     }
     
     init(restaurantService: RestaurantService, oldSelection: Binding<FavoriteRestaurant>, editProfileViewModel: EditProfileViewModel) {
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
         
         self._oldSelection = oldSelection
         self.editProfileViewModel = editProfileViewModel
     }
-    var restaurants: [Restaurant] {
-        return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
-    }
+    var restaurants: [Restaurant] = []
+//    var restaurants: [Restaurant] {
+//        return searchText.isEmpty ? viewModel.restaurants : viewModel.filteredRestaurants(searchText)
+//    }
     var body: some View {
         if isLoading {
             // Loading screen
@@ -35,7 +36,7 @@ struct FavoriteRestaurantSearchView: View {
                     ProgressView("Loading...")
                         .onAppear {
                             Task {
-                                try await viewModel.fetchRestaurants()
+                                //try await viewModel.fetchRestaurants()
                                 isLoading = false
                             }
                         }

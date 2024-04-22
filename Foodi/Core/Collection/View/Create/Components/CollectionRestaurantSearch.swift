@@ -15,13 +15,14 @@ struct CollectionRestaurantSearch: View {
     @State var isLoading: Bool = true
     
     init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
-        self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel(restaurantService: restaurantService))
+        self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel())
         
         self.collectionsViewModel = collectionsViewModel
     }
-    var restaurants: [Restaurant] {
-        return searchText.isEmpty ? restaurantListViewModel.restaurants : restaurantListViewModel.filteredRestaurants(searchText)
-    }
+    var restaurants: [Restaurant] = []
+//    var restaurants: [Restaurant] {
+//        return searchText.isEmpty ? restaurantListViewModel.restaurants : restaurantListViewModel.filteredRestaurants(searchText)
+//    }
     var body: some View {
         if isLoading {
             // Loading screen
@@ -29,7 +30,7 @@ struct CollectionRestaurantSearch: View {
                 ProgressView("Loading...")
                     .onAppear {
                         Task {
-                            try await restaurantListViewModel.fetchRestaurants()
+                            //try await restaurantListViewModel.fetchRestaurants()
                             isLoading = false
                         }
                     }

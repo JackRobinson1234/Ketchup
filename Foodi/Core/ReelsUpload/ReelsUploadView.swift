@@ -462,13 +462,12 @@ struct PostOptions: View {
 
 
 struct SelectRestaurantListView: View {
-
-    @StateObject var viewModel = RestaurantListViewModel(restaurantService: RestaurantService())
+    @StateObject var viewModel = RestaurantListViewModel()
     @State private var searchText = ""
     @Binding var selectedRestaurant: Restaurant?
     @State var isLoading: Bool = true
     @Binding var isPickingRestaurant: Bool
-
+    var restaurants: [Restaurant] = []
 
     var body: some View {
         VStack {
@@ -476,14 +475,15 @@ struct SelectRestaurantListView: View {
                 ProgressView("Loading...")
                     .onAppear {
                         Task {
-                            try await viewModel.fetchRestaurants()
+                            //try await viewModel.fetchRestaurants()
                             isLoading = false
                         }
                     }
             } else {
                 ScrollView {
                     LazyVStack {
-                        ForEach(viewModel.restaurants) { restaurant in
+                        //ForEach(viewModel.hits, id: \.query) { restaurant in
+                        ForEach(restaurants) { restaurant in
                             Button(action: {
                                 self.selectedRestaurant = restaurant
                                 isPickingRestaurant = false
