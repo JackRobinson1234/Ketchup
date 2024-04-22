@@ -22,9 +22,11 @@ struct RestaurantCell: View {
                 Text(restaurant.name)
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .multilineTextAlignment(.leading)
                 
                 Text(restaurant.cuisine ?? "Unknown Cuisine")
                     .font(.footnote)
+                    .multilineTextAlignment(.leading)
                 
                 let address = restaurant.address ?? "Unknown Address"
                 let city = restaurant.city ?? "Unknown City"
@@ -32,6 +34,7 @@ struct RestaurantCell: View {
                 
                 Text("\(address) \(city), \(state)")
                     .font(.footnote)
+                    .multilineTextAlignment(.leading)
             }
             .foregroundStyle(.black)
             

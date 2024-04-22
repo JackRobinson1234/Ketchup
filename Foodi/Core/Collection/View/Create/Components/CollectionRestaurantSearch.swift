@@ -6,88 +6,53 @@
 //
 
 import SwiftUI
-
+import InstantSearchSwiftUI
 struct CollectionRestaurantSearch: View {
-    @StateObject var restaurantListViewModel: RestaurantListViewModel
-    @State var searchText: String = ""
+    @StateObject var viewModel: RestaurantListViewModel
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel
-    @State var isLoading: Bool = true
     
     init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
-        self._restaurantListViewModel = StateObject(wrappedValue: RestaurantListViewModel())
-        
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
         self.collectionsViewModel = collectionsViewModel
     }
-    var restaurants: [Restaurant] = []
-//    var restaurants: [Restaurant] {
-//        return searchText.isEmpty ? restaurantListViewModel.restaurants : restaurantListViewModel.filteredRestaurants(searchText)
-//    }
+    
     var body: some View {
-        if isLoading {
-            // Loading screen
-            ScrollView{
-                ProgressView("Loading...")
-                    .onAppear {
-                        Task {
-                            //try await restaurantListViewModel.fetchRestaurants()
-                            isLoading = false
-                        }
-                    }
-                    .navigationTitle("Add to Collection")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .searchable(text: $searchText, placement: .navigationBarDrawer)
-                    .navigationBarBackButtonHidden()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Text("Cancel")
-                            }
-                        }
-                    }
-                    .toolbar(.hidden, for: .tabBar)
-                
+        InfiniteList(viewModel.hits, itemView: { hit in
+            Button{
+                let restaurant = hit.object
+                let name = restaurant.name
+                let id = restaurant.id
+                let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
+                let city = restaurant.city ?? nil
+                let state = restaurant.state ?? nil
+                let geoPoint = restaurant.geoPoint ?? nil
+                let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, city: city, state: state, geoPoint: geoPoint)
+                Task{
+                    collectionsViewModel.addItemToCollection(item: newItem)
+                    dismiss()
+                }
+            } label :{
+                RestaurantCell(restaurant: hit.object)
+                    .padding(.leading)
             }
-        } else {
-            ScrollView {
-                VStack{
-                    ForEach(restaurants) { restaurant in
-                        Button{
-                            let name = restaurant.name
-                            let id = restaurant.id
-                            let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
-                            let city = restaurant.city ?? nil
-                            let state = restaurant.state ?? nil
-                            let geoPoint = restaurant.geoPoint ?? nil
-                            let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, city: city, state: state, geoPoint: geoPoint)
-                            Task{
-                                collectionsViewModel.addItemToCollection(item: newItem)
-                                dismiss()
-                            }
-                        } label :{
-                            RestaurantCell(restaurant: restaurant)
-                                .padding(.leading)
-                        }
-                    }
+            Divider()
+        }, noResults: {
+            Text("No results found")
+        })
+        .navigationTitle("Add to Collection")
+        .searchable(text: $viewModel.searchQuery,
+                    prompt: "Search")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Cancel")
                 }
             }
-            .navigationTitle("Add to Collection")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, placement: .navigationBarDrawer)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Cancel")
-                    }
-                }
-            }
-            .toolbar(.hidden, for: .tabBar)
-            
         }
+        .toolbar(.hidden, for: .tabBar)
+        .navigationBarBackButtonHidden()
     }
 }

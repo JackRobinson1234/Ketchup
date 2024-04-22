@@ -59,6 +59,7 @@ struct CollectionListCell: View {
     }
         .padding(.horizontal)
 }
+        
 private func itemCountText(for items: [CollectionItem]) -> some View {
     let restaurantCount = items.filter { $0.postType == "restaurant" }.count
     let atHomeCount = items.filter { $0.postType == "atHome" }.count

@@ -12,4 +12,5 @@ enum SearchModelConfig: Hashable {
     case posts
     case users(userListConfig: UserListConfig)
     case restaurants(restaurantListConfig: RestaurantListConfig)
+    case collections
 }
