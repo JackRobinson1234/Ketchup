@@ -7,74 +7,81 @@
 
 // Restaurant Map also grabs from this
 
+import InstantSearch
+import InstantSearchCore
+import InstantSearchSwiftUI
+import AlgoliaSearchClient
+import InstantSearchInsights
 import Foundation
+import SwiftUI
+
 import Firebase
 
-@MainActor
-class RestaurantListViewModel: ObservableObject {
-    @Published var restaurants = [Restaurant]()
-    private var restaurantLastDoc: QueryDocumentSnapshot?
-    private var restaurantService: RestaurantService = RestaurantService()
-    init(restaurantService: RestaurantService) {
-        self.restaurantService = restaurantService
+//@MainActor
+final class RestaurantListViewModel: ObservableObject {
+    @Published var searchQuery: String {
+        didSet {
+            notifyQueryChanged()
+        }
     }
     
+    @Published var suggestions: [QuerySuggestion]
     
-    func fetchRestaurants() async throws {
-        self.restaurants = try await FirestoreConstants
-        .RestaurantCollection
-        .limit(to: 20)
-        .getDocuments(as: Restaurant.self)
-        
-    }
-    /*func fetchRestaurants() async {
-        let query = FirestoreConstants.RestaurantCollection.limit(to: 20)
-        
-        
-        if let last = restaurantLastDoc {
-            let next = query.start(afterDocument: last)
-            guard let snapshot = try? await next.getDocuments() else { return }
-            self.restaurantLastDoc = snapshot.documents.last
-            
-            for document in snapshot.documents {
-                if let restaurant = try? document.data(as: Restaurant.self) {
-                    print("DEBUG: Successfully fetched restaurants")
-                    self.restaurants.append(restaurant)
-                } else {
-                    print("DEBUG: Error converting document to Restaurant")
-                }
+    var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Restaurant>>>
+    
+    private var itemsSearcher: HitsSearcher
+    
+    private var suggestionsSearcher: HitsSearcher
+    @State var didSubmitSuggestion = false
+    
+    init() {
+        let appID: ApplicationID = "latency"
+        let apiKey: APIKey = "af044fb0788d6bb15f807e4420592bc5"
+        let itemsSearcher = HitsSearcher(appID: appID,
+                                         apiKey: apiKey,
+                                         indexName: "instant_search")
+        self.itemsSearcher = itemsSearcher
+        self.suggestionsSearcher = HitsSearcher(appID: appID,
+                                                apiKey: apiKey,
+                                                indexName: "query_suggestions")
+        self.hits = itemsSearcher.paginatedData(of: Hit<Restaurant>.self)
+        searchQuery = ""
+        suggestions = []
+        suggestionsSearcher.onResults.subscribe(with: self) { _, response in
+            do {
+                self.suggestions = try response.extractHits()
+            } catch _ {
+                self.suggestions = []
             }
-            
-            print("DEBUG: Successfully fetched \(snapshot.documents.count) more restaurants.")
+        }.onQueue(.main)
+        suggestionsSearcher.search()
+    }
+    
+    deinit {
+        suggestionsSearcher.onResults.cancelSubscription(for: self)
+    }
+    func submitSearch() {
+        suggestions = []
+        itemsSearcher.request.query.query = searchQuery
+        itemsSearcher.search()
+    }
+    private func notifyQueryChanged() {
+        if didSubmitSuggestion {
+            didSubmitSuggestion = false
+            submitSearch()
         } else {
-            guard let snapshot = try? await query.getDocuments() else { return }
-            self.restaurantLastDoc = snapshot.documents.last
-            
-            for document in snapshot.documents {
-                if let restaurant = try? document.data(as: Restaurant.self) {
-                    print("DEBUG: Successfully fetched restaurants")
-                    self.restaurants.append(restaurant)
-                } else {
-                    print("DEBUG: Error converting document to Restaurant")
-                }
-            }
-            
-            print("DEBUG: Successfully fetched \(snapshot.documents.count) restaurants.")
-            }
+            suggestionsSearcher.request.query.query = searchQuery
+            itemsSearcher.request.query.query = searchQuery
+            suggestionsSearcher.search()
+            itemsSearcher.search()
         }
-        /*private func fetchRestaurants(_ snapshot: QuerySnapshot?) async throws {
-            guard let documents = snapshot?.documents else { return }
-            
-            for doc in documents {
-                let restaurant = try await restaurantService.fetchRestaurant(withId: doc.documentID)
-                restaurants.append(restaurant)
-            }
-        }*/*/
-        func filteredRestaurants(_ query: String) -> [Restaurant] {
-            let lowercasedQuery = query.lowercased()
-            return restaurants.filter({
-                $0.name.lowercased().contains(lowercasedQuery) ||
-                $0.name.contains(lowercasedQuery)
-            })
-        }
+    }
+    func completeSuggestion(_ suggestion: String) {
+        searchQuery = suggestion
+    }
+    
+    func submitSuggestion(_ suggestion: String) {
+        didSubmitSuggestion = true
+        searchQuery = suggestion
+    }
 }
