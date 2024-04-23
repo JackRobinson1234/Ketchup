@@ -10,42 +10,59 @@ import Kingfisher
 
 struct PostListCell: View {
     var post: Post
-    var width: CGFloat =  50
+    var width: CGFloat =  70
     var body: some View {
         HStack(spacing: 12) {
+            //MARK: Thumbnail Image
             KFImage(URL(string: post.thumbnailUrl))
                 .resizable()
                 .scaledToFill()
-                .frame(width: width, height: 75)
+                .frame(width: width, height: 90)
                 .clipped()
+            
+            //MARK: Restaurant Info
             if post.postType == "restaurant", let restaurant = post.restaurant{
                 VStack(alignment: .leading) {
                     Text(restaurant.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    
+                    Text("by \(post.user.fullName)")
+                        .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
                             .font(.footnote)
                     }
-                    let address = restaurant.address ?? ""
                     let city = restaurant.city ?? ""
                     let state = restaurant.state ?? ""
-                    
-                    Text("\(address) \(city), \(state)")
+                    Text("\(city), \(state)")
                         .font(.footnote)
-                    Text("by  \(post.user.fullName)")
                 }
                 .foregroundStyle(.black)
                 
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.black)
-                    .padding([.leading, .trailing])
-                
             }
+            //MARK: Recipe Info
+            else if post.postType == "atHome", let recipe = post.recipe{
+                VStack(alignment: .leading) {
+                    Text(recipe.name)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text("by \(post.user.fullName)")
+                        .font(.caption)
+                    if let cuisine = post.cuisine {
+                        Text(cuisine)
+                            .font(.footnote)
+                    }
+                    if let cookingTime = recipe.cookingTime {
+                        Text("\(cookingTime) minutes")
+                            .font(.footnote)
+                    }
+                }
+            }
+            Spacer()
+            //MARK: Right Arrow
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.black)
+                .padding([.leading, .trailing])
         }
     }
 }

@@ -53,12 +53,12 @@ struct SearchView: View {
                     .navigationBarBackButtonHidden()
                     
                 
-            case .users(let userListConfig):
-                UserListView(config: userListConfig)
-                    .modifier(BackButtonModifier())
-                    .navigationBarBackButtonHidden()
-                    
                 
+            
+            case .users:
+                    UserListView()
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
             case .restaurants(let restaurantListConfig):
                 switch restaurantListConfig {
                 case .upload:

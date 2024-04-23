@@ -47,7 +47,6 @@ class FeedViewModel: ObservableObject {
             case .following:
                 posts = try await postService.fetchFollowingPosts(withFilters: filters)
             }
-            posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
             updateCache(scrollPosition: posts.first?.id)

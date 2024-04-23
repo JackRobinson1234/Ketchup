@@ -17,10 +17,10 @@ struct CollectionsSearchListView: View {
     var body: some View {
         InfiniteList(viewModel.hits, itemView: { hit in
             //NavigationLink(value: hit.object) {
-            let _ = print("DEBUG OBJECT ***************", hit.object)
+            let _ = print("DEBUG OBJECT ***************", hit.objectID)
                 CollectionListCell(collection: hit.object)
                     .padding()
-            //}
+            
             Divider()
         }, noResults: {
             Text("No results found")

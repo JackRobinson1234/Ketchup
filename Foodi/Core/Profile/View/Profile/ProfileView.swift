@@ -25,10 +25,6 @@ struct ProfileView: View {
         let profileViewModel = ProfileViewModel(uid: uid, userService: UserService(), postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: profileViewModel)
         self.userService = userService
-        /*let likesViewModel = LikedVideosViewModel(uid: uid,
-                                                  userService: UserService(),
-                                                  postService: PostService())*/
-        //self._likesViewModel = StateObject(wrappedValue: likesViewModel)
         self._profileSection = State(initialValue: profileSection)
         
     }

@@ -21,7 +21,7 @@ struct Post: Identifiable, Codable {
     var commentCount: Int
     var shareCount: Int
     var thumbnailUrl: String
-    var timestamp: Timestamp
+    var timestamp: Timestamp?
     var user: PostUser
     var restaurant: PostRestaurant? = nil
     var recipe: PostRecipe? = nil
@@ -41,7 +41,7 @@ struct Post: Identifiable, Codable {
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
         self.shareCount = try container.decode(Int.self, forKey: .shareCount)
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
-        self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
+        self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
         self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
@@ -61,7 +61,7 @@ struct Post: Identifiable, Codable {
         commentCount: Int,
         shareCount: Int,
         thumbnailUrl: String,
-        timestamp: Timestamp,
+        timestamp: Timestamp? = nil,
         user: PostUser,
         restaurant: PostRestaurant? = nil,
         recipe: PostRecipe? = nil,

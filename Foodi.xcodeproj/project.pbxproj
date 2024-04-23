@@ -39,6 +39,9 @@
 		F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */; };
 		F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E322BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift */; };
 		F8631E352BD6E49E00A48565 /* PostListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E342BD6E49E00A48565 /* PostListCell.swift */; };
+		F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E372BD70C5200A48565 /* ProfileUserLists.swift */; };
+		F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */; };
+		F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -108,7 +111,6 @@
 		F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD52B6B072700EC159B /* SearchModelConfig.swift */; };
 		F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ADB2B6B079100EC159B /* SearchView.swift */; };
 		F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ADD2B6B07A400EC159B /* SearchViewSlideBar.swift */; };
-		F88E0AE82B6B07F900EC159B /* UserListConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AE72B6B07F900EC159B /* UserListConfig.swift */; };
 		F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AE92B6B080F00EC159B /* UserCell.swift */; };
 		F88E0AEC2B6B082300EC159B /* UserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AEB2B6B082300EC159B /* UserListView.swift */; };
 		F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AED2B6B085600EC159B /* UserListViewModel.swift */; };
@@ -237,6 +239,9 @@
 		F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsSearchListView.swift; sourceTree = "<group>"; };
 		F8631E322BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsListSearchViewModel.swift; sourceTree = "<group>"; };
 		F8631E342BD6E49E00A48565 /* PostListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListCell.swift; sourceTree = "<group>"; };
+		F8631E372BD70C5200A48565 /* ProfileUserLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserLists.swift; sourceTree = "<group>"; };
+		F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserListsViewModel.swift; sourceTree = "<group>"; };
+		F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSearchModel.swift; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -309,7 +314,6 @@
 		F88E0AD52B6B072700EC159B /* SearchModelConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModelConfig.swift; sourceTree = "<group>"; };
 		F88E0ADB2B6B079100EC159B /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		F88E0ADD2B6B07A400EC159B /* SearchViewSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewSlideBar.swift; sourceTree = "<group>"; };
-		F88E0AE72B6B07F900EC159B /* UserListConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListConfig.swift; sourceTree = "<group>"; };
 		F88E0AE92B6B080F00EC159B /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		F88E0AEB2B6B082300EC159B /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
 		F88E0AED2B6B085600EC159B /* UserListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListViewModel.swift; sourceTree = "<group>"; };
@@ -440,6 +444,10 @@
 		F823E1862B74D3D100E18135 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				F823E1852B74D3BF00E18135 /* CurrentUserProfile */,
+				F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */,
+				F871B0072B8C7F3000E4EB5F /* LikedPostsView.swift */,
+				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 			);
@@ -814,8 +822,18 @@
 			children = (
 				F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */,
 				F8631E322BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift */,
+				F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */,
 			);
 			path = CollectionsList;
+			sourceTree = "<group>";
+		};
+		F8631E362BD70B9A00A48565 /* ProfileUserLists */ = {
+			isa = PBXGroup;
+			children = (
+				F8631E372BD70C5200A48565 /* ProfileUserLists.swift */,
+				F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */,
+			);
+			path = ProfileUserLists;
 			sourceTree = "<group>";
 		};
 		F87072C92B9987A3002D8785 /* Recipe */ = {
@@ -1047,11 +1065,8 @@
 		F88E0AB02B6B041900EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F871AFF52B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift */,
-				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
+				F8631E362BD70B9A00A48565 /* ProfileUserLists */,
 				F823E1862B74D3D100E18135 /* Profile */,
-				F823E1852B74D3BF00E18135 /* CurrentUserProfile */,
-				F871B0072B8C7F3000E4EB5F /* LikedPostsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1152,7 +1167,6 @@
 		F88E0AE32B6B07CF00EC159B /* UserList */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0AE62B6B07DD00EC159B /* Model */,
 				F88E0AE52B6B07DB00EC159B /* View */,
 				F88E0AE42B6B07DA00EC159B /* ViewModel */,
 			);
@@ -1174,14 +1188,6 @@
 				F88E0AEB2B6B082300EC159B /* UserListView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		F88E0AE62B6B07DD00EC159B /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0AE72B6B07F900EC159B /* UserListConfig.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		F88E0AEF2B6B086900EC159B /* ViewModel */ = {
@@ -1651,7 +1657,6 @@
 				F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */,
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
 				F8CC21A22BD58A6000B4B329 /* Testing.swift in Sources */,
-				F88E0AE82B6B07F900EC159B /* UserListConfig.swift in Sources */,
 				F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8F494F62BBF98610043B515 /* DietaryFilter.swift in Sources */,
@@ -1711,6 +1716,7 @@
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
+				F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
 				F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */,
@@ -1767,6 +1773,7 @@
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
 				F88E0AD42B6B070300EC159B /* ContentVIewModel.swift in Sources */,
+				F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */,
 				F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */,
 				F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */,
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
@@ -1787,6 +1794,7 @@
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
 				F823E1782B70B93100E18135 /* RestaurantSelectorView.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
+				F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */,
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,
 				F88E0B212B6B0B8E00EC159B /* RestaurantService.swift in Sources */,

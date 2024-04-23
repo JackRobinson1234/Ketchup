@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 struct CollectionListCell: View {
     var collection: Collection
+    var searchCollection: CollectionSearchModel?
     var size: CGFloat = 60
     var body: some View {
         HStack{

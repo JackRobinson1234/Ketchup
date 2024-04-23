@@ -30,10 +30,10 @@ struct SearchViewSlideBar: View {
                     
                         .onTapGesture {
                             withAnimation {
-                                self.searchConfig = .users(userListConfig: .users)
+                                self.searchConfig = .users
                             }
                         }
-                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .users(userListConfig: .users)))
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .users))
                     //.frame(maxWidth: .infinity)
                     
                     Text("Restaurants")

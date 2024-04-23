@@ -35,17 +35,17 @@ struct ProfileHeaderView: View {
                             .padding(.leading)
                         HStack(spacing: 16) {
                             
-                            NavigationLink(value: SearchModelConfig.users(userListConfig: .following(uid: user.id))) {
+                            NavigationLink(destination: ProfileUserLists(config: .following(uid: user.id), userService: UserService())) {
                                 UserStatView(value: user.stats.following, title: "Following")
                             }
                             .disabled(user.stats.following == 0)
                             
-                            NavigationLink(value: SearchModelConfig.users(userListConfig: .followers(uid: user.id))) {
+                            NavigationLink(destination: ProfileUserLists(config: .followers(uid: user.id), userService: UserService())) {
                                 UserStatView(value: user.stats.followers, title: "Followers")
                             }
                             .disabled(user.stats.followers == 0)
                             
-                            UserStatView(value: user.stats.likes, title: "Saves")
+                            UserStatView(value: user.stats.likes, title: "Likes")
                         }
                     }
                 }

@@ -10,10 +10,8 @@ import InstantSearchSwiftUI
 
 struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
-    private let config: UserListConfig
     
-    init(config: UserListConfig) {
-        self.config = config
+    init() {
         self._viewModel = StateObject(wrappedValue: UserListViewModel())
     }
     
