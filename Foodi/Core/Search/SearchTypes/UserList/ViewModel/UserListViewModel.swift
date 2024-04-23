@@ -12,13 +12,8 @@ import Foundation
 import SwiftUI
 
 final class UserListViewModel: ObservableObject {
-    @Published var searchQuery: String {
-        didSet {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.notifyQueryChanged()
-            }
-        }
-    }
+    @Published var searchQuery: String = ""
+        
     var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<User>>>
     private var itemsSearcher: HitsSearcher
     
@@ -29,17 +24,17 @@ final class UserListViewModel: ObservableObject {
                                          apiKey: apiKey,
                                          indexName: "users")
         self.itemsSearcher = itemsSearcher
-        self.itemsSearcher.shouldTriggerSearchForQuery = {
+        /*self.itemsSearcher.shouldTriggerSearchForQuery = {
             return $0.query.query != ""
-        }
+        }*/
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<User>.self)
     }
     
-    private func notifyQueryChanged() {
-            if !searchQuery.isEmpty {
+    func notifyQueryChanged() {
+        //if !searchQuery.isEmpty {
                 itemsSearcher.request.query.query = searchQuery
                 itemsSearcher.search()
-        }
+        //}
     }
 }

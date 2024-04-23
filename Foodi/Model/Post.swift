@@ -114,7 +114,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
 struct PostUser: Codable, Hashable, Identifiable {
     let id: String
     let fullName: String
-    let profileImageUrl: String?
+    var profileImageUrl: String? = nil
 }
 
 struct PostRecipe: Codable, Hashable {

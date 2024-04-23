@@ -10,25 +10,29 @@ import InstantSearchSwiftUI
 
 struct CollectionsSearchListView: View {
     @StateObject var viewModel: CollectionListSearchViewModel
-    
+    var debouncer = Debouncer(delay: 1.0)
+
     init() {
         self._viewModel = StateObject(wrappedValue: CollectionListSearchViewModel())
     }
+
     var body: some View {
         InfiniteList(viewModel.hits, itemView: { hit in
             //NavigationLink(value: hit.object) {
-            let _ = print("DEBUG OBJECT ***************", hit.objectID)
-                CollectionListCell(collection: hit.object)
-                    .padding()
-            
+            CollectionListCell(collection: hit.object)
+                .padding()
+
             Divider()
         }, noResults: {
             Text("No results found")
         })
         .navigationTitle("Explore")
-        .searchable(text: $viewModel.searchQuery,
-                    prompt: "Search")
-        .onChange(of: viewModel.searchQuery){print("DEBUG Collection hits", viewModel.hits)}
+        .searchable(text: $viewModel.searchQuery, prompt: "Search")
+        .onChange(of: viewModel.searchQuery) {
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
     }
 }
 

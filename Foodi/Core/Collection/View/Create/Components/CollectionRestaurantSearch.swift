@@ -11,6 +11,7 @@ struct CollectionRestaurantSearch: View {
     @StateObject var viewModel: RestaurantListViewModel
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel
+    var debouncer = Debouncer(delay: 1.0)
     
     init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
         self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
@@ -54,5 +55,10 @@ struct CollectionRestaurantSearch: View {
         }
         .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden()
+        .onChange(of: viewModel.searchQuery) {
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
     }
 }

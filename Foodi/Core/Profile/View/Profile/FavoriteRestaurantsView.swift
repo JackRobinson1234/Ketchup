@@ -19,7 +19,6 @@ struct FavoriteRestaurantsView: View {
                 if let favorites {
                     ForEach(favorites) { favoriteRestaurant in
                         HStack{
-                            
                             NavigationLink(destination: NavigationLazyView(RestaurantProfileView(restaurantId: favoriteRestaurant.id))) {VStack {
                                 if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
                                     RestaurantCircularProfileImageView(imageUrl: imageUrl, size: .medium)

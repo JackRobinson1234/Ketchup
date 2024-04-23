@@ -41,18 +41,21 @@ struct PostListCell: View {
                 
             }
             //MARK: Recipe Info
-            else if post.postType == "atHome", let recipe = post.recipe{
+            else if post.postType == "atHome" {
                 VStack(alignment: .leading) {
-                    Text(recipe.name)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                    if let recipe = post.recipe {
+                        Text(recipe.name)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
                     Text("by \(post.user.fullName)")
                         .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
                             .font(.footnote)
                     }
-                    if let cookingTime = recipe.cookingTime {
+                    
+                    if let cookingTime = post.recipe?.cookingTime {
                         Text("\(cookingTime) minutes")
                             .font(.footnote)
                     }

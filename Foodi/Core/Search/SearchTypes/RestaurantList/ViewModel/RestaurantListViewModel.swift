@@ -19,13 +19,7 @@ import Firebase
 
 //@MainActor
 final class RestaurantListViewModel: ObservableObject {
-    @Published var searchQuery: String {
-        didSet {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.notifyQueryChanged()
-            }
-        }
-    }
+    @Published var searchQuery: String = ""
     var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Restaurant>>>
     private var itemsSearcher: HitsSearcher
     
@@ -36,17 +30,17 @@ final class RestaurantListViewModel: ObservableObject {
                                          apiKey: apiKey,
                                          indexName: "restaurants")
         self.itemsSearcher = itemsSearcher
-        self.itemsSearcher.shouldTriggerSearchForQuery = {
+        /*self.itemsSearcher.shouldTriggerSearchForQuery = {
             return $0.query.query != ""
-        }
+        }*/
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<Restaurant>.self)
     }
     
-    private func notifyQueryChanged() {
-            if !searchQuery.isEmpty {
+    func notifyQueryChanged() {
+            //if !searchQuery.isEmpty {
                 itemsSearcher.request.query.query = searchQuery
                 itemsSearcher.search()
-        }
+        //}
     }
 }

@@ -10,6 +10,7 @@ import InstantSearchSwiftUI
 //DEBUG
 struct PostListView: View {
     @StateObject var viewModel: PostListViewModel
+    var debouncer = Debouncer(delay: 1.0)
     
     init() {
         self._viewModel = StateObject(wrappedValue: PostListViewModel())
@@ -28,6 +29,10 @@ struct PostListView: View {
         .navigationTitle("Explore")
         .searchable(text: $viewModel.searchQuery,
                     prompt: "Search")
-        .onChange(of: viewModel.searchQuery) {print("DEBUG Post hits", viewModel.hits)}
+        .onChange(of: viewModel.searchQuery) {
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ struct RestaurantListView: View {
     @StateObject var viewModel: RestaurantListViewModel
     private let config: RestaurantListConfig
     @Environment(\.dismiss) var dismiss
+    var debouncer = Debouncer(delay: 1.0)
     
     
     init(config: RestaurantListConfig) {
@@ -33,6 +34,11 @@ struct RestaurantListView: View {
             .navigationTitle("Explore")
             .searchable(text: $viewModel.searchQuery,
                         prompt: "Search")
+            .onChange(of: viewModel.searchQuery) {
+                debouncer.schedule {
+                    viewModel.notifyQueryChanged()
+                }
+            }
             
         }
     }

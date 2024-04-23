@@ -10,6 +10,7 @@ import InstantSearchSwiftUI
 
 struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
+    var debouncer = Debouncer(delay: 1.0)
     
     init() {
         self._viewModel = StateObject(wrappedValue: UserListViewModel())
@@ -29,5 +30,10 @@ struct UserListView: View {
         .navigationTitle("Explore")
         .searchable(text: $viewModel.searchQuery,
                     prompt: "Search")
+        .onChange(of: viewModel.searchQuery) {
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
     }
 }

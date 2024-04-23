@@ -174,6 +174,6 @@ struct editFavoritesView: View {
                     
                 }
             }
-        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
+        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
     }
 }

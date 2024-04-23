@@ -12,13 +12,7 @@ import Foundation
 import SwiftUI
 
 final class PostListViewModel: ObservableObject {
-    @Published var searchQuery: String {
-        didSet {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.notifyQueryChanged()
-            }
-        }
-    }
+    @Published var searchQuery: String = ""
     var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Post>>>
     private var itemsSearcher: HitsSearcher
     
@@ -29,17 +23,17 @@ final class PostListViewModel: ObservableObject {
                                          apiKey: apiKey,
                                          indexName: "posts")
         self.itemsSearcher = itemsSearcher
-        self.itemsSearcher.shouldTriggerSearchForQuery = {
+        /*self.itemsSearcher.shouldTriggerSearchForQuery = {
             return $0.query.query != ""
-        }
+        }*/
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<Post>.self)
     }
     
-    private func notifyQueryChanged() {
-            if !searchQuery.isEmpty {
+    func notifyQueryChanged() {
+            //if !searchQuery.isEmpty {
                 itemsSearcher.request.query.query = searchQuery
                 itemsSearcher.search()
-        }
+        //}
     }
 }
