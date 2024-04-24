@@ -14,50 +14,52 @@ struct SearchViewSlideBar: View {
     }
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 20) {
-                Text("Restaurants")
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .restaurants
+        VStack{
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 20) {
+                    Text("Restaurants")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .restaurants
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
-                
-                Text("At Home Posts")
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .posts
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
+                    
+                    Text("At Home Posts")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .posts
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .posts))
-                //.frame(maxWidth: .infinity)
-                
-                Text("Users")
-                    .frame(width: 50, height: 25)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .users
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .posts))
+                    //.frame(maxWidth: .infinity)
+                    
+                    Text("Users")
+                        .frame(width: 50, height: 25)
+                    
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .users
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .users))
-                //.frame(maxWidth: .infinity)
-                
-                
-                //.frame(maxWidth: .infinity)
-                
-                Text("Collections")
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .collections
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .users))
+                    //.frame(maxWidth: .infinity)
+                    
+                    
+                    //.frame(maxWidth: .infinity)
+                    
+                    Text("Collections")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .collections
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .collections))
-                //.frame(maxWidth: .infinity)
-                
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .collections))
+                    //.frame(maxWidth: .infinity)
+                    
+                }
+                .padding()
             }
-            .padding()
         }
     }
 }
