@@ -192,7 +192,7 @@ struct FeedView: View {
             }
             /// puts the search view in view when search button is clicked
             .fullScreenCover(isPresented: $showSearchView) {
-                SearchView(userService: userService, searchConfig: .users, searchSlideBar: true)
+                SearchView(userService: userService, searchConfig: .restaurants, searchSlideBar: true)
             }
             /// pauses the video when filters are shown
             .onChange(of: showFilters) { oldValue, newValue in
