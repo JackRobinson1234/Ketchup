@@ -42,6 +42,7 @@
 		F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E372BD70C5200A48565 /* ProfileUserLists.swift */; };
 		F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */; };
 		F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */; };
+		F8631E422BD883C700A48565 /* FacetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E412BD883C700A48565 /* FacetsView.swift */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -242,6 +243,7 @@
 		F8631E372BD70C5200A48565 /* ProfileUserLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserLists.swift; sourceTree = "<group>"; };
 		F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserListsViewModel.swift; sourceTree = "<group>"; };
 		F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSearchModel.swift; sourceTree = "<group>"; };
+		F8631E412BD883C700A48565 /* FacetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacetsView.swift; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -1150,6 +1152,7 @@
 				F88E0AFC2B6B094400EC159B /* PostListViewModel.swift */,
 				F88E0AFE2B6B095A00EC159B /* PostListView.swift */,
 				F8631E342BD6E49E00A48565 /* PostListCell.swift */,
+				F8631E412BD883C700A48565 /* FacetsView.swift */,
 			);
 			path = PostList;
 			sourceTree = "<group>";
@@ -1762,6 +1765,7 @@
 				F88E0A982B6B02A300EC159B /* MapView.swift in Sources */,
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
 				F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */,
+				F8631E422BD883C700A48565 /* FacetsView.swift in Sources */,
 				F88E0B1D2B6B0B3500EC159B /* MediaUploader.swift in Sources */,
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
