@@ -23,11 +23,7 @@ struct LoginView: View {
                 Spacer()
                 
                 // logo image
-                Image("tiktok-app-icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .padding()
+                Text("Foodi")
                 
                 // text fields
                 VStack {

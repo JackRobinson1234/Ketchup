@@ -43,6 +43,9 @@
 		F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */; };
 		F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */; };
 		F8631E422BD883C700A48565 /* FacetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E412BD883C700A48565 /* FacetsView.swift */; };
+		F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E452BD963C900A48565 /* GoogleSignIn */; };
+		F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E472BD963C900A48565 /* GoogleSignInSwift */; };
+		F8631E4A2BD9662B00A48565 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8631E492BD9662B00A48565 /* GoogleService-Info.plist */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -144,7 +147,6 @@
 		F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */; };
 		F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */; };
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
-		F88E0B3D2B6CA4A600EC159B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */; };
 		F8901C862BA436A100FBE778 /* VideoCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8901C852BA436A100FBE778 /* VideoCache.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */; };
@@ -243,6 +245,7 @@
 		F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserListsViewModel.swift; sourceTree = "<group>"; };
 		F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSearchModel.swift; sourceTree = "<group>"; };
 		F8631E412BD883C700A48565 /* FacetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacetsView.swift; sourceTree = "<group>"; };
+		F8631E492BD9662B00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -347,7 +350,6 @@
 		F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardTextFieldModifier.swift; sourceTree = "<group>"; };
 		F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
-		F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8901C852BA436A100FBE778 /* VideoCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCache.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDietaryRestrictionsView.swift; sourceTree = "<group>"; };
@@ -385,9 +387,11 @@
 			files = (
 				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
 				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
+				F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
+				F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,8 +525,8 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
-				F88E0B3C2B6CA4A600EC159B /* GoogleService-Info.plist */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
+				F8631E492BD9662B00A48565 /* GoogleService-Info.plist */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
 			path = Foodi;
@@ -1411,6 +1415,8 @@
 				F8CC21922BD5810E00B4B329 /* InstantSearchCore */,
 				F8CC21942BD5810E00B4B329 /* InstantSearchInsights */,
 				F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */,
+				F8631E452BD963C900A48565 /* GoogleSignIn */,
+				F8631E472BD963C900A48565 /* GoogleSignInSwift */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
@@ -1489,6 +1495,7 @@
 			mainGroup = F84FE23F2B6A531200144F01;
 			packageReferences = (
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
+				F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1506,9 +1513,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F88E0B3D2B6CA4A600EC159B /* GoogleService-Info.plist in Resources */,
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
+				F8631E4A2BD9662B00A48565 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2167,6 +2174,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.1.0;
+			};
+		};
 		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/instantsearch-ios";
@@ -2178,6 +2193,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F8631E452BD963C900A48565 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		F8631E472BD963C900A48565 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
