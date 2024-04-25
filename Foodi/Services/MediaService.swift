@@ -26,8 +26,15 @@ enum UploadType {
         }
     }
 }
-
+//MARK: ImageUploader
 struct ImageUploader {
+    //MARK: uploadImage
+    
+    /// Uploads an image to firebase storage
+    /// - Parameters:
+    ///   - image: UIIMage to be uploaded
+    ///   - type: File type that is to be uploaded (ex. "MP4")
+    /// - Returns: Success: Download URL string, Failure: throws and returns nil
     static func uploadImage(image: UIImage, type: UploadType) async throws -> String? {
         guard let imageData = image.jpegData(compressionQuality: 0.5) else { return nil }
         let ref = type.filePath
@@ -41,6 +48,9 @@ struct ImageUploader {
             return nil
         }
     }
+    //MARK: deleteImage
+    /// Deletes an image from firestore
+    /// - Parameter urlString: download url of where the image can be found on firebase
     static func deleteImage(fromUrl urlString: String) async throws {
             guard let url = URL(string: urlString) else {
                 throw StorageError.invalidUrl
@@ -55,8 +65,12 @@ struct ImageUploader {
         }
 }
 
-
+//MARK: VideoUploader
 struct VideoUploader {
+    //MARK: uploadVideoToStorage
+    /// Uploads a video to storeage
+    /// - Parameter url: url reference of the video to be uploaded to firebase
+    /// - Returns: download url from firebase as a String
     static func uploadVideoToStorage(withUrl url: URL) async throws -> String? {
         let filename = NSUUID().uuidString
         let ref = Storage.storage().reference(withPath: "/post_videos/").child(filename)
@@ -73,6 +87,9 @@ struct VideoUploader {
             throw error
         }
     }
+    //MARK: deleteVideo
+    /// deletes a video from Firebase
+    /// - Parameter urlString: string URL of the video that is to be deleted
     static func deleteVideo(fromUrl urlString: String) async throws {
             guard let url = URL(string: urlString) else {
                 throw StorageError.invalidUrl
