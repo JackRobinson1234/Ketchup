@@ -15,7 +15,7 @@ struct Post: Identifiable, Codable {
     let id: String
     var postType: String // either "restaurant" or "atHome"
     let mediaType: String //either "video" or "image"
-    let mediaUrls: [String]
+    var mediaUrls: [String]
     let caption: String
     var likes: Int
     var commentCount: Int
@@ -119,7 +119,7 @@ struct PostUser: Codable, Hashable, Identifiable {
 
 struct PostRecipe: Codable, Hashable {
     var name: String
-    var cookingTime: Int?
+    var cookingTime: String?
     var dietary: [String]?
     var instructions: [Instruction]?
     var ingredients: [Ingredient]?

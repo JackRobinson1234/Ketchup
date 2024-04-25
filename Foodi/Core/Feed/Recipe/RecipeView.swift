@@ -35,7 +35,7 @@ struct RecipeView: View {
                     VStack(alignment: .leading) {
                         Text("Cuisine: \(post.cuisine ?? "Not specified")")
                         
-                        Text("Time: \(formattedTime(time: post.recipe?.cookingTime ?? 0))")
+                        Text("Time: " + (post.recipe?.cookingTime ?? "Empty"))
                         
                         Text("Dietary Restrictions: \(formattedDietaryRestrictions(dietary: post.recipe?.dietary ?? []))")
                         

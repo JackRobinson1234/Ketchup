@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */; };
+		6F23C0312BD7FE8F0053B064 /* UploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F23C0302BD7FE8F0053B064 /* UploadService.swift */; };
+		6F23C0332BD7FF9E0053B064 /* UploadErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F23C0322BD7FF9E0053B064 /* UploadErrors.swift */; };
 		ACAB518993C9290DE42EEFB1 /* Pods_FoodiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */; };
 		D770486F7DB5BCC50E038E9B /* Pods_Foodi_FoodiUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
@@ -199,6 +201,8 @@
 		1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.release.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.release.xcconfig"; sourceTree = "<group>"; };
 		1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foodi_FoodiUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi-FoodiUITests.release.xcconfig"; path = "Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests.release.xcconfig"; sourceTree = "<group>"; };
+		6F23C0302BD7FE8F0053B064 /* UploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadService.swift; sourceTree = "<group>"; };
+		6F23C0322BD7FF9E0053B064 /* UploadErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadErrors.swift; sourceTree = "<group>"; };
 		9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FoodiTests.debug.xcconfig"; path = "Target Support Files/Pods-FoodiTests/Pods-FoodiTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.debug.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.debug.xcconfig"; sourceTree = "<group>"; };
 		E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FoodiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -502,7 +506,6 @@
 		F84FE24A2B6A531200144F01 /* Foodi */ = {
 			isa = PBXGroup;
 			children = (
-				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F871B0112B919B7200E4EB5F /* Info.plist */,
 				F84FE27B2B6A542D00144F01 /* App */,
 				F84FE27A2B6A541900144F01 /* Core */,
@@ -598,6 +601,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
 				F8901C842BA4369500FBE778 /* VideoPlayer */,
@@ -1336,6 +1340,8 @@
 				F8CC219B2BD5876F00B4B329 /* ReelsUploadView.swift */,
 				F8CC219D2BD5879900B4B329 /* UploadViewModel.swift */,
 				F8CC21A12BD58A6000B4B329 /* Testing.swift */,
+				6F23C0302BD7FE8F0053B064 /* UploadService.swift */,
+				6F23C0322BD7FF9E0053B064 /* UploadErrors.swift */,
 			);
 			path = ReelsUpload;
 			sourceTree = "<group>";
@@ -1677,6 +1683,7 @@
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
 				F871CDED2BC6F643003C9BE8 /* CollectionGridView.swift in Sources */,
+				6F23C0332BD7FF9E0053B064 /* UploadErrors.swift in Sources */,
 				F8901C862BA436A100FBE778 /* VideoCache.swift in Sources */,
 				F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */,
 				F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */,
@@ -1712,6 +1719,7 @@
 				F871CDEF2BC6F9BC003C9BE8 /* CollectionItemCell.swift in Sources */,
 				F88E0B052B6B09E400EC159B /* Movie.swift in Sources */,
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
+				6F23C0312BD7FE8F0053B064 /* UploadService.swift in Sources */,
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
@@ -1946,11 +1954,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -1967,7 +1978,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi2;
+				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1988,11 +1999,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -2009,7 +2023,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi2;
+				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
