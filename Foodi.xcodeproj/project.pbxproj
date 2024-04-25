@@ -46,6 +46,7 @@
 		F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E452BD963C900A48565 /* GoogleSignIn */; };
 		F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E472BD963C900A48565 /* GoogleSignInSwift */; };
 		F8631E4A2BD9662B00A48565 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8631E492BD9662B00A48565 /* GoogleService-Info.plist */; };
+		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -246,6 +247,7 @@
 		F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSearchModel.swift; sourceTree = "<group>"; };
 		F8631E412BD883C700A48565 /* FacetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacetsView.swift; sourceTree = "<group>"; };
 		F8631E492BD9662B00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -782,6 +784,7 @@
 			children = (
 				F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */,
 				F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */,
+				F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1665,6 +1668,7 @@
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
+				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,
 				F871CE0E2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift in Sources */,
 				F871CE052BCDE62F003C9BE8 /* CollectionListCell.swift in Sources */,
 				F8F494F82BBF98950043B515 /* DietaryCategories.swift in Sources */,
@@ -1969,7 +1973,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -2011,7 +2018,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

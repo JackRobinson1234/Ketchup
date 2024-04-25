@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
-
+import GoogleSignIn
+import FirebaseAuth
+import GoogleSignInSwift
 struct LoginView: View {
     private let service: AuthService
     @StateObject private var viewModel: LoginViewModel
@@ -25,19 +27,33 @@ struct LoginView: View {
                 // logo image
                 Text("Foodi")
                 
-                // text fields
+                //MARK: Enter Email
                 VStack {
                     TextField("Enter your email", text: $viewModel.email)
                         .autocapitalization(.none)
                         .modifier(StandardTextFieldModifier())
-                    
+                        .onChange(of: viewModel.email) {
+                            viewModel.isValidLoginEmail()
+                        }
+                    if !viewModel.email.isEmpty && !viewModel.validLoginEmail {
+                        Text("Please Enter a Valid Email Address")
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                    }
+                    //MARK: Enter Password
                     SecureField("Enter your password", text: $viewModel.password)
                         .modifier(StandardTextFieldModifier())
+                        .onChange(of: viewModel.password) {
+                            viewModel.isValidPassword()
+                        }
+                    if !viewModel.password.isEmpty && !viewModel.validPassword {
+                        Text("Password is at least 6 characters")
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                    }
                 }
-                
-                NavigationLink {
-                    Text("Forgot Password")
-                } label: {
+                //MARK: ForgotPassword
+                NavigationLink(destination: ForgotPasswordView(viewModel: viewModel)) {
                     Text("Forgot Password?")
                         .font(.footnote)
                         .fontWeight(.semibold)
@@ -49,7 +65,6 @@ struct LoginView: View {
                 Button {
                     Task {
                         await viewModel.login()
-                        dismiss()
                     }
                 } label: {
                     Text(viewModel.isAuthenticating ? "" : "Login")
@@ -64,9 +79,19 @@ struct LoginView: View {
                 }
                 .disabled(viewModel.isAuthenticating || !formIsValid)
                 .opacity(formIsValid ? 1 : 0.7)
-                
                 .padding(.vertical)
                 
+
+                Button{
+                    Task{
+                        try await service.signInWithGoogle()
+                    }
+                } label: {
+                    Image("Google-SignIn")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 30, height: 50, alignment: .center)
+                }
                 Spacer()
                 
                 Divider()
@@ -86,6 +111,14 @@ struct LoginView: View {
                 .padding(.vertical, 16)
 
             }
+            /// Keeps the UI Timer running on the forgot password
+            .onReceive(viewModel.timer){time in
+                if !viewModel.canResetEmail {
+                    if viewModel.timeRemaining > 0 {
+                        viewModel.timeRemaining -= 1
+                    }
+                }
+            }
             .alert(isPresented: $viewModel.showAlert) {
                 Alert(title: Text("Error"),
                       message: Text(viewModel.authError?.description ?? "Please try again.."))
@@ -97,8 +130,9 @@ struct LoginView: View {
 extension LoginView: AuthenticationFormProtocol {
     var formIsValid: Bool {
         return !viewModel.email.isEmpty
-        && viewModel.email.contains("@")
+        && viewModel.validLoginEmail
         && !viewModel.password.isEmpty
+        && viewModel.validPassword
     }
 }
 

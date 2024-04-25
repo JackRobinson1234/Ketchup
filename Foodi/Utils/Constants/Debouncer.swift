@@ -9,6 +9,7 @@ import Combine
 class Debouncer {
     let delay: TimeInterval
     var timer: Timer?
+    
 
     init(delay: TimeInterval) {
         self.delay = delay

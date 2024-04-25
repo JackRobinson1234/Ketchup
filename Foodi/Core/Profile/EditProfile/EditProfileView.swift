@@ -158,7 +158,7 @@ struct editFavoritesView: View {
                         Button{
                             oldSelection = favoriteRestaurant
                             if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
-                                editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: "")
+                                editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: "")
                             }
                         } label: {
                             VStack{

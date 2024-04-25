@@ -31,7 +31,7 @@ struct FavoriteRestaurantsView: View {
                             }
                             
                             }
-                            .disabled(favoriteRestaurant.id.isEmpty)
+                            .disabled(favoriteRestaurant.name.isEmpty)
                             
                             Spacer()
                         }
