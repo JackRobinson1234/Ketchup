@@ -31,17 +31,10 @@ struct CollectionListCell: View {
                     .font(.title3)
                     .bold()
                     .lineLimit(1)
-                if let items = collection.items {
-                    itemCountText(for: items)
+                    itemCountText(for: collection)
                         .font(.caption)
                         .foregroundColor(.gray)
                         .lineLimit(1)
-                } else {
-                    Text("0 Items")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                }
                 Text("By \(collection.username)")
                     .font(.caption)
                     .lineLimit(1)
@@ -61,10 +54,9 @@ struct CollectionListCell: View {
         .padding(.horizontal)
 }
         
-private func itemCountText(for items: [CollectionItem]) -> some View {
-    let restaurantCount = items.filter { $0.postType == "restaurant" }.count
-    let atHomeCount = items.filter { $0.postType == "atHome" }.count
-    
+private func itemCountText(for collection: Collection) -> some View {
+    let restaurantCount = collection.restaurantCount
+    let atHomeCount = collection.atHomeCount
     let itemCountText: String
     if restaurantCount == 0 && atHomeCount == 0 {
         itemCountText = "0 Items"

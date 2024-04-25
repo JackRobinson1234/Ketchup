@@ -67,7 +67,9 @@ class CommentService: CommentServiceProtocol {
             commentOwnerUid: currentUid
         )
         
-        guard let commentData = try? Firestore.Encoder().encode(comment) else { return nil }
+        guard let commentData = try? Firestore.Encoder().encode(comment) else {
+            return nil
+        }
         
         async let _ = try commentsCollection.document(ref.documentID).setData(commentData)
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData([
@@ -79,7 +81,6 @@ class CommentService: CommentServiceProtocol {
         if let currentUser = currentUser {
             comment.user = currentUser
         }
-        
         return comment
     }
     

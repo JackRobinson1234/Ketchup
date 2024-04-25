@@ -22,16 +22,12 @@ struct CollectionRestaurantSearch: View {
         InfiniteList(viewModel.hits, itemView: { hit in
             Button{
                 let restaurant = hit.object
-                let name = restaurant.name
-                let id = restaurant.id
-                let restaurantProfileImageUrl = restaurant.profileImageUrl ?? nil
-                let city = restaurant.city ?? nil
-                let state = restaurant.state ?? nil
-                let geoPoint = restaurant.geoPoint ?? nil
-                let newItem = CollectionItem(id: id, postType: "restaurant", name: name, image: restaurantProfileImageUrl, city: city, state: state, geoPoint: geoPoint)
-                Task{
-                    collectionsViewModel.addItemToCollection(item: newItem)
-                    dismiss()
+                collectionsViewModel.restaurant = restaurant
+                if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
+                    Task{
+                        try await collectionsViewModel.addItemToCollection(collectionItem: item)
+                        dismiss()
+                    }
                 }
             } label :{
                 RestaurantCell(restaurant: hit.object)

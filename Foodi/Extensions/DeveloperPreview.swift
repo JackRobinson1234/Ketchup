@@ -160,24 +160,28 @@ struct DeveloperPreview {
                 description: "A collection of delicious Italian dishes",
                 username: "wilbond",
                 uid: "",
-                items: [
-                    .init(
-                        id: "QOxHzulwskv9pSS3vsSH",
-                        postType: "atHome",
-                        name: "Pasta Carbonara",
-                        image: "https://picsum.photos/200/300",
-                        postUserFullname: "Will Bond"
-                    ),
-                    .init(
-                        id: "-1QvxFtMgOLpSbO-oAtUgA",
-                        postType: "restaurant",
-                        name: "Bella Italia",
-                        image: "https://picsum.photos/250/350",
-                        city: "Hermosa Beach",
-                        state: "CA",
-                        geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
-                    )
-                ]
+                restaurantCount: 0,
+                atHomeCount: 0
                 )
+        ]
+    static var items: [CollectionItem] = [
+            .init(
+                collectionId: "af",
+                id: "QOxHzulwskv9pSS3vsSH",
+                postType: "atHome",
+                name: "Pasta Carbonara",
+                image: "https://picsum.photos/200/300",
+                postUserFullname: "Will Bond"
+            ),
+            .init(
+                collectionId: "af",
+                id: "-1QvxFtMgOLpSbO-oAtUgA",
+                postType: "restaurant",
+                name: "Bella Italia",
+                image: "https://picsum.photos/250/350",
+                city: "Hermosa Beach",
+                state: "CA",
+                geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
+            )
         ]
 }

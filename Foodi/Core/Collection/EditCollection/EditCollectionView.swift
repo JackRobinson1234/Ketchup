@@ -14,6 +14,12 @@ struct EditCollectionView: View {
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
+    @State private var itemsPreview: [CollectionItem] // Define itemsPreview state
+
+        init(collectionsViewModel: CollectionsViewModel) {
+            self.collectionsViewModel = collectionsViewModel
+            _itemsPreview = State(initialValue: collectionsViewModel.items)
+        }
     
     var body: some View {
         NavigationStack{
@@ -50,13 +56,16 @@ struct EditCollectionView: View {
                             // MARK: Items
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 //if collection.uid == Auth.auth().currentUser?.uid{
-                                ForEach(collectionsViewModel.editItems, id: \.id) { item in
+                                ForEach(itemsPreview, id: \.id) { item in
                                     VStack{
                                         CollectionItemCell(item: item)
                                             .aspectRatio(1.0, contentMode: .fit)
                                         Button{
-                                            collectionsViewModel.editItems.removeAll(where: {$0.id == item.id})
-                                            print(collectionsViewModel.editItems)
+                                            if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {
+                                                itemsPreview.remove(at: index)
+                                                collectionsViewModel.deleteItems.append(item)
+                                            }
+                                            print(collectionsViewModel.deleteItems)
                                         } label: {
                                             Text("Remove")
                                                 .foregroundStyle(.red)

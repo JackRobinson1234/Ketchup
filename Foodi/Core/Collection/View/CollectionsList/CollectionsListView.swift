@@ -45,6 +45,13 @@ struct CollectionsListView: View {
                                 if viewModel.post == nil && viewModel.restaurant == nil {
                                     viewModel.updateSelectedCollection(collection: collection)
                                     showCollection.toggle()
+                                } else if viewModel.post != nil {
+                                    Task{
+                                        viewModel.dismissListView = true
+                                        viewModel.updateSelectedCollection(collection: collection)
+                                        try await viewModel.addPostToCollection()
+                                        viewModel.dismissListView = false
+                                    }
                                 }
                             } label: {
                                 CollectionListCell(collection: collection)
@@ -84,8 +91,8 @@ struct CollectionsListView: View {
         }
         .onChange(of: viewModel.dismissListView) {
             if viewModel.dismissListView {
-                dismiss()
                 viewModel.dismissListView = false
+                dismiss()
             }
         }
     }

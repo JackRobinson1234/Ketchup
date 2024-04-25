@@ -120,10 +120,8 @@ struct CollectionView: View {
                     .onChange(of: collectionsViewModel.dismissCollectionView) {
                         print(collectionsViewModel.dismissCollectionView)
                         if collectionsViewModel.dismissCollectionView {
-                            Task{
-                                dismiss()
                                 collectionsViewModel.dismissCollectionView = false
-                            }
+                                dismiss()
                         }
                     }
                 }

@@ -433,14 +433,14 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		F800296C2BC2595600818A4A /* Categories */ = {
+		F800296C2BC2595600818A4A /* SelectableCategories */ = {
 			isa = PBXGroup;
 			children = (
 				F86050BE2BBC91EE00318080 /* CuisineCategories.swift */,
 				F8F494F72BBF98950043B515 /* DietaryCategories.swift */,
 				F85288B22BC069BE00153126 /* CookingTimeCategories.swift */,
 			);
-			path = Categories;
+			path = SelectableCategories;
 			sourceTree = "<group>";
 		};
 		F823E1852B74D3BF00E18135 /* CurrentUserProfile */ = {
@@ -594,7 +594,8 @@
 		F84FE2782B6A53E200144F01 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				F800296C2BC2595600818A4A /* Categories */,
+				F800296C2BC2595600818A4A /* SelectableCategories */,
+				F88E0A372B6A5D8D00EC159B /* Comment.swift */,
 				F88E0B162B6B0AE700EC159B /* Post.swift */,
 				F88E0B182B6B0AF900EC159B /* Restaurant.swift */,
 				F88E0B1A2B6B0B0800EC159B /* User.swift */,
@@ -662,7 +663,6 @@
 		F84FE27D2B6A54BC00144F01 /* Comments */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0A362B6A5D6000EC159B /* Model */,
 				F88E0A352B6A5D5F00EC159B /* Service */,
 				F88E0A342B6A5D5E00EC159B /* View */,
 				F88E0A332B6A5D5D00EC159B /* ViewModel */,
@@ -1003,14 +1003,6 @@
 				F88E0A392B6A5E2C00EC159B /* CommentService.swift */,
 			);
 			path = Service;
-			sourceTree = "<group>";
-		};
-		F88E0A362B6A5D6000EC159B /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0A372B6A5D8D00EC159B /* Comment.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		F88E0A862B6B015B00EC159B /* View */ = {
