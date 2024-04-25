@@ -31,6 +31,7 @@ class AuthService {
     }
     //MARK: Create User (With Email)
     func createUser(email: String, password: String, username: String, fullname: String) async throws {
+        
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user

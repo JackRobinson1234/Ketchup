@@ -10,29 +10,34 @@ import SwiftUI
 struct ForgotPasswordView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: LoginViewModel
+    var debouncer = Debouncer(delay: 1.0)
     var body: some View {
         VStack{
             Text("Foodi")
             Text("Reset your Password")
                 .font(.title)
                 .fontWeight(.semibold)
+            //MARK: Enter Email
             TextField("Enter your email", text: $viewModel.resetEmailText)
+                .autocorrectionDisabled()
                 .autocapitalization(.none)
                 .keyboardType(.emailAddress)
                 .modifier(StandardTextFieldModifier())
                 .onChange(of: viewModel.resetEmailText) {
-                    viewModel.isValidResetEmail()
+                    debouncer.schedule{
+                        viewModel.isValidResetEmail()
+                    }
                 }
             //MARK: Email format warning
-            if !viewModel.resetEmailText.isEmpty && !viewModel.validResetEmail {
+            if let validEmail = viewModel.validResetEmail, !viewModel.resetEmailText.isEmpty && !validEmail {
                 Text("Please Enter a Valid Email Address")
                     .foregroundStyle(.red)
                     .font(.caption)
             }
+            //MARK: Reset Button
             Button {
                 Task {
                     try await viewModel.SendResetEmail()
-                    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
                 }
             } label: {
                 Text(viewModel.isAuthenticating ? "" : "Send Reset Email")
@@ -45,8 +50,8 @@ struct ForgotPasswordView: View {
                         }
                     }
             }
-            .disabled(!viewModel.canResetEmail || !viewModel.validResetEmail)
-            .opacity(viewModel.canResetEmail && viewModel.validResetEmail ? 1 : 0.3)
+            .disabled(!viewModel.canResetEmail || !(viewModel.validResetEmail ?? false))
+            .opacity(viewModel.canResetEmail && (viewModel.validResetEmail ?? false) ? 1 : 0.3)
             .padding(.vertical)
             //MARK: Confirmation/ Time Remaining
             if !viewModel.canResetEmail {

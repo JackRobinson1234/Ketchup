@@ -20,9 +20,11 @@ class LoginViewModel: ObservableObject {
     @Published var resetEmailText = ""
     var debouncer = Debouncer(delay: 60.0)
     @Published var canResetEmail = true
-    @Published var validLoginEmail = false
-    @Published var validResetEmail = false
-    @Published var validPassword = false
+    @Published var validLoginEmail: Bool? = nil
+    @Published var validResetEmail: Bool? = nil
+    @Published var validPassword: Bool? = nil
+    @Published var loginAttempts: Int = 0
+    var alertDebouncer = Debouncer(delay: 3.0)
     
     //UI Timer
     @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -37,7 +39,7 @@ class LoginViewModel: ObservableObject {
     //MARK: login
     func login() async {
         isAuthenticating = true
-        
+        loginAttempts += 1
         do {
             try await service.login(withEmail: email, password: password)
             isAuthenticating = false
@@ -46,6 +48,9 @@ class LoginViewModel: ObservableObject {
             self.showAlert = true
             isAuthenticating = false
             self.authError = AuthError(authErrorCode: authError ?? .userNotFound)
+            alertDebouncer.schedule {
+                self.showAlert = false
+            }
         }
     }
     //MARK: sendResetEmail

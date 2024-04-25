@@ -13,7 +13,10 @@ struct LoginView: View {
     private let service: AuthService
     @StateObject private var viewModel: LoginViewModel
     @Environment(\.dismiss) var dismiss
-    
+    var emailDebouncer = Debouncer(delay: 1.0)
+    var passwordDebouncer = Debouncer(delay: 1.0)
+    var loginRateDebouncer = Debouncer(delay: 10.0)
+    var maxLoginAttempts = 6
     init(service: AuthService) {
         self.service = service
         self._viewModel = StateObject(wrappedValue: LoginViewModel(service: service))
@@ -23,7 +26,6 @@ struct LoginView: View {
         NavigationStack {
             VStack {
                 Spacer()
-                
                 // logo image
                 Text("Foodi")
                 
@@ -31,12 +33,15 @@ struct LoginView: View {
                 VStack {
                     TextField("Enter your email", text: $viewModel.email)
                         .autocapitalization(.none)
+                        .autocorrectionDisabled()
                         .modifier(StandardTextFieldModifier())
                         .onChange(of: viewModel.email) {
-                            viewModel.isValidLoginEmail()
+                            emailDebouncer.schedule{
+                                viewModel.isValidLoginEmail()
+                            }
                         }
-                    if !viewModel.email.isEmpty && !viewModel.validLoginEmail {
-                        Text("Please Enter a Valid Email Address")
+                    if let validEmail = viewModel.validLoginEmail, !viewModel.email.isEmpty && !validEmail {
+                        Text("Please enter a valid email address")
                             .foregroundStyle(.red)
                             .font(.caption)
                     }
@@ -44,9 +49,11 @@ struct LoginView: View {
                     SecureField("Enter your password", text: $viewModel.password)
                         .modifier(StandardTextFieldModifier())
                         .onChange(of: viewModel.password) {
-                            viewModel.isValidPassword()
+                            passwordDebouncer.schedule{
+                                viewModel.isValidPassword()
+                            }
                         }
-                    if !viewModel.password.isEmpty && !viewModel.validPassword {
+                    if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                         Text("Password is at least 6 characters")
                             .foregroundStyle(.red)
                             .font(.caption)
@@ -61,7 +68,7 @@ struct LoginView: View {
                         .padding(.trailing, 28)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                
+                //MARK: Login Button
                 Button {
                     Task {
                         await viewModel.login()
@@ -77,11 +84,24 @@ struct LoginView: View {
                             }
                         }
                 }
-                .disabled(viewModel.isAuthenticating || !formIsValid)
-                .opacity(formIsValid ? 1 : 0.7)
+                .disabled(viewModel.isAuthenticating || !formIsValid || viewModel.loginAttempts >= maxLoginAttempts )
+                .opacity(formIsValid && viewModel.loginAttempts < maxLoginAttempts ? 1 : 0.3)
                 .padding(.vertical)
+                //MARK: Error Messages
+                if viewModel.loginAttempts >= maxLoginAttempts{
+                    Text("Please wait 10 seconds before logging in again")
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
+                if viewModel.showAlert {
+                    Text("Wrong credentials, try again or press forgot password!")
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
                 
-
+                Divider()
+                Text("or")
+                    .font(.caption)
                 Button{
                     Task{
                         try await service.signInWithGoogle()
@@ -119,9 +139,12 @@ struct LoginView: View {
                     }
                 }
             }
-            .alert(isPresented: $viewModel.showAlert) {
-                Alert(title: Text("Error"),
-                      message: Text(viewModel.authError?.description ?? "Please try again.."))
+            .onChange(of: viewModel.loginAttempts){
+                if viewModel.loginAttempts >= maxLoginAttempts{
+                    loginRateDebouncer.schedule{
+                        viewModel.loginAttempts = 0
+                    }
+                }
             }
         }
     }
@@ -129,13 +152,15 @@ struct LoginView: View {
 
 extension LoginView: AuthenticationFormProtocol {
     var formIsValid: Bool {
-        return !viewModel.email.isEmpty
-        && viewModel.validLoginEmail
-        && !viewModel.password.isEmpty
-        && viewModel.validPassword
+        if let validPassword = viewModel.validPassword, let validEmail = viewModel.validLoginEmail {
+            return !viewModel.email.isEmpty
+            && validEmail
+            && !viewModel.password.isEmpty
+            && validPassword
+        }
+        return false
     }
 }
-
 #Preview {
     LoginView(service: AuthService())
 }
