@@ -54,7 +54,7 @@ class LoginViewModel: ObservableObject {
         }
     }
     //MARK: reauthDelete
-    func ReAuthDelete() async {
+    func reAuthDelete() async {
         isAuthenticating = true
         loginAttempts += 1
         do {

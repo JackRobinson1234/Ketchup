@@ -26,11 +26,11 @@ class SettingsViewModel: ObservableObject{
     }
     
     
-    func checkAuthStatusForDeletion() async throws -> Bool{
+    func checkAuthStatusForDeletion() async throws -> Bool {
         guard let user = Auth.auth().currentUser else {return false}
         guard let lastSignInDate = user.metadata.lastSignInDate else {
         return false}
-        let readyForDelete = lastSignInDate.isWithinPast(minutes:5)
+        let readyForDelete = lastSignInDate.isWithinPast(minutes:1)
         if !readyForDelete {
             return true
         } else {

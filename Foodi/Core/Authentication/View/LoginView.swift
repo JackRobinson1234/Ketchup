@@ -77,21 +77,32 @@ struct LoginView: View {
                             if !reAuthDelete{
                                 await viewModel.login()
                             } else if reAuthDelete {
-                                print("Success!!!!!!!!!!!!!!!!!!!!!!!")
-                                //await viewModel.deleteProfile
+                                await viewModel.reAuthDelete()
                             }
                         }
                     }
                 } label: {
-                    Text(viewModel.isAuthenticating ? "" : "Login")
-                        .foregroundColor(.white)
-                        .modifier(StandardButtonModifier())
-                        .overlay {
-                            if viewModel.isAuthenticating {
-                                ProgressView()
-                                    .tint(.white)
+                    if let reAuthDelete = reAuthDelete, reAuthDelete == true {
+                        Text(viewModel.isAuthenticating ? "" : "Re-authenticate and Delete")
+                            .foregroundColor(.white)
+                            .modifier(StandardButtonModifier())
+                            .overlay {
+                                if viewModel.isAuthenticating {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
                             }
-                        }
+                    } else {
+                        Text(viewModel.isAuthenticating ? "" : "Login")
+                            .foregroundColor(.white)
+                            .modifier(StandardButtonModifier())
+                            .overlay {
+                                if viewModel.isAuthenticating {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            }
+                    }
                 }
                 .disabled(viewModel.isAuthenticating || !formIsValid || viewModel.loginAttempts >= maxLoginAttempts )
                 .opacity(formIsValid && viewModel.loginAttempts < maxLoginAttempts ? 1 : 0.3)

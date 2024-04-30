@@ -43,8 +43,6 @@
 		F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */; };
 		F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */; };
 		F8631E422BD883C700A48565 /* FacetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E412BD883C700A48565 /* FacetsView.swift */; };
-		F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E452BD963C900A48565 /* GoogleSignIn */; };
-		F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E472BD963C900A48565 /* GoogleSignInSwift */; };
 		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E542BDAAD8200A48565 /* SettingsView.swift */; };
 		F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E562BDAADE800A48565 /* SettingsViewModel.swift */; };
@@ -394,11 +392,9 @@
 			files = (
 				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
 				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
-				F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
-				F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1426,8 +1422,6 @@
 				F8CC21922BD5810E00B4B329 /* InstantSearchCore */,
 				F8CC21942BD5810E00B4B329 /* InstantSearchInsights */,
 				F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */,
-				F8631E452BD963C900A48565 /* GoogleSignIn */,
-				F8631E472BD963C900A48565 /* GoogleSignInSwift */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
@@ -1506,7 +1500,6 @@
 			mainGroup = F84FE23F2B6A531200144F01;
 			packageReferences = (
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
-				F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2194,14 +2187,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.1.0;
-			};
-		};
 		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/instantsearch-ios";
@@ -2213,16 +2198,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F8631E452BD963C900A48565 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
-		};
-		F8631E472BD963C900A48565 /* GoogleSignInSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F8631E442BD963C900A48565 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignInSwift;
-		};
 		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
