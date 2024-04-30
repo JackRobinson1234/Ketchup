@@ -235,9 +235,17 @@ extension PostService {
             .collection("user-likes")
             .getDocuments()
         let postIds = querySnapshot.documents.map { $0.documentID }
+        var likedPosts: [Post] = []
         /// Fetches the posts from the PostIds
-        posts = try await self.fetchPosts(withFilters: ["id": postIds])
-        return posts
+        for postId in postIds {
+            do {
+                let post = try await self.fetchPost(postId: postId)
+                likedPosts.append(post)
+            } catch {
+                print("Error fetching post with id \(postId): \(error.localizedDescription)")
+            }
+        }
+        return likedPosts
     }
 }
 //MARK: Delete Posts Section

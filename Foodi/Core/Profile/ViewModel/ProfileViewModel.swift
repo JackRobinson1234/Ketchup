@@ -12,7 +12,6 @@ import SwiftUI
 class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user = User(id: "", username: "", email: "", fullname: "")
-    
     private let uid: String
     private let userService: UserService
     private let postService: PostService

@@ -102,8 +102,6 @@ class AuthService {
             } catch {
               print("Error getting document: \(error)")
             }
-
-            
             updateUserSession()
         } catch {
             print(error.localizedDescription)
@@ -132,5 +130,60 @@ class AuthService {
             }
         }
         return usernameToCheck
+    }
+    //MARK: reAuthWithGoogle
+    func reAuthWithGoogle() async throws {
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            fatalError("No client ID found in Firebase Configuration")
+        }
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootViewController = window.rootViewController else {
+            print("There is no root view controller")
+            return
+        }
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        do {
+            let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+            let user = userAuthentication.user
+            guard let idToken = user.idToken else {
+                throw AuthenticationError.tokenError(message: "ID token missing")
+            }
+            let accessToken = user.accessToken
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken.tokenString,
+                                                           accessToken: accessToken.tokenString)
+            ///Reauthenticates user if bool is true and exists function
+            do {
+                try await Auth.auth().currentUser?.reauthenticate(with: credential)
+                // Reauthentication successful
+                try await deleteAccount()
+                return
+            } catch {
+                print("Reauthentication with Google failed: \(error.localizedDescription)")
+                // Handle reauthentication failure here, such as showing an alert to the user
+                return
+                
+            }
+        } catch {
+            print(error.localizedDescription)
+            //self.authError = AuthError(authErrorCode: error.localizedDescription)
+        }
+        //try await deleteAccount()
+    }
+    //MARK: reAuth
+    func reAuth(withEmail email: String, password: String) async throws {
+        do {
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            try await Auth.auth().currentUser?.reauthenticate(with: credential)
+            try await deleteAccount()
+        } catch {
+            print("DEBUG: reauth failed \(error.localizedDescription)")
+            throw error
+        }
+    }
+    func deleteAccount() async throws{
+        try await Auth.auth().currentUser?.delete()
+        self.userSession = nil
     }
 }

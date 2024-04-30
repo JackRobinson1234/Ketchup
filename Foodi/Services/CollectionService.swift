@@ -149,4 +149,20 @@ class CollectionService {
             throw error
         }
     }
+    
+    func deleteAllUserCollections(forUser user: User) async throws {
+        // Fetch all collections for the user
+        let collections = try await FirestoreConstants.CollectionsCollection
+            .whereField("uid", isEqualTo: user.id)
+            .getDocuments(as: Collection.self)
+
+        for collection in collections {
+            try await deleteCollection(selectedCollection: collection)
+            
+            
+            print("Collection '\(collection.name)' deleted successfully.")
+        }
+
+        print("All collections for user \(user.username) deleted successfully.")
+    }
 }

@@ -194,6 +194,7 @@ struct RegistrationView: View {
             Divider()
             Text("Or")
                 .font(.caption)
+            //MARK: Google Sign Up Button
             Button{
                 Task{
                     try await service.signInWithGoogle()

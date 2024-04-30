@@ -13,13 +13,15 @@ struct LoginView: View {
     private let service: AuthService
     @StateObject private var viewModel: LoginViewModel
     @Environment(\.dismiss) var dismiss
-    var emailDebouncer = Debouncer(delay: 1.0)
-    var passwordDebouncer = Debouncer(delay: 1.0)
+    var emailDebouncer = Debouncer(delay: 0.7)
+    var passwordDebouncer = Debouncer(delay: 0.7)
     var loginRateDebouncer = Debouncer(delay: 10.0)
     var maxLoginAttempts = 6
-    init(service: AuthService) {
+    var reAuthDelete: Bool?
+    init(service: AuthService, reAuthDelete: Bool? = false) {
         self.service = service
         self._viewModel = StateObject(wrappedValue: LoginViewModel(service: service))
+        self.reAuthDelete = reAuthDelete
     }
     
     var body: some View {
@@ -71,7 +73,14 @@ struct LoginView: View {
                 //MARK: Login Button
                 Button {
                     Task {
-                        await viewModel.login()
+                        if let reAuthDelete = reAuthDelete {
+                            if !reAuthDelete{
+                                await viewModel.login()
+                            } else if reAuthDelete {
+                                print("Success!!!!!!!!!!!!!!!!!!!!!!!")
+                                //await viewModel.deleteProfile
+                            }
+                        }
                     }
                 } label: {
                     Text(viewModel.isAuthenticating ? "" : "Login")
@@ -102,9 +111,16 @@ struct LoginView: View {
                 Divider()
                 Text("or")
                     .font(.caption)
+                //MARK: Google Sign In
                 Button{
                     Task{
-                        try await service.signInWithGoogle()
+                        if let reAuthDelete = reAuthDelete {
+                            if !reAuthDelete{
+                                try await service.signInWithGoogle()
+                            } else if reAuthDelete{
+                                try await service.reAuthWithGoogle()
+                            }
+                        }
                     }
                 } label: {
                     Image("Google-SignIn")
@@ -122,7 +138,6 @@ struct LoginView: View {
                 } label: {
                     HStack(spacing: 3) {
                         Text("Don't have an account?")
-                        
                         Text("Sign Up")
                             .fontWeight(.semibold)
                     }

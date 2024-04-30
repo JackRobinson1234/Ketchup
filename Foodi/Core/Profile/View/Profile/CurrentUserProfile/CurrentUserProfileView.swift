@@ -14,6 +14,7 @@ struct CurrentUserProfileView: View {
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
     @State var showNotifications = false
+    @State var showSettings = false
     init(authService: AuthService, userService: UserService, currentProfileSection: ProfileSectionEnum = .posts) {
         self.authService = authService
         
@@ -41,22 +42,25 @@ struct CurrentUserProfileView: View {
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 2) {
-                        
+                        //MARK: Profile Header
                         ProfileHeaderView(viewModel: profileViewModel)
                             .padding(.top)
+                            //MARK: Slide bar
                         ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $currentProfileSection)
                         
                         
                     }
                 }
+                
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Sign Out") {
-                            authService.signout()
+                        Button{
+                            showSettings.toggle()
+                        } label: {
+                            Image(systemName: "gearshape")
                         }
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
                     }
+                        
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             showNotifications.toggle()
@@ -81,6 +85,9 @@ struct CurrentUserProfileView: View {
                 .refreshable { await profileViewModel.fetchCurrentUser() }
                 .sheet(isPresented: $showNotifications) {
                     NotificationsView(userService: userService)
+                }
+                .fullScreenCover(isPresented: $showSettings){
+                    SettingsView(userService: userService, authService: authService, user: profileViewModel.user)
                 }
             }
         }

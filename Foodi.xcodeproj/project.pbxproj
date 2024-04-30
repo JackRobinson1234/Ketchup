@@ -45,10 +45,10 @@
 		F8631E422BD883C700A48565 /* FacetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E412BD883C700A48565 /* FacetsView.swift */; };
 		F8631E462BD963C900A48565 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E452BD963C900A48565 /* GoogleSignIn */; };
 		F8631E482BD963C900A48565 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8631E472BD963C900A48565 /* GoogleSignInSwift */; };
-		F8631E4A2BD9662B00A48565 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8631E492BD9662B00A48565 /* GoogleService-Info.plist */; };
 		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E542BDAAD8200A48565 /* SettingsView.swift */; };
 		F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E562BDAADE800A48565 /* SettingsViewModel.swift */; };
+		F8631E5F2BE08F6D00A48565 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -248,10 +248,11 @@
 		F8631E392BD70C6200A48565 /* ProfileUserListsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileUserListsViewModel.swift; sourceTree = "<group>"; };
 		F8631E3B2BD76DD200A48565 /* CollectionSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSearchModel.swift; sourceTree = "<group>"; };
 		F8631E412BD883C700A48565 /* FacetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacetsView.swift; sourceTree = "<group>"; };
-		F8631E492BD9662B00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		F8631E542BDAAD8200A48565 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F8631E562BDAADE800A48565 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F8631E602BE08F7D00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -531,8 +532,8 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
+				F8631E602BE08F7D00A48565 /* GoogleService-Info.plist */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
-				F8631E492BD9662B00A48565 /* GoogleService-Info.plist */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
 			path = Foodi;
@@ -567,6 +568,7 @@
 		F84FE2762B6A53CF00144F01 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */,
 				F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */,
 				F88E0B262B6C9FC600EC159B /* Constants */,
 				F88E0B252B6C9FC400EC159B /* Modifiers */,
@@ -618,7 +620,6 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				F8631E532BDAAD6D00A48565 /* Settings */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
 				F8901C842BA4369500FBE778 /* VideoPlayer */,
@@ -737,6 +738,7 @@
 		F84FE2892B6A553D00144F01 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				F8631E532BDAAD6D00A48565 /* Settings */,
 				F88E0AB22B6B042300EC159B /* EditProfile */,
 				F88E0AB02B6B041900EC159B /* View */,
 				F88E0AAF2B6B040D00EC159B /* ViewModel */,
@@ -1524,7 +1526,7 @@
 			files = (
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
-				F8631E4A2BD9662B00A48565 /* GoogleService-Info.plist in Resources */,
+				F8631E5F2BE08F6D00A48565 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

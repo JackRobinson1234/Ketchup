@@ -53,6 +53,24 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
+    //MARK: reauthDelete
+    func ReAuthDelete() async {
+        isAuthenticating = true
+        loginAttempts += 1
+        do {
+            try await service.reAuth(withEmail: email, password: password)
+            isAuthenticating = false
+        } catch {
+            let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
+            self.showAlert = true
+            isAuthenticating = false
+            self.authError = AuthError(authErrorCode: authError ?? .userNotFound)
+            alertDebouncer.schedule {
+                self.showAlert = false
+            }
+        }
+    }
+    
     //MARK: sendResetEmail
     func SendResetEmail() async throws {
         if canResetEmail {
