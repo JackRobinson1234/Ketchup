@@ -118,7 +118,11 @@ struct LoginView: View {
                         .foregroundStyle(.red)
                         .font(.caption)
                 }
-                
+                if viewModel.showReAuthAlert {
+                    Text("Different credentials than the current account, please try again!")
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
                 Divider()
                 Text("or")
                     .font(.caption)
@@ -129,7 +133,7 @@ struct LoginView: View {
                             if !reAuthDelete{
                                 try await service.signInWithGoogle()
                             } else if reAuthDelete{
-                                try await service.reAuthWithGoogle()
+                                try await viewModel.reAuthDeleteWithGoogle()
                             }
                         }
                     }
@@ -140,22 +144,22 @@ struct LoginView: View {
                         .frame(width: 30, height: 50, alignment: .center)
                 }
                 Spacer()
-                
-                Divider()
-                
-                NavigationLink {
-                    RegistrationView(service: service)
-                        .navigationBarBackButtonHidden()
-                } label: {
-                    HStack(spacing: 3) {
-                        Text("Don't have an account?")
-                        Text("Sign Up")
-                            .fontWeight(.semibold)
+                if let reAuthDelete = reAuthDelete, !reAuthDelete {
+                    Divider()
+                    //MARK: RegistrationView
+                    NavigationLink {
+                        RegistrationView(service: service)
+                            .navigationBarBackButtonHidden()
+                    } label: {
+                        HStack(spacing: 3) {
+                            Text("Don't have an account?")
+                            Text("Sign Up")
+                                .fontWeight(.semibold)
+                        }
+                        .font(.footnote)
                     }
-                    .font(.footnote)
+                    .padding(.vertical, 16)
                 }
-                .padding(.vertical, 16)
-
             }
             /// Keeps the UI Timer running on the forgot password
             .onReceive(viewModel.timer){time in

@@ -13,6 +13,7 @@ import SwiftUI
 @MainActor
 class LoginViewModel: ObservableObject {
     @Published var showAlert = false
+    @Published var showReAuthAlert = false
     @Published var authError: AuthError?
     @Published var isAuthenticating = false
     @Published var email = ""
@@ -53,7 +54,31 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
-    //MARK: reauthDelete
+    
+
+    //MARK: reAuthWithGoogle
+    /// Calls reauth with google, if it doesnt work it throws an error. DELETES USER.
+    func reAuthDeleteWithGoogle() async throws {
+        do {
+            let noAlert = try await service.reAuthWithGoogle()
+            //Code to show an alert, returns false if the login fails. Might be able to refactor this
+            if !noAlert{
+                showReAuthAlert = true
+                alertDebouncer.schedule{
+                    self.showReAuthAlert  = false
+                }
+            }
+        }
+        catch {
+            showReAuthAlert = true
+            alertDebouncer.schedule{
+                self.showReAuthAlert  = false
+            }
+        }
+    }
+
+    //MARK: reAuthDelete
+    /// trys to reauth, and displays a warning message if the error was wrong
     func reAuthDelete() async {
         isAuthenticating = true
         loginAttempts += 1
@@ -62,11 +87,11 @@ class LoginViewModel: ObservableObject {
             isAuthenticating = false
         } catch {
             let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
-            self.showAlert = true
+            self.showReAuthAlert = true
             isAuthenticating = false
             self.authError = AuthError(authErrorCode: authError ?? .userNotFound)
-            alertDebouncer.schedule {
-                self.showAlert = false
+            alertDebouncer.schedule{
+                self.showReAuthAlert  = false
             }
         }
     }
@@ -84,17 +109,19 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
-    
+    //MARK: isValidLoginEmail
     func isValidLoginEmail(){
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         self.validLoginEmail = emailPredicate.evaluate(with: self.email)
     }
+    //MARK: isValidResetEmail
     func isValidResetEmail() {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         self.validResetEmail = emailPredicate.evaluate(with: self.resetEmailText)
     }
+    //MARK: isValidPassword
     func isValidPassword() {
         validPassword = password.count > 5
     }
