@@ -52,6 +52,13 @@ struct CollectionsListView: View {
                                         try await viewModel.addPostToCollection()
                                         viewModel.dismissListView = false
                                     }
+                                } else if viewModel.restaurant != nil {
+                                    Task {
+                                        viewModel.dismissListView = true
+                                        viewModel.updateSelectedCollection(collection: collection)
+                                        try await viewModel.addRestaurantToCollection()
+                                        viewModel.dismissListView = false
+                                    }
                                 }
                             } label: {
                                 CollectionListCell(collection: collection)

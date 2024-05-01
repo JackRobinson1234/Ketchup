@@ -58,7 +58,7 @@ struct FeedView: View {
         //MARK: Video Cells
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
                             FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
