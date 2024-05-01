@@ -18,7 +18,7 @@ class FeedViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
-    @Published var user = User(id: "", username: "", email: "", fullname: "")
+    @Published var user = User(id: "", username: "", email: "", fullname: "", privateMode: true)
     
     var videoCoordinator = VideoPlayerCoordinator()
     

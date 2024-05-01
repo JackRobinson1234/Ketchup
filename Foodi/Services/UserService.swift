@@ -56,6 +56,11 @@ class UserService {
         
         return followingUsers
     }
+    func updatePrivateMode(newValue: Bool) async throws {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        let userRef = FirestoreConstants.UserCollection.document(currentUid)
+        try await userRef.updateData(["privateMode": newValue])
+    }
     
 }
 
@@ -125,42 +130,4 @@ extension UserService {
     }
 }
 
-// MARK: - User Stats
-/*
-extension UserService {
-    //
-    func fetchUserStats(uid: String) async throws -> UserStats {
-        async let following = FirestoreConstants
-            .FollowingCollection
-            .document(uid)
-            .collection("user-following")
-            .getDocuments()
-            .count
-        
-        async let followers = FirestoreConstants
-            .FollowersCollection
-            .document(uid)
-            .collection("user-followers")
-            .getDocuments()
-            .count
-        
-        async let likes = FirestoreConstants
-            .PostsCollection
-            .whereField("ownerUid", isEqualTo: uid)
-            .getDocuments(as: Post.self)
-            .map({ $0.likes })
-            .reduce(0, +)
-        
-        /* async let posts = FirestoreConstants
-            .PostsCollection
-            .whereField("ownerUid", isEqualTo: uid)
-            .getDocuments()
-            .count
-         */
-        
-        print("DEBUG: Did Fetch User Stats")
-        return try await .init(following: following, followers: followers, likes: likes)
-    }
-}
 
-*/

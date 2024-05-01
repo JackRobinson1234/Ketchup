@@ -16,13 +16,15 @@ class SettingsViewModel: ObservableObject{
     private let authService: AuthService
     private let collectionsService = CollectionService()
     private let postService = PostService()
-    private let user: User
+    @ObservedObject var profileViewModel: ProfileViewModel
     @Published var needsReauth: Bool = false
+    @Published var privateMode: Bool
     
-    init(userService: UserService, authService: AuthService, user: User) {
+    init(userService: UserService, authService: AuthService, profileViewModel: ProfileViewModel) {
         self.userService = userService
         self.authService = authService
-        self.user = user
+        self.profileViewModel = profileViewModel
+        self.privateMode = profileViewModel.user.privateMode
     }
     
     
@@ -36,6 +38,12 @@ class SettingsViewModel: ObservableObject{
         } else {
             try await authService.deleteAccount()
             return false
+        }
+    }
+    func updatePrivateMode() async throws {
+        if self.privateMode != profileViewModel.user.privateMode {
+            try await userService.updatePrivateMode(newValue: self.privateMode)
+            profileViewModel.user.privateMode = privateMode
         }
     }
 }

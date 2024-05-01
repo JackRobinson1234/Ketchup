@@ -37,14 +37,13 @@ struct RestaurantProfileView: View {
                 .onAppear {
                     Task {
                         viewModel.restaurant = restaurant
-                        await viewModel.fetchRestaurant(id: restaurantId)
+                        try await viewModel.fetchRestaurant(id: restaurantId)
                         isLoading = false
                     }
                 }
-        } else{
-            
+        } else {
             VStack{
-                if let restaurant = viewModel.restaurant{
+                if viewModel.restaurant != nil {
                     RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
                 }
             }
@@ -52,7 +51,7 @@ struct RestaurantProfileView: View {
                 Button{
                     Task{
                         try await self.user = UserService().fetchCurrentUser()
-                        if let user {
+                        if user != nil{
                             showAddToCollection.toggle()
                         }
                     }

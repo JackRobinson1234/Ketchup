@@ -36,7 +36,7 @@ class AuthService {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             
-            let user = User(id: result.user.uid, username: username, email: email, fullname: fullname)
+            let user = User(id: result.user.uid, username: username, email: email, fullname: fullname, privateMode: false)
             let userData = try Firestore.Encoder().encode(user)
             
             try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
@@ -94,7 +94,7 @@ class AuthService {
                   return
               } else {
                   let randomUsername = try await generateRandomUsername(prefix: givenName)
-                  let user = User(id: firebaseUser.uid, username: randomUsername, email: emailAddress ?? "", fullname: fullName ?? "")
+                  let user = User(id: firebaseUser.uid, username: randomUsername, email: emailAddress ?? "", fullname: fullName ?? "", privateMode: false)
                   let userData = try Firestore.Encoder().encode(user)
                   try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
                   updateUserSession()

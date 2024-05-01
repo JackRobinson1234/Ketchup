@@ -9,29 +9,86 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
-    private let userService: UserService
     @StateObject var viewModel: SettingsViewModel
+    private let userService: UserService
     private let authService: AuthService
-    @State var showDeleteAccountAlert: Bool = false
-    private let user: User
+    @ObservedObject var profileViewModel: ProfileViewModel
     @State var needsReauth = false
+    @State private var showPrivateModeDropdown = false
+    @State var showDeleteAccountAlert: Bool = false
+    var privateRateDebouncer = Debouncer(delay: 1.0)
+
     
-    init(userService: UserService, authService: AuthService, user: User) {
-        self.user = user
+    init(userService: UserService, authService: AuthService, profileViewModel: ProfileViewModel) {
         self.authService = authService
         self.userService = userService
-        self._viewModel = StateObject(wrappedValue: SettingsViewModel(userService: userService, authService: authService, user: user))
+        self.profileViewModel = profileViewModel
+        self._viewModel = StateObject(wrappedValue: SettingsViewModel(userService: userService, authService: authService, profileViewModel: profileViewModel))
     }
+    
     var body: some View {
         NavigationStack{
             VStack{
-                Button("Sign Out") {
+                //MARK: Private Mode
+                Button{
+                    showPrivateModeDropdown.toggle()
+                } label: {
+                    HStack {
+                        Text("Private Mode")
+                            .foregroundStyle(.black)
+                        Spacer()
+                        Text(viewModel.privateMode ? "On" : "Off")
+                               .foregroundColor(.gray)
+                        if showPrivateModeDropdown == false {
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.black)
+                        } else {
+                            Image(systemName: "chevron.down")
+                                .foregroundStyle(.black)
+                        }
+                    }
+                    .padding()
+                }
+                
+                //MARK: Private Mode Dropdown
+                if showPrivateModeDropdown {
+                        HStack {
+                            Text("When in private mode, users who do not follow you will not be able to see any of your posts, collections, or liked posts")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Spacer()
+                            Toggle("", isOn: $viewModel.privateMode)
+                                .labelsHidden() // Hide the default toggle label
+                                .onChange(of: viewModel.privateMode) {
+                                    // Handle private mode toggle change if needed
+                                    privateRateDebouncer.schedule{
+                                        Task{
+                                            try await viewModel.updatePrivateMode()
+                                        }
+                                    }
+                                }
+                        }
+                        .padding()
+                    }
+                
+                
+                
+                Divider()
+                Spacer()
+                //MARK: Sign Out
+                Button{
                     authService.signout()
+                } label: {
+                    Text("Sign Out")
+                        .foregroundStyle(.black)
+                        .padding()
                 }
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .padding()
                 Divider()
+                
+                //MARK: Delete Account
                 Button{
                     showDeleteAccountAlert = true
                 } label: {
@@ -39,7 +96,8 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.red)
                 }
-                .alert("Delete account", isPresented: $showDeleteAccountAlert, presenting: user) { user in
+                //MARK: Delete Account Alert
+                .alert("Delete account", isPresented: $showDeleteAccountAlert, presenting: profileViewModel.user) { user in
                     Button("Delete Account", role: .destructive) {
                         Task{
                             needsReauth = try await viewModel.checkAuthStatusForDeletion()
@@ -53,11 +111,7 @@ struct SettingsView: View {
             .sheet(isPresented: $needsReauth) {
                 LoginView(service: authService, reAuthDelete: true)
             }
-            //        .onChange(of: viewModel.confirmDeleteAccount()) {
-            //            if confirmDeleteAccount{
-            //                viewModel.deleteAccount()
-            //            }
-            //        }
+           
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -82,5 +136,5 @@ struct SettingsView: View {
 
 
 #Preview {
-    SettingsView(userService: UserService(), authService: AuthService(), user: DeveloperPreview.users[0])
+    SettingsView(userService: UserService(), authService: AuthService(), profileViewModel: ProfileViewModel(uid: "", userService: UserService(), postService: PostService()))
 }

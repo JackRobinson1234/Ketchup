@@ -87,7 +87,10 @@ struct CurrentUserProfileView: View {
                     NotificationsView(userService: userService)
                 }
                 .fullScreenCover(isPresented: $showSettings){
-                    SettingsView(userService: userService, authService: authService, user: profileViewModel.user)
+                    SettingsView(userService: userService, authService: authService, profileViewModel: profileViewModel)
+                }
+                .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
                 }
             }
         }
