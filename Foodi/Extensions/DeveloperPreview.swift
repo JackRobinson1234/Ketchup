@@ -88,6 +88,7 @@ struct DeveloperPreview {
                     id: "user1",
                     fullName: "John Doe",
                     profileImageUrl: "https://example.com/profile.jpg"
+                    ,privateMode: false
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",
@@ -162,7 +163,8 @@ struct DeveloperPreview {
                 username: "wilbond",
                 uid: "",
                 restaurantCount: 0,
-                atHomeCount: 0
+                atHomeCount: 0,
+                privateMode: false
                 )
         ]
     static var items: [CollectionItem] = [

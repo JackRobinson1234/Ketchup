@@ -40,12 +40,16 @@ class FeedViewModel: ObservableObject {
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async {
         do {
+            var updatedFilters = filters ?? [:] // Create a mutable copy or use an empty dictionary if filters is nil
+            // Append [user.privateMode: false] to the filters dictionary
+            updatedFilters["user.privateMode"] = [false]
+
             posts.removeAll()
             switch currentFeedType {
             case .discover:
-                posts = try await postService.fetchPosts(withFilters: filters)
+                posts = try await postService.fetchPosts(withFilters: updatedFilters)
             case .following:
-                posts = try await postService.fetchFollowingPosts(withFilters: filters)
+                posts = try await postService.fetchFollowingPosts(withFilters: updatedFilters)
             }
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()

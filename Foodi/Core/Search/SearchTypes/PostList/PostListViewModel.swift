@@ -25,7 +25,9 @@ final class PostListViewModel: ObservableObject {
                                           apiKey: apiKey,
                                           indexName: "posts")
         let atHomeFilter = Filter.Facet(attribute: "postType", stringValue: "atHome")
-        self.filterState[or: "postType"].add(atHomeFilter)
+        let privateFilter = Filter.Facet(attribute: "user.privateMode", boolValue: false)
+        self.filterState[and: "postType"].add(atHomeFilter)
+        self.filterState[and: "user.privateMode"].add(privateFilter)
         ///If we dont want empty text search enabled
         /*self.itemsSearcher.shouldTriggerSearchForQuery = {
          return $0.query.query != ""

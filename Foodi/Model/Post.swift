@@ -115,6 +115,7 @@ struct PostUser: Codable, Hashable, Identifiable {
     let id: String
     let fullName: String
     var profileImageUrl: String? = nil
+    var privateMode: Bool
 }
 
 struct PostRecipe: Codable, Hashable {

@@ -53,7 +53,7 @@ struct SettingsView: View {
                 //MARK: Private Mode Dropdown
                 if showPrivateModeDropdown {
                         HStack {
-                            Text("When in private mode, users who do not follow you will not be able to see any of your posts, collections, or liked posts")
+                            Text("When in private mode, ALL users will not be able to see any of your posts, collections, or liked posts")
                                 .foregroundColor(.gray)
                                 .font(.caption)
                             Spacer()

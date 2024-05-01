@@ -19,9 +19,9 @@ struct Collection: Identifiable, Codable, Hashable {
     var timestamp: Timestamp?
     var description: String?
     var coverImageUrl: String?
-    //var items: [CollectionItem]?
     var restaurantCount: Int
     var atHomeCount: Int
+    var privateMode: Bool
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,11 +34,12 @@ struct Collection: Identifiable, Codable, Hashable {
         self.coverImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.restaurantCount = try container.decode(Int.self, forKey: .restaurantCount)
         self.atHomeCount = try container.decode(Int.self, forKey: .atHomeCount)
-        //self.items = try container.decodeIfPresent([CollectionItem].self, forKey: .items)
+        self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
+       
         
     }
     
-    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int/*, items: [CollectionItem]? = nil*/) {
+    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool) {
         self.id = id
         self.name = name
         self.timestamp = timestamp
@@ -48,8 +49,7 @@ struct Collection: Identifiable, Codable, Hashable {
         self.coverImageUrl = coverImageUrl
         self.restaurantCount = restaurantCount
         self.atHomeCount = atHomeCount
-        //self.items = items
-        
+        self.privateMode = privateMode
     }
     
 }
@@ -61,9 +61,11 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var name: String
     var image: String?
     //var notes: String? deleting for now
+    
     //atHome post type specific
     var postUserFullname: String?
     //restaurant post type Specific
+    
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?

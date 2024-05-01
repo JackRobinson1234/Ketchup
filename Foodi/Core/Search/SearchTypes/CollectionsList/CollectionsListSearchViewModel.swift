@@ -15,6 +15,7 @@ final class CollectionListSearchViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     @Published var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Collection>>>
     private var itemsSearcher: HitsSearcher
+    private var filterState = FilterState()
     
     init() {
         let appID: ApplicationID = "74A8XPTT50"
@@ -23,9 +24,12 @@ final class CollectionListSearchViewModel: ObservableObject {
                                          apiKey: apiKey,
                                          indexName: "collections")
         self.itemsSearcher = itemsSearcher
+        let privateFilter = Filter.Facet(attribute: "privateMode", boolValue: false)
+        self.filterState[and: "user.privateMode"].add(privateFilter)
         /*self.itemsSearcher.shouldTriggerSearchForQuery = {
             return $0.query.query != ""
         }*/
+        self.itemsSearcher.connectFilterState(filterState)
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<Collection>.self)
         

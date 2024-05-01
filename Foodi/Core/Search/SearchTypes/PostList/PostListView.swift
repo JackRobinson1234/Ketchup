@@ -4,7 +4,8 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
+import InstantSearch
+import InstantSearchCore
 import SwiftUI
 import InstantSearchSwiftUI
 //DEBUG
@@ -12,7 +13,7 @@ struct PostListView: View {
     @StateObject var viewModel: PostListViewModel
     var debouncer = Debouncer(delay: 1.0)
     @State var isDropdownExpanded = false
-    
+    private var filterState = FilterState()
     init() {
         self._viewModel = StateObject(wrappedValue: PostListViewModel())
     }
@@ -37,7 +38,6 @@ struct PostListView: View {
                     viewModel.notifyQueryChanged()
                 }
             }
-            
     }
 }
 /*

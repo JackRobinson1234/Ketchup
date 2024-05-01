@@ -100,7 +100,8 @@ class CollectionService {
                     return nil
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0,
+                                        privateMode: false)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")
