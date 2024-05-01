@@ -27,12 +27,13 @@ class SettingsViewModel: ObservableObject{
         self.privateMode = profileViewModel.user.privateMode
     }
     
-    
+    //MARK: checkAuthStatusForDeletion
+    /// Checks if a sign in was done in the past 5 minutes. If so, it deletes the account and sets the usersession to nil. Otherwise, it sets up the reauth screen.
     func checkAuthStatusForDeletion() async throws -> Bool {
         guard let user = Auth.auth().currentUser else {return false}
         guard let lastSignInDate = user.metadata.lastSignInDate else {
         return false}
-        let readyForDelete = lastSignInDate.isWithinPast(minutes:1)
+        let readyForDelete = lastSignInDate.isWithinPast(minutes: 5)
         if !readyForDelete {
             return true
         } else {
@@ -40,9 +41,13 @@ class SettingsViewModel: ObservableObject{
             return false
         }
     }
+    //MARK: updatePrivateMode
+    /// Changes the user to new private setting, the collections to the new private setting, and the posts to the new private setting
     func updatePrivateMode() async throws {
         if self.privateMode != profileViewModel.user.privateMode {
             try await userService.updatePrivateMode(newValue: self.privateMode)
+            try await postService.changeAllUserPostsPrivacy(user: profileViewModel.user, isPrivate: self.privateMode)
+            try await collectionsService.changeAllUserCollectionsPrivacy(user: profileViewModel.user, isPrivate: self.privateMode)
             profileViewModel.user.privateMode = privateMode
         }
     }
@@ -50,6 +55,10 @@ class SettingsViewModel: ObservableObject{
 
 
 extension Date {
+    //MARK: isWithinPast
+    /// Checks to see if the time is within the past number of minutes
+    /// - Parameter minutes: datetime to be checked
+    /// - Returns: boolean if the time is within the past minutes
     func isWithinPast(minutes: Int) -> Bool {
         let now = Date.now
         let timeAgo = Date.now.addingTimeInterval(-1 * TimeInterval(60 * minutes))

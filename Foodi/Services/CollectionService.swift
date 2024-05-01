@@ -150,7 +150,7 @@ class CollectionService {
             throw error
         }
     }
-    
+    //MARK: deleteAllUserCollections
     func deleteAllUserCollections(forUser user: User) async throws {
         // Fetch all collections for the user
         let collections = try await FirestoreConstants.CollectionsCollection
@@ -165,5 +165,36 @@ class CollectionService {
         }
 
         print("All collections for user \(user.username) deleted successfully.")
+    }
+}
+extension CollectionService {
+    // MARK: - ChangeAllUserCollectionsPrivacy
+    /// Changes all of a user's collections to private mode
+    /// - Parameters:
+    ///   - user: The user whose collections will be updated
+    ///   - isPrivate: Boolean flag indicating whether to set collections to private (true) or public (false)
+    func changeAllUserCollectionsPrivacy(user: User, isPrivate: Bool) async throws {
+        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
+        }
+        
+        // Fetch user's collections
+        let userCollections = try await fetchCollections(user: user.id)
+        
+        // Create a batched write operation
+        let batch = Firestore.firestore().batch()
+        
+        // Update privacy status for each collection
+        for collection in userCollections {
+            let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
+            batch.updateData(["privateMode": isPrivate], forDocument: collectionRef)
+        }
+        
+        // Commit the batched write operation
+        do {
+            try await batch.commit()
+        } catch {
+            throw error
+        }
     }
 }

@@ -282,3 +282,34 @@ extension PostService {
     }
 }
 
+extension PostService {
+    // MARK: - ChangeAllUserPostsPrivacy
+    /// Changes all of a user's posts to private mode
+    /// - Parameters:
+    ///   - user: The user whose posts will be updated
+    ///   - isPrivate: Boolean flag indicating whether to set posts to private (true) or public (false)
+    func changeAllUserPostsPrivacy(user: User, isPrivate: Bool) async throws {
+        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
+        }
+        
+        // Fetch user's posts
+        let userPosts = try await fetchUserPosts(user: user)
+        
+        // Create a batched write operation
+        let batch = Firestore.firestore().batch()
+        
+        // Update privacy status for each post
+        for post in userPosts {
+            let postRef = FirestoreConstants.PostsCollection.document(post.id)
+            batch.updateData(["user.privateMode": isPrivate], forDocument: postRef)
+        }
+        
+        // Commit the batched write operation
+        do {
+            try await batch.commit()
+        } catch {
+            throw error
+        }
+    }
+}

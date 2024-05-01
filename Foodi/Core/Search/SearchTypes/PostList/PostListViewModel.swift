@@ -37,7 +37,7 @@ final class PostListViewModel: ObservableObject {
         self.hits =  itemsSearcher.paginatedData(of: Hit<Post>.self)
     }
     
-    
+    //MARK: notifyQueryChanged
     /// When the text changes, checks for filters, updates the searcher with the filters and search query, then searches
     func notifyQueryChanged() {
         itemsSearcher.request.query.query = searchQuery

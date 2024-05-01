@@ -109,7 +109,7 @@ struct ProfileHeaderView: View {
                 EditProfileView(user: $viewModel.user)
             }
             .sheet(isPresented: $showFollowingList) {
-                UserStatView(value: user.stats.following, title: "Following")
+                ProfileUserLists(config: .following(uid: user.id), userService: UserService())
             }
             .sheet(isPresented: $showFollowersList) {
                 ProfileUserLists(config: .followers(uid: user.id), userService: UserService())
