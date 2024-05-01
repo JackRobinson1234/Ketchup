@@ -41,6 +41,21 @@ struct RestaurantProfileView: View {
                         isLoading = false
                     }
                 }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(.white)
+                                .background(
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                        .frame(width: 30, height: 30) // Adjust the size as needed
+                                )
+                        }
+                    }
+                }
         } else {
             VStack{
                 if viewModel.restaurant != nil {

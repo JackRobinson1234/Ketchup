@@ -43,13 +43,20 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 2) {
                     ProfileHeaderView(viewModel: profileViewModel)
-                    ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection)
+                    if !profileViewModel.user.privateMode {
+                        ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection)
+                    } else {
+                        VStack {
+                            Image(systemName: "lock.fill")
+                                .font(.largeTitle)
+                                .padding()
+                            Text("Account is private")
+                                .font(.headline)
+                        }
+                    }
                 }
             }
             .task { await profileViewModel.checkIfUserIsFollowed() }
-            /*.task { await profileViewModel.fetchUserStats() }*/
-            /*.navigationTitle(profileViewModel.user.username)
-            .navigationBarTitleDisplayMode(.inline) */
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

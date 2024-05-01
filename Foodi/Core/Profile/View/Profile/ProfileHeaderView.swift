@@ -12,7 +12,8 @@ struct ProfileHeaderView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Environment(\.dismiss) var dismiss
     @State private var userFavorites: [FavoriteRestaurant]? = []
-    
+    @State var showFollowersList: Bool = false
+    @State var showFollowingList: Bool = false
     init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = []) {
         self.viewModel = viewModel
         self.userFavorites = viewModel.user.favorites
@@ -34,16 +35,28 @@ struct ProfileHeaderView: View {
                             .padding(10)
                             .padding(.leading)
                         HStack(spacing: 16) {
-                            
-                            NavigationLink(destination: ProfileUserLists(config: .following(uid: user.id), userService: UserService())) {
+                            Button{
+                                showFollowingList.toggle()
+                            } label: {
                                 UserStatView(value: user.stats.following, title: "Following")
                             }
                             .disabled(user.stats.following == 0)
                             
-                            NavigationLink(destination: ProfileUserLists(config: .followers(uid: user.id), userService: UserService())) {
+//                            NavigationLink(destination: ProfileUserLists(config: .following(uid: user.id), userService: UserService())) {
+//                                UserStatView(value: user.stats.following, title: "Following")
+//                            }
+//                            .disabled(user.stats.following == 0)
+                            
+                            Button{
+                                showFollowersList.toggle()
+                            } label: {
                                 UserStatView(value: user.stats.followers, title: "Followers")
                             }
                             .disabled(user.stats.followers == 0)
+//                            NavigationLink(destination: ProfileUserLists(config: .followers(uid: user.id), userService: UserService())) {
+//                                UserStatView(value: user.stats.followers, title: "Followers")
+//                            }
+//                            .disabled(user.stats.followers == 0)
                             
                             UserStatView(value: user.stats.likes, title: "Likes")
                         }
@@ -94,6 +107,12 @@ struct ProfileHeaderView: View {
             }
             .fullScreenCover(isPresented: $showEditProfile) {
                 EditProfileView(user: $viewModel.user)
+            }
+            .sheet(isPresented: $showFollowingList) {
+                UserStatView(value: user.stats.following, title: "Following")
+            }
+            .sheet(isPresented: $showFollowersList) {
+                ProfileUserLists(config: .followers(uid: user.id), userService: UserService())
             }
         }
     

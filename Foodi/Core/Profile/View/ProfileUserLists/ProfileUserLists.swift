@@ -23,24 +23,30 @@ struct ProfileUserLists: View {
     //}
     
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(viewModel.users) { user in
-                    NavigationLink(value: user) {
-                        UserCell(user: user)
-                            .padding(.leading)
-                            .onAppear {
-                                if user.id == viewModel.users.last?.id ?? "" {
+        NavigationStack{
+            ScrollView {
+                LazyVStack {
+                    ForEach(viewModel.users) { user in
+                        NavigationLink(value: user) {
+                            UserCell(user: user)
+                                .padding(.leading)
+                                .onAppear {
+                                    if user.id == viewModel.users.last?.id ?? "" {
+                                    }
                                 }
-                            }
+                        }
                     }
+                    
                 }
+                .padding(.top)
+                
                 
             }
             .navigationTitle(config.navigationTitle)
-            .padding(.top)
-            
-            
+            .navigationDestination(for: User.self) { user in
+                ProfileView(uid: user.id, userService: userService)
+            }
+            .modifier(BackButtonModifier())
         }
     }
 }
