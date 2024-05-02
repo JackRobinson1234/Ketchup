@@ -37,7 +37,6 @@ class NotificationService {
         
         let notification = Notification(id: ref.documentID, postId: post?.id, timestamp: Timestamp(), type: type, uid: currentUid, postThumbnail: post?.thumbnailUrl)
         guard let data = try? Firestore.Encoder().encode(notification) else { return }
-        
         ref.setData(data)
     }
     

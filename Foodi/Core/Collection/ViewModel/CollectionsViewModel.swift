@@ -67,14 +67,15 @@ class CollectionsViewModel: ObservableObject {
         if let selectedCollection = self.selectedCollection {
             item.collectionId = selectedCollection.id
             try await collectionService.addItemToCollection(collectionItem: item)
-            self.items.append(item)
-            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                if collectionItem.postType == "restaurant"{
-                    collections[index].restaurantCount += 1
-                } else if collectionItem.postType == "atHome"{
-                    collections[index].atHomeCount += 1
+            if !self.items.contains(item){
+                self.items.append(item)
+                if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                    if collectionItem.postType == "restaurant"{
+                        collections[index].restaurantCount += 1
+                    } else if collectionItem.postType == "atHome"{
+                        collections[index].atHomeCount += 1
+                    }
                 }
-                
             }
         }
     }

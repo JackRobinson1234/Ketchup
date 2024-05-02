@@ -16,18 +16,22 @@ struct Notification: Identifiable, Codable {
     let uid: String
     var user: User?
     var postThumbnail: String?
+    var postUsername: String?
+    var postType: String?
 }
 
 enum NotificationType: Int, Codable {
     case like
     case comment
     case follow
+    case newPost
     
     var notificationMessage: String {
         switch self {
         case .like: return " liked one of your posts."
         case .comment: return " commented on one of your posts."
         case .follow: return " started following you."
+        case .newPost: return " uploaded a post"
         }
     }
 }

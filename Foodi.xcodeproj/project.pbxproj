@@ -149,6 +149,7 @@
 		F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */; };
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
 		F8901C862BA436A100FBE778 /* VideoCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8901C852BA436A100FBE778 /* VideoCache.swift */; };
+		F89F28722BE3163C00E670E0 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28712BE3163C00E670E0 /* Activity.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */; };
 		F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */; };
@@ -356,6 +357,7 @@
 		F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
 		F8901C852BA436A100FBE778 /* VideoCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCache.swift; sourceTree = "<group>"; };
+		F89F28712BE3163C00E670E0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDietaryRestrictionsView.swift; sourceTree = "<group>"; };
 		F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTimePicker.swift; sourceTree = "<group>"; };
@@ -598,6 +600,8 @@
 				F88E0B182B6B0AF900EC159B /* Restaurant.swift */,
 				F88E0B1A2B6B0B0800EC159B /* User.swift */,
 				F8BD81652BC6E9BA007C2CFC /* Collection.swift */,
+				F88E0AA32B6B034500EC159B /* Notification.swift */,
+				F89F28712BE3163C00E670E0 /* Activity.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1050,7 +1054,6 @@
 		F88E0A9D2B6B02CB00EC159B /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0AA32B6B034500EC159B /* Notification.swift */,
 				F88E0AA52B6B035E00EC159B /* NotificationManager.swift */,
 			);
 			path = Model;
@@ -1761,6 +1764,7 @@
 				F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */,
 				F871CE032BCDBF56003C9BE8 /* CollectionService.swift in Sources */,
 				F88E0AA62B6B035E00EC159B /* NotificationManager.swift in Sources */,
+				F89F28722BE3163C00E670E0 /* Activity.swift in Sources */,
 				F88E0A8C2B6B01B300EC159B /* FeedViewModel.swift in Sources */,
 				F8CC219A2BD5873F00B4B329 /* JoeRecipeView.swift in Sources */,
 				F88E0B1B2B6B0B0800EC159B /* User.swift in Sources */,
