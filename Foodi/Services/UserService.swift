@@ -15,6 +15,9 @@ enum UserError: Error {
 }
 
 class UserService {
+    //MARK: fetchCurrentUser
+    /// fetches the current user
+    /// - Returns: user object of the current user
     func fetchCurrentUser() async throws -> User {
         guard let uid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
         let user = try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
@@ -26,7 +29,9 @@ class UserService {
         print("DEBUG: Ran fetchUser()")
         return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
     }
-    
+    //MARK: fetchFollowingUsers
+    /// fetches a list of all the users that the current user is following
+    /// - Returns: list of users that the current user is following
     func fetchFollowingUsers() async throws -> [User] {
         print("DEBUG: fetching following users")
         guard let currentUser = Auth.auth().currentUser else {
@@ -56,6 +61,12 @@ class UserService {
         
         return followingUsers
     }
+    //MARK: fetchFollowingUsers(pageSize)
+    ///  fetches the users that a user follows for a certain page size
+    /// - Parameters:
+    ///   - pageSize: number of users to be fetched
+    ///   - startAfterUser: document snapshot of the last user fetched for pagination
+    /// - Returns: list of users that the user is following
     func fetchFollowingUsers(pageSize: Int, startAfterUser: DocumentSnapshot? = nil) async throws -> ([User], DocumentSnapshot?) {
         print("DEBUG: Fetching following users")
         guard let currentUser = Auth.auth().currentUser else {
@@ -95,7 +106,8 @@ class UserService {
 }
 
 // MARK: - Following
-
+/// Adds the user from the respective following and follower collections. CLOUD FUNCTIONS UPDATE THE COUNT
+/// - Parameter uid: userId to be created
 extension UserService {
     func follow(uid: String) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
@@ -105,30 +117,20 @@ extension UserService {
             .document(uid)
             .setData([:])
         
-//        async let _ = try FirestoreConstants
-//            .UserCollection
-//            .document(currentUid)
-//            .updateData(["stats.following" : FieldValue.increment(Int64(1))])
         
         async let _ = try FirestoreConstants
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
-        
-//        async let _ = try FirestoreConstants
-//            .UserCollection
-//            .document(uid)
-//            .updateData(["stats.followers" : FieldValue.increment(Int64(1))])
+
         
     }
-    
+    //MARK: unfollow
+    /// Removes the user from the respective following and follower collections. CLOUD FUNCTIONS UPDATE THE COUNT
+    /// - Parameter uid: userId to be deleted
     func unfollow(uid: String) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
-//        async let _ = try FirestoreConstants
-//            .UserCollection
-//            .document(currentUid)
-//            .updateData(["stats.following" : FieldValue.increment(Int64(-1))])
 
         async let _ = try FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
@@ -140,14 +142,12 @@ extension UserService {
             .document(currentUid)
             .delete()
         
-//        async let _ = try FirestoreConstants
-//            .UserCollection
-//            .document(uid)
-//            .updateData(["stats.followers" : FieldValue.increment(Int64(-1))])
-        
     }
 
-    
+    //MARK: checkIfUserIsFollowed
+    /// checks if a user is followed by the current user
+    /// - Parameter uid: user to check if they are followed
+    /// - Returns: boolean of if the user currently follows them or not
     func checkIfUserIsFollowed(uid: String) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
         print("DEBUG: Ran checkIfUsersIsFollowed()")
