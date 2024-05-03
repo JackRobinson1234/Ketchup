@@ -10,9 +10,7 @@ import FirebaseAuth
 struct User: Identifiable, Codable {
     let id: String
     var username: String
-    let email: String
     var fullname: String
-    var bio: String?
     var profileImageUrl: String?
     var isFollowed = false
     var stats: UserStats
@@ -26,9 +24,7 @@ struct User: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.username = try container.decode(String.self, forKey: .username)
-        self.email = try container.decode(String.self, forKey: .email)
         self.fullname = try container.decode(String.self, forKey: .fullname)
-        self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
         self.isFollowed = try container.decodeIfPresent(Bool.self, forKey: .isFollowed) ?? false
         self.stats = try container.decodeIfPresent(UserStats.self, forKey: .stats) ?? UserStats(following: 0, followers: 0, posts: 0, collections: 0)
@@ -36,12 +32,10 @@ struct User: Identifiable, Codable {
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
     }
     
-    init(id: String, username: String, email: String, fullname: String, bio: String? = nil, profileImageUrl: String? = nil, privateMode: Bool) {
+    init(id: String, username: String, fullname: String, profileImageUrl: String? = nil, privateMode: Bool) {
         self.id = id
         self.username = username
-        self.email = email
         self.fullname = fullname
-        self.bio = bio
         self.profileImageUrl = profileImageUrl
         self.isFollowed = false
         self.stats = .init(following: 0, followers: 0, posts: 0, collections: 0)

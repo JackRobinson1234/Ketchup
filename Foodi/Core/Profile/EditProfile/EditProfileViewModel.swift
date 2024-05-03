@@ -25,14 +25,10 @@ class EditProfileViewModel: ObservableObject {
     
     private var uiImage: UIImage?
     var fullname = ""
-    var bio = ""
     var username = ""
                 
     init(user: User) {
         self.user = user
-        if let bio = user.bio {
-            self.bio = bio
-        }
         self.fullname = user.fullname
         self.username = user.username
         self.favoritesPreview = user.favorites
@@ -72,10 +68,6 @@ class EditProfileViewModel: ObservableObject {
             data["username"] = username
         }
         
-        if !bio.isEmpty, user.bio != bio {
-            user.bio = bio
-            data["bio"] = bio
-        }
         if !favoritesPreview.isEmpty, user.favorites != favoritesPreview {
             user.favorites = favoritesPreview
             let cleanedData = favoritesPreview.map { ["name": $0.name, "id": $0.id, "restaurantProfileImageUrl": $0.restaurantProfileImageUrl ?? ""] }

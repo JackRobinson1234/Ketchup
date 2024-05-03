@@ -54,7 +54,6 @@ struct EditProfileView: View {
                 VStack {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $editProfileViewModel.username)
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $editProfileViewModel.fullname)
-                    EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $editProfileViewModel.bio)
                     editFavoritesView(user: user, editProfileViewModel: editProfileViewModel)
                 }
                 

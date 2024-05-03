@@ -15,9 +15,7 @@ struct DeveloperPreview {
     static var user = User(
         id: NSUUID().uuidString,
         username: "lewis.hamilton",
-        email: "lewis@gmail.com",
         fullname: "Lewis Hamilton",
-        bio: "Formula 1 Driver | Mercedes AMG",
         profileImageUrl: "lewis-hamilton"
         , privateMode: false
     )
@@ -66,10 +64,10 @@ struct DeveloperPreview {
     ]
     
     static var users: [User] = [
-        .init(id: NSUUID().uuidString, username: "lewis.hamilton", email: "lewis@gmail.com", fullname: "Lewis Hamilton", bio: " jasdf ", privateMode: false),
-        .init(id: NSUUID().uuidString, username: "max.verstappen", email: "max@gmail.com", fullname: "Max Verstappen", privateMode: false),
-        .init(id: NSUUID().uuidString, username: "fernando.alonso", email: "fernando@gmail.com", fullname: "Fernado Alonso", privateMode: false),
-        .init(id: NSUUID().uuidString, username: "charles.leclerc", email: "charles@gmail.com", fullname: "Charles Leclerc", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "lewis.hamilton",  fullname: "Lewis Hamilton", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "max.verstappen",  fullname: "Max Verstappen", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "fernando.alonso", fullname: "Fernado Alonso", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "charles.leclerc", fullname: "Charles Leclerc", privateMode: false),
     ]
     
     static var posts: [Post] = [

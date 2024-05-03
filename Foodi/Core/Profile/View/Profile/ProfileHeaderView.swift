@@ -58,14 +58,7 @@ struct ProfileHeaderView: View {
                     }
                 }
                 .padding(.horizontal,10)
-                HStack{
-                    if let bio = user.bio {
-                        Text(bio)
-                            .font(.subheadline)
-                            .padding(.horizontal,20)
-                    }
-                    Spacer()
-                }
+                
                 if user.privateMode == false || user.isCurrentUser {
                     FavoriteRestaurantsView(user: user, favorites: user.favorites)
                 }

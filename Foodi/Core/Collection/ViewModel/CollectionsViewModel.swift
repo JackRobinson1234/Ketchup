@@ -38,6 +38,7 @@ class CollectionsViewModel: ObservableObject {
         self.post = post
         self.restaurant = restaurant
         self.selectedCollection = selectedCollection
+        self.selectedCollection = selectedCollection
     }
     //MARK: fetchCollections
     
@@ -299,7 +300,7 @@ class CollectionsViewModel: ObservableObject {
             }
             let collection = collections[index]
             try await collectionService.deleteCollection(selectedCollection: collection)
-            
+            dismissCollectionView = true
             // Update the collections array and selectedCollection
             collections.remove(at: index)
             if selectedCollection?.id == collection.id {
@@ -307,6 +308,7 @@ class CollectionsViewModel: ObservableObject {
                 clearEdits()
             }
         }
+        dismissCollectionView = true
     }
 }
 
