@@ -28,6 +28,12 @@ class CollectionService {
             .getDocuments(as: Collection.self)
         return collections
     }
+    
+    func fetchCollection(withId id: String) async throws -> Collection {
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(id)
+        let collection = try await collectionRef.getDocument(as: Collection.self)
+        return collection
+    }
     //MARK: fetchItems
     /// fetches items for a given collection
     /// - Parameter collection: collection you want the items for
@@ -87,7 +93,7 @@ class CollectionService {
     ///   - username: user's username
     ///   - uiImage: Cover image for the collection
     /// - Returns: Created Collection
-    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?) async throws -> Collection? {
+    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?, profileImageUrl: String?) async throws -> Collection? {
         let ref = FirestoreConstants.CollectionsCollection.document()
         do {
             var imageUrl: String? = nil
@@ -100,8 +106,7 @@ class CollectionService {
                     return nil
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0,
-                                        privateMode: false)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")
@@ -189,7 +194,6 @@ extension CollectionService {
             let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
             batch.updateData(["privateMode": isPrivate], forDocument: collectionRef)
         }
-        
         // Commit the batched write operation
         do {
             try await batch.commit()

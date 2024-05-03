@@ -22,6 +22,7 @@ struct Collection: Identifiable, Codable, Hashable {
     var restaurantCount: Int
     var atHomeCount: Int
     var privateMode: Bool
+    var profileImageUrl: String?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -35,11 +36,12 @@ struct Collection: Identifiable, Codable, Hashable {
         self.restaurantCount = try container.decode(Int.self, forKey: .restaurantCount)
         self.atHomeCount = try container.decode(Int.self, forKey: .atHomeCount)
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
+        self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
        
         
     }
     
-    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool) {
+    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool, profileImageUrl: String? = nil) {
         self.id = id
         self.name = name
         self.timestamp = timestamp
@@ -50,6 +52,7 @@ struct Collection: Identifiable, Codable, Hashable {
         self.restaurantCount = restaurantCount
         self.atHomeCount = atHomeCount
         self.privateMode = privateMode
+        self.profileImageUrl = profileImageUrl
     }
     
 }
@@ -69,5 +72,6 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?
+
     
 }

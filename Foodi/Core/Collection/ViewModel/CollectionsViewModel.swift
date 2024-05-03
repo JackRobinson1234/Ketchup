@@ -33,10 +33,11 @@ class CollectionsViewModel: ObservableObject {
     @Published var post: Post?
     @Published var restaurant: Restaurant?
     
-    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil) {
+    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.user = user
         self.post = post
         self.restaurant = restaurant
+        self.selectedCollection = selectedCollection
     }
     //MARK: fetchCollections
     
@@ -176,7 +177,7 @@ class CollectionsViewModel: ObservableObject {
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        let collection = try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage)
+        let collection = try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl)
         if let collection{
             print(collection)
             self.collections.insert(collection, at: 0)

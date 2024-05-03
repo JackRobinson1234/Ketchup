@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State var needsReauth = false
     @State private var showPrivateModeDropdown = false
     @State var showDeleteAccountAlert: Bool = false
+    @State private var toggleEnabled = true
     var privateRateDebouncer = Debouncer(delay: 1.0)
 
     
@@ -58,13 +59,16 @@ struct SettingsView: View {
                                 .font(.caption)
                             Spacer()
                             Toggle("", isOn: $viewModel.privateMode)
-                                .labelsHidden() // Hide the default toggle label
+                                .labelsHidden()
+                                .disabled(!toggleEnabled) // Disable the toggle based on the toggleEnabled state
                                 .onChange(of: viewModel.privateMode) {
-                                    // Handle private mode toggle change if needed
+                                    Task {
+                                        // Disable the toggle for 20 seconds
+                                        toggleEnabled = false
+                                        try await viewModel.updatePrivateMode()
+                                    }
                                     privateRateDebouncer.schedule{
-                                        Task{
-                                            try await viewModel.updatePrivateMode()
-                                        }
+                                        toggleEnabled = true
                                     }
                                 }
                         }

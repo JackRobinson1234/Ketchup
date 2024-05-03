@@ -42,21 +42,12 @@ struct ProfileHeaderView: View {
                             }
                             .disabled(user.stats.following == 0)
                             
-//                            NavigationLink(destination: ProfileUserLists(config: .following(uid: user.id), userService: UserService())) {
-//                                UserStatView(value: user.stats.following, title: "Following")
-//                            }
-//                            .disabled(user.stats.following == 0)
-                            
                             Button{
                                 showFollowersList.toggle()
                             } label: {
                                 UserStatView(value: user.stats.followers, title: "Followers")
                             }
                             .disabled(user.stats.followers == 0)
-//                            NavigationLink(destination: ProfileUserLists(config: .followers(uid: user.id), userService: UserService())) {
-//                                UserStatView(value: user.stats.followers, title: "Followers")
-//                            }
-//                            .disabled(user.stats.followers == 0)
                             
                             UserStatView(value: user.stats.likes, title: "Likes")
                         }
@@ -70,8 +61,9 @@ struct ProfileHeaderView: View {
                     }
                     Spacer()
                 }
-                
-                FavoriteRestaurantsView(user: user, favorites: user.favorites)
+                if user.privateMode == false || user.isCurrentUser {
+                    FavoriteRestaurantsView(user: user, favorites: user.favorites)
+                }
                 // action button view
                 if user.isCurrentUser {
                     Button {
@@ -83,6 +75,7 @@ struct ProfileHeaderView: View {
                             .foregroundStyle(.black)
                             .background(Color(.systemGray6))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
                     }
                 } else {
                     Button {

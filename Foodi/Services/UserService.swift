@@ -56,6 +56,36 @@ class UserService {
         
         return followingUsers
     }
+    func fetchFollowingUsers(pageSize: Int, startAfterUser: DocumentSnapshot? = nil) async throws -> ([User], DocumentSnapshot?) {
+        print("DEBUG: Fetching following users")
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+
+        var query = Firestore.firestore()
+            .collection("following")
+            .document(currentUser.uid)
+            .collection("user-following")
+            .order(by: FieldPath.documentID())
+            .limit(to: pageSize)
+
+        if let startAfterUser = startAfterUser {
+                query = query.start(afterDocument: startAfterUser)
+            }
+        let querySnapshot = try await query.getDocuments()
+
+        var followingUsers = [User]()
+        var lastSnapshot: DocumentSnapshot? = nil
+
+        for document in querySnapshot.documents {
+            let followingUID = document.documentID
+            let user = try await fetchUser(withUid: followingUID)
+            followingUsers.append(user)
+            lastSnapshot = document
+        }
+
+        return (followingUsers, lastSnapshot)
+    }
     func updatePrivateMode(newValue: Bool) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         let userRef = FirestoreConstants.UserCollection.document(currentUid)

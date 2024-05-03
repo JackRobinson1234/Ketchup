@@ -187,4 +187,10 @@ struct DeveloperPreview {
                 geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
             )
         ]
+    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: "atHome")
+
+        static let activity2 = Activity(id: "2", username: "user2", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollection, uid: "uid2", image: nil, restaurantId: nil, collectionId: "456", name: "My Collection")
+
+        static let activity3 = Activity(id: "3", username: "user3", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollectionItem, uid: "uid3",  image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: "789", name: "Item Name")
+
 }
