@@ -45,10 +45,10 @@ class SettingsViewModel: ObservableObject{
     /// Changes the user to new private setting, the collections to the new private setting, and the posts to the new private setting
     func updatePrivateMode() async throws {
         if self.privateMode != profileViewModel.user.privateMode {
+            profileViewModel.user.privateMode = privateMode
             try await userService.updatePrivateMode(newValue: self.privateMode)
             try await postService.changeAllUserPostsPrivacy(user: profileViewModel.user, isPrivate: self.privateMode)
             try await collectionsService.changeAllUserCollectionsPrivacy(user: profileViewModel.user, isPrivate: self.privateMode)
-            profileViewModel.user.privateMode = privateMode
         }
     }
 }
