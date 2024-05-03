@@ -105,30 +105,30 @@ extension UserService {
             .document(uid)
             .setData([:])
         
-        async let _ = try FirestoreConstants
-            .UserCollection
-            .document(currentUid)
-            .updateData(["stats.following" : FieldValue.increment(Int64(1))])
+//        async let _ = try FirestoreConstants
+//            .UserCollection
+//            .document(currentUid)
+//            .updateData(["stats.following" : FieldValue.increment(Int64(1))])
         
         async let _ = try FirestoreConstants
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
         
-        async let _ = try FirestoreConstants
-            .UserCollection
-            .document(uid)
-            .updateData(["stats.followers" : FieldValue.increment(Int64(1))])
+//        async let _ = try FirestoreConstants
+//            .UserCollection
+//            .document(uid)
+//            .updateData(["stats.followers" : FieldValue.increment(Int64(1))])
         
     }
     
     func unfollow(uid: String) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
-        async let _ = try FirestoreConstants
-            .UserCollection
-            .document(currentUid)
-            .updateData(["stats.following" : FieldValue.increment(Int64(-1))])
+//        async let _ = try FirestoreConstants
+//            .UserCollection
+//            .document(currentUid)
+//            .updateData(["stats.following" : FieldValue.increment(Int64(-1))])
 
         async let _ = try FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
@@ -140,10 +140,10 @@ extension UserService {
             .document(currentUid)
             .delete()
         
-        async let _ = try FirestoreConstants
-            .UserCollection
-            .document(uid)
-            .updateData(["stats.followers" : FieldValue.increment(Int64(-1))])
+//        async let _ = try FirestoreConstants
+//            .UserCollection
+//            .document(uid)
+//            .updateData(["stats.followers" : FieldValue.increment(Int64(-1))])
         
     }
 

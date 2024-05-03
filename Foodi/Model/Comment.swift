@@ -15,6 +15,5 @@ struct Comment: Identifiable, Codable {
     let postId: String
     let timestamp: Timestamp
     let commentOwnerUid: String
-    
     var user: User?
 }

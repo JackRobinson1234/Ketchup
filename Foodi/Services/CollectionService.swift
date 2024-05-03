@@ -40,15 +40,15 @@ class CollectionService {
     /// - Returns: array of collection items from that collection
     func fetchItems(collection: Collection) async throws -> [CollectionItem]{
         let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
-            let itemsQuery = collectionRef.collection("items")
-            
-            do {
-                let items = try await itemsQuery.getDocuments(as: CollectionItem.self)
-                return items
-            } catch {
-                throw error
-            }
+        let itemsQuery = collectionRef.collection("items")
+        
+        do {
+            let items = try await itemsQuery.getDocuments(as: CollectionItem.self)
+            return items
+        } catch {
+            throw error
         }
+    }
     
     //MARK: addItemToCollection
     /// Adds item to the collection Id that is already attached
@@ -122,26 +122,26 @@ class CollectionService {
     /// deletes a collection from firebase and corresponding items subcollection
     /// - Parameter selectedCollection: collection to be deleted
     func deleteCollection(selectedCollection: Collection) async throws {
-            try await deleteItemsSubcollection(from: selectedCollection)
-            try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
-            
-            // Optionally, delete the collection's cover image from storage
-            if let imageUrl = selectedCollection.coverImageUrl {
-                try await ImageUploader.deleteImage(fromUrl: imageUrl)
-            }
-            
-            print("Collection deleted successfully.")
+        try await deleteItemsSubcollection(from: selectedCollection)
+        try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
+        
+        // Optionally, delete the collection's cover image from storage
+        if let imageUrl = selectedCollection.coverImageUrl {
+            try await ImageUploader.deleteImage(fromUrl: imageUrl)
+        }
+        
+        print("Collection deleted successfully.")
     }
-        //MARK: deleteItemsSubcollection
+    //MARK: deleteItemsSubcollection
     /// Deletes all the items from a collection
     /// - Parameter collection: collection to delete the items from
     func deleteItemsSubcollection(from collection: Collection) async throws {
         let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
         let itemsSubcollectionRef = collectionRef.collection("items")
-
+        
         do {
             let batch = Firestore.firestore().batch()
-
+            
             // Get all documents in the items subcollection
             let querySnapshot = try await itemsSubcollectionRef.getDocuments()
             for document in querySnapshot.documents {
@@ -155,50 +155,21 @@ class CollectionService {
             throw error
         }
     }
-    //MARK: deleteAllUserCollections
-    func deleteAllUserCollections(forUser user: User) async throws {
-        // Fetch all collections for the user
-        let collections = try await FirestoreConstants.CollectionsCollection
-            .whereField("uid", isEqualTo: user.id)
-            .getDocuments(as: Collection.self)
-
-        for collection in collections {
-            try await deleteCollection(selectedCollection: collection)
-            
-            
-            print("Collection '\(collection.name)' deleted successfully.")
-        }
-
-        print("All collections for user \(user.username) deleted successfully.")
-    }
 }
-extension CollectionService {
-    // MARK: - ChangeAllUserCollectionsPrivacy
-    /// Changes all of a user's collections to private mode
-    /// - Parameters:
-    ///   - user: The user whose collections will be updated
-    ///   - isPrivate: Boolean flag indicating whether to set collections to private (true) or public (false)
-    func changeAllUserCollectionsPrivacy(user: User, isPrivate: Bool) async throws {
-        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
-        }
-        
-        // Fetch user's collections
-        let userCollections = try await fetchCollections(user: user.id)
-        
-        // Create a batched write operation
-        let batch = Firestore.firestore().batch()
-        
-        // Update privacy status for each collection
-        for collection in userCollections {
-            let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
-            batch.updateData(["privateMode": isPrivate], forDocument: collectionRef)
-        }
-        // Commit the batched write operation
-        do {
-            try await batch.commit()
-        } catch {
-            throw error
-        }
-    }
-}
+//    //MARK: deleteAllUserCollections
+//    func deleteAllUserCollections(forUser user: User) async throws {
+//        // Fetch all collections for the user
+//        let collections = try await FirestoreConstants.CollectionsCollection
+//            .whereField("uid", isEqualTo: user.id)
+//            .getDocuments(as: Collection.self)
+//
+//        for collection in collections {
+//            try await deleteCollection(selectedCollection: collection)
+//            
+//            
+//            print("Collection '\(collection.name)' deleted successfully.")
+//        }
+//
+//        print("All collections for user \(user.username) deleted successfully.")
+//    }
+//}

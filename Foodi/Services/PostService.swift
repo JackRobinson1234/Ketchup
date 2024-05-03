@@ -249,67 +249,35 @@ extension PostService {
     }
 }
 //MARK: Delete Posts Section
-extension PostService {
-    //MARK: deleteAllCurrentUserPosts
-    
-    /// deletes all posts that have the same uid as the selected user
-    /// - Parameter user: user that you want all posts to be deleted from
-    func deleteAllCurrentUserPosts(user: User) async throws {
-        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
-        }
-        let userPosts = try await fetchUserPosts(user: user)
-        // Create a batched write operation
-        let batch = Firestore.firestore().batch()
-        // Delete images and videos from storage and adds delete function to batch
-        for post in userPosts {
-            let postRef = FirestoreConstants.PostsCollection.document(post.id)
-            batch.deleteDocument(postRef)
-            for mediaUrl in post.mediaUrls{
-                if post.mediaType == "image"{
-                    try await ImageUploader.deleteImage(fromUrl: mediaUrl)
-                } else if post.mediaType == "video" {
-                    try await VideoUploader.deleteVideo(fromUrl: mediaUrl)
-                }
-            }
-        }
-        // Commit the batched write operation
-        do {
-            try await batch.commit()
-        } catch {
-            throw error
-        }
-    }
-}
-
-extension PostService {
-    // MARK: - ChangeAllUserPostsPrivacy
-    /// Changes all of a user's posts to private mode
-    /// - Parameters:
-    ///   - user: The user whose posts will be updated
-    ///   - isPrivate: Boolean flag indicating whether to set posts to private (true) or public (false)
-    func changeAllUserPostsPrivacy(user: User, isPrivate: Bool) async throws {
-        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
-        }
-        
-        // Fetch user's posts
-        let userPosts = try await fetchUserPosts(user: user)
-        
-        // Create a batched write operation
-        let batch = Firestore.firestore().batch()
-        
-        // Update privacy status for each post
-        for post in userPosts {
-            let postRef = FirestoreConstants.PostsCollection.document(post.id)
-            batch.updateData(["user.privateMode": isPrivate], forDocument: postRef)
-        }
-        
-        // Commit the batched write operation
-        do {
-            try await batch.commit()
-        } catch {
-            throw error
-        }
-    }
-}
+//extension PostService {
+//    //MARK: deleteAllCurrentUserPosts
+//    
+//    /// deletes all posts that have the same uid as the selected user
+//    /// - Parameter user: user that you want all posts to be deleted from
+//    func deleteAllCurrentUserPosts(user: User) async throws {
+//        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
+//            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
+//        }
+//        let userPosts = try await fetchUserPosts(user: user)
+//        // Create a batched write operation
+//        let batch = Firestore.firestore().batch()
+//        // Delete images and videos from storage and adds delete function to batch
+//        for post in userPosts {
+//            let postRef = FirestoreConstants.PostsCollection.document(post.id)
+//            batch.deleteDocument(postRef)
+//            for mediaUrl in post.mediaUrls{
+//                if post.mediaType == "image"{
+//                    try await ImageUploader.deleteImage(fromUrl: mediaUrl)
+//                } else if post.mediaType == "video" {
+//                    try await VideoUploader.deleteVideo(fromUrl: mediaUrl)
+//                }
+//            }
+//        }
+//        // Commit the batched write operation
+//        do {
+//            try await batch.commit()
+//        } catch {
+//            throw error
+//        }
+//    }
+//}
