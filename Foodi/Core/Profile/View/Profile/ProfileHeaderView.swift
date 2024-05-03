@@ -23,7 +23,7 @@ struct ProfileHeaderView: View {
     var body: some View {
        let user = viewModel.user
             VStack(spacing: 16) {
-                HStack{
+                HStack(spacing: 0){
                     VStack(spacing: 8) {
                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
                     }
@@ -34,7 +34,7 @@ struct ProfileHeaderView: View {
                             .fontWeight(.semibold)
                             .padding(10)
                             .padding(.leading)
-                        HStack(spacing: 16) {
+                        HStack {
                             Button{
                                 showFollowingList.toggle()
                             } label: {
@@ -49,10 +49,15 @@ struct ProfileHeaderView: View {
                             }
                             .disabled(user.stats.followers == 0)
                             
-                            UserStatView(value: user.stats.likes, title: "Likes")
+                            UserStatView(value: user.stats.posts, title: "Posts")
+                            
+                            UserStatView(value: user.stats.collections, title: "Collections")
+                            
+                            
                         }
                     }
                 }
+                .padding(.horizontal,10)
                 HStack{
                     if let bio = user.bio {
                         Text(bio)

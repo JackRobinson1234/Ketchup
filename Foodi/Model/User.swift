@@ -31,7 +31,7 @@ struct User: Identifiable, Codable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
         self.isFollowed = try container.decodeIfPresent(Bool.self, forKey: .isFollowed) ?? false
-        self.stats = try container.decodeIfPresent(UserStats.self, forKey: .stats) ?? UserStats(following: 0, followers: 0, likes: 0)
+        self.stats = try container.decodeIfPresent(UserStats.self, forKey: .stats) ?? UserStats(following: 0, followers: 0, posts: 0, collections: 0)
         self.favorites = try container.decode([FavoriteRestaurant].self, forKey: .favorites)
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
     }
@@ -44,7 +44,7 @@ struct User: Identifiable, Codable {
         self.bio = bio
         self.profileImageUrl = profileImageUrl
         self.isFollowed = false
-        self.stats = .init(following: 0, followers: 0, likes: 0)
+        self.stats = .init(following: 0, followers: 0, posts: 0, collections: 0)
         self.favorites = Array(repeating: FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: ""), count: 4)
         self.privateMode = privateMode
     }
@@ -55,7 +55,8 @@ extension User: Hashable { }
 struct UserStats: Codable, Hashable {
     var following: Int
     var followers: Int
-    var likes: Int
+    var posts: Int
+    var collections: Int
 }
 
 struct Favorites: Codable, Hashable {

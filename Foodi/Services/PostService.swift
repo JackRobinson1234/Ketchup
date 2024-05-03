@@ -190,7 +190,6 @@ extension PostService {
     func likePost(_ post: Post) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).setData([:])
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(1))])
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).setData([:])
         async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(1))])
         NotificationManager.shared.uploadLikeNotification(toUid: post.user.id, post: post)
@@ -205,7 +204,6 @@ extension PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).delete()
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).delete()
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(-1))])
         async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(-1))])
         async let _ = NotificationManager.shared.deleteNotification(toUid: post.user.id, type: .like)
     }
@@ -248,36 +246,3 @@ extension PostService {
         return likedPosts
     }
 }
-//MARK: Delete Posts Section
-//extension PostService {
-//    //MARK: deleteAllCurrentUserPosts
-//    
-//    /// deletes all posts that have the same uid as the selected user
-//    /// - Parameter user: user that you want all posts to be deleted from
-//    func deleteAllCurrentUserPosts(user: User) async throws {
-//        guard let uid = Auth.auth().currentUser?.uid, user.id == uid else {
-//            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated or user ID does not match current user ID"])
-//        }
-//        let userPosts = try await fetchUserPosts(user: user)
-//        // Create a batched write operation
-//        let batch = Firestore.firestore().batch()
-//        // Delete images and videos from storage and adds delete function to batch
-//        for post in userPosts {
-//            let postRef = FirestoreConstants.PostsCollection.document(post.id)
-//            batch.deleteDocument(postRef)
-//            for mediaUrl in post.mediaUrls{
-//                if post.mediaType == "image"{
-//                    try await ImageUploader.deleteImage(fromUrl: mediaUrl)
-//                } else if post.mediaType == "video" {
-//                    try await VideoUploader.deleteVideo(fromUrl: mediaUrl)
-//                }
-//            }
-//        }
-//        // Commit the batched write operation
-//        do {
-//            try await batch.commit()
-//        } catch {
-//            throw error
-//        }
-//    }
-//}
