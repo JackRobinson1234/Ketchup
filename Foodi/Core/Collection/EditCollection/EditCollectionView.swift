@@ -29,8 +29,8 @@ struct EditCollectionView: View {
                             Button{
                                 Task{
                                     collectionsViewModel.dismissCollectionView = true
-                                    dismiss()
                                     try await collectionsViewModel.deleteCollection()
+                                    dismiss()
                                 }
                             } label: {
                                 Text("Delete Collection")

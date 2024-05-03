@@ -25,6 +25,7 @@ struct CollectionRestaurantSearch: View {
                 collectionsViewModel.restaurant = restaurant
                 if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
                     Task{
+                        print(item)
                         try await collectionsViewModel.addItemToCollection(collectionItem: item)
                         dismiss()
                     }

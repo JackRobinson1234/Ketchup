@@ -24,6 +24,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var imageURLs: [String]?
     var profileImageUrl: String?
     var bio: String?
+    let _geoloc: geoLoc?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -39,9 +40,10 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.imageURLs = try container.decodeIfPresent([String].self, forKey: .imageURLs)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
+        self._geoloc = try container.decodeIfPresent(geoLoc.self, forKey: ._geoloc)
     }
     
-    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil) {
+    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil) {
         self.id = id
         self.cuisine = cuisine
         self.price = price
@@ -54,6 +56,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.imageURLs = imageURLs
         self.profileImageUrl = profileImageUrl
         self.bio = bio
+        self._geoloc = _geoloc
     }
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.geoPoint {
@@ -64,4 +67,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     }
 }
 
-
+struct geoLoc: Codable, Hashable {
+    let lat: Double
+    let lng: Double
+}

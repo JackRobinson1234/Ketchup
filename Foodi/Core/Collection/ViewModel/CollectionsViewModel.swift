@@ -145,7 +145,7 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: CollectionItemObject
     func convertRestaurantToCollectionItem() -> CollectionItem? {
         if let restaurant = self.restaurant {
-            let collectionItem = CollectionItem(
+            var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
                 postType: "restaurant",
@@ -155,6 +155,11 @@ class CollectionsViewModel: ObservableObject {
                 state: restaurant.state,
                 geoPoint: restaurant.geoPoint
             )
+            if let geopoint = restaurant.geoPoint{
+                collectionItem.geoPoint = geopoint
+            } else if let geoLoc = restaurant._geoloc {
+                collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+            }
             return collectionItem
         }
         return nil
