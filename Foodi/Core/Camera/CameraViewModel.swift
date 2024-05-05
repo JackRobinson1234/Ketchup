@@ -274,6 +274,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
     }
     
+
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
 
@@ -289,8 +290,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
         self.picData.append(imageData)
     }
-    
-    
+        
 }
 
 //    func savePic() {

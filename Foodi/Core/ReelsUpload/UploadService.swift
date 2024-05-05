@@ -25,7 +25,18 @@ struct UploadService {
             }
             mediaUrls.append(videoUrl)
         } else if mediaType == "photo", let picData = picData {
-            print("FILL IN LATER")
+            for imageData in picData {
+                guard let image = UIImage(data: imageData) else {
+                    print("Unable to convert Data to UIImage")
+                    continue  // Optionally, you can handle this more strictly by throwing an error
+                }
+                if let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
+                    mediaUrls.append(imageUrl)
+                } else {
+                    print("Failed to upload one of the images")
+                    // Optionally, you can also throw an error here to stop the process if any image fails to upload.
+                }
+            }
         } else {
             throw UploadError.invalidMediaData
         }

@@ -53,6 +53,19 @@ struct ImageUploader {
                 throw StorageError.deleteError(error.localizedDescription)
             }
         }
+    
+    static func uploadImageData(_ imageData: Data, type: UploadType) async throws -> String? {
+        let ref = type.filePath
+        
+        do {
+            let _ = try await ref.putDataAsync(imageData)
+            let url = try await ref.downloadURL()
+            return url.absoluteString
+        } catch {
+            print("DEBUG: Failed to upload image data \(error.localizedDescription)")
+            return nil
+        }
+    }
 }
 
 

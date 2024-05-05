@@ -23,18 +23,80 @@ struct FeedCell: View {
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
     
+    @State private var currentImageIndex = 0
+    
+    @State var isDragging = false
+    @State var dragDirection = "left"
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    if self.currentImageIndex > 0 {
+                        self.currentImageIndex -= 1
+                    }
+                } else {
+                    self.dragDirection = "right"
+                    if self.currentImageIndex < post.mediaUrls.count - 1 {
+                        self.currentImageIndex += 1
+                    }
+                }
+                self.isDragging = false
+            }
+    }
+
+    
     var body: some View {
         //MARK: Loading Screen
         ZStack {
-            if videoConfigured {
-                VideoPlayerView(coordinator: videoCoordinator)
-                    .containerRelativeFrame([.horizontal, .vertical])
-            }
-            else {
-                ProgressView()
-                    .containerRelativeFrame([.horizontal, .vertical])
-            }
             
+            if post.mediaType == "video" {
+                if videoConfigured {
+                    VideoPlayerView(coordinator: videoCoordinator)
+                        .containerRelativeFrame([.horizontal, .vertical])
+                }
+                else {
+                    ProgressView()
+                        .containerRelativeFrame([.horizontal, .vertical])
+                }
+            } else if post.mediaType == "photo" {
+                
+                ZStack {
+                    KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                        .cornerRadius(20)
+                        .containerRelativeFrame([.horizontal, .vertical])
+                    
+                    VStack {
+                        HStack {
+                            Spacer()
+                            
+                            Text("\(currentImageIndex + 1) of \(post.mediaUrls.count)")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .padding(8)
+                                .background(Color.black.opacity(0.5))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                                .padding(.top, 10)
+                            
+                            Spacer()
+                        }
+                        
+                        
+                        Spacer()
+                    }
+                    .frame(width: UIScreen.main.bounds.width, height: 650)
+                    
+                   
+                    
+                    
+                }
+            }
+
             VStack {
                 Spacer()
                 //MARK: Black Background
@@ -203,6 +265,7 @@ struct FeedCell: View {
                     .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
                 }
             }
+            .gesture(drag)
             //MARK: Scroll Position replay/ pause
             .onChange(of: scrollPosition) {oldValue, newValue in
                 if newValue == post.id {

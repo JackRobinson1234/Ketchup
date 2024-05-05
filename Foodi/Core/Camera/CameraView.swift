@@ -9,12 +9,20 @@
 import Foundation
 import SwiftUI
 import AVKit
+import PhotosUI
 
 struct CameraView: View {
     
     @StateObject var cameraViewModel = CameraViewModel()
     
     @StateObject var uploadViewModel = UploadViewModel()
+    
+    @State var showLibraryTypeMenu = false
+    @State var showImagePicker = false
+    @State var selectedItem: PhotosPickerItem? {
+        didSet { Task { await uploadViewModel.loadMediafromPhotosPicker(fromItem: selectedItem) } }
+    }
+    @State var snapshotImage: UIImage?
     
     var body: some View {
         
@@ -23,14 +31,29 @@ struct CameraView: View {
                 
                 Color.black
                     .ignoresSafeArea()
-                
-                // WHAT THE CAMERA SEES
-                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
-                    .environmentObject(cameraViewModel)
-                    .cornerRadius(10)
-                    .onAppear { cameraViewModel.checkPermission() }
-                    .gesture(cameraViewModel.drag)
+//                
+//                // WHAT THE CAMERA SEES
+//                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
+//                    .environmentObject(cameraViewModel)
+//                    .cornerRadius(10)
+//                    .onAppear { cameraViewModel.checkPermission() }
+//                    .gesture(cameraViewModel.drag)
                     
+                
+                if let snapshotImage = snapshotImage, showLibraryTypeMenu {
+                    Image(uiImage: snapshotImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 390, height: 844)
+                        .blur(radius: 10)
+                        .transition(.opacity)
+                } else {
+                    CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
+                        .environmentObject(cameraViewModel)
+                        .cornerRadius(10)
+                        .onAppear { cameraViewModel.checkPermission() }
+                        .gesture(cameraViewModel.drag)
+                }
                 
                 // MARK: CameraControls
                 ZStack {
@@ -48,15 +71,20 @@ struct CameraView: View {
                     Spacer()
                     
                     HStack {
-                        Image(systemName: "photo.on.rectangle")
-                            .resizable()
-                            .foregroundColor(.white)
-                            .scaledToFit()
-                            .frame(width: 50, height:50)
-                            .padding(.leading, 60)
+                        Button {
+                            showLibraryTypeMenu = true
+                        } label: {
+                                Image(systemName: "photo.on.rectangle")
+                                    .resizable()
+                                    .foregroundColor(.white)
+                                    .scaledToFit()
+                                    .frame(width: 50, height:50)
+                                    .padding(.leading, 60)
+                        }
                         
                         Spacer()
                     }
+                    
                     .padding(.bottom, 20)
                     
                     HStack {
@@ -78,13 +106,32 @@ struct CameraView: View {
                     
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
-
-                
             }
+//            .onChange(of: showLibraryTypeMenu) { isShowing in
+//                if isShowing {
+//                    snapshotImage = cameraViewModel.capturePreviewSnapshot()
+//                    cameraViewModel.session.stopRunning()
+//                } else {
+//                    cameraViewModel.session.startRunning()
+//                    snapshotImage = nil
+//                }
+//            }
+            
+            .overlay(
+                Group {
+                    if showLibraryTypeMenu {
+                        LibraryTypeMenuView(uploadViewModel: uploadViewModel, showLibraryTypeMenu: $showLibraryTypeMenu)
+                            .animation(.easeInOut, value: showLibraryTypeMenu)
+                            .transition(.move(edge: .bottom))
+                    }
+                }
+            )
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel)
                     
             }
+            
+            .photosPicker(isPresented: $showImagePicker, selection: $selectedItem, matching: .videos)
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
         }
 
@@ -356,6 +403,75 @@ struct PhotoCameraControls: View {
         }
     }
 }
+
+struct LibraryTypeMenuView: View {
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
+    @Binding var showLibraryTypeMenu: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            Text("Select Media Type")
+                .font(.headline)
+                .fontWeight(.bold)
+                .frame(height: 50)
+            
+            Divider()
+                .frame(width: 260)
+            
+            HStack(spacing: 0) {
+                Button(action: {
+                    showLibraryTypeMenu = false
+                }) {
+                    VStack {
+                        Image(systemName: "video")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .foregroundColor(.black)
+                            .opacity(0.6)
+                                    
+                        Text("Upload Videos")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                    }
+                    .frame(width: 130, height: 100)
+                }
+                
+                Divider()
+                    .frame(height: 100)
+                
+                Button(action: {
+                    showLibraryTypeMenu = false
+                }) {
+                    VStack {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .foregroundColor(.black)
+                            .opacity(0.6)
+                        
+                        Text("Upload Photos")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                    }
+                    .frame(width: 130, height: 100)
+                }
+            }
+            
+            Divider()
+        }
+        .frame(width: 260)
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 5)
+    }
+}
+
+
 
 struct CameraPreview: UIViewRepresentable {
     

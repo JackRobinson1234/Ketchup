@@ -26,9 +26,9 @@ struct FeedView: View {
     @State private var fetchTask: Task<Void, Error>?
     @StateObject var filtersViewModel: FiltersViewModel
     private var hideFeedOptions: Bool
-
     
-
+    
+    
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService, hideFeedOptions: Bool = false) {
         self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(
@@ -39,181 +39,181 @@ struct FeedView: View {
         self.posts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
-    
+        
     }
     
     var body: some View {
         /// Loading screen will only appear when the app first opens and will fetch posts
         if isLoading && posts.isEmpty {
             // Loading screen
-                ProgressView("Loading...")
-                    .onAppear {
-                        Task {
-                            await viewModel.fetchPosts()
-                            isLoading = false
-                        }
+            ProgressView("Loading...")
+                .onAppear {
+                    Task {
+                        await viewModel.fetchPosts()
+                        isLoading = false
                     }
-                    .toolbar(.hidden, for: .tabBar)
+                }
+                .toolbar(.hidden, for: .tabBar)
         } else {
-        //MARK: Video Cells
-        NavigationStack(path: $path) {
-            ZStack(alignment: .topTrailing) {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach($viewModel.posts) { post in
-                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
-                                .id(post.id)
-                            
-                        }
-                        
-                    }
-                    .scrollTargetLayout()
-                }
-                
-                
-                //MARK: Discover and Following
-                if !hideFeedOptions {
-                    HStack() {
-                        // Button for "Following"
-                        Button(action: {
-                            fetchTask?.cancel()
-                            viewModel.posts.removeAll()
-                            selectedFeed = .following
-                            viewModel.setFeedType(.following)
-                            fetchTask = Task {
-                                await viewModel.fetchPosts()
-                                
-                            }
-                        }) {
-                            Text("Following")
-                                .foregroundColor(selectedFeed == .following ? .white : .gray)
-                                .fontWeight(selectedFeed == .following ? .bold : .regular)
-                                .frame(width: 78)
-                        }
-                        .disabled(selectedFeed == .following)
-                        
-                        // Vertical Line
-                        Rectangle()
-                            .frame(width: 2, height: 18)
-                            .foregroundColor(.gray)
-                        
-                        // Button for "Recommended"
-                        Button(action: {
-                            fetchTask?.cancel()
-                            viewModel.posts.removeAll()
-                            selectedFeed = .discover
-                            viewModel.setFeedType(.discover)
-                            fetchTask = Task {
-                                await viewModel.fetchPosts()
+            //MARK: Video Cells
+            NavigationStack(path: $path) {
+                ZStack(alignment: .topTrailing) {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach($viewModel.posts) { post in
+                                FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                    .id(post.id)
                                 
                             }
                             
-                        }) {
-                            Text("Discover")
-                                .foregroundColor(selectedFeed == .discover ?
-                                    .white : .gray)
-                                .fontWeight(selectedFeed == .discover ? .bold : .regular)
-                                .frame(width: 78)
                         }
-                        .disabled(selectedFeed == .discover)
+                        .scrollTargetLayout()
                     }
-                    .padding(.top, 70)
-                    .padding(.horizontal)
-                    .frame(maxWidth: .infinity)
-                    //MARK: Filters and Search Buttons
-                    HStack{
-                        Button{
-                            showSearchView.toggle()
+                    
+                    
+                    //MARK: Discover and Following
+                    if !hideFeedOptions {
+                        HStack() {
+                            // Button for "Following"
+                            Button(action: {
+                                fetchTask?.cancel()
+                                viewModel.posts.removeAll()
+                                selectedFeed = .following
+                                viewModel.setFeedType(.following)
+                                fetchTask = Task {
+                                    await viewModel.fetchPosts()
+                                    
+                                }
+                            }) {
+                                Text("Following")
+                                    .foregroundColor(selectedFeed == .following ? .white : .gray)
+                                    .fontWeight(selectedFeed == .following ? .bold : .regular)
+                                    .frame(width: 78)
+                            }
+                            .disabled(selectedFeed == .following)
                             
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 27))
+                            // Vertical Line
+                            Rectangle()
+                                .frame(width: 2, height: 18)
+                                .foregroundColor(.gray)
+                            
+                            // Button for "Recommended"
+                            Button(action: {
+                                fetchTask?.cancel()
+                                viewModel.posts.removeAll()
+                                selectedFeed = .discover
+                                viewModel.setFeedType(.discover)
+                                fetchTask = Task {
+                                    await viewModel.fetchPosts()
+                                    
+                                }
+                                
+                            }) {
+                                Text("Discover")
+                                    .foregroundColor(selectedFeed == .discover ?
+                                        .white : .gray)
+                                    .fontWeight(selectedFeed == .discover ? .bold : .regular)
+                                    .frame(width: 78)
+                            }
+                            .disabled(selectedFeed == .discover)
                         }
-                        Spacer()
-                        Button {
-                            showFilters.toggle()
+                        .padding(.top, 70)
+                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity)
+                        //MARK: Filters and Search Buttons
+                        HStack{
+                            Button{
+                                showSearchView.toggle()
+                                
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 27))
+                            }
+                            Spacer()
+                            Button {
+                                showFilters.toggle()
+                                
+                            }
+                        label: {
+                            Image(systemName: "slider.horizontal.3")
+                                .imageScale(.large)
+                                .shadow(radius: 4)
+                                .font(.system(size: 23))
+                        }
                             
                         }
-                    label: {
-                        Image(systemName: "slider.horizontal.3")
-                            .imageScale(.large)
-                            .shadow(radius: 4)
-                            .font(.system(size: 23))
-                    }
-                        
-                    }
-                    .padding(32)
-                    .padding(.top, 20)
-                    .foregroundStyle(.white)
-                }
-            }
-            
-            
-            
-            //MARK: Loading/ No posts
-            
-            //MARK: Navigation
-            .scrollPosition(id: $scrollPosition)
-            .scrollTargetBehavior(.paging)
-            .overlay {
-                if viewModel.showEmptyView {
-                    ContentUnavailableView("No posts to show", systemImage: "eye.slash")
+                        .padding(32)
+                        .padding(.top, 20)
                         .foregroundStyle(.white)
+                    }
                 }
-            }
-            /// loads the next 3 videos in the cache
-            .onChange(of: scrollPosition) {oldValue, newValue in
-                viewModel.updateCache(scrollPosition: newValue)
-            }
-            .background(.black)
-            .ignoresSafeArea()
-            
-            /// sets destination of user profile links
-            .navigationDestination(for: PostUser.self) { user in
-                ProfileView(uid: user.id, userService: userService)
-            }
-            
-            /// sets destination of searchview for the search button
-            .navigationDestination(for: SearchModelConfig.self) { config in
-                SearchView(userService: UserService(), searchConfig: config)}
-            
-            /// sets the destination of the restaurant profile when the restaurant profile is clicked
-            .navigationDestination(for: PostRestaurant.self) { restaurant in
-                RestaurantProfileView(restaurantId: restaurant.id)}
-            
-            /// pauses the video when search button is clicked
-            .onChange(of: showSearchView) { oldValue, newValue in
-                if newValue {
-                    pauseVideo = true
+                
+                
+                
+                //MARK: Loading/ No posts
+                
+                //MARK: Navigation
+                .scrollPosition(id: $scrollPosition)
+                .scrollTargetBehavior(.paging)
+                .overlay {
+                    if viewModel.showEmptyView {
+                        ContentUnavailableView("No posts to show", systemImage: "eye.slash")
+                            .foregroundStyle(.white)
+                    }
                 }
-                else {
-                    pauseVideo = false
+                /// loads the next 3 videos in the cache
+                .onChange(of: scrollPosition) {oldValue, newValue in
+                    viewModel.updateCache(scrollPosition: newValue)
                 }
-            }
-            /// puts the search view in view when search button is clicked
-            .fullScreenCover(isPresented: $showSearchView) {
-                SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
-            }
-            /// pauses the video when filters are shown
-            .onChange(of: showFilters) { oldValue, newValue in
-                if newValue {
-                    pauseVideo = true
+                .background(.black)
+                .ignoresSafeArea()
+                
+                /// sets destination of user profile links
+                .navigationDestination(for: PostUser.self) { user in
+                    ProfileView(uid: user.id, userService: userService)
                 }
-                else {
-                    pauseVideo = false
+                
+                /// sets destination of searchview for the search button
+                .navigationDestination(for: SearchModelConfig.self) { config in
+                    SearchView(userService: UserService(), searchConfig: config)}
+                
+                /// sets the destination of the restaurant profile when the restaurant profile is clicked
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)}
+                
+                /// pauses the video when search button is clicked
+                .onChange(of: showSearchView) { oldValue, newValue in
+                    if newValue {
+                        pauseVideo = true
+                    }
+                    else {
+                        pauseVideo = false
+                    }
                 }
-            }
-            .onAppear{
-                Task{
-                    try await viewModel.fetchCurrentUser()
-                }}
-            /// presents the filters view when filters are clicked
-            .fullScreenCover(isPresented: $showFilters) {
-                FiltersView(filtersViewModel: filtersViewModel)
+                /// puts the search view in view when search button is clicked
+                .fullScreenCover(isPresented: $showSearchView) {
+                    SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
+                }
+                /// pauses the video when filters are shown
+                .onChange(of: showFilters) { oldValue, newValue in
+                    if newValue {
+                        pauseVideo = true
+                    }
+                    else {
+                        pauseVideo = false
+                    }
+                }
+                .onAppear{
+                    Task{
+                        try await viewModel.fetchCurrentUser()
+                    }}
+                /// presents the filters view when filters are clicked
+                .fullScreenCover(isPresented: $showFilters) {
+                    FiltersView(filtersViewModel: filtersViewModel)
+                }
             }
         }
     }
-}
     
 }
 
