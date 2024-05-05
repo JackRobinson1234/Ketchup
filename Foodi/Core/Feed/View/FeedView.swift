@@ -221,5 +221,3 @@ struct FeedView: View {
 #Preview {
     FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: DeveloperPreview.posts, userService: UserService())
 }
-
-

@@ -12,8 +12,6 @@ struct RestaurantListView: View {
     @StateObject var viewModel: RestaurantListViewModel
     @Environment(\.dismiss) var dismiss
     var debouncer = Debouncer(delay: 1.0)
-    
-    
     init() {
         
         self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())}

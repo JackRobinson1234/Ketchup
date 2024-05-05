@@ -6,21 +6,22 @@
 //
 
 import SwiftUI
+import Firebase
+import PhotosUI
 
 @MainActor
 class UploadViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
-    //@Published var mediaPreview: MediaType?
     @Published var caption = ""
     //@Published var selectedMediaForUpload: MediaType?
-//    @Published var selectedItem: PhotosPickerItem? {
-//        didSet {
-//            Task {
-//                await loadMediafromPhotosPicker(fromItem: selectedItem)
-//            }
-//        }
-//    }
+    //    @Published var selectedItem: PhotosPickerItem? {
+    //        didSet {
+    //            Task {
+    //                await loadMediafromPhotosPicker(fromItem: selectedItem)
+    //            }
+    //        }
+    //    }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
@@ -28,7 +29,7 @@ class UploadViewModel: ObservableObject {
     @Published var videoURL: URL?
     @Published var picData: [Data]?
     @Published var mediaType: String = "none"
-
+    
     @Published var recipeTitle = ""
     @Published var ingredients: [Ingredient] = [Ingredient(quantity: "", item: "")]
     @Published var recipeCuisine = ""
@@ -40,156 +41,132 @@ class UploadViewModel: ObservableObject {
     
     @Published var instructions: [Instruction] = [Instruction(title: "", description: "")]
     
-    //private let restaurant: Restaurant?
-    //private let service: UploadPostService
+    @Published var restaurant: Restaurant?
     
-    @Published var brandTitle = ""
-    @Published var brandPrice = 0
+    @Published var postType = "Select Post Type"
     
     @Published var savedRecipe = false
     
+    private var uploadService = UploadService()
+    
+    
     var isLastIngredientEmpty: Bool {
         return ingredients.last?.item.isEmpty == true
-        }
+    }
     
     var isLastRestrictionEmpty: Bool {
-            return dietaryRestrictions.last?.isEmpty == true
-        }
+        return dietaryRestrictions.last?.isEmpty == true
+    }
     
     var isLastInstructionEmpty: Bool {
         return instructions.last?.description.isEmpty == true
-        }
-    
-//    init(service: UploadPostService, restaurant: Restaurant?) {
-//        self.service = service
-//        self.restaurant = restaurant
-//    }
-
-    
+    }
     
     func reset() {
-        caption = ""
-        //mediaPreview = nil
-        error = nil
-        //selectedItem = nil
-        //selectedMediaForUpload = nil
-        recipeTitle = ""
-        ingredients = [Ingredient(quantity: "", item: "")]
-        instructions = [Instruction(title: "", description: "")]
-        recipeCuisine = ""
-        dietaryRestrictions = [""]
-
-        
-        
+//        caption = ""
+//        mediaPreview = nil
+//        error = nil
+//        selectedItem = nil
+//        selectedMediaForUpload = nil
+//        recipeTitle = ""
+//        ingredients = [Ingredient(quantity: "", item: "")]
+//        instructions = [Instruction(title: "", description: "")]
+//        recipeCuisine = ""
+//        dietaryRestrictions = [""]
+        print("DEBUG: ayo")
     }
     func addEmptyIngredient() {
-            ingredients.append(Ingredient(quantity: "", item: ""))
-        }
+        ingredients.append(Ingredient(quantity: "", item: ""))
+    }
     
     func addEmptyRestriction() {
-            dietaryRestrictions.append("")
-        }
+        dietaryRestrictions.append("")
+    }
     
     func addEmptyInstruction() {
         instructions.append(Instruction(title: "", description: ""))
+    }
+    
+    func uploadPost() async {
+        var postRestaurant: PostRestaurant? = nil
+        var postRecipe: PostRecipe? = nil
+        
+        if savedRecipe {
+            postRecipe = PostRecipe(name: recipeTitle,
+                                    //TODO: Convert this to minutes
+                                    cookingTime: (recipeMinutes + recipeHours * 60),
+                                    dietary: dietaryRestrictions,
+                                    instructions: instructions,
+                                    ingredients: ingredients)
         }
+        
+        if let restaurant = restaurant {
+            postRestaurant = PostRestaurant(
+                id: restaurant.id,
+                name: restaurant.name,
+                geoPoint: restaurant.geoPoint,
+                geoHash: restaurant.geoHash,
+                address: restaurant.address,
+                city: restaurant.city,
+                state: restaurant.state,
+                profileImageUrl: restaurant.profileImageUrl
+            )
+        }
+        
+        isLoading = true
+        error = nil
+        do {
+            if mediaType == "video" {
+                guard let videoURL = videoURL else {
+                    throw UploadError.invalidMediaData
+                }
+                try await uploadService.uploadPost(videoURL: videoURL,
+                                                   picData: nil,
+                                                   mediaType: mediaType,
+                                                   caption: caption,
+                                                   postType: postType,
+                                                   postRestaurant: postRestaurant,
+                                                   postRecipe: postRecipe)
+            } else if mediaType == "photo" {
+                guard let picData = picData else {
+                    throw UploadError.invalidMediaData
+                }
+                try await uploadService.uploadPost(videoURL: nil,
+                                                   picData: picData,
+                                                   mediaType: mediaType,
+                                                   caption: caption,
+                                                   postType: postType,
+                                                   postRestaurant: postRestaurant,
+                                                   postRecipe: postRecipe)
+            } else {
+                throw UploadError.invalidMediaType
+            }
+            uploadSuccess = true
+        } catch {
+            self.error = error
+            uploadFailure = true
+        }
+        isLoading = false
+    }
+
     
-//    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {
-//        guard let item = item else { return }
-//        isLoading = true
-//
-//        do {
-//            if let movie = try await item.loadTransferable(type: Movie.self) {
-//                self.mediaPreview = .movie(movie)
-//            } else if let photo = try await item.loadTransferable(type: Photo.self) {
-//                self.mediaPreview = .photo(photo)
-//            } else {
-//                print("DEBUG: Unsupported media type")
-//            }
-//        } catch {
-//            print("DEBUG: Failed with error \(error.localizedDescription)")
-//        }
-//
-//        isLoading = false
-//    }
-//
-//
-//
-//    //MARK: Upload restaurants
-//    func uploadRestaurantPost() async throws {
-//        guard !caption.isEmpty else { return }
-//        guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
-//        isLoading = true
-//        if let restaurant {
-//            do {
-//                print("running upload post")
-//                try await service.uploadRestaurantPost(caption: caption, videoUrlString: videoUrlString, restaurant: restaurant)
-//                isLoading = false
-//                uploadSuccess = true
-//            } catch {
-//                self.error = error
-//                isLoading = false
-//                uploadFailure = true
-//            }
-//        }
-//    }
     
-//    func uploadRecipePost() async throws {
-//        guard !caption.isEmpty else { return }
-//        guard !recipeTitle.isEmpty else { return }
-//        guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
-//        isLoading = true
-//
-//        let filteredIngredients = ingredients.filter { !$0.item.isEmpty }
-//        let filteredDietaryRestrictions = dietaryRestrictions.filter { !$0.isEmpty }
-//        let filteredInstructions = instructions.filter { !$0.title.isEmpty || !$0.description.isEmpty }
-//        let time = recipeHours * 60 + recipeMinutes
-//        let nonEmptyIngredients = filteredIngredients.isEmpty ? nil : filteredIngredients
-//        let nonEmptyDietaryRestrictions = filteredDietaryRestrictions.isEmpty ? nil : filteredDietaryRestrictions
-//        let nonEmptyInstructions = filteredInstructions.isEmpty ? nil : filteredInstructions
-//        let nonEmptyCuisine = recipeCuisine.isEmpty ? nil : recipeCuisine
-//        var recipe = postRecipe(
-//            name: recipeTitle,
-//            cuisine: nonEmptyCuisine,
-//            dietary: nonEmptyDietaryRestrictions,
-//            instructions: nonEmptyInstructions,
-//            ingredients: nonEmptyIngredients
-//        )
-//
-//        if time > 0 {
-//            recipe.time = time
-//        }
-//            do {
-//                print("running upload recipe post")
-//                print(recipe)
-//                try await service.uploadRecipePost(caption: caption, videoUrlString: videoUrlString, recipe: recipe)
-//                isLoading = false
-//                uploadSuccess = true
-//            } catch {
-//                self.error = error
-//                isLoading = false
-//                uploadFailure = true
-//            }
-//        }
-//
-//    func uploadBrandPost() async throws {
-//        guard !caption.isEmpty else { return }
-//        guard let videoUrlString = mediaPreview?.url.absoluteString else { return }
-//        isLoading = true
-//        let brand = postBrand(name: brandTitle, price: brandPrice)
-//            do {
-//                print("running upload brand post")
-//                try await service.uploadBrandPost(caption: caption, videoUrlString: videoUrlString, brand: brand)
-//                isLoading = false
-//                uploadSuccess = true
-//            } catch {
-//                self.error = error
-//                isLoading = false
-//                uploadFailure = true
-//            }
-//        }
-//
-//    func setMediaItemForUpload() {
-//        selectedMediaForUpload = mediaPreview
-//    }
+    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+        isLoading = true
+
+        do {
+            if let movie = try await item.loadTransferable(type: Movie.self) {
+                //set media here
+                print("loaded video")
+            } else if let photo = try await item.loadTransferable(type: Photo.self) {
+                //set media here
+                print("loaded image")
+            } else {
+                print("DEBUG: Unsupported media type")
+            }
+        } catch {
+            print("DEBUG: Failed with error \(error.localizedDescription)")
+        }
+    }
 }

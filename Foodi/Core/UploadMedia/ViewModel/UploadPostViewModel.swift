@@ -4,6 +4,12 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
+//
+//  UploadPostViewModel.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 2/1/24.
+//
 /*
 import SwiftUI
 import Firebase

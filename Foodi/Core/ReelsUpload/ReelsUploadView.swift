@@ -7,25 +7,23 @@
 
 import SwiftUI
 
-import SwiftUI
 import AVFoundation
 
 struct ReelsUploadView: View {
-
-    @State var caption: String = ""
     
-    @State var postTypeSelection = "Select Post Type"
-    let postTypeOptions = ["At Home Post", "Going Out Post"]
-
-    @State private var isEditingCaption = false
+    // VIEW MODEL
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
+    // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
+    @State private var isEditingCaption = false
     @State var isPickingRestaurant = false
-    @State var selectedRestaurant: Restaurant?
     @State var isAddingRecipe = false
     @State var showPostTypeMenu: Bool = true
-    
-    @ObservedObject var uploadViewModel: UploadViewModel
  
+    // POST TYPE OPTIONS
+    let postTypeOptions = ["At Home Post", "Going Out Post"]
+    
     var body: some View {
         
             ZStack {
@@ -45,16 +43,21 @@ struct ReelsUploadView: View {
                     Button(action: {
                         self.isEditingCaption = true
                     }) {
-                        CaptionBox(caption: $caption, isEditingCaption: $isEditingCaption)
+                        CaptionBox(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
                     }
                     PostOptions(uploadViewModel: uploadViewModel,
                                 isPickingRestaurant: $isPickingRestaurant,
-                                selectedRestaurant: $selectedRestaurant,
-                                postTypeSelection: $postTypeSelection,
                                 isAddingRecipe: $isAddingRecipe)
                     
                     Button {
-                        print("Posting")
+                        // hande errors
+                        Task {
+                            
+                            await uploadViewModel.uploadPost()
+                            // Handle success if needed
+  
+                        }
+                        
                     } label: {
                          Text("Post")
                             .frame(width: 90, height: 45)
@@ -69,7 +72,7 @@ struct ReelsUploadView: View {
                 .blur(radius: showPostTypeMenu ? 10 : 0)
                 
                 if isEditingCaption {
-                    CaptionEditorView(caption: $caption, isEditingCaption: $isEditingCaption)
+                    CaptionEditorView(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
                         .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
@@ -77,18 +80,18 @@ struct ReelsUploadView: View {
                 }
                 
                 if showPostTypeMenu {
-                    PostTypeMenuView(showPostTypeMenu: $showPostTypeMenu, postTypeSelection: $postTypeSelection)
+                    PostTypeMenuView(uploadViewModel: uploadViewModel, showPostTypeMenu: $showPostTypeMenu)
                 }
             }
             .navigationBarHidden(showPostTypeMenu)
-            .navigationTitle(postTypeSelection)
+            .navigationTitle(uploadViewModel.postType)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarTitleMenu {
                 ForEach(postTypeOptions, id: \.self) { posttype in
                     Button {
-                        postTypeSelection = posttype
+                        uploadViewModel.postType = posttype
                     } label: {
-                        if postTypeSelection == posttype {
+                        if uploadViewModel.postType == posttype {
                             HStack {
                                 Text(posttype)
                                     .foregroundColor(.black)
@@ -125,7 +128,7 @@ struct ReelsUploadView: View {
                 }
             )
             .navigationDestination(isPresented: $isPickingRestaurant) {
-                SelectRestaurantListView(selectedRestaurant: $selectedRestaurant, isPickingRestaurant: $isPickingRestaurant)
+                SelectRestaurantListView()
                     .navigationTitle("Select Restaurant")
             }
             .navigationDestination(isPresented: $isAddingRecipe) {
@@ -304,14 +307,12 @@ struct PostOptions: View {
 
     @ObservedObject var uploadViewModel: UploadViewModel
     @Binding var isPickingRestaurant: Bool
-    @Binding var selectedRestaurant: Restaurant?
-    @Binding var postTypeSelection: String
     @Binding var isAddingRecipe: Bool
     
     var body: some View {
         VStack {
             Divider()
-            if postTypeSelection == "At Home Post" {
+            if uploadViewModel.postType == "At Home Post" {
       
                 Button {
                     isAddingRecipe = true
@@ -361,8 +362,8 @@ struct PostOptions: View {
                     
                     
                 }
-            } else if postTypeSelection == "Going Out Post" {
-                if let restaurant = selectedRestaurant {
+            } else if uploadViewModel.postType == "Going Out Post" {
+                if let restaurant = uploadViewModel.restaurant {
                     Button {
                         isPickingRestaurant = true
                     } label: {
@@ -459,52 +460,49 @@ struct PostOptions: View {
     }
 }
 
-
+import SwiftUI
+import InstantSearchSwiftUI
 
 struct SelectRestaurantListView: View {
-    @StateObject var viewModel = RestaurantListViewModel()
-    @State private var searchText = ""
-    @Binding var selectedRestaurant: Restaurant?
-    @State var isLoading: Bool = true
-    @Binding var isPickingRestaurant: Bool
-    var restaurants: [Restaurant] = []
-
+    @StateObject var viewModel: RestaurantListViewModel
+    @Environment(\.dismiss) var dismiss
+    var debouncer = Debouncer(delay: 1.0)
+    init() {
+        
+        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())}
+    
     var body: some View {
-        VStack {
-            if isLoading {
-                ProgressView("Loading...")
-                    .onAppear {
-                        Task {
-                            //try await viewModel.fetchRestaurants()
-                            isLoading = false
-                        }
-                    }
-            } else {
-                ScrollView {
-                    LazyVStack {
-                        //ForEach(viewModel.hits, id: \.query) { restaurant in
-                        ForEach(restaurants) { restaurant in
-                            Button(action: {
-                                self.selectedRestaurant = restaurant
-                                isPickingRestaurant = false
-                            }) {
-                                RestaurantCell(restaurant: restaurant)
-                                    .padding(3)
-                            }
-                        }
-                    }
-                }
-                .background(.white)
-                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+        InfiniteList(viewModel.hits, itemView: { hit in
+            NavigationLink(value: hit.object) {
+                RestaurantCell(restaurant: hit.object)
+                    .padding()
+            }
+            Divider()
+        }, noResults: {
+            Text("No results found")
+        })
+        .navigationTitle("Explore")
+        .searchable(text: $viewModel.searchQuery,
+                    prompt: "Search")
+        .onChange(of: viewModel.searchQuery) {
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
             }
         }
+        
     }
 }
 
+
+#Preview {
+    RestaurantListView()
+}
+
+
 struct PostTypeMenuView: View {
     
+    @ObservedObject var uploadViewModel: UploadViewModel
     @Binding var showPostTypeMenu: Bool
-    @Binding var postTypeSelection: String
     
     var body: some View {
         VStack(spacing: 0) {
@@ -520,7 +518,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    postTypeSelection = "At Home Post"
+                    uploadViewModel.postType = "At Home Post"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -542,7 +540,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    postTypeSelection = "Going Out Post"
+                    uploadViewModel.postType = "Going Out Post"
                     showPostTypeMenu = false
                 }) {
                     VStack {
