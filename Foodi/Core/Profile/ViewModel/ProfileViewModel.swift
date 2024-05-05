@@ -51,7 +51,6 @@ extension ProfileViewModel {
                 try await userService.follow(uid: user.id)
                 user.isFollowed = true
                 user.stats.followers += 1
-                NotificationManager.shared.uploadFollowNotification(toUid: user.id)
             }
     }
     func unfollow() {

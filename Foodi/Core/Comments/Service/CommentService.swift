@@ -76,8 +76,6 @@ class CommentService: CommentServiceProtocol {
             "commentCount": post.commentCount + 1
         ])
         
-        NotificationManager.shared.uploadCommentNotification(toUid: post.user.id, post: post)
-        
         if let currentUser = currentUser {
             comment.user = currentUser
         }
