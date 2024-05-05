@@ -24,7 +24,7 @@ class RestaurantViewModel: ObservableObject {
         // DEBUG: see if you can delete this
         
     }
-    func fetchRestaurant(id: String) async {
+    func fetchRestaurant(id: String) async throws {
         if self.restaurant == nil {
             do {
                 self.restaurant = try await restaurantService.fetchRestaurant(withId: id)
@@ -34,7 +34,8 @@ class RestaurantViewModel: ObservableObject {
         }
         if let unwrappedRestaurant = self.restaurant{
             await withThrowingTaskGroup(of: Void.self) { group in
-                group.addTask {await self.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
+                group.addTask {
+                    try await self.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
             }
         }
     }
@@ -42,7 +43,7 @@ class RestaurantViewModel: ObservableObject {
 // MARK: - Posts
 
 extension RestaurantViewModel {
-    func fetchRestaurantPosts(restaurant: Restaurant) async {
+    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
         if let unwrappedRestaurant = self.restaurant{
             do {
                 self.posts = try await postService.fetchRestaurantPosts(restaurant: unwrappedRestaurant)

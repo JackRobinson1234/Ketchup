@@ -18,7 +18,7 @@ class FeedViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
-    @Published var user = User(id: "", username: "", email: "", fullname: "")
+    @Published var user = User(id: "", username: "", fullname: "", privateMode: true)
     
     var videoCoordinator = VideoPlayerCoordinator()
     
@@ -40,14 +40,17 @@ class FeedViewModel: ObservableObject {
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil) async {
         do {
+            var updatedFilters = filters ?? [:] // Create a mutable copy or use an empty dictionary if filters is nil
+            // Append [user.privateMode: false] to the filters dictionary
+            updatedFilters["user.privateMode"] = [false]
+
             posts.removeAll()
             switch currentFeedType {
             case .discover:
-                posts = try await postService.fetchPosts(withFilters: filters)
+                posts = try await postService.fetchPosts(withFilters: updatedFilters)
             case .following:
-                posts = try await postService.fetchFollowingPosts(withFilters: filters)
+                posts = try await postService.fetchFollowingPosts(withFilters: updatedFilters)
             }
-            posts.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
             updateCache(scrollPosition: posts.first?.id)

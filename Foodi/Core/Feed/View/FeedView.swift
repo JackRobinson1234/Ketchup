@@ -58,7 +58,7 @@ struct FeedView: View {
         //MARK: Video Cells
         NavigationStack(path: $path) {
             ZStack(alignment: .topTrailing) {
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
                             FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
@@ -192,7 +192,7 @@ struct FeedView: View {
             }
             /// puts the search view in view when search button is clicked
             .fullScreenCover(isPresented: $showSearchView) {
-                SearchView(userService: userService, searchConfig: .users(userListConfig: .users), searchSlideBar: true)
+                SearchView(userService: userService, searchConfig: .restaurants, searchSlideBar: true)
             }
             /// pauses the video when filters are shown
             .onChange(of: showFilters) { oldValue, newValue in
@@ -205,7 +205,7 @@ struct FeedView: View {
             }
             .onAppear{
                 Task{
-                    try await viewModel.fetchCurrentUser()
+                    await viewModel.fetchCurrentUser()
                 }}
             /// presents the filters view when filters are clicked
             .fullScreenCover(isPresented: $showFilters) {

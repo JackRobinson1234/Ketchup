@@ -15,10 +15,9 @@ struct DeveloperPreview {
     static var user = User(
         id: NSUUID().uuidString,
         username: "lewis.hamilton",
-        email: "lewis@gmail.com",
         fullname: "Lewis Hamilton",
-        bio: "Formula 1 Driver | Mercedes AMG",
         profileImageUrl: "lewis-hamilton"
+        , privateMode: false
     )
     
     static var restaurants: [Restaurant] = [
@@ -65,10 +64,10 @@ struct DeveloperPreview {
     ]
     
     static var users: [User] = [
-        .init(id: NSUUID().uuidString, username: "lewis.hamilton", email: "lewis@gmail.com", fullname: "Lewis Hamilton", bio: " jasdf "),
-        .init(id: NSUUID().uuidString, username: "max.verstappen", email: "max@gmail.com", fullname: "Max Verstappen"),
-        .init(id: NSUUID().uuidString, username: "fernando.alonso", email: "fernando@gmail.com", fullname: "Fernado Alonso"),
-        .init(id: NSUUID().uuidString, username: "charles.leclerc", email: "charles@gmail.com", fullname: "Charles Leclerc"),
+        .init(id: NSUUID().uuidString, username: "lewis.hamilton",  fullname: "Lewis Hamilton", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "max.verstappen",  fullname: "Max Verstappen", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "fernando.alonso", fullname: "Fernado Alonso", privateMode: false),
+        .init(id: NSUUID().uuidString, username: "charles.leclerc", fullname: "Charles Leclerc", privateMode: false),
     ]
     
     static var posts: [Post] = [
@@ -87,6 +86,7 @@ struct DeveloperPreview {
                     id: "user1",
                     fullName: "John Doe",
                     profileImageUrl: "https://example.com/profile.jpg"
+                    ,privateMode: false
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",
@@ -160,24 +160,35 @@ struct DeveloperPreview {
                 description: "A collection of delicious Italian dishes",
                 username: "wilbond",
                 uid: "",
-                items: [
-                    .init(
-                        id: "QOxHzulwskv9pSS3vsSH",
-                        postType: "atHome",
-                        name: "Pasta Carbonara",
-                        image: "https://picsum.photos/200/300",
-                        postUserFullname: "Will Bond"
-                    ),
-                    .init(
-                        id: "-1QvxFtMgOLpSbO-oAtUgA",
-                        postType: "restaurant",
-                        name: "Bella Italia",
-                        image: "https://picsum.photos/250/350",
-                        city: "Hermosa Beach",
-                        state: "CA",
-                        geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
-                    )
-                ]
+                restaurantCount: 0,
+                atHomeCount: 0,
+                privateMode: false
                 )
         ]
+    static var items: [CollectionItem] = [
+            .init(
+                collectionId: "af",
+                id: "QOxHzulwskv9pSS3vsSH",
+                postType: "atHome",
+                name: "Pasta Carbonara",
+                image: "https://picsum.photos/200/300",
+                postUserFullname: "Will Bond"
+            ),
+            .init(
+                collectionId: "af",
+                id: "-1QvxFtMgOLpSbO-oAtUgA",
+                postType: "restaurant",
+                name: "Bella Italia",
+                image: "https://picsum.photos/250/350",
+                city: "Hermosa Beach",
+                state: "CA",
+                geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
+            )
+        ]
+    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: "atHome")
+
+        static let activity2 = Activity(id: "2", username: "user2", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollection, uid: "uid2", image: nil, restaurantId: nil, collectionId: "456", name: "My Collection")
+
+        static let activity3 = Activity(id: "3", username: "user3", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollectionItem, uid: "uid3",  image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: "789", name: "Item Name")
+
 }

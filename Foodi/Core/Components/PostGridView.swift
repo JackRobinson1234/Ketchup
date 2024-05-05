@@ -65,15 +65,15 @@ struct PostGridView: View {
                                     Spacer()
                                     HStack {
                                         /*
-                                        if post.restaurant != nil {
-                                            Image(systemName: "building.2.crop.circle.fill")
-                                                .font(.footnote)
-                                                .foregroundColor(.white)
-                                        } else if post.recipe != nil {
-                                            Image(systemName: "fork.knife.circle")
-                                                .font(.footnote)
-                                                .foregroundColor(.white)
-                                        }*/
+                                         if post.restaurant != nil {
+                                         Image(systemName: "building.2.crop.circle.fill")
+                                         .font(.footnote)
+                                         .foregroundColor(.white)
+                                         } else if post.recipe != nil {
+                                         Image(systemName: "fork.knife.circle")
+                                         .font(.footnote)
+                                         .foregroundColor(.white)
+                                         }*/
                                         Spacer()
                                         
                                         Text("\(post.likes)")
@@ -99,9 +99,10 @@ struct PostGridView: View {
                         }
                 }
             }
-        } else {
-            Text("No Posts to Show")
-                .foregroundStyle(.gray)
+            else {
+                Text("No Posts to Show")
+                    .foregroundStyle(.gray)
+            }
         }
     }
 }

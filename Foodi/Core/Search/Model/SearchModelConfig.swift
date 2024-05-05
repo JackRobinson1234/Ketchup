@@ -10,6 +10,7 @@ import Foundation
 
 enum SearchModelConfig: Hashable {
     case posts
-    case users(userListConfig: UserListConfig)
-    case restaurants(restaurantListConfig: RestaurantListConfig)
+    case users
+    case restaurants
+    case collections
 }

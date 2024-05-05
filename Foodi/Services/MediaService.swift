@@ -1,0 +1,109 @@
+//
+//  MediaUploader.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 2/1/24.
+//
+
+import Foundation
+import UIKit
+import Firebase
+import FirebaseStorage
+import AVKit
+import AVFoundation
+
+enum UploadType {
+    case profile
+    case post
+    
+    var filePath: StorageReference {
+        let filename = NSUUID().uuidString
+        switch self {
+        case .profile:
+            return Storage.storage().reference(withPath: "/profile_images/\(filename)")
+        case .post:
+            return Storage.storage().reference(withPath: "/post_images/\(filename)")
+        }
+    }
+}
+//MARK: ImageUploader
+struct ImageUploader {
+    //MARK: uploadImage
+    
+    /// Uploads an image to firebase storage
+    /// - Parameters:
+    ///   - image: UIIMage to be uploaded
+    ///   - type: File type that is to be uploaded (ex. "MP4")
+    /// - Returns: Success: Download URL string, Failure: throws and returns nil
+    static func uploadImage(image: UIImage, type: UploadType) async throws -> String? {
+        guard let imageData = image.jpegData(compressionQuality: 0.5) else { return nil }
+        let ref = type.filePath
+        
+        do {
+            let _ = try await ref.putDataAsync(imageData)
+            let url = try await ref.downloadURL()
+            return url.absoluteString
+        } catch {
+            print("DEBUG: Failed to upload image \(error.localizedDescription)")
+            return nil
+        }
+    }
+    //MARK: deleteImage
+    /// Deletes an image from firestore
+    /// - Parameter urlString: download url of where the image can be found on firebase
+    static func deleteImage(fromUrl urlString: String) async throws {
+            guard let url = URL(string: urlString) else {
+                throw StorageError.invalidUrl
+            }
+            let ref = Storage.storage().reference(forURL: url.absoluteString)
+            
+            do {
+                try await ref.delete()
+            } catch {
+                throw StorageError.deleteError(error.localizedDescription)
+            }
+        }
+}
+
+//MARK: VideoUploader
+struct VideoUploader {
+    //MARK: uploadVideoToStorage
+    /// Uploads a video to storeage
+    /// - Parameter url: url reference of the video to be uploaded to firebase
+    /// - Returns: download url from firebase as a String
+    static func uploadVideoToStorage(withUrl url: URL) async throws -> String? {
+        let filename = NSUUID().uuidString
+        let ref = Storage.storage().reference(withPath: "/post_videos/").child(filename)
+        let metadata = StorageMetadata()
+        metadata.contentType = "video/quicktime"
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let _ = try await ref.putDataAsync(data, metadata: metadata)
+            let url = try await ref.downloadURL()
+            return url.absoluteString
+        } catch {
+            print("DEBUG: Failed to upload video with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    //MARK: deleteVideo
+    /// deletes a video from Firebase
+    /// - Parameter urlString: string URL of the video that is to be deleted
+    static func deleteVideo(fromUrl urlString: String) async throws {
+            guard let url = URL(string: urlString) else {
+                throw StorageError.invalidUrl
+            }
+            let ref = Storage.storage().reference(forURL: url.absoluteString)
+            
+            do {
+                try await ref.delete()
+            } catch {
+                throw StorageError.deleteError(error.localizedDescription)
+            }
+        }
+}
+enum StorageError: Error {
+    case invalidUrl
+    case deleteError(String)
+}

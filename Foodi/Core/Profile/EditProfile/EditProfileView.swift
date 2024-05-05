@@ -54,7 +54,6 @@ struct EditProfileView: View {
                 VStack {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $editProfileViewModel.username)
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $editProfileViewModel.fullname)
-                    EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $editProfileViewModel.bio)
                     editFavoritesView(user: user, editProfileViewModel: editProfileViewModel)
                 }
                 
@@ -158,7 +157,7 @@ struct editFavoritesView: View {
                         Button{
                             oldSelection = favoriteRestaurant
                             if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
-                                editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: "")
+                                editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: "")
                             }
                         } label: {
                             VStack{
@@ -174,6 +173,6 @@ struct editFavoritesView: View {
                     
                 }
             }
-        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(restaurantService: RestaurantService(), oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
+        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
     }
 }

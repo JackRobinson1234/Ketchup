@@ -26,4 +26,5 @@ class MockAuthService: AuthServiceProtocol {
         didAuthenticateUser = false
         self.userSession = nil
     }
+    
 }

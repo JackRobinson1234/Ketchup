@@ -37,14 +37,28 @@ struct RestaurantProfileView: View {
                 .onAppear {
                     Task {
                         viewModel.restaurant = restaurant
-                        await viewModel.fetchRestaurant(id: restaurantId)
+                        try await viewModel.fetchRestaurant(id: restaurantId)
                         isLoading = false
                     }
                 }
-        } else{
-            
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(.white)
+                                .background(
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                        .frame(width: 30, height: 30) // Adjust the size as needed
+                                )
+                        }
+                    }
+                }
+        } else {
             VStack{
-                if let restaurant = viewModel.restaurant{
+                if viewModel.restaurant != nil {
                     RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
                 }
             }
@@ -52,7 +66,7 @@ struct RestaurantProfileView: View {
                 Button{
                     Task{
                         try await self.user = UserService().fetchCurrentUser()
-                        if let user {
+                        if user != nil{
                             showAddToCollection.toggle()
                         }
                     }

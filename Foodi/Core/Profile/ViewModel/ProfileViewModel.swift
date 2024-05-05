@@ -11,8 +11,7 @@ import SwiftUI
 @MainActor
 class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
-    @Published var user = User(id: "", username: "", email: "", fullname: "")
-    
+    @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
     private let userService: UserService
     private let postService: PostService
@@ -52,7 +51,6 @@ extension ProfileViewModel {
                 try await userService.follow(uid: user.id)
                 user.isFollowed = true
                 user.stats.followers += 1
-                NotificationManager.shared.uploadFollowNotification(toUid: user.id)
             }
     }
     func unfollow() {

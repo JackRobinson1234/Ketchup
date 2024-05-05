@@ -7,7 +7,9 @@
 
 import Foundation
 import Firebase
-
+import SwiftUI
+import FirebaseAuth
+@MainActor
 class RegistrationViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
@@ -16,6 +18,11 @@ class RegistrationViewModel: ObservableObject {
     @Published var isAuthenticating = false
     @Published var showAlert = false
     @Published var authError: AuthError?
+    var alertDebouncer = Debouncer(delay: 4.0)
+    @Published var validRegistrationEmail: Bool? = nil
+    @Published var validPassword: Bool? = nil
+    @Published var validUsername: Bool? = nil
+    @Published var registrationAttempts = 0
     
     private let service: AuthService
     
@@ -26,6 +33,7 @@ class RegistrationViewModel: ObservableObject {
     @MainActor
     func createUser() async throws {
         isAuthenticating = true
+        registrationAttempts += 1
         do {
             try await service.createUser(
                 email: email,
@@ -39,6 +47,26 @@ class RegistrationViewModel: ObservableObject {
             showAlert = true
             isAuthenticating = false
             authError = AuthError(authErrorCode: authErrorCode ?? .userNotFound)
+            alertDebouncer.schedule{
+                self.showAlert = false
+            }
+        }
+    }
+    func isValidEmail(){
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        self.validRegistrationEmail = emailPredicate.evaluate(with: self.email)
+    }
+    func isValidPassword() {
+        validPassword = password.count > 5
+    }
+    func checkIfUsernameAvailable() async throws {
+        let query = FirestoreConstants.UserCollection.whereField("username", isEqualTo: self.username)
+        let querySnapshot = try await query.getDocuments()
+        if querySnapshot.documents.isEmpty {
+           validUsername = true
+        } else {
+            validUsername = false
         }
     }
 }

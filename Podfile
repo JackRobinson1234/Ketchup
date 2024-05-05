@@ -11,6 +11,8 @@ pod 'Firebase/Auth'
 pod 'Firebase/Storage'
 pod 'Firebase/Firestore'
 pod 'Kingfisher', '~> 7.0'
+pod 'GoogleSignIn'
+pod 'GoogleSignInSwiftSupport'
 
   target 'FoodiTests' do
     inherit! :search_paths

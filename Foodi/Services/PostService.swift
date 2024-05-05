@@ -70,7 +70,7 @@ class PostService {
                 return posts
             }
             
-            query = await applyFilters(toQuery: query, filters: filters)
+            query = applyFilters(toQuery: query, filters: filters)
         }
         self.posts = try await query.getDocuments(as: Post.self)
         print("DEBUG: posts fetched", posts.count)
@@ -190,10 +190,8 @@ extension PostService {
     func likePost(_ post: Post) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).setData([:])
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(1))])
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).setData([:])
         async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(1))])
-        NotificationManager.shared.uploadLikeNotification(toUid: post.user.id, post: post)
     }
     
     
@@ -205,9 +203,7 @@ extension PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).delete()
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).delete()
-        async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData(["likes": FieldValue.increment(Int64(-1))])
         async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(-1))])
-        async let _ = NotificationManager.shared.deleteNotification(toUid: post.user.id, type: .like)
     }
     
     
@@ -235,10 +231,16 @@ extension PostService {
             .collection("user-likes")
             .getDocuments()
         let postIds = querySnapshot.documents.map { $0.documentID }
+        var likedPosts: [Post] = []
         /// Fetches the posts from the PostIds
-        posts = try await self.fetchPosts(withFilters: ["id": postIds])
-        return posts
+        for postId in postIds {
+            do {
+                let post = try await self.fetchPost(postId: postId)
+                likedPosts.append(post)
+            } catch {
+                print("Error fetching post with id \(postId): \(error.localizedDescription)")
+            }
+        }
+        return likedPosts
     }
 }
-
-

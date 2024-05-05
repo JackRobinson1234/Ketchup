@@ -48,40 +48,25 @@ struct SearchView: View {
             
             switch searchConfig {
             case .posts:
-                PostListView(userService: userService, searchText: $searchText)
+                PostListView()
                     .modifier(BackButtonModifier())
                     .navigationBarBackButtonHidden()
                     
                 
-            case .users(let userListConfig):
-                UserListView(config: userListConfig, userService: userService, searchText: $searchText)
+                
+            
+            case .users:
+                    UserListView()
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+            case .restaurants:
+                    RestaurantListView()
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+            case .collections:
+                CollectionsSearchListView()
                     .modifier(BackButtonModifier())
                     .navigationBarBackButtonHidden()
-                    
-                
-            case .restaurants(let restaurantListConfig):
-                switch restaurantListConfig {
-                case .upload:
-                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                        .modifier(BackButtonModifier())
-                        .navigationBarBackButtonHidden()
-                        .navigationBarTitleDisplayMode(.inline)
-                case .restaurants:
-                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                        .modifier(BackButtonModifier())
-                        .navigationBarBackButtonHidden()
-                }
-                /*if restaurantListConfig == .upload{
-                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                        .modifier(BackButtonModifier())
-                        .navigationBarBackButtonHidden()
-                        
-                }
-                else {
-                    RestaurantListView(config: restaurantListConfig, restaurantService: RestaurantService(), userService: userService)
-                        
-                }
-                 */
             }
         }
         

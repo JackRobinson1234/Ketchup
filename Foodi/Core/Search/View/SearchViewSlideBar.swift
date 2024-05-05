@@ -12,40 +12,53 @@ struct SearchViewSlideBar: View {
     init(searchConfig: Binding<SearchModelConfig>) {
         self._searchConfig = searchConfig
     }
-
+    
     var body: some View {
         VStack{
-            HStack(spacing: 30) {
-                Text("Posts")
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .posts
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 20) {
+                    Text("Restaurants")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .restaurants
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .posts))
-                    //.frame(maxWidth: .infinity)
-                
-                Text("Users")
-                    .frame(width: 50, height: 25)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .users(userListConfig: .users)
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
+                    
+                    Text("At Home Posts")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .posts
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .users(userListConfig: .users)))
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .posts))
                     //.frame(maxWidth: .infinity)
-                
-                Text("Restaurants")
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.searchConfig = .restaurants(restaurantListConfig: .restaurants)
+                    
+                    Text("Users")
+                        .frame(width: 50, height: 25)
+                    
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .users
+                            }
                         }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants(restaurantListConfig: .restaurants)))
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .users))
                     //.frame(maxWidth: .infinity)
-                
+                    
+                    
+                    //.frame(maxWidth: .infinity)
+                    
+                    Text("Collections")
+                        .onTapGesture {
+                            withAnimation {
+                                self.searchConfig = .collections
+                            }
+                        }
+                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .collections))
+                    //.frame(maxWidth: .infinity)
+                    
+                }
+                .padding()
             }
         }
     }

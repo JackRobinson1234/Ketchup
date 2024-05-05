@@ -27,6 +27,8 @@ struct FirestoreConstants {
     
     static let CollectionsCollection = Root.collection("collections")
     
+    static let ActivityCollection = Root.collection("activity")
+    
     static func UserFeedCollection(uid: String) -> CollectionReference {
         return UserCollection.document(uid).collection("user-feed")
     }

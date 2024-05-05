@@ -10,7 +10,9 @@ import MapKit
 struct CollectionMapView: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
-        if let collection = collectionsViewModel.selectedCollection, let items = collection.items {
+        if collectionsViewModel.selectedCollection != nil {
+        let items = collectionsViewModel.items
+        let _ = print(items)
         Map(initialPosition: .automatic) {
             ForEach(items, id: \.self) { item in
                 if let geoPoint = item.geoPoint {

@@ -67,19 +67,18 @@ class CommentService: CommentServiceProtocol {
             commentOwnerUid: currentUid
         )
         
-        guard let commentData = try? Firestore.Encoder().encode(comment) else { return nil }
+        guard let commentData = try? Firestore.Encoder().encode(comment) else {
+            return nil
+        }
         
         async let _ = try commentsCollection.document(ref.documentID).setData(commentData)
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).updateData([
             "commentCount": post.commentCount + 1
         ])
         
-        NotificationManager.shared.uploadCommentNotification(toUid: post.user.id, post: post)
-        
         if let currentUser = currentUser {
             comment.user = currentUser
         }
-        
         return comment
     }
     
