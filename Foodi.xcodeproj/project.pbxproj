@@ -94,12 +94,8 @@
 		F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A932B6B026D00EC159B /* FiltersView.swift */; };
 		F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A952B6B028900EC159B /* MainTabView.swift */; };
 		F88E0A982B6B02A300EC159B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A972B6B02A300EC159B /* MapView.swift */; };
-		F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A9F2B6B02FF00EC159B /* NotificationCellViewModel.swift */; };
 		F88E0AA42B6B034500EC159B /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA32B6B034500EC159B /* Notification.swift */; };
-		F88E0AA62B6B035E00EC159B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA52B6B035E00EC159B /* NotificationManager.swift */; };
 		F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA72B6B037200EC159B /* NotificationService.swift */; };
-		F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA92B6B039E00EC159B /* NotificationsView.swift */; };
-		F88E0AAC2B6B03CA00EC159B /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AAB2B6B03CA00EC159B /* NotificationCell.swift */; };
 		F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */; };
 		F88E0AB42B6B044C00EC159B /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB32B6B044C00EC159B /* EditProfileView.swift */; };
 		F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */; };
@@ -154,6 +150,8 @@
 		F8A24B592BE7F2BD00AB7FDD /* UploadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */; };
 		F8A24B5B2BE7F2DA00AB7FDD /* UploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B5A2BE7F2DA00AB7FDD /* UploadService.swift */; };
 		F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */; };
+		F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B662BE849A000AB7FDD /* NotificationsView.swift */; };
+		F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AB7CB92B95D9F600CF3339 /* EditDietaryRestrictionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */; };
 		F8AB7CBB2B99679600CF3339 /* RecipeTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */; };
@@ -306,12 +304,8 @@
 		F88E0A932B6B026D00EC159B /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		F88E0A952B6B028900EC159B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		F88E0A972B6B02A300EC159B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
-		F88E0A9F2B6B02FF00EC159B /* NotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCellViewModel.swift; sourceTree = "<group>"; };
 		F88E0AA32B6B034500EC159B /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
-		F88E0AA52B6B035E00EC159B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		F88E0AA72B6B037200EC159B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-		F88E0AA92B6B039E00EC159B /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
-		F88E0AAB2B6B03CA00EC159B /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewModel.swift; sourceTree = "<group>"; };
 		F88E0AB32B6B044C00EC159B /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
@@ -366,6 +360,8 @@
 		F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadError.swift; sourceTree = "<group>"; };
 		F8A24B5A2BE7F2DA00AB7FDD /* UploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadService.swift; sourceTree = "<group>"; };
 		F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
+		F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
+		F8A24B662BE849A000AB7FDD /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AB7CB82B95D9F600CF3339 /* EditDietaryRestrictionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDietaryRestrictionsView.swift; sourceTree = "<group>"; };
 		F8AB7CBA2B99679600CF3339 /* RecipeTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTimePicker.swift; sourceTree = "<group>"; };
@@ -736,9 +732,7 @@
 		F84FE2882B6A553500144F01 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0A9E2B6B02CB00EC159B /* Managers */,
-				F88E0A9D2B6B02CB00EC159B /* Model */,
-				F88E0A9B2B6B02C800EC159B /* View */,
+				F8A24B642BE8499800AB7FDD /* View */,
 				F88E0A992B6B02C300EC159B /* ViewModel */,
 			);
 			path = Notifications;
@@ -1044,31 +1038,6 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		F88E0A9B2B6B02C800EC159B /* View */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0AA92B6B039E00EC159B /* NotificationsView.swift */,
-				F88E0AAB2B6B03CA00EC159B /* NotificationCell.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		F88E0A9D2B6B02CB00EC159B /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0AA52B6B035E00EC159B /* NotificationManager.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		F88E0A9E2B6B02CB00EC159B /* Managers */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0A9F2B6B02FF00EC159B /* NotificationCellViewModel.swift */,
-			);
-			path = Managers;
-			sourceTree = "<group>";
-		};
 		F88E0AAF2B6B040D00EC159B /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -1283,6 +1252,15 @@
 				F8EE6E262BB8E803006A86F3 /* VideoTest.swift */,
 			);
 			path = VideoPlayer;
+			sourceTree = "<group>";
+		};
+		F8A24B642BE8499800AB7FDD /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F8A24B662BE849A000AB7FDD /* NotificationsView.swift */,
+				F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		F8A98C262B9A668D00D399AB /* Activity */ = {
@@ -1656,7 +1634,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F88E0AF62B6B08A800EC159B /* RestaurantCell.swift in Sources */,
-				F88E0AA02B6B02FF00EC159B /* NotificationCellViewModel.swift in Sources */,
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
 				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
@@ -1672,6 +1649,7 @@
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
 				F8F494F62BBF98610043B515 /* DietaryFilter.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
+				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
 				F823E1802B70C16600E18135 /* CreatePostSelection.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
@@ -1721,13 +1699,11 @@
 				F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */,
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
-				F88E0AAC2B6B03CA00EC159B /* NotificationCell.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
 				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
 				F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
-				F88E0AAA2B6B039E00EC159B /* NotificationsView.swift in Sources */,
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
@@ -1772,10 +1748,10 @@
 				F88E0B282B6CA00800EC159B /* Mediahelpers.swift in Sources */,
 				F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */,
 				F871CE032BCDBF56003C9BE8 /* CollectionService.swift in Sources */,
-				F88E0AA62B6B035E00EC159B /* NotificationManager.swift in Sources */,
 				F89F28722BE3163C00E670E0 /* Activity.swift in Sources */,
 				F88E0A8C2B6B01B300EC159B /* FeedViewModel.swift in Sources */,
 				F8CC219A2BD5873F00B4B329 /* JoeRecipeView.swift in Sources */,
+				F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */,
 				F88E0B1B2B6B0B0800EC159B /* User.swift in Sources */,
 				F88E0A982B6B02A300EC159B /* MapView.swift in Sources */,
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,

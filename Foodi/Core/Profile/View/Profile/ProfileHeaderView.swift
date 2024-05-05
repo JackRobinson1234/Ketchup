@@ -23,7 +23,7 @@ struct ProfileHeaderView: View {
     var body: some View {
        let user = viewModel.user
             VStack(spacing: 16) {
-                HStack(spacing: 0){
+                HStack {
                     VStack(spacing: 8) {
                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
                     }
@@ -52,7 +52,6 @@ struct ProfileHeaderView: View {
                             UserStatView(value: user.stats.posts, title: "Posts")
                             
                             UserStatView(value: user.stats.collections, title: "Collections")
-                            
                             
                         }
                     }
