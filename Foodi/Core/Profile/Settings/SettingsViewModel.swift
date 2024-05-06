@@ -13,16 +13,14 @@ import Firebase
 
 class SettingsViewModel: ObservableObject{
     private let userService: UserService
-    private let authService: AuthService
     private let collectionsService = CollectionService()
     private let postService = PostService()
     @ObservedObject var profileViewModel: ProfileViewModel
     @Published var needsReauth: Bool = false
     @Published var privateMode: Bool
     
-    init(userService: UserService, authService: AuthService, profileViewModel: ProfileViewModel) {
+    init(userService: UserService,  profileViewModel: ProfileViewModel) {
         self.userService = userService
-        self.authService = authService
         self.profileViewModel = profileViewModel
         self.privateMode = profileViewModel.user.privateMode
     }
@@ -37,7 +35,7 @@ class SettingsViewModel: ObservableObject{
         if !readyForDelete {
             return true
         } else {
-            try await authService.deleteAccount()
+            try await AuthService.shared.deleteAccount()
             return false
         }
     }

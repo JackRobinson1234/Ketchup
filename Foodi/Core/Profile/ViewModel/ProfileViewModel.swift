@@ -27,15 +27,17 @@ class ProfileViewModel: ObservableObject {
     func fetchUser() async {
         do {
             self.user = try await userService.fetchUser(withUid: uid)
-            await fetchUserPosts()
+            try await fetchUserPosts()
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
     }
     func fetchCurrentUser() async {
         do{
-            self.user = try await userService.fetchCurrentUser()
-            await fetchUserPosts()
+            if let currentUser = AuthService.shared.userSession {
+                self.user = currentUser
+            }
+            try await fetchUserPosts()
         }
         catch {
             print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
@@ -69,28 +71,10 @@ extension ProfileViewModel {
     
 }
 
-// MARK: - Stats
-
-/*extension ProfileViewModel {
-    func fetchUserStats() async {
-            guard !didCompleteStatsFetch else {print("DEBUG: User stats have already been fetched \(user.stats)")
-                return
-            }
-            
-            do {
-                user.stats = try await userService.fetchUserStats(uid: user.id)
-                didCompleteStatsFetch = true
-            } catch {
-                print("DEBUG: Failed to fetch user stats with error \(error.localizedDescription)")
-            }
-        }
-    
-}*/
-
 // MARK: - Posts
 
 extension ProfileViewModel {
-    func fetchUserPosts() async {
+    func fetchUserPosts() async throws {
         
             do {
                 self.posts = try await postService.fetchUserPosts(user: user)
@@ -100,7 +84,7 @@ extension ProfileViewModel {
         }
     
     
-    func fetchUserLikedPosts() async {
+    func fetchUserLikedPosts() async throws {
             do {
                 self.posts = try await postService.fetchUserLikedPosts(user: user)
             } catch {

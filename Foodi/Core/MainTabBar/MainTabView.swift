@@ -8,7 +8,6 @@
 import SwiftUI
 import AVKit
 struct MainTabView: View {
-    private let authService: AuthService
     private let userService: UserService
     @State private var selectedTab = 0
     @StateObject private var videoCoordinator = VideoPlayerCoordinator()
@@ -17,8 +16,7 @@ struct MainTabView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @State var visibility = Visibility.visible
     
-    init(authService: AuthService, userService: UserService) {
-        self.authService = authService
+    init(userService: UserService) {
         self.userService = userService
     }
     
@@ -67,7 +65,7 @@ struct MainTabView: View {
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
-            CurrentUserProfileView(authService: authService, userService: userService)
+            CurrentUserProfileView(userService: userService)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 4 ? "person.fill" : "person")
@@ -84,5 +82,5 @@ struct MainTabView: View {
 }
     
 #Preview {
-    MainTabView(authService: AuthService(), userService: UserService())
+    MainTabView(userService: UserService())
 }

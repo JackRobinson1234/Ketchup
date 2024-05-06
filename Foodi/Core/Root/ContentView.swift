@@ -8,35 +8,33 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let authService: AuthService
     private let userService: UserService
     
     var tabBarController = TabBarController()
     
     @StateObject var viewModel: ContentViewModel
     
-    init(authService: AuthService, userService: UserService) {
-        self.authService = authService
+    init(userService: UserService) {
         self.userService = userService
         
-        let contentViewModel = ContentViewModel(authService: authService, userService: userService)
+        let contentViewModel = ContentViewModel(userService: userService)
         self._viewModel = StateObject(wrappedValue: contentViewModel)
     }
     
     var body: some View {
         Group {
             if viewModel.userSession != nil {
-                    MainTabView(authService: authService, userService: userService)
+                    MainTabView(userService: userService)
                         .environmentObject(viewModel)
                         .environmentObject(tabBarController)
                     
                 } else {
-                LoginView(service: authService)
+                LoginView()
             }
         }
     }
 }
 
 #Preview {
-    ContentView(authService: AuthService(), userService: UserService())
+    ContentView(userService: UserService())
 }

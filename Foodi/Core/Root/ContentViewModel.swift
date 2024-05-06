@@ -10,26 +10,24 @@ import Firebase
 
 @MainActor
 class ContentViewModel: ObservableObject {
-    @Published var userSession: FirebaseAuth.User?
+    @Published var userSession: User?
     
     private var cancellables = Set<AnyCancellable>()
-    private let authService: AuthService
     private let userService: UserService
     
-    init(authService: AuthService, userService: UserService) {
-        self.authService = authService
+    init(userService: UserService) {
         self.userService = userService
-        authService.updateUserSession()
+        Task {
+            try await AuthService.shared.updateUserSession()
+        }
         setupSubscribers()
     }
     @MainActor
     func setupSubscribers() {
-            authService.$userSession.sink { [weak self] session in
+        AuthService.shared.$userSession.sink { [weak self] session in
                 self?.userSession = session
                
             }
             .store(in: &cancellables)
-        
-        
         }
 }

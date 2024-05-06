@@ -74,5 +74,5 @@ struct ForgotPasswordView: View {
 }
 
 #Preview {
-    ForgotPasswordView(viewModel: LoginViewModel(service: AuthService()))
+    ForgotPasswordView(viewModel: LoginViewModel())
 }

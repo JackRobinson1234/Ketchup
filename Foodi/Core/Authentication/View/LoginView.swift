@@ -10,17 +10,15 @@ import GoogleSignIn
 import FirebaseAuth
 import GoogleSignInSwift
 struct LoginView: View {
-    private let service: AuthService
-    @StateObject private var viewModel: LoginViewModel
+    @StateObject private var viewModel: LoginViewModel = LoginViewModel()
     @Environment(\.dismiss) var dismiss
     var emailDebouncer = Debouncer(delay: 0.7)
     var passwordDebouncer = Debouncer(delay: 0.7)
     var loginRateDebouncer = Debouncer(delay: 10.0)
     var maxLoginAttempts = 6
     var reAuthDelete: Bool?
-    init(service: AuthService, reAuthDelete: Bool? = false) {
-        self.service = service
-        self._viewModel = StateObject(wrappedValue: LoginViewModel(service: service))
+    init(reAuthDelete: Bool? = false) {
+        //self._viewModel = StateObject(wrappedValue: LoginViewModel())
         self.reAuthDelete = reAuthDelete
     }
     
@@ -131,7 +129,7 @@ struct LoginView: View {
                     Task{
                         if let reAuthDelete = reAuthDelete {
                             if !reAuthDelete{
-                                try await service.signInWithGoogle()
+                                try await AuthService.shared.signInWithGoogle()
                             } else if reAuthDelete{
                                 try await viewModel.reAuthDeleteWithGoogle()
                             }
@@ -148,7 +146,7 @@ struct LoginView: View {
                     Divider()
                     //MARK: RegistrationView
                     NavigationLink {
-                        RegistrationView(service: service)
+                        RegistrationView()
                             .navigationBarBackButtonHidden()
                     } label: {
                         HStack(spacing: 3) {
@@ -192,5 +190,5 @@ extension LoginView: AuthenticationFormProtocol {
     }
 }
 #Preview {
-    LoginView(service: AuthService())
+    LoginView()
 }

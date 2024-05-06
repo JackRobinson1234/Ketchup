@@ -7,7 +7,6 @@
 
 import SwiftUI
 struct CurrentUserProfileView: View {
-    private let authService: AuthService
     @StateObject var profileViewModel: ProfileViewModel
     
     private let userService: UserService
@@ -15,9 +14,7 @@ struct CurrentUserProfileView: View {
     @State var isLoading = true
     @State var showNotifications = false
     @State var showSettings = false
-    init(authService: AuthService, userService: UserService, currentProfileSection: ProfileSectionEnum = .posts) {
-        self.authService = authService
-        
+    init(userService: UserService, currentProfileSection: ProfileSectionEnum = .posts) {
         let viewModel = ProfileViewModel(uid: "",
                                          userService: UserService(),
                                          postService: PostService())
@@ -87,7 +84,7 @@ struct CurrentUserProfileView: View {
                     NotificationsView(userService: userService)
                 }
                 .fullScreenCover(isPresented: $showSettings){
-                    SettingsView(userService: userService, authService: authService, profileViewModel: profileViewModel)
+                    SettingsView(userService: userService, profileViewModel: profileViewModel)
                 }
                 .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
@@ -101,5 +98,5 @@ struct CurrentUserProfileView: View {
 
 
 #Preview {
-    CurrentUserProfileView(authService: AuthService(), userService: UserService())
+    CurrentUserProfileView(userService: UserService())
 }

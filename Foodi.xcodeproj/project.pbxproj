@@ -108,7 +108,7 @@
 		F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */; };
 		F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */; };
 		F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD12B6B06C600EC159B /* RestaurantViewModel.swift */; };
-		F88E0AD42B6B070300EC159B /* ContentVIewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD32B6B070300EC159B /* ContentVIewModel.swift */; };
+		F88E0AD42B6B070300EC159B /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD32B6B070300EC159B /* ContentViewModel.swift */; };
 		F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AD52B6B072700EC159B /* SearchModelConfig.swift */; };
 		F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ADB2B6B079100EC159B /* SearchView.swift */; };
 		F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0ADD2B6B07A400EC159B /* SearchViewSlideBar.swift */; };
@@ -318,7 +318,7 @@
 		F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapRestaurantProfileView.swift; sourceTree = "<group>"; };
 		F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileSlideBarView.swift; sourceTree = "<group>"; };
 		F88E0AD12B6B06C600EC159B /* RestaurantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantViewModel.swift; sourceTree = "<group>"; };
-		F88E0AD32B6B070300EC159B /* ContentVIewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentVIewModel.swift; sourceTree = "<group>"; };
+		F88E0AD32B6B070300EC159B /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		F88E0AD52B6B072700EC159B /* SearchModelConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModelConfig.swift; sourceTree = "<group>"; };
 		F88E0ADB2B6B079100EC159B /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		F88E0ADD2B6B07A400EC159B /* SearchViewSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewSlideBar.swift; sourceTree = "<group>"; };
@@ -765,7 +765,7 @@
 			isa = PBXGroup;
 			children = (
 				F84FE24D2B6A531200144F01 /* ContentView.swift */,
-				F88E0AD32B6B070300EC159B /* ContentVIewModel.swift */,
+				F88E0AD32B6B070300EC159B /* ContentViewModel.swift */,
 			);
 			path = Root;
 			sourceTree = "<group>";
@@ -1767,7 +1767,7 @@
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
-				F88E0AD42B6B070300EC159B /* ContentVIewModel.swift in Sources */,
+				F88E0AD42B6B070300EC159B /* ContentViewModel.swift in Sources */,
 				F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */,
 				F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */,
 				F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */,

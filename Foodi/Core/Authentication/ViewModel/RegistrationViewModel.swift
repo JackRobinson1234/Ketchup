@@ -24,18 +24,13 @@ class RegistrationViewModel: ObservableObject {
     @Published var validUsername: Bool? = nil
     @Published var registrationAttempts = 0
     
-    private let service: AuthService
-    
-    init(service: AuthService) {
-        self.service = service
-    }
     
     @MainActor
     func createUser() async throws {
         isAuthenticating = true
         registrationAttempts += 1
         do {
-            try await service.createUser(
+            try await AuthService.shared.createUser(
                 email: email,
                 password: password,
                 username: username,

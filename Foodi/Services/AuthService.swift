@@ -14,27 +14,65 @@ import GoogleSignInSwift
 
 @MainActor
 class AuthService {
-    @Published var userSession: FirebaseAuth.User?
-//MARK: updateUserSession
-    func updateUserSession() {
-        self.userSession = Auth.auth().currentUser
+    
+    static let shared = AuthService()
+    @Published var userSession: User?
+    
+    
+    //MARK: updateUserSession
+    /// Updates the user session based on the current authentication status.
+    /// This method first checks if there is a user session stored in UserDefaults. If found and the stored user ID matches the currently authenticated user ID, it sets the user session to the stored user data. If not found or the IDs don't match, it fetches the user data from Firestore and updates the user session accordingly.
+    /// - Throws: An error if there's a problem decoding user data from UserDefaults or fetching user data from Firestore.
+    func updateUserSession() async throws {
+        guard let authUser = Auth.auth().currentUser?.uid else {
+            self.userSession = nil
+            return
+        }
+        
+        if let storedUserData = UserDefaults.standard.data(forKey: "currentUserSession"),
+           let storedUser = try? JSONDecoder().decode(User.self, from: storedUserData),
+           storedUser.id == authUser {
+            self.userSession = storedUser
+            return
+        }
+        
+        do {
+            let userDocument = try await FirestoreConstants.UserCollection.document(authUser).getDocument(as: User.self)
+            self.userSession = userDocument
+            if let userData = try? JSONEncoder().encode(userDocument) {
+                UserDefaults.standard.set(userData, forKey: "currentUserSession")
+            }
+        } catch {
+            // Handle specific errors or provide more meaningful error messages
+            print("Error updating user session:", error.localizedDescription)
+            throw error
+        }
     }
+    
     //MARK: Login
+    /// Logins in the user then updates the user session
+    /// - Parameters:
+    ///   - email: email that the user types in
+    ///   - password: password that the
     func login(withEmail email: String, password: String) async throws {
         do {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
-            self.userSession = result.user
+            try await updateUserSession()
+            
         } catch {
             print("DEBUG: Login failed \(error.localizedDescription)")
             throw error
         }
     }
+    
+    
+    
     //MARK: Create User (With Email)
     func createUser(email: String, password: String, username: String, fullname: String) async throws {
         
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
-            self.userSession = result.user
+            try await updateUserSession()
             
             let user = User(id: result.user.uid, username: username, fullname: fullname, privateMode: false)
             let userData = try Firestore.Encoder().encode(user)
@@ -90,19 +128,19 @@ class AuthService {
             do {
               let document = try await userRef.getDocument()
               if document.exists {
-                  updateUserSession()
+                  try await updateUserSession()
                   return
               } else {
                   let randomUsername = try await generateRandomUsername(prefix: givenName)
                   let user = User(id: firebaseUser.uid, username: randomUsername, fullname: fullName ?? "", privateMode: false)
                   let userData = try Firestore.Encoder().encode(user)
                   try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
-                  updateUserSession()
+                  try await updateUserSession()
               }
             } catch {
               print("Error getting document: \(error)")
             }
-            updateUserSession()
+            try await updateUserSession()
         } catch {
             print(error.localizedDescription)
             //self.authError = AuthError(authErrorCode: error.localizedDescription)
