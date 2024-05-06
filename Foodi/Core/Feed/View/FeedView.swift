@@ -20,7 +20,6 @@ struct FeedView: View {
     @State private var showFilters = false
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
-    private let userService: UserService
     @State var pauseVideo = false
     private var posts: [Post]
     @State private var fetchTask: Task<Void, Error>?
@@ -29,13 +28,12 @@ struct FeedView: View {
 
     
 
-    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], userService: UserService, hideFeedOptions: Bool = false) {
+    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], hideFeedOptions: Bool = false) {
         self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(
             postService: PostService(),
             posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
-        self.userService = userService
         self.posts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
@@ -170,12 +168,12 @@ struct FeedView: View {
             
             /// sets destination of user profile links
             .navigationDestination(for: PostUser.self) { user in
-                ProfileView(uid: user.id, userService: userService)
+                ProfileView(uid: user.id)
             }
             
             /// sets destination of searchview for the search button
             .navigationDestination(for: SearchModelConfig.self) { config in
-                SearchView(userService: UserService(), searchConfig: config)}
+                SearchView(searchConfig: config)}
             
             /// sets the destination of the restaurant profile when the restaurant profile is clicked
             .navigationDestination(for: PostRestaurant.self) { restaurant in
@@ -192,7 +190,7 @@ struct FeedView: View {
             }
             /// puts the search view in view when search button is clicked
             .fullScreenCover(isPresented: $showSearchView) {
-                SearchView(userService: userService, searchConfig: .restaurants, searchSlideBar: true)
+                SearchView(searchConfig: .restaurants, searchSlideBar: true)
             }
             /// pauses the video when filters are shown
             .onChange(of: showFilters) { oldValue, newValue in
@@ -216,5 +214,5 @@ struct FeedView: View {
 
 
 #Preview {
-    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: DeveloperPreview.posts, userService: UserService())
+    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: DeveloperPreview.posts)
 }

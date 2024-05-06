@@ -11,12 +11,9 @@ import Firebase
 @MainActor
 class ContentViewModel: ObservableObject {
     @Published var userSession: User?
-    
     private var cancellables = Set<AnyCancellable>()
-    private let userService: UserService
     
-    init(userService: UserService) {
-        self.userService = userService
+    init() {
         Task {
             try await AuthService.shared.updateUserSession()
         }

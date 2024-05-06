@@ -11,7 +11,6 @@ import Firebase
 class NotificationService {
     
     private var notifications = [Notification]()
-    private let userService = UserService()
     private let postService = PostService()
     
     func fetchNotifications() async throws -> [Notification] {
@@ -64,11 +63,11 @@ class NotificationService {
     private func updateNotification(_ notification: Notification) async throws {
         guard let indexOfNotification = notifications.firstIndex(where: { $0.id == notification.id }) else { return }
         
-        async let notificationUser = try userService.fetchUser(withUid: notification.uid)
+        async let notificationUser = try UserService.shared.fetchUser(withUid: notification.uid)
         self.notifications[indexOfNotification].user = try await notificationUser
 
         if notification.type == .follow {
-            async let isFollowed = userService.checkIfUserIsFollowed(uid: notification.uid)
+            async let isFollowed = UserService.shared.checkIfUserIsFollowed(uid: notification.uid)
             self.notifications[indexOfNotification].user?.isFollowed = await isFollowed
         }
 

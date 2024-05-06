@@ -14,12 +14,10 @@ class LikedVideosViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user: User
     
-    private let userService: UserService
     private let postService: PostService
     
-    init(user: User, userService: UserService, postService: PostService) {
+    init(user: User,  postService: PostService) {
         self.user = user
-        self.userService = userService
         self.postService = postService
     }
     

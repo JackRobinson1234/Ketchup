@@ -13,20 +13,18 @@ class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
-    private let userService: UserService
     private let postService: PostService
     private var didCompleteFollowCheck = false
     private var didCompleteStatsFetch = false
     
-    init(uid: String, userService: UserService, postService: PostService) {
+    init(uid: String, postService: PostService) {
         self.uid = uid
-        self.userService = userService
         self.postService = postService
     }
     
     func fetchUser() async {
         do {
-            self.user = try await userService.fetchUser(withUid: uid)
+            self.user = try await UserService.shared.fetchUser(withUid: uid)
             try await fetchUserPosts()
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
@@ -50,14 +48,14 @@ class ProfileViewModel: ObservableObject {
 extension ProfileViewModel {
     func follow() {
             Task {
-                try await userService.follow(uid: user.id)
+                try await UserService.shared.follow(uid: user.id)
                 user.isFollowed = true
                 user.stats.followers += 1
             }
     }
     func unfollow() {
             Task {
-                try await userService.unfollow(uid: user.id)
+                try await UserService.shared.unfollow(uid: user.id)
                 user.isFollowed = false
                 user.stats.followers -= 1
             }
@@ -65,7 +63,7 @@ extension ProfileViewModel {
     
     func checkIfUserIsFollowed() async {
             guard !user.isCurrentUser, !didCompleteFollowCheck else { return }
-            user.isFollowed = await userService.checkIfUserIsFollowed(uid: user.id)
+            user.isFollowed = await UserService.shared.checkIfUserIsFollowed(uid: user.id)
             self.didCompleteFollowCheck = true
         }
     

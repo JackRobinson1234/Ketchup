@@ -17,7 +17,7 @@ class AuthService {
     
     static let shared = AuthService()
     @Published var userSession: User?
-    
+    private init() {}
     
     //MARK: updateUserSession
     /// Updates the user session based on the current authentication status.
@@ -28,14 +28,12 @@ class AuthService {
             self.userSession = nil
             return
         }
-        
         if let storedUserData = UserDefaults.standard.data(forKey: "currentUserSession"),
            let storedUser = try? JSONDecoder().decode(User.self, from: storedUserData),
            storedUser.id == authUser {
             self.userSession = storedUser
             return
         }
-        
         do {
             let userDocument = try await FirestoreConstants.UserCollection.document(authUser).getDocument(as: User.self)
             self.userSession = userDocument

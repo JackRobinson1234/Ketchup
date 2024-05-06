@@ -14,9 +14,7 @@ class ProfileUserListViewModel: ObservableObject {
     @Published var users = [User]()
     private let config: UserListConfig
     private var userLastDoc: QueryDocumentSnapshot?
-    private let userService: UserService
-    init(config: UserListConfig, userService: UserService) {
-        self.userService = userService
+    init(config: UserListConfig) {
         self.config = config
         fetchUsers(forConfig: config)
     }
@@ -62,7 +60,7 @@ class ProfileUserListViewModel: ObservableObject {
     private func fetchUsers(_ snapshot: QuerySnapshot?) async throws {
         guard let documents = snapshot?.documents else { return }
         for doc in documents {
-            let user = try await userService.fetchUser(withUid: doc.documentID)
+            let user = try await UserService.shared.fetchUser(withUid: doc.documentID)
             users.append(user)
         }
     }

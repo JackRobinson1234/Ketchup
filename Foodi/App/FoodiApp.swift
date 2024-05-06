@@ -18,10 +18,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct foodiApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    private let userService = UserService()
     var body: some Scene {
         WindowGroup {
-            ContentView(userService: userService)
+            ContentView()
         }
     }
 }

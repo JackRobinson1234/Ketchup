@@ -14,7 +14,6 @@ class NotificationsViewModel: ObservableObject {
     @Published var showEmptyView = false
     
     private let service: NotificationService
-    let userService = UserService()
     
     init(service: NotificationService) {
         self.service = service
@@ -34,14 +33,14 @@ class NotificationsViewModel: ObservableObject {
         }
     }
     func follow(userId: String) async throws {
-        try await userService.follow(uid: userId)
+        try await UserService.shared.follow(uid: userId)
     }
     
     func unfollow(userId: String) async throws {
-        try await userService.unfollow(uid: userId)
+        try await UserService.shared.unfollow(uid: userId)
     }
     
     func checkIfUserIsFollowed(userId: String) async -> Bool {
-        return await userService.checkIfUserIsFollowed(uid: userId)
+        return await UserService.shared.checkIfUserIsFollowed(uid: userId)
     }
 }

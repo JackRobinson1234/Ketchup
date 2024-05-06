@@ -15,10 +15,8 @@ struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
-    private let userService: UserService
-    
-    init(viewModel: ProfileViewModel, userService: UserService, profileSection: Binding<ProfileSectionEnum>) {
-        self.userService = userService
+
+    init(viewModel: ProfileViewModel,  profileSection: Binding<ProfileSectionEnum>) {
         self._profileSection = profileSection
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
@@ -77,12 +75,12 @@ struct ProfileSlideBar: View {
         // MARK: Section Logic
         
         if profileSection == .posts {
-            PostGridView(posts: viewModel.posts, userService: userService)
+            PostGridView(posts: viewModel.posts)
         }
         
                 
         if profileSection == .likes {
-            LikedPostsView(user: viewModel.user, userService: userService, postService: PostService())
+            LikedPostsView(user: viewModel.user, postService: PostService())
                 
             }
         if profileSection == .collections {

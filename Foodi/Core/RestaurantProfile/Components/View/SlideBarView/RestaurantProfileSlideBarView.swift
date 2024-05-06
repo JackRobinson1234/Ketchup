@@ -86,7 +86,7 @@ struct RestaurantProfileSlideBarView: View {
 
         }
         if currentSection == .posts {
-            PostGridView(posts: viewModel.posts, userService: UserService())
+            PostGridView(posts: viewModel.posts)
         }
 //        if currentSection == .collections {
 //            CollectionsListView(viewModel: CollectionsViewModel(user: nil))

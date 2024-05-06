@@ -9,16 +9,14 @@ import SwiftUI
 
 struct LikedPostsView: View {
     @StateObject var viewModel: LikedVideosViewModel
-    private let userService: UserService
     private let postService: PostService
     private let user: User
     @State var isLoading = true
     
-    init(user: User, userService: UserService, postService: PostService) {
+    init(user: User, postService: PostService) {
         self.user = user
-        self.userService = userService
         self.postService = postService
-        let viewModel = LikedVideosViewModel(user: user, userService: UserService(), postService: PostService())
+        let viewModel = LikedVideosViewModel(user: user, postService: PostService())
         self._viewModel = StateObject(wrappedValue: viewModel)
     }
     var body: some View {
@@ -32,7 +30,7 @@ struct LikedPostsView: View {
                     }
                 }
         } else {
-            PostGridView(posts: viewModel.posts, userService: userService)
+            PostGridView(posts: viewModel.posts)
         }
     }
 }

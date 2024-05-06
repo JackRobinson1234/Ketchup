@@ -13,7 +13,6 @@ import FirebaseFirestoreInternal
 
 class PostService {
     private var posts = [Post]()
-    private let userService = UserService()
     private let restaurantService = RestaurantService()
     
     //MARK: fetchPost
@@ -88,7 +87,7 @@ class PostService {
             }
             
             // Fetch the list of users that the current user is following
-            let followingUsers = try await userService.fetchFollowingUsers()
+            let followingUsers = try await UserService.shared.fetchFollowingUsers()
             if followingUsers.isEmpty { return [] }
             let followingUserIDs = followingUsers.map { $0.id }
             

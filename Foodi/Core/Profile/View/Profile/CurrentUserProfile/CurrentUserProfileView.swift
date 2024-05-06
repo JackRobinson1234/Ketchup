@@ -8,18 +8,14 @@
 import SwiftUI
 struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
-    
-    private let userService: UserService
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
     @State var showNotifications = false
     @State var showSettings = false
-    init(userService: UserService, currentProfileSection: ProfileSectionEnum = .posts) {
+    init(currentProfileSection: ProfileSectionEnum = .posts) {
         let viewModel = ProfileViewModel(uid: "",
-                                         userService: UserService(),
                                          postService: PostService())
         self._profileViewModel = StateObject(wrappedValue: viewModel)
-        self.userService = userService
         self._currentProfileSection = State(initialValue: currentProfileSection)
         
     }
@@ -43,7 +39,7 @@ struct CurrentUserProfileView: View {
                         ProfileHeaderView(viewModel: profileViewModel)
                             .padding(.top)
                             //MARK: Slide bar
-                        ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $currentProfileSection)
+                        ProfileSlideBar(viewModel: profileViewModel, profileSection: $currentProfileSection)
                         
                         
                     }
@@ -74,17 +70,17 @@ struct CurrentUserProfileView: View {
                 .navigationTitle("Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
-                    ProfileView(uid: user.id, userService: userService)
+                    ProfileView(uid: user.id)
                 }
                 .navigationDestination(for: SearchModelConfig.self) { config in
-                    SearchView(userService: UserService(), searchConfig: config)}
+                    SearchView(searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
                 .refreshable { await profileViewModel.fetchCurrentUser() }
                 .sheet(isPresented: $showNotifications) {
-                    NotificationsView(userService: userService)
+                    NotificationsView()
                 }
                 .fullScreenCover(isPresented: $showSettings){
-                    SettingsView(userService: userService, profileViewModel: profileViewModel)
+                    SettingsView(profileViewModel: profileViewModel)
                 }
                 .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
@@ -98,5 +94,5 @@ struct CurrentUserProfileView: View {
 
 
 #Preview {
-    CurrentUserProfileView(userService: UserService())
+    CurrentUserProfileView()
 }

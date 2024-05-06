@@ -12,15 +12,13 @@ import SwiftUI
 import Firebase
 
 class SettingsViewModel: ObservableObject{
-    private let userService: UserService
     private let collectionsService = CollectionService()
     private let postService = PostService()
     @ObservedObject var profileViewModel: ProfileViewModel
     @Published var needsReauth: Bool = false
     @Published var privateMode: Bool
     
-    init(userService: UserService,  profileViewModel: ProfileViewModel) {
-        self.userService = userService
+    init( profileViewModel: ProfileViewModel) {
         self.profileViewModel = profileViewModel
         self.privateMode = profileViewModel.user.privateMode
     }
@@ -44,7 +42,7 @@ class SettingsViewModel: ObservableObject{
     func updatePrivateMode() async throws {
         if self.privateMode != profileViewModel.user.privateMode {
             profileViewModel.user.privateMode = privateMode
-            try await userService.updatePrivateMode(newValue: self.privateMode)
+            try await UserService.shared.updatePrivateMode(newValue: self.privateMode)
         }
     }
 }
