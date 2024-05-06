@@ -23,7 +23,7 @@ struct ProfileHeaderView: View {
     var body: some View {
        let user = viewModel.user
             VStack(spacing: 16) {
-                HStack(spacing: 0){
+                HStack {
                     VStack(spacing: 8) {
                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
                     }
@@ -52,7 +52,6 @@ struct ProfileHeaderView: View {
                             UserStatView(value: user.stats.posts, title: "Posts")
                             
                             UserStatView(value: user.stats.collections, title: "Collections")
-                            
                             
                         }
                     }
@@ -100,10 +99,10 @@ struct ProfileHeaderView: View {
                 EditProfileView(user: $viewModel.user)
             }
             .sheet(isPresented: $showFollowingList) {
-                ProfileUserLists(config: .following(uid: user.id), userService: UserService())
+                ProfileUserLists(config: .following(uid: user.id))
             }
             .sheet(isPresented: $showFollowersList) {
-                ProfileUserLists(config: .followers(uid: user.id), userService: UserService())
+                ProfileUserLists(config: .followers(uid: user.id))
             }
         }
     
@@ -134,7 +133,6 @@ struct UserStatView: View {
 #Preview {
     ProfileHeaderView(viewModel: ProfileViewModel(
         user: DeveloperPreview.users[0],
-        userService: UserService(),
         postService: PostService())
     )
 }

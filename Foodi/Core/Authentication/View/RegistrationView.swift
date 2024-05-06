@@ -8,20 +8,19 @@
 import SwiftUI
 
 struct RegistrationView: View {
-    @StateObject var viewModel: RegistrationViewModel
+    @StateObject var viewModel = RegistrationViewModel()
     @Environment(\.dismiss) var dismiss
     var passwordDebouncer = Debouncer(delay: 1.0)
     var usernameDebouncer = Debouncer(delay: 2.0)
     var emailDebouncer = Debouncer(delay: 1.0)
     var maxRegistrationDebouncer = Debouncer(delay: 20.0)
-    private let service: AuthService
     var maxRegistrationAttempts = 5
     
-    init(service: AuthService) {
-        self.service = service
-        self._viewModel = StateObject(wrappedValue: RegistrationViewModel(service: service))
-    }
-    
+//    init(service: AuthService) {
+//        self.service = service
+//        //self._viewModel = StateObject(wrappedValue: RegistrationViewModel(service: service))
+//    }
+//    
     var body: some View {
         VStack {
             Spacer()
@@ -197,7 +196,7 @@ struct RegistrationView: View {
             //MARK: Google Sign Up Button
             Button{
                 Task{
-                    try await service.signInWithGoogle()
+                    try await AuthService.shared.signInWithGoogle()
                 }
             } label: {
                 Image("Google-SignUp")
@@ -255,5 +254,5 @@ extension RegistrationView: AuthenticationFormProtocol {
     }
 }
 #Preview {
-    RegistrationView(service: AuthService())
+    RegistrationView()
 }

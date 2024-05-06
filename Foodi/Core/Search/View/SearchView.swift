@@ -11,11 +11,9 @@ import SwiftUI
 struct SearchView: View {
     @State var searchText: String = ""
     @State var searchSlideBar: Bool
-    private let userService: UserService
     @State var searchConfig: SearchModelConfig
     
-    init(userService: UserService, searchConfig: SearchModelConfig, searchSlideBar: Bool = false) {
-        self.userService = userService
+    init(searchConfig: SearchModelConfig, searchSlideBar: Bool = false) {
         self._searchConfig = State(initialValue: searchConfig)
         self._searchSlideBar = State(initialValue: searchSlideBar)
     }
@@ -27,10 +25,10 @@ struct SearchView: View {
             NavigationStack {
                 internalBody
                     .navigationDestination(for: User.self) { user in
-                        ProfileView(uid: user.id, userService: userService)
+                        ProfileView(uid: user.id)
                     }
                     .navigationDestination(for: SearchModelConfig.self) { config in
-                        SearchView(userService: UserService(), searchConfig: config)}
+                        SearchView(searchConfig: config)}
                     .navigationDestination(for: Restaurant.self) { restaurant in
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
@@ -75,7 +73,7 @@ struct SearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView(userService: UserService(), searchConfig: .posts)
+        SearchView(searchConfig: .posts)
     }
 }
 

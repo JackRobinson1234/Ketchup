@@ -10,8 +10,6 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: SettingsViewModel
-    private let userService: UserService
-    private let authService: AuthService
     @ObservedObject var profileViewModel: ProfileViewModel
     @State var needsReauth = false
     @State private var showPrivateModeDropdown = false
@@ -20,11 +18,9 @@ struct SettingsView: View {
     var privateRateDebouncer = Debouncer(delay: 1.0)
 
     
-    init(userService: UserService, authService: AuthService, profileViewModel: ProfileViewModel) {
-        self.authService = authService
-        self.userService = userService
+    init(profileViewModel: ProfileViewModel) {
         self.profileViewModel = profileViewModel
-        self._viewModel = StateObject(wrappedValue: SettingsViewModel(userService: userService, authService: authService, profileViewModel: profileViewModel))
+        self._viewModel = StateObject(wrappedValue: SettingsViewModel(profileViewModel: profileViewModel))
     }
     
     var body: some View {
@@ -81,7 +77,7 @@ struct SettingsView: View {
                 Spacer()
                 //MARK: Sign Out
                 Button{
-                    authService.signout()
+                    AuthService.shared.signout()
                 } label: {
                     Text("Sign Out")
                         .foregroundStyle(.black)
@@ -113,7 +109,7 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $needsReauth) {
-                LoginView(service: authService, reAuthDelete: true)
+                LoginView(reAuthDelete: true)
             }
            
             .toolbar {
@@ -140,5 +136,5 @@ struct SettingsView: View {
 
 
 #Preview {
-    SettingsView(userService: UserService(), authService: AuthService(), profileViewModel: ProfileViewModel(uid: "", userService: UserService(), postService: PostService()))
+    SettingsView(profileViewModel: ProfileViewModel(uid: ""))
 }

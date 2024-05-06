@@ -15,16 +15,14 @@ struct ProfileView: View {
     /*private var user: User {
         return profileViewModel.user
     }*/
-    private let userService: UserService
     @State var profileSection: ProfileSectionEnum
     private let uid: String
 
 
-    init(uid: String, userService: UserService, profileSection: ProfileSectionEnum = .posts) {
+    init(uid: String, profileSection: ProfileSectionEnum = .posts) {
         self.uid = uid
-        let profileViewModel = ProfileViewModel(uid: uid, userService: UserService(), postService: PostService())
+        let profileViewModel = ProfileViewModel(uid: uid)
         self._profileViewModel = StateObject(wrappedValue: profileViewModel)
-        self.userService = userService
         self._profileSection = State(initialValue: profileSection)
         
     }
@@ -44,7 +42,7 @@ struct ProfileView: View {
                 VStack(spacing: 2) {
                     ProfileHeaderView(viewModel: profileViewModel)
                     if !profileViewModel.user.privateMode {
-                        ProfileSlideBar(viewModel: profileViewModel, userService: userService, profileSection: $profileSection)
+                        ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection)
                     } else {
                         VStack {
                             Image(systemName: "lock.fill")
@@ -74,6 +72,6 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(uid: DeveloperPreview.user.id, userService: UserService())
+    ProfileView(uid: DeveloperPreview.user.id)
 }
 

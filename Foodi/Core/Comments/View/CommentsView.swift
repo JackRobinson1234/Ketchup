@@ -11,7 +11,7 @@ struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     
     init(post: Post) {
-        let service = CommentService(post: post, userService: UserService())
+        let service = CommentService(post: post)
         let viewModel = CommentViewModel(post: post, service: service)
         self._viewModel = StateObject(wrappedValue: viewModel)
     }

@@ -32,17 +32,12 @@ class LoginViewModel: ObservableObject {
     @Published var timeRemaining = 60
     
     
-    private let service: AuthService
-    
-    init(service: AuthService) {
-        self.service = service
-    }
     //MARK: login
     func login() async {
         isAuthenticating = true
         loginAttempts += 1
         do {
-            try await service.login(withEmail: email, password: password)
+            try await AuthService.shared.login(withEmail: email, password: password)
             isAuthenticating = false
         } catch {
             let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
@@ -60,7 +55,7 @@ class LoginViewModel: ObservableObject {
     /// Calls reauth with google, if it doesnt work it throws an error. DELETES USER.
     func reAuthDeleteWithGoogle() async throws {
         do {
-            let noAlert = try await service.reAuthWithGoogle()
+            let noAlert = try await AuthService.shared.reAuthWithGoogle()
             //Code to show an alert, returns false if the login fails. Might be able to refactor this
             if !noAlert{
                 showReAuthAlert = true
@@ -83,7 +78,7 @@ class LoginViewModel: ObservableObject {
         isAuthenticating = true
         loginAttempts += 1
         do {
-            try await service.reAuth(withEmail: email, password: password)
+            try await AuthService.shared.reAuth(withEmail: email, password: password)
             isAuthenticating = false
         } catch {
             let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
@@ -100,7 +95,7 @@ class LoginViewModel: ObservableObject {
     func SendResetEmail() async throws {
         if canResetEmail {
             timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-            try await service.sendResetPasswordLink(toEmail: resetEmailText)
+            try await AuthService.shared.sendResetPasswordLink(toEmail: resetEmailText)
             canResetEmail = false
             debouncer.schedule {
                 self.canResetEmail = true

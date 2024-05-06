@@ -13,15 +13,15 @@ import FirebaseFirestoreInternal
 import SwiftUI
 
 class CollectionService {
-    private var collections = [Collection]()
-    
+    static let shared = CollectionService() // Singleton instance
+    private init() {}
     //MARK: fetchCollections
     /// fetches a list of collections for a user
     /// - Parameter user: user you want the collections for
     /// - Returns: array of collections
     func fetchCollections(user: String) async throws -> [Collection] {
         //print("DEBUG: Ran fetchUserPost")
-        self.collections = try await FirestoreConstants
+        let collections = try await FirestoreConstants
             .CollectionsCollection
             .whereField("uid", isEqualTo: user)
             .order(by: "timestamp", descending: true)

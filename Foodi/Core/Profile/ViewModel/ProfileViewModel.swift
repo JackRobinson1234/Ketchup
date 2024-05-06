@@ -13,29 +13,28 @@ class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
-    private let userService: UserService
-    private let postService: PostService
     private var didCompleteFollowCheck = false
     private var didCompleteStatsFetch = false
     
-    init(uid: String, userService: UserService, postService: PostService) {
+    init(uid: String) {
         self.uid = uid
-        self.userService = userService
-        self.postService = postService
+
     }
     
     func fetchUser() async {
         do {
-            self.user = try await userService.fetchUser(withUid: uid)
-            await fetchUserPosts()
+            self.user = try await UserService.shared.fetchUser(withUid: uid)
+            try await fetchUserPosts()
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
     }
     func fetchCurrentUser() async {
         do{
-            self.user = try await userService.fetchCurrentUser()
-            await fetchUserPosts()
+            if let currentUser = AuthService.shared.userSession {
+                self.user = currentUser
+            }
+            try await fetchUserPosts()
         }
         catch {
             print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
@@ -48,14 +47,14 @@ class ProfileViewModel: ObservableObject {
 extension ProfileViewModel {
     func follow() {
             Task {
-                try await userService.follow(uid: user.id)
+                try await UserService.shared.follow(uid: user.id)
                 user.isFollowed = true
                 user.stats.followers += 1
             }
     }
     func unfollow() {
             Task {
-                try await userService.unfollow(uid: user.id)
+                try await UserService.shared.unfollow(uid: user.id)
                 user.isFollowed = false
                 user.stats.followers -= 1
             }
@@ -63,46 +62,28 @@ extension ProfileViewModel {
     
     func checkIfUserIsFollowed() async {
             guard !user.isCurrentUser, !didCompleteFollowCheck else { return }
-            user.isFollowed = await userService.checkIfUserIsFollowed(uid: user.id)
+            user.isFollowed = await UserService.shared.checkIfUserIsFollowed(uid: user.id)
             self.didCompleteFollowCheck = true
         }
     
 }
 
-// MARK: - Stats
-
-/*extension ProfileViewModel {
-    func fetchUserStats() async {
-            guard !didCompleteStatsFetch else {print("DEBUG: User stats have already been fetched \(user.stats)")
-                return
-            }
-            
-            do {
-                user.stats = try await userService.fetchUserStats(uid: user.id)
-                didCompleteStatsFetch = true
-            } catch {
-                print("DEBUG: Failed to fetch user stats with error \(error.localizedDescription)")
-            }
-        }
-    
-}*/
-
 // MARK: - Posts
 
 extension ProfileViewModel {
-    func fetchUserPosts() async {
+    func fetchUserPosts() async throws {
         
             do {
-                self.posts = try await postService.fetchUserPosts(user: user)
+                self.posts = try await PostService.shared.fetchUserPosts(user: user)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }
         }
     
     
-    func fetchUserLikedPosts() async {
+    func fetchUserLikedPosts() async throws {
             do {
-                self.posts = try await postService.fetchUserLikedPosts(user: user)
+                self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }

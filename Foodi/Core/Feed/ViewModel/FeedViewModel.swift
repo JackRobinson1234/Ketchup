@@ -24,11 +24,9 @@ class FeedViewModel: ObservableObject {
     
     private var currentFeedType: FeedType = .discover // default
     
-    private let postService: PostService
     var isContainedInTabBar = true
 
-    init(postService: PostService, scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
-        self.postService = postService
+    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
@@ -47,9 +45,9 @@ class FeedViewModel: ObservableObject {
             posts.removeAll()
             switch currentFeedType {
             case .discover:
-                posts = try await postService.fetchPosts(withFilters: updatedFilters)
+                posts = try await PostService.shared.fetchPosts(withFilters: updatedFilters)
             case .following:
-                posts = try await postService.fetchFollowingPosts(withFilters: updatedFilters)
+                posts = try await PostService.shared.fetchFollowingPosts(withFilters: updatedFilters)
             }
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
@@ -92,21 +90,6 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-    /*
-    func refreshFeed() async {
-        posts.removeAll()
-        //isLoading = true
-        
-        do {
-            posts = try await postService.fetchPosts()
-            posts.shuffle()
-            //isLoading = false
-        } catch {
-            //isLoading = false
-            print("DEBUG: Failed to refresh posts with error: \(error.localizedDescription)")
-        }
-    }
-    */
 
     func setFeedType(_ feedType: FeedType) {
         currentFeedType = feedType
@@ -122,7 +105,7 @@ extension FeedViewModel {
         posts[index].likes += 1
                 
         do {
-            try await postService.likePost(post)
+            try await PostService.shared.likePost(post)
         } catch {
             print("DEBUG: Failed to like post with error \(error.localizedDescription)")
             posts[index].didLike = false
@@ -136,7 +119,7 @@ extension FeedViewModel {
         posts[index].likes -= 1
                 
         do {
-            try await postService.unlikePost(post)
+            try await PostService.shared.unlikePost(post)
         } catch {
             print("DEBUG: Failed to unlike post with error \(error.localizedDescription)")
             posts[index].didLike = true
@@ -151,7 +134,7 @@ extension FeedViewModel {
         for i in 0 ..< copy.count {
             do {
                 let post = copy[i]
-                let didLike = try await self.postService.checkIfUserLikedPost(post)
+                let didLike = try await PostService.shared.checkIfUserLikedPost(post)
                 
                 if didLike {
                     copy[i].didLike = didLike
@@ -170,12 +153,4 @@ extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
         }
-    func fetchCurrentUser() async {
-        do{
-            self.user = try await UserService().fetchCurrentUser()
-        }
-        catch {
-            print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
-        }
-    }
 }

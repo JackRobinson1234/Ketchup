@@ -14,9 +14,6 @@ struct ActivityCell: View {
     @State var showPost: Bool = false
     @State var showCollection: Bool = false
     @State var showUserProfile: Bool = false
-    private let userService: UserService = UserService()
-    private let postService: PostService = PostService()
-    private let collectionService: CollectionService = CollectionService()
     @State var post: Post?
     @State var collection: Collection?
     @ObservedObject var viewModel: ActivityViewModel
@@ -86,7 +83,7 @@ struct ActivityCell: View {
                             Button{
                                 if let postId = activity.postId{
                                     Task{
-                                        self.post = try await postService.fetchPost(postId: postId)
+                                        self.post = try await PostService.shared.fetchPost(postId: postId)
                                         if self.post != nil {
                                             showPost.toggle()
                                         }
@@ -134,7 +131,7 @@ struct ActivityCell: View {
                         Button{
                             Task{
                                 if let collectionId = activity.collectionId{
-                                    self.collection = try await collectionService.fetchCollection(withId: collectionId)
+                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
                                     if self.collection != nil, viewModel.user != nil{
                                         showCollection.toggle()
                                     }
@@ -178,7 +175,7 @@ struct ActivityCell: View {
                         Button{
                             Task{
                                 if let collectionId = activity.collectionId{
-                                    self.collection = try await collectionService.fetchCollection(withId: collectionId)
+                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
                                     if self.collection != nil, viewModel.user != nil{
                                         showCollection.toggle()
                                     }
@@ -201,7 +198,7 @@ struct ActivityCell: View {
         //MARK: Sheets
         .sheet(isPresented: $showPost){
             if let post = self.post{
-                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: UserService(), hideFeedOptions: true)
+                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
             }
         }
         .sheet(isPresented: $showCollection) {
@@ -213,7 +210,7 @@ struct ActivityCell: View {
         }
         .sheet(isPresented: $showUserProfile) {
             NavigationStack{
-                ProfileView(uid: activity.uid, userService: userService)
+                ProfileView(uid: activity.uid)
             }
         }
     }

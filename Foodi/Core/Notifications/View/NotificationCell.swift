@@ -9,19 +9,10 @@ import SwiftUI
 import Kingfisher
 
 struct NotificationCell: View {
-    @ObservedObject var viewModel: NotificationCellViewModel
+    @ObservedObject var viewModel: NotificationsViewModel
+    var notification: Notification
+    @State var isFollowed: Bool = false
     
-    var notification: Notification {
-        return viewModel.notification
-    }
-    
-    var isFollowed: Bool {
-        return notification.user?.isFollowed ?? false
-    }
-    
-    init(notification: Notification) {
-        self.viewModel = NotificationCellViewModel(notification: notification)
-    }
     
     var body: some View {
         HStack {
@@ -46,17 +37,20 @@ struct NotificationCell: View {
             Spacer()
             
             if notification.type == .follow {
-                Button(action: {
-                    isFollowed ? viewModel.unfollow() : viewModel.follow()
-                }, label: {
-                    Text(isFollowed ? "Following" : "Follow")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .frame(width: 88, height: 32)
-                        .foregroundColor(isFollowed ? .black : .white)
-                        .background(isFollowed ? Color(.systemGroupedBackground) : Color.pink)
-                        .cornerRadius(6)
-                })
+                    Button(action: {
+                        Task {
+                            isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId:notification.uid)
+                            self.isFollowed.toggle()
+                        }
+                    }, label: {
+                        Text(isFollowed ? "Following" : "Follow")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .frame(width: 88, height: 32)
+                            .foregroundColor(isFollowed ? .black : .white)
+                            .background(isFollowed ? Color(.systemGroupedBackground) : Color.pink)
+                            .cornerRadius(6)
+                    })
             } else {
                 if let post = notification.postThumbnail {
                     
@@ -66,6 +60,14 @@ struct NotificationCell: View {
                             .frame(width: 48, height: 48)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                     
+                }
+            }
+        }
+        /// Checks to see if the user is followed or not
+        .onAppear{
+            if notification.type == .follow {
+                Task {
+                    self.isFollowed = await viewModel.checkIfUserIsFollowed(userId: notification.uid)
                 }
             }
         }

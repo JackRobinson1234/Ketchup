@@ -19,7 +19,8 @@ class NotificationsViewModel: ObservableObject {
         self.service = service
         Task { await fetchNotifications() }
     }
-    
+    //MARK: fetchNotifications
+    /// fetches notifications for the user
     func fetchNotifications() async {
         isLoading = true
         do {
@@ -30,5 +31,16 @@ class NotificationsViewModel: ObservableObject {
             print("DEBUG: Failed to fetch notifications with error \(error.localizedDescription)")
             isLoading = false
         }
+    }
+    func follow(userId: String) async throws {
+        try await UserService.shared.follow(uid: userId)
+    }
+    
+    func unfollow(userId: String) async throws {
+        try await UserService.shared.unfollow(uid: userId)
+    }
+    
+    func checkIfUserIsFollowed(userId: String) async -> Bool {
+        return await UserService.shared.checkIfUserIsFollowed(uid: userId)
     }
 }

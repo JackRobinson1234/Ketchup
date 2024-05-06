@@ -88,5 +88,5 @@ struct CookingTimeFilter: View {
 }
 
 #Preview {
-    CookingTimeFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    CookingTimeFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
 }

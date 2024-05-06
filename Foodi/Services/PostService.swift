@@ -12,10 +12,8 @@ import GeoFire
 import FirebaseFirestoreInternal
 
 class PostService {
-    private var posts = [Post]()
-    private let userService = UserService()
-    private let restaurantService = RestaurantService()
-    
+    static let shared = PostService() // Singleton instance
+    private init() {}
     //MARK: fetchPost
     /// Fetches a singular post
     /// - Parameter postId: string id of the post that is to be fetched
@@ -26,7 +24,6 @@ class PostService {
             .PostsCollection
             .document(postId)
             .getDocument(as: Post.self)
-        self.posts.append(post)
         return post
     }
     
@@ -37,7 +34,7 @@ class PostService {
     /// - Returns: array of post objects
     func fetchUserPosts(user: User) async throws -> [Post] {
         //print("DEBUG: Ran fetchUserPost")
-        self.posts = try await FirestoreConstants
+        let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("user.id", isEqualTo: user.id)
             .getDocuments(as: Post.self)
@@ -51,7 +48,7 @@ class PostService {
     /// - Returns: array of post objects
     func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
         //print("DEBUG: Ran fetchRestaurantPosts")
-        self.posts = try await FirestoreConstants
+        let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
             .getDocuments(as: Post.self)
@@ -66,13 +63,13 @@ class PostService {
         var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
         if let filters = filters, !filters.isEmpty {
             if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                self.posts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
-                return posts
+                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
+                return filteredPosts
             }
             
             query = applyFilters(toQuery: query, filters: filters)
         }
-        self.posts = try await query.getDocuments(as: Post.self)
+        let posts = try await query.getDocuments(as: Post.self)
         print("DEBUG: posts fetched", posts.count)
         return posts
     }
@@ -88,7 +85,7 @@ class PostService {
             }
             
             // Fetch the list of users that the current user is following
-            let followingUsers = try await userService.fetchFollowingUsers()
+            let followingUsers = try await UserService.shared.fetchFollowingUsers()
             if followingUsers.isEmpty { return [] }
             let followingUserIDs = followingUsers.map { $0.id }
             
@@ -101,12 +98,12 @@ class PostService {
             
             // Apply additional filters if they exist
             if let locationFilters = updatedFilters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                self.posts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
-                return posts
+                let locationPosts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
+                return locationPosts
             }
             
             query = applyFilters(toQuery: query, filters: updatedFilters)
-            self.posts = try await query.getDocuments(as: Post.self)
+            let posts = try await query.getDocuments(as: Post.self)
             
             print("DEBUG: posts fetched", posts.count)
             return posts

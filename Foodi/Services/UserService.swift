@@ -15,6 +15,9 @@ enum UserError: Error {
 }
 
 class UserService {
+    static let shared = UserService() // Singleton instance
+    private init() {}
+    
     //MARK: fetchCurrentUser
     /// fetches the current user
     /// - Returns: user object of the current user

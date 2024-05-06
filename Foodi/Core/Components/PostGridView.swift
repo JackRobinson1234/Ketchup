@@ -13,7 +13,6 @@ struct PostGridView: View {
     //var viewModel: any PostGridViewModelProtocol
     //@State private var player = AVPlayer()
     @State private var selectedPost: Post?
-    private let userService: UserService
     private let items = [
         GridItem(.flexible(), spacing: 1),
         GridItem(.flexible(), spacing: 1),
@@ -21,8 +20,7 @@ struct PostGridView: View {
     ]
     private let posts: [Post]?
     private let width = (UIScreen.main.bounds.width / 3) - 2
-    init(posts: [Post]?, userService: UserService) {
-        self.userService = userService
+    init(posts: [Post]?) {
         self.posts = posts
     }
     
@@ -93,7 +91,7 @@ struct PostGridView: View {
                 }
                 
                 .sheet(item: $selectedPost) { post in
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], userService: userService, hideFeedOptions: true)
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
                         .onDisappear {
                             //player.replaceCurrentItem(with: nil)
                         }
@@ -108,5 +106,5 @@ struct PostGridView: View {
 }
 
 #Preview {
-    PostGridView(posts: DeveloperPreview.posts, userService: UserService())
+    PostGridView(posts: DeveloperPreview.posts)
 }

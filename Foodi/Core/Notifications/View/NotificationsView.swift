@@ -8,17 +8,13 @@ import SwiftUI
 struct NotificationsView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel = NotificationsViewModel(service: NotificationService())
-    private let userService: UserService
-    init(userService: UserService){
-        self.userService = userService
-    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.notifications) { notification in
-                        NotificationCell(notification: notification)
+                        NotificationCell(viewModel: viewModel, notification: notification)
                             .padding(.top)
                     }
                 }
@@ -37,9 +33,9 @@ struct NotificationsView: View {
             }
             //.navigationDestination(for: notification.postId): {
             .navigationDestination(for: User.self, destination: {user in
-                ProfileView(uid: user.id, userService: userService)})
+                ProfileView(uid: user.id)})
             .navigationDestination(for: SearchModelConfig.self) { config in
-                SearchView(userService: UserService(), searchConfig: config)}
+                SearchView(searchConfig: config)}
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -58,5 +54,5 @@ struct NotificationsView: View {
 }
 
 #Preview {
-    NotificationsView(userService: UserService())
+    NotificationsView()
 }

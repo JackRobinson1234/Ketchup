@@ -14,20 +14,16 @@ class RestaurantViewModel: ObservableObject {
     @Published var restaurant: Restaurant?
     
     private let restaurantId: String
-    private let restaurantService: RestaurantService
-    private let postService: PostService
     
-    init(restaurantId: String, restaurantService: RestaurantService, postService: PostService) {
+    init(restaurantId: String) {
         self.restaurantId = restaurantId
-        self.restaurantService = restaurantService
-        self.postService = postService
         // DEBUG: see if you can delete this
         
     }
     func fetchRestaurant(id: String) async throws {
         if self.restaurant == nil {
             do {
-                self.restaurant = try await restaurantService.fetchRestaurant(withId: id)
+                self.restaurant = try await RestaurantService.shared.fetchRestaurant(withId: id)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }
@@ -46,7 +42,7 @@ extension RestaurantViewModel {
     func fetchRestaurantPosts(restaurant: Restaurant) async throws{
         if let unwrappedRestaurant = self.restaurant{
             do {
-                self.posts = try await postService.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
+                self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }

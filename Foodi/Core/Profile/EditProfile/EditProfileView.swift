@@ -117,7 +117,6 @@ struct EditProfileRowView: View {
 
 struct editFavoritesView: View {
     let user: User
-    let restaurantService: RestaurantService = RestaurantService()
     @State private var fetchedRestaurant: Restaurant?
     @State private var isEditFavoritesShowing = false
     @State var oldSelection: FavoriteRestaurant = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: nil)

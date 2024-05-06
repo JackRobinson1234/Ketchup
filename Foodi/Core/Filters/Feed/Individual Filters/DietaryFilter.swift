@@ -151,5 +151,5 @@ struct DietaryFilter: View {
 }
 
 #Preview {
-    DietaryFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    DietaryFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
 }

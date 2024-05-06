@@ -10,12 +10,10 @@ import SwiftUI
 struct ProfileUserLists: View {
     @StateObject var viewModel: ProfileUserListViewModel
     private let config: UserListConfig
-    private let userService: UserService
     
-    init(config: UserListConfig, userService: UserService) {
+    init(config: UserListConfig) {
         self.config = config
-        self.userService = userService
-        self._viewModel = StateObject(wrappedValue: ProfileUserListViewModel(config: config, userService: userService))
+        self._viewModel = StateObject(wrappedValue: ProfileUserListViewModel(config: config))
     }
     
     //var users: [User] {
@@ -44,7 +42,7 @@ struct ProfileUserLists: View {
             }
             .navigationTitle(config.navigationTitle)
             .navigationDestination(for: User.self) { user in
-                ProfileView(uid: user.id, userService: userService)
+                ProfileView(uid: user.id)
             }
             .modifier(BackButtonModifier())
         }
@@ -52,5 +50,5 @@ struct ProfileUserLists: View {
 }
 
 #Preview {
-    ProfileUserLists(config: .following(uid: ""), userService: UserService())
+    ProfileUserLists(config: .following(uid: ""))
 }

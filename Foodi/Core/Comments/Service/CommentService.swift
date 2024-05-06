@@ -21,18 +21,15 @@ class MockCommentService: CommentServiceProtocol {
 class CommentService: CommentServiceProtocol {
     private var comments = [Comment]()
     private let post: Post
-    private let userService: UserService
     @Published var currentUser: User?
     
     private var commentsCollection: CollectionReference {
         return FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
     }
     
-    init(post: Post, userService: UserService) {
+    init(post: Post) {
         self.post = post
-        self.userService = userService
         
-        Task { await fetchCurrentUser() }
     }
     
     func fetchComments() async throws -> [Comment] {
@@ -51,7 +48,7 @@ class CommentService: CommentServiceProtocol {
     
     func fetchCommentUserData(_ comment: Comment) async throws {
         guard let index = comments.firstIndex(where: { $0.id == comment.id }) else { return }
-        comments[index].user = try await userService.fetchUser(withUid: comment.commentOwnerUid)
+        comments[index].user = try await UserService.shared.fetchUser(withUid: comment.commentOwnerUid)
     }
     
     func uploadComment(commentText: String) async throws -> Comment? {
@@ -82,9 +79,4 @@ class CommentService: CommentServiceProtocol {
         return comment
     }
     
-    @MainActor
-    func fetchCurrentUser() async {
-        self.currentUser = try? await userService.fetchCurrentUser()
-
-    }
 }

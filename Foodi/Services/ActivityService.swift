@@ -10,14 +10,10 @@ import Foundation
 import Firebase
 
 class ActivityService {
-    private let userService = UserService()
-    private let postService = PostService()
-    
-    
     func fetchFollowingActivities() async throws -> [Activity] {
         var allActivities = [Activity]()
         
-        let users = try await userService.fetchFollowingUsers()
+        let users = try await UserService.shared.fetchFollowingUsers()
         var userIDs = users.map { $0.id } // Assuming User model has an `id` property
         
         while !userIDs.isEmpty {

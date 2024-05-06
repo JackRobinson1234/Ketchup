@@ -65,6 +65,6 @@ struct RestaurantProfileHeaderView: View {
     }
 }
 #Preview {
-    RestaurantProfileHeaderView(currentSection: .constant(.menu), viewModel: RestaurantViewModel(restaurantId: "", restaurantService: RestaurantService(), postService: PostService()))
+    RestaurantProfileHeaderView(currentSection: .constant(.menu), viewModel: RestaurantViewModel(restaurantId: ""))
 }
 
