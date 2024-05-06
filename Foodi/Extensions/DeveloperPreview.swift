@@ -86,7 +86,8 @@ struct DeveloperPreview {
                     id: "user1",
                     fullName: "John Doe",
                     profileImageUrl: "https://example.com/profile.jpg"
-                    ,privateMode: false
+                    ,privateMode: false,
+                    username: "Test"
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",
@@ -159,6 +160,7 @@ struct DeveloperPreview {
                 timestamp: Timestamp(),
                 description: "A collection of delicious Italian dishes",
                 username: "wilbond",
+                fullname: "Jack Rob",
                 uid: "",
                 restaurantCount: 0,
                 atHomeCount: 0,

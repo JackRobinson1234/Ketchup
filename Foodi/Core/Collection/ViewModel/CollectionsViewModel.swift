@@ -182,7 +182,7 @@ class CollectionsViewModel: ObservableObject {
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl)
+        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
         if let collection{
             print(collection)
             self.collections.insert(collection, at: 0)

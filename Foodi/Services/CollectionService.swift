@@ -93,7 +93,7 @@ class CollectionService {
     ///   - username: user's username
     ///   - uiImage: Cover image for the collection
     /// - Returns: Created Collection
-    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?, profileImageUrl: String?) async throws -> Collection? {
+    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?, profileImageUrl: String?, fullname: String) async throws -> Collection? {
         let ref = FirestoreConstants.CollectionsCollection.document()
         do {
             var imageUrl: String? = nil
@@ -106,7 +106,7 @@ class CollectionService {
                     return nil
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, fullname: fullname, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")

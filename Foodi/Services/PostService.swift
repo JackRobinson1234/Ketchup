@@ -188,7 +188,6 @@ extension PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).setData([:])
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).setData([:])
-        async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(1))])
     }
     
     
@@ -200,7 +199,6 @@ extension PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         async let _ = try FirestoreConstants.PostsCollection.document(post.id).collection("post-likes").document(uid).delete()
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(post.id).delete()
-        async let _ = try FirestoreConstants.UserCollection.document(uid).updateData(["stats.likes": FieldValue.increment(Int64(-1))])
     }
     
     
