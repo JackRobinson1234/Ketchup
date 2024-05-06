@@ -66,7 +66,7 @@ struct CurrentUserProfileView: View {
                 }
                 
                 
-                .navigationTitle(profileViewModel.user.username)
+                .navigationTitle(Text("@\(profileViewModel.user.username)"))
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
                     ProfileView(uid: user.id)

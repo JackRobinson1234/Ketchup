@@ -142,7 +142,7 @@ class AuthService {
         while usernameExists {
             // Generate 5 random digits for the username
             let randomDigits = String(format: "%05d", Int.random(in: 0..<10000000))
-            usernameToCheck = "\(prefix ?? "user")\(randomDigits)"
+            usernameToCheck = "\(prefix?.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) ?? "user")\(randomDigits)"
             
             // Check if the username already exists in Firestore
             let query = FirestoreConstants.UserCollection.whereField("username", isEqualTo: usernameToCheck)
