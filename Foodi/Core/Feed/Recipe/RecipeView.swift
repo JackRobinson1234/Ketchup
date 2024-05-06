@@ -27,7 +27,7 @@ struct RecipeView: View {
                         .bold()
                     
                     
-                    Text("By: \(post.user.fullName)")
+                    Text("By: \(post.user.fullname)")
                         .font(.subheadline)
                 }
                     // Cuisine, Time, and Dietary Restrictions

@@ -138,7 +138,7 @@ struct FeedCell: View {
                                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                                             //MARK: Recipe Fullname
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullName)")
+                                            Text("by \(post.user.fullname)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
@@ -157,7 +157,7 @@ struct FeedCell: View {
                                         }
                                         //MARK: recipe fullname
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullName)")
+                                            Text("by \(post.user.fullname)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)

@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
-
+enum LetsKetchupOptions{
+    case friends, trending
+}
 struct ActivityView: View {
     @State var isLoading = true
     @StateObject var viewModel = ActivityViewModel()
-    
     var body: some View {
         NavigationStack{
             VStack{
@@ -20,32 +21,79 @@ struct ActivityView: View {
                         .onAppear{
                             Task{
                                 viewModel.user = AuthService.shared.userSession
-                                if viewModel.activityList.isEmpty{
-                                    try await viewModel.fetchKetchupActivities()
+                                if viewModel.friendsActivity.isEmpty{
+                                    //try await viewModel.fetchKetchupActivities()
                                 }
                                 isLoading = false
                             }
                         }
                 } else {
-                    //MARK: Following
-                    ScrollView{
-                        ForEach(viewModel.activityList) { activity in
-                            ActivityCell(activity: activity, viewModel: viewModel)
+                    VStack{
+                        //MARK: Buttons
+                        HStack(spacing: 20){
+                            Button{
+                                viewModel.letsKetchupOption = .friends
+                            } label: {
+                                Text("Friends Activity")
+                            }
+                            .modifier(StandardButtonModifier(width: 150))
+                            
+                            
+                            Button{
+                                viewModel.letsKetchupOption = .trending
+                            } label: {
+                                Text("Trending Activity")
+                            }
+                            .modifier(StandardButtonModifier(width: 150))
                         }
-                        Text("No more following recent activity to show")
+                        .padding()
                         Divider()
-                        //MARK: Ketchup
-                        ForEach(viewModel.ketchupActivityList) { activity in
-                            ActivityCell(activity: activity, viewModel: viewModel)
+                        //MARK: Friends
+                        if viewModel.letsKetchupOption == .friends {
+                            if !viewModel.friendsActivity.isEmpty{
+                                ScrollView{
+                                    ForEach(viewModel.friendsActivity) { activity in
+                                        ActivityCell(activity: activity, viewModel: viewModel)
+                                    }
+                                    //MARK: Ketchup
+                                }
+                            } else {
+                                Spacer()
+                                Text("Your friends don't have any recent activity!")
+                                Spacer()
+                            }
+                        }
+                        //MARK: Trendinjg
+                        else if viewModel.letsKetchupOption == .trending {
+                            if !viewModel.trendingActivity.isEmpty {
+                                ScrollView{
+                                    ForEach(viewModel.trendingActivity) { activity in
+                                        ActivityCell(activity: activity, viewModel: viewModel)
+                                    }
+                                }
+                            } else {
+                                Spacer()
+                                Text("There is no trending activity")
+                                Spacer()
+                            }
                         }
                     }
                 }
             }
-            .navigationTitle("Activity")
-            .refreshable{
+            .onChange(of: viewModel.letsKetchupOption) {
                 Task{
-                    if viewModel.activityList.isEmpty{
-                        try await viewModel.fetchKetchupActivities()
+                    try await viewModel.fetchActivitiesIfNeeded()
+                }
+            }
+            .navigationTitle("Let's Ketchup!")
+            .refreshable{
+                if viewModel.letsKetchupOption == .trending {
+                    Task{
+                        try await viewModel.fetchTrendingActivities()
+                    }
+                } else if viewModel.letsKetchupOption == .friends {
+                    Task{
+                        try await viewModel.fetchFriendsActivities()
                     }
                 }
             }

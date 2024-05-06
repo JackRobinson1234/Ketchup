@@ -13,15 +13,25 @@ import FirebaseAuth
 import Firebase
 @MainActor
 class ActivityViewModel: ObservableObject {
-    @Published var activityList: [Activity] = []
-    @Published var ketchupActivityList: [Activity] = []
     private var service = ActivityService()
+    @Published var trendingActivity: [Activity] = []
+    @Published var friendsActivity: [Activity] = []
+    @Published var letsKetchupOption: LetsKetchupOptions = .friends
+    
     var user: User?
-    func fetchActivities() async throws {
-        self.activityList = try await service.fetchFollowingActivities()
+    func fetchFriendsActivities() async throws {
+        self.friendsActivity = try await service.fetchFollowingActivities()
     }
     
-    func fetchKetchupActivities() async throws {
-        self.ketchupActivityList = try await service.fetchKetchupActivities()
+    func fetchTrendingActivities() async throws {
+        self.trendingActivity = try await service.fetchKetchupActivities()
+    }
+    
+    func fetchActivitiesIfNeeded() async throws {
+        if letsKetchupOption == .friends && friendsActivity.isEmpty {
+            try await fetchFriendsActivities()
+        } else if letsKetchupOption == .trending && trendingActivity.isEmpty {
+            try await fetchTrendingActivities()
+        }
     }
 }

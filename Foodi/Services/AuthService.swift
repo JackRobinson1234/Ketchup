@@ -97,7 +97,6 @@ class AuthService {
             guard let idToken = user.idToken else {
                 throw AuthenticationError.tokenError(message: "ID token missing")
             }
-            let emailAddress = user.profile?.email
             let fullName = user.profile?.name
             let givenName = user.profile?.givenName
             //let familyName = user.profile?.familyName
@@ -116,7 +115,8 @@ class AuthService {
               if document.exists {
                   try await updateUserSession()
                   return
-              } else {
+              }
+                else {
                   let randomUsername = try await generateRandomUsername(prefix: givenName)
                   let user = User(id: firebaseUser.uid, username: randomUsername, fullname: fullName ?? "", privateMode: false)
                   let userData = try Firestore.Encoder().encode(user)
@@ -126,7 +126,6 @@ class AuthService {
             } catch {
               print("Error getting document: \(error)")
             }
-            try await updateUserSession()
         } catch {
             print(error.localizedDescription)
             //self.authError = AuthError(authErrorCode: error.localizedDescription)

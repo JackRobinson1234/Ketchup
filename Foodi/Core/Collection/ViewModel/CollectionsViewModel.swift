@@ -103,7 +103,7 @@ class CollectionsViewModel: ObservableObject {
                     postType: post.postType,
                     name: post.caption,
                     image: post.thumbnailUrl,
-                    postUserFullname: post.user.fullName
+                    postUserFullname: post.user.fullname
                 )
                 return collectionItem
             } else if post.postType == "restaurant",

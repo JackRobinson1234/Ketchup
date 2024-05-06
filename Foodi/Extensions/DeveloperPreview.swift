@@ -84,7 +84,7 @@ struct DeveloperPreview {
                 timestamp: Timestamp(date: Date()),
                 user: PostUser(
                     id: "user1",
-                    fullName: "John Doe",
+                    fullname: "John Doe",
                     profileImageUrl: "https://example.com/profile.jpg"
                     ,privateMode: false,
                     username: "Test"

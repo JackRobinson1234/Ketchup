@@ -113,7 +113,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
 
 struct PostUser: Codable, Hashable, Identifiable {
     let id: String
-    let fullName: String
+    let fullname: String
     var profileImageUrl: String? = nil
     var privateMode: Bool
     var username: String
