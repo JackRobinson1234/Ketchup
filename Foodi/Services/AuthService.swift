@@ -70,12 +70,12 @@ class AuthService {
         
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
-            try await updateUserSession()
             
             let user = User(id: result.user.uid, username: username, fullname: fullname, privateMode: false)
             let userData = try Firestore.Encoder().encode(user)
             
             try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
+            try await updateUserSession()
         } catch {
             print("DEBUG: Failed to create user with error: \(error.localizedDescription)")
             throw error

@@ -17,13 +17,13 @@ struct CameraView: View {
     
     @StateObject var uploadViewModel = UploadViewModel()
     
-    @State var showLibraryTypeMenu = false
-    @State var showImagePicker = false
+    @State  var selectedVideo: URL?
+    @State var uploadFromLibray = false
     @State var selectedItem: PhotosPickerItem? {
         didSet { Task { await uploadViewModel.loadMediafromPhotosPicker(fromItem: selectedItem) } }
     }
-    @State var snapshotImage: UIImage?
-    
+    @State var selectedImages: [UIImage] = []
+        
     var body: some View {
         
         NavigationStack {
@@ -31,29 +31,13 @@ struct CameraView: View {
                 
                 Color.black
                     .ignoresSafeArea()
-//
-//                // WHAT THE CAMERA SEES
-//                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
-//                    .environmentObject(cameraViewModel)
-//                    .cornerRadius(10)
-//                    .onAppear { cameraViewModel.checkPermission() }
-//                    .gesture(cameraViewModel.drag)
-                    
-                
-                if let snapshotImage = snapshotImage, showLibraryTypeMenu {
-                    Image(uiImage: snapshotImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 390, height: 844)
-                        .blur(radius: 10)
-                        .transition(.opacity)
-                } else {
-                    CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
-                        .environmentObject(cameraViewModel)
-                        .cornerRadius(10)
-                        .onAppear { cameraViewModel.checkPermission() }
-                        .gesture(cameraViewModel.drag)
-                }
+
+                // WHAT THE CAMERA SEES
+                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
+                    .environmentObject(cameraViewModel)
+                    .cornerRadius(10)
+                    .onAppear { cameraViewModel.checkPermission() }
+                    .gesture(cameraViewModel.drag)
                 
                 // MARK: CameraControls
                 ZStack {
@@ -72,7 +56,7 @@ struct CameraView: View {
                     
                     HStack {
                         Button {
-                            showLibraryTypeMenu = true
+                            uploadFromLibray = true
                         } label: {
                                 Image(systemName: "photo.on.rectangle")
                                     .resizable()
@@ -107,31 +91,15 @@ struct CameraView: View {
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
             }
-//            .onChange(of: showLibraryTypeMenu) { isShowing in
-//                if isShowing {
-//                    snapshotImage = cameraViewModel.capturePreviewSnapshot()
-//                    cameraViewModel.session.stopRunning()
-//                } else {
-//                    cameraViewModel.session.startRunning()
-//                    snapshotImage = nil
-//                }
-//            }
-            
-            .overlay(
-                Group {
-                    if showLibraryTypeMenu {
-                        LibraryTypeMenuView(uploadViewModel: uploadViewModel, showLibraryTypeMenu: $showLibraryTypeMenu)
-                            .animation(.easeInOut, value: showLibraryTypeMenu)
-                            .transition(.move(edge: .bottom))
-                    }
-                }
-            )
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel)
-                    
+                    .toolbar(.hidden, for: .tabBar)
             }
-            
-            .photosPicker(isPresented: $showImagePicker, selection: $selectedItem, matching: .videos)
+            .navigationDestination(isPresented: $uploadFromLibray) {
+                LibrarySelectorView(uploadViewModel: uploadViewModel)
+                    .toolbar(.hidden, for: .tabBar)
+            }
+
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
         }
 
@@ -299,14 +267,14 @@ struct PhotoCameraControls: View {
                     Spacer()
                     
                     HStack {
-                        Text("\(cameraViewModel.picData.count)/3")
+                        Text("\(cameraViewModel.images.count)/3")
                             .font(.subheadline)
                             .foregroundColor(.white)
                         
                         HStack(spacing: -30) {
                             ForEach((0..<3).reversed(), id: \.self) { index in
-                                if index < cameraViewModel.picData.count {
-                                    Image(uiImage: UIImage(data: cameraViewModel.picData[cameraViewModel.picData.count - 1 - index]) ?? UIImage())
+                                if index < cameraViewModel.images.count {
+                                    Image(uiImage: cameraViewModel.images[cameraViewModel.images.count - 1 - index])
                                         .resizable()
                                         .frame(width: 30, height: 45)
                                         .clipShape(RoundedRectangle(cornerRadius: 5))
@@ -370,7 +338,7 @@ struct PhotoCameraControls: View {
                             cameraViewModel.mediaType = "photo"
                             
                             
-                            uploadViewModel.picData = cameraViewModel.picData
+                            uploadViewModel.images = cameraViewModel.images
                             uploadViewModel.mediaType = "photo"
                         }
                     } label: {

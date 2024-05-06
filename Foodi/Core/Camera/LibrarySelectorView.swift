@@ -1,0 +1,101 @@
+//
+//  Testing.swift
+//  Foodi
+//
+//  Created by Joe Ciminelli on 5/6/24.
+//
+
+import SwiftUI
+import PhotosUI
+
+struct LibrarySelectorView: View {
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
+    @State private var showImagePicker = false
+    @State private var selectedPhotos: [PhotosPickerItem] = []
+    
+    @State private var showVideoPicker = false
+    @State private var selectedVideo: [PhotosPickerItem] = []
+    
+    @State var navigateToUpload = false
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            
+            Button("Select Photos") {
+                showImagePicker = true
+            }
+            
+            Button("Select Video") {
+                showVideoPicker = true
+            }
+    
+            
+        }
+        .navigationDestination(isPresented: $navigateToUpload) {
+            ReelsUploadView(uploadViewModel: uploadViewModel)
+                .toolbar(.hidden, for: .tabBar)
+        }
+        .onChange(of: selectedVideo) {
+            Task {
+                await loadVideoURL()
+            }
+        }
+        .onChange(of: selectedPhotos) {
+            Task {
+                await loadPhotoImages()
+            }
+        }
+        .photosPicker(
+            isPresented: $showVideoPicker,
+            selection: $selectedVideo,
+            maxSelectionCount: 1,
+            matching: .videos
+        )
+        .photosPicker(
+            isPresented: $showImagePicker,
+            selection: $selectedPhotos,
+            maxSelectionCount: 3,
+            matching: .images
+        )
+    }
+    
+    func loadVideoURL() async {
+        guard let videoItem = selectedVideo.first else { return }
+        do {
+            let _ = print(videoItem)
+            if let videoURL: Movie = try await videoItem.loadTransferable(type: Movie.self) {
+                DispatchQueue.main.async {
+                    uploadViewModel.videoURL = videoURL.url
+                    uploadViewModel.mediaType = "video"
+                    navigateToUpload = true
+                }
+            } else {
+                print("No URL available for the video item")
+            }
+        } catch {
+            print("Error loading video URL: \(error)")
+        }
+    }
+    
+    func loadPhotoImages() async {
+        var images: [UIImage] = []
+        for photoItem in selectedPhotos {
+            do {
+                if let imageData: Data = try await photoItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: imageData) {
+                    images.append(image)
+                }
+            } catch {
+                print("Error loading image: \(error)")
+            }
+        }
+        DispatchQueue.main.async {
+            uploadViewModel.images = images
+            uploadViewModel.mediaType = "photo"
+            navigateToUpload = true
+        }
+    }
+}
+

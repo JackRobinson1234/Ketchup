@@ -11,7 +11,7 @@ import SwiftUI
 
 struct UploadService {
     
-    func uploadPost(videoURL: URL?, picData: [Data]?, mediaType: String, caption: String, postType: String, postRestaurant: PostRestaurant?, postRecipe: PostRecipe?) async throws {
+    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: String, postRestaurant: PostRestaurant?, postRecipe: PostRecipe?) async throws {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
 
@@ -23,12 +23,8 @@ struct UploadService {
                 throw UploadError.videoUploadFailed
             }
             mediaUrls.append(videoUrl)
-        } else if mediaType == "photo", let picData = picData {
-            for imageData in picData {
-                guard let image = UIImage(data: imageData) else {
-                    print("Unable to convert Data to UIImage")
-                    continue  // Optionally, you can handle this more strictly by throwing an error
-                }
+        } else if mediaType == "photo", let images = images {
+            for image in images {
                 if let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
                     mediaUrls.append(imageUrl)
                 } else {

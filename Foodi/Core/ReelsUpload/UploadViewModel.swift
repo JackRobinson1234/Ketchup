@@ -14,20 +14,12 @@ class UploadViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     @Published var caption = ""
-    //@Published var selectedMediaForUpload: MediaType?
-    //    @Published var selectedItem: PhotosPickerItem? {
-    //        didSet {
-    //            Task {
-    //                await loadMediafromPhotosPicker(fromItem: selectedItem)
-    //            }
-    //        }
-    //    }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
     // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
-    @Published var picData: [Data]?
+    @Published var images: [UIImage]?
     @Published var mediaType: String = "none"
     
     @Published var recipeTitle = ""
@@ -121,18 +113,18 @@ class UploadViewModel: ObservableObject {
                     throw UploadError.invalidMediaData
                 }
                 try await uploadService.uploadPost(videoURL: videoURL,
-                                                   picData: nil,
+                                                   images: nil,
                                                    mediaType: mediaType,
                                                    caption: caption,
                                                    postType: postType,
                                                    postRestaurant: postRestaurant,
                                                    postRecipe: postRecipe)
             } else if mediaType == "photo" {
-                guard let picData = picData else {
+                guard let images = images else {
                     throw UploadError.invalidMediaData
                 }
                 try await uploadService.uploadPost(videoURL: nil,
-                                                   picData: picData,
+                                                   images: images,
                                                    mediaType: mediaType,
                                                    caption: caption,
                                                    postType: postType,

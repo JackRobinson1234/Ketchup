@@ -218,8 +218,8 @@ struct FinalPhotoPreview: View {
                     .edgesIgnoringSafeArea(.all)
 
                 TabView(selection: $currentPage) {
-                    ForEach(uploadViewModel.picData!.indices, id: \.self) { index in
-                        Image(uiImage: UIImage(data: uploadViewModel.picData![index]) ?? UIImage())
+                    ForEach(uploadViewModel.images!.indices, id: \.self) { index in
+                        Image(uiImage: uploadViewModel.images![index])
                             .resizable()
                             .cornerRadius(10)
                             .tag(index)
