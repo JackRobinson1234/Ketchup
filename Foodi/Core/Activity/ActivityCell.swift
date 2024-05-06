@@ -32,11 +32,11 @@ struct ActivityCell: View {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: restaurantId)) {
                                     VStack(alignment: .leading){
                                         Text("@\(activity.username) created a new restaurant post for ")
-                                            .foregroundStyle(.black)
+                                            .activityCellFontStyle()
                                         +
                                         Text(activity.name)
                                             .bold()
-                                            .foregroundStyle(.black)
+                                            .activityCellFontStyle()
                                     }
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(2)
@@ -49,7 +49,7 @@ struct ActivityCell: View {
                                     +
                                     Text(activity.name)
                                         .bold()
-                                        .foregroundStyle(.black)
+                                        .activityCellFontStyle()
                                     Text(getTimeElapsedString(from: activity.timestamp))
                                         .font(.caption)
                                         .foregroundColor(.gray)
@@ -62,9 +62,9 @@ struct ActivityCell: View {
                         } else if postType == "atHome" {
                             VStack(alignment: .leading){
                                 Text("@\(activity.username) created a new at home post: ")
-                                    .foregroundStyle(.black) +
+                                    .activityCellFontStyle() +
                                 Text(activity.name)
-                                    .foregroundStyle(.black)
+                                    .activityCellFontStyle()
                                     .bold()
                                 
                                 Text(getTimeElapsedString(from: activity.timestamp))
@@ -113,6 +113,7 @@ struct ActivityCell: View {
                         Text("@\(activity.username) created a new collection: ") +
                         Text(activity.name)
                             .bold()
+                            .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
                             .font(.caption)
                             .foregroundColor(.gray)
@@ -155,8 +156,10 @@ struct ActivityCell: View {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
                     }
                     VStack(alignment: .leading){
-                        Text("\(activity.username) added a new item to the collection: ") +
+                        Text("\(activity.username) added a new item to the collection: ")
+                            .activityCellFontStyle() +
                         Text(activity.name)
+                            .activityCellFontStyle()
                             .bold()
                         Text(getTimeElapsedString(from: activity.timestamp))
                             .font(.caption)
@@ -240,7 +243,12 @@ struct ActivityCell: View {
         return ""
     }
 }
-
+extension Text {
+    func activityCellFontStyle() -> Text {
+        self.font(.subheadline) // Customize the font style here
+            .foregroundColor(.black) // Customize the text color if needed
+    }
+}
 #Preview {
     ActivityCell(activity: DeveloperPreview.activity2, viewModel: ActivityViewModel())
 }

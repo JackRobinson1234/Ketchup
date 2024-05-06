@@ -66,7 +66,7 @@ struct CurrentUserProfileView: View {
                 }
                 
                 
-                .navigationTitle("Profile")
+                .navigationTitle(profileViewModel.user.username)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
                     ProfileView(uid: user.id)

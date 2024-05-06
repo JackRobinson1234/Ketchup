@@ -23,18 +23,18 @@ struct ProfileHeaderView: View {
     var body: some View {
        let user = viewModel.user
             VStack(spacing: 16) {
-                HStack {
+                HStack(spacing: 15) {
                     VStack(spacing: 8) {
                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
                     }
                     
-                    VStack(alignment: .leading ){
-                        Text("\(user.username)")
+                    VStack(alignment: .leading){
+                        Text("\(user.fullname)")
                             .font(.headline)
                             .fontWeight(.semibold)
                             .padding(10)
                             .padding(.leading)
-                        HStack {
+                        HStack(spacing: 15) {
                             Button{
                                 showFollowingList.toggle()
                             } label: {
@@ -125,7 +125,7 @@ struct UserStatView: View {
                 .foregroundStyle(.gray)
         }
         .opacity(value == 0 ? 0.5 : 1.0)
-        .frame(width: 80, alignment: .center)
+        //.frame(width: 80, alignment: .center)
         .foregroundColor(.black)
     }
 }

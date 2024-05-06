@@ -22,10 +22,11 @@ class EditProfileViewModel: ObservableObject {
             print("Favorites Preview Changed: \(favoritesPreview)")
         }
     }
+    @Published var validUsername: Bool? = true
     
     private var uiImage: UIImage?
-    var fullname = ""
-    var username = ""
+    @Published var fullname = ""
+    @Published var username = ""
                 
     init(user: User) {
         self.user = user
@@ -74,5 +75,19 @@ class EditProfileViewModel: ObservableObject {
             data["favorites"] = cleanedData
         }
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
+        AuthService.shared.userSession = user
+    }
+    func checkIfUsernameAvailable() async throws {
+        if user.username == self.username{
+            validUsername = true
+            return
+        }
+        let query = FirestoreConstants.UserCollection.whereField("username", isEqualTo: self.username)
+        let querySnapshot = try await query.getDocuments()
+        if querySnapshot.documents.isEmpty {
+           validUsername = true
+        } else {
+            validUsername = false
+        }
     }
 }
