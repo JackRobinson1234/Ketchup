@@ -121,7 +121,6 @@
 		F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AFC2B6B094400EC159B /* PostListViewModel.swift */; };
 		F88E0AFF2B6B095A00EC159B /* PostListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AFE2B6B095A00EC159B /* PostListView.swift */; };
 		F88E0B052B6B09E400EC159B /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B042B6B09E400EC159B /* Movie.swift */; };
-		F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B062B6B09FF00EC159B /* UploadPostService.swift */; };
 		F88E0B092B6B0A1A00EC159B /* MediaSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */; };
 		F88E0B0D2B6B0A5400EC159B /* UploadPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */; };
 		F88E0B0F2B6B0A7100EC159B /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */; };
@@ -331,7 +330,6 @@
 		F88E0AFC2B6B094400EC159B /* PostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListViewModel.swift; sourceTree = "<group>"; };
 		F88E0AFE2B6B095A00EC159B /* PostListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListView.swift; sourceTree = "<group>"; };
 		F88E0B042B6B09E400EC159B /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
-		F88E0B062B6B09FF00EC159B /* UploadPostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostService.swift; sourceTree = "<group>"; };
 		F88E0B082B6B0A1A00EC159B /* MediaSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSelectorView.swift; sourceTree = "<group>"; };
 		F88E0B0C2B6B0A5400EC159B /* UploadPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostView.swift; sourceTree = "<group>"; };
 		F88E0B0E2B6B0A7100EC159B /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
@@ -586,7 +584,6 @@
 			children = (
 				F84FE29B2B6A58ED00144F01 /* AuthService.swift */,
 				F88E0AA72B6B037200EC159B /* NotificationService.swift */,
-				F88E0B062B6B09FF00EC159B /* UploadPostService.swift */,
 				F88E0B1C2B6B0B3500EC159B /* MediaUploader.swift */,
 				F88E0B1E2B6B0B6B00EC159B /* PostService.swift */,
 				F88E0B202B6B0B8E00EC159B /* RestaurantService.swift */,
@@ -1769,7 +1766,6 @@
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
 				F88E0AD42B6B070300EC159B /* ContentViewModel.swift in Sources */,
 				F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */,
-				F88E0B072B6B09FF00EC159B /* UploadPostService.swift in Sources */,
 				F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */,
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
 				F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */,

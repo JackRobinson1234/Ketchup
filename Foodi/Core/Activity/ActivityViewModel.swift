@@ -25,7 +25,4 @@ class ActivityViewModel: ObservableObject {
     func fetchKetchupActivities() async throws {
         self.ketchupActivityList = try await service.fetchKetchupActivities()
     }
-    func fetchCurrentUser() async throws  {
-        self.user = try await UserService().fetchCurrentUser()
-    }
 }

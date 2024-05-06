@@ -170,12 +170,4 @@ extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
         }
-    func fetchCurrentUser() async {
-        do{
-            self.user = try await UserService().fetchCurrentUser()
-        }
-        catch {
-            print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
-        }
-    }
 }

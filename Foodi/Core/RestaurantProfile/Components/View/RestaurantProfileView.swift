@@ -16,7 +16,6 @@ struct RestaurantProfileView: View {
     private let restaurantId: String
     private let restaurant: Restaurant?
     @State var showAddToCollection = false
-    @State var user: User? = nil
     
     init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
@@ -65,10 +64,7 @@ struct RestaurantProfileView: View {
             .overlay(alignment: .topTrailing) {
                 Button{
                     Task{
-                        try await self.user = UserService().fetchCurrentUser()
-                        if user != nil{
-                            showAddToCollection.toggle()
-                        }
+                        showAddToCollection.toggle()
                     }
                 } label: {
                     Image(systemName: "folder.badge.plus")
@@ -100,7 +96,7 @@ struct RestaurantProfileView: View {
             }
             
             .sheet(isPresented: $showAddToCollection) {
-                if let user {
+                if let user = AuthService.shared.userSession{
                     AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
                 }
             }

@@ -32,7 +32,6 @@ class CommentService: CommentServiceProtocol {
         self.post = post
         self.userService = userService
         
-        Task { await fetchCurrentUser() }
     }
     
     func fetchComments() async throws -> [Comment] {
@@ -82,9 +81,4 @@ class CommentService: CommentServiceProtocol {
         return comment
     }
     
-    @MainActor
-    func fetchCurrentUser() async {
-        self.currentUser = try? await userService.fetchCurrentUser()
-
-    }
 }

@@ -203,10 +203,7 @@ struct FeedView: View {
                     pauseVideo = false
                 }
             }
-            .onAppear{
-                Task{
-                    await viewModel.fetchCurrentUser()
-                }}
+
             /// presents the filters view when filters are clicked
             .fullScreenCover(isPresented: $showFilters) {
                 FiltersView(filtersViewModel: filtersViewModel)

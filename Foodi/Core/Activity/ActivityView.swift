@@ -19,11 +19,10 @@ struct ActivityView: View {
                     ProgressView()
                         .onAppear{
                             Task{
-                                /*//try await viewModel.fetchActivities()
-                                try await viewModel.fetchCurrentUser()
+                                viewModel.user = AuthService.shared.userSession
                                 if viewModel.activityList.isEmpty{
                                     try await viewModel.fetchKetchupActivities()
-                                }*/
+                                }
                                 isLoading = false
                             }
                         }
