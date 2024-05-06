@@ -13,6 +13,12 @@ struct ReelsUploadView: View {
     
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
+    @ObservedObject var cameraViewModel: CameraViewModel
+    
+    // TAB BAR CONTROLLER
+    @EnvironmentObject var tabBarController: TabBarController
+    @Environment(\.dismiss) var dismiss
+
     
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
@@ -52,10 +58,13 @@ struct ReelsUploadView: View {
                     Button {
                         // hande errors
                         Task {
-                            
                             await uploadViewModel.uploadPost()
-                            // Handle success if needed
-  
+                            uploadViewModel.reset()
+                            cameraViewModel.reset()
+                            DispatchQueue.main.async {
+                                // Ensure UI changes are on the main thread
+                                dismiss()
+                            }
                         }
                         
                     } label: {

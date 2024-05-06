@@ -39,6 +39,7 @@ class UploadViewModel: ObservableObject {
     
     @Published var savedRecipe = false
     
+    
     private var uploadService = UploadService()
     
     
@@ -55,18 +56,27 @@ class UploadViewModel: ObservableObject {
     }
     
     func reset() {
-//        caption = ""
-//        mediaPreview = nil
-//        error = nil
-//        selectedItem = nil
-//        selectedMediaForUpload = nil
-//        recipeTitle = ""
-//        ingredients = [Ingredient(quantity: "", item: "")]
-//        instructions = [Instruction(title: "", description: "")]
-//        recipeCuisine = ""
-//        dietaryRestrictions = [""]
-        print("DEBUG: ayo")
+        isLoading = false
+        error = nil
+        caption = ""
+        uploadSuccess = false
+        uploadFailure = false
+        videoURL = nil
+        images = []
+        mediaType = "none"
+        recipeTitle = ""
+        ingredients = [Ingredient(quantity: "", item: "")]
+        recipeCuisine = ""
+        dietaryRestrictions = [""]
+        recipeHours = 0
+        recipeMinutes = 0
+        recipeServings = 0
+        instructions = [Instruction(title: "", description: "")]
+        restaurant = nil
+        postType = "Select Post Type"
+        savedRecipe = false
     }
+    
     func addEmptyIngredient() {
         ingredients.append(Ingredient(quantity: "", item: ""))
     }
@@ -139,26 +149,5 @@ class UploadViewModel: ObservableObject {
             uploadFailure = true
         }
         isLoading = false
-    }
-
-    
-    
-    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {
-        guard let item = item else { return }
-        isLoading = true
-
-        do {
-            if let movie = try await item.loadTransferable(type: Movie.self) {
-                //set media here
-                print("loaded video")
-            } else if let photo = try await item.loadTransferable(type: Photo.self) {
-                //set media here
-                print("loaded image")
-            } else {
-                print("DEBUG: Unsupported media type")
-            }
-        } catch {
-            print("DEBUG: Failed with error \(error.localizedDescription)")
-        }
     }
 }

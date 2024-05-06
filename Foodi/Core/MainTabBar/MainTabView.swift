@@ -14,7 +14,7 @@ struct MainTabView: View {
     @EnvironmentObject var tabBarController: TabBarController
         
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $tabBarController.selectedTab) {
             FeedView(videoCoordinator: videoCoordinator)
                 .tabItem {
                     VStack {

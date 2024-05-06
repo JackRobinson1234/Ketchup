@@ -11,15 +11,14 @@ import PhotosUI
 struct LibrarySelectorView: View {
     
     @ObservedObject var uploadViewModel: UploadViewModel
+    @ObservedObject var cameraViewModel: CameraViewModel
     
-    @State private var showImagePicker = false
-    @State private var selectedPhotos: [PhotosPickerItem] = []
-    
-    @State private var showVideoPicker = false
-    @State private var selectedVideo: [PhotosPickerItem] = []
-    
+    @State var showVideoPicker = false
+    @State var showImagePicker = false
     @State var navigateToUpload = false
-    
+    @State var selectedPhotos: [PhotosPickerItem] = []
+    @State var selectedVideo: [PhotosPickerItem] = []
+
     var body: some View {
         VStack(spacing: 20) {
             
@@ -34,7 +33,7 @@ struct LibrarySelectorView: View {
             
         }
         .navigationDestination(isPresented: $navigateToUpload) {
-            ReelsUploadView(uploadViewModel: uploadViewModel)
+            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                 .toolbar(.hidden, for: .tabBar)
         }
         .onChange(of: selectedVideo) {
@@ -65,9 +64,9 @@ struct LibrarySelectorView: View {
         guard let videoItem = selectedVideo.first else { return }
         do {
             let _ = print(videoItem)
-            if let videoURL: Movie = try await videoItem.loadTransferable(type: Movie.self) {
+            if let video: Movie = try await videoItem.loadTransferable(type: Movie.self) {
                 DispatchQueue.main.async {
-                    uploadViewModel.videoURL = videoURL.url
+                    uploadViewModel.videoURL = video.url
                     uploadViewModel.mediaType = "video"
                     navigateToUpload = true
                 }

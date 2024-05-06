@@ -38,6 +38,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var navigateToUpload: Bool = false
     @Published var mediaType: String = "none"
     
+    // NAVIGATES TO LIBRARY SELECTION
+    @Published var uploadFromLibray = false
+    
     // TOP PROGRESS BAR
     @Published var recordedDuration: CGFloat = 0
     @Published var maxDuration: CGFloat = 20
@@ -288,6 +291,19 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
 
         self.images.append(image)
+    }
+    
+    func reset() {
+        // Reset the photo and video capture properties
+        images.removeAll()
+        recordedURLs.removeAll()
+        previewURL = nil
+        isPhotoTaken = false
+        isRecording = false
+        navigateToUpload = false
+        mediaType = "none"
+        recordedDuration = 0
+        isDragging = false
     }
         
 }

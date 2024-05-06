@@ -17,13 +17,6 @@ struct CameraView: View {
     
     @StateObject var uploadViewModel = UploadViewModel()
     
-    @State  var selectedVideo: URL?
-    @State var uploadFromLibray = false
-    @State var selectedItem: PhotosPickerItem? {
-        didSet { Task { await uploadViewModel.loadMediafromPhotosPicker(fromItem: selectedItem) } }
-    }
-    @State var selectedImages: [UIImage] = []
-        
     var body: some View {
         
         NavigationStack {
@@ -56,7 +49,7 @@ struct CameraView: View {
                     
                     HStack {
                         Button {
-                            uploadFromLibray = true
+                            cameraViewModel.uploadFromLibray = true
                         } label: {
                                 Image(systemName: "photo.on.rectangle")
                                     .resizable()
@@ -92,11 +85,11 @@ struct CameraView: View {
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
             }
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
-                ReelsUploadView(uploadViewModel: uploadViewModel)
+                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
             }
-            .navigationDestination(isPresented: $uploadFromLibray) {
-                LibrarySelectorView(uploadViewModel: uploadViewModel)
+            .navigationDestination(isPresented: $cameraViewModel.uploadFromLibray) {
+                LibrarySelectorView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
             }
 
