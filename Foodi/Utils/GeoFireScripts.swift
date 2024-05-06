@@ -81,7 +81,7 @@ struct GeoFireScripts: View {
     func fetchAllRestaurants() {
         Task{
             print("Running Fetch Restaurants")
-            restaurants = try await RestaurantService().fetchRestaurants()
+            restaurants = try await RestaurantService.shared.fetchRestaurants()
             print("Finished Running Fetch Restaurants")
             print(restaurants.count)
         }

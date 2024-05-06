@@ -80,7 +80,7 @@ struct ProfileSlideBar: View {
         
                 
         if profileSection == .likes {
-            LikedPostsView(user: viewModel.user, postService: PostService())
+            LikedPostsView(user: viewModel.user)
                 
             }
         if profileSection == .collections {

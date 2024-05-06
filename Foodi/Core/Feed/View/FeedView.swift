@@ -30,9 +30,7 @@ struct FeedView: View {
 
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], hideFeedOptions: Bool = false) {
         self.videoCoordinator = videoCoordinator
-        let viewModel = FeedViewModel(
-            postService: PostService(),
-            posts: posts)
+        let viewModel = FeedViewModel(posts: posts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.posts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))

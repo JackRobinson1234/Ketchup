@@ -13,8 +13,7 @@ struct CurrentUserProfileView: View {
     @State var showNotifications = false
     @State var showSettings = false
     init(currentProfileSection: ProfileSectionEnum = .posts) {
-        let viewModel = ProfileViewModel(uid: "",
-                                         postService: PostService())
+        let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
         

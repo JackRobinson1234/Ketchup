@@ -13,13 +13,12 @@ class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
-    private let postService: PostService
     private var didCompleteFollowCheck = false
     private var didCompleteStatsFetch = false
     
-    init(uid: String, postService: PostService) {
+    init(uid: String) {
         self.uid = uid
-        self.postService = postService
+
     }
     
     func fetchUser() async {
@@ -75,7 +74,7 @@ extension ProfileViewModel {
     func fetchUserPosts() async throws {
         
             do {
-                self.posts = try await postService.fetchUserPosts(user: user)
+                self.posts = try await PostService.shared.fetchUserPosts(user: user)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }
@@ -84,7 +83,7 @@ extension ProfileViewModel {
     
     func fetchUserLikedPosts() async throws {
             do {
-                self.posts = try await postService.fetchUserLikedPosts(user: user)
+                self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }

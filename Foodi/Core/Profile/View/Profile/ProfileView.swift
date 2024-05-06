@@ -21,7 +21,7 @@ struct ProfileView: View {
 
     init(uid: String, profileSection: ProfileSectionEnum = .posts) {
         self.uid = uid
-        let profileViewModel = ProfileViewModel(uid: uid, postService: PostService())
+        let profileViewModel = ProfileViewModel(uid: uid)
         self._profileViewModel = StateObject(wrappedValue: profileViewModel)
         self._profileSection = State(initialValue: profileSection)
         

@@ -106,5 +106,5 @@ struct PriceFilter: View {
     }
 
 #Preview {
-    PriceFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    PriceFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
 }

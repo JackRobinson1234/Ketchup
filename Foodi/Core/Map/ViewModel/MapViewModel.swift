@@ -11,13 +11,9 @@ import Firebase
 
 @MainActor
 class MapViewModel: ObservableObject {
-    private let restaurantService = RestaurantService()
     @Published var restaurants = [Restaurant]()
     @Published var searchPreview = [Restaurant]()
-    
-    
     var filters: [String: [Any]] = [:]
-    
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
@@ -51,7 +47,7 @@ class MapViewModel: ObservableObject {
             }
             
             
-            self.restaurants = try await restaurantService.fetchRestaurants(withFilters: self.filters, limit: limit)
+            self.restaurants = try await RestaurantService.shared.fetchRestaurants(withFilters: self.filters, limit: limit)
             print(restaurants.count)
         }
         catch {

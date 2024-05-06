@@ -13,10 +13,6 @@ struct CollectionGridView: View {
     @State var selectedRestaurant: String?
     @State var showPost: Bool = false
     @State var showRestaurant: Bool = false
-    private let restaurantService = RestaurantService()
-    private let postService = PostService()
-    //@State var searchText: String = ""
-    //@State private var filteredItems: [CollectionItem] = []
     @State var showAddItem = false
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State var isLoading = true
@@ -32,22 +28,6 @@ struct CollectionGridView: View {
                 }
         } else {
             VStack{
-//                HStack{
-//                    Image(systemName: "magnifyingglass")
-//                        .imageScale(.small)
-//                    TextField("Search", text: $searchText)
-//                        .font(.subheadline)
-//                        .frame(height:44)
-//                        .padding(.horizontal)
-//                }
-//                .frame(height: 44)
-//                .padding(.horizontal)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 8)
-//                        .stroke(lineWidth: 1.0)
-//                        .foregroundStyle(Color(.systemGray4)))
-//                .padding(.horizontal)
-                
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                     //MARK: Add Item Button
                     if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid {
@@ -68,7 +48,7 @@ struct CollectionGridView: View {
                             Button{
                                 Task{
                                     selectedPost = try await
-                                    postService.fetchPost(postId: item.id)
+                                    PostService.shared.fetchPost(postId: item.id)
                                 }
                                 showPost.toggle()
                             } label: {

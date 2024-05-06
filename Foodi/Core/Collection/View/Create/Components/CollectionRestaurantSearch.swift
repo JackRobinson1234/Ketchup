@@ -13,7 +13,7 @@ struct CollectionRestaurantSearch: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var debouncer = Debouncer(delay: 1.0)
     
-    init(restaurantService: RestaurantService, collectionsViewModel: CollectionsViewModel) {
+    init(collectionsViewModel: CollectionsViewModel) {
         self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
         self.collectionsViewModel = collectionsViewModel
     }

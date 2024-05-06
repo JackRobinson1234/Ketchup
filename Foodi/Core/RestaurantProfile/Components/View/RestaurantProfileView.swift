@@ -12,16 +12,14 @@ struct RestaurantProfileView: View {
     @State var currentSection: Section
     @StateObject var viewModel: RestaurantViewModel
     @State private var isLoading = true
-    private let restaurantService = RestaurantService()
     private let restaurantId: String
     private let restaurant: Restaurant?
     @State var showAddToCollection = false
     
     init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
-        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId,
-                                                      restaurantService: RestaurantService(),
-                                                      postService: PostService())
+        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId
+                                                      )
         
         self._viewModel = StateObject(wrappedValue: restaurantViewModel)
         self._currentSection = State(initialValue: currentSection)

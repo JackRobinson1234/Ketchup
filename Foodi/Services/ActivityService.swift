@@ -10,8 +10,6 @@ import Foundation
 import Firebase
 
 class ActivityService {
-    private let postService = PostService()
-    
     func fetchFollowingActivities() async throws -> [Activity] {
         var allActivities = [Activity]()
         

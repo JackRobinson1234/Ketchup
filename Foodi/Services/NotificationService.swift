@@ -11,7 +11,6 @@ import Firebase
 class NotificationService {
     
     private var notifications = [Notification]()
-    private let postService = PostService()
     
     func fetchNotifications() async throws -> [Notification] {
         guard let uid = Auth.auth().currentUser?.uid else { return [] }

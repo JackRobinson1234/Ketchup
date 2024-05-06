@@ -156,5 +156,5 @@ struct CuisineFilter: View {
 
 
 #Preview {
-    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
 }

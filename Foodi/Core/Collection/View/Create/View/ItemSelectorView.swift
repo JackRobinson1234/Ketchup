@@ -38,7 +38,7 @@ struct ItemSelectorView: View {
                 }
                 .padding(.bottom)
                 if collectionItemOption == .restaurants {
-                    CollectionRestaurantSearch(restaurantService: RestaurantService(), collectionsViewModel: collectionsViewModel)
+                    CollectionRestaurantSearch(collectionsViewModel: collectionsViewModel)
                 }
             }
         }

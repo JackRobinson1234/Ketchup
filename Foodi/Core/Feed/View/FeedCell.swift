@@ -411,8 +411,7 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
         videoCoordinator: VideoPlayerCoordinator(),
-             viewModel: FeedViewModel(
-                postService: PostService()             )
+             viewModel: FeedViewModel()
         ,scrollPosition: .constant(""),
         pauseVideo: .constant(true)
     )

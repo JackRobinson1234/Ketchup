@@ -9,14 +9,12 @@ import SwiftUI
 
 struct LikedPostsView: View {
     @StateObject var viewModel: LikedVideosViewModel
-    private let postService: PostService
     private let user: User
     @State var isLoading = true
     
-    init(user: User, postService: PostService) {
+    init(user: User) {
         self.user = user
-        self.postService = postService
-        let viewModel = LikedVideosViewModel(user: user, postService: PostService())
+        let viewModel = LikedVideosViewModel(user: user)
         self._viewModel = StateObject(wrappedValue: viewModel)
     }
     var body: some View {

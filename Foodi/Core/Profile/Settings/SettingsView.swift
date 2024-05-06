@@ -136,5 +136,5 @@ struct SettingsView: View {
 
 
 #Preview {
-    SettingsView(profileViewModel: ProfileViewModel(uid: "", postService: PostService()))
+    SettingsView(profileViewModel: ProfileViewModel(uid: ""))
 }

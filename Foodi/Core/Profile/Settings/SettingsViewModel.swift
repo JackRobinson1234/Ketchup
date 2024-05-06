@@ -12,8 +12,6 @@ import SwiftUI
 import Firebase
 
 class SettingsViewModel: ObservableObject{
-    private let collectionsService = CollectionService()
-    private let postService = PostService()
     @ObservedObject var profileViewModel: ProfileViewModel
     @Published var needsReauth: Bool = false
     @Published var privateMode: Bool

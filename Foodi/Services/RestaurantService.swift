@@ -12,6 +12,8 @@ import MapKit
 import GeoFire
 
 class RestaurantService {
+    static let shared = RestaurantService() // Singleton instance
+    private init() {}
     
     //MARK: fetchRestaurant
     /// Fetches a single restaurant given an ID
@@ -21,8 +23,6 @@ class RestaurantService {
         print("DEBUG: Ran fetchRestaurant()")
         return try await FirestoreConstants.RestaurantCollection.document(id).getDocument(as: Restaurant.self)
     }
-    
-    
     //MARK: fetchRestaurants
     /// Fetches an array of restaurants that match the provided filters
     /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]

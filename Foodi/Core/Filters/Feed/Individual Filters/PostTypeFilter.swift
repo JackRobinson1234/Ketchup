@@ -53,5 +53,5 @@ struct PostTypeFilter: View {
 }
 
 #Preview {
-    PostTypeFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel(postService: PostService())))
+    PostTypeFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
 }

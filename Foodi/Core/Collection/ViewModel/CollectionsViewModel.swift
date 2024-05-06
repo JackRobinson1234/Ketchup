@@ -13,7 +13,6 @@ import FirebaseFirestore
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
     @Published var selectedCollection: Collection?
-    private let collectionService: CollectionService = CollectionService()
     @Published var user: User
     @Published var uploadComplete = false
     @Published var selectedImage: PhotosPickerItem? {
@@ -48,7 +47,7 @@ class CollectionsViewModel: ObservableObject {
         isLoading = true
         print("fetching Collections")
         do {
-            self.collections = try await collectionService.fetchCollections(user: user)
+            self.collections = try await CollectionService.shared.fetchCollections(user: user)
             isLoading = false
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
@@ -57,7 +56,7 @@ class CollectionsViewModel: ObservableObject {
     }
     func fetchItems() async throws{
         if let selectedCollection{
-            let fetchedItems = try await collectionService.fetchItems(collection: selectedCollection)
+            let fetchedItems = try await CollectionService.shared.fetchItems(collection: selectedCollection)
             self.items = fetchedItems
         }
     }
@@ -68,7 +67,7 @@ class CollectionsViewModel: ObservableObject {
         var item = collectionItem
         if let selectedCollection = self.selectedCollection {
             item.collectionId = selectedCollection.id
-            try await collectionService.addItemToCollection(collectionItem: item)
+            try await CollectionService.shared.addItemToCollection(collectionItem: item)
             if !self.items.contains(item){
                 self.items.append(item)
                 if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
@@ -183,7 +182,7 @@ class CollectionsViewModel: ObservableObject {
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        let collection = try await collectionService.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl)
+        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl)
         if let collection{
             print(collection)
             self.collections.insert(collection, at: 0)
@@ -275,7 +274,7 @@ class CollectionsViewModel: ObservableObject {
                 
                 if  !self.deleteItems.isEmpty {
                     for item in self.deleteItems {
-                        try await collectionService.removeItemFromCollection(collectionItem: item)
+                        try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
                         if item.postType == "restaurant"{
                             collections[index].restaurantCount -= 1
                         } else if item.postType == "atHome"{
@@ -304,7 +303,7 @@ class CollectionsViewModel: ObservableObject {
                 return
             }
             let collection = collections[index]
-            try await collectionService.deleteCollection(selectedCollection: collection)
+            try await CollectionService.shared.deleteCollection(selectedCollection: collection)
             dismissCollectionView = true
             // Update the collections array and selectedCollection
             collections.remove(at: index)
