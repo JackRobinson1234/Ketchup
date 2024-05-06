@@ -32,9 +32,9 @@ class CollectionsViewModel: ObservableObject {
     @Published var dismissCollectionView: Bool = false
     @Published var post: Post?
     @Published var restaurant: Restaurant?
-    
-    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
-        self.user = user
+    var userService: UserService = UserService()
+    init(post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
+        self.user = try! await userService.fetchCurrentUser()
         self.post = post
         self.restaurant = restaurant
         self.selectedCollection = selectedCollection

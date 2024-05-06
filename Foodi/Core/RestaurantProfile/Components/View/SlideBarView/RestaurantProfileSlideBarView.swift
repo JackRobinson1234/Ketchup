@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, menu, map //collections?
+    case posts, menu, map, collections
 }
 
 struct RestaurantProfileSlideBarView: View {
@@ -59,6 +59,20 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
                     .frame(maxWidth: .infinity)
+                
+                Image(systemName: currentSection == .collections ? "folder.fill" : "folder")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 22)
+                
+                    .onTapGesture {
+                        withAnimation {
+                            self.currentSection = .collections
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
+                    .frame(maxWidth: .infinity)
+
 
             }
         }
@@ -73,6 +87,9 @@ struct RestaurantProfileSlideBarView: View {
         }
         if currentSection == .posts {
             PostGridView(posts: viewModel.posts, userService: UserService())
+        }
+        if currentSection == .collections {
+            CollectionsListView(viewModel: CollectionsViewModel())
         }
     }
 }
