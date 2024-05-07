@@ -169,11 +169,22 @@ struct ActivityCell: View {
                     .lineLimit(2)
                     Spacer()
                     if let image = activity.image {
-                        KFImage(URL(string: image))
-                            .resizable()
-                            .frame(width: 50, height: 70) // Set the image size to 50x50
-                            .aspectRatio(contentMode: .fit) // Maintain aspect ratio
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        Button{
+                            Task{
+                                if let collectionId = activity.collectionId{
+                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                                    if self.collection != nil, viewModel.user != nil{
+                                        showCollection.toggle()
+                                    }
+                                }
+                            }
+                        } label: {
+                            KFImage(URL(string: image))
+                                .resizable()
+                                .frame(width: 50, height: 50) // Set the image size to 50x50
+                                .aspectRatio(contentMode: .fit) // Maintain aspect ratio
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
                     } else {
                         Button{
                             Task{

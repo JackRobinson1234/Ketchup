@@ -22,7 +22,7 @@ struct ActivityView: View {
                             Task{
                                 viewModel.user = AuthService.shared.userSession
                                 if viewModel.friendsActivity.isEmpty{
-                                    //try await viewModel.fetchKetchupActivities()
+                                    try await viewModel.fetchFriendsActivities()
                                 }
                                 isLoading = false
                             }

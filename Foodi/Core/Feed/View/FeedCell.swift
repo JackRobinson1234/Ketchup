@@ -339,7 +339,9 @@ struct FeedCell: View {
                     .onDisappear{Task { await videoCoordinator.play()}}
             }
             .sheet(isPresented: $showCollections) {
-                AddItemCollectionList(user: viewModel.user, post: post)
+                if let currentUser = AuthService.shared.userSession {
+                    AddItemCollectionList(user: currentUser, post: post)
+                }
             }
             //MARK: Tap to play/pause
             .onTapGesture {
