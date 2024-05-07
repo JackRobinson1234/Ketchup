@@ -564,6 +564,7 @@
 		F84FE2772B6A53DA00144F01 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0A392B6A5E2C00EC159B /* CommentService.swift */,
 				F84FE29B2B6A58ED00144F01 /* AuthService.swift */,
 				F88E0AA72B6B037200EC159B /* NotificationService.swift */,
 				F88E0B1C2B6B0B3500EC159B /* MediaUploader.swift */,
@@ -650,7 +651,6 @@
 		F84FE27D2B6A54BC00144F01 /* Comments */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0A352B6A5D5F00EC159B /* Service */,
 				F88E0A342B6A5D5E00EC159B /* View */,
 				F88E0A332B6A5D5D00EC159B /* ViewModel */,
 			);
@@ -968,14 +968,6 @@
 				F88E0A3F2B6A5E9B00EC159B /* CommentsView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		F88E0A352B6A5D5F00EC159B /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0A392B6A5E2C00EC159B /* CommentService.swift */,
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		F88E0A862B6B015B00EC159B /* View */ = {

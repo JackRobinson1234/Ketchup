@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-
+import SwiftUI
 @MainActor
 class CommentViewModel: ObservableObject {
     @Published var comments = [Comment]()
@@ -15,48 +15,38 @@ class CommentViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentUser: User?
     
-    private let post: Post
-    private let service: CommentService
-    
-    private var cancellables = Set<AnyCancellable>()
+    @Binding var post: Post
     
     var commentCountText: String {
         return "\(comments.count) comments"
     }
-    
-    init(post: Post, service: CommentService) {
-        self.post = post
-        self.service = service
-        
-        setupSubscribers()
+    init(post: Binding<Post>) {
+        self._post = post
     }
     
-    func fetchComments() async {
+    //MARK: fetchComments
+    /// fetches comments for the current post
+    func fetchComments() async throws {
         do {
-            self.comments = try await service.fetchComments()
+            self.comments = try await CommentService.shared.fetchComments(post: post)
             showEmptyView = comments.isEmpty
-        } catch {
+        } 
+        catch {
             print("DEBUG: Failed to fetch comments with error: \(error.localizedDescription)")
         }
     }
-    
+    //MARK: uploadComment
+    /// uploads the text as a comment to the corresponding post
     func uploadComment() async {
         guard !commentText.isEmpty else { return }
-        
         do {
-            guard let comment = try await service.uploadComment(commentText: commentText) else { return }
+            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post) else { return }
             commentText = ""
             comments.insert(comment, at: 0)
-            
+            $post.wrappedValue.commentCount += 1
             if showEmptyView { showEmptyView.toggle() }
         } catch {
             print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
-    }
-    
-    private func setupSubscribers() {
-        service.$currentUser.sink { [weak self] user in
-            self?.currentUser = user
-        }.store(in: &cancellables)
     }
 }

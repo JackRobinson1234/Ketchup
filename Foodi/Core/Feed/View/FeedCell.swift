@@ -325,7 +325,7 @@ struct FeedCell: View {
             //MARK: sheets
             //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
-                CommentsView(post: post)
+                CommentsView(post: $post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                     .onDisappear{Task{ await videoCoordinator.play()}}
             }
