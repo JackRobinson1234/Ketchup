@@ -40,6 +40,15 @@ class ProfileViewModel: ObservableObject {
             print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
         }
     }
+    func refreshCurrentUser() async throws {
+        do {
+            self.user = try await UserService.shared.fetchCurrentUser()
+            try await fetchUserPosts()
+            AuthService.shared.userSession = self.user
+        } catch {
+            print("Failed to refresh the current user")
+        }
+    }
 }
 
 // MARK: - Following

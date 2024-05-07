@@ -75,7 +75,7 @@ class EditProfileViewModel: ObservableObject {
             data["favorites"] = cleanedData
         }
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
-        AuthService.shared.userSession = user
+        AuthService.shared.userSession = self.user
     }
     func checkIfUsernameAvailable() async throws {
         if user.username == self.username{

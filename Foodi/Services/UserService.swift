@@ -125,9 +125,8 @@ extension UserService {
             .UserFollowerCollection(uid: uid)
             .document(currentUid)
             .setData([:])
-
         
-    }
+        }
     //MARK: unfollow
     /// Removes the user from the respective following and follower collections. CLOUD FUNCTIONS UPDATE THE COUNT
     /// - Parameter uid: userId to be deleted

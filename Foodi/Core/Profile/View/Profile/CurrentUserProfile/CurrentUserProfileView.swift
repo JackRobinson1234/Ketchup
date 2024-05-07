@@ -74,7 +74,7 @@ struct CurrentUserProfileView: View {
                 .navigationDestination(for: SearchModelConfig.self) { config in
                     SearchView(searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
-                .refreshable { await profileViewModel.fetchCurrentUser() }
+                .refreshable { Task {try await profileViewModel.refreshCurrentUser() }}
                 .sheet(isPresented: $showNotifications) {
                     NotificationsView()
                 }
