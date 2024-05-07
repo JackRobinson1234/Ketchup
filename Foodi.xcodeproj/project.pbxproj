@@ -17,6 +17,7 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
+		F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -210,6 +211,7 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
+		F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCollectionListView.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -1040,6 +1042,7 @@
 				F88E0ACC2B6B05ED00EC159B /* SlideBarView */,
 				F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */,
 				F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */,
+				F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */,
 			);
 			name = View;
 			path = Components/View;
@@ -1633,6 +1636,7 @@
 				F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */,
 				F88E0B132B6B0AA700EC159B /* FIrestore + Query.swift in Sources */,
 				F871B00B2B912CA500E4EB5F /* LocationRequest.swift in Sources */,
+				F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */,
 				F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */,
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
 				F871B0082B8C7F3000E4EB5F /* LikedPostsView.swift in Sources */,

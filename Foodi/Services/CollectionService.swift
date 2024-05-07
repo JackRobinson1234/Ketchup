@@ -155,21 +155,18 @@ class CollectionService {
             throw error
         }
     }
+    func fetchRestaurantCollections(restaurantId: String) async throws -> [Collection] {
+        var fetchedCollections: [Collection] = []
+        let collectionIds = try await FirestoreConstants.RestaurantCollection.document(restaurantId).collection("collections").getDocuments()
+        print(collectionIds)
+        for collectionId in collectionIds.documents {
+            print(collectionId)
+            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId.documentID)
+            let collection = try await collectionRef.getDocument(as: Collection.self)
+            fetchedCollections.append(collection)
+            
+        }
+        print("fetchedCollections", fetchedCollections)
+        return fetchedCollections
+    }
 }
-//    //MARK: deleteAllUserCollections
-//    func deleteAllUserCollections(forUser user: User) async throws {
-//        // Fetch all collections for the user
-//        let collections = try await FirestoreConstants.CollectionsCollection
-//            .whereField("uid", isEqualTo: user.id)
-//            .getDocuments(as: Collection.self)
-//
-//        for collection in collections {
-//            try await deleteCollection(selectedCollection: collection)
-//            
-//            
-//            print("Collection '\(collection.name)' deleted successfully.")
-//        }
-//
-//        print("All collections for user \(user.username) deleted successfully.")
-//    }
-//}
