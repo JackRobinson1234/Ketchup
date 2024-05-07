@@ -122,7 +122,6 @@ class CollectionService {
     /// deletes a collection from firebase and corresponding items subcollection
     /// - Parameter selectedCollection: collection to be deleted
     func deleteCollection(selectedCollection: Collection) async throws {
-        try await deleteItemsSubcollection(from: selectedCollection)
         try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
         
         // Optionally, delete the collection's cover image from storage
@@ -132,29 +131,8 @@ class CollectionService {
         
         print("Collection deleted successfully.")
     }
-    //MARK: deleteItemsSubcollection
-    /// Deletes all the items from a collection
-    /// - Parameter collection: collection to delete the items from
-    func deleteItemsSubcollection(from collection: Collection) async throws {
-        let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
-        let itemsSubcollectionRef = collectionRef.collection("items")
-        
-        do {
-            let batch = Firestore.firestore().batch()
-            
-            // Get all documents in the items subcollection
-            let querySnapshot = try await itemsSubcollectionRef.getDocuments()
-            for document in querySnapshot.documents {
-                batch.deleteDocument(document.reference)
-            }
-            // Commit the batch operation
-            try await batch.commit()
-            print("Items subcollection deleted successfully.")
-        } catch {
-            print("Failed to delete items subcollection with error: \(error.localizedDescription)")
-            throw error
-        }
-    }
+
+
     func fetchRestaurantCollections(restaurantId: String) async throws -> [Collection] {
         var fetchedCollections: [Collection] = []
         let collectionIds = try await FirestoreConstants.RestaurantCollection.document(restaurantId).collection("collections").getDocuments()

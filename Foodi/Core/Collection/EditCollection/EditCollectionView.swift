@@ -28,7 +28,6 @@ struct EditCollectionView: View {
                         VStack {
                             Button{
                                 Task{
-                                    collectionsViewModel.dismissCollectionView = true
                                     try await collectionsViewModel.deleteCollection()
                                     dismiss()
                                 }

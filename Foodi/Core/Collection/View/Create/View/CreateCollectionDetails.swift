@@ -65,8 +65,6 @@ struct CreateCollectionDetails: View {
                             Task {
                                 if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil {
                                     collectionsViewModel.dismissListView.toggle()
-                                } else {
-                                    collectionsViewModel.dismissCollectionView.toggle()
                                 }
                                 try await collectionsViewModel.uploadCollection()
                                 // Dismiss all the views

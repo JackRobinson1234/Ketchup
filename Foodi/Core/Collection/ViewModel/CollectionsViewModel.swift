@@ -301,21 +301,18 @@ class CollectionsViewModel: ObservableObject {
     /// deletes a collection from firebase and from the collections array.
     func deleteCollection() async throws {
         if let collection = self.selectedCollection {
+            dismissCollectionView = true
             guard let index = collections.firstIndex(where: { $0.id == collection.id }) else {
                 print("Collection with ID \(collection) not found.")
                 return
             }
             let collection = collections[index]
             try await CollectionService.shared.deleteCollection(selectedCollection: collection)
-            dismissCollectionView = true
             // Update the collections array and selectedCollection
             collections.remove(at: index)
-            if selectedCollection?.id == collection.id {
-                selectedCollection = nil
-                clearEdits()
-            }
+            selectedCollection = nil
+            resetViewModel()
         }
-        dismissCollectionView = true
     }
 }
 
