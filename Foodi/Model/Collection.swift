@@ -75,6 +75,6 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?
-
+    var privateMode: Bool
     
 }

@@ -103,7 +103,8 @@ class CollectionsViewModel: ObservableObject {
                     postType: post.postType,
                     name: post.caption,
                     image: post.thumbnailUrl,
-                    postUserFullname: post.user.fullname
+                    postUserFullname: post.user.fullname,
+                    privateMode: user.privateMode
                 )
                 return collectionItem
             } else if post.postType == "restaurant",
@@ -117,7 +118,8 @@ class CollectionsViewModel: ObservableObject {
                     image: post.restaurant?.profileImageUrl,
                     city: post.restaurant?.city,
                     state: post.restaurant?.state,
-                    geoPoint: post.restaurant?.geoPoint
+                    geoPoint: post.restaurant?.geoPoint,
+                    privateMode: user.privateMode
                 )
                 return collectionItem
             }
@@ -152,7 +154,8 @@ class CollectionsViewModel: ObservableObject {
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
                 state: restaurant.state,
-                geoPoint: restaurant.geoPoint
+                geoPoint: restaurant.geoPoint,
+                privateMode: user.privateMode
             )
             if let geopoint = restaurant.geoPoint{
                 collectionItem.geoPoint = geopoint
