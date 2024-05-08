@@ -1,0 +1,115 @@
+//
+//  FeedGridView.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 5/8/24.
+//
+
+import SwiftUI
+import Kingfisher
+import AVKit
+struct FeedGridView: View {
+    //var viewModel: any PostGridViewModelProtocol
+    //@State private var player = AVPlayer()
+    @State private var selectedPost: Post?
+    private let items = [
+        GridItem(.flexible(), spacing: 1),
+        GridItem(.flexible(), spacing: 1),
+        GridItem(.flexible(), spacing: 1),
+    ]
+    @ObservedObject var viewModel: FeedViewModel
+    private let width = (UIScreen.main.bounds.width / 3) - 2
+    
+    
+    var body: some View {
+        if !viewModel.posts.isEmpty{
+            LazyVGrid(columns: items, spacing: 2) {
+                ///Three blanks to start it lower
+                Color.clear
+                    .frame(width: width, height: 160)
+                Color.clear
+                    .frame(width: width, height: 160)
+                Color.clear
+                    .frame(width: width, height: 160)
+                
+                ForEach(viewModel.posts) { post in
+                    KFImage(URL(string: post.thumbnailUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: width, height: 160)
+                        .clipped()
+                        .onTapGesture { selectedPost = post}
+                        .overlay(
+                            VStack{
+                                HStack{
+                                        VStack (alignment: .leading) {
+                                            if let restaurant = post.restaurant {
+                                                Text("\(restaurant.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            }
+                                            else if let recipe = post.recipe {
+                                                Text("\(recipe.name)")
+                                                    .lineLimit(2)
+                                                    .truncationMode(.tail)
+                                                    .foregroundColor(.white)
+                                                    .font(.footnote)
+                                                    .bold()
+                                            }
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                    
+                                    Spacer()
+                                    HStack {
+                                        /*
+                                         if post.restaurant != nil {
+                                         Image(systemName: "building.2.crop.circle.fill")
+                                         .font(.footnote)
+                                         .foregroundColor(.white)
+                                         } else if post.recipe != nil {
+                                         Image(systemName: "fork.knife.circle")
+                                         .font(.footnote)
+                                         .foregroundColor(.white)
+                                         }*/
+                                        Spacer()
+                                        
+                                        Text("\(post.likes)")
+                                            .foregroundColor(.white)
+                                            .font(.footnote)
+                                        
+                                    }
+                                    
+                                }
+                                    .padding(4)
+                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
+                                                               startPoint: .top,
+                                                               endPoint: .bottom))
+                                    .onTapGesture { selectedPost = post }
+                            )
+                    }
+                }
+                
+                .sheet(item: $selectedPost) { post in
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+                        .onDisappear {
+                            //player.replaceCurrentItem(with: nil)
+                        }
+                }
+            }
+            else {
+                Text("No Posts to Show")
+                    .foregroundStyle(.gray)
+            }
+    }
+}
+
+#Preview {
+    FeedGridView(viewModel: FeedViewModel())
+}
+
+
