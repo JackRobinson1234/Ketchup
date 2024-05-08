@@ -13,7 +13,7 @@ class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
     var filters: [String: [Any]] = [:]
-    
+    private var cancellables: Set<AnyCancellable> = []
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedDietary: [String] = []
@@ -30,10 +30,14 @@ class FiltersViewModel: ObservableObject {
     @Published var restaurantChecked: Bool = true
     @Published var atHomeChecked: Bool = true
     
+    @Published var disableAtHomeFilters = false
+    @Published var disableRestaurantFilters = false
+    @State var filtersChanged = false
+    
     init(feedViewModel: FeedViewModel) {
-            self.feedViewModel = feedViewModel
-        }
-
+        self.feedViewModel = feedViewModel
+    }
+    
     /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
     func fetchFilteredPosts() async {
         /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
@@ -81,9 +85,9 @@ class FiltersViewModel: ObservableObject {
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
     func updateSelectedPostTypes() -> [String] {
         if restaurantChecked && atHomeChecked {
-                /// If all postType toggles are on, make selectedPosts a blank array
-                return []
-            }
+            /// If all postType toggles are on, make selectedPosts a blank array
+            return []
+        }
         else {
             var updatedPostTypes: [String] = []
             if restaurantChecked {
@@ -94,5 +98,42 @@ class FiltersViewModel: ObservableObject {
             }
             return updatedPostTypes
         }
+    }
+    
+    func clearFilters() {
+        selectedCuisines = []
+        selectedPrice = []
+        selectedDietary = []
+        selectedCookingTime = []
+        selectedLocation = []
+        selectedCity = ""
+        selectedState = ""
+        restaurantChecked = true
+        atHomeChecked = true
+    }
+    
+    func disableFilters() {
+        if !selectedLocation.isEmpty || !selectedPrice.isEmpty || atHomeChecked == false {
+            disableAtHomeFilters = true
+            restaurantChecked = true
+            atHomeChecked = false
+        } else {
+            disableAtHomeFilters = false
+        }
+        if !selectedDietary.isEmpty || !selectedCookingTime.isEmpty || restaurantChecked == false {
+            disableRestaurantFilters = true
+            restaurantChecked = false
+            atHomeChecked = true
+        } else {
+            disableRestaurantFilters = false
+        }
+    }
+}
+
+import CoreLocation
+
+extension CLLocationCoordinate2D: Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        return lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
     }
 }

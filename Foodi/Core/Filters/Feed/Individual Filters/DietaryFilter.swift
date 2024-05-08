@@ -129,6 +129,7 @@ struct DietaryFilter: View {
         /// updates what options should be shown when the lists change
         .onChange(of: filtersViewModel.selectedDietary) {oldValue, newValue in
             filteredDietary = filteredDietary(searchText)
+            filtersViewModel.disableFilters()
         }
         .onAppear{
             filteredDietary = filteredDietary(searchText)

@@ -84,7 +84,12 @@ struct LocationFilter: View {
                     .shadow(radius: 5)
                     Spacer()
                 }
+                
             }
+                
+        }
+        .onChange(of: filtersViewModel.selectedLocation) {
+            filtersViewModel.disableFilters()
         }
         
     }

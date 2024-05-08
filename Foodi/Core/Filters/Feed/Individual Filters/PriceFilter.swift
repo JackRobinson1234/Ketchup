@@ -93,6 +93,7 @@ struct PriceFilter: View {
         }
         .onChange(of: filtersViewModel.selectedPrice) {oldValue, newValue in
             filteredPrice = filteredPrices()
+            filtersViewModel.disableFilters()
         }
         .onAppear{
             filteredPrice = filteredPrices()

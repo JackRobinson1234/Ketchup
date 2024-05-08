@@ -252,9 +252,6 @@ class CollectionsViewModel: ObservableObject {
                     let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
                     data["coverImageUrl"] = imageUrl
                     //updates selectedCollection with the new image
-                    if let image = collection.coverImageUrl {
-                        try await ImageUploader.deleteImage(fromUrl: image)
-                    }
                     self.selectedCollection?.coverImageUrl = imageUrl
                     // updates the collections array with the updated image
                     collections[index].coverImageUrl = imageUrl

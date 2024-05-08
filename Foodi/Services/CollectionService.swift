@@ -123,11 +123,6 @@ class CollectionService {
     /// - Parameter selectedCollection: collection to be deleted
     func deleteCollection(selectedCollection: Collection) async throws {
         try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
-        
-        // Optionally, delete the collection's cover image from storage
-        if let imageUrl = selectedCollection.coverImageUrl {
-            try await ImageUploader.deleteImage(fromUrl: imageUrl)
-        }
         print("Collection deleted successfully.")
     }
 
