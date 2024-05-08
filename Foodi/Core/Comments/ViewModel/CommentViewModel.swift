@@ -30,7 +30,7 @@ class CommentViewModel: ObservableObject {
         do {
             self.comments = try await CommentService.shared.fetchComments(post: post)
             showEmptyView = comments.isEmpty
-        } 
+        }
         catch {
             print("DEBUG: Failed to fetch comments with error: \(error.localizedDescription)")
         }
@@ -48,5 +48,19 @@ class CommentViewModel: ObservableObject {
         } catch {
             print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
+    }
+    //MARK: deleteComment
+    /// deletes the comment from firebase, decrements the current post in views comment count (cloud function does the firebase decrement), and removes from the comment array
+    /// - Parameter comment: Comment to be deleted
+    func deleteComment(comment: Comment) async throws {
+        guard let index = comments.firstIndex(of: comment) else {
+            return // Comment not found in the array
+        }
+        // Delete the comment from Firestore
+        try await CommentService.shared.deleteComment(comment: comment, post: self.post)
+        
+        // Update the local comments array and post comment count
+        comments.remove(at: index)
+        $post.wrappedValue.commentCount -= 1
     }
 }

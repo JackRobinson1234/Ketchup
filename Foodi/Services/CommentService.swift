@@ -72,3 +72,14 @@ class CommentService {
     }
     
 }
+extension CommentService {
+    func deleteComment(comment: Comment, post: Post) async throws {
+        let commentRef = FirestoreConstants.PostsCollection.document(post.id)
+            .collection("post-comments").document(comment.id)
+        
+        // Delete the comment document from Firestore
+        try await commentRef.delete()
+        
+        // Optionally, update UI or perform additional tasks after deletion
+    }
+}

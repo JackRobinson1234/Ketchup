@@ -8,7 +8,7 @@
 import Foundation
 import Firebase
 
-struct Comment: Identifiable, Codable {
+struct Comment: Identifiable, Codable, Equatable {
     let id: String
     let postOwnerUid: String
     let commentText: String

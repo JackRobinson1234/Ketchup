@@ -29,7 +29,7 @@ struct CommentsView: View {
             List {
                 VStack(spacing: 24) {
                     ForEach(viewModel.comments) { comment in
-                        CommentCell(comment: comment)
+                        CommentCell(comment: comment, viewModel: viewModel)
                     }
                 }
                 .listRowSeparator(.hidden)
@@ -52,6 +52,9 @@ struct CommentsView: View {
                 ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
                     .foregroundStyle(.gray)
             }
+        }
+        .onChange(of: viewModel.comments.count) {
+            viewModel.showEmptyView = viewModel.comments.isEmpty
         }
         .onAppear{
             Task {try await viewModel.fetchComments() }
