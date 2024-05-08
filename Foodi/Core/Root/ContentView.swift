@@ -19,7 +19,7 @@ struct ContentView: View {
                         .environmentObject(viewModel)
                         .environmentObject(tabBarController)
                     
-                } else {
+            } else if viewModel.userSession == nil {
                 LoginView()
             }
         }

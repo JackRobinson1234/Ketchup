@@ -249,7 +249,7 @@ class CollectionsViewModel: ObservableObject {
                 var data: [String: Any] = [:]
                 //handles updating the image
                 if coverImage != nil, let uiImage = self.uiImage {
-                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
                     data["coverImageUrl"] = imageUrl
                     //updates selectedCollection with the new image
                     if let image = collection.coverImageUrl {

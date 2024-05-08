@@ -263,8 +263,11 @@ struct FeedCell: View {
                                 showShareView.toggle()
                                 
                             } label: {
-                                FeedCellActionButtonView(imageName: "arrowshape.turn.up.right.fill",
-                                                         value: post.shareCount)
+                                Image(systemName: "arrowshape.turn.up.right.fill")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 28, height: 28)
+                                    .foregroundStyle(.white)
                             }
                         }
                         .padding(.horizontal)

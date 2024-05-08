@@ -99,7 +99,7 @@ class CollectionService {
             var imageUrl: String? = nil
             if let uiImage = uiImage {
                 do {
-                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
                 } catch {
                     print("Error uploading image: \(error)")
                     // Handle the error, such as showing an alert to the user
@@ -128,7 +128,6 @@ class CollectionService {
         if let imageUrl = selectedCollection.coverImageUrl {
             try await ImageUploader.deleteImage(fromUrl: imageUrl)
         }
-        
         print("Collection deleted successfully.")
     }
 

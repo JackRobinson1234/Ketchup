@@ -31,11 +31,13 @@ struct ActivityCell: View {
                             if let restaurantId = activity.restaurantId{
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: restaurantId)) {
                                     VStack(alignment: .leading){
-                                        Text("@\(activity.username) created a new restaurant post for ")
+                                        Text("@\(activity.username) created a new restaurant post for: ")
                                             .activityCellFontStyle()
                                         +
                                         Text(activity.name)
                                             .bold()
+                                            .activityCellFontStyle()
+                                        + Text(" !")
                                             .activityCellFontStyle()
                                     }
                                     .multilineTextAlignment(.leading)
@@ -66,7 +68,8 @@ struct ActivityCell: View {
                                 Text(activity.name)
                                     .activityCellFontStyle()
                                     .bold()
-                                
+                                + Text(" !")
+                                    .activityCellFontStyle()
                                 Text(getTimeElapsedString(from: activity.timestamp))
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -96,8 +99,6 @@ struct ActivityCell: View {
                                     .aspectRatio(contentMode: .fit) // Maintain aspect ratio
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
-                            
-                            
                         }
                     }
                     .padding()
@@ -110,9 +111,13 @@ struct ActivityCell: View {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
                     }
                     VStack(alignment: .leading){
-                        Text("@\(activity.username) created a new collection: ") +
-                        Text(activity.name)
+                        Text("@\(activity.username) created a new collection: ")
+                            .activityCellFontStyle()
+                        +
+                        Text((activity.name))
                             .bold()
+                            .activityCellFontStyle()
+                        + Text("!")
                             .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
                             .font(.caption)
@@ -156,11 +161,13 @@ struct ActivityCell: View {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
                     }
                     VStack(alignment: .leading){
-                        Text("\(activity.username) added a new item to the collection: ")
+                        Text("@\(activity.username) added ")
                             .activityCellFontStyle() +
                         Text(activity.name)
                             .activityCellFontStyle()
-                            .bold()
+                            .bold() +
+                        Text(" to a collection")
+                            .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
                             .font(.caption)
                             .foregroundColor(.gray)
@@ -207,7 +214,6 @@ struct ActivityCell: View {
                 .padding()
                 
             }
-            
         }
         //MARK: Sheets
         .sheet(isPresented: $showPost){
