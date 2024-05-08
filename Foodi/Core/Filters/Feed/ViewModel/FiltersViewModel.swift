@@ -12,8 +12,8 @@ import MapKit
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
-    var filters: [String: [Any]] = [:]
-    private var cancellables: Set<AnyCancellable> = []
+    @Published var filters: [String: [Any]] = [:]
+    
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedDietary: [String] = []

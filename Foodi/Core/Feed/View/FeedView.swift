@@ -131,10 +131,19 @@ struct FeedView: View {
                             
                         }
                     label: {
-                        Image(systemName: "slider.horizontal.3")
-                            .imageScale(.large)
-                            .shadow(radius: 4)
-                            .font(.system(size: 23))
+                        ZStack {
+                               Image(systemName: "slider.horizontal.3")
+                                   .imageScale(.large)
+                                   .shadow(radius: 4)
+                                   .font(.system(size: 23))
+
+                               if !filtersViewModel.filters.isEmpty {
+                                   Circle()
+                                       .fill(Color.red)
+                                       .frame(width: 12, height: 12)
+                                       .offset(x: 12, y: 12) // Adjust the offset as needed
+                               }
+                           }
                     }
                         
                     }
