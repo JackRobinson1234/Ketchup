@@ -84,7 +84,7 @@ class FeedViewModel: ObservableObject {
                 let post = posts[index]
                 Task{
                     if let videoURL = post.mediaUrls.first {
-                        await self.videoCoordinator.downloadToCache(url: URL(string: videoURL), fileExtension: "mp4")
+                        await self.videoCoordinator.configurePlayer(url: URL(string: videoURL))
                     }
                 }
             }
