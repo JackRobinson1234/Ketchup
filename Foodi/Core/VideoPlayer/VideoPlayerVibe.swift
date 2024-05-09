@@ -40,14 +40,17 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var looper: AVPlayerLooper?
 
     func configurePlayer(url: URL?) async {
+        if cachingPlayerItem != nil{
+            return
+        }
         guard let url = url else {
             print("URL Error")
             return
         }
         cachingPlayerItem = CachingPlayerItem(url: url, customFileExtension: "mp4")
-        if let item = self.cachingPlayerItem {
-            item.download()
-        }
+//        if let item = self.cachingPlayerItem {
+//            item.download()
+//        }
         player.automaticallyWaitsToMinimizeStalling = false
         player.replaceCurrentItem(with: cachingPlayerItem)
         if let playerItem = player.currentItem {
