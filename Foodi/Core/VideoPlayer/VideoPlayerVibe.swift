@@ -35,8 +35,9 @@ struct VideoPlayerView: UIViewControllerRepresentable {
 }
 
 class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, ObservableObject {
-    @Published var player = AVPlayer()
+    @Published var player = AVQueuePlayer()
     private var cachingPlayerItem: CachingPlayerItem?
+    private var looper: AVPlayerLooper?
 
     func configurePlayer(url: URL?) async {
         guard let url = url else {
@@ -49,6 +50,9 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         }
         player.automaticallyWaitsToMinimizeStalling = false
         player.replaceCurrentItem(with: cachingPlayerItem)
+        if let playerItem = player.currentItem {
+            looper = AVPlayerLooper(player: player, templateItem: playerItem)
+        }
     }
 
     func play() {
