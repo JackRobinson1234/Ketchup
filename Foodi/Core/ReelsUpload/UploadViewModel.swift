@@ -11,6 +11,9 @@ import PhotosUI
 
 @MainActor
 class UploadViewModel: ObservableObject {
+    
+    
+    
     @Published var isLoading = false
     @Published var error: Error?
     @Published var caption = ""
@@ -38,6 +41,8 @@ class UploadViewModel: ObservableObject {
     @Published var postType = "Select Post Type"
     
     @Published var savedRecipe = false
+    
+    @Published var navigateToUpload = false
     
     
     private var uploadService = UploadService()
@@ -75,6 +80,7 @@ class UploadViewModel: ObservableObject {
         restaurant = nil
         postType = "Select Post Type"
         savedRecipe = false
+        navigateToUpload = false
     }
     
     func addEmptyIngredient() {

@@ -17,18 +17,20 @@ struct CameraView: View {
     
     @StateObject var uploadViewModel = UploadViewModel()
     
+    @EnvironmentObject var tabBarController: TabBarController
     var body: some View {
         
         NavigationStack {
             ZStack(alignment: .bottom) {
                 
-                Color.black
+                Color.blue
                     .ignoresSafeArea()
 
+                
                 // WHAT THE CAMERA SEES
-                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: 390.0, height: 844.0))
-                    .environmentObject(cameraViewModel)
+                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
                     .cornerRadius(10)
+                    .environmentObject(cameraViewModel)
                     .onAppear { cameraViewModel.checkPermission() }
                     .gesture(cameraViewModel.drag)
                 
@@ -94,6 +96,11 @@ struct CameraView: View {
             }
 
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
+            
+            .onChange(of: tabBarController.selectedTab) {
+                cameraViewModel.reset()
+                uploadViewModel.reset()
+            }
         }
 
     }
@@ -125,10 +132,8 @@ struct VideoCameraControls: View {
             // X BUTTON
             HStack {
                 Button {
-                    cameraViewModel.recordedDuration = 0
-                    cameraViewModel.previewURL = nil
-                    cameraViewModel.recordedURLs.removeAll()
-                    cameraViewModel.mediaType = "none"
+                    cameraViewModel.reset()
+                    uploadViewModel.reset()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.title)
@@ -445,8 +450,6 @@ struct CameraPreview: UIViewRepresentable {
         
         cameraViewModel.preview = AVCaptureVideoPreviewLayer(session: cameraViewModel.session)
         cameraViewModel.preview.frame.size = size
-        
-        // adjust to our own properties
         cameraViewModel.preview.videoGravity = .resizeAspectFill
         view.layer.addSublayer(cameraViewModel.preview)
         

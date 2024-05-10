@@ -46,6 +46,7 @@ struct MainTabView: View {
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                .toolbar(.hidden, for: .tabBar)
             
             ActivityView()
                 .tabItem {

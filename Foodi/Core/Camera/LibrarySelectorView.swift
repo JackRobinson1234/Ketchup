@@ -12,10 +12,11 @@ struct LibrarySelectorView: View {
     
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
+    @EnvironmentObject var tabBarController: TabBarController
     
     @State var showVideoPicker = false
     @State var showImagePicker = false
-    @State var navigateToUpload = false
+    
     @State var selectedPhotos: [PhotosPickerItem] = []
     @State var selectedVideo: [PhotosPickerItem] = []
 
@@ -32,7 +33,7 @@ struct LibrarySelectorView: View {
     
             
         }
-        .navigationDestination(isPresented: $navigateToUpload) {
+        .navigationDestination(isPresented: $uploadViewModel.navigateToUpload) {
             ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                 .toolbar(.hidden, for: .tabBar)
         }
@@ -45,6 +46,10 @@ struct LibrarySelectorView: View {
             Task {
                 await loadPhotoImages()
             }
+        }
+        .onChange(of: tabBarController.selectedTab) {
+            cameraViewModel.reset()
+            uploadViewModel.reset()
         }
         .photosPicker(
             isPresented: $showVideoPicker,
@@ -68,7 +73,7 @@ struct LibrarySelectorView: View {
                 DispatchQueue.main.async {
                     uploadViewModel.videoURL = video.url
                     uploadViewModel.mediaType = "video"
-                    navigateToUpload = true
+                    uploadViewModel.navigateToUpload = true
                 }
             } else {
                 print("No URL available for the video item")
@@ -93,7 +98,7 @@ struct LibrarySelectorView: View {
         DispatchQueue.main.async {
             uploadViewModel.images = images
             uploadViewModel.mediaType = "photo"
-            navigateToUpload = true
+            uploadViewModel.navigateToUpload = true
         }
     }
 }

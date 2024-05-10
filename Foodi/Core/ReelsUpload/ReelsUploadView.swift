@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import AVKit
 import AVFoundation
 
 struct ReelsUploadView: View {
@@ -14,12 +14,7 @@ struct ReelsUploadView: View {
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
-    
-    // TAB BAR CONTROLLER
-    @EnvironmentObject var tabBarController: TabBarController
-    @Environment(\.dismiss) var dismiss
-
-    
+        
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
     @State private var isEditingCaption = false
@@ -37,12 +32,12 @@ struct ReelsUploadView: View {
                     
                     if uploadViewModel.mediaType == "video" {
                         FinalVideoPreview(uploadViewModel: uploadViewModel)
-                            .cornerRadius(30)
-                            .frame(width: 200, height: 300)
+                            .frame(width: 156, height: 337.6)
+                            .cornerRadius(10)
                     } else if uploadViewModel.mediaType == "photo" {
                         FinalPhotoPreview(uploadViewModel: uploadViewModel)
-                            .cornerRadius(30)
-                            .frame(width: 200, height: 300)
+                            .frame(width: 156, height: 337.6)
+                            .cornerRadius(10)
                     }
                     
                     
@@ -51,6 +46,7 @@ struct ReelsUploadView: View {
                     }) {
                         CaptionBox(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
                     }
+                    
                     PostOptions(uploadViewModel: uploadViewModel,
                                 isPickingRestaurant: $isPickingRestaurant,
                                 isAddingRecipe: $isAddingRecipe)
@@ -61,10 +57,6 @@ struct ReelsUploadView: View {
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()
                             cameraViewModel.reset()
-                            DispatchQueue.main.async {
-                                // Ensure UI changes are on the main thread
-                                dismiss()
-                            }
                         }
                         
                     } label: {
@@ -124,6 +116,8 @@ struct ReelsUploadView: View {
                     }
                 }
             }
+            .toolbarBackground(.white, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .preferredColorScheme(.light)
             //POSS Check if keyboard is active here
             .onTapGesture {
@@ -207,12 +201,18 @@ struct FinalVideoPreview: View {
         
         if let url = uploadViewModel.videoURL {
             let player = AVPlayer(url: url)
-            VideoPlayer(player: player)
-                .cornerRadius(10)
-                .onAppear { player.play() }
+            
+            ZStack {
+                
+                
+                
+                VideoPlayer(player: player)
+            }
+            
         }
     }
 }
+
 
 struct FinalPhotoPreview: View {
     
@@ -222,15 +222,16 @@ struct FinalPhotoPreview: View {
     
     var body: some View {
         GeometryReader { geometry in
+            let _ = print("GEOWIDTH: \(geometry.size.width)")
+            let _ = print("GEOHeight: \(geometry.size.height)")
             ZStack {
                 Color.black
-                    .edgesIgnoringSafeArea(.all)
 
                 TabView(selection: $currentPage) {
                     ForEach(uploadViewModel.images!.indices, id: \.self) { index in
                         Image(uiImage: uploadViewModel.images![index])
                             .resizable()
-                            .cornerRadius(10)
+                            .scaledToFill()
                             .tag(index)
                     }
                 }
@@ -240,7 +241,6 @@ struct FinalPhotoPreview: View {
         }
     }
 }
-
 
 struct CaptionEditorView: View {
     
@@ -424,47 +424,47 @@ struct PostOptions: View {
 
             Divider()
             // TAG USER
-            HStack {
-                Image(systemName: "person.badge.plus")
-                    .resizable()
-                    .foregroundColor(.black)
-                    .frame(width: 40, height: 40, alignment: .center)
-                
-                Text("Tag User")
-                
-                Spacer()
-                
-                Image(systemName: "plus")
-                    .resizable()
-                    .foregroundColor(.gray)
-                    .frame(width: 15, height: 15)
-            }
-            .padding(.horizontal , 15)
-            .padding(.vertical, 3)
-            Divider()
-            
-            HStack {
-                Image(systemName: "list.bullet.rectangle.portrait")
-                    .resizable()
-                    .foregroundColor(.black)
-                    .scaledToFit()
-                    .frame(width: 40, height: 35, alignment: .center)
-                    .frame(width: 40, height: 40, alignment: .center)
-                
-                Text("Add to collection")
-                
-                Spacer()
-                
-                Image(systemName: "plus")
-                    .resizable()
-                    .foregroundColor(.gray)
-                    .frame(width: 15, height: 15)
-                
-            }
-            .padding(.horizontal , 15)
-            .padding(.vertical, 3)
-            
-            Divider()
+//            HStack {
+//                Image(systemName: "person.badge.plus")
+//                    .resizable()
+//                    .foregroundColor(.black)
+//                    .frame(width: 40, height: 40, alignment: .center)
+//                
+//                Text("Tag User")
+//                
+//                Spacer()
+//                
+//                Image(systemName: "plus")
+//                    .resizable()
+//                    .foregroundColor(.gray)
+//                    .frame(width: 15, height: 15)
+//            }
+//            .padding(.horizontal , 15)
+//            .padding(.vertical, 3)
+//            Divider()
+//            
+//            HStack {
+//                Image(systemName: "list.bullet.rectangle.portrait")
+//                    .resizable()
+//                    .foregroundColor(.black)
+//                    .scaledToFit()
+//                    .frame(width: 40, height: 35, alignment: .center)
+//                    .frame(width: 40, height: 40, alignment: .center)
+//                
+//                Text("Add to collection")
+//                
+//                Spacer()
+//                
+//                Image(systemName: "plus")
+//                    .resizable()
+//                    .foregroundColor(.gray)
+//                    .frame(width: 15, height: 15)
+//                
+//            }
+//            .padding(.horizontal , 15)
+//            .padding(.vertical, 3)
+//            
+//            Divider()
         }
     }
 }

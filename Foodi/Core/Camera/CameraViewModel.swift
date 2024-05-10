@@ -118,6 +118,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             self.session.commitConfiguration()
+            
         }
         catch {
             print(error.localizedDescription)

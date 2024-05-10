@@ -68,7 +68,6 @@ struct FeedCell: View {
                         .containerRelativeFrame([.horizontal, .vertical])
                 }
             } else if post.mediaType == "photo" {
-                
                 ZStack {
                     KFImage(URL(string: post.mediaUrls[currentImageIndex]))
                         .resizable()
@@ -96,10 +95,6 @@ struct FeedCell: View {
                         
                         Spacer()
                     }
-                    .frame(width: UIScreen.main.bounds.width, height: 650)
-                    
-                   
-                    
                     
                 }
             }
