@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Kingfisher
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -93,12 +93,30 @@ class FeedViewModel: ObservableObject {
                             print("running prefetch")
                             await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
                         }
+                        
+                        ///Prefetches all photos
+                    } else if post.mediaType == "photo" {
+                        let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
+                            prefetcher.start()
+                    }
+                    
+                    if let profileImageUrl = post.user.profileImageUrl,
+                       let userProfileImageURL = URL(string: profileImageUrl) {
+                        let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
+                        prefetcher.start()
+                    }
+                    
+                    if let profileImageURL = post.restaurant?.profileImageUrl,
+                       let restaurantProfileImageURL = URL(string: profileImageURL) {
+                        let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
+                        prefetcher.start()
                     }
                 }
+                
             }
         }
     }
-
+    
     func setFeedType(_ feedType: FeedType) {
         currentFeedType = feedType
     }
