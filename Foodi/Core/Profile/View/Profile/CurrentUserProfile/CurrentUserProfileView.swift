@@ -84,6 +84,11 @@ struct CurrentUserProfileView: View {
                 .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
+                .onChange(of: AuthService.shared.userSession) {
+                    if AuthService.shared.userSession != nil {
+                        Task {try await profileViewModel.refreshCurrentUser() }
+                    }
+                }
             }
         }
     }

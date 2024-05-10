@@ -74,11 +74,11 @@ class FeedViewModel: ObservableObject {
             print("scroll position = \(scrollPosition)")
             return
         }
-        
+        // Starts at 2 posts ahead the current scroll position and prefetches the next 5 videos. Configures the next video in line for smoother scrolling.
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
             guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 6, posts.count + 2))
+            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 8, posts.count + 2))
             for index in nextIndexes {
                 if index >= posts.count {
                     break
@@ -87,6 +87,9 @@ class FeedViewModel: ObservableObject {
                 Task{
                     if post.mediaType == "video"{
                         if let videoURL = post.mediaUrls.first {
+                            if index == currentIndex + 1 {
+                                await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                            }
                             print("running prefetch")
                             await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
                         }

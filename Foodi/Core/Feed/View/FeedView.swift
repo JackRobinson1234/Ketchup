@@ -210,7 +210,7 @@ struct FeedView: View {
                             .foregroundStyle(.white)
                     }
                 }
-                /// loads the next 3 videos in the cache
+                /// loads the next 5 videos in the cache
                 .onChange(of: scrollPosition) {oldValue, newValue in
                     viewModel.updateCache(scrollPosition: newValue)
                 }

@@ -25,7 +25,7 @@ struct MapView: View {
     private var isZoomedEnoughLongitudeSpan: Double = 0.03
     private var photosLongitudeSpan: Double = 0.015
     private var kmChangeToUpdateFetch: Double = 1.0
-    private var kmToShowPhoto: Double = 0.5//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    private var kmToShowPhoto: Double = 0.3//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     
     
