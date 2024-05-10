@@ -77,14 +77,16 @@ class FeedViewModel: ObservableObject {
         
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
-            print("ran update cache")
             guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 4, posts.count))
+            let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 2, posts.count))
             for index in nextIndexes {
                 let post = posts[index]
                 Task{
-                    if let videoURL = post.mediaUrls.first {
-                        await self.videoCoordinator.configurePlayer(url: URL(string: videoURL))
+                    if post.mediaType == "video"{
+                        if let videoURL = post.mediaUrls.first {
+                            print("running prefetch")
+                            await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
+                        }
                     }
                 }
             }

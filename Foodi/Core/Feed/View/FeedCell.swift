@@ -59,14 +59,10 @@ struct FeedCell: View {
         ZStack {
             
             if post.mediaType == "video" {
-                if videoConfigured {
+                
                     VideoPlayerView(coordinator: videoCoordinator)
                         .containerRelativeFrame([.horizontal, .vertical])
-                }
-                else {
-                    ProgressView()
-                        .containerRelativeFrame([.horizontal, .vertical])
-                }
+              
             } else if post.mediaType == "photo" {
                 
                 ZStack {
@@ -301,21 +297,16 @@ struct FeedCell: View {
             }
             //MARK: Configure Player
             .onAppear {
-                if !videoConfigured {
+                
                     Task{
                         if let videoURL = post.mediaUrls.first {
-                            await videoCoordinator.configurePlayer(url: URL(string: videoURL))
+                            videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
                         }
-                        videoConfigured = true
                         if viewModel.posts.first?.id == post.id && scrollPosition == nil {
                             videoCoordinator.replay()
                         }
                     }
-                } else {
-                    Task {
-                        videoCoordinator.replay()
-                    }
-                }
+                   
             }
             .onDisappear{
                     videoCoordinator.pause()

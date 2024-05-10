@@ -53,6 +53,7 @@ class VideoCacheManager: NSObject {
             self.storeDataToDiskCache(data: data, key: key, fileExtension: fileExtension)
             self.cachedVideoKeys.append(key)
             self.manageCacheSize()
+            print("stored to  VIDEO cache")
         }
     }
     
