@@ -9,8 +9,7 @@ import SwiftUI
 import Kingfisher
 import AVKit
 struct FeedGridView: View {
-    //var viewModel: any PostGridViewModelProtocol
-    //@State private var player = AVPlayer()
+
     @State private var selectedPost: Post?
     private let items = [
         GridItem(.flexible(), spacing: 1),

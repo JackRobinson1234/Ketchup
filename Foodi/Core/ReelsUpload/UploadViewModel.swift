@@ -11,23 +11,18 @@ import PhotosUI
 
 @MainActor
 class UploadViewModel: ObservableObject {
+    
+    
+    
     @Published var isLoading = false
     @Published var error: Error?
     @Published var caption = ""
-    //@Published var selectedMediaForUpload: MediaType?
-    //    @Published var selectedItem: PhotosPickerItem? {
-    //        didSet {
-    //            Task {
-    //                await loadMediafromPhotosPicker(fromItem: selectedItem)
-    //            }
-    //        }
-    //    }
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
     
     // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
-    @Published var picData: [Data]?
+    @Published var images: [UIImage]?
     @Published var mediaType: String = "none"
     
     @Published var recipeTitle = ""
@@ -47,6 +42,11 @@ class UploadViewModel: ObservableObject {
     
     @Published var savedRecipe = false
     
+    @Published var navigateToUpload = false
+    
+    @Published var fromInAppCamera = true
+    
+    
     private var uploadService = UploadService()
     
     
@@ -63,18 +63,29 @@ class UploadViewModel: ObservableObject {
     }
     
     func reset() {
-//        caption = ""
-//        mediaPreview = nil
-//        error = nil
-//        selectedItem = nil
-//        selectedMediaForUpload = nil
-//        recipeTitle = ""
-//        ingredients = [Ingredient(quantity: "", item: "")]
-//        instructions = [Instruction(title: "", description: "")]
-//        recipeCuisine = ""
-//        dietaryRestrictions = [""]
-        print("DEBUG: ayo")
+        isLoading = false
+        error = nil
+        caption = ""
+        uploadSuccess = false
+        uploadFailure = false
+        videoURL = nil
+        images = []
+        mediaType = "none"
+        recipeTitle = ""
+        ingredients = [Ingredient(quantity: "", item: "")]
+        recipeCuisine = ""
+        dietaryRestrictions = [""]
+        recipeHours = 0
+        recipeMinutes = 0
+        recipeServings = 0
+        instructions = [Instruction(title: "", description: "")]
+        restaurant = nil
+        postType = "Select Post Type"
+        savedRecipe = false
+        navigateToUpload = false
+        fromInAppCamera = true
     }
+    
     func addEmptyIngredient() {
         ingredients.append(Ingredient(quantity: "", item: ""))
     }
@@ -88,6 +99,7 @@ class UploadViewModel: ObservableObject {
     }
     
     func uploadPost() async {
+        isLoading = true
         var postRestaurant: PostRestaurant? = nil
         var postRecipe: PostRecipe? = nil
         
@@ -112,8 +124,6 @@ class UploadViewModel: ObservableObject {
                 profileImageUrl: restaurant.profileImageUrl
             )
         }
-        
-        isLoading = true
         error = nil
         do {
             if mediaType == "video" {
@@ -121,23 +131,27 @@ class UploadViewModel: ObservableObject {
                     throw UploadError.invalidMediaData
                 }
                 try await uploadService.uploadPost(videoURL: videoURL,
-                                                   picData: nil,
+                                                   images: nil,
                                                    mediaType: mediaType,
                                                    caption: caption,
                                                    postType: postType,
                                                    postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe)
+                                                   postRecipe: postRecipe,
+                                                   fromInAppCamera: fromInAppCamera
+                )
             } else if mediaType == "photo" {
-                guard let picData = picData else {
+                guard let images = images else {
                     throw UploadError.invalidMediaData
                 }
                 try await uploadService.uploadPost(videoURL: nil,
-                                                   picData: picData,
+                                                   images: images,
                                                    mediaType: mediaType,
                                                    caption: caption,
                                                    postType: postType,
                                                    postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe)
+                                                   postRecipe: postRecipe,
+                                                   fromInAppCamera: fromInAppCamera
+                )
             } else {
                 throw UploadError.invalidMediaType
             }
@@ -147,26 +161,5 @@ class UploadViewModel: ObservableObject {
             uploadFailure = true
         }
         isLoading = false
-    }
-
-    
-    
-    func loadMediafromPhotosPicker(fromItem item: PhotosPickerItem?) async {
-        guard let item = item else { return }
-        isLoading = true
-
-        do {
-            if let movie = try await item.loadTransferable(type: Movie.self) {
-                //set media here
-                print("loaded video")
-            } else if let photo = try await item.loadTransferable(type: Photo.self) {
-                //set media here
-                print("loaded image")
-            } else {
-                print("DEBUG: Unsupported media type")
-            }
-        } catch {
-            print("DEBUG: Failed with error \(error.localizedDescription)")
-        }
     }
 }

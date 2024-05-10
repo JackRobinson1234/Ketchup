@@ -55,22 +55,30 @@ struct FeedView: View {
             //MARK: Video Cells
             NavigationStack {
                 ZStack(alignment: .topTrailing) {
-                    ScrollView(showsIndicators: false) {
                         if feedViewOption == .feed {
-                            LazyVStack(spacing: 0) {
-                                ForEach($viewModel.posts) { post in
-                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
-                                        .id(post.id)
+                            ScrollView(showsIndicators: false) {
+                                LazyVStack(spacing: 0) {
+                                    ForEach($viewModel.posts) { post in
+                                        FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                            .id(post.id)
+                                    }
                                 }
+                                
                             }
                             .scrollTargetLayout()
-                        } else if feedViewOption == .grid {
-                            VStack{
-                                FeedGridView(viewModel: viewModel)
+                            .scrollPosition(id: $scrollPosition)
+                            .scrollTargetBehavior(.paging)
+                        }
+                           
+                        else if feedViewOption == .grid {
+                            ScrollView(showsIndicators: false) {
+                                VStack{
+                                    FeedGridView(viewModel: viewModel)
+                                }
                             }
                         }
                         
-                    }
+                    
                     
                     
                     //MARK: Discover and Following
@@ -202,8 +210,7 @@ struct FeedView: View {
                 //MARK: Loading/ No posts
                 
                 //MARK: Navigation
-                .scrollPosition(id: $scrollPosition)
-                .scrollTargetBehavior(.paging)
+                
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")

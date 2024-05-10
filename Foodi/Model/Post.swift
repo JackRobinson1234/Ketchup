@@ -29,6 +29,7 @@ struct Post: Identifiable, Codable {
     var price: String?
     var didLike = false
     var didSave = false
+    var fromInAppCamera: Bool
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -49,6 +50,7 @@ struct Post: Identifiable, Codable {
         self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
+        self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
     }
     
     init(
@@ -68,8 +70,9 @@ struct Post: Identifiable, Codable {
         cuisine: String? = nil,
         price: String? = nil,
         didLike: Bool = false,
-        didSave: Bool = false
-    ) 
+        didSave: Bool = false,
+        fromInAppCamera: Bool
+    )
     {
         self.id = id
         self.postType = postType
@@ -88,6 +91,7 @@ struct Post: Identifiable, Codable {
         self.price = price
         self.didLike = didLike
         self.didSave = didSave
+        self.fromInAppCamera = fromInAppCamera
     }
 }
 

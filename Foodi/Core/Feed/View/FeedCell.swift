@@ -57,21 +57,34 @@ struct FeedCell: View {
     var body: some View {
         //MARK: Loading Screen
         ZStack {
-            
             if post.mediaType == "video" {
-                
-                    VideoPlayerView(coordinator: videoCoordinator)
+                if post.fromInAppCamera {
+                    VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                         .containerRelativeFrame([.horizontal, .vertical])
-              
+                } else {
+                    VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspect)
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                        .containerRelativeFrame([.horizontal, .vertical])
+                }
             } else if post.mediaType == "photo" {
                 
                 ZStack {
-                    KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                        .cornerRadius(20)
-                        .containerRelativeFrame([.horizontal, .vertical])
+                    if post.fromInAppCamera {
+                                           KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                                               .resizable()
+                                               .scaledToFill()
+                                               .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                               .cornerRadius(20)
+                                               .containerRelativeFrame([.horizontal, .vertical])
+                                       } else {
+                                           KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                                               .resizable()
+                                               .scaledToFit()
+                                               .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                               .cornerRadius(20)
+                                               .containerRelativeFrame([.horizontal, .vertical])
+                                       }
                     
                     VStack {
                         HStack {

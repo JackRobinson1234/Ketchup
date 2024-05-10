@@ -103,7 +103,8 @@ struct DeveloperPreview {
                     profileImageUrl: "https://example.com/restaurant.jpg"
                 ),
                 cuisine: "Italian",
-                price: "$$$"
+                price: "$$$",
+                fromInAppCamera: false
             
         )
     ]

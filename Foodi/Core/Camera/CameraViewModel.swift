@@ -26,7 +26,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     // PHOTO PROPERTIES
     // @Published var isPhotoSaved = false
-    @Published var picData: [Data] = []
+    @Published var images: [UIImage] = []
     @Published var isPhotoTaken = false
     
     // VIDEO PROPERTIES
@@ -37,6 +37,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     // EDIT/PREVIEW VIEW PROPERTIES
     @Published var navigateToUpload: Bool = false
     @Published var mediaType: String = "none"
+    
+    // NAVIGATES TO LIBRARY SELECTION
+    @Published var uploadFromLibray = false
     
     // TOP PROGRESS BAR
     @Published var recordedDuration: CGFloat = 0
@@ -115,6 +118,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             self.session.commitConfiguration()
+            
         }
         catch {
             print(error.localizedDescription)
@@ -234,7 +238,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func takePic() {
         
-        if picData.count < 3 {
+        if images.count < 3 {
             DispatchQueue.global(qos:.background).async {
                 
                 self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
@@ -247,7 +251,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         
         
-        if picData.count >= 3 {
+        if images.count >= 3 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
@@ -265,7 +269,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.session.startRunning()
 
             DispatchQueue.main.async {
-                self.picData.removeAll()
+                self.images.removeAll()
                 self.isPhotoTaken.toggle()
                 // self.isPhotoSaved = false
             }
@@ -276,19 +280,32 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
 
     
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
-
-        if error != nil {
-            print("DEBUG: went out cause error")
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let error = error {
+            print("Error capturing photo: \(error.localizedDescription)")
             return
         }
 
-        guard let imageData = photo.fileDataRepresentation() else {
-            print("DEBUG: No image data")
+        guard let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData) else {
+            print("Failed to convert photo to UIImage.")
             return
         }
 
-        self.picData.append(imageData)
+        self.images.append(image)
+    }
+    
+    func reset() {
+        // Reset the photo and video capture properties
+        images.removeAll()
+        recordedURLs.removeAll()
+        previewURL = nil
+        isPhotoTaken = false
+        isRecording = false
+        navigateToUpload = false
+        mediaType = "none"
+        recordedDuration = 0
+        isDragging = false
+        uploadFromLibray = false
     }
         
 }

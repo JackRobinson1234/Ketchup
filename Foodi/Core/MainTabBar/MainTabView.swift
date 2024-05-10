@@ -12,10 +12,9 @@ struct MainTabView: View {
     @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     @EnvironmentObject var tabBarController: TabBarController
-    @State var visibility = Visibility.visible
         
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $tabBarController.selectedTab) {
             FeedView(videoCoordinator: videoCoordinator)
                 .tabItem {
                     VStack {
@@ -40,13 +39,15 @@ struct MainTabView: View {
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
-            //RestaurantSelectorView(tabIndex: $selectedTab)
-            //CreatePostSelection(tabIndex: $selectedTab)
+      
             CameraView()
                 .tabItem { Image(systemName: "plus") }
                 .onAppear { tabBarController.selectedTab = 2 }
                 .tag(2)
-                .toolbar(visibility, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                .toolbar(.hidden, for: .tabBar)
+            
             ActivityView()
                 .tabItem {
                     VStack {
@@ -59,6 +60,7 @@ struct MainTabView: View {
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+            
             CurrentUserProfileView()
                 .tabItem {
                     VStack {

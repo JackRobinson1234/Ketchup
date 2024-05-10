@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
-
+import AVKit
 import AVFoundation
 
 struct ReelsUploadView: View {
     
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
-    
+    @ObservedObject var cameraViewModel: CameraViewModel
+        
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
     @State private var isEditingCaption = false
@@ -22,27 +23,30 @@ struct ReelsUploadView: View {
     @State var showPostTypeMenu: Bool = true
  
     // POST TYPE OPTIONS
-    let postTypeOptions = ["atHome", "restaurant"]
+    let postTypeOptions = ["At Home Post", "Going Out Post"]
     
     var body: some View {
+        
             ZStack {
                 VStack {
                     
                     if uploadViewModel.mediaType == "video" {
                         FinalVideoPreview(uploadViewModel: uploadViewModel)
-                            .cornerRadius(30)
-                            .frame(width: 200, height: 300)
+                            .frame(width: 156, height: 337.6)
+                            .cornerRadius(10)
                     } else if uploadViewModel.mediaType == "photo" {
                         FinalPhotoPreview(uploadViewModel: uploadViewModel)
-                            .cornerRadius(30)
-                            .frame(width: 200, height: 300)
+                            .frame(width: 156, height: 337.6)
+                            .cornerRadius(10)
                     }
+                    
                     
                     Button(action: {
                         self.isEditingCaption = true
                     }) {
                         CaptionBox(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
                     }
+                    
                     PostOptions(uploadViewModel: uploadViewModel,
                                 isPickingRestaurant: $isPickingRestaurant,
                                 isAddingRecipe: $isAddingRecipe)
@@ -50,18 +54,25 @@ struct ReelsUploadView: View {
                     Button {
                         // hande errors
                         Task {
-                            
                             await uploadViewModel.uploadPost()
-                            // Handle success if needed
-  
+                            uploadViewModel.reset()
+                            cameraViewModel.reset()
                         }
                         
                     } label: {
-                         Text("Post")
+                        
+                        Text(uploadViewModel.isLoading ? "" : "Post")
                             .frame(width: 90, height: 45)
                             .background(.blue)
                             .foregroundColor(.white)
                             .cornerRadius(7)
+                            .overlay {
+                                if uploadViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                                
+                            }
                     }
                     
                     Spacer()
@@ -113,6 +124,8 @@ struct ReelsUploadView: View {
                     }
                 }
             }
+            .toolbarBackground(.white, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .preferredColorScheme(.light)
             //POSS Check if keyboard is active here
             .onTapGesture {
@@ -196,12 +209,17 @@ struct FinalVideoPreview: View {
         
         if let url = uploadViewModel.videoURL {
             let player = AVPlayer(url: url)
-            VideoPlayer(player: player)
-                .cornerRadius(10)
-                .onAppear { player.play() }
+            ZStack {
+                if uploadViewModel.fromInAppCamera {
+                    VideoPlayer(player: player, videoGravity: .resizeAspectFill)
+                } else {
+                    VideoPlayer(player: player, videoGravity: .resizeAspect)
+                }
+            }
         }
     }
 }
+
 
 struct FinalPhotoPreview: View {
     
@@ -212,24 +230,28 @@ struct FinalPhotoPreview: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black
-                    .edgesIgnoringSafeArea(.all)
-
                 TabView(selection: $currentPage) {
-                    ForEach(uploadViewModel.picData!.indices, id: \.self) { index in
-                        Image(uiImage: UIImage(data: uploadViewModel.picData![index]) ?? UIImage())
-                            .resizable()
-                            .cornerRadius(10)
-                            .tag(index)
+                    ForEach(uploadViewModel.images!.indices, id: \.self) { index in
+                        if uploadViewModel.fromInAppCamera {
+                            Image(uiImage: uploadViewModel.images![index])
+                                .resizable()
+                                .scaledToFill()
+                                .tag(index)
+                        } else {
+                            Image(uiImage: uploadViewModel.images![index])
+                                .resizable()
+                                .scaledToFit()
+                                .tag(index)
+                        }
                     }
                 }
+                .background(.black)
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
     }
 }
-
 
 struct CaptionEditorView: View {
     
@@ -310,7 +332,7 @@ struct PostOptions: View {
     var body: some View {
         VStack {
             Divider()
-            if uploadViewModel.postType == "atHome" {
+            if uploadViewModel.postType == "At Home Post" {
       
                 Button {
                     isAddingRecipe = true
@@ -413,47 +435,47 @@ struct PostOptions: View {
 
             Divider()
             // TAG USER
-            HStack {
-                Image(systemName: "person.badge.plus")
-                    .resizable()
-                    .foregroundColor(.black)
-                    .frame(width: 40, height: 40, alignment: .center)
-                
-                Text("Tag User")
-                
-                Spacer()
-                
-                Image(systemName: "plus")
-                    .resizable()
-                    .foregroundColor(.gray)
-                    .frame(width: 15, height: 15)
-            }
-            .padding(.horizontal , 15)
-            .padding(.vertical, 3)
-            Divider()
-            
-            HStack {
-                Image(systemName: "list.bullet.rectangle.portrait")
-                    .resizable()
-                    .foregroundColor(.black)
-                    .scaledToFit()
-                    .frame(width: 40, height: 35, alignment: .center)
-                    .frame(width: 40, height: 40, alignment: .center)
-                
-                Text("Add to collection")
-                
-                Spacer()
-                
-                Image(systemName: "plus")
-                    .resizable()
-                    .foregroundColor(.gray)
-                    .frame(width: 15, height: 15)
-                
-            }
-            .padding(.horizontal , 15)
-            .padding(.vertical, 3)
-            
-            Divider()
+//            HStack {
+//                Image(systemName: "person.badge.plus")
+//                    .resizable()
+//                    .foregroundColor(.black)
+//                    .frame(width: 40, height: 40, alignment: .center)
+//
+//                Text("Tag User")
+//
+//                Spacer()
+//
+//                Image(systemName: "plus")
+//                    .resizable()
+//                    .foregroundColor(.gray)
+//                    .frame(width: 15, height: 15)
+//            }
+//            .padding(.horizontal , 15)
+//            .padding(.vertical, 3)
+//            Divider()
+//
+//            HStack {
+//                Image(systemName: "list.bullet.rectangle.portrait")
+//                    .resizable()
+//                    .foregroundColor(.black)
+//                    .scaledToFit()
+//                    .frame(width: 40, height: 35, alignment: .center)
+//                    .frame(width: 40, height: 40, alignment: .center)
+//
+//                Text("Add to collection")
+//
+//                Spacer()
+//
+//                Image(systemName: "plus")
+//                    .resizable()
+//                    .foregroundColor(.gray)
+//                    .frame(width: 15, height: 15)
+//
+//            }
+//            .padding(.horizontal , 15)
+//            .padding(.vertical, 3)
+//
+//            Divider()
         }
     }
 }
@@ -516,7 +538,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    uploadViewModel.postType = "atHome"
+                    uploadViewModel.postType = "At Home Post"
                     showPostTypeMenu = false
                 }) {
                     VStack {
