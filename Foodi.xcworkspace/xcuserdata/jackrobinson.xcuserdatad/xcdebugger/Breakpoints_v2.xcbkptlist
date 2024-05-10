@@ -68,5 +68,69 @@
             landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B79841B6-03BB-482B-A32B-DC7DA6F56B82"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Foodi/Core/VideoPlayer/VideoPlayerVibe.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "playerItemDidFailToPlay(_:withError:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B79841B6-03BB-482B-A32B-DC7DA6F56B82 - 4ade568cce113eab"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Foodi.VideoPlayerCoordinator.playerItemDidFailToPlay(_: CachingPlayerItem.CachingPlayerItem, withError: Swift.Optional&lt;Swift.Error&gt;) -&gt; ()"
+                  moduleName = "Foodi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Foodi/Foodi/Core/VideoPlayer/VideoPlayerVibe.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "143"
+                  endingLineNumber = "143"
+                  offsetFromSymbolStart = "292">
+               </Location>
+               <Location
+                  uuid = "B79841B6-03BB-482B-A32B-DC7DA6F56B82 - 4ade568cce113e65"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Foodi.VideoPlayerCoordinator.playerItemDidFailToPlay(_: CachingPlayerItem.CachingPlayerItem, withError: Swift.Optional&lt;Swift.Error&gt;) -&gt; ()"
+                  moduleName = "Foodi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Foodi/Foodi/Core/VideoPlayer/VideoPlayerVibe.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "292">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CC56DCD6-DD21-460E-A934-5CCEFE49F357"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Foodi/Core/VideoPlayer/VideoPlayerVibe.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
+            landmarkName = "playerItemDidFailToPlay(_:withError:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

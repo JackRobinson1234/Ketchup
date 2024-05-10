@@ -35,6 +35,7 @@ struct VideoPlayerView: UIViewControllerRepresentable {
 }
 
 class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, ObservableObject,  CachingPlayerItemDelegate {
+    var debouncer = Debouncer(delay: 0.3)
     @Published var player = AVQueuePlayer()
     private var looper: AVPlayerLooper?
     var filePath: String?
@@ -43,12 +44,15 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var prefetched = false
     private var currentUrl: URL?
     private var currentPostId: String?
+    private var retries: Int = 0
     //MARK: configurePlayer
     /// Clears the player as a safety to prevent crash. if theres already an item, return to make it more effecient. Then check the cache to see if the current video exists. If it does, make a new item out of that which should load fast. Or make a new cacheplayeritem, then put that into the player.
     /// - Parameters:
     ///   - url: url to be configured
     ///   - postId: postId where the cached video can be found (same as prefetch)
     func configurePlayer(url: URL?, postId: String)  {
+        currentUrl = url
+        currentPostId = postId
         if !player.items().isEmpty {
             player.removeAllItems()
             print("removed all items")
@@ -66,7 +70,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         //print("Configure file path", saveFilePath.path)
         if FileManager.default.fileExists(atPath: saveFilePath.path) {
             playerItem = CachingPlayerItem(filePathURL: saveFilePath)
-            print("Item exists")
+            //print("Item exists")
         } else {
             print("Creating Item")
             playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
@@ -76,9 +80,9 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             if player.items().isEmpty {
                 // If the player has no item, set the new item
                 player.replaceCurrentItem(with: playerItem)
+                
             }
-            
-            //playerItem.delegate = self
+            playerItem.delegate = self
             player.automaticallyWaitsToMinimizeStalling = false
             if let playerItem = player.currentItem {
                 looper = AVPlayerLooper(player: player, templateItem: playerItem)
@@ -102,11 +106,11 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         saveFilePath.appendPathComponent(postId)
         saveFilePath.appendPathExtension("mp4")
         if FileManager.default.fileExists(atPath: saveFilePath.path) {
-            print("Item exists")
+            //print("Item exists")
             return
         }
         if !player.items().isEmpty {
-            print("player isnt empty")
+            //print("player isnt empty")
             print(player.items().isEmpty)
             player.removeAllItems()
             print(player.items().isEmpty)
@@ -115,9 +119,8 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         currentUrl = url
         currentPostId = postId
         let prefetchedPlayerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
-        prefetchedPlayerItem.delegate = self
         // If the player has no item, set the new item
-        print("replacing player with current item")
+        //print("replacing player with current item")
         AVQueuePlayer().replaceCurrentItem(with: prefetchedPlayerItem)
         prefetchedPlayerItem.download()
     }
@@ -141,6 +144,13 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
         print(error?.localizedDescription ?? "")
+        if let postId = currentPostId, let url = currentUrl, self.retries <= 5{
+            debouncer.schedule{
+                self.configurePlayer(url: url, postId: postId)
+                self.retries += 1
+                print("***************** retrying *********************")
+            }
+        }
     }
     
     func playerItemPlaybackStalled(_ playerItem: CachingPlayerItem) {
@@ -153,7 +163,6 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
-        
         print("Caching player item file download failed with error: \(error.localizedDescription).")
     }
     

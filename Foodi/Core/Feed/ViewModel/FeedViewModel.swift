@@ -51,7 +51,7 @@ class FeedViewModel: ObservableObject {
             }
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
-            updateCache(scrollPosition: posts.first?.id)
+            //updateCache(scrollPosition: posts.first?.id)
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
@@ -88,7 +88,7 @@ class FeedViewModel: ObservableObject {
                     if post.mediaType == "video"{
                         if let videoURL = post.mediaUrls.first {
                             if index == currentIndex + 1 {
-                                await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                                //await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
                             }
                             print("running prefetch")
                             await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
