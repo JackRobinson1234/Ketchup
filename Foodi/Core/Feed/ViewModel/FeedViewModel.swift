@@ -78,8 +78,11 @@ class FeedViewModel: ObservableObject {
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
             guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 2, posts.count))
+            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 6, posts.count + 2))
             for index in nextIndexes {
+                if index >= posts.count {
+                    break
+                }
                 let post = posts[index]
                 Task{
                     if post.mediaType == "video"{
