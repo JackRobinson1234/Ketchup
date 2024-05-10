@@ -23,7 +23,7 @@ struct CameraView: View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 
-                Color.blue
+                Color.black
                     .ignoresSafeArea()
 
                 

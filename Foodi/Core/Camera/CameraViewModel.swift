@@ -305,6 +305,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         mediaType = "none"
         recordedDuration = 0
         isDragging = false
+        uploadFromLibray = false
     }
         
 }
