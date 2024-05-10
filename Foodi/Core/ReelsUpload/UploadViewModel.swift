@@ -99,6 +99,7 @@ class UploadViewModel: ObservableObject {
     }
     
     func uploadPost() async {
+        isLoading = true
         var postRestaurant: PostRestaurant? = nil
         var postRecipe: PostRecipe? = nil
         
@@ -123,8 +124,6 @@ class UploadViewModel: ObservableObject {
                 profileImageUrl: restaurant.profileImageUrl
             )
         }
-        
-        isLoading = true
         error = nil
         do {
             if mediaType == "video" {

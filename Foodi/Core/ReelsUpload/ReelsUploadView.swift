@@ -60,11 +60,19 @@ struct ReelsUploadView: View {
                         }
                         
                     } label: {
-                         Text("Post")
+                        
+                        Text(uploadViewModel.isLoading ? "" : "Post")
                             .frame(width: 90, height: 45)
                             .background(.blue)
                             .foregroundColor(.white)
                             .cornerRadius(7)
+                            .overlay {
+                                if uploadViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                                
+                            }
                     }
                     
                     Spacer()

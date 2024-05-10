@@ -18,6 +18,7 @@ struct CameraView: View {
     @StateObject var uploadViewModel = UploadViewModel()
     
     @EnvironmentObject var tabBarController: TabBarController
+    
     var body: some View {
         
         NavigationStack {
@@ -112,6 +113,7 @@ struct VideoCameraControls: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     
     @ObservedObject var uploadViewModel: UploadViewModel
+    @EnvironmentObject var tabBarController: TabBarController
     
     var body: some View {
         
@@ -130,21 +132,20 @@ struct VideoCameraControls: View {
             .cornerRadius(10)
             
             // X BUTTON
-            HStack {
-                Button {
-                    cameraViewModel.reset()
-                    uploadViewModel.reset()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.title)
-                        .foregroundColor(.white)
-                }
-                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
-                .padding(.top)
-                .padding(.leading)
-                
-                Spacer()
-            }
+//            HStack {
+//                Button {
+//                    tabBarController.selectedTab = 0
+//                } label: {
+//                    Image(systemName: "xmark")
+//                        .font(.title)
+//                        .foregroundColor(.white)
+//                }
+//                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 1 : 0)
+//                .padding(.top)
+//                .padding(.leading)
+//                
+//                Spacer()
+//            }
             
             
             Spacer()
@@ -152,9 +153,17 @@ struct VideoCameraControls: View {
             // BOTTOM BUTTONS
             HStack(spacing: 30) {
                 
-                Rectangle()
-                    .frame(width: 100, height: 50) // Outer frame
-                    .hidden()
+                Button {
+                    cameraViewModel.reset()
+                    uploadViewModel.reset()
+                } label: {
+                    Text("Delete")
+                        .frame(width: 100, height: 50)
+                        .background(.red)
+                        .cornerRadius(3.0)
+                        .foregroundColor(.white)
+                }
+                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
                 
                 
                 // RECORD BUTTON
@@ -250,17 +259,6 @@ struct PhotoCameraControls: View {
                 
                 // TOP BUTTONS
                 HStack {
-                    Button {
-                        cameraViewModel.untakePic()
-                        cameraViewModel.mediaType = "none"
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.title)
-                            .foregroundColor(.white)
-                    }
-                    .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
-                    .padding(.top)
-                    .padding(.leading)
                     
                     Spacer()
                     
@@ -302,9 +300,17 @@ struct PhotoCameraControls: View {
                 
                 
                 HStack(spacing: 30) {
-                    Rectangle()
-                        .frame(width: 100, height: 50) // Outer frame
-                        .hidden()
+                    Button {
+                        cameraViewModel.untakePic()
+                        cameraViewModel.mediaType = "none"
+                    } label: {
+                        Text("Delete")
+                            .frame(width: 100, height: 50)
+                            .background(.red)
+                            .cornerRadius(3.0)
+                            .foregroundColor(.white)
+                    }
+                    .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                     
                     
                     // TAKE PIC BUTTON
@@ -334,8 +340,6 @@ struct PhotoCameraControls: View {
                         if cameraViewModel.isPhotoTaken {
                             cameraViewModel.navigateToUpload.toggle()
                             cameraViewModel.mediaType = "photo"
-                            
-                            
                             uploadViewModel.images = cameraViewModel.images
                             uploadViewModel.mediaType = "photo"
                         }
