@@ -84,6 +84,9 @@ struct CookingTimeFilter: View {
                 
             }
         }
+        .onChange(of: filtersViewModel.selectedCookingTime){
+            filtersViewModel.disableFilters()
+        }
     }
 }
 

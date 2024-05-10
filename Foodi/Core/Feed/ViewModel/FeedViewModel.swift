@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Kingfisher
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -51,7 +51,7 @@ class FeedViewModel: ObservableObject {
             }
             showEmptyView = posts.isEmpty
             await checkIfUserLikedPosts()
-            updateCache(scrollPosition: posts.first?.id)
+            //updateCache(scrollPosition: posts.first?.id)
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
@@ -74,23 +74,49 @@ class FeedViewModel: ObservableObject {
             print("scroll position = \(scrollPosition)")
             return
         }
-        
+        // Starts at 2 posts ahead the current scroll position and prefetches the next 5 videos. Configures the next video in line for smoother scrolling.
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
-            print("ran update cache")
             guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 1 ..< min(currentIndex + 4, posts.count))
+            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 8, posts.count + 2))
             for index in nextIndexes {
+                if index >= posts.count {
+                    break
+                }
                 let post = posts[index]
                 Task{
-                    if let videoURL = post.mediaUrls.first {
-                        await self.videoCoordinator.downloadToCache(url: URL(string: videoURL), fileExtension: "mp4")
+                    if post.mediaType == "video"{
+                        if let videoURL = post.mediaUrls.first {
+                            if index == currentIndex + 1 {
+                                //await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                            }
+                            print("running prefetch")
+                            await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
+                        }
+                        
+                        ///Prefetches all photos
+                    } else if post.mediaType == "photo" {
+                        let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
+                            prefetcher.start()
+                    }
+                    
+                    if let profileImageUrl = post.user.profileImageUrl,
+                       let userProfileImageURL = URL(string: profileImageUrl) {
+                        let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
+                        prefetcher.start()
+                    }
+                    
+                    if let profileImageURL = post.restaurant?.profileImageUrl,
+                       let restaurantProfileImageURL = URL(string: profileImageURL) {
+                        let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
+                        prefetcher.start()
                     }
                 }
+                
             }
         }
     }
-
+    
     func setFeedType(_ feedType: FeedType) {
         currentFeedType = feedType
     }

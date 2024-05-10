@@ -28,20 +28,10 @@ class AuthService {
             self.userSession = nil
             return
         }
-        if let storedUserData = UserDefaults.standard.data(forKey: "currentUserSession"),
-           let storedUser = try? JSONDecoder().decode(User.self, from: storedUserData),
-           storedUser.id == authUser {
-            self.userSession = storedUser
-            return
-        }
         do {
             let userDocument = try await FirestoreConstants.UserCollection.document(authUser).getDocument(as: User.self)
             self.userSession = userDocument
-            if let userData = try? JSONEncoder().encode(userDocument) {
-                UserDefaults.standard.set(userData, forKey: "currentUserSession")
-            }
         } catch {
-            // Handle specific errors or provide more meaningful error messages
             print("Error updating user session:", error.localizedDescription)
             throw error
         }
@@ -54,7 +44,7 @@ class AuthService {
     ///   - password: password that the
     func login(withEmail email: String, password: String) async throws {
         do {
-            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            try await Auth.auth().signIn(withEmail: email, password: password)
             try await updateUserSession()
             
         } catch {
@@ -70,12 +60,10 @@ class AuthService {
         
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
-            try await updateUserSession()
-            
             let user = User(id: result.user.uid, username: username, fullname: fullname, privateMode: false)
             let userData = try Firestore.Encoder().encode(user)
-            
             try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
+            try await updateUserSession()
         } catch {
             print("DEBUG: Failed to create user with error: \(error.localizedDescription)")
             throw error
@@ -109,7 +97,6 @@ class AuthService {
             guard let idToken = user.idToken else {
                 throw AuthenticationError.tokenError(message: "ID token missing")
             }
-            let emailAddress = user.profile?.email
             let fullName = user.profile?.name
             let givenName = user.profile?.givenName
             //let familyName = user.profile?.familyName
@@ -128,7 +115,8 @@ class AuthService {
               if document.exists {
                   try await updateUserSession()
                   return
-              } else {
+              }
+                else {
                   let randomUsername = try await generateRandomUsername(prefix: givenName)
                   let user = User(id: firebaseUser.uid, username: randomUsername, fullname: fullName ?? "", privateMode: false)
                   let userData = try Firestore.Encoder().encode(user)
@@ -138,7 +126,6 @@ class AuthService {
             } catch {
               print("Error getting document: \(error)")
             }
-            try await updateUserSession()
         } catch {
             print(error.localizedDescription)
             //self.authError = AuthError(authErrorCode: error.localizedDescription)
@@ -155,7 +142,7 @@ class AuthService {
         while usernameExists {
             // Generate 5 random digits for the username
             let randomDigits = String(format: "%05d", Int.random(in: 0..<10000000))
-            usernameToCheck = "\(prefix ?? "user")\(randomDigits)"
+            usernameToCheck = "\(prefix?.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) ?? "user")\(randomDigits)"
             
             // Check if the username already exists in Firestore
             let query = FirestoreConstants.UserCollection.whereField("username", isEqualTo: usernameToCheck)

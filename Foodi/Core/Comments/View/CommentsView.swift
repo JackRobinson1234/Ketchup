@@ -10,9 +10,8 @@ import SwiftUI
 struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     
-    init(post: Post) {
-        let service = CommentService(post: post)
-        let viewModel = CommentViewModel(post: post, service: service)
+    init(post: Binding<Post>) {
+        let viewModel = CommentViewModel(post: post)
         self._viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -30,7 +29,7 @@ struct CommentsView: View {
             List {
                 VStack(spacing: 24) {
                     ForEach(viewModel.comments) { comment in
-                        CommentCell(comment: comment)
+                        CommentCell(comment: comment, viewModel: viewModel)
                     }
                 }
                 .listRowSeparator(.hidden)
@@ -54,10 +53,15 @@ struct CommentsView: View {
                     .foregroundStyle(.gray)
             }
         }
-        .task { await viewModel.fetchComments() }
+        .onChange(of: viewModel.comments.count) {
+            viewModel.showEmptyView = viewModel.comments.isEmpty
+        }
+        .onAppear{
+            Task {try await viewModel.fetchComments() }
+        }
     }
 }
 
 #Preview {
-    CommentsView(post: DeveloperPreview.posts[0])
+    CommentsView(post: .constant(DeveloperPreview.posts[0]))
 }

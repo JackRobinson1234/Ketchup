@@ -93,20 +93,20 @@ class CollectionService {
     ///   - username: user's username
     ///   - uiImage: Cover image for the collection
     /// - Returns: Created Collection
-    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?, profileImageUrl: String?) async throws -> Collection? {
+    func uploadCollection(uid: String, title: String, description: String?, username: String, uiImage: UIImage?, profileImageUrl: String?, fullname: String) async throws -> Collection? {
         let ref = FirestoreConstants.CollectionsCollection.document()
         do {
             var imageUrl: String? = nil
             if let uiImage = uiImage {
                 do {
-                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
                 } catch {
                     print("Error uploading image: \(error)")
                     // Handle the error, such as showing an alert to the user
                     return nil
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, fullname: fullname, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")
@@ -122,54 +122,23 @@ class CollectionService {
     /// deletes a collection from firebase and corresponding items subcollection
     /// - Parameter selectedCollection: collection to be deleted
     func deleteCollection(selectedCollection: Collection) async throws {
-        try await deleteItemsSubcollection(from: selectedCollection)
         try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
-        
-        // Optionally, delete the collection's cover image from storage
-        if let imageUrl = selectedCollection.coverImageUrl {
-            try await ImageUploader.deleteImage(fromUrl: imageUrl)
-        }
-        
         print("Collection deleted successfully.")
     }
-    //MARK: deleteItemsSubcollection
-    /// Deletes all the items from a collection
-    /// - Parameter collection: collection to delete the items from
-    func deleteItemsSubcollection(from collection: Collection) async throws {
-        let collectionRef = FirestoreConstants.CollectionsCollection.document(collection.id)
-        let itemsSubcollectionRef = collectionRef.collection("items")
-        
-        do {
-            let batch = Firestore.firestore().batch()
+
+
+    func fetchRestaurantCollections(restaurantId: String) async throws -> [Collection] {
+        var fetchedCollections: [Collection] = []
+        let collectionIds = try await FirestoreConstants.RestaurantCollection.document(restaurantId).collection("collections").getDocuments()
+        print(collectionIds)
+        for collectionId in collectionIds.documents {
+            print(collectionId)
+            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId.documentID)
+            let collection = try await collectionRef.getDocument(as: Collection.self)
+            fetchedCollections.append(collection)
             
-            // Get all documents in the items subcollection
-            let querySnapshot = try await itemsSubcollectionRef.getDocuments()
-            for document in querySnapshot.documents {
-                batch.deleteDocument(document.reference)
-            }
-            // Commit the batch operation
-            try await batch.commit()
-            print("Items subcollection deleted successfully.")
-        } catch {
-            print("Failed to delete items subcollection with error: \(error.localizedDescription)")
-            throw error
         }
+        print("fetchedCollections", fetchedCollections)
+        return fetchedCollections
     }
 }
-//    //MARK: deleteAllUserCollections
-//    func deleteAllUserCollections(forUser user: User) async throws {
-//        // Fetch all collections for the user
-//        let collections = try await FirestoreConstants.CollectionsCollection
-//            .whereField("uid", isEqualTo: user.id)
-//            .getDocuments(as: Collection.self)
-//
-//        for collection in collections {
-//            try await deleteCollection(selectedCollection: collection)
-//            
-//            
-//            print("Collection '\(collection.name)' deleted successfully.")
-//        }
-//
-//        print("All collections for user \(user.username) deleted successfully.")
-//    }
-//}

@@ -66,7 +66,7 @@ struct CurrentUserProfileView: View {
                 }
                 
                 
-                .navigationTitle("Profile")
+                .navigationTitle(Text("@\(profileViewModel.user.username)"))
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
                     ProfileView(uid: user.id)
@@ -74,7 +74,7 @@ struct CurrentUserProfileView: View {
                 .navigationDestination(for: SearchModelConfig.self) { config in
                     SearchView(searchConfig: config)}
                 .navigationBarBackButtonHidden(true)
-                .refreshable { await profileViewModel.fetchCurrentUser() }
+                .refreshable { Task {try await profileViewModel.refreshCurrentUser() }}
                 .sheet(isPresented: $showNotifications) {
                     NotificationsView()
                 }
@@ -83,6 +83,11 @@ struct CurrentUserProfileView: View {
                 }
                 .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
+                }
+                .onChange(of: AuthService.shared.userSession) {
+                    if AuthService.shared.userSession != nil {
+                        Task {try await profileViewModel.refreshCurrentUser() }
+                    }
                 }
             }
         }

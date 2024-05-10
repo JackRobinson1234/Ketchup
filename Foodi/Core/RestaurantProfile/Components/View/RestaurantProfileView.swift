@@ -14,13 +14,11 @@ struct RestaurantProfileView: View {
     @State private var isLoading = true
     private let restaurantId: String
     private let restaurant: Restaurant?
-    @State var showAddToCollection = false
     
     init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
-        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId
-                                                      )
-        
+        let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId)
+
         self._viewModel = StateObject(wrappedValue: restaurantViewModel)
         self._currentSection = State(initialValue: currentSection)
         self.restaurant = restaurant
@@ -59,20 +57,6 @@ struct RestaurantProfileView: View {
                     RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
                 }
             }
-            .overlay(alignment: .topTrailing) {
-                Button{
-                    Task{
-                        showAddToCollection.toggle()
-                    }
-                } label: {
-                    Image(systemName: "folder.badge.plus")
-                        .resizable()
-                        .scaledToFill()
-                        .foregroundStyle(.black)
-                        .frame(width: 30, height: 30)
-            }
-                .padding(20)
-            }
 
             .navigationBarBackButtonHidden()
             .navigationBarTitleDisplayMode(.inline)
@@ -90,12 +74,6 @@ struct RestaurantProfileView: View {
                                     .frame(width: 30, height: 30) // Adjust the size as needed
                             )
                     }
-                }
-            }
-            
-            .sheet(isPresented: $showAddToCollection) {
-                if let user = AuthService.shared.userSession{
-                    AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
                 }
             }
         }

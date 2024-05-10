@@ -7,15 +7,17 @@
 
 import Combine
 import Firebase
-
+import SwiftUI
 @MainActor
 class ContentViewModel: ObservableObject {
     @Published var userSession: User?
     private var cancellables = Set<AnyCancellable>()
+    @State var isLoading = true
     
     init() {
         Task {
             try await AuthService.shared.updateUserSession()
+            isLoading = false
         }
         setupSubscribers()
     }

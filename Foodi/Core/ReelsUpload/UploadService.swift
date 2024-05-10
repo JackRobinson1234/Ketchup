@@ -52,7 +52,7 @@ struct UploadService {
             shareCount: 0,
             thumbnailUrl: "",
             timestamp: Timestamp(),
-            user: PostUser(id: user.id, fullName: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode),
+            user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
             recipe: postRecipe
         )

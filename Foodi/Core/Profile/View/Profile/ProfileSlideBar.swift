@@ -70,7 +70,7 @@ struct ProfileSlideBar: View {
             }
         }
         .padding()
-        .padding(.bottom, 15)
+        .padding(.bottom, 22)
         
         // MARK: Section Logic
         

@@ -11,9 +11,11 @@ import SwiftUI
 @MainActor
 class RestaurantViewModel: ObservableObject {
     @Published var posts = [Post]()
+    @Published var collections = [Collection]()
     @Published var restaurant: Restaurant?
-    
+    @Published var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
     private let restaurantId: String
+    
     
     init(restaurantId: String) {
         self.restaurantId = restaurantId
@@ -33,6 +35,11 @@ class RestaurantViewModel: ObservableObject {
                 group.addTask {
                     try await self.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
             }
+        }
+    }
+    func fetchRestaurantCollections() async throws{
+        if let restaurant = restaurant{
+            self.collections = try await CollectionService.shared.fetchRestaurantCollections(restaurantId: restaurant.id)
         }
     }
 }

@@ -16,6 +16,7 @@ struct Collection: Identifiable, Codable, Hashable {
     var name: String
     var uid: String
     var username: String
+    var fullname: String
     var timestamp: Timestamp?
     var description: String?
     var coverImageUrl: String?
@@ -31,6 +32,7 @@ struct Collection: Identifiable, Codable, Hashable {
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.username = try container.decode(String.self, forKey: .username)
+        self.fullname = try container.decode(String.self, forKey: .fullname)
         self.uid = try container.decode(String.self, forKey: .uid)
         self.coverImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.restaurantCount = try container.decode(Int.self, forKey: .restaurantCount)
@@ -41,12 +43,13 @@ struct Collection: Identifiable, Codable, Hashable {
         
     }
     
-    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool, profileImageUrl: String? = nil) {
+    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool, profileImageUrl: String? = nil) {
         self.id = id
         self.name = name
         self.timestamp = timestamp
         self.description = description
         self.username = username
+        self.fullname = fullname
         self.uid = uid
         self.coverImageUrl = coverImageUrl
         self.restaurantCount = restaurantCount
@@ -72,6 +75,6 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?
-
+    var privateMode: Bool
     
 }

@@ -22,10 +22,9 @@ struct ReelsUploadView: View {
     @State var showPostTypeMenu: Bool = true
  
     // POST TYPE OPTIONS
-    let postTypeOptions = ["At Home Post", "Going Out Post"]
+    let postTypeOptions = ["atHome", "restaurant"]
     
     var body: some View {
-        
             ZStack {
                 VStack {
                     
@@ -38,7 +37,6 @@ struct ReelsUploadView: View {
                             .cornerRadius(30)
                             .frame(width: 200, height: 300)
                     }
-                    
                     
                     Button(action: {
                         self.isEditingCaption = true
@@ -312,7 +310,7 @@ struct PostOptions: View {
     var body: some View {
         VStack {
             Divider()
-            if uploadViewModel.postType == "At Home Post" {
+            if uploadViewModel.postType == "atHome" {
       
                 Button {
                     isAddingRecipe = true
@@ -518,7 +516,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    uploadViewModel.postType = "At Home Post"
+                    uploadViewModel.postType = "atHome"
                     showPostTypeMenu = false
                 }) {
                     VStack {

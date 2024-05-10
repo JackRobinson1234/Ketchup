@@ -59,14 +59,10 @@ struct FeedCell: View {
         ZStack {
             
             if post.mediaType == "video" {
-                if videoConfigured {
+                
                     VideoPlayerView(coordinator: videoCoordinator)
                         .containerRelativeFrame([.horizontal, .vertical])
-                }
-                else {
-                    ProgressView()
-                        .containerRelativeFrame([.horizontal, .vertical])
-                }
+              
             } else if post.mediaType == "photo" {
                 
                 ZStack {
@@ -138,7 +134,7 @@ struct FeedCell: View {
                                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                                             //MARK: Recipe Fullname
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullName)")
+                                            Text("by \(post.user.fullname)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
@@ -157,7 +153,7 @@ struct FeedCell: View {
                                         }
                                         //MARK: recipe fullname
                                         NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullName)")
+                                            Text("by \(post.user.fullname)")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
@@ -196,7 +192,7 @@ struct FeedCell: View {
                                     Button{
                                         showRecipe.toggle()
                                         Task{
-                                            await videoCoordinator.pause()
+                                            videoCoordinator.pause()
                                         }
                                     } label: {
                                         Text("View Recipe")
@@ -229,9 +225,9 @@ struct FeedCell: View {
                             }
                             //MARK: Collection Button
                             Button {
-                                Task{
-                                    await videoCoordinator.pause()
-                                }
+                                
+                                    videoCoordinator.pause()
+                                
                                 showCollections.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
@@ -246,9 +242,9 @@ struct FeedCell: View {
                             }
                             //MARK: comment button
                             Button {
-                                Task{
-                                    await videoCoordinator.pause()
-                                }
+                                
+                                    videoCoordinator.pause()
+                                
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
@@ -257,14 +253,17 @@ struct FeedCell: View {
                             
                             //MARK: share button
                             Button {
-                                Task{
-                                    await videoCoordinator.pause()
-                                }
+                                
+                                     videoCoordinator.pause()
+                                
                                 showShareView.toggle()
                                 
                             } label: {
-                                FeedCellActionButtonView(imageName: "arrowshape.turn.up.right.fill",
-                                                         value: post.shareCount)
+                                Image(systemName: "arrowshape.turn.up.right.fill")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 28, height: 28)
+                                    .foregroundStyle(.white)
                             }
                         }
                         .padding(.horizontal)
@@ -276,85 +275,76 @@ struct FeedCell: View {
             //MARK: Scroll Position replay/ pause
             .onChange(of: scrollPosition) {oldValue, newValue in
                 if newValue == post.id {
-                    Task {
-                        await videoCoordinator.replay()
-                    }
+                    
+                        videoCoordinator.replay()
                 } else {
-                    Task {
-                        await videoCoordinator.pause()
-                    }
+                        videoCoordinator.pause()
                 }
             }
             //MARK: Scroll Position play/pause
             .onChange(of: pauseVideo) {oldValue, newValue in
                 if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
                     if newValue == true {
-                        Task {
-                            await videoCoordinator.pause()
-                        }
+                        
+                            videoCoordinator.pause()
+                        
                     } else {
-                        Task {
-                            await videoCoordinator.play()
-                        }
+                        
+                            videoCoordinator.play()
+                        
                     }
                 }
             }
             //MARK: Configure Player
             .onAppear {
-                if !videoConfigured {
+                
                     Task{
                         if let videoURL = post.mediaUrls.first {
-                            await videoCoordinator.configurePlayer(url: URL(string: videoURL), fileExtension: "mp4")
+                            videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
                         }
-                        videoConfigured = true
                         if viewModel.posts.first?.id == post.id && scrollPosition == nil {
-                            await videoCoordinator.replay()
+                            videoCoordinator.replay()
                         }
                     }
-                } else {
-                    Task {
-                        await videoCoordinator.replay()
-                    }
-                }
+                   
             }
             .onDisappear{
-                Task{
-                    await videoCoordinator.pause()
-                }
+                    videoCoordinator.pause()
             }
             //MARK: sheets
             //overlays the comments if showcomments is true
             .sheet(isPresented: $showComments) {
-                CommentsView(post: post)
+                CommentsView(post: $post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear{Task{ await videoCoordinator.play()}}
+                    .onDisappear{Task{ videoCoordinator.play()}}
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear{Task { await videoCoordinator.play()}}
+                    .onDisappear{Task {videoCoordinator.play()}}
             }
             .sheet(isPresented: $showRecipe) {
                 RecipeView(post: post)
-                    .onDisappear{Task { await videoCoordinator.play()}}
+                    .onDisappear{Task {videoCoordinator.play()}}
             }
             .sheet(isPresented: $showCollections) {
-                AddItemCollectionList(user: viewModel.user, post: post)
+                if let currentUser = AuthService.shared.userSession {
+                    AddItemCollectionList(user: currentUser, post: post)
+                }
             }
             //MARK: Tap to play/pause
             .onTapGesture {
-                if let player = videoCoordinator.videoPlayerManager.queuePlayer{
+                let player = videoCoordinator.player
                     switch player.timeControlStatus {
                     case .paused:
-                        Task{await videoCoordinator.play()}
+                        videoCoordinator.play()
                     case .waitingToPlayAtSpecifiedRate:
                         break
                     case .playing:
-                        Task{ await videoCoordinator.pause()}
+                        videoCoordinator.pause()
                     @unknown default:
                         break
                     }
-                }
             }
         }
     }

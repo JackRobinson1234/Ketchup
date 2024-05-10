@@ -26,7 +26,7 @@ struct PostListCell: View {
                     Text(restaurant.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    Text("by \(post.user.fullName)")
+                    Text("by \(post.user.fullname)")
                         .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
@@ -48,7 +48,7 @@ struct PostListCell: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
-                    Text("by \(post.user.fullName)")
+                    Text("by \(post.user.fullname)")
                         .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)

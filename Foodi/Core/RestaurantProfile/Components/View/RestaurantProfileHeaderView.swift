@@ -25,24 +25,28 @@ struct RestaurantProfileHeaderView: View {
                             .font(.title)
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
                     VStack(alignment: .center) {
                         Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
                             .font(.headline)
                             .fontWeight(.semibold)
+                            .padding(.horizontal)
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
+                            
                         Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
                             .font(.subheadline)
+                            .padding(.horizontal)
                         Text("\(restaurant.bio ?? "")")
                             .font(.caption)
                             .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
-                    Button{
-                    // Add Functionality
-                    } label: {
-                        Text("Order Now/ Make a Reservation")
-                            .modifier(StandardButtonModifier(width: 275))
+                    HStack {
+                        Text("Featured In:")
+                        UserStatView(value: restaurant.stats.collectionCount, title: "Collections")
+                        UserStatView(value: restaurant.stats.postCount, title: "Posts")
                     }
                     .padding()
                     
@@ -50,7 +54,7 @@ struct RestaurantProfileHeaderView: View {
                     Spacer()
                     RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)
                 }
-                .padding(.bottom, 100)
+                //.padding(.bottom, 100)
                 
                 
             }

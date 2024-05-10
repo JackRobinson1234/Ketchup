@@ -115,15 +115,15 @@ struct CollectionView: View {
                             }
                         }
                     }
-                    .sheet(isPresented: $showEditCollection) {EditCollectionView(collectionsViewModel: collectionsViewModel)}
-                    // if the collection is deleted in the edit collection view, navigate back to the collectionListview
-                    .onChange(of: collectionsViewModel.dismissCollectionView) {
-                        print(collectionsViewModel.dismissCollectionView)
-                        if collectionsViewModel.dismissCollectionView {
-                                collectionsViewModel.dismissCollectionView = false
-                                dismiss()
-                        }
-                    }
+                    .sheet(isPresented: $showEditCollection) {
+                        EditCollectionView(collectionsViewModel: collectionsViewModel)
+                            .onDisappear {
+                                if collectionsViewModel.dismissCollectionView {
+                                    collectionsViewModel.dismissCollectionView = false
+                                    dismiss()
+                                }
+                            }
+                    }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
                 }
             }
         }

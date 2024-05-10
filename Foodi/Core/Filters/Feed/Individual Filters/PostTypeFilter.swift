@@ -33,9 +33,11 @@ struct PostTypeFilter: View {
         ///Ensure that only one toggle is selected when the user clicks
         .onChange(of: [filtersViewModel.atHomeChecked]) {
             oneToggleSelected(lastChanged: "atHome")
+            filtersViewModel.disableFilters()
                 }
         .onChange(of: [filtersViewModel.restaurantChecked]) {
             oneToggleSelected(lastChanged: "restaurant")
+            filtersViewModel.disableFilters() 
                 }
     }
     /// Ensures that there is at least one toggle selected

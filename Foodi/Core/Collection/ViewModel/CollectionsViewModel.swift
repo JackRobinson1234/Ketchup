@@ -103,7 +103,8 @@ class CollectionsViewModel: ObservableObject {
                     postType: post.postType,
                     name: post.caption,
                     image: post.thumbnailUrl,
-                    postUserFullname: post.user.fullName
+                    postUserFullname: post.user.fullname,
+                    privateMode: user.privateMode
                 )
                 return collectionItem
             } else if post.postType == "restaurant",
@@ -117,7 +118,8 @@ class CollectionsViewModel: ObservableObject {
                     image: post.restaurant?.profileImageUrl,
                     city: post.restaurant?.city,
                     state: post.restaurant?.state,
-                    geoPoint: post.restaurant?.geoPoint
+                    geoPoint: post.restaurant?.geoPoint,
+                    privateMode: user.privateMode
                 )
                 return collectionItem
             }
@@ -152,7 +154,8 @@ class CollectionsViewModel: ObservableObject {
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
                 state: restaurant.state,
-                geoPoint: restaurant.geoPoint
+                geoPoint: restaurant.geoPoint,
+                privateMode: user.privateMode
             )
             if let geopoint = restaurant.geoPoint{
                 collectionItem.geoPoint = geopoint
@@ -182,7 +185,7 @@ class CollectionsViewModel: ObservableObject {
     func uploadCollection() async throws {
         isLoading = true
         let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl)
+        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
         if let collection{
             print(collection)
             self.collections.insert(collection, at: 0)
@@ -246,12 +249,9 @@ class CollectionsViewModel: ObservableObject {
                 var data: [String: Any] = [:]
                 //handles updating the image
                 if coverImage != nil, let uiImage = self.uiImage {
-                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .profile)
+                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
                     data["coverImageUrl"] = imageUrl
                     //updates selectedCollection with the new image
-                    if let image = collection.coverImageUrl {
-                        try await ImageUploader.deleteImage(fromUrl: image)
-                    }
                     self.selectedCollection?.coverImageUrl = imageUrl
                     // updates the collections array with the updated image
                     collections[index].coverImageUrl = imageUrl
@@ -298,21 +298,18 @@ class CollectionsViewModel: ObservableObject {
     /// deletes a collection from firebase and from the collections array.
     func deleteCollection() async throws {
         if let collection = self.selectedCollection {
+            dismissCollectionView = true
             guard let index = collections.firstIndex(where: { $0.id == collection.id }) else {
                 print("Collection with ID \(collection) not found.")
                 return
             }
             let collection = collections[index]
             try await CollectionService.shared.deleteCollection(selectedCollection: collection)
-            dismissCollectionView = true
             // Update the collections array and selectedCollection
             collections.remove(at: index)
-            if selectedCollection?.id == collection.id {
-                selectedCollection = nil
-                clearEdits()
-            }
+            selectedCollection = nil
+            resetViewModel()
         }
-        dismissCollectionView = true
     }
 }
 

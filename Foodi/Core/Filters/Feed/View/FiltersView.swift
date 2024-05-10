@@ -11,7 +11,7 @@ struct FiltersView: View {
     
     @Environment(\.dismiss) var dismiss
     @State private var selectedOption: FiltersViewOptions = .postType
-    @State private var locationText = ""
+
     @State private var cuisineText = ""
     @ObservedObject var filtersViewModel: FiltersViewModel
     
@@ -21,56 +21,38 @@ struct FiltersView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading){
-                if !locationText.isEmpty {
-                    Button("Clear") {
-                        locationText = ""
-                    }
-                    .foregroundStyle(.black)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                }
-            }
-            .padding()
-            
-            
             //MARK: Post Type
-            VStack {
-                if selectedOption == .postType {
-                    VStack(alignment: .leading){
-                        PostTypeFilter(filtersViewModel: filtersViewModel)
+            ScrollView{
+                VStack {
+                    Button{
+                        filtersViewModel.clearFilters()
+                    } label: {
+                        Text("Remove all filters")
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
                     }
-                    .modifier(CollapsibleFilterViewModifier(frame: 140))
-                    .onTapGesture(count:2){
-                        withAnimation(.snappy){ selectedOption = .noneSelected}
-                    }
-                    
-                } else {
-                    CollapsedPickerView(title: "Post Type", emptyDescription: "Filter by Post Type", count: filtersViewModel.updateSelectedPostTypes().count, singularDescription: "Post Type Selected", pluralDescription: "Post Types Selected")
-                        .onTapGesture{
-                            withAnimation(.snappy){ selectedOption = .postType}
+//                    if selectedOption == .postType {
+                        VStack(alignment: .leading){
+                            PostTypeFilter(filtersViewModel: filtersViewModel)
                         }
-                }
-            }
-            
-            //MARK: Location
-            VStack {
-                if selectedOption == .location {
-                    VStack{
-                        LocationFilter(filtersViewModel: filtersViewModel)
-                    }
-                    .modifier(CollapsibleFilterViewModifier(frame: 250))
-                    .onTapGesture(count:2){
-                        withAnimation(.snappy){ selectedOption = .noneSelected}
-                    }
-                    
-                } else {
-                    CollapsedPickerView(title: "Location", emptyDescription: "Filter by Location", count: filtersViewModel.selectedLocation.count, singularDescription: "Location Selected")
-                        .onTapGesture{
-                            withAnimation(.snappy){ selectedOption = .location}
+                        .modifier(CollapsibleFilterViewModifier(frame: 140))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}
                         }
+                        
+//                    } else {
+//                        CollapsedPickerView(title: "Post Type", emptyDescription: "Filter by Post Type", count: filtersViewModel.updateSelectedPostTypes().count, singularDescription: {
+//                            if filtersViewModel.atHomeChecked {
+//                                return "At Home Posts"
+//                            } else {
+//                                return "Restaurant Posts"
+//                            }
+//                        }())
+//                            .onTapGesture{
+//                                withAnimation(.snappy){ selectedOption = .postType}
+//                            }
+//                    }
                 }
-                
                 //MARK: Cuisine
                 VStack{
                     if selectedOption == .cuisine {
@@ -89,64 +71,106 @@ struct FiltersView: View {
                     }
                 }
                 
-                //MARK: Price
-                VStack{
-                    if selectedOption == .price {
-                        VStack(alignment: .leading){
-                            PriceFilter(filtersViewModel: filtersViewModel)
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 210))
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}}
-                    }
-                    else {
-                        /// "Filter Price" if no options selected
-                        CollapsedPickerView(title: "Price", emptyDescription: "Filter by Price", count: filtersViewModel.selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .price}
-                            }
-                    }
-                }
-                //MARK: Dietary Restrictions
                 
-                VStack{
-                    if selectedOption == .dietary {
-                        VStack(alignment: .leading){
-                            DietaryFilter(filtersViewModel: filtersViewModel)
+                //MARK: Location
+                
+                VStack {
+                    if selectedOption == .location {
+                        VStack{
+                            LocationFilter(filtersViewModel: filtersViewModel)
                         }
-                        .modifier(CollapsibleFilterViewModifier(frame: 270))
+                        .modifier(CollapsibleFilterViewModifier(frame: 250))
+                        .onTapGesture(count:2){
+                            withAnimation(.snappy){ selectedOption = .noneSelected}
+                        }
+                        
+                    } else {
+                        CollapsedPickerView(title: "Restaurant Location", emptyDescription: "Filter by Location", count: filtersViewModel.selectedLocation.count, singularDescription: "Location Selected")
+                            .opacity(filtersViewModel.disableRestaurantFilters ? 0.5 : 1.0)
+                            .allowsHitTesting(!filtersViewModel.disableRestaurantFilters)
+                            .onTapGesture{
+                                withAnimation(.snappy){ selectedOption = .location}
+                            }
+                    }
+                    
+                    
+                    
+                    //MARK: Price
+                    VStack{
+                        if selectedOption == .price {
+                            VStack(alignment: .leading){
+                                PriceFilter(filtersViewModel: filtersViewModel)
+                            }
+                            .modifier(CollapsibleFilterViewModifier(frame: 210))
+                            .onTapGesture(count:2){
+                                withAnimation(.snappy){ selectedOption = .noneSelected}}
+                        }
+                        else {
+                            /// "Filter Price" if no options selected
+                            CollapsedPickerView(title: "Restaurant Price", emptyDescription: "Filter by Price", count: filtersViewModel.selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
+                                .opacity(filtersViewModel.disableRestaurantFilters ? 0.5 : 1.0)
+                                .allowsHitTesting(!filtersViewModel.disableRestaurantFilters)
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .price}
+                                }
+                        }
+                    }
+                    //MARK: Dietary Restrictions
+                                    
+                    VStack{
+                        if selectedOption == .dietary {
+                            VStack(alignment: .leading){
+                                DietaryFilter(filtersViewModel: filtersViewModel)
+                            }
+
+                            .modifier(CollapsibleFilterViewModifier(frame: 270))
+                            .onTapGesture(count:2){
+                                withAnimation(.snappy){ selectedOption = .noneSelected}}
+                        }
+                        else {
+                            /// "Filter Dietary" if no options selected
+                            CollapsedPickerView(title: "At Home Dietary Restrictions", emptyDescription: "Filter by Dietary", count: filtersViewModel.selectedDietary.count, singularDescription: "Restriction Selected", pluralDescription: "Restrictions Selected")
+                                .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
+                                .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
+                                .onTapGesture{
+                                    withAnimation(.snappy){ selectedOption = .dietary}
+                                }
+                        }
+                    }
+                }
+                
+                //MARK: Cooking Time
+                VStack{
+                    if selectedOption == .cookingTime {
+                        VStack(alignment: .leading){
+                            CookingTimeFilter(filtersViewModel: filtersViewModel)
+                        }
+                        .modifier(CollapsibleFilterViewModifier(frame: 190))
                         .onTapGesture(count:2){
                             withAnimation(.snappy){ selectedOption = .noneSelected}}
                     }
                     else {
-                        /// "Filter Dietary" if no options selected
-                        CollapsedPickerView(title: "Dietary Restrictions", emptyDescription: "Filter by Dietary", count: filtersViewModel.selectedDietary.count, singularDescription: "Restriction Selected", pluralDescription: "Restrictions Selected")
+                        CollapsedPickerView(title: "At Home Cooking Time", emptyDescription: "Filter by Time", count: filtersViewModel.selectedCookingTime.count, singularDescription: "Time Selected")
+                            .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
+                            .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
                             .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .dietary}
+                                withAnimation(.snappy){ selectedOption = .cookingTime}
                             }
                     }
                 }
             }
-            
-            //MARK: Cooking Time
-            VStack{
-                if selectedOption == .cookingTime {
-                    VStack(alignment: .leading){
-                        CookingTimeFilter(filtersViewModel: filtersViewModel)
-                    }
-                    .modifier(CollapsibleFilterViewModifier(frame: 190))
-                    .onTapGesture(count:2){
-                        withAnimation(.snappy){ selectedOption = .noneSelected}}
-                }
-                else {
-                    CollapsedPickerView(title: "Cooking Time", emptyDescription: "Filter by Time", count: filtersViewModel.selectedCookingTime.count, singularDescription: "Time Selected")
-                        .onTapGesture{
-                            withAnimation(.snappy){ selectedOption = .cookingTime}
-                        }
-                }
-            }
-            Spacer()
             //MARK: Navigation Title
+            .onChange(of: filtersViewModel.disableAtHomeFilters) {
+                print("AtHome disabled: ", filtersViewModel.disableAtHomeFilters)
+                print("Restaurant disabled: ",  filtersViewModel.disableRestaurantFilters)
+                
+            }
+            .onChange(of: filtersViewModel.disableRestaurantFilters) {
+                print("AtHome disabled: ",filtersViewModel.disableAtHomeFilters)
+                print("Restaurant disabled: ", filtersViewModel.disableRestaurantFilters)
+                
+            }
+
                 .navigationTitle("Add Filters")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -208,7 +232,11 @@ struct CollapsedPickerView: View {
                 if count == 0 {
                     Text(emptyDescription)
                 } else if count == 1 {
-                    Text("1 \(singularDescription)")
+                    if title != "Post Type" {
+                        Text("1 \(singularDescription)")
+                    } else {
+                        Text(singularDescription)
+                    }
                 } else {
                     Text("\(count) \(pluralDescription)")
                 }

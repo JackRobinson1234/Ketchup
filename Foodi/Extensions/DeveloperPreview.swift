@@ -30,7 +30,8 @@ struct DeveloperPreview {
             address: "2425 Piedmont Ave",
             city: "Berkeleyanjsdfk;jna;kdfjnas;kdfjn;kasnf;kasnjfkjanfkas;kf",
             state: "CA",
-            imageURLs: nil
+            imageURLs: nil,
+            stats: RestaurantStats(postCount: 0, collectionCount: 0)
         ),
         .init(
             id: NSUUID().uuidString,
@@ -41,7 +42,8 @@ struct DeveloperPreview {
             address: "2722 Bancroft Ave",
             city: "Berkeley",
             state: "CA",
-            imageURLs: ["listing-2","listing-1", "listing-3","listing-4"]
+            imageURLs: ["listing-2","listing-1", "listing-3","listing-4"],
+            stats: RestaurantStats(postCount: 0, collectionCount: 0)
         ),
         .init(
             id: NSUUID().uuidString,
@@ -52,7 +54,8 @@ struct DeveloperPreview {
             address: "2311 Piedmont Ave",
             city: "Berkeley",
             state: "CA",
-            imageURLs: ["listing-3","listing-2", "listing-1","listing-4"]
+            imageURLs: ["listing-3","listing-2", "listing-1","listing-4"],
+            stats: RestaurantStats(postCount: 0, collectionCount: 0)
         )
         ]
     
@@ -84,9 +87,10 @@ struct DeveloperPreview {
                 timestamp: Timestamp(date: Date()),
                 user: PostUser(
                     id: "user1",
-                    fullName: "John Doe",
+                    fullname: "John Doe",
                     profileImageUrl: "https://example.com/profile.jpg"
-                    ,privateMode: false
+                    ,privateMode: false,
+                    username: "Test"
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",
@@ -159,6 +163,7 @@ struct DeveloperPreview {
                 timestamp: Timestamp(),
                 description: "A collection of delicious Italian dishes",
                 username: "wilbond",
+                fullname: "Jack Rob",
                 uid: "",
                 restaurantCount: 0,
                 atHomeCount: 0,
@@ -173,6 +178,7 @@ struct DeveloperPreview {
                 name: "Pasta Carbonara",
                 image: "https://picsum.photos/200/300",
                 postUserFullname: "Will Bond"
+                ,privateMode: false
             ),
             .init(
                 collectionId: "af",
@@ -183,6 +189,7 @@ struct DeveloperPreview {
                 city: "Hermosa Beach",
                 state: "CA",
                 geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
+                ,privateMode: false
             )
         ]
     static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: "atHome")

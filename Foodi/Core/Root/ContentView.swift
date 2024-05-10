@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import FirebaseAuth
 struct ContentView: View {
     var tabBarController = TabBarController()
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
@@ -14,12 +14,12 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-            if viewModel.userSession != nil {
+            if Auth.auth().currentUser != nil {
                     MainTabView()
                         .environmentObject(viewModel)
                         .environmentObject(tabBarController)
                     
-                } else {
+            } else if viewModel.userSession == nil {
                 LoginView()
             }
         }

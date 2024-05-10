@@ -115,8 +115,8 @@ struct RegistrationView: View {
                         //lowercase and no space
                         viewModel.username = viewModel.username.trimmingCharacters(in: .whitespaces).lowercased()
                         //limits characters
-                        if newValue.count > 50 {
-                            viewModel.username = String(newValue.prefix(50))
+                        if newValue.count > 30 {
+                            viewModel.username = String(newValue.prefix(30))
                         }
                         //for the debouncer to wait
                         viewModel.validUsername = nil
@@ -138,8 +138,8 @@ struct RegistrationView: View {
                     }
                 
                 //MARK: Username availability
-                if viewModel.username.count == 50 {
-                    Text("Max 50 Characters")
+                if viewModel.username.count == 30 {
+                    Text("Max 30 Characters")
                         .font(.caption)
                 }
                 if viewModel.validUsername == nil && !viewModel.username.isEmpty{
