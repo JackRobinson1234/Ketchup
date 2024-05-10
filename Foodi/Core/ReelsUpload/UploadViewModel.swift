@@ -44,6 +44,8 @@ class UploadViewModel: ObservableObject {
     
     @Published var navigateToUpload = false
     
+    @Published var fromInAppCamera = true
+    
     
     private var uploadService = UploadService()
     
@@ -81,6 +83,7 @@ class UploadViewModel: ObservableObject {
         postType = "Select Post Type"
         savedRecipe = false
         navigateToUpload = false
+        fromInAppCamera = true
     }
     
     func addEmptyIngredient() {
@@ -134,7 +137,9 @@ class UploadViewModel: ObservableObject {
                                                    caption: caption,
                                                    postType: postType,
                                                    postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe)
+                                                   postRecipe: postRecipe,
+                                                   fromInAppCamera: fromInAppCamera
+                )
             } else if mediaType == "photo" {
                 guard let images = images else {
                     throw UploadError.invalidMediaData
@@ -145,7 +150,9 @@ class UploadViewModel: ObservableObject {
                                                    caption: caption,
                                                    postType: postType,
                                                    postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe)
+                                                   postRecipe: postRecipe,
+                                                   fromInAppCamera: fromInAppCamera
+                )
             } else {
                 throw UploadError.invalidMediaType
             }

@@ -73,6 +73,7 @@ struct LibrarySelectorView: View {
                 DispatchQueue.main.async {
                     uploadViewModel.videoURL = video.url
                     uploadViewModel.mediaType = "video"
+                    uploadViewModel.fromInAppCamera = false
                     uploadViewModel.navigateToUpload = true
                 }
             } else {
@@ -98,6 +99,7 @@ struct LibrarySelectorView: View {
         DispatchQueue.main.async {
             uploadViewModel.images = images
             uploadViewModel.mediaType = "photo"
+            uploadViewModel.fromInAppCamera = false
             uploadViewModel.navigateToUpload = true
         }
     }

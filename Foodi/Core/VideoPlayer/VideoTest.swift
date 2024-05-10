@@ -12,7 +12,7 @@ struct VideoTest: View {
     var coordinator: VideoPlayerCoordinator = VideoPlayerCoordinator()
     var body: some View {
         if configured {
-            VideoPlayerView(coordinator: coordinator)
+            VideoPlayerView(coordinator: coordinator, videoGravity: .resizeAspectFill)
                 .onTapGesture {
                     if let player = coordinator.videoPlayerManager.queuePlayer{
                         switch player.timeControlStatus {

@@ -201,14 +201,13 @@ struct FinalVideoPreview: View {
         
         if let url = uploadViewModel.videoURL {
             let player = AVPlayer(url: url)
-            
             ZStack {
-                
-                
-                
-                VideoPlayer(player: player)
+                if uploadViewModel.fromInAppCamera {
+                    VideoPlayer(player: player, videoGravity: .resizeAspectFill)
+                } else {
+                    VideoPlayer(player: player, videoGravity: .resizeAspect)
+                }
             }
-            
         }
     }
 }
@@ -222,19 +221,23 @@ struct FinalPhotoPreview: View {
     
     var body: some View {
         GeometryReader { geometry in
-            let _ = print("GEOWIDTH: \(geometry.size.width)")
-            let _ = print("GEOHeight: \(geometry.size.height)")
             ZStack {
-                Color.black
-
                 TabView(selection: $currentPage) {
                     ForEach(uploadViewModel.images!.indices, id: \.self) { index in
-                        Image(uiImage: uploadViewModel.images![index])
-                            .resizable()
-                            .scaledToFill()
-                            .tag(index)
+                        if uploadViewModel.fromInAppCamera {
+                            Image(uiImage: uploadViewModel.images![index])
+                                .resizable()
+                                .scaledToFill()
+                                .tag(index)
+                        } else {
+                            Image(uiImage: uploadViewModel.images![index])
+                                .resizable()
+                                .scaledToFit()
+                                .tag(index)
+                        }
                     }
                 }
+                .background(.black)
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }

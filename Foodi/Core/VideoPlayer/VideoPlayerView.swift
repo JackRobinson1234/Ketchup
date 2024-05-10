@@ -12,6 +12,7 @@ import AVKit
 
 struct VideoPlayerView: UIViewControllerRepresentable {
     @StateObject var coordinator: VideoPlayerCoordinator
+    var videoGravity: AVLayerVideoGravity
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let playerVC = AVPlayerViewController()
@@ -20,7 +21,7 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         playerVC.showsPlaybackControls = false
         playerVC.exitsFullScreenWhenPlaybackEnds = true
         playerVC.allowsPictureInPicturePlayback = true
-        playerVC.videoGravity = .resizeAspectFill
+        playerVC.videoGravity = videoGravity
         playerVC.allowsVideoFrameAnalysis = false
         
         return playerVC
