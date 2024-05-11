@@ -60,6 +60,18 @@ struct CameraView: View {
                         .padding(.leading)
 
                         Spacer()
+                        
+                        Button(action: {
+                            cameraViewModel.toggleCamera()
+                        }) {
+                            Image(systemName: "camera.rotate")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 35)
+                        .padding(.trailing)
                     }
                     
                     
@@ -259,12 +271,8 @@ struct PhotoCameraControls: View {
                     
                     Spacer()
                     
-                    HStack {
-                        Text("\(cameraViewModel.images.count)/3")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                        
-                        HStack(spacing: -30) {
+                    VStack {
+                        HStack(spacing: 0) {
                             ForEach((0..<3).reversed(), id: \.self) { index in
                                 if index < cameraViewModel.images.count {
                                     Image(uiImage: cameraViewModel.images[cameraViewModel.images.count - 1 - index])
@@ -288,9 +296,15 @@ struct PhotoCameraControls: View {
                                 }
                             }
                         }
+                        
+                        Text("\(cameraViewModel.images.count)/3")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
                     }
                     .padding(.top)
-                    .padding(.trailing, 30)
+                    
+                    Spacer()
+                    
                 }
                 
                 Spacer()

@@ -48,6 +48,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     // DRAGGING TO SWITCH CAMERA MODE
     @Published var isDragging = false
     @Published var dragDirection = "left"
+    
+    @Published var cameraPosition: CameraPosition = .back
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
             .onChanged { _ in self.isDragging = true }
@@ -94,9 +97,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         do {
             self.session.beginConfiguration()
+            session.inputs.forEach { session.removeInput($0) }
             
-            // might need to alter for our needs
-            let cameraDevice = AVCaptureDevice.default(for: .video)
+            let cameraDevice: AVCaptureDevice?
+            
+            switch cameraPosition {
+                case .front:
+                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+                case .back:
+                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+                }
+            
+            let _ = print("IN SETUP: \(cameraPosition)")
             let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             
             let audioDevice = AVCaptureDevice.default(for: .audio)
@@ -146,7 +158,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
         
         // CREATED SUCCESSFULLY
-        print(outputFileURL)
         self.recordedURLs.append(outputFileURL)
         if self.recordedURLs.count == 1{
             self.previewURL = outputFileURL
@@ -178,6 +189,49 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
     
+    func applyTransformToVideo(videoURL: URL, completion: @escaping (URL) -> Void) {
+        let asset = AVURLAsset(url: videoURL)
+        guard let videoTrack = asset.tracks(withMediaType: .video).first else {
+            print("Failed to find a video track in the asset")
+            return
+        }
+        
+        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        var transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
+        transform = transform.rotated(by: CGFloat(Double.pi / 2))
+
+        layerInstructions.setTransform(transform, at: .zero)
+        
+        let instructions = AVMutableVideoCompositionInstruction()
+        instructions.timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+        instructions.layerInstructions = [layerInstructions]
+        
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
+        videoComposition.instructions = [instructions]
+        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
+        
+        guard let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
+            print("Could not create AVAssetExportSession")
+            return
+        }
+        exporter.outputFileType = .mp4
+        let transformedVideoURL = URL(fileURLWithPath: NSTemporaryDirectory() + "TransformedVideo-\(UUID().uuidString).mp4")
+        exporter.outputURL = transformedVideoURL
+        exporter.videoComposition = videoComposition
+        
+        exporter.exportAsynchronously {
+            switch exporter.status {
+            case .completed:
+                print("Video transformation completed")
+                completion(transformedVideoURL)
+            case .failed:
+                print("Failed with error: \(String(describing: exporter.error))")
+            default:
+                print("Exporting failed")
+            }
+        }
+    }
     
     func mergeVideos(assets: [AVURLAsset],completion: @escaping (_ exporter: AVAssetExportSession)->()){
         
@@ -242,10 +296,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             DispatchQueue.global(qos:.background).async {
                 
                 self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-
-                DispatchQueue.main.async {
-                    withAnimation {self.isPhotoTaken = true}
-                }
             }
         }
         
@@ -290,8 +340,40 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             print("Failed to convert photo to UIImage.")
             return
         }
+        
+        // Adjusting the image based on the camera used
+        var adjustedImage = image
+        if cameraPosition == .front {
+            // Ensure the image is mirrored horizontally
+            if let cgImage = image.cgImage {
+                let mirroredImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .leftMirrored)
+                adjustedImage = fixOrientation(of: mirroredImage)
+            }
+        }
 
-        self.images.append(image)
+        DispatchQueue.main.async {
+            self.images.append(adjustedImage)
+            self.isPhotoTaken = true
+        }
+    }
+
+    func fixOrientation(of image: UIImage) -> UIImage {
+        // Check if the image orientation is already correct
+        if image.imageOrientation == .up {
+            return image
+        }
+
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return normalizedImage
+    }
+    
+    func toggleCamera() {
+        cameraPosition = (cameraPosition == .back) ? .front : .back
+        let _ = print("IN TOGGLE: \(cameraPosition)")
+        setUp() // Reconfigure the session with the new camera
     }
     
     func reset() {
@@ -308,6 +390,11 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         uploadFromLibray = false
     }
         
+}
+
+enum CameraPosition {
+    case front
+    case back
 }
 
 //    func savePic() {
