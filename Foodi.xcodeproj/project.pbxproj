@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */; };
+		6FB87C3B2BEFDCBF001C7CDD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */; };
 		ACAB518993C9290DE42EEFB1 /* Pods_FoodiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */; };
 		D770486F7DB5BCC50E038E9B /* Pods_Foodi_FoodiUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
@@ -45,7 +46,6 @@
 		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E542BDAAD8200A48565 /* SettingsView.swift */; };
 		F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E562BDAADE800A48565 /* SettingsViewModel.swift */; };
-		F8631E5F2BE08F6D00A48565 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */; };
 		F87072CB2B9987B5002D8785 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87072CA2B9987B5002D8785 /* RecipeView.swift */; };
 		F871AFEA2B75866800E4EB5F /* LikedVideosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -202,6 +202,7 @@
 		1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.release.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.release.xcconfig"; sourceTree = "<group>"; };
 		1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foodi_FoodiUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi-FoodiUITests.release.xcconfig"; path = "Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests.release.xcconfig"; sourceTree = "<group>"; };
+		6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FoodiTests.debug.xcconfig"; path = "Target Support Files/Pods-FoodiTests/Pods-FoodiTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.debug.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.debug.xcconfig"; sourceTree = "<group>"; };
 		E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FoodiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -244,8 +245,6 @@
 		F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		F8631E542BDAAD8200A48565 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F8631E562BDAADE800A48565 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
-		F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
-		F8631E602BE08F7D00A48565 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F87072CA2B9987B5002D8785 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		F871AFE92B75866800E4EB5F /* LikedVideosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedVideosViewModel.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -520,7 +519,7 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
-				F8631E602BE08F7D00A48565 /* GoogleService-Info.plist */,
+				6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
@@ -555,7 +554,6 @@
 		F84FE2762B6A53CF00144F01 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				F8631E5E2BE08F6D00A48565 /* GoogleService-Info.plist */,
 				F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */,
 				F88E0B262B6C9FC600EC159B /* Constants */,
 				F88E0B252B6C9FC400EC159B /* Modifiers */,
@@ -1436,8 +1434,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
+				6FB87C3B2BEFDCBF001C7CDD /* GoogleService-Info.plist in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
-				F8631E5F2BE08F6D00A48565 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1886,10 +1884,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
@@ -1904,13 +1903,13 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationPortrait";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi3;
+				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1931,10 +1930,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
@@ -1949,13 +1949,13 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationPortrait";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi3;
+				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
