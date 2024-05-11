@@ -175,6 +175,8 @@
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 		F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */; };
 		F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */; };
+		F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35612BEFD97B0079DE6D /* Report.swift */; };
+		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 /* End PBXBuildFile section */
@@ -373,6 +375,8 @@
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySelectorView.swift; sourceTree = "<group>"; };
 		F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
+		F8FB35612BEFD97B0079DE6D /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
+		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -579,6 +583,7 @@
 				F88E0B222B6B0B9F00EC159B /* UserService.swift */,
 				F871CE022BCDBF56003C9BE8 /* CollectionService.swift */,
 				F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */,
+				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -594,6 +599,7 @@
 				F8BD81652BC6E9BA007C2CFC /* Collection.swift */,
 				F88E0AA32B6B034500EC159B /* Notification.swift */,
 				F89F28712BE3163C00E670E0 /* Activity.swift */,
+				F8FB35612BEFD97B0079DE6D /* Report.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1639,6 +1645,7 @@
 				F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */,
 				F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
+				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
 				F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */,
 				F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */,
@@ -1665,6 +1672,7 @@
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
+				F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */,
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
 				F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
