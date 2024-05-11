@@ -8,4 +8,5 @@ import Foundation
 import SwiftUI
 class TabBarController: ObservableObject {
     @Published var selectedTab = 0
+    @Published var visibility: Visibility = .visible
 }

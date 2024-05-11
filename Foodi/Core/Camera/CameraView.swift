@@ -20,7 +20,6 @@ struct CameraView: View {
     @EnvironmentObject var tabBarController: TabBarController
     
     var body: some View {
-        
         NavigationStack {
             ZStack(alignment: .bottom) {
                 
@@ -47,6 +46,22 @@ struct CameraView: View {
                 
                 // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
                 VStack {
+                    
+                    HStack {
+                        Button {
+                            tabBarController.selectedTab = 0
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.title)
+                                .foregroundColor(.white)
+                        }
+                        .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording || !cameraViewModel.isPhotoTaken ? 1 : 0)
+                        .padding(.top, 35)
+                        .padding(.leading)
+
+                        Spacer()
+                    }
+                    
                     
                     Spacer()
                     
@@ -103,7 +118,6 @@ struct CameraView: View {
                 uploadViewModel.reset()
             }
         }
-
     }
 }
 
@@ -130,23 +144,6 @@ struct VideoCameraControls: View {
             }
             .frame(height: 20)
             .cornerRadius(10)
-            
-            // X BUTTON
-//            HStack {
-//                Button {
-//                    tabBarController.selectedTab = 0
-//                } label: {
-//                    Image(systemName: "xmark")
-//                        .font(.title)
-//                        .foregroundColor(.white)
-//                }
-//                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 1 : 0)
-//                .padding(.top)
-//                .padding(.leading)
-//
-//                Spacer()
-//            }
-            
             
             Spacer()
             
