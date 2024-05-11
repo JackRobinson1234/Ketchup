@@ -139,7 +139,7 @@ struct ReelsUploadView: View {
                 }
             )
             .navigationDestination(isPresented: $isPickingRestaurant) {
-                SelectRestaurantListView()
+                SelectRestaurantListView(uploadViewModel: uploadViewModel)
                     .navigationTitle("Select Restaurant")
             }
             .navigationDestination(isPresented: $isAddingRecipe) {
@@ -484,16 +484,17 @@ import SwiftUI
 import InstantSearchSwiftUI
 
 struct SelectRestaurantListView: View {
-    @StateObject var viewModel: RestaurantListViewModel
+    @StateObject var viewModel = RestaurantListViewModel()
+    @ObservedObject var uploadViewModel: UploadViewModel
     @Environment(\.dismiss) var dismiss
     var debouncer = Debouncer(delay: 1.0)
-    init() {
-        
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())}
     
     var body: some View {
         InfiniteList(viewModel.hits, itemView: { hit in
-            NavigationLink(value: hit.object) {
+            Button{
+                uploadViewModel.restaurant = hit.object
+                dismiss()
+            } label: {
                 RestaurantCell(restaurant: hit.object)
                     .padding()
             }

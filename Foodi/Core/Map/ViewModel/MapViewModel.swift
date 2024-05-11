@@ -74,5 +74,9 @@ class MapViewModel: ObservableObject {
             }
         }
     }
+    func clearFilters() {
+        selectedCuisines = []
+        selectedPrice = []
+    }
 }
     
