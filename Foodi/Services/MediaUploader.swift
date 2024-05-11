@@ -16,7 +16,6 @@ enum UploadType {
     case profile
     case post
     case collection
-    case thumbnail
     var filePath: StorageReference {
         let filename = NSUUID().uuidString
         switch self {
@@ -26,8 +25,6 @@ enum UploadType {
             return Storage.storage().reference(withPath: "/post_images/\(filename)")
         case .collection:
             return Storage.storage().reference(withPath: "/collection_images/\(filename)")
-        case .thumbnail:
-            return Storage.storage().reference(withPath: "/thumbnail_images/\(filename)")
         }
     }
 }

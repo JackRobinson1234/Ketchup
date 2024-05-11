@@ -14,9 +14,9 @@ struct UploadService {
     func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: String, postRestaurant: PostRestaurant?, postRecipe: PostRecipe?, fromInAppCamera: Bool) async throws {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
-
+        
         var mediaUrls = [String]()
-
+        
         // Determine the media URL based on type
         if mediaType == "video", let videoURL = videoURL {
             guard let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) else {
@@ -35,6 +35,16 @@ struct UploadService {
         } else {
             throw UploadError.invalidMediaData
         }
+        
+        var thumbnailUrl = ""
+        if let url = mediaUrls.first {
+            if mediaType == "photo" {
+                thumbnailUrl = url
+            } else if mediaType == "video" {
+                thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: url)
+            }
+        }
+        
 
         // Create the post object
         let post = Post(
@@ -46,7 +56,7 @@ struct UploadService {
             likes: 0,
             commentCount: 0,
             shareCount: 0,
-            thumbnailUrl: "",
+            thumbnailUrl: thumbnailUrl,
             timestamp: Timestamp(),
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
@@ -65,20 +75,18 @@ struct UploadService {
         print("Post created successfully")
 
         // Update the thumbnail after the post is created if it's a video
-        if mediaType == "video", let videoUrl = mediaUrls.first {
-            try await updateThumbnailUrl(fromVideoUrl: videoUrl, postId: ref.documentID)
-        }
     }
     
-    func updateThumbnailUrl(fromVideoUrl videoUrl: String, postId: String) async throws {
+    func updateThumbnailUrl(fromVideoUrl videoUrl: String) async throws -> String{
         guard let image = MediaHelpers.generateThumbnail(path: videoUrl) else {
             throw UploadError.thumbnailGenerationFailed
         }
         guard let thumbnailUrl = try await ImageUploader.uploadImage(image: image, type: .post) else {
             throw UploadError.imageUploadFailed
         }
-        try await FirestoreConstants.PostsCollection.document(postId).updateData([
-            "thumbnailUrl": thumbnailUrl
-        ])
+//        try await FirestoreConstants.PostsCollection.document(postId).updateData([
+//            "thumbnailUrl": thumbnailUrl
+//        ])
+        return thumbnailUrl
     }
 }

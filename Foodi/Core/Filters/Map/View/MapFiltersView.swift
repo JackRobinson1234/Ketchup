@@ -22,6 +22,14 @@ struct MapFiltersView: View {
         NavigationStack {
                 //MARK: Cuisine
                 VStack{
+                    Button{
+                        mapViewModel.clearFilters()
+                    } label: {
+                        Text("Remove all filters")
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
+                    }
+                    
                     if selectedOption == .cuisine {
                         VStack(alignment: .leading){
                             MapCuisineFilter(mapViewModel: mapViewModel)

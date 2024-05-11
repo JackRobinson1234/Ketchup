@@ -24,6 +24,7 @@ struct FeedView: View {
     //@State private var fetchTask: Task<Void, Error>?
     @StateObject var filtersViewModel: FiltersViewModel
     @State var feedViewOption: FeedViewOption = .feed
+    @Environment(\.dismiss) var dismiss
     private var hideFeedOptions: Bool
     
     
@@ -203,6 +204,7 @@ struct FeedView: View {
                         //.background(Color(hex: 0xF5F5F5).opacity(0.1))
                         .shadow(color: Color.gray.opacity(0.5), radius: 5, x: 0, y: 5)
                     }
+                    
                 }
                 
                 
@@ -264,6 +266,25 @@ struct FeedView: View {
                 .fullScreenCover(isPresented: $showFilters) {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
+                .toolbar {
+                    if hideFeedOptions{
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(.white)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                            .frame(width: 30, height: 30) // Adjust the size as needed
+                                    )
+                                    .padding()
+                            }
+                        }
+                    }
+                }
+                
             }
         }
     }

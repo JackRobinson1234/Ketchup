@@ -91,6 +91,12 @@ struct FeedGridView: View {
                                     .onTapGesture { selectedPost = post }
                             )
                     }
+                Color.clear
+                    .frame(width: width, height: 160)
+                Color.clear
+                    .frame(width: width, height: 160)
+                Color.clear
+                    .frame(width: width, height: 160)
                 }
                 
                 .sheet(item: $selectedPost) { post in
