@@ -129,7 +129,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             //check for output
+            let _ = print("CHECKING FOR VID OUTPUT ")
             if self.session.canAddOutput(self.videoOutput) {
+                let _ = print("ADDING OUTPUT")
                 self.session.addOutput(self.videoOutput)
             }
             
@@ -161,10 +163,26 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         videoOutput.stopRecording()
     }
     
+    func startRecordingForNewCam() {
+        let _ = print("MADE IN STARTRECNEW")
+        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
+        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
+
+    }
+
+    func stopRecordingForNewCam() {
+        let _ = print("MADE IN STOPRECNEW")
+        videoOutput.stopRecording()
+    }
+    
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
             print(error.localizedDescription)
             return
+        }
+        
+        if isRecording {
+            // MERGE MULTIPLE SEGMENTS LOGIC
         }
         
         // CREATED SUCCESSFULLY
@@ -189,6 +207,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             return
         }
+        
+
+        
         
         // CONVERTING URLs TO ASSETS
         let assets = recordedURLs.map { AVURLAsset(url: $0) }
@@ -375,6 +396,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        
         if let error = error {
             print("Error capturing photo: \(error.localizedDescription)")
             return
@@ -422,9 +444,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
 
         // Stop recording with the current camera
-        stopRecording()
+        stopRecordingForNewCam()
         switchCameraInput()
-        startRecording()
+        startRecordingForNewCam()
     }
 
     func switchCameraInput() {
