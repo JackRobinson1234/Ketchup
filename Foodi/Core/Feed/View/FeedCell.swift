@@ -228,12 +228,7 @@ struct FeedCell: View {
                         VStack(spacing: 28) {
                             //MARK: user profile image
                             NavigationLink(value: post.user) {
-                                ZStack(alignment: .bottom) {
                                     UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
-                                    Image(systemName: "plus.circle.fill")
-                                        .foregroundStyle(.pink)
-                                        .offset(y: 8)
-                                }
                             }
                            
                             //MARK: Delete/ Report
@@ -241,13 +236,17 @@ struct FeedCell: View {
                                 videoCoordinator.pause()
                                 showingOptionsSheet = true
                             } label: {
-                                Image(systemName: "ellipsis")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 8, height: 8)
-                                    .foregroundStyle(.white)
-                                
-                                
+                                ZStack{
+                                    Rectangle()
+                                        .fill(.clear)
+                                        .frame(width: 18, height: 14)
+                                    Image(systemName: "ellipsis")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 8, height: 8)
+                                        .foregroundStyle(.white)
+                                    
+                                }
                             }
                             //MARK: Collection Button
                             Button {
