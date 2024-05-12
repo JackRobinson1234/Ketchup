@@ -35,9 +35,15 @@ struct CommentCell: View {
                 Button {
                     showingOptionsSheet = true
                 } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 18))
+                    ZStack {
+                           Color.clear
+                               .frame(width: 28, height: 28)
+                               .cornerRadius(14) // Optional: Adds a rounded corner
+                           
+                           Image(systemName: "ellipsis")
+                               .foregroundColor(.gray)
+                               .font(.system(size: 18))
+                       }
                 }
                 .sheet(isPresented: $showingOptionsSheet) {
                     CommentOptionsSheet(comment: comment, viewModel: viewModel)

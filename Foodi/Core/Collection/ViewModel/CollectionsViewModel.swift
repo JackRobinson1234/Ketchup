@@ -104,6 +104,7 @@ class CollectionsViewModel: ObservableObject {
                     name: post.caption,
                     image: post.thumbnailUrl,
                     postUserFullname: post.user.fullname,
+                    postUserId: post.user.id,
                     privateMode: user.privateMode
                 )
                 return collectionItem

@@ -178,6 +178,7 @@
 		F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35612BEFD97B0079DE6D /* Report.swift */; };
 		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
 		F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35662BF03AB20079DE6D /* Reporting View.swift */; };
+		F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 /* End PBXBuildFile section */
@@ -379,6 +380,7 @@
 		F8FB35612BEFD97B0079DE6D /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		F8FB35662BF03AB20079DE6D /* Reporting View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reporting View.swift"; sourceTree = "<group>"; };
+		F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDeleteReport.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -988,6 +990,7 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */,
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
 				F88E0A912B6B023800EC159B /* FeedView.swift */,
@@ -1732,6 +1735,7 @@
 				F801F1882BBDBE5700D3FBE2 /* PostTypeFilter.swift in Sources */,
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
+				F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */,
 				F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */,
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,

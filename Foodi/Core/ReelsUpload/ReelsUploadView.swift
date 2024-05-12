@@ -23,7 +23,7 @@ struct ReelsUploadView: View {
     @State var showPostTypeMenu: Bool = true
  
     // POST TYPE OPTIONS
-    let postTypeOptions = ["At Home Post", "Going Out Post"]
+    let postTypeOptions = ["restaurant", "atHome"]
     
     var body: some View {
         
@@ -332,7 +332,7 @@ struct PostOptions: View {
     var body: some View {
         VStack {
             Divider()
-            if uploadViewModel.postType == "At Home Post" {
+            if uploadViewModel.postType == "atHome" {
       
                 Button {
                     isAddingRecipe = true
@@ -382,7 +382,7 @@ struct PostOptions: View {
                     
                     
                 }
-            } else if uploadViewModel.postType == "Going Out Post" {
+            } else if uploadViewModel.postType == "atHome Post" {
                 if let restaurant = uploadViewModel.restaurant {
                     Button {
                         isPickingRestaurant = true
@@ -539,7 +539,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    uploadViewModel.postType = "At Home Post"
+                    uploadViewModel.postType = "atHome"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -550,7 +550,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                                     
-                        Text("At Home Post")
+                        Text("atHome")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }
@@ -561,7 +561,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    uploadViewModel.postType = "Going Out Post"
+                    uploadViewModel.postType = "atHome"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -572,7 +572,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                         
-                        Text("Going Out Post")
+                        Text("atHome Post")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }

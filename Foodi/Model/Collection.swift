@@ -70,6 +70,7 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     
     //atHome post type specific
     var postUserFullname: String?
+    var postUserId: String?
     //restaurant post type Specific
     
     var city: String?

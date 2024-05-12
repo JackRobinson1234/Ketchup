@@ -29,9 +29,8 @@ struct FeedCell: View {
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
-    
+    @State private var showingOptionsSheet = false
     @State private var currentImageIndex = 0
-    
     @State var isDragging = false
     @State var dragDirection = "left"
     var drag: some Gesture {
@@ -107,12 +106,12 @@ struct FeedCell: View {
                     }
                     .frame(width: UIScreen.main.bounds.width, height: 650)
                     
-                   
+                    
                     
                     
                 }
             }
-
+            
             VStack {
                 Spacer()
                 //MARK: Black Background
@@ -145,7 +144,7 @@ struct FeedCell: View {
                                         }
                                         //MARK: Address
                                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                                            //MARK: Recipe Fullname
+                                        //MARK: Recipe Fullname
                                         NavigationLink(value: post.user) {
                                             Text("by \(post.user.fullname)")
                                                 .font(.subheadline)
@@ -236,10 +235,24 @@ struct FeedCell: View {
                                         .offset(y: 8)
                                 }
                             }
+                           
+                            //MARK: Delete/ Report
+                            Button {
+                                videoCoordinator.pause()
+                                showingOptionsSheet = true
+                            } label: {
+                                Image(systemName: "ellipsis")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 8, height: 8)
+                                    .foregroundStyle(.white)
+                                
+                                
+                            }
                             //MARK: Collection Button
                             Button {
                                 
-                                    videoCoordinator.pause()
+                                videoCoordinator.pause()
                                 
                                 showCollections.toggle()
                             } label: {
@@ -256,7 +269,7 @@ struct FeedCell: View {
                             //MARK: comment button
                             Button {
                                 
-                                    videoCoordinator.pause()
+                                videoCoordinator.pause()
                                 
                                 showComments.toggle()
                             } label: {
@@ -267,7 +280,7 @@ struct FeedCell: View {
                             //MARK: share button
                             Button {
                                 
-                                     videoCoordinator.pause()
+                                videoCoordinator.pause()
                                 
                                 showShareView.toggle()
                                 
@@ -288,41 +301,36 @@ struct FeedCell: View {
             //MARK: Scroll Position replay/ pause
             .onChange(of: scrollPosition) {oldValue, newValue in
                 if newValue == post.id {
-                    
-                        videoCoordinator.replay()
+                    videoCoordinator.replay()
                 } else {
-                        videoCoordinator.pause()
+                    videoCoordinator.pause()
                 }
             }
             //MARK: Scroll Position play/pause
             .onChange(of: pauseVideo) {oldValue, newValue in
                 if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
                     if newValue == true {
-                        
-                            videoCoordinator.pause()
-                        
+                        videoCoordinator.pause()
                     } else {
                         
-                            videoCoordinator.play()
+                        videoCoordinator.play()
                         
                     }
                 }
             }
             //MARK: Configure Player
             .onAppear {
-                
-                    Task{
-                        if let videoURL = post.mediaUrls.first {
-                            videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
-                        }
-                        if viewModel.posts.first?.id == post.id && scrollPosition == nil {
-                            videoCoordinator.replay()
-                        }
+                Task{
+                    if let videoURL = post.mediaUrls.first {
+                        videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
                     }
-                   
+                    if viewModel.posts.first?.id == post.id && scrollPosition == nil {
+                        videoCoordinator.replay()
+                    }
+                }
             }
             .onDisappear{
-                    videoCoordinator.pause()
+                videoCoordinator.pause()
             }
             //MARK: sheets
             //overlays the comments if showcomments is true
@@ -345,12 +353,16 @@ struct FeedCell: View {
                     AddItemCollectionList(user: currentUser, post: post)
                 }
             }
+            .sheet(isPresented: $showingOptionsSheet) {
+                PostOptionsSheet(post: post, viewModel: viewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+            }
             //MARK: Tap to play/pause
             .onTapGesture {
                 let player = videoCoordinator.player
-                    switch player.timeControlStatus {
-                    case .paused:
-                        videoCoordinator.play()
+                switch player.timeControlStatus {
+                case .paused:
+                    videoCoordinator.play()
                     case .waitingToPlayAtSpecifiedRate:
                         break
                     case .playing:
