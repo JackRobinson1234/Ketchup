@@ -78,4 +78,6 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var geoPoint: GeoPoint?
     var privateMode: Bool
     
+    var notes: String?
+    
 }

@@ -158,10 +158,11 @@ struct ReelsUploadView: View {
 }
 
 struct CaptionBox: View {
-    
     @Binding var caption: String
     @Binding var isEditingCaption: Bool
+    var title: String = "Enter a caption..."
     let maxCharacters = 150
+    
     
     var body: some View {
         VStack {
@@ -179,7 +180,7 @@ struct CaptionBox: View {
                         }
                     
                     if caption.isEmpty {
-                        Text("Enter caption...")
+                        Text(title)
                             .foregroundColor(.gray)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 8)
@@ -254,11 +255,12 @@ struct FinalPhotoPreview: View {
 }
 
 struct CaptionEditorView: View {
-    
     @Binding var caption: String
     @Binding var isEditingCaption: Bool
     let maxCharacters = 150
     @FocusState var isFocused: Bool
+    var title: String = "Caption"
+
     
     var body: some View {
         VStack {
@@ -266,7 +268,7 @@ struct CaptionEditorView: View {
                 VStack {
                     
                     HStack() {
-                        Text("Caption")
+                        Text(title)
                             .fontWeight(.bold)
                         
                         Spacer()

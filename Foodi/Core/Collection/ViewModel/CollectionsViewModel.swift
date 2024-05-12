@@ -31,6 +31,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var dismissCollectionView: Bool = false
     @Published var post: Post?
     @Published var restaurant: Restaurant?
+    @Published var notes: String = ""
     
     init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.user = user
@@ -67,6 +68,7 @@ class CollectionsViewModel: ObservableObject {
         var item = collectionItem
         if let selectedCollection = self.selectedCollection {
             item.collectionId = selectedCollection.id
+            item.notes = notes
             try await CollectionService.shared.addItemToCollection(collectionItem: item)
             if !self.items.contains(item){
                 self.items.append(item)
@@ -227,6 +229,7 @@ class CollectionsViewModel: ObservableObject {
         self.items = []
         self.restaurant = nil
         self.post = nil
+        self.notes = ""
     }
     //MARK: clearEdits
     /// resets the variables to the original selectedCollection that hasn't been updated
@@ -239,6 +242,7 @@ class CollectionsViewModel: ObservableObject {
             self.coverImage = nil
             self.uiImage = nil
             self.deleteItems = []
+            self.notes = ""
         }
     }
     //MARK: saveEditedCollection

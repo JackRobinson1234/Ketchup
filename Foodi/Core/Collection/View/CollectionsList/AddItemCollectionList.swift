@@ -10,10 +10,11 @@ import SwiftUI
 struct AddItemCollectionList: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: CollectionsViewModel
+    @FocusState private var isCaptionEditorFocused: Bool
+    @State private var isEditingCaption = false
     let user: User
     var post: Post?
     var restaurant: Restaurant?
-    
     
     init(user: User, post: Post? = nil, restaurant: Restaurant? = nil) {
         self.user = user
@@ -23,24 +24,40 @@ struct AddItemCollectionList: View {
     }
     var body: some View {
         NavigationStack{
-            ScrollView{
-                VStack{
-                    if post != nil {
-                        if let item = viewModel.convertPostToCollectionItem() {
-                            CollectionItemCell(item: item)
-                                .padding()
+                    ZStack {
+                        ScrollView {
+                            VStack{
+                                if post != nil {
+                                    if let item = viewModel.convertPostToCollectionItem() {
+                                        CollectionItemCell(item: item)
+                                            .padding()
+                                    }
+                                }
+                                
+                                else if restaurant != nil {
+                                    if let item = viewModel.convertRestaurantToCollectionItem() {
+                                        CollectionItemCell(item: item)
+                                            .padding()
+                                    }
+                                }
+                                
+                                Button(action: {
+                                    self.isEditingCaption = true
+                                }) {
+                                    CaptionBox(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Add some notes...")
+                                }
+                                
+                                CollectionsListView(viewModel: viewModel)
+                                Spacer()
+                            }
                         }
+                    if isEditingCaption {
+                        CaptionEditorView(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Notes")
+                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                            .onAppear {
+                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                            }
                     }
-                    
-                    else if restaurant != nil {
-                        if let item = viewModel.convertRestaurantToCollectionItem() {
-                            CollectionItemCell(item: item)
-                                .padding()
-                        }
-                    }
-                    CollectionsListView(viewModel: viewModel)
-                    Spacer()
-                }
             }
             .onChange(of: viewModel.dismissListView) {
                 if viewModel.dismissListView {
