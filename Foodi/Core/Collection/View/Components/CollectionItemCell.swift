@@ -61,7 +61,7 @@ struct CollectionItemCell: View {
                 .padding(7)
                 }
         }
-        .frame(width: width, height: 200)
+        .frame(width: width, height: width + 25)
     }
 }
 

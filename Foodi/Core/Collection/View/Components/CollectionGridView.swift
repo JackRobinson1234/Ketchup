@@ -28,20 +28,21 @@ struct CollectionGridView: View {
                 }
         } else {
             VStack{
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3)], spacing: 3) {
                     //MARK: Add Item Button
                     if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid {
                         Button{
                             showAddItem.toggle()
                         } label: {
-                            AddItemCollectionButton()
+                            AddItemCollectionButton(width: (UIScreen.main.bounds.width / 3) - 5)
+                                .aspectRatio(1.0, contentMode: .fit)
                         }
                     }
                     //MARK: VGrid of Items
                     ForEach(collectionsViewModel.items, id: \.id) { item in
                         if item.postType == "restaurant" {
                             NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
-                                CollectionItemCell(item: item)
+                                CollectionItemCell(item: item , width: (UIScreen.main.bounds.width / 3) - 5)
                                     .aspectRatio(1.0, contentMode: .fit)
                             }
                         } else if item.postType == "atHome" {
@@ -52,13 +53,13 @@ struct CollectionGridView: View {
                                 }
                                 showPost.toggle()
                             } label: {
-                                CollectionItemCell(item: item)
+                                CollectionItemCell(item: item, width: (UIScreen.main.bounds.width / 3) - 5)
                                     .aspectRatio(1.0, contentMode: .fit)
                             }
                         }
                     }
-                    .padding(7)
                 }
+                .padding(3)
             }
             //MARK: Add Item Sheet
             .sheet(isPresented: $showAddItem) {

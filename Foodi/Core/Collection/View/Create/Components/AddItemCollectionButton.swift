@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct AddItemCollectionButton: View {
+    var width: CGFloat
     var body: some View {
         ZStack{
             Rectangle()
-                .frame(width: 190, height: 215) // Height of the caption background, same as the individual cells
+                .frame(width: width, height: width + 25) // Height of the caption background, same as the individual cells
                 .foregroundColor(Color.gray.opacity(0.1)) // Light yellow background with opacity
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             VStack{
@@ -23,5 +24,5 @@ struct AddItemCollectionButton: View {
 }
 
 #Preview {
-    AddItemCollectionButton()
+    AddItemCollectionButton(width : 20)
 }
