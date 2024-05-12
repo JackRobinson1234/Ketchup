@@ -39,7 +39,9 @@ struct User: Identifiable, Codable {
         self.profileImageUrl = profileImageUrl
         self.isFollowed = false
         self.stats = .init(following: 0, followers: 0, posts: 0, collections: 0)
-        self.favorites = Array(repeating: FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: ""), count: 4)
+        self.favorites = [
+            FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: ""),   FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: ""),   FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: ""),   FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: "")
+            ]
         self.privateMode = privateMode
     }
 }

@@ -17,6 +17,7 @@ struct CollectionView: View {
     @Environment(\.dismiss) var dismiss
     @State var showEditCollection: Bool = false
     @State var deletedCollection: Bool = false
+    @State private var showingOptionsSheet = false
     
     var body: some View {
         //MARK: Selecting Images
@@ -104,13 +105,30 @@ struct CollectionView: View {
                                     .padding()
                             }
                         }
-                        if collectionsViewModel.user.isCurrentUser{
+                        
                         ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                showEditCollection.toggle()
-                            } label: {
-                                Text("Edit")
-                                    .padding()
+                            if collectionsViewModel.user.isCurrentUser{
+                                Button {
+                                    showEditCollection.toggle()
+                                } label: {
+                                    Text("Edit")
+                                        .padding()
+                                }
+                            } else {
+                                Button {
+                                    showingOptionsSheet = true
+                                } label: {
+                                    ZStack{
+                                        Rectangle()
+                                            .fill(.clear)
+                                            .frame(width: 18, height: 14)
+                                        Image(systemName: "ellipsis")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 6, height: 6)
+                                            .foregroundStyle(.black)
+                                        
+                                    }
                                 }
                             }
                         }
@@ -124,6 +142,12 @@ struct CollectionView: View {
                                 }
                             }
                     }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
+                    .sheet(isPresented: $showingOptionsSheet) {
+                        if let selectedCollection = collectionsViewModel.selectedCollection {
+                            CollectionOptionsSheet(collection: selectedCollection)
+                                .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+                        }
+                    }
                 }
             }
         }

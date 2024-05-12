@@ -13,7 +13,6 @@ class CommentViewModel: ObservableObject {
     @Published var comments = [Comment]()
     @Published var commentText = ""
     @Published var showEmptyView = false
-    @Published var currentUser: User?
     
     @Binding var post: Post
     

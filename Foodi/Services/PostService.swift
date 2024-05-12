@@ -80,7 +80,7 @@ class PostService {
             /// - Parameter filters: dictionary of f filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
             /// - Returns: array of posts (that match filters)
         func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-            guard let currentUser = Auth.auth().currentUser else {
+            guard Auth.auth().currentUser != nil else {
                 throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
             }
             
@@ -237,5 +237,17 @@ extension PostService {
             }
         }
         return likedPosts
+    }
+    
+    //MARK: deletePost
+    func deletePost(_ post: Post) async throws -> Bool {
+        do {
+            try await FirestoreConstants.PostsCollection.document(post.id).delete()
+            print("Post deleted successfully")
+            return true
+        } catch {
+            print("Error deleting post: \(error.localizedDescription)")
+            return false
+        }
     }
 }

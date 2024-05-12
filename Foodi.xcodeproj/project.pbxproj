@@ -175,6 +175,12 @@
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 		F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */; };
 		F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */; };
+		F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35612BEFD97B0079DE6D /* Report.swift */; };
+		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
+		F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35662BF03AB20079DE6D /* Reporting View.swift */; };
+		F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */; };
+		F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */; };
+		F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 /* End PBXBuildFile section */
@@ -372,6 +378,12 @@
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySelectorView.swift; sourceTree = "<group>"; };
 		F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
+		F8FB35612BEFD97B0079DE6D /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
+		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
+		F8FB35662BF03AB20079DE6D /* Reporting View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reporting View.swift"; sourceTree = "<group>"; };
+		F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDeleteReport.swift; sourceTree = "<group>"; };
+		F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReportOption.swift; sourceTree = "<group>"; };
+		F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileReportView.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -449,6 +461,7 @@
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
+				F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -482,6 +495,7 @@
 			isa = PBXGroup;
 			children = (
 				F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */,
+				F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */,
 			);
 			path = CollectionView;
 			sourceTree = "<group>";
@@ -577,6 +591,7 @@
 				F88E0B222B6B0B9F00EC159B /* UserService.swift */,
 				F871CE022BCDBF56003C9BE8 /* CollectionService.swift */,
 				F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */,
+				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -592,6 +607,7 @@
 				F8BD81652BC6E9BA007C2CFC /* Collection.swift */,
 				F88E0AA32B6B034500EC159B /* Notification.swift */,
 				F89F28712BE3163C00E670E0 /* Activity.swift */,
+				F8FB35612BEFD97B0079DE6D /* Report.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -610,6 +626,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
@@ -977,6 +994,7 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */,
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
 				F88E0A912B6B023800EC159B /* FeedView.swift */,
@@ -1313,6 +1331,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		F8FB35652BF03A9A0079DE6D /* Reporting */ = {
+			isa = PBXGroup;
+			children = (
+				F8FB35662BF03AB20079DE6D /* Reporting View.swift */,
+			);
+			path = Reporting;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1637,7 +1663,9 @@
 				F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */,
 				F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
+				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
+				F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */,
 				F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */,
 				F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */,
 				F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */,
@@ -1662,7 +1690,9 @@
 				F88E0A832B6B00F600EC159B /* UserCircularImageProfileView.swift in Sources */,
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
+				F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
+				F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */,
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
 				F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
@@ -1688,6 +1718,7 @@
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
+				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
@@ -1710,6 +1741,7 @@
 				F801F1882BBDBE5700D3FBE2 /* PostTypeFilter.swift in Sources */,
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
+				F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */,
 				F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */,
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,
