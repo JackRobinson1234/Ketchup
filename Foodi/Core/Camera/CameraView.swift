@@ -32,7 +32,10 @@ struct CameraView: View {
                     .cornerRadius(10)
                     .environmentObject(cameraViewModel)
                     .onAppear { cameraViewModel.checkPermission() }
-                    .gesture(cameraViewModel.drag)
+                    .gesture(cameraViewModel.getDragStatus() ? cameraViewModel.drag : nil)
+                    .onTapGesture(count: 2) {
+                        cameraViewModel.toggleCamera()
+                    }
                 
                 if cameraViewModel.showFlashOverlay {
                     Color.white.opacity(0.5)
@@ -70,6 +73,21 @@ struct CameraView: View {
                     
                     
                     Spacer()
+                    
+                    
+                    ZStack {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 30, height: 30)
+                        
+                        // Write actual zoom level here
+                        Text("0.5x")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .blendMode(.destinationOut)
+                    }
+                    .padding(.bottom, 20)
+                    
                     
                     HStack {
                         Button {
@@ -146,7 +164,7 @@ struct CameraView: View {
                     .padding(.trailing)
                     .padding(.top, 35)
                 }
-                
+                .opacity(cameraViewModel.isRecording ? 0 : 1)
                 
                 
             }
@@ -202,13 +220,23 @@ struct VideoCameraControls: View {
                     cameraViewModel.reset()
                     uploadViewModel.reset()
                 } label: {
-                    Text("Delete")
-                        .frame(width: 100, height: 50)
-                        .background(.red)
-                        .cornerRadius(3.0)
-                        .foregroundColor(.white)
+                    Group {
+                        if cameraViewModel.isLoading{
+                            // DO NOTHING
+                        } else {
+                            Text("Delete")
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .frame(width: 70, height: 30)
+                    .cornerRadius(3)
+                    .background {
+                        Capsule()
+                            .fill(.red)
+                    }
                 }
-                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
+                .frame(width: 100)
+                .opacity((cameraViewModel.previewURL == nil || cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
                 
                 
                 // RECORD BUTTON
@@ -246,7 +274,7 @@ struct VideoCameraControls: View {
                     }
                 } label: {
                     Group{
-                        if cameraViewModel.previewURL == nil && !cameraViewModel.recordedURLs.isEmpty{
+                        if cameraViewModel.isLoading{
                             // Merging Videos
                             ProgressView()
                                 .tint(.black)
@@ -256,13 +284,13 @@ struct VideoCameraControls: View {
                                 Image(systemName: "chevron.right")
                                     .font(.callout)
                             } icon: {
-                                Text("Preview")
+                                Text("Next")
                             }
                             .foregroundColor(.black)
                         }
                     }
-                    .padding(.horizontal,10)
-                    .padding(.vertical,5)
+                    .frame(width: 70, height: 30)
+                    .cornerRadius(3)
                     .background {
                         Capsule()
                             .fill(.white)

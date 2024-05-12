@@ -208,19 +208,29 @@ struct FinalVideoPreview: View {
     var body: some View {
         
         if let url = uploadViewModel.videoURL {
-            let player = AVPlayer(url: url)
-            ZStack {
-                if uploadViewModel.fromInAppCamera {
-                    VideoPlayer(player: player, videoGravity: .resizeAspectFill)
-                        .onAppear {
-                            player.play()
-                        }
-                } else {
-                    VideoPlayer(player: player, videoGravity: .resizeAspect)
+                    let player = AVPlayer(url: url)
+                    ZStack {
+                        VideoPlayer(player: player, videoGravity: getVideoGravity())
+                            .onAppear {
+                                player.play()
+                                NotificationCenter.default.addObserver(
+                                    forName: .AVPlayerItemDidPlayToEndTime,
+                                    object: player.currentItem,
+                                    queue: .main
+                                ) { _ in
+                                    player.seek(to: .zero) { _ in
+                                        player.play()
+                                    }
+                                }
+                            }
+                    }
                 }
-            }
-        }
     }
+    
+    private func getVideoGravity() -> AVLayerVideoGravity {
+            return uploadViewModel.fromInAppCamera ? .resizeAspectFill : .resizeAspect
+        }
+    
 }
 
 
