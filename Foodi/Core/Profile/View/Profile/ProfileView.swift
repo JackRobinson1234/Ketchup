@@ -16,6 +16,7 @@ struct ProfileView: View {
         return profileViewModel.user
     }*/
     @State var profileSection: ProfileSectionEnum
+    @State private var showingOptionsSheet = false
     private let uid: String
 
 
@@ -54,6 +55,10 @@ struct ProfileView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingOptionsSheet) {
+                ProfileOptionsSheet(user: profileViewModel.user)
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+            }
             .task { await profileViewModel.checkIfUserIsFollowed() }
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
@@ -63,6 +68,25 @@ struct ProfileView: View {
                     } label: {
                         Image(systemName: "chevron.left")
                             .foregroundStyle(.black)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !profileViewModel.user.isCurrentUser {
+                        Button {
+                            showingOptionsSheet = true
+                        } label: {
+                            ZStack{
+                                Rectangle()
+                                    .fill(.clear)
+                                    .frame(width: 18, height: 14)
+                                Image(systemName: "ellipsis")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 5, height: 5)
+                                    .foregroundStyle(.black)
+                                
+                            }
+                        }
                     }
                 }
             }

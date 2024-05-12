@@ -304,6 +304,7 @@ class CollectionsViewModel: ObservableObject {
                 print("Collection with ID \(collection) not found.")
                 return
             }
+            AuthService.shared.userSession?.stats.collections -= 1
             let collection = collections[index]
             try await CollectionService.shared.deleteCollection(selectedCollection: collection)
             // Update the collections array and selectedCollection

@@ -179,6 +179,8 @@
 		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
 		F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35662BF03AB20079DE6D /* Reporting View.swift */; };
 		F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */; };
+		F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */; };
+		F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 /* End PBXBuildFile section */
@@ -381,6 +383,8 @@
 		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		F8FB35662BF03AB20079DE6D /* Reporting View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reporting View.swift"; sourceTree = "<group>"; };
 		F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDeleteReport.swift; sourceTree = "<group>"; };
+		F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReportOption.swift; sourceTree = "<group>"; };
+		F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileReportView.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -458,6 +462,7 @@
 				F88E0ABD2B6B051200EC159B /* ProfileHeaderView.swift */,
 				F88E0ABF2B6B052700EC159B /* ProfileView.swift */,
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
+				F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -491,6 +496,7 @@
 			isa = PBXGroup;
 			children = (
 				F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */,
+				F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */,
 			);
 			path = CollectionView;
 			sourceTree = "<group>";
@@ -1661,6 +1667,7 @@
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
 				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
+				F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */,
 				F88E0AB62B6B046C00EC159B /* EditProfileViewModel.swift in Sources */,
 				F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */,
 				F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */,
@@ -1713,6 +1720,7 @@
 				F871B00E2B91399C00E4EB5F /* Download Functionality.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
+				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,

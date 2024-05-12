@@ -243,7 +243,7 @@ struct FeedCell: View {
                                     Image(systemName: "ellipsis")
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(width: 8, height: 8)
+                                        .frame(width: 6, height: 6)
                                         .foregroundStyle(.white)
                                     
                                 }
