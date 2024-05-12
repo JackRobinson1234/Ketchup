@@ -23,7 +23,7 @@ struct ReelsUploadView: View {
     @State var showPostTypeMenu: Bool = true
  
     // POST TYPE OPTIONS
-    let postTypeOptions = ["At Home Post", "Going Out Post"]
+    let postTypeOptions = ["atHome", "restaurant"]
     
     var body: some View {
         
@@ -212,6 +212,9 @@ struct FinalVideoPreview: View {
             ZStack {
                 if uploadViewModel.fromInAppCamera {
                     VideoPlayer(player: player, videoGravity: .resizeAspectFill)
+                        .onAppear {
+                            player.play()
+                        }
                 } else {
                     VideoPlayer(player: player, videoGravity: .resizeAspect)
                 }
@@ -332,7 +335,7 @@ struct PostOptions: View {
     var body: some View {
         VStack {
             Divider()
-            if uploadViewModel.postType == "At Home Post" {
+            if uploadViewModel.postType == "atHome" {
       
                 Button {
                     isAddingRecipe = true
@@ -382,7 +385,7 @@ struct PostOptions: View {
                     
                     
                 }
-            } else if uploadViewModel.postType == "Going Out Post" {
+            } else if uploadViewModel.postType == "restaurant" {
                 if let restaurant = uploadViewModel.restaurant {
                     Button {
                         isPickingRestaurant = true
@@ -539,7 +542,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    uploadViewModel.postType = "At Home Post"
+                    uploadViewModel.postType = "atHome"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -550,7 +553,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                                     
-                        Text("At Home Post")
+                        Text("atHome")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }
@@ -561,7 +564,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    uploadViewModel.postType = "Going Out Post"
+                    uploadViewModel.postType = "restaurant"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -572,7 +575,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                         
-                        Text("Going Out Post")
+                        Text("restaurant")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }

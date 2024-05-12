@@ -34,6 +34,11 @@ struct CameraView: View {
                     .onAppear { cameraViewModel.checkPermission() }
                     .gesture(cameraViewModel.drag)
                 
+                if cameraViewModel.showFlashOverlay {
+                    Color.white.opacity(0.5)
+                        .cornerRadius(10)
+                }
+                
                 // MARK: CameraControls
                 ZStack {
                     if cameraViewModel.dragDirection == "left" {
@@ -61,17 +66,6 @@ struct CameraView: View {
 
                         Spacer()
                         
-                        Button(action: {
-                            cameraViewModel.toggleCamera()
-                        }) {
-                            Image(systemName: "camera.rotate")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                                .foregroundColor(.white)
-                        }
-                        .padding(.top, 35)
-                        .padding(.trailing)
                     }
                     
                     
@@ -113,6 +107,48 @@ struct CameraView: View {
                     
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
+                
+                HStack {
+                    
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        
+                        Button(action: {
+                            cameraViewModel.toggleCamera()
+                        }) {
+                            Image(systemName: "camera.rotate")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Button(action: {
+                            switch cameraViewModel.flashMode {
+                            case .off:
+                                cameraViewModel.flashMode = .on
+                            case .on:
+                                cameraViewModel.flashMode = .off
+                            default:
+                                cameraViewModel.flashMode = .off
+                            }
+                        }) {
+                            Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.trailing)
+                    .padding(.top, 35)
+                }
+                
+                
+                
             }
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
@@ -272,8 +308,8 @@ struct PhotoCameraControls: View {
                     Spacer()
                     
                     VStack {
-                        HStack(spacing: 0) {
-                            ForEach((0..<3).reversed(), id: \.self) { index in
+                        HStack(spacing: -30) {
+                            ForEach((0..<5).reversed(), id: \.self) { index in
                                 if index < cameraViewModel.images.count {
                                     Image(uiImage: cameraViewModel.images[cameraViewModel.images.count - 1 - index])
                                         .resizable()
@@ -297,7 +333,7 @@ struct PhotoCameraControls: View {
                             }
                         }
                         
-                        Text("\(cameraViewModel.images.count)/3")
+                        Text("\(cameraViewModel.images.count)/5")
                             .font(.subheadline)
                             .foregroundColor(.white)
                     }
@@ -327,12 +363,12 @@ struct PhotoCameraControls: View {
                     // TAKE PIC BUTTON
                     Button {
                         cameraViewModel.takePic()
-                        withAnimation {
-                            showFlash = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                showFlash = false
-                            }
-                        }
+//                        withAnimation {
+//                            showFlash = true
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//                                showFlash = false
+//                            }
+//                        }
                     } label: {
                         ZStack {
                             Circle()

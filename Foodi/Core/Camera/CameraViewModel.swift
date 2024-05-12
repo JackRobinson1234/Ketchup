@@ -49,8 +49,13 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var isDragging = false
     @Published var dragDirection = "left"
     
+    // USER CAMERA SETTINGS
     @Published var cameraPosition: CameraPosition = .back
-    
+    @Published var flashMode: AVCaptureDevice.FlashMode = .off
+    @Published var showFlashOverlay = false
+    @Published var originalBrightness: CGFloat? = nil
+
+
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
             .onChanged { _ in self.isDragging = true }
@@ -139,16 +144,17 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
     func startRecording() {
-        // MARK: Temporary URL for recording Video
-        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
-        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
         isRecording = true
+        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
+        configureFlash()  // Only configure flash if using the back camera
+        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
+
     }
 
-    
     func stopRecording() {
-        videoOutput.stopRecording()
         isRecording = false
+        configureFlash()  // Turn off the torch if it was on and we're using the back camera
+        videoOutput.stopRecording()
     }
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
@@ -159,26 +165,36 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         // CREATED SUCCESSFULLY
         self.recordedURLs.append(outputFileURL)
-        if self.recordedURLs.count == 1{
-            self.previewURL = outputFileURL
+        if self.recordedURLs.count == 1 {
+            // Create AVURLAsset from URL
+            let singleAsset = AVURLAsset(url: outputFileURL)
+
+            // Process single video with the asset
+            processSingleVideo(asset: singleAsset) { exporter in
+                exporter.exportAsynchronously {
+                    if exporter.status == .completed, let processedURL = exporter.outputURL {
+                        DispatchQueue.main.async {
+                            self.previewURL = processedURL
+                        }
+                    } else {
+                        print("Failed to process video: \(String(describing: exporter.error))")
+                    }
+                }
+            }
             return
         }
         
         // CONVERTING URLs TO ASSETS
-        let assets = recordedURLs.compactMap { url -> AVURLAsset in
-            return AVURLAsset(url: url)
-        }
+        let assets = recordedURLs.map { AVURLAsset(url: $0) }
         
-        self.previewURL = nil
         // MERGING VIDEOS
         mergeVideos(assets: assets) { exporter in
             exporter.exportAsynchronously {
-                if exporter.status == .failed{
+                if exporter.status == .failed {
                     // HANDLE ERROR
                     print(exporter.error!)
-                }
-                else{
-                    if let finalURL = exporter.outputURL{
+                } else {
+                    if let finalURL = exporter.outputURL {
                         print(finalURL)
                         DispatchQueue.main.async {
                             self.previewURL = finalURL
@@ -189,88 +205,94 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
     
-    func applyTransformToVideo(videoURL: URL, completion: @escaping (URL) -> Void) {
-        let asset = AVURLAsset(url: videoURL)
-        guard let videoTrack = asset.tracks(withMediaType: .video).first else {
-            print("Failed to find a video track in the asset")
+    func processSingleVideo(asset: AVURLAsset, completion: @escaping (_ exporter: AVAssetExportSession) -> ()) {
+        let composition = AVMutableComposition()
+        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
+              let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
+            print("Failed to add tracks to the composition")
             return
         }
-        
-        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-        var transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
-        transform = transform.rotated(by: CGFloat(Double.pi / 2))
 
+        // Add video track from asset
+        do {
+            let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
+            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+            try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: .zero)
+
+            // Check and add audio track if available
+            if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
+                try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: .zero)
+            }
+        } catch {
+            print("Error inserting time ranges: \(error)")
+            return
+        }
+
+        // Applying only vertical flip transformation
+        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        var transform = CGAffineTransform.identity
+        transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0) // Adjust for rotation
+        transform = transform.rotated(by: 90 * (.pi / 180)) // 90 degrees rotation
+        transform = transform.scaledBy(x: 1, y: -1) // Horizontal flip
+        transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height) // Adjust post-mirroring
         layerInstructions.setTransform(transform, at: .zero)
-        
+
         let instructions = AVMutableVideoCompositionInstruction()
         instructions.timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         instructions.layerInstructions = [layerInstructions]
-        
+
         let videoComposition = AVMutableVideoComposition()
-        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
         videoComposition.instructions = [instructions]
-        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
-        
-        guard let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
-            print("Could not create AVAssetExportSession")
+        videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
+
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Processed-\(Date()).mp4")
+        guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
+            print("Failed to create export session")
             return
         }
+
         exporter.outputFileType = .mp4
-        let transformedVideoURL = URL(fileURLWithPath: NSTemporaryDirectory() + "TransformedVideo-\(UUID().uuidString).mp4")
-        exporter.outputURL = transformedVideoURL
+        exporter.outputURL = tempURL
         exporter.videoComposition = videoComposition
-        
-        exporter.exportAsynchronously {
-            switch exporter.status {
-            case .completed:
-                print("Video transformation completed")
-                completion(transformedVideoURL)
-            case .failed:
-                print("Failed with error: \(String(describing: exporter.error))")
-            default:
-                print("Exporting failed")
-            }
-        }
+
+        completion(exporter)
     }
     
-    func mergeVideos(assets: [AVURLAsset],completion: @escaping (_ exporter: AVAssetExportSession)->()){
-        
-        let compostion = AVMutableComposition()
+    func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()){
+        let composition = AVMutableComposition()
         var lastTime: CMTime = .zero
         
-        guard let videoTrack = compostion.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else{return}
-        guard let audioTrack = compostion.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else{return}
+        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
+              let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
+            print("Failed to add tracks to the composition")
+            return
+        }
         
         for asset in assets {
-            // Linking Audio and Video
-            do{
-                try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: asset.tracks(withMediaType: .video)[0], at: lastTime)
-                // Safe Check if Video has Audio
-                if !asset.tracks(withMediaType: .audio).isEmpty{
-                    try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: asset.tracks(withMediaType: .audio)[0], at: lastTime)
+            do {
+                let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
+                let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+                
+                try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: lastTime)
+                
+                if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
+                    try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: lastTime)
                 }
+            } catch {
+                print("Error during composition: \(error)")
             }
-            catch{
-                // HANDLE ERROR
-                print(error.localizedDescription)
-            }
-            
-            // Updating Last Time
             lastTime = CMTimeAdd(lastTime, asset.duration)
         }
         
-        // MARK: Temp Output URL
-        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
-        
-        // VIDEO IS ROTATED
-        // BRINGING BACK TO ORIGNINAL TRANSFORM
-        
+        // Setting up the video composition with the correct transform
         let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-        
-        // MARK: Transform
         var transform = CGAffineTransform.identity
-        transform = transform.rotated(by: 90 * (.pi / 180))
-        transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height)
+        transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0) // Adjust for rotation
+        transform = transform.rotated(by: 90 * (.pi / 180)) // 90 degrees rotation
+        transform = transform.scaledBy(x: 1, y: -1) // Horizontal flip
+        transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height) // Adjust post-mirroring
+        
         layerInstructions.setTransform(transform, at: .zero)
         
         let instructions = AVMutableVideoCompositionInstruction()
@@ -278,37 +300,40 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         instructions.layerInstructions = [layerInstructions]
         
         let videoComposition = AVMutableVideoComposition()
-        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
         videoComposition.instructions = [instructions]
-        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
+        videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
         
-        guard let exporter = AVAssetExportSession(asset: compostion, presetName: AVAssetExportPresetHighestQuality) else{return}
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
+        guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
+            print("Failed to create export session")
+            return
+        }
+        
         exporter.outputFileType = .mp4
         exporter.outputURL = tempURL
         exporter.videoComposition = videoComposition
+        
         completion(exporter)
     }
     
     
     func takePic() {
-        
-        if images.count < 3 {
+        if images.count < 5 {
             DispatchQueue.global(qos:.background).async {
-                
-                self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+                let photoSettings = AVCapturePhotoSettings()
+                if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
+                    photoSettings.flashMode = self.flashMode
+                }
+                self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
             }
-        }
-        
-        
-        
-        if images.count >= 3 {
+        } else {
+            // Additional logic if needed
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
             }
         }
-
-        
     }
     
 
@@ -372,8 +397,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func toggleCamera() {
         cameraPosition = (cameraPosition == .back) ? .front : .back
-        let _ = print("IN TOGGLE: \(cameraPosition)")
+        
         setUp() // Reconfigure the session with the new camera
+        configureFlash()
     }
     
     func reset() {
@@ -389,6 +415,52 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         isDragging = false
         uploadFromLibray = false
     }
+    
+    
+    func configureFlash() {
+        guard let device = AVCaptureDevice.default(for: .video) else { return }
+
+        do {
+            try device.lockForConfiguration()
+
+            // Only manage the torch if using the back camera
+            if cameraPosition == .back {
+                if isRecording && flashMode == .on {
+                    device.torchMode = .on
+                } else {
+                    device.torchMode = .off
+                }
+                // Restore original brightness when using back camera
+                if let originalBrightness = originalBrightness {
+                    UIScreen.main.brightness = originalBrightness
+                    self.originalBrightness = nil // Reset the stored original brightness
+                }
+                showFlashOverlay = false
+            } else {
+                // Manage front camera settings
+                device.torchMode = .off  // Ensure torch is off for the front camera
+                if isRecording && flashMode == .on {
+                    if originalBrightness == nil { // Store the current brightness if not already stored
+                        originalBrightness = UIScreen.main.brightness
+                    }
+                    UIScreen.main.brightness = CGFloat(1.0)  // Maximize brightness
+                    showFlashOverlay = true
+                } else {
+                    if let originalBrightness = originalBrightness {
+                        UIScreen.main.brightness = originalBrightness // Restore original brightness
+                        self.originalBrightness = nil // Reset the stored original brightness
+                    }
+                    showFlashOverlay = false
+                }
+            }
+
+            device.unlockForConfiguration()
+        } catch {
+            print("Flash could not be configured: \(error)")
+        }
+    }
+
+
         
 }
 
