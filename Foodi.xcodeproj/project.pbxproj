@@ -177,6 +177,7 @@
 		F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */; };
 		F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35612BEFD97B0079DE6D /* Report.swift */; };
 		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
+		F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35662BF03AB20079DE6D /* Reporting View.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 /* End PBXBuildFile section */
@@ -377,6 +378,7 @@
 		F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 		F8FB35612BEFD97B0079DE6D /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
+		F8FB35662BF03AB20079DE6D /* Reporting View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reporting View.swift"; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -618,6 +620,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
@@ -1321,6 +1324,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		F8FB35652BF03A9A0079DE6D /* Reporting */ = {
+			isa = PBXGroup;
+			children = (
+				F8FB35662BF03AB20079DE6D /* Reporting View.swift */,
+			);
+			path = Reporting;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1671,6 +1682,7 @@
 				F88E0A832B6B00F600EC159B /* UserCircularImageProfileView.swift in Sources */,
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
+				F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
 				F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */,
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,

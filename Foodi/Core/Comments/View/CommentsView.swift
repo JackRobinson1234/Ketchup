@@ -40,7 +40,7 @@ struct CommentsView: View {
                 .padding(.bottom)
             
             HStack(spacing: 12) {
-                UserCircularProfileImageView(profileImageUrl: viewModel.currentUser?.profileImageUrl, size: .xSmall)
+                UserCircularProfileImageView(profileImageUrl: AuthService.shared.userSession?.profileImageUrl, size: .xSmall)
                 
                 CommentInputView(viewModel: viewModel)
             }
