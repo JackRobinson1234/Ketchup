@@ -178,11 +178,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
             print(error.localizedDescription)
-            return
-        }
-        
-        if isRecording {
-            // MERGE MULTIPLE SEGMENTS LOGIC
         }
         
         // CREATED SUCCESSFULLY
