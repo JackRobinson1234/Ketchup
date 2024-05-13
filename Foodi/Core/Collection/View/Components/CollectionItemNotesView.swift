@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ItemNotesView: View {
     var item: CollectionItem
+    var username: String
     @ObservedObject var viewModel: CollectionsViewModel
     var body: some View {
         VStack {
@@ -37,14 +38,19 @@ struct ItemNotesView: View {
                         .frame(width: 330)
                     
                     Divider()
-                    Text("Notes")
-                        .bold()
-                        .font(.title3)
                     if let notes = item.notes {
-                        Text(notes)
-                            .multilineTextAlignment(.leading)
-                            .padding([.bottom, .horizontal])
-                        
+                        HStack{
+                            VStack{
+                                Text("@\(username)'s notes: ")
+                                    .bold()
+                                    .font(.subheadline) +
+                                Text(notes)
+                                    .font(.subheadline)
+                            }
+                            Spacer()
+                        }
+                        .multilineTextAlignment(.leading)
+                        .padding([.bottom, .horizontal])
                     }
                 }
                 .padding(.bottom, 5)
@@ -59,5 +65,5 @@ struct ItemNotesView: View {
 }
 
 #Preview {
-    ItemNotesView(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    ItemNotesView(item: DeveloperPreview.items[0], username: "test", viewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }

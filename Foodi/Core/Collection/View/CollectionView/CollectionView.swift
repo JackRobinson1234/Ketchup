@@ -107,7 +107,7 @@ struct CollectionView: View {
                                         .padding()
                                 }
                             }
-                            
+                            //MARK: Edit
                             ToolbarItem(placement: .topBarTrailing) {
                                 if collectionsViewModel.user.isCurrentUser{
                                     Button {
@@ -137,8 +137,9 @@ struct CollectionView: View {
                         }
                     }
                 }
+                //MARK: Notes View
                 if let item = collectionsViewModel.notesPreview {
-                    ItemNotesView(item: item, viewModel: collectionsViewModel )
+                    ItemNotesView(item: item, username: collectionsViewModel.user.username, viewModel: collectionsViewModel )
                         .focused($isNotesFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isNotesFocused = true // Automatically focuses the TextEditor when it appears

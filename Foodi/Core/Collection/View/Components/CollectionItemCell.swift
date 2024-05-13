@@ -21,8 +21,8 @@ struct CollectionItemCell: View {
                     ZStack{
                         KFImage(URL(string: image))
                             .resizable()
-                            .frame(width: width, height: width)
                             .scaledToFill()
+                            .frame(width: width, height: width)
                             .offset(y: -25)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
@@ -37,6 +37,11 @@ struct CollectionItemCell: View {
                     
                 }
                 ZStack(alignment: .bottom){
+                    Rectangle()
+                        .frame(width: width, height: 70) // Height of the caption background
+                        .foregroundColor(.white) // Light yellow background with opacity
+                        .offset(y: 25)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     Rectangle()
                         .frame(width: width, height: 70) // Height of the caption background
                         .foregroundColor(item.postType == "restaurant" ? .gray.opacity(0.1): .blue.opacity(0.1)) // Light yellow background with opacity
