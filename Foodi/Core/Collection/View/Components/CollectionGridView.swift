@@ -16,6 +16,8 @@ struct CollectionGridView: View {
     @State var showAddItem = false
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State var isLoading = true
+    let width = (UIScreen.main.bounds.width / 3) - 5
+    let spacing: CGFloat = 3
     var body: some View {
         //MARK: Search Bar
         if isLoading {
@@ -28,34 +30,73 @@ struct CollectionGridView: View {
                 }
         } else {
             VStack{
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3), GridItem(.flexible(), spacing: 3)], spacing: 3) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing)], spacing: spacing) {
                     //MARK: Add Item Button
                     if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid {
                         Button{
                             showAddItem.toggle()
                         } label: {
-                            AddItemCollectionButton(width: (UIScreen.main.bounds.width / 3) - 5)
+                            AddItemCollectionButton(width: width)
                                 .aspectRatio(1.0, contentMode: .fit)
                         }
                     }
+                    
                     //MARK: VGrid of Items
+                    
                     ForEach(collectionsViewModel.items, id: \.id) { item in
                         if item.postType == "restaurant" {
-                            NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
-                                CollectionItemCell(item: item , width: (UIScreen.main.bounds.width / 3) - 5)
-                                    .aspectRatio(1.0, contentMode: .fit)
+                            ZStack{
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
+                                    CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
+                                        .aspectRatio(1.0, contentMode: .fit)
+                                }
+                                if let notes = item.notes, !notes.isEmpty {
+                                    Button {
+                                        collectionsViewModel.notesPreview = item
+                                    } label: {
+                                        Image(systemName: "line.3.horizontal")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 30)
+                                            .foregroundColor(.white)
+                                        
+                                            .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
+                                            .opacity(0.8)
+                                    }
+                                    .offset(x: width/2.8, y: -width/2.3 )
+                                }
                             }
                         } else if item.postType == "atHome" {
-                            Button{
-                                Task{
-                                    selectedPost = try await
-                                    PostService.shared.fetchPost(postId: item.id)
+                        
+                            ZStack{
+                                Button{
+                                    Task{
+                                        selectedPost = try await
+                                        PostService.shared.fetchPost(postId: item.id)
+                                    }
+                                    showPost.toggle()
+                                } label: {
+                                    CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
+                                        .aspectRatio(1.0, contentMode: .fit)
                                 }
-                                showPost.toggle()
-                            } label: {
-                                CollectionItemCell(item: item, width: (UIScreen.main.bounds.width / 3) - 5)
-                                    .aspectRatio(1.0, contentMode: .fit)
+                                if let notes = item.notes, !notes.isEmpty {
+                                    Button {
+                                        collectionsViewModel.notesPreview = item
+                                    } label: {
+                                        Image(systemName: "line.3.horizontal")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 30)
+                                            .foregroundColor(.white)
+                                        
+                                            .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
+                                            .opacity(0.8)
+                                    }
+                                    .offset(x: width/2.8, y: -width/2.3 )
+                                }
+                            
                             }
+                            
                         }
                     }
                 }

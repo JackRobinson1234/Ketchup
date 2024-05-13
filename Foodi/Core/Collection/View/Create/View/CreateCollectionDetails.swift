@@ -43,13 +43,13 @@ struct CreateCollectionDetails: View {
                         //MARK: Item Preview if theres an item
                         if let item = collectionsViewModel.convertPostToCollectionItem() {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                                CollectionItemCell(item: item)
+                                CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
                             }
                             .padding(.top)
                             //Restaurant preview
                         } else if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                                CollectionItemCell(item: item)
+                                CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
                             }
                             .padding(.top)
                             

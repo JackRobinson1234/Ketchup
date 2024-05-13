@@ -21,7 +21,6 @@ struct ReelsUploadView: View {
     @State var isPickingRestaurant = false
     @State var isAddingRecipe = false
     @State var showPostTypeMenu: Bool = true
- 
     // POST TYPE OPTIONS
     let postTypeOptions = ["restaurant", "atHome"]
     

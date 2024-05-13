@@ -32,6 +32,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var post: Post?
     @Published var restaurant: Restaurant?
     @Published var notes: String = ""
+    @Published var notesPreview: CollectionItem?
     
     init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.user = user

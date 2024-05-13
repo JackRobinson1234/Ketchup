@@ -179,7 +179,8 @@ struct DeveloperPreview {
                 name: "Pasta Carbonara",
                 image: "https://picsum.photos/200/300",
                 postUserFullname: "Will Bond"
-                ,privateMode: false
+                ,privateMode: false,
+                notes: "asfdasflhljhljbljhbkjbjlhblbljhblhjbbjhbhjlbhjlbkhjbhjghvhvkhgvkjhgvkghvjkbljbjlhbjhbd"
             ),
             .init(
                 collectionId: "af",
@@ -190,7 +191,8 @@ struct DeveloperPreview {
                 city: "Hermosa Beach",
                 state: "CA",
                 geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876)
-                ,privateMode: false
+                ,privateMode: false,
+                notes: ""
             )
         ]
     static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: "atHome")

@@ -57,7 +57,7 @@ struct EditCollectionView: View {
                                 //if collection.uid == Auth.auth().currentUser?.uid{
                                 ForEach(itemsPreview, id: \.id) { item in
                                     VStack{
-                                        CollectionItemCell(item: item)
+                                        CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
                                             .aspectRatio(1.0, contentMode: .fit)
                                         Button{
                                             if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {

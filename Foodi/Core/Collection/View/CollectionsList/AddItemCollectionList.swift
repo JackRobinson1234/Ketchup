@@ -29,14 +29,14 @@ struct AddItemCollectionList: View {
                             VStack{
                                 if post != nil {
                                     if let item = viewModel.convertPostToCollectionItem() {
-                                        CollectionItemCell(item: item)
+                                        CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
                                             .padding()
                                     }
                                 }
                                 
                                 else if restaurant != nil {
                                     if let item = viewModel.convertRestaurantToCollectionItem() {
-                                        CollectionItemCell(item: item)
+                                        CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
                                             .padding()
                                     }
                                 }

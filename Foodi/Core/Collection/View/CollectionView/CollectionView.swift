@@ -18,121 +18,134 @@ struct CollectionView: View {
     @State var showEditCollection: Bool = false
     @State var deletedCollection: Bool = false
     @State private var showingOptionsSheet = false
+    @FocusState private var isNotesFocused: Bool
     
     var body: some View {
         //MARK: Selecting Images
         NavigationStack{
-            ScrollView{
-                if let collection = collectionsViewModel.selectedCollection {
-                    VStack{
-                        //MARK: Cover Image
-                        if let imageUrl = collection.coverImageUrl  {
-                            KFImage(URL(string: imageUrl))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 200, height: 200)
-                                .clipShape(Rectangle())
-                                .cornerRadius(10)
-                        } else {
-                            Image(systemName: "folder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                        }
-                        //MARK: Title
-                        Text(collection.name)
-                            .font(.title)
-                            .bold()
-                        //MARK: UserName
-                        Text("by: @\(collection.username)")
-                            .font(.title3)
-                        if let description = collection.description {
-                            Text(description)
-                                .font(.subheadline)
-                        }
-                        // MARK: Grid View
-                        HStack(spacing: 0) {
-                            Image(systemName: currentSection == .grid ? "square.grid.2x2.fill" : "square.grid.2x2")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 50, height: 20)
-                            
-                                .onTapGesture {
-                                    withAnimation {
-                                        self.currentSection = .grid
+            ZStack{
+                ScrollView(showsIndicators: false){
+                    if let collection = collectionsViewModel.selectedCollection {
+                        VStack{
+                            //MARK: Cover Image
+                            if let imageUrl = collection.coverImageUrl  {
+                                KFImage(URL(string: imageUrl))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 200, height: 200)
+                                    .clipShape(Rectangle())
+                                    .cornerRadius(10)
+                            } else {
+                                Image(systemName: "folder")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                            }
+                            //MARK: Title
+                            Text(collection.name)
+                                .font(.title)
+                                .bold()
+                            //MARK: UserName
+                            Text("by: @\(collection.username)")
+                                .font(.title3)
+                            if let description = collection.description {
+                                Text(description)
+                                    .font(.subheadline)
+                            }
+                            // MARK: Grid View
+                            HStack(spacing: 0) {
+                                Image(systemName: currentSection == .grid ? "square.grid.2x2.fill" : "square.grid.2x2")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 50, height: 20)
+                                
+                                    .onTapGesture {
+                                        withAnimation {
+                                            self.currentSection = .grid
+                                        }
                                     }
-                                }
-                                .modifier(UnderlineImageModifier(isSelected: currentSection == .grid))
-                                .frame(maxWidth: .infinity)
-                            
-                            //MARK: Location View
-                            Image(systemName: currentSection == .map ? "location.fill" : "location")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 50, height: 22)
-                            
-                                .onTapGesture {
-                                    withAnimation {
-                                        self.currentSection = .map
+                                    .modifier(UnderlineImageModifier(isSelected: currentSection == .grid))
+                                    .frame(maxWidth: .infinity)
+                                
+                                //MARK: Location View
+                                Image(systemName: currentSection == .map ? "location.fill" : "location")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 50, height: 22)
+                                
+                                    .onTapGesture {
+                                        withAnimation {
+                                            self.currentSection = .map
+                                        }
                                     }
-                                }
-                                .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
-                                .frame(maxWidth: .infinity)
-                        }
-                        .padding()
-                        // MARK: Section Logic
-                        if currentSection == .map {
-                            CollectionMapView(collectionsViewModel: collectionsViewModel)
-                            
-                        }
-                        if currentSection == .grid {
-                            CollectionGridView(collectionsViewModel: collectionsViewModel)
-                        }
-                    }
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                collectionsViewModel.resetViewModel()
-                                dismiss()
-                            } label: {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(.white)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                            .frame(width: 30, height: 30) // Adjust the size as needed
-                                    )
-                                    .padding()
+                                    .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .padding()
+                            // MARK: Section Logic
+                            if currentSection == .map {
+                                CollectionMapView(collectionsViewModel: collectionsViewModel)
+                                
+                            }
+                            if currentSection == .grid {
+                                CollectionGridView(collectionsViewModel: collectionsViewModel)
                             }
                         }
-                        
-                        ToolbarItem(placement: .topBarTrailing) {
-                            if collectionsViewModel.user.isCurrentUser{
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
                                 Button {
-                                    showEditCollection.toggle()
+                                    collectionsViewModel.resetViewModel()
+                                    dismiss()
                                 } label: {
-                                    Text("Edit")
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                                .frame(width: 30, height: 30) // Adjust the size as needed
+                                        )
                                         .padding()
                                 }
-                            } else {
-                                Button {
-                                    showingOptionsSheet = true
-                                } label: {
-                                    ZStack{
-                                        Rectangle()
-                                            .fill(.clear)
-                                            .frame(width: 18, height: 14)
-                                        Image(systemName: "ellipsis")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 6, height: 6)
-                                            .foregroundStyle(.black)
-                                        
+                            }
+                            
+                            ToolbarItem(placement: .topBarTrailing) {
+                                if collectionsViewModel.user.isCurrentUser{
+                                    Button {
+                                        showEditCollection.toggle()
+                                    } label: {
+                                        Text("Edit")
+                                            .padding()
+                                    }
+                                } else {
+                                    Button {
+                                        showingOptionsSheet = true
+                                    } label: {
+                                        ZStack{
+                                            Rectangle()
+                                                .fill(.clear)
+                                                .frame(width: 18, height: 14)
+                                            Image(systemName: "ellipsis")
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 6, height: 6)
+                                                .foregroundStyle(.black)
+                                            
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                if let item = collectionsViewModel.notesPreview {
+                    ItemNotesView(item: item, viewModel: collectionsViewModel )
+                        .focused($isNotesFocused) // Connects the focus state to the editor view
+                        .onAppear {
+                            isNotesFocused = true // Automatically focuses the TextEditor when it appears
+                    }
+                }
+                
+            }
                     .sheet(isPresented: $showEditCollection) {
                         EditCollectionView(collectionsViewModel: collectionsViewModel)
                             .onDisappear {
@@ -140,6 +153,7 @@ struct CollectionView: View {
                                     collectionsViewModel.dismissCollectionView = false
                                     dismiss()
                                 }
+                            
                             }
                     }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
                     .sheet(isPresented: $showingOptionsSheet) {
@@ -148,8 +162,8 @@ struct CollectionView: View {
                                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
                         }
                     }
-                }
-            }
+                
+            
         }
     }
 }
