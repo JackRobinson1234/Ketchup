@@ -7,7 +7,7 @@
 import SwiftUI
 import Kingfisher
 
-struct RecipeView: View {
+struct OldRecipeView: View {
     var post: Post
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -154,5 +154,5 @@ struct RecipeView: View {
     }
 }
 #Preview {
-    RecipeView(post: DeveloperPreview.posts[1])
+    OldRecipeView(post: DeveloperPreview.posts[1])
 }

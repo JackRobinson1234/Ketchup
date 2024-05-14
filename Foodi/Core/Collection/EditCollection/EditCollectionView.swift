@@ -15,7 +15,9 @@ struct EditCollectionView: View {
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
     @State private var itemsPreview: [CollectionItem] // Define itemsPreview state
-
+    @State var selectedItem: CollectionItem?
+    let width = (UIScreen.main.bounds.width / 3) - 5
+    let spacing: CGFloat = 3
         init(collectionsViewModel: CollectionsViewModel) {
             self.collectionsViewModel = collectionsViewModel
             _itemsPreview = State(initialValue: collectionsViewModel.items)
@@ -53,12 +55,28 @@ struct EditCollectionView: View {
                                 TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
                             }
                             // MARK: Items
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing)], spacing: spacing) {
                                 //if collection.uid == Auth.auth().currentUser?.uid{
                                 ForEach(itemsPreview, id: \.id) { item in
                                     VStack{
-                                        CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
+                                        CollectionItemCell(item: item, width: width, previewMode: true, viewModel: collectionsViewModel)
                                             .aspectRatio(1.0, contentMode: .fit)
+                                            .overlay(
+                                                Button{
+                                                    self.selectedItem = item
+                                                } label: {
+                                                    Image(systemName: "square.and.pencil")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 30)
+                                                        .foregroundColor(.white)
+                                                    
+                                                        .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
+                                                        .opacity(0.8)
+                                                
+                                                }
+                                                    .offset(x: width/2.8, y: -width/2.3 )
+                                            )
                                         Button{
                                             if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {
                                                 itemsPreview.remove(at: index)
@@ -94,6 +112,9 @@ struct EditCollectionView: View {
                             .onAppear {
                                 isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
                             }
+                    }
+                    if selectedItem != nil {
+                        EditNotesView(item: $selectedItem, viewModel: collectionsViewModel, itemsPreview: $itemsPreview)
                     }
                 }
             .navigationBarTitleDisplayMode(.inline)

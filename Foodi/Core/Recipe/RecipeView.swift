@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct JoeRecipeView: View {
+struct RecipeView: View {
     
     @StateObject var uploadViewModel = UploadViewModel()
     @State var showAddRecipe: Bool = false
@@ -629,5 +629,5 @@ struct NewEditDietaryRestrictionsView: View {
 }
 
 #Preview {
-    JoeRecipeView()
+    RecipeView()
 }

@@ -13,32 +13,38 @@ enum CollectionItemOption {
 struct ItemSelectorView: View {
     @State var collectionItemOption: CollectionItemOption = .restaurants
     @ObservedObject var collectionsViewModel: CollectionsViewModel
+    @State var selectedItem: CollectionItem?
     var body: some View {
         NavigationStack{
-            VStack{
-                HStack(spacing: 30) {
-                    Text("Restaurant")
-                        .onTapGesture {
-                            withAnimation {
-                                self.collectionItemOption = .restaurants
+            ZStack{
+                VStack{
+                    HStack(spacing: 30) {
+                        Text("Restaurant")
+                            .onTapGesture {
+                                withAnimation {
+                                    self.collectionItemOption = .restaurants
+                                }
                             }
-                        }
-                        .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .restaurants))
-                    //.frame(maxWidth: .infinity)
-                    
-                    Text("At Home")
-                        .onTapGesture {
-                            withAnimation {
-                                self.collectionItemOption = .atHome
+                            .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .restaurants))
+                        //.frame(maxWidth: .infinity)
+                        
+                        Text("At Home")
+                            .onTapGesture {
+                                withAnimation {
+                                    self.collectionItemOption = .atHome
+                                }
                             }
-                        }
-                        .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .atHome))
-                    //.frame(maxWidth: .infinity)
-                    
+                            .modifier(UnderlineImageModifier(isSelected: collectionItemOption == .atHome))
+                        //.frame(maxWidth: .infinity)
+                        
+                    }
+                    .padding(.bottom)
+                    if collectionItemOption == .restaurants {
+                        CollectionRestaurantSearch(collectionsViewModel: collectionsViewModel, selectedItem: $selectedItem)
+                    }
                 }
-                .padding(.bottom)
-                if collectionItemOption == .restaurants {
-                    CollectionRestaurantSearch(collectionsViewModel: collectionsViewModel)
+                if selectedItem != nil {
+                    AddNotesView(item: $selectedItem, viewModel: collectionsViewModel)
                 }
             }
         }

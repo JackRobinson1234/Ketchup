@@ -164,5 +164,53 @@
             landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CB4E327A-1D41-4B6E-B783-96D602229ABC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Foodi/Core/Collection/View/Create/Components/CollectionRestaurantSearch.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "CB4E327A-1D41-4B6E-B783-96D602229ABC - 25966f96494bdc85"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #4 () -&gt; () in Foodi.CollectionRestaurantSearch.body.getter : some"
+                  moduleName = "Foodi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Foodi/Foodi/Core/Collection/View/Create/Components/CollectionRestaurantSearch.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "47"
+                  endingLineNumber = "47"
+                  offsetFromSymbolStart = "100">
+               </Location>
+               <Location
+                  uuid = "CB4E327A-1D41-4B6E-B783-96D602229ABC - 25966f96494bdc85"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #4 () -&gt; () in Foodi.CollectionRestaurantSearch.body.getter : some"
+                  moduleName = "Foodi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Foodi/Foodi/Core/Collection/View/Create/Components/CollectionRestaurantSearch.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "47"
+                  endingLineNumber = "47"
+                  offsetFromSymbolStart = "120">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

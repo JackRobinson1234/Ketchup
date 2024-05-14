@@ -20,7 +20,6 @@ class CollectionsViewModel: ObservableObject {
     }
     @Published var coverImage: Image?
     @Published var isLoading: Bool = false
-    @Published var updateItems = false
     private var uiImage: UIImage?
     @Published var editTitle = ""
     @Published var editDescription = ""
@@ -33,6 +32,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var restaurant: Restaurant?
     @Published var notes: String = ""
     @Published var notesPreview: CollectionItem?
+    @Published var editItems: [CollectionItem] = []
     
     init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.user = user
@@ -70,6 +70,7 @@ class CollectionsViewModel: ObservableObject {
         if let selectedCollection = self.selectedCollection {
             item.collectionId = selectedCollection.id
             item.notes = notes
+            self.notes = ""
             try await CollectionService.shared.addItemToCollection(collectionItem: item)
             if !self.items.contains(item){
                 self.items.append(item)
@@ -170,6 +171,25 @@ class CollectionsViewModel: ObservableObject {
         }
         return nil
     }
+    func convertRestaurantToCollectionItem(restaurant: Restaurant) -> CollectionItem {
+            var collectionItem = CollectionItem(
+                collectionId: "",
+                id: restaurant.id,
+                postType: "restaurant",
+                name: restaurant.name,
+                image: restaurant.profileImageUrl,
+                city: restaurant.city,
+                state: restaurant.state,
+                geoPoint: restaurant.geoPoint,
+                privateMode: user.privateMode
+            )
+            if let geopoint = restaurant.geoPoint{
+                collectionItem.geoPoint = geopoint
+            } else if let geoLoc = restaurant._geoloc {
+                collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+            }
+            return collectionItem
+    }
     //MARK: loadImage
     
     /// Loads an image selected from the photopicker, puts it into self.uiImage. Self.coverImage is only shown when there is a new image, if the user doesnt interact with the cover photo, no cover image will be present. selectedImage is the actual photo that the user selects from photopicker, which we reset to nil after its selected, so there is no memory on the system of what photo is selected.
@@ -231,6 +251,7 @@ class CollectionsViewModel: ObservableObject {
         self.restaurant = nil
         self.post = nil
         self.notes = ""
+        self.editItems = []
     }
     //MARK: clearEdits
     /// resets the variables to the original selectedCollection that hasn't been updated
@@ -244,6 +265,7 @@ class CollectionsViewModel: ObservableObject {
             self.uiImage = nil
             self.deleteItems = []
             self.notes = ""
+            self.editItems = []
         }
     }
     //MARK: saveEditedCollection
@@ -288,9 +310,23 @@ class CollectionsViewModel: ObservableObject {
                         }
                     }
                     self.items = self.items.filter { !self.deleteItems.contains($0) }
-                    updateItems = true
                 }
                 
+                if  !self.editItems.isEmpty {
+                    for item in self.editItems {
+                        try await CollectionService.shared.addItemToCollection(collectionItem: item)
+                    }
+                    let editItemsDict = Dictionary(uniqueKeysWithValues: self.editItems.map { ($0.id, $0) })
+
+                        // Replace items in self.items with items from editItems if they have the same ID
+                        self.items = self.items.map { item in
+                            if let updatedItem = editItemsDict[item.id] {
+                                return updatedItem
+                            } else {
+                                return item
+                            }
+                        }
+                }
                 if changed{
                     try await FirestoreConstants.CollectionsCollection.document(collection.id).updateData(data)
                     print("ran collections update")

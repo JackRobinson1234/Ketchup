@@ -8,36 +8,26 @@
 import SwiftUI
 import InstantSearchSwiftUI
 struct CollectionRestaurantSearch: View {
-    @StateObject var viewModel: RestaurantListViewModel
+    @StateObject var viewModel = RestaurantListViewModel()
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var debouncer = Debouncer(delay: 1.0)
-    
-    init(collectionsViewModel: CollectionsViewModel) {
-        self._viewModel = StateObject(wrappedValue: RestaurantListViewModel())
-        self.collectionsViewModel = collectionsViewModel
-    }
+    @Binding var selectedItem: CollectionItem?
+
     
     var body: some View {
         InfiniteList(viewModel.hits, itemView: { hit in
             Button{
-                let restaurant = hit.object
-                collectionsViewModel.restaurant = restaurant
-                if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
-                    Task{
-                        print(item)
-                        try await collectionsViewModel.addItemToCollection(collectionItem: item)
-                        dismiss()
-                    }
+                selectedItem = collectionsViewModel.convertRestaurantToCollectionItem(restaurant: hit.object)} label: {
+                    RestaurantCell(restaurant: hit.object)
+                        .padding(.leading)
                 }
-            } label :{
-                RestaurantCell(restaurant: hit.object)
-                    .padding(.leading)
-            }
             Divider()
         }, noResults: {
             Text("No results found")
         })
+        
+        
         .navigationTitle("Add to Collection")
         .searchable(text: $viewModel.searchQuery,
                     prompt: "Search")
@@ -55,6 +45,13 @@ struct CollectionRestaurantSearch: View {
         .onChange(of: viewModel.searchQuery) {
             debouncer.schedule {
                 viewModel.notifyQueryChanged()
+            }
+        }
+        .onAppear{
+            if collectionsViewModel.dismissListView {
+                collectionsViewModel.dismissListView = false
+                dismiss()
+                
             }
         }
     }

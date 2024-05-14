@@ -343,10 +343,10 @@ struct FeedCell: View {
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                     .onDisappear{Task {videoCoordinator.play()}}
             }
-            .sheet(isPresented: $showRecipe) {
-                RecipeView(post: post)
-                    .onDisappear{Task {videoCoordinator.play()}}
-            }
+//            .sheet(isPresented: $showRecipe) {
+//                RecipeView(post: post)
+//                    .onDisappear{Task {videoCoordinator.play()}}
+//            }
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {
                     AddItemCollectionList(user: currentUser, post: post)

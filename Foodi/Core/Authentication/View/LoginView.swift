@@ -138,8 +138,9 @@ struct LoginView: View {
                 } label: {
                     Image("Google-SignIn")
                         .resizable()
-                        .scaledToFill()
                         .frame(width: 30, height: 50, alignment: .center)
+                        .scaledToFill()
+                        
                 }
                 Spacer()
                 if let reAuthDelete = reAuthDelete, !reAuthDelete {
