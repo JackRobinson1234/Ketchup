@@ -351,22 +351,37 @@ struct PhotoCameraControls: View {
                                 if index < cameraViewModel.images.count {
                                     Image(uiImage: cameraViewModel.images[cameraViewModel.images.count - 1 - index])
                                         .resizable()
-                                        .frame(width: 30, height: 45)
+                                        .scaledToFill()
+                                        .frame(width: 31.2, height: 45)
                                         .clipShape(RoundedRectangle(cornerRadius: 5))
                                         .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
                                         .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
                                 } else {
-                                    Rectangle()
-                                        .fill(Color.gray)
-                                        .frame(width: 30, height: 45)
-                                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                                        .overlay(
-                                            Text("+")
-                                                .font(.system(size: 20))
-                                                .foregroundColor(.white)
-                                        )
-                                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                        .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    if cameraViewModel.isLoading && index == 0 {
+                                        Rectangle()
+                                            .fill(Color.gray)
+                                            .frame(width: 31.2, height: 45)
+                                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                                            .overlay(
+                                                ProgressView()
+                                                    .tint(.white)
+                                            )
+                                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    } else {
+                                        Rectangle()
+                                            .fill(Color.gray)
+                                            .frame(width: 31.2, height: 45)
+                                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                                            .overlay(
+                                                Text("+")
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(.white)
+                                            )
+                                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    }
+                                    
                                 }
                             }
                         }

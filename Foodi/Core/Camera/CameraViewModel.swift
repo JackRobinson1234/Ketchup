@@ -320,6 +320,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                         }
                     }
                 }
+                self.isLoading = true
                 self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
             }
         } else {
@@ -373,6 +374,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
 
         DispatchQueue.main.async {
+            self.isLoading = false
             self.images.append(adjustedImage)
             self.isPhotoTaken = true
         }
@@ -399,7 +401,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
 
         // Stop recording with the current camera
-        
+      
         stopRecordingForNewCam()
         
         switchCameraInput()
