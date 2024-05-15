@@ -32,7 +32,6 @@ class FeedViewModel: ObservableObject {
         videoCoordinator = VideoPlayerCoordinator()
         self._scrollPosition = scrollPosition
 
-
     }
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
@@ -179,4 +178,24 @@ extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
         }
+}
+
+extension FeedViewModel {
+    // MARK: - Delete Post
+    /// Deletes a post using PostService and removes it from the posts array
+    /// - Parameter post: The post object to be deleted
+    func deletePost(post: Post) async {
+        do {
+            // Delete the post using PostService
+            let success = try await PostService.shared.deletePost(post)
+            
+            // Remove the post from the posts array
+            
+            if let index = posts.firstIndex(where: { $0.id == post.id }) {
+                posts.remove(at: index)
+            }
+        } catch {
+            print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
+        }
+    }
 }

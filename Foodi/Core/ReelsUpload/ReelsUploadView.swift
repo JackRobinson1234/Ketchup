@@ -575,6 +575,7 @@ struct PostTypeMenuView: View {
                 
                 Button(action: {
                     uploadViewModel.postType = "restaurant"
+
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -584,7 +585,7 @@ struct PostTypeMenuView: View {
                             .frame(height: 40)
                             .foregroundColor(.black)
                             .opacity(0.6)
-                        
+
                         Text("restaurant")
                             .font(.subheadline)
                             .foregroundColor(.black)

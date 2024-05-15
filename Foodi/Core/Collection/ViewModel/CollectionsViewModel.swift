@@ -104,6 +104,7 @@ class CollectionsViewModel: ObservableObject {
                     name: post.caption,
                     image: post.thumbnailUrl,
                     postUserFullname: post.user.fullname,
+                    postUserId: post.user.id,
                     privateMode: user.privateMode
                 )
                 return collectionItem
@@ -303,6 +304,7 @@ class CollectionsViewModel: ObservableObject {
                 print("Collection with ID \(collection) not found.")
                 return
             }
+            AuthService.shared.userSession?.stats.collections -= 1
             let collection = collections[index]
             try await CollectionService.shared.deleteCollection(selectedCollection: collection)
             // Update the collections array and selectedCollection

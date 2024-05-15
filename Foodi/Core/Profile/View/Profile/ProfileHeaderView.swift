@@ -24,9 +24,7 @@ struct ProfileHeaderView: View {
        let user = viewModel.user
             VStack(spacing: 16) {
                 HStack(spacing: 15) {
-                    VStack(spacing: 8) {
                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
-                    }
                     
                     VStack(alignment: .leading){
                         Text("\(user.fullname)")
