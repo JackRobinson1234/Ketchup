@@ -22,14 +22,13 @@ class FeedViewModel: ObservableObject {
     var videoCoordinator = VideoPlayerCoordinator()
     private var currentFeedType: FeedType = .discover // default
     var isContainedInTabBar = true
-    
-    
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
-    private var isFetching = false
-    private let pageSize = 6
+    @State var isFetching = false
+    private let pageSize = 5
     private let fetchingThreshold = -3
-    
+    private var filters: [String: [Any]]? = [:]
+    @State var maxFetched: Bool = false
     
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.posts = posts
@@ -40,22 +39,27 @@ class FeedViewModel: ObservableObject {
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
+        maxFetched = false
+        self.filters = filters
         isLoading = true
         await fetchPosts(withFilters: filters, isInitialLoad: true)
         isLoading = false
+        
     }
     
-    func fetchMorePosts(withFilters filters: [String: [Any]]? = nil) async {
+    func fetchMorePosts() async {
         guard !isFetching else { return }
         isFetching = true
-        await fetchPosts(withFilters: filters, isInitialLoad: false)
+        await fetchPosts(withFilters: self.filters, isInitialLoad: false)
         isFetching = false
     }
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
+        if maxFetched {
+            return
+        }
         do {
-
             var updatedFilters = filters ?? [:]
             updatedFilters["user.privateMode"] = [false]
             
@@ -68,8 +72,6 @@ class FeedViewModel: ObservableObject {
             self.lastDocument = lastDoc
             self.posts.append(contentsOf: newPosts)
             self.showEmptyView = self.posts.isEmpty
-            
-            
             await checkIfUserLikedPosts()
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
@@ -194,21 +196,29 @@ extension FeedViewModel {
         
         posts = copy
     }
-    func loadMoreContentIfNeeded(currentPost: String?) {
-            guard let currentPost = currentPost, let lastFetchedDocumentID = lastFetchedDocumentID else { return }
+    func loadMoreContentIfNeeded(currentPost: String?) async {
+            guard let currentPost = currentPost else { return }
 
             let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
-//            if posts.firstIndex(where: { $0.id == currentPost }) == thresholdIndex {
+            if posts.firstIndex(where: { $0.id == currentPost }) == thresholdIndex {
                 
-                    Task {
+                    
                         print("Fetching more posts")
                         await fetchMorePosts()
-                    }
+                    
 //                } else {
 //                    print("Already fetched this batch")
-//                }
+               }
         }
+    func isLastItem(_ post: Post) -> Bool {
+        guard let lastPost = posts.last else {
+            return false
+        }
+        return post.id == lastPost.id
+    }
 }
+
+
 
 extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {

@@ -22,25 +22,33 @@ struct FeedGridView: View {
     
     var body: some View {
         if !viewModel.posts.isEmpty{
-            LazyVGrid(columns: items, spacing: 2) {
-                ///Three blanks to start it lower
-                Color.clear
-                    .frame(width: width, height: 160)
-                Color.clear
-                    .frame(width: width, height: 160)
-                Color.clear
-                    .frame(width: width, height: 160)
-                
-                ForEach(viewModel.posts) { post in
-                    KFImage(URL(string: post.thumbnailUrl))
-                        .resizable()
-                        .scaledToFill()
+            VStack {
+                LazyVGrid(columns: items, spacing: 2) {
+                    ///Three blanks to start it lower
+                    Color.clear
                         .frame(width: width, height: 160)
-                        .clipped()
-                        .onTapGesture { selectedPost = post}
-                        .overlay(
-                            VStack{
-                                HStack{
+                    Color.clear
+                        .frame(width: width, height: 160)
+                    Color.clear
+                        .frame(width: width, height: 160)
+                    
+                    ForEach(viewModel.posts) { post in
+                        KFImage(URL(string: post.thumbnailUrl))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: width, height: 160)
+                            .clipped()
+                            .onTapGesture { selectedPost = post}
+                            .onAppear{
+                                if viewModel.isLastItem(post) {
+                                    Task {
+                                        await viewModel.loadMoreContentIfNeeded(currentPost: post.id )
+                                    }
+                                }
+                            }
+                            .overlay(
+                                VStack{
+                                    HStack{
                                         VStack (alignment: .leading) {
                                             if let restaurant = post.restaurant {
                                                 Text("\(restaurant.name)")
@@ -90,13 +98,23 @@ struct FeedGridView: View {
                                                                endPoint: .bottom))
                                     .onTapGesture { selectedPost = post }
                             )
+                        
                     }
-                Color.clear
-                    .frame(width: width, height: 160)
-                Color.clear
-                    .frame(width: width, height: 160)
-                Color.clear
-                    .frame(width: width, height: 160)
+                    Color.clear
+                        .frame(width: width, height: 160)
+                    Color.clear
+                        .frame(width: width, height: 160)
+                    Color.clear
+                        .frame(width: width, height: 160)
+                   
+                }
+//                ProgressView()
+//                    .frame(width: width, height: 160)
+//                    .onAppear{
+//                        Task {
+//                            await loadNextPageIfNeeded()
+//                        }
+//                    }
                 }
                 
                 .sheet(item: $selectedPost) { post in
