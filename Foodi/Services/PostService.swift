@@ -66,7 +66,7 @@ class PostService {
         
         if let filters = filters, !filters.isEmpty {
             if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
+                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates, lastDocument: lastDocument)
                 return filteredPosts
             }
             

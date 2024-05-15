@@ -27,56 +27,56 @@ class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
     private var isFetching = false
-    private let pageSize = 1
-
+    private let pageSize = 6
+    private let fetchingThreshold = -3
+    
+    
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
         self._scrollPosition = scrollPosition
-
+        
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
-           isLoading = true
-           await fetchPosts(withFilters: filters, isInitialLoad: true)
-           isLoading = false
-       }
-       
-       func fetchMorePosts(withFilters filters: [String: [Any]]? = nil) async {
-           guard !isFetching else { return }
-           isFetching = true
-           await fetchPosts(withFilters: filters, isInitialLoad: false)
-           isFetching = false
-       }
+        isLoading = true
+        await fetchPosts(withFilters: filters, isInitialLoad: true)
+        isLoading = false
+    }
+    
+    func fetchMorePosts(withFilters filters: [String: [Any]]? = nil) async {
+        guard !isFetching else { return }
+        isFetching = true
+        await fetchPosts(withFilters: filters, isInitialLoad: false)
+        isFetching = false
+    }
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
-            do {
-                var updatedFilters = filters ?? [:]
-                updatedFilters["user.privateMode"] = [false]
-                
-                if isInitialLoad {
-                    posts.removeAll()
-                    lastDocument = nil
-                }
-                
-                let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
-                
-                self.lastDocument = lastDoc
-                
-                DispatchQueue.main.async {
-                    self.posts.append(contentsOf: newPosts)
-                    self.showEmptyView = self.posts.isEmpty
-                }
-                
-                await checkIfUserLikedPosts()
-            } catch {
-                print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+        do {
+
+            var updatedFilters = filters ?? [:]
+            updatedFilters["user.privateMode"] = [false]
+            
+            if isInitialLoad {
+                posts.removeAll()
+                lastDocument = nil
             }
+            
+            let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
+            self.lastDocument = lastDoc
+            self.posts.append(contentsOf: newPosts)
+            self.showEmptyView = self.posts.isEmpty
+            
+            
+            await checkIfUserLikedPosts()
+        } catch {
+            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
-        
-        // Add other methods as needed...
+    }
+    
+    // Add other methods as needed...
     
     /// updates the cache with the next 3 post videos saved
     func updateCache(scrollPosition: String?) {
@@ -84,12 +84,12 @@ class FeedViewModel: ObservableObject {
             print("Posts array is empty")
             return
         }
-
+        
         guard let scrollPosition = scrollPosition else {
             print("Scroll position is nil")
             return
         }
-
+        
         guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
             print("Current index not found in posts array")
             print("scroll position = \(scrollPosition)")
@@ -118,7 +118,7 @@ class FeedViewModel: ObservableObject {
                         ///Prefetches all photos
                     } else if post.mediaType == "photo" {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
-                            prefetcher.start()
+                        prefetcher.start()
                     }
                     
                     if let profileImageUrl = post.user.profileImageUrl,
@@ -150,7 +150,7 @@ extension FeedViewModel {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = true
         posts[index].likes += 1
-                
+        
         do {
             try await PostService.shared.likePost(post)
         } catch {
@@ -164,7 +164,7 @@ extension FeedViewModel {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = false
         posts[index].likes -= 1
-                
+        
         do {
             try await PostService.shared.unlikePost(post)
         } catch {
@@ -194,12 +194,26 @@ extension FeedViewModel {
         
         posts = copy
     }
+    func loadMoreContentIfNeeded(currentPost: String?) {
+            guard let currentPost = currentPost, let lastFetchedDocumentID = lastFetchedDocumentID else { return }
+
+            let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
+//            if posts.firstIndex(where: { $0.id == currentPost }) == thresholdIndex {
+                
+                    Task {
+                        print("Fetching more posts")
+                        await fetchMorePosts()
+                    }
+//                } else {
+//                    print("Already fetched this batch")
+//                }
+        }
 }
 
 extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
-        }
+    }
 }
 
 extension FeedViewModel {
@@ -209,7 +223,7 @@ extension FeedViewModel {
     func deletePost(post: Post) async {
         do {
             // Delete the post using PostService
-            let success = try await PostService.shared.deletePost(post)
+            try await PostService.shared.deletePost(post)
             
             // Remove the post from the posts array
             

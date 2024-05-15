@@ -222,6 +222,7 @@ struct FeedView: View {
                 /// loads the next 5 videos in the cache
                 .onChange(of: scrollPosition) {oldValue, newValue in
                     viewModel.updateCache(scrollPosition: newValue)
+                    viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                 }
                 .background(Color(hex: 0xFFF9DB))
                 .ignoresSafeArea()

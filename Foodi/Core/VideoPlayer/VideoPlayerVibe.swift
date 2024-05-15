@@ -56,7 +56,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         currentPostId = postId
         if !player.items().isEmpty {
             player.removeAllItems()
-            print("removed all items")
+            //print("removed all items")
         }
         guard let url = url else {
             print("URL Error")
@@ -73,7 +73,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             playerItem = CachingPlayerItem(filePathURL: saveFilePath)
             //print("Item exists")
         } else {
-            print("Creating Item")
+            //print("Creating Item")
             playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
         }
         if let playerItem = self.playerItem {
@@ -140,31 +140,31 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         play()
     }
     func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
-        print("Caching player item ready to play.")
+        //print("Caching player item ready to play.")
     }
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
-        print(error?.localizedDescription ?? "")
-        if let postId = currentPostId, let url = currentUrl, self.retries <= 7{
+        //print(error?.localizedDescription ?? "")
+        if let postId = currentPostId, let url = currentUrl, self.retries <= 10 {
             debouncer.schedule{
                 self.configurePlayer(url: url, postId: postId)
                 self.retries += 1
-                print("***************** retrying *********************")
+                //print("***************** retrying *********************")
             }
         }
     }
     
     func playerItemPlaybackStalled(_ playerItem: CachingPlayerItem) {
-        print("Not enough data for playback. Probably because of the poor network. Wait a bit and try to play later.")
+       // print("Not enough data for playback. Probably because of the poor network. Wait a bit and try to play later.")
     }
     
     
     func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingFileAt filePath: String) {
-        print("Caching player item file downloaded.", filePath)
+        //print("Caching player item file downloaded.", filePath)
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
-        print("Caching player item file download failed with error: \(error.localizedDescription).")
+        //print("Caching player item file download failed with error: \(error.localizedDescription).")
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
