@@ -78,7 +78,7 @@ class FiltersViewModel: ObservableObject {
         } else {
             filters["recipe.cookingTime"] = selectedCookingTime
         }
-        await feedViewModel.fetchPosts(withFilters: self.filters)
+        await feedViewModel.fetchInitialPosts(withFilters: self.filters)
     }
     
     //MARK: update selected posts

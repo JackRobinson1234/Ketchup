@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import FirebaseFirestoreInternal
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -18,13 +19,15 @@ class FeedViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
-    @Published var user = User(id: "", username: "", fullname: "", privateMode: true)
-    
     var videoCoordinator = VideoPlayerCoordinator()
-    
     private var currentFeedType: FeedType = .discover // default
-    
     var isContainedInTabBar = true
+    
+    
+    @Published var isLoading = false
+    private var lastDocument: DocumentSnapshot?
+    private var isFetching = false
+    private let pageSize = 1
 
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.posts = posts
@@ -34,27 +37,46 @@ class FeedViewModel: ObservableObject {
 
     }
     
+    func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
+           isLoading = true
+           await fetchPosts(withFilters: filters, isInitialLoad: true)
+           isLoading = false
+       }
+       
+       func fetchMorePosts(withFilters filters: [String: [Any]]? = nil) async {
+           guard !isFetching else { return }
+           isFetching = true
+           await fetchPosts(withFilters: filters, isInitialLoad: false)
+           isFetching = false
+       }
+    
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
-    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async {
-        do {
-            var updatedFilters = filters ?? [:] // Create a mutable copy or use an empty dictionary if filters is nil
-            // Append [user.privateMode: false] to the filters dictionary
-            updatedFilters["user.privateMode"] = [false]
-
-            posts.removeAll()
-            switch currentFeedType {
-            case .discover:
-                posts = try await PostService.shared.fetchPosts(withFilters: updatedFilters)
-            case .following:
-                posts = try await PostService.shared.fetchFollowingPosts(withFilters: updatedFilters)
+    func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
+            do {
+                var updatedFilters = filters ?? [:]
+                updatedFilters["user.privateMode"] = [false]
+                
+                if isInitialLoad {
+                    posts.removeAll()
+                    lastDocument = nil
+                }
+                
+                let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
+                
+                self.lastDocument = lastDoc
+                
+                DispatchQueue.main.async {
+                    self.posts.append(contentsOf: newPosts)
+                    self.showEmptyView = self.posts.isEmpty
+                }
+                
+                await checkIfUserLikedPosts()
+            } catch {
+                print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
             }
-            showEmptyView = posts.isEmpty
-            await checkIfUserLikedPosts()
-            //updateCache(scrollPosition: posts.first?.id)
-        } catch {
-            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
-    }
+        
+        // Add other methods as needed...
     
     /// updates the cache with the next 3 post videos saved
     func updateCache(scrollPosition: String?) {

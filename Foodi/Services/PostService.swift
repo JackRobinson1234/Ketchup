@@ -55,12 +55,15 @@ class PostService {
         return posts
     }
     
-    //MARK: fetchPosts
-    /// Fetches posts all posts from firebase, if filters are passed in it will only return posts that match those filters
-    /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
-    /// - Returns: array of posts (that match filters)
-    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
+    
+    
+    func fetchPosts(lastDocument: DocumentSnapshot?, pageSize: Int, withFilters filters: [String: [Any]]? = nil) async throws -> ([Post], DocumentSnapshot?) {
+        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).limit(to: pageSize)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
         if let filters = filters, !filters.isEmpty {
             if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
                 let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
@@ -69,45 +72,68 @@ class PostService {
             
             query = applyFilters(toQuery: query, filters: filters)
         }
-        let posts = try await query.getDocuments(as: Post.self)
-        print("DEBUG: posts fetched", posts.count)
-        return posts
+        
+        let snapshot = try await query.getDocuments()
+        let posts = snapshot.documents.map { document in
+            var post = try! document.data(as: Post.self)
+            return post
+        }
+        let lastDocumentSnapshot = snapshot.documents.last
+        return (posts, lastDocumentSnapshot)
     }
+    //MARK: fetchPosts
+    /// Fetches posts all posts from firebase, if filters are passed in it will only return posts that match those filters
+    /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
+    /// - Returns: array of posts (that match filters)
+//    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
+//        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
+//        if let filters = filters, !filters.isEmpty {
+//            if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+//                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
+//                return filteredPosts
+//            }
+//            
+//            query = applyFilters(toQuery: query, filters: filters)
+//        }
+//        let posts = try await query.getDocuments(as: Post.self)
+//        print("DEBUG: posts fetched", posts.count)
+//        return posts
+//    }
             
             //TODO: MAKE THIS WORK IN BATCHES OF 30
             //MARK: fetchfollowingPosts
             /// Fetches posts of users that the user is following
             /// - Parameter filters: dictionary of f filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
             /// - Returns: array of posts (that match filters)
-        func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-            guard Auth.auth().currentUser != nil else {
-                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-            }
-            
-            // Fetch the list of users that the current user is following
-            let followingUsers = try await UserService.shared.fetchFollowingUsers()
-            if followingUsers.isEmpty { return [] }
-            let followingUserIDs = followingUsers.map { $0.id }
-            
-            // Append userId to filters if filters exist
-            var updatedFilters = filters ?? [:]
-            updatedFilters["user.id"] = followingUserIDs
-            
-            // Fetch posts from followingUsers using 'in' operator
-            var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
-            
-            // Apply additional filters if they exist
-            if let locationFilters = updatedFilters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                let locationPosts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
-                return locationPosts
-            }
-            
-            query = applyFilters(toQuery: query, filters: updatedFilters)
-            let posts = try await query.getDocuments(as: Post.self)
-            
-            print("DEBUG: posts fetched", posts.count)
-            return posts
-        }
+//        func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
+//            guard Auth.auth().currentUser != nil else {
+//                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+//            }
+//            
+//            // Fetch the list of users that the current user is following
+//            let followingUsers = try await UserService.shared.fetchFollowingUsers()
+//            if followingUsers.isEmpty { return [] }
+//            let followingUserIDs = followingUsers.map { $0.id }
+//            
+//            // Append userId to filters if filters exist
+//            var updatedFilters = filters ?? [:]
+//            updatedFilters["user.id"] = followingUserIDs
+//            
+//            // Fetch posts from followingUsers using 'in' operator
+//            var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
+//            
+//            // Apply additional filters if they exist
+//            if let locationFilters = updatedFilters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+//                let locationPosts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
+//                return locationPosts
+//            }
+//            
+//            query = applyFilters(toQuery: query, filters: updatedFilters)
+//            let posts = try await query.getDocuments(as: Post.self)
+//            
+//            print("DEBUG: posts fetched", posts.count)
+//            return posts
+//        }
             
             
             //MARK: applyFilters
@@ -145,38 +171,47 @@ class PostService {
             ///   - coordinates: coordinates of the center of the radius
             /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
             
-            func fetchPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 1000) async throws -> [Post] {
+            func fetchPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 1000, lastDocument: DocumentSnapshot? = nil, pageSize: Int = 10) async throws -> ([Post], DocumentSnapshot?) {
                 let queryBounds = GFUtils.queryBounds(forLocation: center,
                                                       withRadius: radiusInM)
                 let queries = queryBounds.map { bound -> Query in
-                    return applyFilters(toQuery: FirestoreConstants.PostsCollection
-                        .order(by: "restaurant.geoHash")
-                        .start(at: [bound.startValue])
-                        .end(at: [bound.endValue]), filters: filters)
-                }
+                       var query = applyFilters(toQuery: FirestoreConstants.PostsCollection
+                           .order(by: "restaurant.geoHash")
+                           .start(at: [bound.startValue])
+                           .end(at: [bound.endValue]), filters: filters)
+                       
+                       if let lastDocument = lastDocument {
+                           query = query.start(afterDocument: lastDocument)
+                       }
+                       return query.limit(to: pageSize)
+                   }
+                
                 // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
                 do {
-                    let matchingDocs = try await withThrowingTaskGroup(of: [Post].self) { group -> [Post] in
-                        for query in queries {
-                            //await applyFilters(toQuery: query, filters: filters)
-                            group.addTask {
-                                let snapshot = try await query.getDocuments()
-                                return snapshot.documents.compactMap { document in
-                                    try? document.data(as: Post.self)
+                        let matchingDocs = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group -> [QueryDocumentSnapshot] in
+                            for query in queries {
+                                group.addTask {
+                                    let snapshot = try await query.getDocuments()
+                                    return snapshot.documents
                                 }
                             }
+                            var matchingDocs = [QueryDocumentSnapshot]()
+                            for try await documents in group {
+                                matchingDocs.append(contentsOf: documents)
+                            }
+                            return matchingDocs
                         }
-                        var matchingDocs = [Post]()
-                        for try await documents in group {
-                            matchingDocs.append(contentsOf: documents)
+                        
+                        let posts = matchingDocs.compactMap { document in
+                            try? document.data(as: Post.self)
                         }
-                        return matchingDocs
+                        
+                        let lastDocumentSnapshot = matchingDocs.last
+                        return (posts, lastDocumentSnapshot)
+                    } catch {
+                        throw error
                     }
-                    return matchingDocs
-                } catch {
-                    throw error
                 }
-            }
         }
 
 

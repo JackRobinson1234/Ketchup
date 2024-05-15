@@ -47,7 +47,7 @@ struct FeedView: View {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
-                        await viewModel.fetchPosts()
+                        await viewModel.fetchInitialPosts()
                         isLoading = false
                     }
                 }
