@@ -8,6 +8,12 @@
 import SwiftUI
 import AVFoundation
 
+
+struct RecordedVideo {
+    var url: URL
+    let cameraPosition: CameraPosition
+}
+
 @MainActor
 class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
         
@@ -31,7 +37,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     // VIDEO PROPERTIES
     @Published var isRecording: Bool = false
-    @Published var recordedURLs: [URL] = []
+    //@Published var recordedURLs: [URL] = []
     @Published var previewURL: URL?
     
     // EDIT/PREVIEW VIEW PROPERTIES
@@ -74,6 +80,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
     }
     
+    @Published var recordedURLs: [RecordedVideo] = []
+    @Published var recordedCameraPositions: [CameraPosition] = []
     
     func checkPermission() {
         
@@ -129,9 +137,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             //check for output
-            let _ = print("CHECKING FOR VID OUTPUT ")
             if self.session.canAddOutput(self.videoOutput) {
-                let _ = print("ADDING OUTPUT")
                 self.session.addOutput(self.videoOutput)
             }
             
@@ -153,7 +159,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
         configureFlash()  // Only configure flash if using the back camera
         videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
-
+        recordedCameraPositions.append(cameraPosition)
     }
 
     func stopRecording() {
@@ -164,14 +170,12 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
     func startRecordingForNewCam() {
-        let _ = print("MADE IN STARTRECNEW")
         let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
         videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
-
+        recordedCameraPositions.append(cameraPosition)
     }
 
     func stopRecordingForNewCam() {
-        let _ = print("MADE IN STOPRECNEW")
         videoOutput.stopRecording()
     }
     
@@ -179,53 +183,30 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         if let error = error {
             print(error.localizedDescription)
         }
-        
-        // CREATED SUCCESSFULLY
-        recordedURLs.append(outputFileURL)
-        if recordedURLs.count == 1 {
-            // Create AVURLAsset from URL
-            let singleAsset = AVURLAsset(url: outputFileURL)
+        recordedURLs.append(RecordedVideo(url: outputFileURL, cameraPosition: cameraPosition))
 
-            // Process single video with the asset
-            processSingleVideo(asset: singleAsset) { exporter in
-                exporter.exportAsynchronously {
-                    if exporter.status == .completed, let processedURL = exporter.outputURL {
-                        DispatchQueue.main.async {
-                            self.previewURL = processedURL
-                            self.isLoading = false
-                        }
-                    } else {
-                        self.isLoading = false
-                        print("Failed to process video: \(String(describing: exporter.error))")
-                    }
-                }
-            }
-            return
-        }
-        
-
-        
-        
         // CONVERTING URLs TO ASSETS
-        let assets = recordedURLs.map { AVURLAsset(url: $0) }
+        let assets = recordedURLs.map { AVURLAsset(url: $0.url) }
         
         // MERGING VIDEOS
-        mergeVideos(assets: assets) { exporter in
-            exporter.exportAsynchronously {
-                if exporter.status == .failed {
-                    // HANDLE ERROR
-                    print(exporter.error!)
-                } else {
-                    if let finalURL = exporter.outputURL {
-                        print(finalURL)
-                        DispatchQueue.main.async {
-                            self.previewURL = finalURL
-                            self.isLoading = false
+        if !isRecording {
+            mergeVideos(assets: assets) { exporter in
+                exporter.exportAsynchronously {
+                    if exporter.status == .failed {
+                        // HANDLE ERROR
+                        print(exporter.error!)
+                    } else {
+                        if let finalURL = exporter.outputURL {
+                            DispatchQueue.main.async {
+                                self.previewURL = finalURL
+                                self.isLoading = false
+                            }
                         }
                     }
                 }
             }
         }
+        
     }
     
     func processSingleVideo(asset: AVURLAsset, completion: @escaping (_ exporter: AVAssetExportSession) -> ()) {
@@ -284,7 +265,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         completion(exporter)
     }
     
-    func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()){
+    func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()) {
         let composition = AVMutableComposition()
         var lastTime: CMTime = .zero
         
@@ -294,11 +275,15 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             return
         }
         
-        for asset in assets {
+        var instructions: [AVMutableVideoCompositionInstruction] = []
+        
+        for index in recordedURLs.indices {
+            let recordedVideo = recordedURLs[index]
+            let asset = AVURLAsset(url: recordedVideo.url)
+            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+            
             do {
                 let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
-                let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-                
                 try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: lastTime)
                 
                 if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
@@ -306,28 +291,30 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                 }
             } catch {
                 print("Error during composition: \(error)")
+                continue // Optionally continue to the next iteration
             }
+            
+            let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+            var transform = CGAffineTransform.identity
+            transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0).rotated(by: 90 * (.pi / 180))
+            
+            if recordedCameraPositions[index] == .front {
+                transform = transform.scaledBy(x: 1, y: -1).translatedBy(x: 0, y: -videoTrack.naturalSize.height)
+            }
+            
+            layerInstructions.setTransform(transform, at: lastTime)
+            
+            let instruction = AVMutableVideoCompositionInstruction()
+            instruction.timeRange = CMTimeRange(start: lastTime, duration: asset.duration)
+            instruction.layerInstructions = [layerInstructions]
+            instructions.append(instruction)
+            
             lastTime = CMTimeAdd(lastTime, asset.duration)
         }
         
-        // Setting up the video composition with the correct transform
-        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-        var transform = CGAffineTransform.identity
-        transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0) // Adjust for rotation
-        transform = transform.rotated(by: 90 * (.pi / 180)) // 90 degrees rotation
-        if cameraPosition == .front {
-            transform = transform.scaledBy(x: 1, y: -1) // Horizontal flip
-            transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height) // Adjust post-mirroring
-        }
-        layerInstructions.setTransform(transform, at: .zero)
-        
-        let instructions = AVMutableVideoCompositionInstruction()
-        instructions.timeRange = CMTimeRange(start: .zero, duration: lastTime)
-        instructions.layerInstructions = [layerInstructions]
-        
         let videoComposition = AVMutableVideoComposition()
         videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
-        videoComposition.instructions = [instructions]
+        videoComposition.instructions = instructions
         videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
         
         let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
@@ -339,7 +326,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         exporter.outputFileType = .mp4
         exporter.outputURL = tempURL
         exporter.videoComposition = videoComposition
-        
         completion(exporter)
     }
     
@@ -439,7 +425,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
 
         // Stop recording with the current camera
+        
         stopRecordingForNewCam()
+        
         switchCameraInput()
         startRecordingForNewCam()
     }
@@ -453,6 +441,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         // Reset the photo and video capture properties
         images.removeAll()
         recordedURLs.removeAll()
+        recordedCameraPositions.removeAll()
         previewURL = nil
         isPhotoTaken = false
         isRecording = false
