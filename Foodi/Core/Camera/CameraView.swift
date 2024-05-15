@@ -36,6 +36,16 @@ struct CameraView: View {
                     .onTapGesture(count: 2) {
                         cameraViewModel.toggleCamera()
                     }
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                cameraViewModel.handlePinchGesture(scale: value)
+                            }
+                            .onEnded { _ in
+                                // Reset initial zoom factor at the end of the gesture
+                                cameraViewModel.startPinchGesture()
+                            }
+                    )
                 
                 if cameraViewModel.showFlashOverlay {
                     Color.white.opacity(0.5)
@@ -81,7 +91,7 @@ struct CameraView: View {
                             .frame(width: 30, height: 30)
                         
                         // Write actual zoom level here
-                        Text("0.5x")
+                        Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(.white)
                             .blendMode(.destinationOut)
@@ -391,12 +401,6 @@ struct PhotoCameraControls: View {
                     // TAKE PIC BUTTON
                     Button {
                         cameraViewModel.takePic()
-//                        withAnimation {
-//                            showFlash = true
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-//                                showFlash = false
-//                            }
-//                        }
                     } label: {
                         ZStack {
                             Circle()

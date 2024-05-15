@@ -8,12 +8,6 @@
 import SwiftUI
 import AVFoundation
 
-
-struct RecordedVideo {
-    var url: URL
-    let cameraPosition: CameraPosition
-}
-
 @MainActor
 class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
         
@@ -63,8 +57,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var flashMode: AVCaptureDevice.FlashMode = .off
     @Published var showFlashOverlay = false
     @Published var originalBrightness: CGFloat? = nil
-    @Published var zoomFactor: CGFloat = 1.0
+    @Published var zoomFactor: CGFloat = 1.0 {
+            didSet {
+                let clampedZoomFactor = max(1.0, min(zoomFactor, 3.0)) // Cap the zoom factor at 5x
+                if zoomFactor != clampedZoomFactor {
+                    zoomFactor = clampedZoomFactor
+                } else {
+                    setZoomFactor(zoomFactor)
+                }
+            }
+        }
 
+    private var initialZoomFactor: CGFloat = 1.0
     @Published var isDragEnabled: Bool = true
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
@@ -79,9 +83,34 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                 }
             }
     }
+
     
-    @Published var recordedURLs: [RecordedVideo] = []
+    @Published var recordedURLs: [URL] = []
     @Published var recordedCameraPositions: [CameraPosition] = []
+    
+    func setZoomFactor(_ factor: CGFloat) {
+        guard cameraPosition == .back, let device = AVCaptureDevice.default(for: .video) else {
+            return
+        }
+        do {
+            try device.lockForConfiguration()
+            device.videoZoomFactor = factor
+            device.unlockForConfiguration()
+        } catch {
+            print("Failed to set zoom factor: \(error)")
+        }
+    }
+    
+    func handlePinchGesture(scale: CGFloat) {
+        guard cameraPosition == .back else { return }
+        let sensitivity: CGFloat = 1
+        let newZoomFactor = initialZoomFactor * (1 + (scale - 1) * sensitivity)
+        zoomFactor = newZoomFactor
+    }
+
+    func startPinchGesture() {
+        initialZoomFactor = zoomFactor
+    }
     
     func checkPermission() {
         
@@ -183,10 +212,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         if let error = error {
             print(error.localizedDescription)
         }
-        recordedURLs.append(RecordedVideo(url: outputFileURL, cameraPosition: cameraPosition))
+        recordedURLs.append(outputFileURL)
 
         // CONVERTING URLs TO ASSETS
-        let assets = recordedURLs.map { AVURLAsset(url: $0.url) }
+        let assets = recordedURLs.map { AVURLAsset(url: $0) }
         
         // MERGING VIDEOS
         if !isRecording {
@@ -209,61 +238,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
     }
     
-    func processSingleVideo(asset: AVURLAsset, completion: @escaping (_ exporter: AVAssetExportSession) -> ()) {
-        let composition = AVMutableComposition()
-        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
-              let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
-            print("Failed to add tracks to the composition")
-            return
-        }
-
-        // Add video track from asset
-        do {
-            let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
-            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-            try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: .zero)
-
-            // Check and add audio track if available
-            if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
-                try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: .zero)
-            }
-        } catch {
-            print("Error inserting time ranges: \(error)")
-            return
-        }
-
-        // Applying only vertical flip transformation
-        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-        var transform = CGAffineTransform.identity
-        transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0) // Adjust for rotation
-        transform = transform.rotated(by: 90 * (.pi / 180)) // 90 degrees rotation
-        if cameraPosition == .front {
-            transform = transform.scaledBy(x: 1, y: -1) // Horizontal flip
-            transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height) // Adjust post-mirroring
-        }
-        layerInstructions.setTransform(transform, at: .zero)
-
-        let instructions = AVMutableVideoCompositionInstruction()
-        instructions.timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-        instructions.layerInstructions = [layerInstructions]
-
-        let videoComposition = AVMutableVideoComposition()
-        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
-        videoComposition.instructions = [instructions]
-        videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
-
-        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Processed-\(Date()).mp4")
-        guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
-            print("Failed to create export session")
-            return
-        }
-
-        exporter.outputFileType = .mp4
-        exporter.outputURL = tempURL
-        exporter.videoComposition = videoComposition
-
-        completion(exporter)
-    }
     
     func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()) {
         let composition = AVMutableComposition()
@@ -278,8 +252,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         var instructions: [AVMutableVideoCompositionInstruction] = []
         
         for index in recordedURLs.indices {
-            let recordedVideo = recordedURLs[index]
-            let asset = AVURLAsset(url: recordedVideo.url)
+            let recordedUrl = recordedURLs[index]
+            let asset = AVURLAsset(url: recordedUrl)
             let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
             
             do {
@@ -434,6 +408,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
     func switchCameraInput() {
         cameraPosition = (cameraPosition == .back) ? .front : .back
+        zoomFactor = 1.0
         setUp() // Reconfigure the session with the new camera
         configureFlash()
     }
