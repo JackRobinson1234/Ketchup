@@ -78,27 +78,9 @@ class PostService {
             var post = try! document.data(as: Post.self)
             return post
         }
-        let lastDocumentSnapshot = snapshot.documents.last
+            let lastDocumentSnapshot = snapshot.documents.last
         return (posts, lastDocumentSnapshot)
     }
-    //MARK: fetchPosts
-    /// Fetches posts all posts from firebase, if filters are passed in it will only return posts that match those filters
-    /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
-    /// - Returns: array of posts (that match filters)
-//    func fetchPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-//        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true)
-//        if let filters = filters, !filters.isEmpty {
-//            if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-//                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates)
-//                return filteredPosts
-//            }
-//            
-//            query = applyFilters(toQuery: query, filters: filters)
-//        }
-//        let posts = try await query.getDocuments(as: Post.self)
-//        print("DEBUG: posts fetched", posts.count)
-//        return posts
-//    }
             
             //TODO: MAKE THIS WORK IN BATCHES OF 30
             //MARK: fetchfollowingPosts

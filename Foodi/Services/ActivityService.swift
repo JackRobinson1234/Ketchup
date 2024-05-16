@@ -10,22 +10,39 @@ import Foundation
 import Firebase
 
 class ActivityService {
-    func fetchFollowingActivities() async throws -> [Activity] {
-        var allActivities = [Activity]()
-        let users = try await UserService.shared.fetchFollowingUsers()
-        var userIDs = users.map { $0.id } // Assuming User model has an `id` property
-        
-        while !userIDs.isEmpty {
-            let batchSize = min(30, userIDs.count)
-            let batchUserIDs = Array(userIDs.prefix(batchSize))
-            userIDs.removeFirst(batchSize)
-            
-            let activities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
-            allActivities.append(contentsOf: activities)
+    private var fetchedUsers = false
+    private var userIDs: [String] = []
+    
+    func fetchUserIDs() async throws {
+            let users = try await UserService.shared.fetchFollowingUsers()
+            userIDs = users.map { $0.id }
         }
-        
-        return allActivities
-    }
+    
+    func fetchFollowingActivities(page: Int) async throws -> [Activity] {
+        if !fetchedUsers{
+            try await fetchUserIDs()
+            fetchedUsers = true
+        }
+        guard !userIDs.isEmpty else {
+            return []
+        }
+            let startIndex = page * 6
+        guard startIndex < userIDs.count else { 
+            return []
+        }
+            var activities = [Activity]()
+            while userIDs.count > 0 {
+                let endIndex = min(30, userIDs.count)
+                let batchUserIDs = Array(userIDs[startIndex..<endIndex])
+
+                let batchActivities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
+                activities.append(contentsOf: batchActivities)
+
+                userIDs.removeFirst(batchUserIDs.count)
+            }
+
+            return activities
+        }
     
     
     private func fetchActivitiesForUsers(userIds: [String]) async throws -> [Activity] {
@@ -33,26 +50,33 @@ class ActivityService {
         // Query activities for the specified user ID, sorted by timestamp in descending order
         let query = FirestoreConstants.ActivityCollection
         for uid in userIds{
-            var userActivities = try await query.document(uid).collection("activities").getDocuments(as: Activity.self)
+            var userActivities = try await query.whereField("uid", isEqualTo: uid).order(by: "timestamp", descending: true).getDocuments(as: Activity.self)
             activities.append(contentsOf: userActivities)
         }
         return activities
     }
     
     
-    func fetchKetchupActivities() async throws -> [Activity] {
-        let query = FirestoreConstants.ActivityCollection
-            .document("yO2MWjMCZ1MsBsuVE9h8M5BTlpj2").collection("activities")
-            .order(by: "timestamp", descending: true)
-            .limit(to: 20)
-        do {
-            let activities = try await query.getDocuments(as: Activity.self)
-            print(activities)
-            return activities
-        } catch {
-            throw error
+    func fetchKetchupActivities(lastDocumentSnapshot: DocumentSnapshot? = nil, pageSize: Int) async throws -> ([Activity], DocumentSnapshot?) {
+            var query = FirestoreConstants.ActivityCollection
+                .whereField("uid", isEqualTo: "yO2MWjMCZ1MsBsuVE9h8M5BTlpj2")
+                .order(by: "timestamp", descending: true)
+                .limit(to: pageSize)
+            if let lastSnapshot = lastDocumentSnapshot {
+                    query = query.start(afterDocument: lastSnapshot)
+                }
+            let snapshot = try await query.getDocuments()
+           
+           // Convert the documents to Activity objects
+           let activities = try snapshot.documents.compactMap { try $0.data(as: Activity.self) }
+           
+           // Get the last document snapshot from this batch
+           let lastDocument = snapshot.documents.last
+           
+           print("kechup activities fetched")
+           
+           return (activities, lastDocument)
         }
-    }
 }
 
 

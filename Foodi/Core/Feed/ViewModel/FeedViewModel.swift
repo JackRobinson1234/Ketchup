@@ -25,8 +25,8 @@ class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
     @State var isFetching = false
-    private let pageSize = 5
-    private let fetchingThreshold = -3
+    private let pageSize = 15
+    private let fetchingThreshold = -5
     private var filters: [String: [Any]]? = [:]
     @State var maxFetched: Bool = false
     
@@ -101,7 +101,7 @@ class FeedViewModel: ObservableObject {
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
             guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 8, posts.count + 2))
+            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 6, posts.count + 2))
             for index in nextIndexes {
                 if index >= posts.count {
                     break

@@ -12,6 +12,7 @@ enum LetsKetchupOptions{
 struct ActivityView: View {
     @State var isLoading = true
     @StateObject var viewModel = ActivityViewModel()
+    private var paginationThreshold = 5
     var body: some View {
         NavigationStack{
             VStack{
@@ -52,8 +53,20 @@ struct ActivityView: View {
                         if viewModel.letsKetchupOption == .friends {
                             if !viewModel.friendsActivity.isEmpty{
                                 ScrollView{
-                                    ForEach(viewModel.friendsActivity) { activity in
-                                        ActivityCell(activity: activity, viewModel: viewModel)
+                                    LazyVStack {
+                                        ForEach(viewModel.friendsActivity.indices, id: \.self) { index in
+                                            // Calculate distance from the end
+                                            let distanceFromEnd = viewModel.friendsActivity.count - index - 1
+                                            
+                                            ActivityCell(activity: viewModel.friendsActivity[index], viewModel: viewModel)
+                                                .onAppear {
+                                                    if distanceFromEnd < paginationThreshold {
+                                                        Task {
+                                                            try await viewModel.fetchFriendsActivities()
+                                                        }
+                                                    }
+                                                }
+                                        }
                                     }
                                     //MARK: Ketchup
                                 }
@@ -63,14 +76,29 @@ struct ActivityView: View {
                                 Spacer()
                             }
                         }
-                        //MARK: Trendinjg
+                        //MARK: Trending
                         else if viewModel.letsKetchupOption == .trending {
                             if !viewModel.trendingActivity.isEmpty {
                                 ScrollView{
-                                    ForEach(viewModel.trendingActivity) { activity in
-                                        ActivityCell(activity: activity, viewModel: viewModel)
+                                    LazyVStack {
+                                        ForEach(viewModel.trendingActivity.indices, id: \.self) { index in
+                                            // Calculate distance from the end
+                                            let distanceFromEnd = viewModel.trendingActivity.count - index - 1
+                                            
+                                            ActivityCell(activity: viewModel.trendingActivity[index], viewModel: viewModel)
+                                                .onAppear {
+                                                    if distanceFromEnd == paginationThreshold {
+                                                        Task {
+                                                            if !viewModel.outOfTrending {
+                                                                try await viewModel.fetchTrendingActivities()
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                        }
                                     }
                                 }
+                                    
                             } else {
                                 Spacer()
                                 Text("There is no trending activity")
@@ -81,18 +109,20 @@ struct ActivityView: View {
                 }
             }
             .onChange(of: viewModel.letsKetchupOption) {
-                Task{
-                    try await viewModel.fetchActivitiesIfNeeded()
+                Task {
+                    if viewModel.letsKetchupOption == .trending {
+                        try await viewModel.fetchInitialTrendingActivities()
+                    } else if viewModel.letsKetchupOption == .friends {
+                        try await viewModel.fetchFriendsActivities()
+                    }
                 }
             }
             .navigationTitle("Let's Ketchup!")
             .refreshable{
-                if viewModel.letsKetchupOption == .trending {
-                    Task{
-                        try await viewModel.fetchTrendingActivities()
-                    }
-                } else if viewModel.letsKetchupOption == .friends {
-                    Task{
+                Task {
+                    if viewModel.letsKetchupOption == .trending {
+                        try await viewModel.fetchInitialTrendingActivities()
+                    } else if viewModel.letsKetchupOption == .friends {
                         try await viewModel.fetchFriendsActivities()
                     }
                 }
