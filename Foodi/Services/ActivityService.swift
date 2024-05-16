@@ -18,44 +18,36 @@ class ActivityService {
             userIDs = users.map { $0.id }
         }
     
-    func fetchFollowingActivities(page: Int) async throws -> [Activity] {
-        if !fetchedUsers{
+    func fetchFollowingActivities() async throws -> [Activity] {
+        if !fetchedUsers {
             try await fetchUserIDs()
             fetchedUsers = true
         }
-        guard !userIDs.isEmpty else {
-            return []
-        }
-            let startIndex = page * 6
-        guard startIndex < userIDs.count else { 
-            return []
-        }
-            var activities = [Activity]()
-            while userIDs.count > 0 {
-                let endIndex = min(30, userIDs.count)
-                let batchUserIDs = Array(userIDs[startIndex..<endIndex])
-
-                let batchActivities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
-                activities.append(contentsOf: batchActivities)
-
-                userIDs.removeFirst(batchUserIDs.count)
-            }
-
-            return activities
-        }
-    
-    
-    private func fetchActivitiesForUsers(userIds: [String]) async throws -> [Activity] {
-        var activities = [Activity]()
-        // Query activities for the specified user ID, sorted by timestamp in descending order
-        let query = FirestoreConstants.ActivityCollection
-        for uid in userIds{
-            var userActivities = try await query.whereField("uid", isEqualTo: uid).order(by: "timestamp", descending: true).getDocuments(as: Activity.self)
-            activities.append(contentsOf: userActivities)
-        }
-        return activities
-    }
-    
+           var allActivities = [Activity]()
+           var users = userIDs
+           while !users.isEmpty {
+               let batchSize = min(30, users.count)
+               let batchUserIDs = Array(users.prefix(batchSize))
+               users.removeFirst(batchSize)
+               
+               let activities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
+               allActivities.append(contentsOf: activities)
+           }
+           
+           return allActivities
+       }
+       
+       
+       private func fetchActivitiesForUsers(userIds: [String]) async throws -> [Activity] {
+           var activities = [Activity]()
+           // Query activities for the specified user ID, sorted by timestamp in descending order
+           let query = FirestoreConstants.ActivityCollection
+           for uid in userIds{
+               let userActivities = try await query.whereField("uid", isEqualTo: uid).getDocuments(as: Activity.self)
+               activities.append(contentsOf: userActivities)
+           }
+           return activities
+       }
     
     func fetchKetchupActivities(lastDocumentSnapshot: DocumentSnapshot? = nil, pageSize: Int) async throws -> ([Activity], DocumentSnapshot?) {
             var query = FirestoreConstants.ActivityCollection
@@ -80,3 +72,8 @@ class ActivityService {
 }
 
 
+extension Timestamp: Comparable {
+    public static func < (lhs: Timestamp, rhs: Timestamp) -> Bool {
+        return lhs.seconds < rhs.seconds || (lhs.seconds == rhs.seconds && lhs.nanoseconds < rhs.nanoseconds)
+    }
+}

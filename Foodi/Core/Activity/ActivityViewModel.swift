@@ -21,22 +21,16 @@ class ActivityViewModel: ObservableObject {
 
     @Published var letsKetchupOption: LetsKetchupOptions = .friends
     @State var outOfTrending = false
-    @State var outOfFriends = false
     @Published var isFetching: Bool = false
     private let fetchingThreshold: Int = -5
     
     
-    private var lastFriendsDocumentSnapshot: DocumentSnapshot? = nil
-     private var lastTrendingDocumentSnapshot: DocumentSnapshot? = nil
+    private var lastTrendingDocumentSnapshot: DocumentSnapshot? = nil
     var user: User?
+    
     func fetchFriendsActivities() async throws {
-        let activities = try await service.fetchFollowingActivities(page: friendsCurrentPage)
-        if activities.isEmpty {
-            outOfFriends = true
+            self.friendsActivity = try await service.fetchFollowingActivities()
         }
-        self.friendsActivity.append(contentsOf: activities)
-        friendsCurrentPage += 1
-    }
 
     func fetchTrendingActivities() async throws {
             guard !isFetching, !outOfTrending else { return }

@@ -59,13 +59,6 @@ struct ActivityView: View {
                                             let distanceFromEnd = viewModel.friendsActivity.count - index - 1
                                             
                                             ActivityCell(activity: viewModel.friendsActivity[index], viewModel: viewModel)
-                                                .onAppear {
-                                                    if distanceFromEnd < paginationThreshold {
-                                                        Task {
-                                                            try await viewModel.fetchFriendsActivities()
-                                                        }
-                                                    }
-                                                }
                                         }
                                     }
                                     //MARK: Ketchup
@@ -113,7 +106,7 @@ struct ActivityView: View {
                     if viewModel.letsKetchupOption == .trending {
                         try await viewModel.fetchInitialTrendingActivities()
                     } else if viewModel.letsKetchupOption == .friends {
-                        try await viewModel.fetchFriendsActivities()
+                        //try await viewModel.fetchFriendsActivities()
                     }
                 }
             }
