@@ -148,6 +148,7 @@
 		F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */; };
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
 		F8901C862BA436A100FBE778 /* VideoCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8901C852BA436A100FBE778 /* VideoCache.swift */; };
+		F89D38FA2BF7DE4800F21A49 /* OldDiscoverFollow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89D38F92BF7DE4800F21A49 /* OldDiscoverFollow.swift */; };
 		F89F28722BE3163C00E670E0 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28712BE3163C00E670E0 /* Activity.swift */; };
 		F89F28742BE3F4F300E670E0 /* ActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28732BE3F4F300E670E0 /* ActivityCell.swift */; };
 		F8A24B592BE7F2BD00AB7FDD /* UploadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */; };
@@ -364,6 +365,7 @@
 		F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
 		F8901C852BA436A100FBE778 /* VideoCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCache.swift; sourceTree = "<group>"; };
+		F89D38F92BF7DE4800F21A49 /* OldDiscoverFollow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldDiscoverFollow.swift; sourceTree = "<group>"; };
 		F89F28712BE3163C00E670E0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		F89F28732BE3F4F300E670E0 /* ActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityCell.swift; sourceTree = "<group>"; };
 		F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadError.swift; sourceTree = "<group>"; };
@@ -1054,6 +1056,7 @@
 				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
 				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,
 				F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */,
+				F89D38F92BF7DE4800F21A49 /* OldDiscoverFollow.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1715,6 +1718,7 @@
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */,
 				F8670A5E2BF3FBC800F527D9 /* FinalPhotoPreview.swift in Sources */,
+				F89D38FA2BF7DE4800F21A49 /* OldDiscoverFollow.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
 				F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */,

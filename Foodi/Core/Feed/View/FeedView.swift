@@ -81,57 +81,6 @@ struct FeedView: View {
                         
                     
                     
-                    
-                    //MARK: Discover and Following
-                    //                if !hideFeedOptions {
-                    //                    HStack() {
-                    //                        // Button for "Following"
-                    //                        Button(action: {
-                    //                            fetchTask?.cancel()
-                    //                            viewModel.posts.removeAll()
-                    //                            selectedFeed = .following
-                    //                            viewModel.setFeedType(.following)
-                    //                            fetchTask = Task {
-                    //                                await viewModel.fetchPosts()
-                    //
-                    //                            }
-                    //                        }) {
-                    //                            Text("Following")
-                    //                                .foregroundColor(selectedFeed == .following ? .white : .gray)
-                    //                                .fontWeight(selectedFeed == .following ? .bold : .regular)
-                    //                                .frame(width: 78)
-                    //                        }
-                    //                        .disabled(selectedFeed == .following)
-                    //
-                    //                        // Vertical Line
-                    //                        Rectangle()
-                    //                            .frame(width: 2, height: 18)
-                    //                            .foregroundColor(.gray)
-                    //
-                    //                        // Button for "Recommended"
-                    //                        Button(action: {
-                    //                            fetchTask?.cancel()
-                    //                            viewModel.posts.removeAll()
-                    //                            selectedFeed = .discover
-                    //                            viewModel.setFeedType(.discover)
-                    //                            fetchTask = Task {
-                    //                                await viewModel.fetchPosts()
-                    //
-                    //                            }
-                    //
-                    //                        }) {
-                    //                            Text("Discover")
-                    //                                .foregroundColor(selectedFeed == .discover ?
-                    //                                    .white : .gray)
-                    //                                .fontWeight(selectedFeed == .discover ? .bold : .regular)
-                    //                                .frame(width: 78)
-                    //                        }
-                    //                        .disabled(selectedFeed == .discover)
-                    //                    }
-                    //                    .padding(.top, 70)
-                    //                    .padding(.horizontal)
-                    //                    .frame(maxWidth: .infinity)
-                    
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
                             Button{

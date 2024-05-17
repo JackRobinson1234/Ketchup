@@ -47,6 +47,21 @@ struct PostGridView: View {
                             .onTapGesture { selectedPost = post}
                             .overlay(
                                 VStack{
+                                    HStack {
+                                        if let restaurant = post.restaurant {
+                                            Image(systemName: "storefront.fill")
+                                                .foregroundStyle(.white)
+                                                .font(.caption)
+                                          
+                                        }  else if let recipe = post.recipe {
+                                            Image(systemName: "frying.pan.fill")
+                                                .foregroundStyle(.white)
+                                                .font(.caption)
+                                        }
+                                        Spacer()
+                                    }
+                                    
+                                    Spacer()
                                     HStack{
                                         VStack (alignment: .leading) {
                                             if let restaurant = post.restaurant {
@@ -70,26 +85,6 @@ struct PostGridView: View {
                                         }
                                         
                                         Spacer()
-                                    }
-                                    
-                                    Spacer()
-                                    HStack {
-                                        /*
-                                         if post.restaurant != nil {
-                                         Image(systemName: "building.2.crop.circle.fill")
-                                         .font(.footnote)
-                                         .foregroundColor(.white)
-                                         } else if post.recipe != nil {
-                                         Image(systemName: "fork.knife.circle")
-                                         .font(.footnote)
-                                         .foregroundColor(.white)
-                                         }*/
-                                        Spacer()
-                                        
-//                                        Text("\(post.likes)")
-//                                            .foregroundColor(.white)
-//                                            .font(.footnote)
-                                        
                                     }
                                     
                                 }
