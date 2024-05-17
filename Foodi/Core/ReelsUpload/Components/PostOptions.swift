@@ -66,7 +66,7 @@ struct PostOptions: View {
                     
                     
                 }
-            } else if uploadViewModel.postType == "atHome Post" {
+            } else if uploadViewModel.postType == "restaurant" {
                 if let restaurant = uploadViewModel.restaurant {
                     Button {
                         isPickingRestaurant = true

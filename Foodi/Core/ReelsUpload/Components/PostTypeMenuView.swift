@@ -37,7 +37,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                                     
-                        Text("atHome")
+                        Text("Cooking Post")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }
@@ -48,7 +48,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    uploadViewModel.postType = "atHome"
+                    uploadViewModel.postType = "restaurant"
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -59,7 +59,7 @@ struct PostTypeMenuView: View {
                             .foregroundColor(.black)
                             .opacity(0.6)
                         
-                        Text("atHome Post")
+                        Text("Dining Post")
                             .font(.subheadline)
                             .foregroundColor(.black)
                     }

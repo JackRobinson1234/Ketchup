@@ -201,7 +201,7 @@ struct FeedView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.bottom, 10)
-                        //.background(Color(hex: 0xF5F5F5).opacity(0.1))
+                        //.opacity(1)
                         .shadow(color: Color.gray.opacity(0.5), radius: 5, x: 0, y: 5)
                     }
                     
@@ -226,7 +226,7 @@ struct FeedView: View {
                     }
                     viewModel.updateCache(scrollPosition: newValue)
                     }
-                .background(Color(hex: 0xFFF9DB))
+                .background(Color("Colors/HingeGray"))
                 .ignoresSafeArea()
                 
                 /// sets destination of user profile links

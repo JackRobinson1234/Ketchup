@@ -31,7 +31,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     // VIDEO PROPERTIES
     @Published var isRecording: Bool = false
-    @Published var recordedURLs: [URL] = []
+    //@Published var recordedURLs: [URL] = []
     @Published var previewURL: URL?
     
     // EDIT/PREVIEW VIEW PROPERTIES
@@ -48,6 +48,28 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     // DRAGGING TO SWITCH CAMERA MODE
     @Published var isDragging = false
     @Published var dragDirection = "left"
+    
+    //LOADING STUFF
+    @Published var isLoading = false
+    
+    // USER CAMERA SETTINGS
+    @Published var cameraPosition: CameraPosition = .back
+    @Published var flashMode: AVCaptureDevice.FlashMode = .off
+    @Published var showFlashOverlay = false
+    @Published var originalBrightness: CGFloat? = nil
+    @Published var zoomFactor: CGFloat = 1.0 {
+            didSet {
+                let clampedZoomFactor = max(1.0, min(zoomFactor, 3.0)) // Cap the zoom factor at 5x
+                if zoomFactor != clampedZoomFactor {
+                    zoomFactor = clampedZoomFactor
+                } else {
+                    setZoomFactor(zoomFactor)
+                }
+            }
+        }
+
+    private var initialZoomFactor: CGFloat = 1.0
+    @Published var isDragEnabled: Bool = true
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
             .onChanged { _ in self.isDragging = true }
@@ -61,7 +83,34 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                 }
             }
     }
+
     
+    @Published var recordedURLs: [URL] = []
+    @Published var recordedCameraPositions: [CameraPosition] = []
+    
+    func setZoomFactor(_ factor: CGFloat) {
+        guard cameraPosition == .back, let device = AVCaptureDevice.default(for: .video) else {
+            return
+        }
+        do {
+            try device.lockForConfiguration()
+            device.videoZoomFactor = factor
+            device.unlockForConfiguration()
+        } catch {
+            print("Failed to set zoom factor: \(error)")
+        }
+    }
+    
+    func handlePinchGesture(scale: CGFloat) {
+        guard cameraPosition == .back else { return }
+        let sensitivity: CGFloat = 1
+        let newZoomFactor = initialZoomFactor * (1 + (scale - 1) * sensitivity)
+        zoomFactor = newZoomFactor
+    }
+
+    func startPinchGesture() {
+        initialZoomFactor = zoomFactor
+    }
     
     func checkPermission() {
         
@@ -94,9 +143,17 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         do {
             self.session.beginConfiguration()
+            session.inputs.forEach { session.removeInput($0) }
             
-            // might need to alter for our needs
-            let cameraDevice = AVCaptureDevice.default(for: .video)
+            let cameraDevice: AVCaptureDevice?
+            
+            switch cameraPosition {
+                case .front:
+                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+                case .back:
+                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+                }
+
             let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             
             let audioDevice = AVCaptureDevice.default(for: .audio)
@@ -127,108 +184,119 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
     func startRecording() {
-        // MARK: Temporary URL for recording Video
-        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
-        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
         isRecording = true
+        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
+        configureFlash()  // Only configure flash if using the back camera
+        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
+        recordedCameraPositions.append(cameraPosition)
     }
 
-    
     func stopRecording() {
-        videoOutput.stopRecording()
         isRecording = false
+        configureFlash()  // Turn off the torch if it was on and we're using the back camera
+        isLoading = true
+        videoOutput.stopRecording()
+    }
+    
+    func startRecordingForNewCam() {
+        let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
+        videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
+        recordedCameraPositions.append(cameraPosition)
+    }
+
+    func stopRecordingForNewCam() {
+        videoOutput.stopRecording()
     }
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
             print(error.localizedDescription)
-            return
         }
-        
-        // CREATED SUCCESSFULLY
-        print(outputFileURL)
-        self.recordedURLs.append(outputFileURL)
-        if self.recordedURLs.count == 1{
-            self.previewURL = outputFileURL
-            return
-        }
-        
+        recordedURLs.append(outputFileURL)
+
         // CONVERTING URLs TO ASSETS
-        let assets = recordedURLs.compactMap { url -> AVURLAsset in
-            return AVURLAsset(url: url)
-        }
+        let assets = recordedURLs.map { AVURLAsset(url: $0) }
         
-        self.previewURL = nil
         // MERGING VIDEOS
-        mergeVideos(assets: assets) { exporter in
-            exporter.exportAsynchronously {
-                if exporter.status == .failed{
-                    // HANDLE ERROR
-                    print(exporter.error!)
-                }
-                else{
-                    if let finalURL = exporter.outputURL{
-                        print(finalURL)
-                        DispatchQueue.main.async {
-                            self.previewURL = finalURL
+        if !isRecording {
+            mergeVideos(assets: assets) { exporter in
+                exporter.exportAsynchronously {
+                    if exporter.status == .failed {
+                        // HANDLE ERROR
+                        print(exporter.error!)
+                    } else {
+                        if let finalURL = exporter.outputURL {
+                            DispatchQueue.main.async {
+                                self.previewURL = finalURL
+                                self.isLoading = false
+                            }
                         }
                     }
                 }
             }
         }
+        
     }
     
     
-    func mergeVideos(assets: [AVURLAsset],completion: @escaping (_ exporter: AVAssetExportSession)->()){
-        
-        let compostion = AVMutableComposition()
+    func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()) {
+        let composition = AVMutableComposition()
         var lastTime: CMTime = .zero
         
-        guard let videoTrack = compostion.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else{return}
-        guard let audioTrack = compostion.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else{return}
+        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
+              let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
+            print("Failed to add tracks to the composition")
+            return
+        }
         
-        for asset in assets {
-            // Linking Audio and Video
-            do{
-                try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: asset.tracks(withMediaType: .video)[0], at: lastTime)
-                // Safe Check if Video has Audio
-                if !asset.tracks(withMediaType: .audio).isEmpty{
-                    try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: asset.tracks(withMediaType: .audio)[0], at: lastTime)
+        var instructions: [AVMutableVideoCompositionInstruction] = []
+        
+        for index in recordedURLs.indices {
+            let recordedUrl = recordedURLs[index]
+            let asset = AVURLAsset(url: recordedUrl)
+            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+            
+            do {
+                let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
+                try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: lastTime)
+                
+                if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
+                    try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: lastTime)
                 }
-            }
-            catch{
-                // HANDLE ERROR
-                print(error.localizedDescription)
+            } catch {
+                print("Error during composition: \(error)")
+                continue // Optionally continue to the next iteration
             }
             
-            // Updating Last Time
+            let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+            var transform = CGAffineTransform.identity
+            transform = transform.translatedBy(x: videoTrack.naturalSize.height, y: 0).rotated(by: 90 * (.pi / 180))
+            
+            if recordedCameraPositions[index] == .front {
+                transform = transform.scaledBy(x: 1, y: -1).translatedBy(x: 0, y: -videoTrack.naturalSize.height)
+            }
+            
+            layerInstructions.setTransform(transform, at: lastTime)
+            
+            let instruction = AVMutableVideoCompositionInstruction()
+            instruction.timeRange = CMTimeRange(start: lastTime, duration: asset.duration)
+            instruction.layerInstructions = [layerInstructions]
+            instructions.append(instruction)
+            
             lastTime = CMTimeAdd(lastTime, asset.duration)
         }
         
-        // MARK: Temp Output URL
-        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
-        
-        // VIDEO IS ROTATED
-        // BRINGING BACK TO ORIGNINAL TRANSFORM
-        
-        let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-        
-        // MARK: Transform
-        var transform = CGAffineTransform.identity
-        transform = transform.rotated(by: 90 * (.pi / 180))
-        transform = transform.translatedBy(x: 0, y: -videoTrack.naturalSize.height)
-        layerInstructions.setTransform(transform, at: .zero)
-        
-        let instructions = AVMutableVideoCompositionInstruction()
-        instructions.timeRange = CMTimeRange(start: .zero, duration: lastTime)
-        instructions.layerInstructions = [layerInstructions]
-        
         let videoComposition = AVMutableVideoComposition()
-        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
-        videoComposition.instructions = [instructions]
-        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
+        videoComposition.instructions = instructions
+        videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
         
-        guard let exporter = AVAssetExportSession(asset: compostion, presetName: AVAssetExportPresetHighestQuality) else{return}
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
+        guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
+            print("Failed to create export session")
+            return
+        }
+        
         exporter.outputFileType = .mp4
         exporter.outputURL = tempURL
         exporter.videoComposition = videoComposition
@@ -237,28 +305,31 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     
     func takePic() {
-        
-        if images.count < 3 {
+        if images.count < 5 {
             DispatchQueue.global(qos:.background).async {
-                
-                self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-
-                DispatchQueue.main.async {
-                    withAnimation {self.isPhotoTaken = true}
+                let photoSettings = AVCapturePhotoSettings()
+                if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
+                    photoSettings.flashMode = self.flashMode
                 }
+                
+                if self.flashMode == .off {
+                    DispatchQueue.main.async {
+                        self.showFlashOverlay = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self.showFlashOverlay = false
+                        }
+                    }
+                }
+                self.isLoading = true
+                self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
             }
-        }
-        
-        
-        
-        if images.count >= 3 {
+        } else {
+            // Additional logic if needed
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
             }
         }
-
-        
     }
     
 
@@ -281,6 +352,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        
         if let error = error {
             print("Error capturing photo: \(error.localizedDescription)")
             return
@@ -290,14 +362,63 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             print("Failed to convert photo to UIImage.")
             return
         }
+        
+        // Adjusting the image based on the camera used
+        var adjustedImage = image
+        if cameraPosition == .front {
+            // Ensure the image is mirrored horizontally
+            if let cgImage = image.cgImage {
+                let mirroredImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .leftMirrored)
+                adjustedImage = fixOrientation(of: mirroredImage)
+            }
+        }
 
-        self.images.append(image)
+        DispatchQueue.main.async {
+            self.isLoading = false
+            self.images.append(adjustedImage)
+            self.isPhotoTaken = true
+        }
+    }
+
+    func fixOrientation(of image: UIImage) -> UIImage {
+        // Check if the image orientation is already correct
+        if image.imageOrientation == .up {
+            return image
+        }
+
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return normalizedImage
     }
     
+    func toggleCamera() {
+        guard isRecording else {
+            // If not currently recording, just switch the camera
+            switchCameraInput()
+            return
+        }
+
+        // Stop recording with the current camera
+      
+        stopRecordingForNewCam()
+        
+        switchCameraInput()
+        startRecordingForNewCam()
+    }
+
+    func switchCameraInput() {
+        cameraPosition = (cameraPosition == .back) ? .front : .back
+        zoomFactor = 1.0
+        setUp() // Reconfigure the session with the new camera
+        configureFlash()
+    }
     func reset() {
         // Reset the photo and video capture properties
         images.removeAll()
         recordedURLs.removeAll()
+        recordedCameraPositions.removeAll()
         previewURL = nil
         isPhotoTaken = false
         isRecording = false
@@ -306,8 +427,77 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         recordedDuration = 0
         isDragging = false
         uploadFromLibray = false
+        isDragEnabled = true
+        
+    }
+    
+    
+    func configureFlash() {
+        guard let device = AVCaptureDevice.default(for: .video) else { return }
+
+        do {
+            try device.lockForConfiguration()
+
+            // Only manage the torch if using the back camera
+            if cameraPosition == .back {
+                if isRecording && flashMode == .on {
+                    device.torchMode = .on
+                } else {
+                    device.torchMode = .off
+                }
+                // Restore original brightness when using back camera
+                if let originalBrightness = originalBrightness {
+                    UIScreen.main.brightness = originalBrightness
+                    self.originalBrightness = nil // Reset the stored original brightness
+                }
+                showFlashOverlay = false
+            } else {
+                // Manage front camera settings
+                device.torchMode = .off  // Ensure torch is off for the front camera
+                if isRecording && flashMode == .on {
+                    if originalBrightness == nil { // Store the current brightness if not already stored
+                        originalBrightness = UIScreen.main.brightness
+                    }
+                    UIScreen.main.brightness = CGFloat(1.0)  // Maximize brightness
+                    showFlashOverlay = true
+                } else {
+                    if let originalBrightness = originalBrightness {
+                        UIScreen.main.brightness = originalBrightness // Restore original brightness
+                        self.originalBrightness = nil // Reset the stored original brightness
+                    }
+                    showFlashOverlay = false
+                }
+            }
+
+            device.unlockForConfiguration()
+        } catch {
+            print("Flash could not be configured: \(error)")
+        }
+    }
+    
+    func getDragStatus() -> Bool {
+        if isRecording || isLoading || isPhotoTaken || previewURL != nil || !recordedURLs.isEmpty {
+            return false
+        } else {
+            return true
+        }
     }
         
+}
+
+enum CameraPosition {
+    case front
+    case back
+}
+extension CameraPosition {
+    func toAVCaptureDevicePosition() -> AVCaptureDevice.Position {
+        switch self {
+        case .front:
+            return .front
+        case .back:
+            return .back
+        }
+    }
 }
 
 //    func savePic() {

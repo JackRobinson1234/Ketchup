@@ -44,22 +44,33 @@ struct ReelsUploadView: View {
                             .cornerRadius(10)
                             .foregroundStyle(.black)
                     }
-                    //if uploadViewModel.postType == "atHome" {
+                    if uploadViewModel.postType == "atHome" {
                         ZStack(alignment: .topLeading){
-                            TextEditor(text: $titleText)
+                            TextField("Give your cooking post a title!*...", text: $titleText)
                                 .font(.title3)
                                 .background(Color.white)
                                 .frame(height: 75)
-                                .padding(4)
-                            if titleText.isEmpty {
-                                Text("Give your cooking post a title!*...")
-                                    .font(.title3)
-                                    .foregroundColor(.gray)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 12)
-                                    
-                                
-                            }
+                                .padding(.horizontal, 20)
+//                                .padding(.horizontal, 20)
+//                                .toolbar {
+//                                                        ToolbarItem(placement: .keyboard) {
+//                                                            HStack {
+//                                                                Spacer()
+//                                                                Button("Done") {
+//                                                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+//                                                                }
+//                                                            }
+//                                                        }
+//                                                    }
+//                            if titleText.isEmpty {
+//                                Text("Give your cooking post a title!*...")
+//                                    .font(.title3)
+//                                    .foregroundColor(.gray)
+//                                    .padding(.horizontal, 20)
+//                                    .padding(.vertical, 12)
+//                                    
+//                                
+//                            }
                         }
                         .onChange(of: titleText) {
                             if titleText.count > maxCharacters {
@@ -76,7 +87,7 @@ struct ReelsUploadView: View {
                                 .foregroundColor(titleText.count > maxCharacters ? .red : .gray)
                                 .padding(.horizontal, 10)
                         }
-                        //}
+                        }
                         Divider()
                     //}
                     Button(action: {
@@ -91,6 +102,10 @@ struct ReelsUploadView: View {
                     
                     Button {
                         Task {
+                            if uploadViewModel.postType == "atHome" {
+                                uploadViewModel.recipeTitle = titleText
+                                uploadViewModel.savedRecipe = true
+                            }
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()
                             cameraViewModel.reset()
@@ -111,12 +126,13 @@ struct ReelsUploadView: View {
                                 
                             }
                     }
+                    .opacity(uploadViewModel.postType == "atHome" && titleText.isEmpty ? 0.5 : 1.0)
+                    .disabled(
+                        uploadViewModel.postType == "atHome" && titleText.isEmpty)
                     
                     Spacer()
                 }
-                .opacity(uploadViewModel.postType == "atHome" && titleText.isEmpty ? 0.5 : 1.0)
-                .disabled(
-                    uploadViewModel.postType == "atHome" && titleText.isEmpty)
+               
                 .padding(.vertical)
                 .blur(radius: showPostTypeMenu ? 10 : 0)
                 

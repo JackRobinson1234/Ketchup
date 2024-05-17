@@ -50,6 +50,7 @@ struct CurrentUserProfileView: View {
                             showSettings.toggle()
                         } label: {
                             Image(systemName: "gearshape")
+                                .foregroundStyle(.black)
                         }
                     }
                         

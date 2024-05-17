@@ -153,48 +153,49 @@ class PostService {
             ///   - coordinates: coordinates of the center of the radius
             /// - Returns: an updated query that finds postIds based on returned postIds from GeoFire
             
-            func fetchPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 1000, lastDocument: DocumentSnapshot? = nil, pageSize: Int = 10) async throws -> ([Post], DocumentSnapshot?) {
-                let queryBounds = GFUtils.queryBounds(forLocation: center,
-                                                      withRadius: radiusInM)
-                let queries = queryBounds.map { bound -> Query in
-                       var query = applyFilters(toQuery: FirestoreConstants.PostsCollection
-                           .order(by: "restaurant.geoHash")
-                           .start(at: [bound.startValue])
-                           .end(at: [bound.endValue]), filters: filters)
-                       
-                       if let lastDocument = lastDocument {
-                           query = query.start(afterDocument: lastDocument)
-                       }
-                       return query.limit(to: pageSize)
-                   }
-                
-                // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
-                do {
-                        let matchingDocs = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group -> [QueryDocumentSnapshot] in
-                            for query in queries {
-                                group.addTask {
-                                    let snapshot = try await query.getDocuments()
-                                    return snapshot.documents
-                                }
-                            }
-                            var matchingDocs = [QueryDocumentSnapshot]()
-                            for try await documents in group {
-                                matchingDocs.append(contentsOf: documents)
-                            }
-                            return matchingDocs
-                        }
-                        
-                        let posts = matchingDocs.compactMap { document in
-                            try? document.data(as: Post.self)
-                        }
-                        
-                        let lastDocumentSnapshot = matchingDocs.last
-                        return (posts, lastDocumentSnapshot)
-                    } catch {
-                        throw error
+    func fetchPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 1000, lastDocument: DocumentSnapshot? = nil, pageSize: Int = 10) async throws -> ([Post], DocumentSnapshot?) {
+        let queryBounds = GFUtils.queryBounds(forLocation: center,
+                                              withRadius: radiusInM)
+        let queries = queryBounds.map { bound -> Query in
+            var query = applyFilters(toQuery: FirestoreConstants.PostsCollection
+                .order(by: "restaurant.geoHash")
+                .start(at: [bound.startValue])
+                .end(at: [bound.endValue]), filters: filters)
+                .limit(to: 75)
+            
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+            return query.limit(to: pageSize)
+        }
+        
+        // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
+        do {
+            let matchingDocs = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group -> [QueryDocumentSnapshot] in
+                for query in queries {
+                    group.addTask {
+                        let snapshot = try await query.getDocuments()
+                        return snapshot.documents
                     }
                 }
+                var matchingDocs = [QueryDocumentSnapshot]()
+                for try await documents in group {
+                    matchingDocs.append(contentsOf: documents)
+                }
+                return matchingDocs
+            }
+            
+            let posts = matchingDocs.compactMap { document in
+                try? document.data(as: Post.self)
+            }
+            
+            let lastDocumentSnapshot = matchingDocs.last
+            return (posts, lastDocumentSnapshot)
+        } catch {
+            throw error
         }
+    }
+}
 
 
 extension PostService {

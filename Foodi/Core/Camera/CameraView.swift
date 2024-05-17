@@ -32,7 +32,25 @@ struct CameraView: View {
                     .cornerRadius(10)
                     .environmentObject(cameraViewModel)
                     .onAppear { cameraViewModel.checkPermission() }
-                    .gesture(cameraViewModel.drag)
+                    .gesture(cameraViewModel.getDragStatus() ? cameraViewModel.drag : nil)
+                    .onTapGesture(count: 2) {
+                        cameraViewModel.toggleCamera()
+                    }
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                cameraViewModel.handlePinchGesture(scale: value)
+                            }
+                            .onEnded { _ in
+                                // Reset initial zoom factor at the end of the gesture
+                                cameraViewModel.startPinchGesture()
+                            }
+                    )
+                
+                if cameraViewModel.showFlashOverlay {
+                    Color.white.opacity(0.5)
+                        .cornerRadius(10)
+                }
                 
                 // MARK: CameraControls
                 ZStack {
@@ -60,10 +78,26 @@ struct CameraView: View {
                         .padding(.leading)
 
                         Spacer()
+                        
                     }
                     
                     
                     Spacer()
+                    
+                    
+                    ZStack {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 30, height: 30)
+                        
+                        // Write actual zoom level here
+                        Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .blendMode(.destinationOut)
+                    }
+                    .padding(.bottom, 20)
+                    
                     
                     HStack {
                         Button {
@@ -101,6 +135,48 @@ struct CameraView: View {
                     
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
+                
+                HStack {
+                    
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        
+                        Button(action: {
+                            cameraViewModel.toggleCamera()
+                        }) {
+                            Image(systemName: "camera.rotate")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Button(action: {
+                            switch cameraViewModel.flashMode {
+                            case .off:
+                                cameraViewModel.flashMode = .on
+                            case .on:
+                                cameraViewModel.flashMode = .off
+                            default:
+                                cameraViewModel.flashMode = .off
+                            }
+                        }) {
+                            Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.trailing)
+                    .padding(.top, 35)
+                }
+                .opacity(cameraViewModel.isRecording ? 0 : 1)
+                
+                
             }
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
@@ -154,13 +230,23 @@ struct VideoCameraControls: View {
                     cameraViewModel.reset()
                     uploadViewModel.reset()
                 } label: {
-                    Text("Delete")
-                        .frame(width: 100, height: 50)
-                        .background(.red)
-                        .cornerRadius(3.0)
-                        .foregroundColor(.white)
+                    Group {
+                        if cameraViewModel.isLoading{
+                            // DO NOTHING
+                        } else {
+                            Text("Delete")
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .frame(width: 70, height: 30)
+                    .cornerRadius(3)
+                    .background {
+                        Capsule()
+                            .fill(.red)
+                    }
                 }
-                .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
+                .frame(width: 100)
+                .opacity((cameraViewModel.previewURL == nil || cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
                 
                 
                 // RECORD BUTTON
@@ -198,7 +284,7 @@ struct VideoCameraControls: View {
                     }
                 } label: {
                     Group{
-                        if cameraViewModel.previewURL == nil && !cameraViewModel.recordedURLs.isEmpty{
+                        if cameraViewModel.isLoading{
                             // Merging Videos
                             ProgressView()
                                 .tint(.black)
@@ -208,13 +294,13 @@ struct VideoCameraControls: View {
                                 Image(systemName: "chevron.right")
                                     .font(.callout)
                             } icon: {
-                                Text("Preview")
+                                Text("Next")
                             }
                             .foregroundColor(.black)
                         }
                     }
-                    .padding(.horizontal,10)
-                    .padding(.vertical,5)
+                    .frame(width: 70, height: 30)
+                    .cornerRadius(3)
                     .background {
                         Capsule()
                             .fill(.white)
@@ -259,38 +345,55 @@ struct PhotoCameraControls: View {
                     
                     Spacer()
                     
-                    HStack {
-                        Text("\(cameraViewModel.images.count)/3")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                        
+                    VStack {
                         HStack(spacing: -30) {
-                            ForEach((0..<3).reversed(), id: \.self) { index in
+                            ForEach((0..<5).reversed(), id: \.self) { index in
                                 if index < cameraViewModel.images.count {
                                     Image(uiImage: cameraViewModel.images[cameraViewModel.images.count - 1 - index])
                                         .resizable()
-                                        .frame(width: 30, height: 45)
+                                        .scaledToFill()
+                                        .frame(width: 31.2, height: 45)
                                         .clipShape(RoundedRectangle(cornerRadius: 5))
                                         .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
                                         .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
                                 } else {
-                                    Rectangle()
-                                        .fill(Color.gray)
-                                        .frame(width: 30, height: 45)
-                                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                                        .overlay(
-                                            Text("+")
-                                                .font(.system(size: 20))
-                                                .foregroundColor(.white)
-                                        )
-                                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                        .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    if cameraViewModel.isLoading && index == 0 {
+                                        Rectangle()
+                                            .fill(Color.gray)
+                                            .frame(width: 31.2, height: 45)
+                                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                                            .overlay(
+                                                ProgressView()
+                                                    .tint(.white)
+                                            )
+                                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    } else {
+                                        Rectangle()
+                                            .fill(Color.gray)
+                                            .frame(width: 31.2, height: 45)
+                                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                                            .overlay(
+                                                Text("+")
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(.white)
+                                            )
+                                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                    }
+                                    
                                 }
                             }
                         }
+                        
+                        Text("\(cameraViewModel.images.count)/5")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
                     }
                     .padding(.top)
-                    .padding(.trailing, 30)
+                    
+                    Spacer()
+                    
                 }
                 
                 Spacer()
@@ -313,12 +416,6 @@ struct PhotoCameraControls: View {
                     // TAKE PIC BUTTON
                     Button {
                         cameraViewModel.takePic()
-                        withAnimation {
-                            showFlash = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                showFlash = false
-                            }
-                        }
                     } label: {
                         ZStack {
                             Circle()

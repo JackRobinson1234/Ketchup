@@ -32,8 +32,6 @@ struct LibrarySelectorView: View {
             Button("Select Video") {
                 showVideoPicker = true
             }
-    
-            
         }
         .navigationDestination(isPresented: $uploadViewModel.navigateToUpload) {
             ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
@@ -62,7 +60,7 @@ struct LibrarySelectorView: View {
         .photosPicker(
             isPresented: $showImagePicker,
             selection: $selectedPhotos,
-            maxSelectionCount: 3,
+            maxSelectionCount: 5,
             matching: .images
         )
     }
@@ -70,7 +68,6 @@ struct LibrarySelectorView: View {
     func loadVideoURL() async {
         guard let videoItem = selectedVideo.first else { return }
         do {
-            let _ = print(videoItem)
             if let video: Movie = try await videoItem.loadTransferable(type: Movie.self) {
                 DispatchQueue.main.async {
                     uploadViewModel.videoURL = video.url

@@ -17,8 +17,9 @@ struct MainTabView: View {
             FeedView(videoCoordinator: videoCoordinator)
                 .tabItem {
                     VStack {
-                        Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 0 ? "house" : "house")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         
                     }
                 }
@@ -34,8 +35,9 @@ struct MainTabView: View {
             MapView()
                 .tabItem {
                     VStack {
-                        Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 1 ? "location" : "location")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         
                     }
                 }
@@ -49,7 +51,11 @@ struct MainTabView: View {
                 .toolbar(tabBarController.visibility, for: .tabBar)
       
             CameraView()
-                .tabItem { Image(systemName: "plus") }
+                .tabItem {
+                    Image(systemName: "plus.app")
+                        .foregroundStyle(.black)
+                }
+            
                 .onAppear {
                     tabBarController.selectedTab = 2
                     tabBarController.visibility = .hidden
@@ -62,8 +68,10 @@ struct MainTabView: View {
             ActivityView()
                 .tabItem {
                     VStack {
-                        Image(systemName: tabBarController.selectedTab == 3 ? "bolt.fill" : "bolt")
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 3 ? "bolt" : "bolt")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
+                            
                         
                     }
                 }
@@ -79,8 +87,9 @@ struct MainTabView: View {
             CurrentUserProfileView()
                 .tabItem {
                     VStack {
-                        Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .fill : .none)
+                        Image(systemName: tabBarController.selectedTab == 4 ? "person" : "person")
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
+                            .foregroundStyle(.black)
                         
                     }
                 }
@@ -91,7 +100,8 @@ struct MainTabView: View {
                 .tag(4)
                 .toolbar(tabBarController.visibility, for: .tabBar)
         }
-        .tint(.black)
+        .foregroundStyle(.black)
+        .tint(Color("Colors/AccentColor"))
         
     }
 }
