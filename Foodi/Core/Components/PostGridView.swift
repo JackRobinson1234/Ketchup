@@ -107,6 +107,7 @@ struct PostGridView: View {
             else {
                 Text("No Posts to Show")
                     .foregroundStyle(.gray)
+                    .font(.subheadline)
             }
         }
     }
