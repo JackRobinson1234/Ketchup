@@ -100,10 +100,17 @@ struct FeedView: View {
                                         feedViewOption = .grid
                                         
                                     } label: {
-                                        Image(systemName: "square.grid.2x2")
-                                            .font(.title)
-                                            .foregroundColor(feedViewOption == .grid ? .white : .gray)
-                                            .fontWeight(feedViewOption == .grid ? .bold : .regular)
+                                        ZStack {
+                                            if feedViewOption == .grid {
+                                                Color("Colors/AccentColor") // Red background for selected option
+                                                    .cornerRadius(12) // Adjust corner radius as needed
+                                                    .frame(width: 38, height: 38) // Adjust size as needed
+                                            }
+                                            Image(systemName: "square.grid.2x2")
+                                                .font(.title)
+                                                .foregroundColor(feedViewOption == .grid ? .white : .gray)
+                                                .fontWeight(feedViewOption == .grid ? .bold : .regular)
+                                        }
                                         
                                     }
                                     .disabled(feedViewOption == .grid)
@@ -116,11 +123,17 @@ struct FeedView: View {
                                         feedViewOption = .feed
                                         
                                     } label: {
-                                        Image(systemName: "line.3.horizontal")
-                                            .font(.title)
-                                            .foregroundColor(feedViewOption == .feed ?
-                                                .white : .gray)
-                                            .fontWeight(feedViewOption == .feed ? .bold : .regular)
+                                        ZStack {
+                                            if feedViewOption == .feed {
+                                                Color("Colors/AccentColor") // Red background for selected option
+                                                    .cornerRadius(12) // Adjust corner radius as needed
+                                                    .frame(width: 38, height: 38) // Adjust size as needed
+                                            }
+                                            Image(systemName: "line.3.horizontal")
+                                                .font(.title)
+                                                .foregroundColor(feedViewOption == .feed ? .white : .gray)
+                                                .fontWeight(feedViewOption == .feed ? .bold : .regular)
+                                        }
                                         //.frame(width: 78)
                                     }
                                     .disabled(feedViewOption == .feed)
