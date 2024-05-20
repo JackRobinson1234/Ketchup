@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, menu, map, collections
+    case posts, reviews, menu, map, collections
 }
 
 struct RestaurantProfileSlideBarView: View {
@@ -33,6 +33,21 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .posts))
                     .frame(maxWidth: .infinity)
+                
+                
+                Image(systemName: currentSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 15)
+                    .font(currentSection == .reviews ? .system(size: 20, weight: .bold) : .system(size: 20, weight: .regular))
+                    .onTapGesture {
+                        withAnimation {
+                            self.currentSection = .reviews
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
+                    .frame(maxWidth: .infinity)
+                
                 
                 Image(systemName: currentSection == .menu ? "menucard.fill" : "menucard")
                     .resizable()
@@ -112,8 +127,7 @@ struct UnderlineImageModifier: ViewModifier {
 }
 
 
-/*
+
 #Preview {
-    RestaurantProfileSlideBarView(viewModel: RestaurantViewModel(restaurant: DeveloperPreview.restaurants[0], restaurantService: RestaurantService(), postService: PostService()))
+    RestaurantProfileSlideBarView(currentSection: .constant(.posts), viewModel: RestaurantViewModel(restaurantId: ""))
 }
-*/

@@ -9,7 +9,7 @@ import Foundation
 import Firebase
 import SwiftUI
 
-struct Activity: Identifiable, Codable {
+struct Activity: Identifiable, Codable, Equatable {
     let id: String
     var username: String
     var postId: String?

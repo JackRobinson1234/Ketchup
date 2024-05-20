@@ -20,7 +20,7 @@ class FeedViewModel: ObservableObject {
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
     var videoCoordinator = VideoPlayerCoordinator()
-    private var currentFeedType: FeedType = .discover // default
+    //private var currentFeedType: FeedType = .discover // default
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
@@ -29,13 +29,14 @@ class FeedViewModel: ObservableObject {
     private let fetchingThreshold = -5
     private var filters: [String: [Any]]? = [:]
     @State var maxFetched: Bool = false
+    private var lastFetched: String? = nil
+    
     
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
         self._scrollPosition = scrollPosition
-        
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
@@ -139,10 +140,7 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-    
-    func setFeedType(_ feedType: FeedType) {
-        currentFeedType = feedType
-    }
+ 
 }
 
 // MARK: - Likes
@@ -196,20 +194,25 @@ extension FeedViewModel {
         
         posts = copy
     }
+    
+    
+    /// Fetches more content when the scroll positon reaches the threshold posoton
+    /// - Parameter currentPost: Current scroll position postID
     func loadMoreContentIfNeeded(currentPost: String?) async {
-            guard let currentPost = currentPost else { return }
-
-            let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
-            if posts.firstIndex(where: { $0.id == currentPost }) == thresholdIndex {
-                
-                    
-                        print("Fetching more posts")
-                        await fetchMorePosts()
-                    
-//                } else {
-//                    print("Already fetched this batch")
-               }
+        guard let currentPost = currentPost else { return }
+        let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
+        let postPosition = posts.firstIndex(where: { $0.id == currentPost })
+        if postPosition == thresholdIndex && lastFetched != scrollPosition{
+            print("Fetching more posts")
+            lastFetched = scrollPosition
+            await fetchMorePosts()
+        } else if postPosition == thresholdIndex && lastFetched == scrollPosition {
+            print("posts already been fetched from this index")
         }
+    }
+    
+    
+    
     func isLastItem(_ post: Post) -> Bool {
         guard let lastPost = posts.last else {
             return false

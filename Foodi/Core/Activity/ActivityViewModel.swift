@@ -23,7 +23,7 @@ class ActivityViewModel: ObservableObject {
     @State var outOfTrending = false
     @Published var isFetching: Bool = false
     private let fetchingThreshold: Int = -5
-    
+    private var lastFetched: Activity? = nil
     
     private var lastTrendingDocumentSnapshot: DocumentSnapshot? = nil
     var user: User?
@@ -32,19 +32,34 @@ class ActivityViewModel: ObservableObject {
             self.friendsActivity = try await service.fetchFollowingActivities()
         }
 
-    func fetchTrendingActivities() async throws {
-            guard !isFetching, !outOfTrending else { return }
-            
-            isFetching = true
-            defer { isFetching = false }
-            
-            let (activities, lastSnapshot) = try await service.fetchKetchupActivities(lastDocumentSnapshot: lastTrendingDocumentSnapshot, pageSize: pageSize)
-            if activities.count < pageSize {
-                outOfTrending = true
-            }
-            self.trendingActivity.append(contentsOf: activities)
-            lastTrendingDocumentSnapshot = lastSnapshot
+    
+    
+    func fetchMoreTrendingActivities(distanceFromEnd: Int) async throws{
+        guard !isFetching, !outOfTrending else { return }
+        let thresholdIndex = trendingActivity.index(trendingActivity.endIndex, offsetBy: fetchingThreshold)
+        
+        if trendingActivity[thresholdIndex] != lastFetched, -distanceFromEnd == thresholdIndex {
+            print("fetching new activities")
+            lastFetched = trendingActivity[thresholdIndex]
+            try await fetchTrendingActivities()
+        } else if trendingActivity[thresholdIndex] == lastFetched, -distanceFromEnd == thresholdIndex{
+            print("already fetched from this position")
         }
+    }
+    
+    func fetchTrendingActivities() async throws {
+        guard !isFetching, !outOfTrending else { return }
+        isFetching = true
+        defer { isFetching = false }
+        
+        let (activities, lastSnapshot) = try await service.fetchKetchupActivities(lastDocumentSnapshot: lastTrendingDocumentSnapshot, pageSize: pageSize)
+        if activities.count < pageSize {
+            outOfTrending = true
+        }
+        self.trendingActivity.append(contentsOf: activities)
+        lastTrendingDocumentSnapshot = lastSnapshot
+        lastFetched = trendingActivity.last
+    }
 
         func fetchInitialTrendingActivities() async throws {
             guard !isFetching else { return }

@@ -12,7 +12,7 @@ enum LetsKetchupOptions{
 struct ActivityView: View {
     @State var isLoading = true
     @StateObject var viewModel = ActivityViewModel()
-    private var paginationThreshold = 5
+
     var body: some View {
         NavigationStack{
             VStack{
@@ -56,7 +56,7 @@ struct ActivityView: View {
                                     LazyVStack {
                                         ForEach(viewModel.friendsActivity.indices, id: \.self) { index in
                                             // Calculate distance from the end
-                                            let distanceFromEnd = viewModel.friendsActivity.count - index - 1
+                                           
                                             
                                             ActivityCell(activity: viewModel.friendsActivity[index], viewModel: viewModel)
                                         }
@@ -80,11 +80,11 @@ struct ActivityView: View {
                                             
                                             ActivityCell(activity: viewModel.trendingActivity[index], viewModel: viewModel)
                                                 .onAppear {
-                                                    if distanceFromEnd == paginationThreshold {
+                                                   
                                                         Task {
                                                             if !viewModel.outOfTrending {
-                                                                try await viewModel.fetchTrendingActivities()
-                                                            }
+                                                                try await viewModel.fetchMoreTrendingActivities(distanceFromEnd: distanceFromEnd)
+                                                            
                                                         }
                                                     }
                                                 }
