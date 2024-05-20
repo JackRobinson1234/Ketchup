@@ -16,7 +16,6 @@ struct RestaurantProfileHeaderView: View {
     
     var body: some View {
         if let restaurant = viewModel.restaurant {
-        //let restaurant = DeveloperPreview.restaurants[0]
             ScrollView {
                 VStack{
                     ListingImageCarouselView(images: restaurant.imageURLs)

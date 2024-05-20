@@ -15,8 +15,14 @@ enum Section {
 
 struct RestaurantProfileSlideBarView: View {
     @Binding var currentSection: Section
-    @ObservedObject var viewModel: RestaurantViewModel
-
+        @ObservedObject var viewModel: RestaurantViewModel
+        @StateObject var reviewsViewModel: ReviewsViewModel
+        
+        init(currentSection: Binding<Section>, viewModel: RestaurantViewModel) {
+            self._currentSection = currentSection
+            self.viewModel = viewModel
+            self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
+        }
     var body: some View {
         //MARK: Selecting Images
         VStack{
@@ -38,8 +44,8 @@ struct RestaurantProfileSlideBarView: View {
                 Image(systemName: currentSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 15)
-                    .font(currentSection == .reviews ? .system(size: 20, weight: .bold) : .system(size: 20, weight: .regular))
+                    .frame(width: 50, height: 16)
+                    .font(currentSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
                     .onTapGesture {
                         withAnimation {
                             self.currentSection = .reviews
@@ -99,9 +105,11 @@ struct RestaurantProfileSlideBarView: View {
         if currentSection == .posts {
             PostGridView(posts: viewModel.posts)
         }
+        if currentSection == .reviews{
+            ReviewListView(viewModel: reviewsViewModel)
+        }
         if currentSection == .map {
             MapRestaurantProfileView(viewModel: viewModel)
-
         }
         if currentSection == .collections {
             RestaurantCollectionListView(viewModel: viewModel)
@@ -127,7 +135,7 @@ struct UnderlineImageModifier: ViewModifier {
 }
 
 
-
-#Preview {
-    RestaurantProfileSlideBarView(currentSection: .constant(.posts), viewModel: RestaurantViewModel(restaurantId: ""))
-}
+//
+//#Preview {
+//    RestaurantProfileSlideBarView(currentSection: .constant(.reviews), viewModel: RestaurantViewModel(restaurantId: "test"))
+//}

@@ -18,7 +18,6 @@ struct RestaurantProfileView: View {
     init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
         let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId)
-
         self._viewModel = StateObject(wrappedValue: restaurantViewModel)
         self._currentSection = State(initialValue: currentSection)
         self.restaurant = restaurant

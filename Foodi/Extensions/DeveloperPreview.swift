@@ -25,12 +25,13 @@ struct DeveloperPreview {
             id: NSUUID().uuidString,
             cuisine: "Italian",
             price: "$$",
-            name: "Amir B's Pizzeria kajnsdflnasdfnasfnajsdnfasnfdnaskd",
+            name: "Amir B's Pizzeria",
             geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
             address: "2425 Piedmont Ave",
-            city: "Berkeleyanjsdfk;jna;kdfjnas;kdfjn;kasnf;kasnjfkjanfkas;kf",
+            city: "Berkeley",
             state: "CA",
             imageURLs: nil,
+            profileImageUrl: "https://picsum.photos/400/500",
             stats: RestaurantStats(postCount: 0, collectionCount: 0)
         ),
         .init(
@@ -200,5 +201,48 @@ struct DeveloperPreview {
         static let activity2 = Activity(id: "2", username: "user2", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollection, uid: "uid2", image: nil, restaurantId: nil, collectionId: "456", name: "My Collection")
 
         static let activity3 = Activity(id: "3", username: "user3", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollectionItem, uid: "uid3",  image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: "789", name: "Item Name")
+    static let reviewUser = ReviewUser(
+           id: "user1",
+           fullname: "John Doe",
+           profileImageUrl: "https://picsum.photos/200/300",
+           privateMode: false,
+           username: "john.doe"
+       )
+       
+       static let restaurant = ReviewRestaurant(
+           id: "restaurant1",
+           name: "Example Restaurant",
+           geoPoint: nil,
+           geoHash: "",
+           address: "123 Main St",
+           city: "Cityville",
+           state: "Stateville",
+           profileImageUrl: "https://picsum.photos/400/500"
+       )
+       
+       static var reviews: [Review] = [
+           .init(
+               id: "1",
+               description: "This place has the best pizza in town!",
+               likes: 100,
+               timestamp: Timestamp(date: Date()),
+               user: reviewUser,
+               restaurant: restaurant,
+               didLike: true,
+               recommendation: true,
+               favoriteItems: ["Pizza", "Pasta"]
+           ),
+           .init(
+               id: "2",
+               description: "Their burgers are amazing!",
+               likes: 50,
+               timestamp: Timestamp(date: Date()),
+               user: reviewUser,
+               restaurant: restaurant,
+               didLike: false,
+               recommendation: false,
+               favoriteItems: ["Burgers", "Fries"]
+           )
+       ]
 
 }

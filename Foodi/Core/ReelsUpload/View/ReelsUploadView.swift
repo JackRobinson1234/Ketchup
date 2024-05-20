@@ -51,26 +51,7 @@ struct ReelsUploadView: View {
                                 .background(Color.white)
                                 .frame(height: 75)
                                 .padding(.horizontal, 20)
-//                                .padding(.horizontal, 20)
-//                                .toolbar {
-//                                                        ToolbarItem(placement: .keyboard) {
-//                                                            HStack {
-//                                                                Spacer()
-//                                                                Button("Done") {
-//                                                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-//                                                                }
-//                                                            }
-//                                                        }
-//                                                    }
-//                            if titleText.isEmpty {
-//                                Text("Give your cooking post a title!*...")
-//                                    .font(.title3)
-//                                    .foregroundColor(.gray)
-//                                    .padding(.horizontal, 20)
-//                                    .padding(.vertical, 12)
-//                                    
-//                                
-//                            }
+
                         }
                         .onChange(of: titleText) {
                             if titleText.count > maxCharacters {
@@ -89,7 +70,6 @@ struct ReelsUploadView: View {
                         }
                         }
                         Divider()
-                    //}
                     Button(action: {
                         self.isEditingCaption = true
                     }) {

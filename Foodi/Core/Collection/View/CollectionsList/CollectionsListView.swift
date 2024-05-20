@@ -10,7 +10,6 @@ import FirebaseAuth
 import Firebase
 struct CollectionsListView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var isLoading = true
     @ObservedObject var viewModel: CollectionsViewModel
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
@@ -92,7 +91,6 @@ struct CollectionsListView: View {
             if !viewModel.dismissListView {
                 Task {
                     await viewModel.fetchCollections(user: viewModel.user.id)
-                    isLoading = false
                 }
             }
         }
