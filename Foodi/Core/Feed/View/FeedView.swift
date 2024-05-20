@@ -83,66 +83,79 @@ struct FeedView: View {
                     
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
-                            Button{
-                                showSearchView.toggle()
-                                
-                            } label: {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 27))
-                            }
-                            // Button for "Following"
-                            Spacer()
-                            Button{
-                                feedViewOption = .grid
-                                
-                            } label: {
-                                Image(systemName: "square.grid.2x2")
-                                    .font(.title)
-                                    .foregroundColor(feedViewOption == .grid ? .white : .gray)
-                                    .fontWeight(feedViewOption == .grid ? .bold : .regular)
-                                    .frame(width: 78)
-                            }
-                            .disabled(feedViewOption == .grid)
+                            Image("KetchupTextWhite")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 17)
+                                .padding(.horizontal)
                             
-                            // Vertical Line
-                            Rectangle()
-                                .frame(width: 2, height: 18)
-                                .foregroundColor(.gray)
-                            
-                            // Button for "Recommended"
-                            Button{
-                                feedViewOption = .feed
-                                
-                            } label: {
-                                Image(systemName: "line.3.horizontal")
-                                    .font(.title)
-                                    .foregroundColor(feedViewOption == .feed ?
-                                        .white : .gray)
-                                    .fontWeight(feedViewOption == .feed ? .bold : .regular)
-                                    .frame(width: 78)
-                            }
-                            .disabled(feedViewOption == .feed)
+                            // Button for "Grid"
                             Spacer()
-                            Button {
-                                showFilters.toggle()
-                                
-                            }
-                        label: {
                             ZStack {
-                                Image(systemName: "slider.horizontal.3")
-                                    .imageScale(.large)
-                                    .shadow(radius: 4)
-                                    .font(.system(size: 23))
-                                
-                                if !filtersViewModel.filters.isEmpty {
-                                    Circle()
-                                        .fill(Color.red)
-                                        .frame(width: 12, height: 12)
-                                        .offset(x: 12, y: 12) // Adjust the offset as needed
+                                Color.white.opacity(0.1) // Adjust opacity as needed
+                                    .cornerRadius(15)
+                                    .frame(width: 100, height: 45)
+                                HStack(spacing: 10){
+                                    Button{
+                                        feedViewOption = .grid
+                                        
+                                    } label: {
+                                        Image(systemName: "square.grid.2x2")
+                                            .font(.title)
+                                            .foregroundColor(feedViewOption == .grid ? .white : .gray)
+                                            .fontWeight(feedViewOption == .grid ? .bold : .regular)
+                                        
+                                    }
+                                    .disabled(feedViewOption == .grid)
+                                    
+                                    // Vertical Line
+                                    
+                                    
+                                    // Button for "Feed"
+                                    Button{
+                                        feedViewOption = .feed
+                                        
+                                    } label: {
+                                        Image(systemName: "line.3.horizontal")
+                                            .font(.title)
+                                            .foregroundColor(feedViewOption == .feed ?
+                                                .white : .gray)
+                                            .fontWeight(feedViewOption == .feed ? .bold : .regular)
+                                        //.frame(width: 78)
+                                    }
+                                    .disabled(feedViewOption == .feed)
                                 }
                             }
-                        }
-                            //MARK: Filters and Search Buttons
+                            Spacer()
+                            HStack (spacing: 10) {
+                                Button{
+                                    showSearchView.toggle()
+                                    
+                                } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .font(.system(size: 27))
+                                }
+                                //MARK: Filters Button
+                                Button {
+                                    showFilters.toggle()
+                                }
+                            label: {
+                                ZStack {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .imageScale(.large)
+                                        .shadow(radius: 4)
+                                        .font(.system(size: 23))
+                                    
+                                    if !filtersViewModel.filters.isEmpty {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12) // Adjust the offset as needed
+                                    }
+                                }
+                            }
+                                //MARK: Filters and Search Buttons
+                            }
                         }
                         .padding(.top, 70)
                         .padding(.horizontal, 20)
