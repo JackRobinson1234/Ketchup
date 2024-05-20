@@ -78,7 +78,7 @@ struct FeedView: View {
                                 }
                             }
                         }
-                        
+            
                     
                     
                     if !hideFeedOptions {

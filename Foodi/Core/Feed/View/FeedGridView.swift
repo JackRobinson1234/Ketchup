@@ -57,6 +57,20 @@ struct FeedGridView: View {
                             }
                             .overlay(
                                 VStack{
+                                    HStack {
+                                        if let restaurant = post.restaurant {
+                                            Image(systemName: "storefront.fill")
+                                                .foregroundStyle(.white)
+                                                .font(.caption)
+                                          
+                                        }  else if let recipe = post.recipe {
+                                            Image(systemName: "frying.pan.fill")
+                                                .foregroundStyle(.white)
+                                                .font(.caption)
+                                        }
+                                        Spacer()
+                                    }
+                                    Spacer()
                                     HStack{
                                         VStack (alignment: .leading) {
                                             if let restaurant = post.restaurant {
@@ -82,31 +96,11 @@ struct FeedGridView: View {
                                         Spacer()
                                     }
                                     
-                                    Spacer()
-                                    HStack {
-                                        /*
-                                         if post.restaurant != nil {
-                                         Image(systemName: "building.2.crop.circle.fill")
-                                         .font(.footnote)
-                                         .foregroundColor(.white)
-                                         } else if post.recipe != nil {
-                                         Image(systemName: "fork.knife.circle")
-                                         .font(.footnote)
-                                         .foregroundColor(.white)
-                                         }*/
-                                        Spacer()
-                                        
-//                                        Text("\(post.likes)")
-//                                            .foregroundColor(.white)
-//                                            .font(.footnote)
-                                        
-                                    }
-                                    
                                 }
                                     .padding(4)
-//                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
-//                                                               startPoint: .top,
-//                                                               endPoint: .bottom))
+                                //                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
+                                //                                                               startPoint: .top,
+                                //                                                               endPoint: .bottom))
                                     .onTapGesture { selectedPost = post }
                             )
                         
