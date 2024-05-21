@@ -28,6 +28,7 @@
 		F846F45A2BFBF6EC009D1303 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */; };
 		F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45B2BFBF708009D1303 /* ReviewService.swift */; };
 		F846F45E2BFBFBE3009D1303 /* CreateReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */; };
+		F846F4602BFC500B009D1303 /* AddMenuItemsReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -246,6 +247,7 @@
 		F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
 		F846F45B2BFBF708009D1303 /* ReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewService.swift; sourceTree = "<group>"; };
 		F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateReviewView.swift; sourceTree = "<group>"; };
+		F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMenuItemsReview.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -551,6 +553,7 @@
 				F846F4572BFBF66B009D1303 /* ReviewListView.swift */,
 				F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */,
 				F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */,
+				F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */,
 			);
 			path = Review;
 			sourceTree = "<group>";
@@ -1749,6 +1752,7 @@
 				F84FE2982B6A564F00144F01 /* AuthServiceProtocol.swift in Sources */,
 				F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */,
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
+				F846F4602BFC500B009D1303 /* AddMenuItemsReview.swift in Sources */,
 				F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,

@@ -25,56 +25,58 @@ struct CollectionsListView: View {
             }
             else{
                 //MARK: Add Collection Button
-                VStack{
-                    if viewModel.user.isCurrentUser {
-                        Divider()
-                        Button{
-                            showAddCollection.toggle()
-                        } label: {
-                            CreateCollectionButton()
-                        }
-                        .padding(.vertical)
-                        Divider()
-                    }
-                    //MARK: CollectionsList
-                    if !viewModel.collections.isEmpty {
-                        // if post isn't passed in, then go to the selected collection
-                        ForEach(viewModel.collections) { collection in
+                ScrollView{
+                    LazyVStack{
+                        if viewModel.user.isCurrentUser {
+                            Divider()
                             Button{
-                                if viewModel.post == nil && viewModel.restaurant == nil {
-                                    viewModel.updateSelectedCollection(collection: collection)
-                                    showCollection.toggle()
-                                } else if viewModel.post != nil {
-                                    Task{
-                                        viewModel.dismissListView = true
-                                        viewModel.updateSelectedCollection(collection: collection)
-                                        try await viewModel.addPostToCollection()
-                                        viewModel.dismissListView = false
-                                    }
-                                } else if viewModel.restaurant != nil {
-                                    Task {
-                                        viewModel.dismissListView = true
-                                        viewModel.updateSelectedCollection(collection: collection)
-                                        try await viewModel.addRestaurantToCollection()
-                                        viewModel.dismissListView = false
-                                    }
-                                }
+                                showAddCollection.toggle()
                             } label: {
-                                CollectionListCell(collection: collection)
+                                CreateCollectionButton()
                             }
+                            .padding(.vertical)
                             Divider()
                         }
-                    }
-                    //MARK: No Collections Message
-                    else {
-                        if viewModel.user.isCurrentUser{
-                            Text("You don't have any collections yet!")
-                                .font(.subheadline)
-                                .padding()
-                        } else {
-                            Text("\(viewModel.user.fullname) doesn't have any collections yet!")
-                                .font(.subheadline)
-                                .padding()
+                        //MARK: CollectionsList
+                        if !viewModel.collections.isEmpty {
+                            // if post isn't passed in, then go to the selected collection
+                            ForEach(viewModel.collections) { collection in
+                                Button{
+                                    if viewModel.post == nil && viewModel.restaurant == nil {
+                                        viewModel.updateSelectedCollection(collection: collection)
+                                        showCollection.toggle()
+                                    } else if viewModel.post != nil {
+                                        Task{
+                                            viewModel.dismissListView = true
+                                            viewModel.updateSelectedCollection(collection: collection)
+                                            try await viewModel.addPostToCollection()
+                                            viewModel.dismissListView = false
+                                        }
+                                    } else if viewModel.restaurant != nil {
+                                        Task {
+                                            viewModel.dismissListView = true
+                                            viewModel.updateSelectedCollection(collection: collection)
+                                            try await viewModel.addRestaurantToCollection()
+                                            viewModel.dismissListView = false
+                                        }
+                                    }
+                                } label: {
+                                    CollectionListCell(collection: collection)
+                                }
+                                Divider()
+                            }
+                        }
+                        //MARK: No Collections Message
+                        else {
+                            if viewModel.user.isCurrentUser{
+                                Text("You don't have any collections yet!")
+                                    .font(.subheadline)
+                                    .padding()
+                            } else {
+                                Text("\(viewModel.user.fullname) doesn't have any collections yet!")
+                                    .font(.subheadline)
+                                    .padding()
+                            }
                         }
                     }
                 }

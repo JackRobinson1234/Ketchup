@@ -19,21 +19,26 @@ struct ReviewListView: View {
             }
             else{
                 //MARK: Add Collection Button
-                VStack{
-                    Button{
-                        showAddReview.toggle()
-                    } label: {
-                        CreateReviewButton()
+                ScrollView{
+                    LazyVStack{
+                        Button{
+                            showAddReview.toggle()
+                        } label: {
+                            CreateReviewButton()
+                        }
+                        .padding(.vertical)
+                        Divider()
+                        ForEach(viewModel.reviews) { review in
+                            ReviewCell(review: review)
+                            Divider()
+                        }
                     }
-                    .padding(.vertical)
-                    Divider()
                 }
             }
         }
-        
         .sheet(isPresented: $showAddReview) {
             if let restaurant = viewModel.selectedRestaurant {
-                CreateReviewView(restaurant: restaurant)}
+                CreateReviewView(viewModel: viewModel)}
         }
     }
 }
