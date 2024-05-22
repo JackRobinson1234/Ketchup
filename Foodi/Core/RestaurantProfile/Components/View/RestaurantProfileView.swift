@@ -51,14 +51,15 @@ struct RestaurantProfileView: View {
                     }
                 }
         } else {
-            VStack{
-                if viewModel.restaurant != nil {
-                    RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
+            ScrollView{
+                VStack{
+                    if viewModel.restaurant != nil {
+                        RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
+                    }
                 }
             }
-
+            .ignoresSafeArea(edges: .top)
             .navigationBarBackButtonHidden()
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

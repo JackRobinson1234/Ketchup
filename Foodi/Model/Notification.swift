@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import FirebaseFirestoreInternal
 
 struct Notification: Identifiable, Codable {
     let id: String
@@ -21,15 +22,17 @@ struct Notification: Identifiable, Codable {
 }
 
 enum NotificationType: Int, Codable {
-    case like
+    case postLike
     case comment
     case follow
+    case reviewLike
     
     var notificationMessage: String {
         switch self {
-        case .like: return " liked one of your posts."
+        case .postLike: return " liked one of your posts."
         case .comment: return " commented on one of your posts."
         case .follow: return " started following you."
+        case .reviewLike: return " liked your review"
         }
     }
 }

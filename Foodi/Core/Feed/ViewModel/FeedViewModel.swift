@@ -177,7 +177,6 @@ extension FeedViewModel {
     func checkIfUserLikedPosts() async {
         guard !posts.isEmpty else { return }
         var copy = posts
-        
         for i in 0 ..< copy.count {
             do {
                 let post = copy[i]
@@ -186,7 +185,6 @@ extension FeedViewModel {
                 if didLike {
                     copy[i].didLike = didLike
                 }
-                
             } catch {
                 print("DEBUG: Failed to check if user liked post")
             }

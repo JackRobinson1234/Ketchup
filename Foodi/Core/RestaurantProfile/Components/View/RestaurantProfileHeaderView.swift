@@ -16,7 +16,6 @@ struct RestaurantProfileHeaderView: View {
     
     var body: some View {
         if let restaurant = viewModel.restaurant {
-            ScrollView {
                 VStack{
                     ListingImageCarouselView(images: restaurant.imageURLs)
                     VStack(alignment: .center, spacing: 8) {
@@ -55,8 +54,6 @@ struct RestaurantProfileHeaderView: View {
                 }
                 //.padding(.bottom, 100)
                 
-                
-            }
 
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {

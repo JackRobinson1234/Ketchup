@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 import SwiftUI
+import FirebaseFirestoreInternal
 
 struct Activity: Identifiable, Codable, Equatable {
     let id: String
@@ -22,10 +23,13 @@ struct Activity: Identifiable, Codable, Equatable {
     var name: String
     var postType: String?
     var profileImageUrl: String?
+    var text: String?
+    var recommendation: Bool?
 }
 
 enum ActivityType: Int, Codable {
     case newPost
     case newCollection
     case newCollectionItem
+    case newReview
 }

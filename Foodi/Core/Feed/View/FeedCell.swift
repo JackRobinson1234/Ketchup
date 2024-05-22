@@ -245,14 +245,11 @@ struct FeedCell: View {
                                         .scaledToFill()
                                         .frame(width: 6, height: 6)
                                         .foregroundStyle(.white)
-                                    
                                 }
                             }
                             //MARK: Collection Button
                             Button {
-                                
                                 videoCoordinator.pause()
-                                
                                 showCollections.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "folder.fill.badge.plus")

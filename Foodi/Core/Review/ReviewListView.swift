@@ -10,35 +10,65 @@ import SwiftUI
 struct ReviewListView: View {
     @ObservedObject var viewModel: ReviewsViewModel
     @State var showAddReview: Bool = false
-
+    @State var showRestaurantSelector: Bool = false
+    
     var body: some View {
         VStack{
             if viewModel.isLoading {
                 ProgressView("Loading...")
                     .toolbar(.hidden, for: .tabBar)
+                    .onAppear{
+                        Task{
+                            try await viewModel.fetchReviews()
+                        }
+                        viewModel.isLoading = false
+                    }
             }
             else{
                 //MARK: Add Collection Button
-                ScrollView{
-                    LazyVStack{
-                        Button{
-                            showAddReview.toggle()
-                        } label: {
-                            CreateReviewButton()
+                    LazyVStack(alignment: .leading){
+                        if let restaurant = viewModel.selectedRestaurant{
+                            Button{
+                                showAddReview.toggle()
+                            } label: {
+                                CreateReviewButton()
+                            }
+                            .padding(.vertical)
+                        } else if let user = viewModel.selectedUser, user.isCurrentUser {
+                            Button{
+                                showRestaurantSelector.toggle()
+                            } label: {
+                                CreateReviewButton()
+                            }
                         }
-                        .padding(.vertical)
                         Divider()
-                        ForEach(viewModel.reviews) { review in
-                            ReviewCell(review: review)
-                            Divider()
-                        }
+                        if !viewModel.reviews.isEmpty {
+                            ForEach(viewModel.reviews) { review in
+                                ReviewCell(review: review, viewModel: viewModel)
+                                Divider()
+                            }
+                        } else {
+                            HStack{
+                                Spacer()
+                                Text("No reviews yet!")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.gray)
+                                Spacer()
+                            }
                     }
                 }
             }
         }
         .sheet(isPresented: $showAddReview) {
-            if let restaurant = viewModel.selectedRestaurant {
-                CreateReviewView(viewModel: viewModel)}
+            NavigationStack{
+                CreateReviewView(viewModel: viewModel)
+            }
+        }
+        .sheet(isPresented: $showRestaurantSelector) {
+            RestaurantReviewSelector(reviewsViewModel: viewModel)
+                .onDisappear{
+                    viewModel.selectedRestaurant = nil
+                }
         }
     }
 }

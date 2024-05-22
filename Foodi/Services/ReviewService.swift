@@ -15,10 +15,32 @@ import SwiftUI
 class ReviewService {
     static let shared = ReviewService() // Singleton instance
     private init() {}
-    func fetchRestaurantReviews(restaurantId: String) {
-        
+    func fetchRestaurantReviews(restaurantId: String) async throws -> [Review] {
+        do {
+            let reviews = try await FirestoreConstants.ReviewsCollection.whereField("restaurant.id", isEqualTo: restaurantId)
+                .order(by: "timestamp", descending: true)
+                .getDocuments(as: Review.self)
+            print(reviews, "reviews")
+            
+            return reviews
+        }
+        catch{
+            print("Error fetching reviews")
+            throw error
+        }
     }
-    func fetchUserReviews(userId: String) {
+    
+    func fetchUserReviews(userId: String) async throws -> [Review] {
+        do {
+            let reviews = try await FirestoreConstants.ReviewsCollection.whereField("user.id", isEqualTo: userId)
+                .order(by: "timestamp", descending: true)
+                .getDocuments(as: Review.self)
+            return reviews
+        }
+        catch{
+            print("Error fetching reviews")
+            throw error
+        }
         
     }
     func uploadReview(restaurant: Restaurant, recommends: Bool, description: String, favoriteItems: [String]?, user: User) async throws -> Review? {
@@ -39,14 +61,40 @@ class ReviewService {
         }
     }
     
-    func deleteReview() {
-        
-    }
-    
-    func likeReview() {
-        
-    }
-    func unlikeReview() {
-        
+    func deleteReview(reviewId: String) async throws {
+        try await FirestoreConstants.ReviewsCollection.document(reviewId)
+            .delete()
+        print("Review deleted successfully")
     }
 }
+extension ReviewService {
+    // MARK: - likeReview
+    /// Likes a review from the current user
+    /// - Parameter review: review object to be liked
+    func likeReview(_ review: Review) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        async let _ = try FirestoreConstants.ReviewsCollection.document(review.id).collection("review-likes").document(uid).setData([:])
+    }
+    
+    
+    // MARK: - unlikeReview
+    /// Unlikes a review from the current user
+    /// - Parameter review: review object to be unliked
+    func unlikeReview(_ review: Review) async throws {
+        guard review.likes > 0 else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        async let _ = try FirestoreConstants.ReviewsCollection.document(review.id).collection("review-likes").document(uid).delete()
+    }
+    
+    
+    // MARK: - checkIfUserLikedReview
+    /// Checks to see if the current user liked a review
+    /// - Parameter review: review that is being checked
+    /// - Returns: Boolean if the user liked the review
+    func checkIfUserLikedReview(_ review: Review) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        let snapshot = try await FirestoreConstants.UserCollection.document(uid).collection("user-likes").document(review.id).getDocument()
+        return snapshot.exists
+    }
+}
+

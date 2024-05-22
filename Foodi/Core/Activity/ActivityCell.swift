@@ -14,9 +14,13 @@ struct ActivityCell: View {
     @State var showPost: Bool = false
     @State var showCollection: Bool = false
     @State var showUserProfile: Bool = false
+    @State var showRestaurant = false
+    
     @State var post: Post?
     @State var collection: Collection?
     @ObservedObject var viewModel: ActivityViewModel
+    @State var selectedRestaurantId: String? = nil
+   
     var body: some View {
         //MARK: newPost
         VStack{
@@ -29,7 +33,10 @@ struct ActivityCell: View {
                         //MARK: Post: Restaurant
                         if postType == "restaurant"{
                             if let restaurantId = activity.restaurantId{
-                                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurantId)) {
+                                Button{
+                                    self.selectedRestaurantId = restaurantId
+                                    showRestaurant.toggle()
+                                } label: {
                                     VStack(alignment: .leading){
                                         Text("@\(activity.username) created a new restaurant post for: ")
                                             .activityCellFontStyle()
@@ -41,7 +48,7 @@ struct ActivityCell: View {
                                             .activityCellFontStyle()
                                     }
                                     .multilineTextAlignment(.leading)
-                                    .lineLimit(2)
+                                    
                                 }
                             }
                             else {
@@ -57,7 +64,7 @@ struct ActivityCell: View {
                                         .foregroundColor(.gray)
                                 }
                                 .multilineTextAlignment(.leading)
-                                .lineLimit(2)
+                                
                                 
                             }
                             //MARK: Post: AtHome
@@ -76,7 +83,7 @@ struct ActivityCell: View {
                                 
                             }
                             .multilineTextAlignment(.leading)
-                            .lineLimit(2)
+                           
                             
                             
                         }
@@ -125,7 +132,7 @@ struct ActivityCell: View {
                         
                     }
                     .multilineTextAlignment(.leading)
-                    .lineLimit(2)
+                
                     Spacer()
                     if let image = activity.image {
                         KFImage(URL(string: image))
@@ -173,7 +180,6 @@ struct ActivityCell: View {
                             .foregroundColor(.gray)
                     }
                     .multilineTextAlignment(.leading)
-                    .lineLimit(2)
                     Spacer()
                     if let image = activity.image {
                         Button{
@@ -213,6 +219,64 @@ struct ActivityCell: View {
                 }
                 .padding()
                 
+                //MARK: newReview
+            } else if activity.type == .newReview {
+                HStack{
+                    Button{showUserProfile.toggle()} label: {
+                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
+                    }
+                    if let text = activity.text{
+                        VStack(alignment: .leading){
+                            if let recs = activity.recommendation, recs {
+                                HStack(spacing: 0){
+                                    Image(systemName: "heart")
+                                        .foregroundColor(.red)
+                                    Text("Recommends")
+                                        .foregroundStyle(.black)
+                                    
+                                }
+                                .font(.caption)
+                            } else {
+                                HStack(spacing: 0){
+                                    Image(systemName: "heart.slash")
+                                        .foregroundColor(.gray)
+                                        .font(.subheadline)
+                                    Text("Does not recommend")
+                                        .foregroundColor(.gray)
+                                        .bold()
+                                }
+                                .font(.caption)
+                            }
+                            Text("@\(activity.username) reviewed ")
+                                .activityCellFontStyle() +
+                            Text(activity.name)
+                                .activityCellFontStyle()
+                                .bold() +
+                            Text(": \(text)")
+                                .activityCellFontStyle()
+                            Text(getTimeElapsedString(from: activity.timestamp))
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    if let image = activity.image {
+                        if let restaurantId = activity.restaurantId{
+                            Button{
+                                self.selectedRestaurantId = restaurantId
+                                showRestaurant.toggle()
+                            } label: {
+                                KFImage(URL(string: image))
+                                    .resizable()
+                                    .frame(width: 50, height: 50) // Set the image size to 50x50
+                                    .aspectRatio(contentMode: .fit) // Maintain aspect ratio
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
+                    }
+                }.padding()
             }
         }
         //MARK: Sheets
@@ -221,13 +285,23 @@ struct ActivityCell: View {
                 FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
             }
         }
+        
+        
         .sheet(isPresented: $showCollection) {
             if let collection = self.collection, let user = viewModel.user {
-                
                 CollectionView(collectionsViewModel: CollectionsViewModel(user: user, selectedCollection: collection))
-                
             }
         }
+        
+        
+        .sheet(isPresented: $showRestaurant){
+            if let selectedRestaurantId {
+                NavigationStack{
+                    RestaurantProfileView(restaurantId: selectedRestaurantId)
+                }
+            }
+        }
+        
         .sheet(isPresented: $showUserProfile) {
             NavigationStack{
                 ProfileView(uid: activity.uid)

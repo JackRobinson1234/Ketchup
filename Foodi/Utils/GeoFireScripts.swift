@@ -19,7 +19,7 @@ struct GeoFireScripts: View {
             Button{setupGeofire()}
         label: {Text("Put in geofire")}
             //
-            Button{Task{try await fetchLocation()}}
+            Button{Task{try await fetchAllRestaurants()}}
         label: {Text("fetch All Restaurants")}
             
             //
@@ -78,7 +78,7 @@ struct GeoFireScripts: View {
                 throw error
             }
         }
-    func fetchAllRestaurants() {
+    func fetchAllRestaurants() async throws{
         Task{
             print("Running Fetch Restaurants")
             restaurants = try await RestaurantService.shared.fetchRestaurants()

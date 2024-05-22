@@ -19,14 +19,14 @@ struct CreateReviewView: View {
     private let maxMenuItemCharacters = 50
     private let maxFavoriteMenuItems = 5
     @State var editedReview = false
+    var restaurant: Restaurant?
     
     var body: some View {
-        NavigationStack{
-            if let restaurant = viewModel.selectedRestaurant {
+        //NavigationStack{
+        if let restaurant = restaurant ?? viewModel.selectedRestaurant {
                 ZStack{
                     VStack{
                         if let profileImageUrl = restaurant.profileImageUrl {
-                            // Replace with actual image loading logic
                             RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .xLarge)
                         }
                         Text(restaurant.name)
@@ -43,7 +43,7 @@ struct CreateReviewView: View {
                             .padding(.horizontal)
                         
                         
-                        
+                        Spacer()
                         HStack(spacing: 20) {
                             Button(action: { recommend = true }) {
                                 VStack {
@@ -68,7 +68,6 @@ struct CreateReviewView: View {
                             }
                         }
                         .padding(20)
-                        
                         if recommend != nil {
                             VStack{
                                 Button(action: {
@@ -106,10 +105,12 @@ struct CreateReviewView: View {
                                     Divider()
                                     Spacer()
                                     Button{
+                                        viewModel.selectedRestaurant = restaurant
                                         Task{
                                             if let recommend {
                                                 try await viewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
                                             }
+                                            dismiss()
                                             dismiss()
                                         }
                                     } label: {
@@ -147,9 +148,9 @@ struct CreateReviewView: View {
                     }
                 }
                 .modifier(BackButtonModifier())
+                .navigationBarBackButtonHidden()
             }
         }
-    }
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }

@@ -8,18 +8,20 @@
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, likes, collections
+    case posts, reviews, likes, collections
 }
 
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
+    @StateObject var reviewsViewModel: ReviewsViewModel
 
     init(viewModel: ProfileViewModel,  profileSection: Binding<ProfileSectionEnum>) {
         self._profileSection = profileSection
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
+        self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(user: viewModel.user))
         }
 
     var body: some View {
@@ -39,6 +41,19 @@ struct ProfileSlideBar: View {
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
                     .frame(maxWidth: .infinity)
                     //.task { await viewModel.fetchUserPosts() }
+                
+                Image(systemName: profileSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 14)
+                    .font(profileSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
+                    .onTapGesture {
+                        withAnimation {
+                            self.profileSection = .reviews
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .reviews))
+                    .frame(maxWidth: .infinity)
                 
                 Image(systemName: profileSection == .likes ? "heart.fill" : "heart")
                     .resizable()
@@ -78,7 +93,10 @@ struct ProfileSlideBar: View {
             PostGridView(posts: viewModel.posts)
         }
         
-                
+        if profileSection == .reviews {
+           ReviewListView(viewModel: reviewsViewModel)
+        }
+        
         if profileSection == .likes {
             LikedPostsView(user: viewModel.user)
                 
