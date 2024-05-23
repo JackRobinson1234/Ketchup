@@ -142,18 +142,20 @@ class RestaurantService {
         }
         print("Query length", queries.count)
         do {
-            var clusters = try await withThrowingTaskGroup(of: [Cluster].self) { group -> [Cluster] in
+            var clusters = try await withThrowingTaskGroup(of: Int.self) { group -> [Cluster] in
                 for query in queries {
                     group.addTask {
                         let clusterCount = try await query.count.getAggregation(source: .server).count
-                        return [Cluster(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: Int(truncating: clusterCount))]
+                        return Int(truncating: clusterCount)/*[Cluster(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: Int(truncating: clusterCount))]*/
                     }
                 }
-                var clusters = [Cluster]()
+                var clusters = 0
                 for try await documents in group {
-                    clusters.append(contentsOf: documents)
+                    clusters += documents
                 }
-                return clusters
+                let finalCluster = [Cluster(coordinate: center, count: clusters)]
+                print(finalCluster)
+                return finalCluster
             }
             print("cluster length", clusters.count)
             
