@@ -42,34 +42,38 @@ struct MapView: View {
             ZStack(alignment: .bottom) {
                 Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
                     /// No specific Restaurant has been selected from the search view
-                        if cameraZoomedEnough {
-                            //MARK: Restaurant Annotations
-                            /// If the restaurants are within showable distance (cameraZoomedEnough), then use blue dots. If they are inside of  minDistanceKm, then show the photos.
-                            ForEach(viewModel.restaurants, id: \.self) { restaurant in
-                                if let coordinates = restaurant.coordinates {
-                                    Annotation(restaurant.name, coordinate: coordinates) {
-                                        let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: kmToShowPhoto)
-                                        if isZoomedEnoughForPhotos,  distanceFromCenter{
-                                            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
-                                        } else {
-                                            Circle()
-                                                .foregroundStyle(.blue)
-                                                .frame(width: 10, height: 10)
-                                        }
+                    if cameraZoomedEnough {
+                        //MARK: Restaurant Annotations
+                        /// If the restaurants are within showable distance (cameraZoomedEnough), then use blue dots. If they are inside of  minDistanceKm, then show the photos.
+                        ForEach(viewModel.restaurants, id: \.self) { restaurant in
+                            if let coordinates = restaurant.coordinates {
+                                Annotation(restaurant.name, coordinate: coordinates) {
+                                    let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: kmToShowPhoto)
+                                    if isZoomedEnoughForPhotos,  distanceFromCenter{
+                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
+                                    } else {
+                                        Circle()
+                                            .foregroundStyle(.blue)
+                                            .frame(width: 10, height: 10)
+                                    }
                                 }
                             }
                         }
-                        } else {
-                            
+                    } else {
+                        ForEach(viewModel.clusters, id: \.self) { cluster in
+                            Annotation("", coordinate: cluster.coordinate) {
+                                ClusterCell(cluster: cluster)
+                            }
+                            /// User Icon
+                            UserAnnotation()
                         }
-                    /// User Icon
-                    UserAnnotation()
+                    }
                 }
                 //MARK: Zoom Message
                 .overlay{if !cameraZoomedEnough {
                     Spacer()
-                    Text("Zoom In to Show Restaurants")
-                        .modifier(OverlayModifier())
+                    //Text("Zoom In to Show Restaurants")
+                        //.modifier(OverlayModifier())
                     //MARK: No Restaurants Notice
                 } else if viewModel.restaurants.isEmpty {
                     Spacer()
@@ -242,12 +246,10 @@ struct MapView: View {
     }
     
     
-    
-    
     private func fetchClustersInView(region: MKCoordinateRegion) async {
         Task{
             viewModel.selectedLocation = [region.center]
-            await viewModel.fetchFilteredClusters()
+            await viewModel.fetchFilteredClusters(region: region)
         }
     }
     

@@ -55,15 +55,15 @@ class MapViewModel: ObservableObject {
         }
         return restaurants.count > 0
     }
-
-     //MARK: filteredRestaurants
-        func filteredRestaurants(_ query: String) -> [Restaurant] {
-            let lowercasedQuery = query.lowercased()
-            return restaurants.filter({
-                $0.name.lowercased().contains(lowercasedQuery) ||
-                $0.name.contains(lowercasedQuery)
-            })
-        }
+    
+    //MARK: filteredRestaurants
+    func filteredRestaurants(_ query: String) -> [Restaurant] {
+        let lowercasedQuery = query.lowercased()
+        return restaurants.filter({
+            $0.name.lowercased().contains(lowercasedQuery) ||
+            $0.name.contains(lowercasedQuery)
+        })
+    }
     
     func checkForNearbyRestaurants() async {
         let kmRadiusToCheck = [1.0, 2.5, 5.0, 10.0, 20.0]
@@ -79,20 +79,18 @@ class MapViewModel: ObservableObject {
         selectedPrice = []
     }
     
-    func fetchFilteredClusters(radius: Double = 500, limit: Int = 0) async -> Bool {
+    func fetchFilteredClusters( region: MKCoordinateRegion, limit: Int = 0) async -> Bool {
         do{
+            let center = region.center
+            let radius = convertSpanToKM(span: region.span)
+            print("span", radius)
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
             if selectedCuisines.isEmpty {
                 filters.removeValue(forKey: "cuisine")
             } else {
                 filters["cuisine"] = selectedCuisines
             }
-            
-            if selectedLocation.isEmpty {
-                filters.removeValue(forKey: "location")
-            } else {
-                filters["location"] = selectedLocation + [radius]
-            }
+            filters["location"] = [center] + [radius]
             ///Price checking if there are any selected
             if selectedPrice.isEmpty {
                 filters.removeValue(forKey: "price")
@@ -107,5 +105,9 @@ class MapViewModel: ObservableObject {
         }
         return restaurants.count > 0
     }
-}
     
+    func convertSpanToKM (span: MKCoordinateSpan) -> Double{
+        return span.longitudeDelta * 11000 * 0.4
+        }
+    
+}
