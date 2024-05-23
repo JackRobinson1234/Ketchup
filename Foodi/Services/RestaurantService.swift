@@ -87,7 +87,6 @@ class RestaurantService {
         do {
             let matchingDocs = try await withThrowingTaskGroup(of: [Restaurant].self) { group -> [Restaurant] in
                 for query in queries {
-                    //await applyFilters(toQuery: query, filters: filters)
                     group.addTask {
                         let snapshot = try await query.getDocuments()
                         return snapshot.documents.compactMap { document in
@@ -103,6 +102,55 @@ class RestaurantService {
             }
             return matchingDocs
         } catch {
+            throw error
+        }
+    }
+    
+    
+    func fetchClusters(withFilters filters: [String: [Any]]? = nil, limit: Int = 0) async throws -> [Cluster] {
+        var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
+            if let filters = filters, !filters.isEmpty {
+                if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D, let radiusInM = locationFilters[1] as? Double {
+                    let restaurants = try await fetchClustersWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM, limit: limit)
+                    return restaurants
+                }
+            }
+            return []
+        }
+    
+    
+    /// Fetches restaurants that fall within the "radiusInM" range and applies any additional filters selected to that query
+    /// - Parameters:
+    ///   - filters: an map of filter categories and a corresponding array of values ex: ["cuisine": ["Chinese","Japanese"]
+    ///   - center: CLLocationCoordinate2D that represents the center point of the query
+    /// - Returns: Array of restaurants that match all of the filters
+    func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, limit: Int = 0) async throws -> [Cluster] {
+        let queryBounds = GFUtils.queryBounds(forLocation: center,
+                                              withRadius: radiusInM)
+        let queries = queryBounds.map { bound -> Query in
+            return applyFilters(toQuery: FirestoreConstants.RestaurantCollection
+                .order(by: "geoHash")
+                .start(at: [bound.startValue])
+                .end(at: [bound.endValue]), filters: filters, limit: limit)
+        }
+        // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
+        do {
+            var clusters = try await withThrowingTaskGroup(of: [Cluster].self) { group -> [Cluster] in
+                for query in queries {
+                    group.addTask {
+                        let clusterCount = try await query.count.getAggregation(source: .server).count
+                        return [Cluster(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: Int(truncating: clusterCount))]
+                    }
+                }
+                var clusters = [Cluster]()
+                for try await documents in group {
+                    clusters.append(contentsOf: documents)
+                }
+                return clusters
+            }
+            return clusters
+        }
+        catch {
             throw error
         }
     }

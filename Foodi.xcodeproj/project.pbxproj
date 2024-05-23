@@ -31,6 +31,9 @@
 		F846F4622BFD1459009D1303 /* ReviewOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */; };
 		F846F4642BFD16F3009D1303 /* CommentOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */; };
 		F846F4662BFD91AC009D1303 /* RestaurantReviewSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */; };
+		F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46A2BFF8AE1009D1303 /* ClusterMap */; };
+		F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */; };
+		F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4702BFF97A9009D1303 /* ClusterCell.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -252,6 +255,7 @@
 		F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantReviewSelector.swift; sourceTree = "<group>"; };
+		F846F4702BFF97A9009D1303 /* ClusterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterCell.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -437,8 +441,10 @@
 				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
 				F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
+				F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
+				F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -958,6 +964,7 @@
 				F871B0012B886D2900E4EB5F /* MapSearchView.swift */,
 				F8BD815E2BC6053C007C2CFC /* UIKitMapVIew.swift */,
 				F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */,
+				F846F4702BFF97A9009D1303 /* ClusterCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1455,6 +1462,8 @@
 				F8CC21942BD5810E00B4B329 /* InstantSearchInsights */,
 				F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */,
 				F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */,
+				F846F46A2BFF8AE1009D1303 /* ClusterMap */,
+				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
@@ -1534,6 +1543,7 @@
 			packageReferences = (
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
 				F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
+				F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1803,6 +1813,7 @@
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
 				F846F45E2BFBFBE3009D1303 /* CreateReviewView.swift in Sources */,
 				F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */,
+				F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
 				F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */,
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
@@ -2253,6 +2264,14 @@
 				minimumVersion = 1.0.8;
 			};
 		};
+		F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vospennikov/ClusterMap.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
 		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/instantsearch-ios";
@@ -2268,6 +2287,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
 			productName = CachingPlayerItem;
+		};
+		F846F46A2BFF8AE1009D1303 /* ClusterMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			productName = ClusterMap;
+		};
+		F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			productName = ClusterMapSwiftUI;
 		};
 		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;

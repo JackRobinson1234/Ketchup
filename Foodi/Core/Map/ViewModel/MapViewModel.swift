@@ -19,7 +19,7 @@ class MapViewModel: ObservableObject {
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var selectedCity: String = ""
     @Published var selectedState: String = ""
-    
+    @Published var clusters = [Cluster]()
     
     
     /// variables for the postType filter
@@ -77,6 +77,35 @@ class MapViewModel: ObservableObject {
     func clearFilters() {
         selectedCuisines = []
         selectedPrice = []
+    }
+    
+    func fetchFilteredClusters(radius: Double = 500, limit: Int = 0) async -> Bool {
+        do{
+            /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
+            if selectedCuisines.isEmpty {
+                filters.removeValue(forKey: "cuisine")
+            } else {
+                filters["cuisine"] = selectedCuisines
+            }
+            
+            if selectedLocation.isEmpty {
+                filters.removeValue(forKey: "location")
+            } else {
+                filters["location"] = selectedLocation + [radius]
+            }
+            ///Price checking if there are any selected
+            if selectedPrice.isEmpty {
+                filters.removeValue(forKey: "price")
+            } else {
+                filters["price"] = selectedPrice
+            }
+            self.clusters = try await RestaurantService.shared.fetchClusters(withFilters: self.filters, limit: limit)
+            print(self.clusters)
+        }
+        catch {
+            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+        }
+        return restaurants.count > 0
     }
 }
     

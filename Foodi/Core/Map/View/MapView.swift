@@ -42,7 +42,6 @@ struct MapView: View {
             ZStack(alignment: .bottom) {
                 Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
                     /// No specific Restaurant has been selected from the search view
-                    
                         if cameraZoomedEnough {
                             //MARK: Restaurant Annotations
                             /// If the restaurants are within showable distance (cameraZoomedEnough), then use blue dots. If they are inside of  minDistanceKm, then show the photos.
@@ -60,7 +59,9 @@ struct MapView: View {
                                 }
                             }
                         }
-                    }
+                        } else {
+                            
+                        }
                     /// User Icon
                     UserAnnotation()
                 }
@@ -98,6 +99,8 @@ struct MapView: View {
                 ///Based on zoom level and the center of the camera
                 .onMapCameraChange { mapCameraUpdateContext in
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
+                    print("Span", mapCameraUpdateContext.region.span)
+                    print("region", mapCameraUpdateContext.region)
                     if cameraZoomedEnough {
                         center = mapCameraUpdateContext.region.center
                         Task {
@@ -105,6 +108,10 @@ struct MapView: View {
                         }
                     }
                     else {
+                        Task {
+                            await fetchClustersInView(region: mapCameraUpdateContext.region
+                            )
+                        }
                         showRestaurantPreview = false
                     }
                 }
@@ -112,7 +119,7 @@ struct MapView: View {
                 //MARK: Initial Camera
                 /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
                 .onAppear{
-                    let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+                    let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2))
                     position = .userLocation(fallback: .region(losAngelesRegion))
                 }
                 // MARK: User Location button
@@ -231,15 +238,24 @@ struct MapView: View {
                     }
                 }
             }
-            else {
-                print("fetching new restaurants")
-                viewModel.selectedLocation = [center]
-                Task{
-                    await viewModel.fetchFilteredRestaurants()
-                }
-            }
         }
     }
+    
+    
+    
+    
+    private func fetchClustersInView(region: MKCoordinateRegion) async {
+        Task{
+            viewModel.selectedLocation = [region.center]
+            await viewModel.fetchFilteredClusters()
+        }
+    }
+    
+    
+    
+    
+    
+    
     //MARK: calculateDistanceInKilometers
     ///  Provides a boolean of if 2 CLLocationCoordinate2Ds are inside he minimum range of eachother
     /// - Parameters:
