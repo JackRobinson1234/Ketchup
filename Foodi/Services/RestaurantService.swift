@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import MapKit
 import GeoFire
+import GeohashKit
 
 class RestaurantService {
     static let shared = RestaurantService() // Singleton instance
@@ -127,13 +128,19 @@ class RestaurantService {
     func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, limit: Int = 0) async throws -> [Cluster] {
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
+        //print("bounds", queryBounds)
         let queries = queryBounds.map { bound -> Query in
+            //print("endValue", bound.endValue)
+//            let geoHash = Geohash(geohash: bound.endValue)
+//            if let geoHash {
+//                let geoHashCenter = geoHash.region.center
+//            }
             return applyFilters(toQuery: FirestoreConstants.RestaurantCollection
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
                 .end(at: [bound.endValue]), filters: filters, limit: limit)
         }
-        // After all callbacks have executed, matchingDocs contains the result. Note that this code executes all queries serially, which may not be optimal for performance.
+        print("Query length", queries.count)
         do {
             var clusters = try await withThrowingTaskGroup(of: [Cluster].self) { group -> [Cluster] in
                 for query in queries {
@@ -148,6 +155,16 @@ class RestaurantService {
                 }
                 return clusters
             }
+            print("cluster length", clusters.count)
+            
+            for index in 0..<clusters.count {
+                let bound = queryBounds[index]
+                if let geoHash = Geohash(geohash: bound.endValue) {
+                    let geoHashCenter = geoHash.region.center
+                    clusters[index].coordinate = geoHashCenter
+                }
+            }
+            print("final clusters", clusters)
             return clusters
         }
         catch {
