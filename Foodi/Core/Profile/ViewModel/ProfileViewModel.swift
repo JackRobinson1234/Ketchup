@@ -98,5 +98,15 @@ extension ProfileViewModel {
             }
         
     }
+    
+    func clearNotificationAlerts() async throws {
+        do {
+            user.notificationAlert = false
+            try await UserService.shared.clearNotificationAlert()
+            AuthService.shared.userSession?.notificationAlert = false
+        } catch {
+            print("error clearing notification alert")
+        }
+    }
 }
 

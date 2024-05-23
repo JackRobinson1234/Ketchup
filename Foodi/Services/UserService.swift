@@ -100,11 +100,18 @@ class UserService {
 
         return (followingUsers, lastSnapshot)
     }
+    
     func updatePrivateMode(newValue: Bool) async throws {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         let userRef = FirestoreConstants.UserCollection.document(currentUid)
         try await userRef.updateData(["privateMode": newValue])
     }
+    
+    func clearNotificationAlert() async throws {
+           guard let currentUid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
+           let userRef = FirestoreConstants.UserCollection.document(currentUid)
+           try await userRef.updateData(["notificationAlert": false])
+       }
     
 }
 

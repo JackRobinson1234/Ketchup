@@ -19,6 +19,7 @@ struct Notification: Identifiable, Codable {
     var postThumbnail: String?
     var username: String?
     var profileImageUrl: String?
+    var text: String?
 }
 
 enum NotificationType: Int, Codable {
@@ -32,7 +33,7 @@ enum NotificationType: Int, Codable {
         case .postLike: return " liked one of your posts."
         case .comment: return " commented on one of your posts."
         case .follow: return " started following you."
-        case .reviewLike: return " liked your review"
+        case .reviewLike: return " liked your review: "
         }
     }
 }

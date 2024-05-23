@@ -18,20 +18,27 @@ struct NotificationCell: View {
         HStack {
             NavigationLink(value: notification.user) {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .xSmall)
-                
-                HStack {
-                    Text(notification.user?.username ?? "")
-                        .font(.footnote)
-                        .fontWeight(.semibold) +
+                VStack (alignment: .leading){
+                    HStack(spacing: 0) {
+                        Text(notification.user?.username ?? "")
+                            .font(.footnote)
+                            .fontWeight(.semibold) +
+                        
+                        Text(notification.type.notificationMessage)
+                            .font(.footnote)
+                        if let text = notification.text{
+                            Text(text)
+                                .font(.footnote)
+                        }
+                    }
+                    .multilineTextAlignment(.leading)
                     
-                    Text(notification.type.notificationMessage)
-                        .font(.footnote) +
-                    
-                    Text(" \(notification.timestamp.timestampString())")
+                    Text("\(notification.timestamp.timestampString())")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
                 .multilineTextAlignment(.leading)
+                
             }
             
             Spacer()

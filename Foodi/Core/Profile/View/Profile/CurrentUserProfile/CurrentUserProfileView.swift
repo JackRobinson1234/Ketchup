@@ -56,9 +56,24 @@ struct CurrentUserProfileView: View {
                         
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            showNotifications.toggle()
+                            Task{
+                                showNotifications.toggle()
+                                try await profileViewModel.clearNotificationAlerts()
+                            }
                         } label : {
-                            Image(systemName: "bell")
+                            ZStack {
+                                Image(systemName: "bell")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                    .padding()
+                                
+                                if profileViewModel.user.notificationAlert == true{
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: 10, y: -10)
+                                }
+                            }
                         }
                         .font(.headline)
                         .foregroundColor(.black)

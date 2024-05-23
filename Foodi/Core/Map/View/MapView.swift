@@ -22,10 +22,10 @@ struct MapView: View {
     @State var cameraZoomedEnough = false
     @State var isZoomedEnoughForPhotos: Bool = false/// Is  zoomed in enough to view dots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
-    private var isZoomedEnoughLongitudeSpan: Double = 0.03
-    private var photosLongitudeSpan: Double = 0.015
-    private var kmChangeToUpdateFetch: Double = 1.0
-    private var kmToShowPhoto: Double = 0.3//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    private var isZoomedEnoughLongitudeSpan: Double = 0.02 // how zoomed in you have to be to see dots
+    private var photosLongitudeSpan: Double = 0.005 // how zoomed in you have to be to see photos
+    private var kmChangeToUpdateFetch: Double = 1.0 // how much you have to move to get a new fetch
+    private var kmToShowPhoto: Double = 0.3 // How big of a radius photos are loaded
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     
     
@@ -212,6 +212,8 @@ struct MapView: View {
         cameraZoomedEnough = anyUpdate
         let photosUpdate = span.longitudeDelta < photosLongitudeSpan
         isZoomedEnoughForPhotos = photosUpdate
+        
+        print(span.longitudeDelta)
     }
     
     //MARK: fetchRestaurantsInView
