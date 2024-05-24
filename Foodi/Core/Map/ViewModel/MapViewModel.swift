@@ -79,35 +79,80 @@ class MapViewModel: ObservableObject {
         selectedPrice = []
     }
     
-    func fetchFilteredClusters( region: MKCoordinateRegion, limit: Int = 0) async -> Bool {
+    func fetchFilteredClusters(region: MKCoordinateRegion, limit: Int = 0) async -> Bool {
         do{
-            let center = region.center
-            let radius = convertSpanToKM(span: region.span)
-            print("span", radius)
+            //let center = region.center
+            
+            let (centers, radius) = centersAndRadiusOfSubregions(region: region)
+            
+            
+            //            print("Centers", centers)
+            //            print("radius", radius, "newRadius", newRadius)
+            
+            
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
-            if selectedCuisines.isEmpty {
-                filters.removeValue(forKey: "cuisine")
-            } else {
-                filters["cuisine"] = selectedCuisines
+            var savedClusters: [Cluster] = []
+            for center in centers {
+                if selectedCuisines.isEmpty {
+                    filters.removeValue(forKey: "cuisine")
+                } else {
+                    filters["cuisine"] = selectedCuisines
+                }
+                filters["location"] = [center] + [radius]
+                ///Price checking if there are any selected
+                if selectedPrice.isEmpty {
+                    filters.removeValue(forKey: "price")
+                } else {
+                    filters["price"] = selectedPrice
+                }
+                savedClusters.append(contentsOf: try await RestaurantService.shared.fetchClusters(withFilters: self.filters, limit: limit))
+                
             }
-            filters["location"] = [center] + [radius]
-            ///Price checking if there are any selected
-            if selectedPrice.isEmpty {
-                filters.removeValue(forKey: "price")
-            } else {
-                filters["price"] = selectedPrice
-            }
-            self.clusters = try await RestaurantService.shared.fetchClusters(withFilters: self.filters, limit: limit)
+            self.clusters = savedClusters
             print(self.clusters)
+            return clusters.count > 0
+            
         }
         catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
         return restaurants.count > 0
     }
+
     
-    func convertSpanToKM (span: MKCoordinateSpan) -> Double{
-        return span.longitudeDelta * 11000 * 0.4
+    
+    func centersAndRadiusOfSubregions(region: MKCoordinateRegion) -> ([CLLocationCoordinate2D], Double) {
+        let fullWidth = region.span.longitudeDelta
+        let fullHeight = region.span.latitudeDelta
+        
+        print("fullWidth", fullWidth)
+        print("fullheight", fullHeight)
+        
+        let rectWidth = fullWidth / 3.0
+        let rectHeight = fullHeight / 4.0
+        
+        // Convert width and height from degrees to kilometers (approximation)
+        let kmPerDegreeLatitude = 111.32
+        let kmPerDegreeLongitude = 111.32 * cos(region.center.latitude * .pi / 180)
+
+        let rectWidthInKM = rectWidth * kmPerDegreeLongitude
+        let rectHeightInKM = rectHeight * kmPerDegreeLatitude
+        
+        // The radius of the largest circle that fits inside the rectangle
+        let radiusInKM = min(rectWidthInKM, rectHeightInKM) / 2.0
+        
+        var centers: [CLLocationCoordinate2D] = []
+        
+        for row in 0..<4 {
+            for col in 0..<3 {
+                let centerLat = region.center.latitude - (fullHeight / 2) + (Double(row) + 0.5) * rectHeight
+                let centerLon = region.center.longitude - (fullWidth / 2) + (Double(col) + 0.5) * rectWidth
+                let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon)
+                centers.append(center)
+            }
         }
+        
+        return (centers, radiusInKM * 250)
+    }
     
 }

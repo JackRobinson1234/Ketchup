@@ -62,7 +62,9 @@ struct MapView: View {
                     } else {
                         ForEach(viewModel.clusters, id: \.self) { cluster in
                             Annotation("", coordinate: cluster.coordinate) {
-                                ClusterCell(cluster: cluster)
+                                if cluster.count > 0 {
+                                    ClusterCell(cluster: cluster)
+                                }
                             }
                             /// User Icon
                             UserAnnotation()
@@ -103,8 +105,7 @@ struct MapView: View {
                 ///Based on zoom level and the center of the camera
                 .onMapCameraChange { mapCameraUpdateContext in
                     isZoomedInEnough(span: mapCameraUpdateContext.region.span)
-                    print("Span", mapCameraUpdateContext.region.span)
-                    print("region", mapCameraUpdateContext.region)
+                    
                     if cameraZoomedEnough {
                         center = mapCameraUpdateContext.region.center
                         Task {
@@ -272,7 +273,6 @@ struct MapView: View {
         let distanceInKilometers = distanceInMeters / 1000
         return distanceInKilometers < minDistanceKm
     }
-
 }
 
 #Preview {
