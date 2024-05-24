@@ -81,13 +81,7 @@ class MapViewModel: ObservableObject {
     
     func fetchFilteredClusters(region: MKCoordinateRegion, limit: Int = 0) async -> Bool {
         do{
-            //let center = region.center
-            
             let (centers, radius) = centersAndRadiusOfSubregions(region: region)
-            
-            
-            //            print("Centers", centers)
-            //            print("radius", radius, "newRadius", newRadius)
             
             
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
@@ -118,41 +112,51 @@ class MapViewModel: ObservableObject {
         }
         return restaurants.count > 0
     }
-
+    
     
     
     func centersAndRadiusOfSubregions(region: MKCoordinateRegion) -> ([CLLocationCoordinate2D], Double) {
+        let rows = 4.0
+        let columns = 4.0
         let fullWidth = region.span.longitudeDelta
         let fullHeight = region.span.latitudeDelta
         
         print("fullWidth", fullWidth)
         print("fullheight", fullHeight)
-        
-        let rectWidth = fullWidth / 3.0
-        let rectHeight = fullHeight / 4.0
-        
-        // Convert width and height from degrees to kilometers (approximation)
-        let kmPerDegreeLatitude = 111.32
-        let kmPerDegreeLongitude = 111.32 * cos(region.center.latitude * .pi / 180)
-
-        let rectWidthInKM = rectWidth * kmPerDegreeLongitude
-        let rectHeightInKM = rectHeight * kmPerDegreeLatitude
-        
-        // The radius of the largest circle that fits inside the rectangle
-        let radiusInKM = min(rectWidthInKM, rectHeightInKM) / 2.0
-        
-        var centers: [CLLocationCoordinate2D] = []
-        
-        for row in 0..<4 {
-            for col in 0..<3 {
-                let centerLat = region.center.latitude - (fullHeight / 2) + (Double(row) + 0.5) * rectHeight
-                let centerLon = region.center.longitude - (fullWidth / 2) + (Double(col) + 0.5) * rectWidth
-                let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon)
-                centers.append(center)
+            let rectWidth = fullWidth / rows
+            let rectHeight = fullHeight / columns
+            
+            // Convert width and height from degrees to kilometers (approximation)
+            let kmPerDegreeLatitude = 111.32
+            let kmPerDegreeLongitude = 111.32 * cos(region.center.latitude * .pi / 180)
+            
+            let rectWidthInKM = rectWidth * kmPerDegreeLongitude
+            let rectHeightInKM = rectHeight * kmPerDegreeLatitude
+            
+            // The radius of the largest circle that fits inside the rectangle
+            //let radiusInKM = min(rectWidthInKM, rectHeightInKM) / 2.0
+            
+            var centers: [CLLocationCoordinate2D] = []
+            
+            for row in 3..<6 {
+                for col in 3..<6 {
+                    let centerLat = region.center.latitude - (fullHeight / 2) + (Double(row) + 0.5) * rectHeight
+                    let centerLon = region.center.longitude - (fullWidth / 2) + (Double(col) + 0.5) * rectWidth
+                    let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon)
+                    centers.append(center)
+                    
+                }
             }
-        }
+            let newRadius = 100.0//calculateDistanceInMeters(from: centers[0], to: centers[1])/3
+            print("distance in M", calculateDistanceInMeters(from: centers[0], to: centers[1]))
+            return (centers, newRadius)
         
-        return (centers, radiusInKM * 250)
     }
-    
+    private func calculateDistanceInMeters(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D) -> Double{
+        let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
+        let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
+        let distanceInMeters = location1.distance(from: location2)
+        return distanceInMeters
+        
+    }
 }

@@ -22,7 +22,7 @@ struct MapView: View {
     @State var cameraZoomedEnough = false
     @State var isZoomedEnoughForPhotos: Bool = false/// Is  zoomed in enough to view dots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
-    private var isZoomedEnoughLongitudeSpan: Double = 0.02 // how zoomed in you have to be to see dots
+    private var isZoomedEnoughLongitudeSpan: Double = 0.03 // how zoomed in you have to be to see dots
     private var photosLongitudeSpan: Double = 0.005 // how zoomed in you have to be to see photos
     private var kmChangeToUpdateFetch: Double = 1.0 // how much you have to move to get a new fetch
     private var kmToShowPhoto: Double = 0.3 // How big of a radius photos are loaded
@@ -59,23 +59,27 @@ struct MapView: View {
                                 }
                             }
                         }
-                    } else {
-                        ForEach(viewModel.clusters, id: \.self) { cluster in
-                            Annotation("", coordinate: cluster.coordinate) {
-                                if cluster.count > 0 {
-                                    ClusterCell(cluster: cluster)
-                                }
-                            }
+                    }
+                   // } else {
+//                        ForEach(viewModel.clusters, id: \.self) { cluster in
+//                            Annotation("", coordinate: cluster.coordinate) {
+//                                if cluster.count > 0 {
+//                                    ClusterCell(cluster: cluster)
+                                    
+                               // }
+                                
+                            //}
+                            
                             /// User Icon
                             UserAnnotation()
                         }
-                    }
-                }
+                    
+                
                 //MARK: Zoom Message
                 .overlay{if !cameraZoomedEnough {
                     Spacer()
-                    //Text("Zoom In to Show Restaurants")
-                        //.modifier(OverlayModifier())
+                    Text("Zoom In to Show Restaurants")
+                        .modifier(OverlayModifier())
                     //MARK: No Restaurants Notice
                 } else if viewModel.restaurants.isEmpty {
                     Spacer()
@@ -224,7 +228,6 @@ struct MapView: View {
         cameraZoomedEnough = anyUpdate
         let photosUpdate = span.longitudeDelta < photosLongitudeSpan
         isZoomedEnoughForPhotos = photosUpdate
-        
         print(span.longitudeDelta)
     }
     
@@ -249,8 +252,10 @@ struct MapView: View {
     
     private func fetchClustersInView(region: MKCoordinateRegion) async {
         Task{
-            viewModel.selectedLocation = [region.center]
-            await viewModel.fetchFilteredClusters(region: region)
+            //viewModel.selectedLocation = [region.center]
+            if region.span.longitudeDelta < 0.025 {
+                await viewModel.fetchFilteredClusters(region: region)
+            }
         }
     }
     

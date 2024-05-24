@@ -126,7 +126,6 @@ class RestaurantService {
     ///   - center: CLLocationCoordinate2D that represents the center point of the query
     /// - Returns: Array of restaurants that match all of the filters
     func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double, limit: Int = 0) async throws -> [Cluster] {
-        print("fetched radius", radiusInM)
         let queryBounds = GFUtils.queryBounds(forLocation: center,
                                               withRadius: radiusInM)
         //print("bounds", queryBounds)
@@ -161,13 +160,13 @@ class RestaurantService {
             //Add randomness?
 //            print("cluster length", clusters.count)
 //            
-            for index in 0..<clusters.count {
-                let bound = queryBounds[index]
-                if let geoHash = Geohash(geohash: bound.endValue) {
-                    let geoHashCenter = geoHash.region.center
-                    clusters[index].coordinate = geoHashCenter
-                }
-            }
+//            for index in 0..<clusters.count {
+//                let bound = queryBounds[index]
+//                if let geoHash = Geohash(geohash: bound.endValue) {
+//                    let geoHashCenter = geoHash.region.center
+//                    clusters[index].coordinate = geoHashCenter
+//                }
+//            }
             print("final clusters", clusters)
             return clusters
         }
