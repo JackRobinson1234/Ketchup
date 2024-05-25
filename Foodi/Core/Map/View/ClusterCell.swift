@@ -9,24 +9,24 @@ import SwiftUI
 import MapKit
 
 struct ClusterCell: View {
-    var cluster: Cluster
+    var cluster: ExampleClusterAnnotation
     var body: some View {
         ZStack {
             Circle()
                 .fill(Color.white)
-                .frame(width: 40, height: 40)
+                .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
                         .stroke(Color("Colors/AccentColor"), lineWidth: 2)
                 )
             Text("\(cluster.count)")
                 .foregroundColor(.black)
-                .font(.headline)
+                .font(.footnote)
         }
     }
 }
 #Preview {
-    ClusterCell(cluster: Cluster(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: 0))
+    ClusterCell(cluster: ExampleClusterAnnotation(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: 0))
 }
 
 
