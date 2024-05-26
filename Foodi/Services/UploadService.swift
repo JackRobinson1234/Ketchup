@@ -55,7 +55,7 @@ struct UploadService {
             caption: caption,
             likes: 0,
             commentCount: 0,
-            shareCount: 0,
+            repostCount: 0,
             thumbnailUrl: thumbnailUrl,
             timestamp: Timestamp(),
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),

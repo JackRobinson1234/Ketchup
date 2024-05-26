@@ -16,6 +16,7 @@ import SwiftUI
 import AVKit
 import Photos
 import Kingfisher
+import FirebaseAuth
 struct FeedCell: View {
     @Binding var post: Post
     @StateObject var videoCoordinator = VideoPlayerCoordinator()
@@ -27,9 +28,11 @@ struct FeedCell: View {
     @State private var showCollections = false
     @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
+    private var didRepost: Bool {return post.didRepost}
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
     @State private var showingOptionsSheet = false
+    @State private var showingRepostSheet = false
     @State private var currentImageIndex = 0
     @State var isDragging = false
     @State var dragDirection = "left"
@@ -247,6 +250,15 @@ struct FeedCell: View {
                                         .foregroundStyle(.white)
                                 }
                             }
+                            //MARK: Repost Button
+                            if let user = Auth.auth().currentUser?.uid,  post.user.id != user {
+                                Button {
+                                    showingRepostSheet.toggle()
+                                } label: {
+                                    FeedCellActionButtonView(imageName: "arrow.2.squarepath")
+                                        .rotationEffect(.degrees(90))
+                                }
+                            }
                             //MARK: Collection Button
                             Button {
                                 videoCoordinator.pause()
@@ -264,9 +276,7 @@ struct FeedCell: View {
                             }
                             //MARK: comment button
                             Button {
-                                
                                 videoCoordinator.pause()
-                                
                                 showComments.toggle()
                             } label: {
                                 FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
@@ -275,11 +285,8 @@ struct FeedCell: View {
                             
                             //MARK: share button
                             Button {
-                                
                                 videoCoordinator.pause()
-                                
                                 showShareView.toggle()
-                                
                             } label: {
                                 Image(systemName: "arrowshape.turn.up.right.fill")
                                     .resizable()
@@ -352,6 +359,10 @@ struct FeedCell: View {
             .sheet(isPresented: $showingOptionsSheet) {
                 PostOptionsSheet(post: post, viewModel: viewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+            }
+            .sheet(isPresented: $showingRepostSheet){
+                RepostView(viewModel: viewModel, post: post)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
             }
             //MARK: Tap to play/pause
             .onTapGesture {

@@ -83,7 +83,7 @@ struct DeveloperPreview {
                 caption: "Check out this delicious dish!",
                 likes: 100,
                 commentCount: 20,
-                shareCount: 10,
+                repostCount: 10,
                 thumbnailUrl: "https://example.com/thumbnail.jpg",
                 timestamp: Timestamp(date: Date()),
                 user: PostUser(

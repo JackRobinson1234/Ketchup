@@ -83,6 +83,7 @@ struct MapView: View {
                     }
                     .readSize(onChange: { newValue in
                         viewModel.mapSize = newValue
+                        print("mapsize", viewModel.mapSize)
                     })
                     .onMapCameraChange { context in
                         viewModel.currentRegion = context.region
@@ -155,6 +156,8 @@ struct MapView: View {
                     
                 }
                 )
+                
+                
                 VStack {
                     if !inSearchView{
                         HStack {

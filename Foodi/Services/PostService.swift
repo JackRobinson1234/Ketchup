@@ -29,7 +29,7 @@ class PostService {
     
     
     //MARK: fetchUserPosts
-    /// fetches all the posts for a user
+    /// fetches all the posts for a user (ALSO Fetches REPOSTS)
     /// - Parameter user: user object that you want matching posts for
     /// - Returns: array of post objects
     func fetchUserPosts(user: User) async throws -> [Post] {
@@ -38,7 +38,28 @@ class PostService {
             .PostsCollection
             .whereField("user.id", isEqualTo: user.id)
             .getDocuments(as: Post.self)
-        return posts
+        let repostQuerySnapshot = try await FirestoreConstants
+            .UserCollection
+            .document(user.id)
+            .collection("user-reposts")
+            .getDocuments()
+        let repostPostIds = repostQuerySnapshot.documents.map { $0.documentID }
+        var reposts: [Post] = []
+        for postId in repostPostIds {
+            do {
+                var post = try await fetchPost(postId: postId)
+                post.repost = true 
+                reposts.append(post)
+            } catch {
+                print("Error fetching repost with id \(postId): \(error.localizedDescription)")
+            }
+        }
+        // Combine posts and reposts
+        var combinedPosts = posts + reposts
+        // Sort by timestamp
+        combinedPosts.sort { $0.timestamp > $1.timestamp }
+        
+        return combinedPosts
     }
     
     
@@ -231,6 +252,9 @@ extension PostService {
     }
     
     
+    
+    
+    
     // MARK: - fetchUserLikedPosts
     /// Fetches all the posts that the user has liked
     /// - Parameter user: user to be checked
@@ -258,14 +282,59 @@ extension PostService {
     }
     
     //MARK: deletePost
-    func deletePost(_ post: Post) async throws -> Bool {
+    func deletePost(_ post: Post) async throws  {
         do {
             try await FirestoreConstants.PostsCollection.document(post.id).delete()
             print("Post deleted successfully")
-            return true
+           
         } catch {
             print("Error deleting post: \(error.localizedDescription)")
-            return false
+            
         }
+    }
+}
+
+extension PostService {
+    // MARK: - repostPost
+    /// Reposts a post for the current user
+    /// - Parameter post: post object to be reposted
+    func repostPost(_ post: Post) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        // Add user ID to the post's reposts subcollection
+        
+        try await FirestoreConstants.PostsCollection
+            .document(post.id)
+            .collection("post-reposts")
+            .document(uid)
+            .setData(["timestamp": Timestamp(date: Date())])
+        
+        // Optionally, add the post ID to the user's reposts subcollection
+        try await FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-reposts")
+            .document(post.id)
+            .setData(["timestamp": Timestamp(date: Date())])
+    }
+    func removeRepost(_ post: Post) async throws {
+           guard let uid = Auth.auth().currentUser?.uid else { return }
+           
+           // Remove user ID from the post's reposts subcollection
+           try await FirestoreConstants.PostsCollection
+               .document(post.id)
+               .collection("post-reposts")
+               .document(uid)
+               .delete()
+           
+           // Optionally, remove the post ID from the user's reposts subcollection
+           try await FirestoreConstants.UserCollection
+               .document(uid)
+               .collection("user-reposts")
+               .document(post.id)
+               .delete()
+       }
+    func checkIfUserReposted(_ post: Post) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        let snapshot = try await FirestoreConstants.UserCollection.document(uid).collection("user-reposts").document(post.id).getDocument()
+        return snapshot.exists
     }
 }

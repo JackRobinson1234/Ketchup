@@ -210,7 +210,6 @@ extension FeedViewModel {
     }
     
     
-    
     func isLastItem(_ post: Post) -> Bool {
         guard let lastPost = posts.last else {
             return false
@@ -243,6 +242,33 @@ extension FeedViewModel {
             }
         } catch {
             print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
+        }
+    }
+    func repost(_ post: Post) async {
+        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
+        posts[index].didRepost = true
+        posts[index].repostCount += 1
+        
+        do {
+            try await PostService.shared.repostPost(post)
+        } catch {
+            print("DEBUG: Failed to like post with error \(error.localizedDescription)")
+            posts[index].didRepost = false
+            posts[index].repostCount -= 1
+        }
+    }
+    
+    func removeRepost(_ post: Post) async {
+        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
+        posts[index].didRepost = false
+        posts[index].repostCount -= 1
+        
+        do {
+            try await PostService.shared.removeRepost(post)
+        } catch {
+            print("DEBUG: Failed to removeRepost with error \(error.localizedDescription)")
+            posts[index].didRepost = true
+            posts[index].repostCount += 1
         }
     }
 }

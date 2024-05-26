@@ -19,9 +19,9 @@ struct Post: Identifiable, Codable {
     let caption: String
     var likes: Int
     var commentCount: Int
-    var shareCount: Int
+    var repostCount: Int
     var thumbnailUrl: String
-    var timestamp: Timestamp?
+    var timestamp: Timestamp
     var user: PostUser
     var restaurant: PostRestaurant? = nil
     var recipe: PostRecipe? = nil
@@ -30,6 +30,8 @@ struct Post: Identifiable, Codable {
     var didLike = false
     var didSave = false
     var fromInAppCamera: Bool
+    var repost: Bool = false
+    var didRepost = false
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -40,9 +42,9 @@ struct Post: Identifiable, Codable {
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
-        self.shareCount = try container.decode(Int.self, forKey: .shareCount)
+        self.repostCount = try container.decode(Int.self, forKey: .repostCount)
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
-        self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
+        self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
         self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
@@ -51,6 +53,8 @@ struct Post: Identifiable, Codable {
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
+        self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
+        self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
     }
     
     init(
@@ -61,9 +65,9 @@ struct Post: Identifiable, Codable {
         caption: String,
         likes: Int,
         commentCount: Int,
-        shareCount: Int,
+        repostCount: Int,
         thumbnailUrl: String,
-        timestamp: Timestamp? = nil,
+        timestamp: Timestamp,
         user: PostUser,
         restaurant: PostRestaurant? = nil,
         recipe: PostRecipe? = nil,
@@ -71,7 +75,9 @@ struct Post: Identifiable, Codable {
         price: String? = nil,
         didLike: Bool = false,
         didSave: Bool = false,
-        fromInAppCamera: Bool
+        fromInAppCamera: Bool,
+        repost: Bool = false,
+        didRepost: Bool = false
     )
     {
         self.id = id
@@ -81,7 +87,7 @@ struct Post: Identifiable, Codable {
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount
-        self.shareCount = shareCount
+        self.repostCount = repostCount
         self.thumbnailUrl = thumbnailUrl
         self.timestamp = timestamp
         self.user = user
@@ -92,6 +98,7 @@ struct Post: Identifiable, Codable {
         self.didLike = didLike
         self.didSave = didSave
         self.fromInAppCamera = fromInAppCamera
+        self.repost = repost
     }
 }
 
