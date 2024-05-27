@@ -224,6 +224,7 @@ class CollectionsViewModel: ObservableObject {
             updateSelectedCollection(collection: collection)
             try await addRestaurantToCollection()
         }
+        resetViewModel()
         isLoading = false
     }
     //MARK: updateSelectedCollection

@@ -123,6 +123,8 @@ class UploadViewModel: ObservableObject {
                 state: restaurant.state,
                 profileImageUrl: restaurant.profileImageUrl
             )
+           
+            
         }
         error = nil
         do {

@@ -30,6 +30,12 @@ struct CollectionsListView: View {
                         if viewModel.user.isCurrentUser {
                             Divider()
                             Button{
+                                if let post = viewModel.post{
+                                    print("POST", post)
+                                }
+                                if let post = viewModel.restaurant{
+                                    print("RESTAURANT", post)
+                                }
                                 showAddCollection.toggle()
                             } label: {
                                 CreateCollectionButton()
@@ -83,7 +89,9 @@ struct CollectionsListView: View {
                 .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
                 //.navigationDestination(for: Collection.self) {collection in
                 //CollectionView(collectionsViewModel: viewModel, collection: collection)}
-                .sheet(isPresented: $showAddCollection) {CreateCollectionDetails(user: viewModel.user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)}
+                .sheet(isPresented: $showAddCollection) {
+                    CreateCollectionDetails(user: viewModel.user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)
+                }
                 // Dismisses this view if a new collection is made
                 
             }

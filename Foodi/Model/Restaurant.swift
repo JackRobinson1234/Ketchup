@@ -16,7 +16,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let cuisine: String?
     let price: String?
     let name: String
-    let geoPoint: GeoPoint?
+    var geoPoint: GeoPoint?
     let geoHash: String?
     let address: String?
     let city: String?

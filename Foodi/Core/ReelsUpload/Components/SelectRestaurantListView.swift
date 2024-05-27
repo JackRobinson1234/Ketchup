@@ -7,6 +7,7 @@
 
 import SwiftUI
 import InstantSearchSwiftUI
+import FirebaseFirestoreInternal
 
 struct SelectRestaurantListView: View {
     @StateObject var viewModel = RestaurantListViewModel()
@@ -18,6 +19,13 @@ struct SelectRestaurantListView: View {
         InfiniteList(viewModel.hits, itemView: { hit in
             Button{
                 uploadViewModel.restaurant = hit.object
+                let restaurant = hit.object
+                    if let geopoint = restaurant.geoPoint{
+                        uploadViewModel.restaurant?.geoPoint = geopoint
+                    } else if let geoLoc = restaurant._geoloc {
+                        uploadViewModel.restaurant?.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+                    }
+                
                 dismiss()
             } label: {
                 RestaurantCell(restaurant: hit.object)

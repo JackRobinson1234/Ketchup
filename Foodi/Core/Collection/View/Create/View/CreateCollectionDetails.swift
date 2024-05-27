@@ -117,7 +117,11 @@ struct CreateCollectionDetails: View {
                             }
                     }
                 }
-                .onDisappear{collectionsViewModel.resetViewModel()}
+            .onAppear{
+                print("third viewModel post", collectionsViewModel.post)
+                print("third viewModel restaurant", collectionsViewModel.restaurant)
+            }
+                //.onDisappear{collectionsViewModel.resetViewModel()}
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle("Create a New Collection")
                 .preferredColorScheme(.light)

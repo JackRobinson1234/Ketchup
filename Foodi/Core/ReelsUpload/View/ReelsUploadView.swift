@@ -27,7 +27,6 @@ struct ReelsUploadView: View {
     let postTypeOptions = ["restaurant", "atHome"]
     
     var body: some View {
-        
             ZStack {
                 VStack {
                     if uploadViewModel.mediaType == "video" {

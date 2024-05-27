@@ -24,40 +24,46 @@ struct AddItemCollectionList: View {
     }
     var body: some View {
         NavigationStack{
-                    ZStack {
-                        ScrollView {
-                            VStack{
-                                if post != nil {
-                                    if let item = viewModel.convertPostToCollectionItem() {
-                                        CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
-                                            .padding()
-                                    }
-                                }
-                                
-                                else if restaurant != nil {
-                                    if let item = viewModel.convertRestaurantToCollectionItem() {
-                                        CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
-                                            .padding()
-                                    }
-                                }
-                                
-                                Button(action: {
-                                    self.isEditingCaption = true
-                                }) {
-                                    CaptionBox(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Add some notes...")
-                                }
-                                
-                                CollectionsListView(viewModel: viewModel)
-                                Spacer()
+            ZStack {
+                ScrollView {
+                    VStack{
+                        if post != nil {
+                            if let item = viewModel.convertPostToCollectionItem() {
+                                CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
+                                    .padding()
                             }
                         }
-                    if isEditingCaption {
-                        CaptionEditorView(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Notes")
-                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                            .onAppear {
-                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                        
+                        else if restaurant != nil {
+                            if let item = viewModel.convertRestaurantToCollectionItem() {
+                                CollectionItemCell(item: item, previewMode: true, viewModel: viewModel)
+                                    .padding()
                             }
+                        }
+                        
+                        Button(action: {
+                            self.isEditingCaption = true
+                        }) {
+                            CaptionBox(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Add some notes...")
+                        }
+                        
+                        CollectionsListView(viewModel: viewModel)
+                        Spacer()
                     }
+                }
+                
+                if isEditingCaption {
+                    CaptionEditorView(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Notes")
+                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                        .onAppear {
+                            isCaptionEditorFocused = true
+                            
+                        }
+                }
+            }
+            .onAppear{
+                print("initial viewModel post", viewModel.post)
+                print("initial viewModel restaurant", viewModel.restaurant)
             }
             .onChange(of: viewModel.dismissListView) {
                 if viewModel.dismissListView {

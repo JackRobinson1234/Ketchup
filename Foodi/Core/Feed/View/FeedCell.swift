@@ -54,7 +54,7 @@ struct FeedCell: View {
                 self.isDragging = false
             }
     }
-
+    
     
     var body: some View {
         //MARK: Loading Screen
@@ -73,20 +73,20 @@ struct FeedCell: View {
                 
                 ZStack {
                     if post.fromInAppCamera {
-                                           KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                                               .resizable()
-                                               .scaledToFill()
-                                               .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                                               .cornerRadius(20)
-                                               .containerRelativeFrame([.horizontal, .vertical])
-                                       } else {
-                                           KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                                               .resizable()
-                                               .scaledToFit()
-                                               .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                                               .cornerRadius(20)
-                                               .containerRelativeFrame([.horizontal, .vertical])
-                                       }
+                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            .cornerRadius(20)
+                            .containerRelativeFrame([.horizontal, .vertical])
+                    } else {
+                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            .cornerRadius(20)
+                            .containerRelativeFrame([.horizontal, .vertical])
+                    }
                     
                     VStack {
                         HStack {
@@ -231,9 +231,9 @@ struct FeedCell: View {
                         VStack(spacing: 28) {
                             //MARK: user profile image
                             NavigationLink(value: post.user) {
-                                    UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                                UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
                             }
-                           
+                            
                             //MARK: Delete/ Report
                             Button {
                                 videoCoordinator.pause()
@@ -255,8 +255,21 @@ struct FeedCell: View {
                                 Button {
                                     showingRepostSheet.toggle()
                                 } label: {
-                                    FeedCellActionButtonView(imageName: "arrow.2.squarepath")
-                                        .rotationEffect(.degrees(90))
+                                    VStack {
+                                        Image(systemName: "arrow.2.squarepath")
+                                            
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 28, height: 28)
+                                            .foregroundStyle(.white)
+                                            .rotationEffect(.degrees(90))
+                                        Text("\(post.repostCount)")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                        
+                                        
+                                    }
+                                    .foregroundStyle(.white)
                                 }
                             }
                             //MARK: Collection Button
@@ -347,10 +360,10 @@ struct FeedCell: View {
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                     .onDisappear{Task {videoCoordinator.play()}}
             }
-//            .sheet(isPresented: $showRecipe) {
-//                RecipeView(post: post)
-//                    .onDisappear{Task {videoCoordinator.play()}}
-//            }
+            //            .sheet(isPresented: $showRecipe) {
+            //                RecipeView(post: post)
+            //                    .onDisappear{Task {videoCoordinator.play()}}
+            //            }
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {
                     AddItemCollectionList(user: currentUser, post: post)
@@ -370,13 +383,13 @@ struct FeedCell: View {
                 switch player.timeControlStatus {
                 case .paused:
                     videoCoordinator.play()
-                    case .waitingToPlayAtSpecifiedRate:
-                        break
-                    case .playing:
-                        videoCoordinator.pause()
-                    @unknown default:
-                        break
-                    }
+                case .waitingToPlayAtSpecifiedRate:
+                    break
+                case .playing:
+                    videoCoordinator.pause()
+                @unknown default:
+                    break
+                }
             }
         }
     }
@@ -433,7 +446,7 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
         videoCoordinator: VideoPlayerCoordinator(),
-             viewModel: FeedViewModel()
+        viewModel: FeedViewModel()
         ,scrollPosition: .constant(""),
         pauseVideo: .constant(true)
     )
