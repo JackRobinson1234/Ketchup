@@ -30,6 +30,7 @@ struct MapView: View {
     private var kmToShowPhoto: Double = 0.3//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     @State private var mapSize: CGSize = .zero
+    @State private var noNearbyRestaurants = false
 
     
     
@@ -97,28 +98,40 @@ struct MapView: View {
                         Text("Zoom In to Show Restaurants")
                             .modifier(OverlayModifier())
                         //MARK: No Restaurants Notice
-                    } else if viewModel.restaurants.isEmpty {
+                    } else if viewModel.restaurants.isEmpty && viewModel.isLoading == false {
                         Spacer()
                         VStack{
                             Spacer()
                             Text("No Restaurants Nearby")
                                 .modifier(OverlayModifier())
                             Spacer()
-                            /// MARK: Fetch Nearby Restaurants
-                            Button{
-                                Task{
-                                    await viewModel.checkForNearbyRestaurants()
-                                    /// Resets the camera position to the closest restaurant
-                                    if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
-                                        let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
-                                        position = .region(region)
+                            // MARK: Fetch Nearby Restaurants
+                            if !noNearbyRestaurants{
+                                Button{
+                                    Task{
+                                        await viewModel.checkForNearbyRestaurants()
+                                        /// Resets the camera position to the closest restaurant
+                                        if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
+                                            let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
+                                            position = .region(region)
+                                        } else {
+                                            noNearbyRestaurants = true
+                                        }
                                     }
+                                } label: {
+                                    Text("Find Nearest Restaurant")
+                                        .font(.subheadline)
+                                        .modifier(StandardButtonModifier(width: 190))
                                 }
-                            } label: {
-                                Text("Find Nearest Restaurant")
+                                .padding()
+                            } else {
+                                Text("No Restaurants found in a 1000 mile radius. Change filters to see results!")
                                     .modifier(OverlayModifier())
+                                    .padding()
                             }
+                            
                         }
+                        
                     }
                     }
                     //MARK: Fetching Restaurants
@@ -257,6 +270,7 @@ struct MapView: View {
                 if !calculateDistanceInKilometers(from: lastLocation, to: center, minDistanceKm: kmChangeToUpdateFetch) {
                     viewModel.selectedLocation = [center]
                     print("fetching new restaurants")
+                    noNearbyRestaurants = false
                     Task{
                         await viewModel.fetchFilteredRestaurants()
                     }

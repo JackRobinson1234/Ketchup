@@ -11,6 +11,7 @@ import SwiftUI
 @MainActor
 class ProfileViewModel: ObservableObject {
     @Published var posts = [Post]()
+    @Published var likedPosts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
     private var didCompleteFollowCheck = false
@@ -44,6 +45,7 @@ class ProfileViewModel: ObservableObject {
         do {
             self.user = try await UserService.shared.fetchCurrentUser()
             try await fetchUserPosts()
+            try await fetchUserLikedPosts()
             AuthService.shared.userSession = self.user
         } catch {
             print("Failed to refresh the current user")
@@ -81,7 +83,6 @@ extension ProfileViewModel {
 
 extension ProfileViewModel {
     func fetchUserPosts() async throws {
-        
             do {
                 self.posts = try await PostService.shared.fetchUserPosts(user: user)
             } catch {
@@ -92,7 +93,7 @@ extension ProfileViewModel {
     
     func fetchUserLikedPosts() async throws {
             do {
-                self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
+                self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }

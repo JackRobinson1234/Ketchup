@@ -82,6 +82,12 @@ struct RestaurantCollectionListView: View {
                 .sheet(isPresented: $showAddToCollection) {
                     if let user = AuthService.shared.userSession{
                         AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
+                            .onDisappear {
+                                Task {
+                                    try await viewModel.fetchRestaurantCollections()
+                                    isLoading = false
+                                }
+                            }
                     }
                 }
             }
