@@ -44,6 +44,7 @@ class ProfileViewModel: ObservableObject {
         do {
             self.user = try await UserService.shared.fetchCurrentUser()
             try await fetchUserPosts()
+            try await fetchUserLikedPosts()
             AuthService.shared.userSession = self.user
         } catch {
             print("Failed to refresh the current user")
