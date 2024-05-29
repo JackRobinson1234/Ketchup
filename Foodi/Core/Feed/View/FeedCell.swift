@@ -36,6 +36,9 @@ struct FeedCell: View {
     @State private var currentImageIndex = 0
     @State var isDragging = false
     @State var dragDirection = "left"
+    //    @State private var playbackPosition: Double = 0.0
+    //    @State private var videoDuration: Double = 0.0
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -117,202 +120,203 @@ struct FeedCell: View {
             
             VStack {
                 Spacer()
-                //MARK: Black Background
-                ZStack(alignment: .bottom) {
-                    Rectangle()
-                        .fill(LinearGradient(colors: [.clear, .black.opacity(0.15)],
-                                             startPoint: .top,
-                                             endPoint: .bottom))
+                
+                HStack(alignment: .bottom) {
                     
+                    // MARK: Caption Box
                     
-                    HStack(alignment: .bottom) {
-                        
-                        // MARK: Caption Box
-                        
-                        VStack(alignment: .leading, spacing: 7) {
-                            HStack{
-                                //MARK:  restaurant profile image
-                                if let restaurant = post.restaurant {
+                    VStack(alignment: .leading, spacing: 7) {
+                        HStack{
+                            //MARK:  restaurant profile image
+                            if let restaurant = post.restaurant {
+                                NavigationLink(value: restaurant) {
+                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                                }
+                                
+                                //MARK: Restaurant Name
+                                VStack (alignment: .leading) {
                                     NavigationLink(value: restaurant) {
-                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                                        Text("\(restaurant.name)")
+                                            .font(.title3)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
                                     }
-                                    
-                                    //MARK: Restaurant Name
-                                    VStack (alignment: .leading) {
-                                        NavigationLink(value: restaurant) {
-                                            Text("\(restaurant.name)")
-                                                .font(.title3)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        //MARK: Address
-                                        Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                                        //MARK: Recipe Fullname
-                                        NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(.white)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                    }
-                                    //MARK: Recipe Scenario
-                                } else if let recipe = post.recipe{
-                                    VStack (alignment: .leading) {
-                                        Button{showRecipe.toggle()} label: {
-                                            Text("\(recipe.name)")
-                                                .font(.title3)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        //MARK: recipe fullname
-                                        NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(.white)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
+                                    //MARK: Address
+                                    Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                                    //MARK: Recipe Fullname
+                                    NavigationLink(value: post.user) {
+                                        Text("by \(post.user.fullname)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.white)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
                                     }
                                 }
-                            }
-                            
-                            
-                            //MARK: caption
-                            Text(post.caption)
-                                .lineLimit(expandCaption ? 50 : 1)
-                            
-                            //MARK: see more
-                            if !expandCaption{
-                                Text("See more...")
-                                    .font(.footnote)
-                            }
-                            else {
-                                Text("Cuisine: \(post.cuisine ?? "")")
-                                
-                                //MARKL  price
-                                Text("Price: \(post.price ?? "")")
-                                
-                                //MARK: Menu Button
-                                
-                                if let restaurant = post.restaurant {
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
-                                        Text("View Menu")
+                                //MARK: Recipe Scenario
+                            } else if let recipe = post.recipe{
+                                VStack (alignment: .leading) {
+                                    Button{showRecipe.toggle()} label: {
+                                        Text("\(recipe.name)")
+                                            .font(.title3)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
                                     }
-                                    .modifier(StandardButtonModifier(width: 175))
-                                    //MARK: Show recipe
-                                } else if post.recipe != nil {
-                                    Button{
-                                        showRecipe.toggle()
-                                        Task{
-                                            videoCoordinator.pause()
-                                        }
-                                    } label: {
-                                        Text("View Recipe")
+                                    //MARK: recipe fullname
+                                    NavigationLink(value: post.user) {
+                                        Text("by \(post.user.fullname)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.white)
+                                            .bold()
+                                            .multilineTextAlignment(.leading)
                                     }
-                                    .modifier(StandardButtonModifier(width: 175))
-                                    
                                 }
                             }
                         }
                         
-                        //controls box size
-                        .padding(10)
-                        .background(Color.black.opacity(0.3))
-                        .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal)
                         
-                        Spacer()
-                        //MARK: Right hand VStack
-                        VStack(spacing: 28) {
-                            //MARK: user profile image
-                            NavigationLink(value: post.user) {
-                                UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
-                            }
+                        //MARK: caption
+                        Text(post.caption)
+                            .lineLimit(expandCaption ? 50 : 1)
+                        
+                        //MARK: see more
+                        if !expandCaption{
+                            Text("See more...")
+                                .font(.footnote)
+                        }
+                        else {
+                            Text("Cuisine: \(post.cuisine ?? "")")
                             
-                            //MARK: Delete/ Report
-                            Button {
-                                videoCoordinator.pause()
-                                showingOptionsSheet = true
-                            } label: {
-                                ZStack{
-                                    Rectangle()
-                                        .fill(.clear)
-                                        .frame(width: 18, height: 14)
-                                    Image(systemName: "ellipsis")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 6, height: 6)
-                                        .foregroundStyle(.white)
+                            //MARKL  price
+                            Text("Price: \(post.price ?? "")")
+                            
+                            //MARK: Menu Button
+                            
+                            if let restaurant = post.restaurant {
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
+                                    Text("View Menu")
                                 }
-                            }
-                            //MARK: Repost Button
-                            if let user = Auth.auth().currentUser?.uid,  post.user.id != user {
-                                Button {
-                                    showingRepostSheet.toggle()
-                                } label: {
-                                    VStack {
-                                        Image(systemName: "arrow.2.squarepath")
-                                            
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 28, height: 28)
-                                            .foregroundStyle(.white)
-                                            .rotationEffect(.degrees(90))
-                                        Text("\(post.repostCount)")
-                                            .font(.caption)
-                                            .fontWeight(.bold)
-                                        
-                                        
+                                .modifier(StandardButtonModifier(width: 175))
+                                //MARK: Show recipe
+                            } else if post.recipe != nil {
+                                Button{
+                                    showRecipe.toggle()
+                                    Task{
+                                        videoCoordinator.pause()
                                     }
-                                    .foregroundStyle(.white)
+                                } label: {
+                                    Text("View Recipe")
                                 }
+                                .modifier(StandardButtonModifier(width: 175))
+                                
                             }
-                            //MARK: Collection Button
-                            Button {
-                                videoCoordinator.pause()
-                                showCollections.toggle()
-                            } label: {
-                                FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
-                            }
-                            //MARK: Like button
-                            Button {
-                                handleLikeTapped()
-                            } label: {
-                                FeedCellActionButtonView(imageName: didLike ? "heart.fill": "heart.fill",
-                                                         value: post.likes,
-                                                         tintColor: didLike ? .red : .white)
-                            }
-                            //MARK: comment button
-                            Button {
-                                videoCoordinator.pause()
-                                showComments.toggle()
-                            } label: {
-                                FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
-                            }
-                            // Bookmark button
-                            
-                            //MARK: share button
-                            Button {
-                                videoCoordinator.pause()
-                                showShareView.toggle()
-                            } label: {
-                                Image(systemName: "arrowshape.turn.up.right.fill")
+                        }
+                    }
+                    
+                    //controls box size
+                    .padding(10)
+                    .background(Color.black.opacity(0.3))
+                    .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    //MARK: Right hand VStack
+                    VStack(spacing: 28) {
+                        //MARK: user profile image
+                        NavigationLink(value: post.user) {
+                            UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                        }
+                        
+                        //MARK: Delete/ Report
+                        Button {
+                            videoCoordinator.pause()
+                            showingOptionsSheet = true
+                        } label: {
+                            ZStack{
+                                Rectangle()
+                                    .fill(.clear)
+                                    .frame(width: 18, height: 14)
+                                Image(systemName: "ellipsis")
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 28, height: 28)
+                                    .frame(width: 6, height: 6)
                                     .foregroundStyle(.white)
                             }
                         }
-                        .padding(.horizontal)
+                        //MARK: Repost Button
+                        if let user = Auth.auth().currentUser?.uid,  post.user.id != user {
+                            Button {
+                                showingRepostSheet.toggle()
+                            } label: {
+                                VStack {
+                                    Image(systemName: "arrow.2.squarepath")
+                                    
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 28, height: 28)
+                                        .foregroundStyle(.white)
+                                        .rotationEffect(.degrees(90))
+                                    Text("\(post.repostCount)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                    
+                                    
+                                }
+                                .foregroundStyle(.white)
+                            }
+                        }
+                        //MARK: Collection Button
+                        Button {
+                            videoCoordinator.pause()
+                            showCollections.toggle()
+                        } label: {
+                            FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
+                        }
+                        //MARK: Like button
+                        Button {
+                            handleLikeTapped()
+                        } label: {
+                            FeedCellActionButtonView(imageName: didLike ? "heart.fill": "heart.fill",
+                                                     value: post.likes,
+                                                     tintColor: didLike ? .red : .white)
+                        }
+                        //MARK: comment button
+                        Button {
+                            videoCoordinator.pause()
+                            showComments.toggle()
+                        } label: {
+                            FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
+                        }
+                        // Bookmark button
+                        
+                        //MARK: share button
+                        Button {
+                            videoCoordinator.pause()
+                            showShareView.toggle()
+                        } label: {
+                            Image(systemName: "arrowshape.turn.up.right.fill")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 28, height: 28)
+                                .foregroundStyle(.white)
+                        }
                     }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
+                    .padding(.horizontal)
+                }
+                
+                
+                if post.mediaType == "video" {
+                    Slider(value: $videoCoordinator.currentTime, in: 0...videoCoordinator.duration, onEditingChanged: sliderEditingChanged)
+                        .padding()
+                        .accentColor(.clear)
                 }
             }
+            .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
+        }
+            
             .gesture(drag)
             //MARK: Scroll Position replay/ pause
             .onChange(of: scrollPosition) {oldValue, newValue in
@@ -391,7 +395,7 @@ struct FeedCell: View {
                     break
                 }
             }
-        }
+        
     }
     //MARK: like and unlike functionality
     private func handleLikeTapped() {
@@ -416,6 +420,15 @@ struct FeedCell: View {
         
         return timeString.isEmpty ? "Not specified" : timeString
     }
+    func sliderEditingChanged(_ editingStarted: Bool) {
+        if editingStarted {
+            videoCoordinator.pause()
+        } else {
+            videoCoordinator.seekToTime(seconds: videoCoordinator.currentTime)
+            videoCoordinator.play()
+        }
+    }
+    
 }
 //MARK: Photo Library Acess
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
@@ -451,3 +464,4 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         pauseVideo: .constant(true)
     )
 }
+

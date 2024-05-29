@@ -48,6 +48,9 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var retries: Int = 0
     private var playerTimeObserver: PlayerTimeObserver?
     private var cancellables = Set<AnyCancellable>()
+    @Published var currentTime: Double = 0.0
+    @Published var duration: Double = 0.0
+    
     
     
     //MARK: configurePlayer
@@ -192,9 +195,10 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func handleTimeUpdate(time: TimeInterval) {
-        print("Current time: \(time) seconds")
+        //print("Current time: \(time) seconds")
+        self.currentTime = time
         if let currentItem = player.currentItem {
-            let duration = CMTimeGetSeconds(currentItem.duration)
+            self.duration = CMTimeGetSeconds(currentItem.duration)
             print("Duration: \(duration) seconds")
         }
     }
