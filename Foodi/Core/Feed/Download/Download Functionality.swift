@@ -47,11 +47,11 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         let destinationURL = documentsURL.appendingPathComponent("myVideo.mp4")
         do {
             try data.write(to: destinationURL)
-            saveVideoToAlbum(videoURL: destinationURL, albumName: "MyAlbum")
+            saveVideoToAlbum(videoURL: destinationURL, albumName: "Ketchup")
             DispatchQueue.main.async {
                 self.isDownloading = false
                 self.downloadSuccess.toggle()
-                        }
+                        } 
         } catch {
             print("Error saving file:", error)
             DispatchQueue.main.async {
