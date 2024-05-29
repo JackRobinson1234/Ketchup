@@ -16,7 +16,7 @@ struct StandardButtonModifier: ViewModifier {
             .fontWeight(.semibold)
             .foregroundColor(.white)
             .frame(width: width, height: 44)
-            .background(Color(.systemBlue))
+            .background(Color("Colors/AccentColor"))
             .cornerRadius(8)
     }
 }
