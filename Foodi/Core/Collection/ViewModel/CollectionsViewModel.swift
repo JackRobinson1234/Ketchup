@@ -75,9 +75,9 @@ class CollectionsViewModel: ObservableObject {
             if !self.items.contains(item){
                 self.items.append(item)
                 if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                    if collectionItem.postType == "restaurant"{
+                    if collectionItem.postType == .dining{
                         collections[index].restaurantCount += 1
-                    } else if collectionItem.postType == "atHome"{
+                    } else if collectionItem.postType == .cooking{
                         collections[index].atHomeCount += 1
                     }
                 }
@@ -100,7 +100,7 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: A CollectionItem
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
-            if post.postType == "atHome" {
+            if post.postType == .cooking{
                 let collectionItem = CollectionItem(
                     collectionId: "",
                     id: post.id,
@@ -112,7 +112,7 @@ class CollectionsViewModel: ObservableObject {
                     privateMode: user.privateMode
                 )
                 return collectionItem
-            } else if post.postType == "restaurant",
+            } else if post.postType == .dining,
                       let id = post.restaurant?.id,
                       let name = post.restaurant?.name{
                 let collectionItem = CollectionItem(
@@ -154,7 +154,7 @@ class CollectionsViewModel: ObservableObject {
             var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
-                postType: "restaurant",
+                postType: .dining,
                 name: restaurant.name,
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
@@ -175,7 +175,7 @@ class CollectionsViewModel: ObservableObject {
             var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
-                postType: "restaurant",
+                postType: .dining,
                 name: restaurant.name,
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
@@ -304,9 +304,9 @@ class CollectionsViewModel: ObservableObject {
                 if  !self.deleteItems.isEmpty {
                     for item in self.deleteItems {
                         try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
-                        if item.postType == "restaurant"{
+                        if item.postType == .dining{
                             collections[index].restaurantCount -= 1
-                        } else if item.postType == "atHome"{
+                        } else if item.postType == .cooking{
                             collections[index].atHomeCount -= 1
                         }
                     }

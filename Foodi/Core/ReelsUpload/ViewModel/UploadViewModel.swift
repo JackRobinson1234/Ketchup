@@ -38,7 +38,7 @@ class UploadViewModel: ObservableObject {
     
     @Published var restaurant: Restaurant?
     
-    @Published var postType = "Select Post Type"
+    @Published var postType: PostType? = nil
     
     @Published var savedRecipe = false
     
@@ -80,7 +80,7 @@ class UploadViewModel: ObservableObject {
         recipeServings = 0
         instructions = [Instruction(title: "", description: "")]
         restaurant = nil
-        postType = "Select Post Type"
+        postType = nil
         savedRecipe = false
         navigateToUpload = false
         fromInAppCamera = true
@@ -128,36 +128,39 @@ class UploadViewModel: ObservableObject {
         }
         error = nil
         do {
-            if mediaType == "video" {
-                guard let videoURL = videoURL else {
-                    throw UploadError.invalidMediaData
+            if let postType = postType {
+                if mediaType == "video" {
+                    guard let videoURL = videoURL else {
+                        throw UploadError.invalidMediaData
+                    }
+                    
+                    try await uploadService.uploadPost(videoURL: videoURL,
+                                                       images: nil,
+                                                       mediaType: mediaType,
+                                                       caption: caption,
+                                                       postType: postType,
+                                                       postRestaurant: postRestaurant,
+                                                       postRecipe: postRecipe,
+                                                       fromInAppCamera: fromInAppCamera
+                    )
+                } else if mediaType == "photo" {
+                    guard let images = images else {
+                        throw UploadError.invalidMediaData
+                    }
+                    try await uploadService.uploadPost(videoURL: nil,
+                                                       images: images,
+                                                       mediaType: mediaType,
+                                                       caption: caption,
+                                                       postType: postType,
+                                                       postRestaurant: postRestaurant,
+                                                       postRecipe: postRecipe,
+                                                       fromInAppCamera: fromInAppCamera
+                    )
+                } else {
+                    throw UploadError.invalidMediaType
                 }
-                try await uploadService.uploadPost(videoURL: videoURL,
-                                                   images: nil,
-                                                   mediaType: mediaType,
-                                                   caption: caption,
-                                                   postType: postType,
-                                                   postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe,
-                                                   fromInAppCamera: fromInAppCamera
-                )
-            } else if mediaType == "photo" {
-                guard let images = images else {
-                    throw UploadError.invalidMediaData
-                }
-                try await uploadService.uploadPost(videoURL: nil,
-                                                   images: images,
-                                                   mediaType: mediaType,
-                                                   caption: caption,
-                                                   postType: postType,
-                                                   postRestaurant: postRestaurant,
-                                                   postRecipe: postRecipe,
-                                                   fromInAppCamera: fromInAppCamera
-                )
-            } else {
-                throw UploadError.invalidMediaType
+                uploadSuccess = true
             }
-            uploadSuccess = true
         } catch {
             self.error = error
             uploadFailure = true

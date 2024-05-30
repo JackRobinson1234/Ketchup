@@ -32,22 +32,22 @@ struct PostTypeFilter: View {
         
         ///Ensure that only one toggle is selected when the user clicks
         .onChange(of: [filtersViewModel.atHomeChecked]) {
-            oneToggleSelected(lastChanged: "atHome")
+            oneToggleSelected(lastChanged: .cooking)
             filtersViewModel.disableFilters()
                 }
         .onChange(of: [filtersViewModel.restaurantChecked]) {
-            oneToggleSelected(lastChanged: "restaurant")
-            filtersViewModel.disableFilters() 
+            oneToggleSelected(lastChanged: .dining)
+            filtersViewModel.disableFilters()
                 }
     }
     /// Ensures that there is at least one toggle selected
     /// - Parameter lastChanged: last parameter that got toggled
     
-    private func oneToggleSelected(lastChanged: String) {
+    private func oneToggleSelected(lastChanged: PostType) {
         if !filtersViewModel.restaurantChecked && !filtersViewModel.atHomeChecked {
-            if lastChanged == "restaurant" {
+            if lastChanged == .dining {
                 filtersViewModel.atHomeChecked = true
-            } else if lastChanged == "atHome" {
+            } else if lastChanged == .cooking {
                 filtersViewModel.restaurantChecked = true
             }
         }

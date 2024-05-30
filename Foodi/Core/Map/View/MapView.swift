@@ -31,6 +31,7 @@ struct MapView: View {
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     @State private var mapSize: CGSize = .zero
     @State private var noNearbyRestaurants = false
+    @State private var showAlert = false
 
     
     
@@ -159,16 +160,24 @@ struct MapView: View {
                     // MARK: User Location button
                     .overlay(alignment: .bottomTrailing) {
                         VStack {
-                            MapUserLocationButton(scope: mapScope)
+                            if locationManager.userLocation == nil {
+                                Button{
+                                    showAlert = true
+                                } label: {
+                                    MapUserLocationButton(scope: mapScope)
+                                }
+                            } else {
+                                MapUserLocationButton(scope: mapScope)
+                            }
                         }
-                        .padding([.bottom, .trailing], 20)
-                        .buttonBorderShape(.circle)
+                            .padding([.bottom, .trailing], 20)
+                            .buttonBorderShape(.circle)
+                        }
+                        .mapScope(mapScope)
+                        .mapStyle(.standard(pointsOfInterest: .excludingAll))
+                        
                     }
-                    .mapScope(mapScope)
-                    .mapStyle(.standard(pointsOfInterest: .excludingAll))
-                    
-                }
-                )
+                    )
                 
                 
                 VStack {
@@ -193,11 +202,19 @@ struct MapView: View {
                             Button {
                                 isFiltersPresented.toggle()
                             } label: {
-                                Image(systemName: "slider.horizontal.3")
-                                    .imageScale(.large)
-                                    .shadow(radius: 10)
-                                    .font(.system(size: 23))
-                                
+                                ZStack {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .imageScale(.large)
+                                        .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.red, radius: 4)
+                                        .font(.system(size: 23))
+                                    
+                                    if !viewModel.filters.isEmpty {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12) // Adjust the offset as needed
+                                    }
+                                }
                             }
                         }
                         .padding(32)
@@ -214,6 +231,18 @@ struct MapView: View {
                             Spacer()
                         }
                     }
+                }
+                .alert(isPresented: $showAlert) {
+                    Alert(
+                        title: Text("Location Permission Required"),
+                        message: Text("Ketchup needs access to your location to show nearby restaurants. Please go to Settings and enable location permissions."),
+                        primaryButton: .default(Text("Go to Settings")) {
+                            if let url = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(url) {
+                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            }
+                        },
+                        secondaryButton: .cancel()
+                    )
                 }
                 /// triggers restaurant preview if the user clicks on empty space
                 .onChange(of: selectedRestaurant, { oldValue, newValue in

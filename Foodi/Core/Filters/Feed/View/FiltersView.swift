@@ -28,7 +28,6 @@ struct FiltersView: View {
                         filtersViewModel.clearFilters()
                     } label: {
                         Text("Remove all filters")
-                            .font(.subheadline)
                             .foregroundStyle(.red)
                     }
 //                    if selectedOption == .postType {
@@ -248,7 +247,7 @@ struct CollapsedPickerView: View {
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding()
-        .shadow(radius: 10)
+        .shadow(color: count > 0 ? Color("Colors/AccentColor") : .gray, radius: 10)
     }
 }
 //MARK: Filter Options Enum

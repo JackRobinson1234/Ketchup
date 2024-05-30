@@ -1,30 +1,35 @@
 //
-//  Download Functionality.swift
+//  Download.swift
 //  Foodi
 //
-//  Created by Jack Robinson on 3/1/24.
+//  Created by Jack Robinson on 5/29/24.
 //
+
 import Firebase
 import AVKit
 import SwiftUI
 import Photos
 import Foundation
-import SwiftUI
-import Photos
 import AVFoundation
 
-
+enum MediaType {
+    case photo
+    case video
+}
+@MainActor
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var progress: Float = 0
     @Published var isDownloading: Bool = false
     @Published var downloadSuccess: Bool = false
     @Published var downloadFailure: Bool = false
-    func downloadVideo(url: URL) {
+
+    private var mediaType: MediaType?
+
+    func downloadMedia(url: URL, mediaType: MediaType) {
+        self.mediaType = mediaType
+        
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
-                // Proceed with saving or modifying assets
-                
-                
                 self.isDownloading = true
                 let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
                 let task = session.dataTask(with: url) { (data, response, error) in
@@ -38,43 +43,51 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             }
         }
     }
+    
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let data = try? Data(contentsOf: location) else {
+        guard let data = try? Data(contentsOf: location), let mediaType = self.mediaType else {
             return
         }
         
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let destinationURL = documentsURL.appendingPathComponent("myVideo.mp4")
+        let destinationURL: URL
+        
+        switch mediaType {
+        case .photo:
+            destinationURL = documentsURL.appendingPathComponent("downloadedPhoto.jpg")
+        case .video:
+            destinationURL = documentsURL.appendingPathComponent("downloadedVideo.mp4")
+        }
+        
         do {
             try data.write(to: destinationURL)
-            saveVideoToAlbum(videoURL: destinationURL, albumName: "MyAlbum")
+            saveMediaToAlbum(mediaURL: destinationURL, albumName: "Ketchup", mediaType: mediaType)
             DispatchQueue.main.async {
                 self.isDownloading = false
                 self.downloadSuccess.toggle()
-                        }
+            }
         } catch {
             print("Error saving file:", error)
             DispatchQueue.main.async {
                 self.isDownloading = false
                 self.downloadFailure.toggle()
-                        }
+            }
         }
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        print(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite))
         DispatchQueue.main.async {
-            self.progress = (Float(totalBytesWritten) / Float(totalBytesExpectedToWrite))
+            self.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
         }
     }
     
-    private func saveVideoToAlbum(videoURL: URL, albumName: String) {
+    private func saveMediaToAlbum(mediaURL: URL, albumName: String, mediaType: MediaType) {
         if albumExists(albumName: albumName) {
             let fetchOptions = PHFetchOptions()
             fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
             let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
             if let album = collection.firstObject {
-                saveVideo(videoURL: videoURL, to: album)
+                saveMedia(mediaURL: mediaURL, to: album, mediaType: mediaType)
             }
         } else {
             var albumPlaceholder: PHObjectPlaceholder?
@@ -86,7 +99,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                     guard let albumPlaceholder = albumPlaceholder else { return }
                     let collectionFetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumPlaceholder.localIdentifier], options: nil)
                     guard let album = collectionFetchResult.firstObject else { return }
-                    self.saveVideo(videoURL: videoURL, to: album)
+                    self.saveMedia(mediaURL: mediaURL, to: album, mediaType: mediaType)
                 } else {
                     print("Error creating album: \(error?.localizedDescription ?? "")")
                 }
@@ -101,41 +114,25 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         return collection.firstObject != nil
     }
     
-    private func saveVideo(videoURL: URL, to album: PHAssetCollection) {
+    private func saveMedia(mediaURL: URL, to album: PHAssetCollection, mediaType: MediaType) {
         PHPhotoLibrary.shared().performChanges({
-            let assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
+            let assetChangeRequest: PHAssetChangeRequest?
+            switch mediaType {
+            case .photo:
+                assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: mediaURL)
+            case .video:
+                assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: mediaURL)
+            }
             let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-            let enumeration: NSArray = [assetChangeRequest!.placeholderForCreatedAsset!]
-            albumChangeRequest?.addAssets(enumeration)
+            if let assetPlaceholder = assetChangeRequest?.placeholderForCreatedAsset {
+                albumChangeRequest?.addAssets([assetPlaceholder] as NSArray)
+            }
         }, completionHandler: { success, error in
             if success {
-            
-                print("Successfully saved video to album")
+                print("Successfully saved media to album")
             } else {
-            
-                print("Error saving video to album: \(error?.localizedDescription ?? "")")
+                print("Error saving media to album: \(error?.localizedDescription ?? "")")
             }
         })
-    }
-}
-
-struct TestContentView: View {
-    @StateObject var viewModel: DownloadViewModel = .init()
-    
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Progress: \(viewModel.progress)")
-            Button {
-                if let url = URL(string: "http://techslides.com/demos/sample-videos/small.mp4") {
-                    viewModel.downloadVideo(url: url)
-                }
-            } label: {
-                Text("download")
-            }
-        }
-        .padding()
     }
 }

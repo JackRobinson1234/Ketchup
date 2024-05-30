@@ -83,18 +83,18 @@ class FiltersViewModel: ObservableObject {
     
     //MARK: update selected posts
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
-    func updateSelectedPostTypes() -> [String] {
+    func updateSelectedPostTypes() -> [Int] {
         if restaurantChecked && atHomeChecked {
             /// If all postType toggles are on, make selectedPosts a blank array
             return []
         }
         else {
-            var updatedPostTypes: [String] = []
+            var updatedPostTypes: [Int] = []
             if restaurantChecked {
-                updatedPostTypes.append("restaurant")
+                updatedPostTypes.append(0)
             }
             if atHomeChecked {
-                updatedPostTypes.append("atHome")
+                updatedPostTypes.append(1)
             }
             return updatedPostTypes
         }

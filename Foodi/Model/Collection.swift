@@ -63,11 +63,9 @@ struct Collection: Identifiable, Codable, Hashable {
 struct CollectionItem: Codable, Hashable, Identifiable {
     var collectionId: String
     var id: String
-    var postType: String
+    var postType: PostType //defined in post
     var name: String
     var image: String?
-    //var notes: String? deleting for now
-    
     //atHome post type specific
     var postUserFullname: String?
     var postUserId: String?

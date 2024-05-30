@@ -17,20 +17,22 @@ struct CollectionsSearchListView: View {
     }
 
     var body: some View {
-        InfiniteList(viewModel.hits, itemView: { hit in
-            //NavigationLink(value: hit.object) {
-            CollectionListCell(collection: hit.object)
-                .padding()
-
-            Divider()
-        }, noResults: {
-            Text("No results found")
-        })
-        .navigationTitle("Explore")
-        .searchable(text: $viewModel.searchQuery, prompt: "Search")
-        .onChange(of: viewModel.searchQuery) {
-            debouncer.schedule {
-                viewModel.notifyQueryChanged()
+        ScrollView{
+            InfiniteList(viewModel.hits, itemView: { hit in
+                //NavigationLink(value: hit.object) {
+                CollectionListCell(collection: hit.object)
+                    .padding()
+                
+                Divider()
+            }, noResults: {
+                Text("No results found")
+            })
+            .navigationTitle("Explore")
+            .searchable(text: $viewModel.searchQuery, prompt: "Search")
+            .onChange(of: viewModel.searchQuery) {
+                debouncer.schedule {
+                    viewModel.notifyQueryChanged()
+                }
             }
         }
     }

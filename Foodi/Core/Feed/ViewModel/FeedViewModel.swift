@@ -20,7 +20,6 @@ class FeedViewModel: ObservableObject {
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
     var videoCoordinator = VideoPlayerCoordinator()
-    //private var currentFeedType: FeedType = .discover // default
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
@@ -30,6 +29,8 @@ class FeedViewModel: ObservableObject {
     private var filters: [String: [Any]]? = [:]
     @State var maxFetched: Bool = false
     private var lastFetched: String? = nil
+    @Published var duration: Double = 0.0
+    @Published var currentTime: Double = 0.0
     
     
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {

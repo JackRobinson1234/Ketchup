@@ -77,7 +77,7 @@ struct DeveloperPreview {
     static var posts: [Post] = [
         .init(
                 id: "1",
-                postType: "restaurant",
+                postType: .dining,
                 mediaType: "video",
                 mediaUrls: ["https://example.com/video.mp4"],
                 caption: "Check out this delicious dish!",
@@ -176,7 +176,7 @@ struct DeveloperPreview {
             .init(
                 collectionId: "af",
                 id: "QOxHzulwskv9pSS3vsSH",
-                postType: "atHome",
+                postType: .cooking,
                 name: "Pasta Carbonara",
                 image: "https://picsum.photos/200/300",
                 postUserFullname: "Will Bond"
@@ -186,7 +186,7 @@ struct DeveloperPreview {
             .init(
                 collectionId: "af",
                 id: "-1QvxFtMgOLpSbO-oAtUgA",
-                postType: "restaurant",
+                postType: .dining,
                 name: "Bella Italia",
                 image: "https://picsum.photos/250/350",
                 city: "Hermosa Beach",
@@ -196,7 +196,7 @@ struct DeveloperPreview {
                 notes: ""
             )
         ]
-    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: "atHome")
+    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: .cooking)
 
         static let activity2 = Activity(id: "2", username: "user2", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollection, uid: "uid2", image: nil, restaurantId: nil, collectionId: "456", name: "My Collection")
 

@@ -26,7 +26,6 @@ struct MapFiltersView: View {
                         mapViewModel.clearFilters()
                     } label: {
                         Text("Remove all filters")
-                            .font(.subheadline)
                             .foregroundStyle(.red)
                     }
                     

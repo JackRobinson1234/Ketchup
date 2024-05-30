@@ -44,7 +44,7 @@ struct CollectionGridView: View {
                     //MARK: VGrid of Items
                     
                     ForEach(collectionsViewModel.items, id: \.id) { item in
-                        if item.postType == "restaurant" {
+                        if item.postType == .dining {
                             ZStack{
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
                                     CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
@@ -66,7 +66,7 @@ struct CollectionGridView: View {
                                     .offset(x: width/2.8, y: -width/2.3 )
                                 }
                             }
-                        } else if item.postType == "atHome" {
+                        } else if item.postType == .cooking {
                         
                             ZStack{
                                 Button{

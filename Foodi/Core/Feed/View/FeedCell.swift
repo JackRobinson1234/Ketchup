@@ -17,6 +17,7 @@ import AVKit
 import Photos
 import Kingfisher
 import FirebaseAuth
+import UIKit
 struct FeedCell: View {
     @Binding var post: Post
     @StateObject var videoCoordinator = VideoPlayerCoordinator()
@@ -28,7 +29,6 @@ struct FeedCell: View {
     @State private var showCollections = false
     @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
-    private var didRepost: Bool {return post.didRepost}
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
     @State private var showingOptionsSheet = false
@@ -36,6 +36,7 @@ struct FeedCell: View {
     @State private var currentImageIndex = 0
     @State var isDragging = false
     @State var dragDirection = "left"
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -64,10 +65,36 @@ struct FeedCell: View {
                     VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                         .containerRelativeFrame([.horizontal, .vertical])
+                        .onTapGesture {
+                            let player = videoCoordinator.player
+                            switch player.timeControlStatus {
+                            case .paused:
+                                videoCoordinator.play()
+                            case .waitingToPlayAtSpecifiedRate:
+                                break
+                            case .playing:
+                                videoCoordinator.pause()
+                            @unknown default:
+                                break
+                            }
+                        }
                 } else {
                     VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspect)
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                         .containerRelativeFrame([.horizontal, .vertical])
+                        .onTapGesture {
+                            let player = videoCoordinator.player
+                            switch player.timeControlStatus {
+                            case .paused:
+                                videoCoordinator.play()
+                            case .waitingToPlayAtSpecifiedRate:
+                                break
+                            case .playing:
+                                videoCoordinator.pause()
+                            @unknown default:
+                                break
+                            }
+                        }
                 }
             } else if post.mediaType == "photo" {
                 
@@ -114,16 +141,9 @@ struct FeedCell: View {
                     
                 }
             }
-            
-            VStack {
-                Spacer()
-                //MARK: Black Background
-                ZStack(alignment: .bottom) {
-                    Rectangle()
-                        .fill(LinearGradient(colors: [.clear, .black.opacity(0.15)],
-                                             startPoint: .top,
-                                             endPoint: .bottom))
-                    
+            ZStack (alignment: .bottom){
+                VStack {
+                    Spacer()
                     
                     HStack(alignment: .bottom) {
                         
@@ -242,7 +262,7 @@ struct FeedCell: View {
                                 ZStack{
                                     Rectangle()
                                         .fill(.clear)
-                                        .frame(width: 18, height: 14)
+                                        .frame(width: 28, height: 28)
                                     Image(systemName: "ellipsis")
                                         .resizable()
                                         .scaledToFill()
@@ -257,7 +277,7 @@ struct FeedCell: View {
                                 } label: {
                                     VStack {
                                         Image(systemName: "arrow.2.squarepath")
-                                            
+                                        
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 28, height: 28)
@@ -309,89 +329,90 @@ struct FeedCell: View {
                             }
                         }
                         .padding(.horizontal)
-                    }
-                    .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 50)
-                }
-            }
-            .gesture(drag)
-            //MARK: Scroll Position replay/ pause
-            .onChange(of: scrollPosition) {oldValue, newValue in
-                if newValue == post.id {
-                    videoCoordinator.replay()
-                } else {
-                    videoCoordinator.pause()
-                }
-            }
-            //MARK: Scroll Position play/pause
-            .onChange(of: pauseVideo) {oldValue, newValue in
-                if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
-                    if newValue == true {
-                        videoCoordinator.pause()
-                    } else {
                         
-                        videoCoordinator.play()
                         
                     }
+                    
+                }
+                if post.mediaType == "video" {
+                    let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
+                    Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
+                        .onAppear {
+                            let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear) // Adjust radius and line width as needed
+                                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
+                        }
+                        .offset(y: 40)
                 }
             }
-            //MARK: Configure Player
-            .onAppear {
-                Task{
-                    if let videoURL = post.mediaUrls.first {
-                        videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
-                    }
-                    if viewModel.posts.first?.id == post.id && scrollPosition == nil {
-                        videoCoordinator.replay()
-                    }
-                }
-            }
-            .onDisappear{
+            .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
+        }
+        
+        .gesture(drag)
+        //MARK: Scroll Position replay/ pause
+        .onChange(of: scrollPosition) {oldValue, newValue in
+            if newValue == post.id {
+                videoCoordinator.replay()
+            } else {
                 videoCoordinator.pause()
             }
-            //MARK: sheets
-            //overlays the comments if showcomments is true
-            .sheet(isPresented: $showComments) {
-                CommentsView(post: $post)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear{Task{ videoCoordinator.play()}}
-            }
-            .sheet(isPresented: $showShareView) {
-                ShareView(post: post)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear{Task {videoCoordinator.play()}}
-            }
-            //            .sheet(isPresented: $showRecipe) {
-            //                RecipeView(post: post)
-            //                    .onDisappear{Task {videoCoordinator.play()}}
-            //            }
-            .sheet(isPresented: $showCollections) {
-                if let currentUser = AuthService.shared.userSession {
-                    AddItemCollectionList(user: currentUser, post: post)
-                }
-            }
-            .sheet(isPresented: $showingOptionsSheet) {
-                PostOptionsSheet(post: post, viewModel: viewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-            }
-            .sheet(isPresented: $showingRepostSheet){
-                RepostView(viewModel: viewModel, post: post)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
-            }
-            //MARK: Tap to play/pause
-            .onTapGesture {
-                let player = videoCoordinator.player
-                switch player.timeControlStatus {
-                case .paused:
-                    videoCoordinator.play()
-                case .waitingToPlayAtSpecifiedRate:
-                    break
-                case .playing:
+        }
+        //MARK: Scroll Position play/pause
+        .onChange(of: pauseVideo) {oldValue, newValue in
+            if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
+                if newValue == true {
                     videoCoordinator.pause()
-                @unknown default:
-                    break
+                } else {
+                    
+                    videoCoordinator.play()
+                    
                 }
             }
         }
+        //MARK: Configure Player
+        .onAppear {
+            Task{
+                if let videoURL = post.mediaUrls.first {
+                    videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                }
+                if viewModel.posts.first?.id == post.id && scrollPosition == nil {
+                    videoCoordinator.replay()
+                }
+            }
+        }
+        .onDisappear{
+            videoCoordinator.pause()
+        }
+        //MARK: sheets
+        //overlays the comments if showcomments is true
+        .sheet(isPresented: $showComments) {
+            CommentsView(post: $post)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                .onDisappear{Task{ videoCoordinator.play()}}
+        }
+        .sheet(isPresented: $showShareView) {
+            ShareView(post: post, currentImageIndex: currentImageIndex)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onDisappear{Task {videoCoordinator.play()}}
+        }
+        //            .sheet(isPresented: $showRecipe) {
+        //                RecipeView(post: post)
+        //                    .onDisappear{Task {videoCoordinator.play()}}
+        //            }
+        .sheet(isPresented: $showCollections) {
+            if let currentUser = AuthService.shared.userSession {
+                AddItemCollectionList(user: currentUser, post: post)
+            }
+        }
+        .sheet(isPresented: $showingOptionsSheet) {
+            PostOptionsSheet(post: post, viewModel: viewModel)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+        }
+        .sheet(isPresented: $showingRepostSheet){
+            RepostView(viewModel: viewModel, post: post)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
+        }
+        //MARK: Tap to play/pause
+        
     }
     //MARK: like and unlike functionality
     private func handleLikeTapped() {
@@ -416,6 +437,15 @@ struct FeedCell: View {
         
         return timeString.isEmpty ? "Not specified" : timeString
     }
+    func sliderEditingChanged(_ editingStarted: Bool) {
+        if editingStarted {
+            videoCoordinator.pause()
+        } else {
+            videoCoordinator.seekToTime(seconds: videoCoordinator.currentTime)
+            videoCoordinator.play()
+        }
+    }
+    
 }
 //MARK: Photo Library Acess
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
@@ -450,4 +480,20 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         ,scrollPosition: .constant(""),
         pauseVideo: .constant(true)
     )
+}
+
+extension UIImage {
+    static func clearCircle(radius: CGFloat, lineWidth: CGFloat, color: UIColor = .clear) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: radius * 2, height: radius * 2), false, 0.0)
+        defer { UIGraphicsEndImageContext() }
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+
+        context.setLineWidth(lineWidth)
+        context.setStrokeColor(color.cgColor)
+        let rectangle = CGRect(x: lineWidth / 2, y: lineWidth / 2, width: radius * 2 - lineWidth, height: radius * 2 - lineWidth)
+        context.addEllipse(in: rectangle)
+        context.strokePath()
+
+        return UIGraphicsGetImageFromCurrentImageContext()?.withRenderingMode(.alwaysOriginal)
+    }
 }

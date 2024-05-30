@@ -46,6 +46,13 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var currentUrl: URL?
     private var currentPostId: String?
     private var retries: Int = 0
+    private var playerTimeObserver: PlayerTimeObserver?
+    private var cancellables = Set<AnyCancellable>()
+    @Published var currentTime: Double = 0.0
+    @Published var duration: Double = 0.0
+    
+    
+    
     //MARK: configurePlayer
     /// Clears the player as a safety to prevent crash. if theres already an item, return to make it more effecient. Then check the cache to see if the current video exists. If it does, make a new item out of that which should load fast. Or make a new cacheplayeritem, then put that into the player.
     /// - Parameters:
@@ -81,7 +88,6 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             if player.items().isEmpty {
                 // If the player has no item, set the new item
                 player.replaceCurrentItem(with: playerItem)
-                
             }
             playerItem.delegate = self
             player.automaticallyWaitsToMinimizeStalling = false
@@ -89,6 +95,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
                 looper = AVPlayerLooper(player: player, templateItem: playerItem)
             }
         }
+        setupTimeObserver()
     }
     //MARK: Prefetch
     /// downloads the given document and post ID to the cache at the savefilepath.  Needs to pass through an AVQueueplayer because thats the only way that i could trigger the download.
@@ -96,6 +103,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     ///   - url: url of the video to be prefetched
     ///   - postId: postId that is used as the cache storer identifier
     func prefetch(url: URL?, postId: String) {
+        
         guard let url = url else {
             print("URL Error")
             return
@@ -126,6 +134,14 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         prefetchedPlayerItem.download()
     }
     
+    func seekToTime(seconds: Double) {
+        let seekTime = CMTime(seconds: seconds, preferredTimescale: 1)
+        player.seek(to: seekTime) { completed in
+            if completed {
+                print("Successfully seeked to \(seconds) seconds.")
+            }
+        }
+    }
     
     func play() {
         player.play()
@@ -168,5 +184,45 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
+    }
+    func setupTimeObserver() {
+        playerTimeObserver = PlayerTimeObserver(player: player)
+        playerTimeObserver?.publisher
+            .sink { [weak self] time in
+                self?.handleTimeUpdate(time: time)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func handleTimeUpdate(time: TimeInterval) {
+        //print("Current time: \(time) seconds")
+        self.currentTime = time
+        if let currentItem = player.currentItem {
+            self.duration = CMTimeGetSeconds(currentItem.duration)
+            print("Duration: \(duration) seconds")
+        }
+    }
+}
+import Combine
+
+class PlayerTimeObserver {
+    let publisher = PassthroughSubject<TimeInterval, Never>()
+    private var timeObservation: Any?
+    private weak var player: AVPlayer?
+    
+    init(player: AVPlayer) {
+        self.player = player
+        // Periodically observe the player's current time, whilst playing
+        timeObservation = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: nil) { [weak self] time in
+            guard let self = self else { return }
+            // Publish the new player time
+            self.publisher.send(time.seconds)
+        }
+    }
+    
+    deinit {
+        if let player = player, let timeObservation = timeObservation {
+            player.removeTimeObserver(timeObservation)
+        }
     }
 }

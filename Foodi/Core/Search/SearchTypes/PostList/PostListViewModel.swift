@@ -24,7 +24,7 @@ final class PostListViewModel: ObservableObject {
         self.itemsSearcher = HitsSearcher(appID: appID,
                                           apiKey: apiKey,
                                           indexName: "posts")
-        let atHomeFilter = Filter.Facet(attribute: "postType", stringValue: "atHome")
+        let atHomeFilter = Filter.Facet(attribute: "postType", stringValue: "1")
         let privateFilter = Filter.Facet(attribute: "user.privateMode", boolValue: false)
         self.filterState[and: "postType"].add(atHomeFilter)
         self.filterState[and: "user.privateMode"].add(privateFilter)
