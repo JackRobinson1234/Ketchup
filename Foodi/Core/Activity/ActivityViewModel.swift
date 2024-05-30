@@ -37,7 +37,10 @@ class ActivityViewModel: ObservableObject {
     func fetchMoreTrendingActivities(distanceFromEnd: Int) async throws{
         guard !isFetching, !outOfTrending else { return }
         let thresholdIndex = trendingActivity.index(trendingActivity.endIndex, offsetBy: fetchingThreshold)
-        
+        guard thresholdIndex >= trendingActivity.startIndex && thresholdIndex < trendingActivity.endIndex else {
+                    print("Threshold index out of bounds")
+                    return
+                }
         if trendingActivity[thresholdIndex] != lastFetched, -distanceFromEnd == thresholdIndex {
             print("fetching new activities")
             lastFetched = trendingActivity[thresholdIndex]

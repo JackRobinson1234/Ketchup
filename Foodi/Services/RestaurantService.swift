@@ -10,7 +10,6 @@ import FirebaseAuth
 import FirebaseFirestore
 import MapKit
 import GeoFire
-import GeohashKit
 
 class RestaurantService {
     static let shared = RestaurantService() // Singleton instance
