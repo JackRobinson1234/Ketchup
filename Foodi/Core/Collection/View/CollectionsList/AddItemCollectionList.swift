@@ -82,7 +82,7 @@ struct AddItemCollectionList: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarTitle(post?.postType == "atHome" ? "Add Post to a Collection" : "Add Restaurant to a Collection")
+            .navigationBarTitle(post?.postType == .cooking ? "Add Post to a Collection" : "Add Restaurant to a Collection")
         }
     }
 }

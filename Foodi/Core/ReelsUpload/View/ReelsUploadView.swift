@@ -24,7 +24,7 @@ struct ReelsUploadView: View {
     @State var titleText: String = ""
     private let maxCharacters = 50
     // POST TYPE OPTIONS
-    let postTypeOptions = ["restaurant", "atHome"]
+    let postTypeOptions: [PostType] = [.dining, .cooking]
     
     var body: some View {
             ZStack {
@@ -43,7 +43,7 @@ struct ReelsUploadView: View {
                             .cornerRadius(10)
                             .foregroundStyle(.black)
                     }
-                    if uploadViewModel.postType == "atHome" {
+                    if uploadViewModel.postType == .cooking {
                         ZStack(alignment: .topLeading){
                             TextField("Give your cooking post a title!*...", text: $titleText)
                                 .font(.title3)
@@ -81,7 +81,7 @@ struct ReelsUploadView: View {
                     
                     Button {
                         Task {
-                            if uploadViewModel.postType == "atHome" {
+                            if uploadViewModel.postType == .cooking {
                                 uploadViewModel.recipeTitle = titleText
                                 uploadViewModel.savedRecipe = true
                             }
@@ -105,9 +105,9 @@ struct ReelsUploadView: View {
                                 
                             }
                     }
-                    .opacity(uploadViewModel.postType == "atHome" && titleText.isEmpty ? 0.5 : 1.0)
+                    .opacity(uploadViewModel.postType == .cooking && titleText.isEmpty ? 0.5 : 1.0)
                     .disabled(
-                        uploadViewModel.postType == "atHome" && titleText.isEmpty)
+                        uploadViewModel.postType == .cooking && titleText.isEmpty)
                     
                     Spacer()
                 }
@@ -128,7 +128,7 @@ struct ReelsUploadView: View {
                 }
             }
             .navigationBarHidden(showPostTypeMenu)
-            .navigationTitle(uploadViewModel.postType)
+            .navigationTitle(uploadViewModel.postType?.postTypeTitle ?? "Select a Post Type")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarTitleMenu {
                 ForEach(postTypeOptions, id: \.self) { posttype in
@@ -137,7 +137,7 @@ struct ReelsUploadView: View {
                     } label: {
                         if uploadViewModel.postType == posttype {
                             HStack {
-                                Text(posttype)
+                                Text(posttype == .cooking ? "Cooking" : "Dining")
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding()
@@ -150,7 +150,7 @@ struct ReelsUploadView: View {
                                     .padding()
                             }
                         } else {
-                            Text(posttype)
+                            Text(posttype.postTypeTitle)
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()

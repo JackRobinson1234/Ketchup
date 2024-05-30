@@ -57,7 +57,13 @@ class PostService {
         // Combine posts and reposts
         var combinedPosts = posts + reposts
         // Sort by timestamp
-        combinedPosts.sort { $0.timestamp > $1.timestamp }
+        combinedPosts.sort {
+            if let timestamp1 = $0.timestamp, let timestamp2 = $1.timestamp {
+                return timestamp1 > timestamp2
+            } else {
+                return $0.timestamp != nil
+            }
+        }
         
         return combinedPosts
     }
@@ -95,8 +101,8 @@ class PostService {
         }
         
         let snapshot = try await query.getDocuments()
-        let posts = snapshot.documents.map { document in
-            var post = try! document.data(as: Post.self)
+        let posts = try snapshot.documents.map { document in
+            var post = try document.data(as: Post.self)
             return post
         }
             let lastDocumentSnapshot = snapshot.documents.last

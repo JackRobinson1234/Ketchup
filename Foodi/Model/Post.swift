@@ -13,7 +13,7 @@ import FirebaseFirestore
 
 struct Post: Identifiable, Codable {
     let id: String
-    var postType: Int
+    var postType: PostType
     let mediaType: String // either "video" or "image"
     let mediaUrls: [String]
     let caption: String
@@ -21,7 +21,7 @@ struct Post: Identifiable, Codable {
     var commentCount: Int
     var repostCount: Int
     var thumbnailUrl: String
-    var timestamp: Timestamp
+    var timestamp: Timestamp?
     var user: PostUser
     var restaurant: PostRestaurant? = nil
     var recipe: PostRecipe? = nil
@@ -36,7 +36,7 @@ struct Post: Identifiable, Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.postType = try container.decode(Int.self, forKey: .postType)
+        self.postType = try container.decode(PostType.self, forKey: .postType)
         self.mediaType = try container.decode(String.self, forKey: .mediaType)
         self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
@@ -44,7 +44,7 @@ struct Post: Identifiable, Codable {
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
         self.repostCount = try container.decode(Int.self, forKey: .repostCount)
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
-        self.timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
+        self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
         self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
@@ -59,7 +59,7 @@ struct Post: Identifiable, Codable {
     
     init(
         id: String,
-        postType: Int,
+        postType: PostType,
         mediaType: String,
         mediaUrls: [String],
         caption: String,
@@ -67,7 +67,7 @@ struct Post: Identifiable, Codable {
         commentCount: Int,
         repostCount: Int,
         thumbnailUrl: String,
-        timestamp: Timestamp,
+        timestamp: Timestamp?,
         user: PostUser,
         restaurant: PostRestaurant? = nil,
         recipe: PostRecipe? = nil,
@@ -150,4 +150,11 @@ struct Ingredient: Codable, Hashable {
 enum PostType: Int, Codable {
     case dining
     case cooking
+    var postTypeTitle: String {
+        switch self {
+        case .dining: return "Dining"
+        case .cooking: return "Cooking"
+       
+        }
+    }
 }

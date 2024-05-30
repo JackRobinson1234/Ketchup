@@ -26,7 +26,7 @@ struct PostTypeMenuView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
-                    uploadViewModel.postType = "atHome"
+                    uploadViewModel.postType = .cooking
                     showPostTypeMenu = false
                 }) {
                     VStack {
@@ -48,7 +48,7 @@ struct PostTypeMenuView: View {
                     .frame(height: 100)
                 
                 Button(action: {
-                    uploadViewModel.postType = "restaurant"
+                    uploadViewModel.postType = .dining
                     showPostTypeMenu = false
                 }) {
                     VStack {

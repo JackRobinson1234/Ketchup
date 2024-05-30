@@ -21,7 +21,7 @@ struct Activity: Identifiable, Codable, Equatable {
     var restaurantId: String?
     var collectionId: String?
     var name: String
-    var postType: String?
+    var postType: PostType?
     var profileImageUrl: String?
     var text: String?
     var recommendation: Bool?

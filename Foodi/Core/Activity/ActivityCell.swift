@@ -31,7 +31,7 @@ struct ActivityCell: View {
                             UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
                         }
                         //MARK: Post: Restaurant
-                        if postType == "restaurant"{
+                        if postType == .dining{
                             if let restaurantId = activity.restaurantId{
                                 Button{
                                     self.selectedRestaurantId = restaurantId
@@ -68,7 +68,7 @@ struct ActivityCell: View {
                                 
                             }
                             //MARK: Post: AtHome
-                        } else if postType == "atHome" {
+                        } else if postType == .cooking {
                             VStack(alignment: .leading){
                                 Text("@\(activity.username) created a new at home post: ")
                                     .activityCellFontStyle() +

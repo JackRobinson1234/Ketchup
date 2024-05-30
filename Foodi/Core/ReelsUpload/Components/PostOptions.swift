@@ -16,7 +16,7 @@ struct PostOptions: View {
     var body: some View {
         VStack {
             Divider()
-            if uploadViewModel.postType == "atHome" {
+            if uploadViewModel.postType == .cooking {
       
                 Button {
                     isAddingRecipe = true
@@ -66,7 +66,7 @@ struct PostOptions: View {
                     
                     
                 }
-            } else if uploadViewModel.postType == "restaurant" {
+            } else if uploadViewModel.postType == .dining {
                 if let restaurant = uploadViewModel.restaurant {
                     Button {
                         isPickingRestaurant = true

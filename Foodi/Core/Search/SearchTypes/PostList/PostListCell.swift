@@ -21,7 +21,7 @@ struct PostListCell: View {
                 .clipped()
             
             //MARK: Restaurant Info
-            if post.postType == "restaurant", let restaurant = post.restaurant{
+            if post.postType == .dining, let restaurant = post.restaurant{
                 VStack(alignment: .leading) {
                     Text(restaurant.name)
                         .font(.subheadline)
@@ -41,7 +41,7 @@ struct PostListCell: View {
                 
             }
             //MARK: Recipe Info
-            else if post.postType == "atHome" {
+            else if post.postType == .cooking {
                 VStack(alignment: .leading) {
                     if let recipe = post.recipe {
                         Text(recipe.name)
