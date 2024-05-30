@@ -34,7 +34,6 @@
 		F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46A2BFF8AE1009D1303 /* ClusterMap */; };
 		F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */; };
 		F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4702BFF97A9009D1303 /* ClusterCell.swift */; };
-		F846F4742BFFB899009D1303 /* GeohashKit in Frameworks */ = {isa = PBXBuildFile; productRef = F846F4732BFFB899009D1303 /* GeohashKit */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -444,7 +443,6 @@
 				640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */,
 				F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
-				F846F4742BFFB899009D1303 /* GeohashKit in Frameworks */,
 				F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
@@ -1469,7 +1467,6 @@
 				F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */,
 				F846F46A2BFF8AE1009D1303 /* ClusterMap */,
 				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
-				F846F4732BFFB899009D1303 /* GeohashKit */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
@@ -1550,7 +1547,6 @@
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
 				F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 				F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */,
-				F846F4722BFFB898009D1303 /* XCRemoteSwiftPackageReference "GeohashKit" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2071,7 +2067,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -2117,7 +2113,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -2280,14 +2276,6 @@
 				minimumVersion = 2.1.1;
 			};
 		};
-		F846F4722BFFB898009D1303 /* XCRemoteSwiftPackageReference "GeohashKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ualch9/GeohashKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
 		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/instantsearch-ios";
@@ -2313,11 +2301,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */;
 			productName = ClusterMapSwiftUI;
-		};
-		F846F4732BFFB899009D1303 /* GeohashKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F846F4722BFFB898009D1303 /* XCRemoteSwiftPackageReference "GeohashKit" */;
-			productName = GeohashKit;
 		};
 		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;
