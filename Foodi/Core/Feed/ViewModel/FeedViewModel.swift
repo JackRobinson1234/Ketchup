@@ -20,7 +20,6 @@ class FeedViewModel: ObservableObject {
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
     var videoCoordinator = VideoPlayerCoordinator()
-    //private var currentFeedType: FeedType = .discover // default
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?

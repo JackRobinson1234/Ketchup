@@ -52,7 +52,7 @@ struct PostGridView: View {
                                             Image(systemName: "storefront.fill")
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
-                                          
+                                            
                                         }  else if post.recipe != nil {
                                             Image(systemName: "frying.pan.fill")
                                                 .foregroundStyle(.white)
@@ -60,10 +60,10 @@ struct PostGridView: View {
                                         }
                                         Spacer()
                                         if post.repost{
-                                            Image(systemName: "arrow.2.squarepath")
-                                                .foregroundStyle(.white)
-                                                .font(.caption)
-                                        }
+                                                Image(systemName: "arrow.2.squarepath")
+                                                    .foregroundStyle(.white)
+                                                    .font(.caption)
+                                            }
                                     }
                                     
                                     Spacer()

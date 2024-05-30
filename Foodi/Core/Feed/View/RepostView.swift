@@ -104,9 +104,12 @@ struct RepostView: View {
         
     }
     private func handleRepostTapped() {
-        Task { post.didRepost ? await viewModel.removeRepost(post) : await viewModel.repost(post) }
+        Task {
+            post.didRepost ? await viewModel.removeRepost(post) : await viewModel.repost(post)
         }
+    }
 }
+
 
 #Preview {
     RepostView(viewModel: FeedViewModel(), post: DeveloperPreview.posts[0])

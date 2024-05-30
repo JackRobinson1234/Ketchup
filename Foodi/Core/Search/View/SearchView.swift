@@ -32,6 +32,7 @@ struct SearchView: View {
                     .navigationDestination(for: Restaurant.self) { restaurant in
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
+                
             }
         } else {
             internalBody

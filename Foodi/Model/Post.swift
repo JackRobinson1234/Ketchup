@@ -13,8 +13,8 @@ import FirebaseFirestore
 
 struct Post: Identifiable, Codable {
     let id: String
-    var postType: String // either "restaurant" or "atHome"
-    let mediaType: String //either "video" or "image"
+    var postType: Int
+    let mediaType: String // either "video" or "image"
     let mediaUrls: [String]
     let caption: String
     var likes: Int
@@ -27,16 +27,16 @@ struct Post: Identifiable, Codable {
     var recipe: PostRecipe? = nil
     var cuisine: String?
     var price: String?
-    var didLike = false
-    var didSave = false
+    var didLike: Bool
+    var didSave: Bool
     var fromInAppCamera: Bool
-    var repost: Bool = false
-    var didRepost = false
+    var repost: Bool
+    var didRepost: Bool
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.postType = try container.decode(String.self, forKey: .postType)
+        self.postType = try container.decode(Int.self, forKey: .postType)
         self.mediaType = try container.decode(String.self, forKey: .mediaType)
         self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
@@ -59,7 +59,7 @@ struct Post: Identifiable, Codable {
     
     init(
         id: String,
-        postType: String,
+        postType: Int,
         mediaType: String,
         mediaUrls: [String],
         caption: String,
@@ -78,8 +78,7 @@ struct Post: Identifiable, Codable {
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false
-    )
-    {
+    ) {
         self.id = id
         self.postType = postType
         self.mediaType = mediaType
@@ -99,6 +98,7 @@ struct Post: Identifiable, Codable {
         self.didSave = didSave
         self.fromInAppCamera = fromInAppCamera
         self.repost = repost
+        self.didRepost = didRepost
     }
 }
 
@@ -119,7 +119,6 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     let city: String?
     let state: String?
     var profileImageUrl: String?
-    
 }
 
 struct PostUser: Codable, Hashable, Identifiable {
@@ -148,4 +147,7 @@ struct Ingredient: Codable, Hashable {
     var item: String
 }
 
-
+enum PostType: Int, Codable {
+    case dining
+    case cooking
+}

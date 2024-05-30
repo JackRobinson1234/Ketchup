@@ -13,8 +13,11 @@ struct ShareView: View {
     @State var isShowingMessageView: Bool = false
     @State var isShowingRestrictedAlert: Bool = false
     @State private var downloadedMediaData: Data?
-    
+    @State private var preppingMessage: Bool = false
     var post: Post
+    var currentImageIndex: Int?
+    
+    
     var body: some View {
         HStack(alignment: .bottom, spacing: 30) {
             VStack{
@@ -38,10 +41,19 @@ struct ShareView: View {
                         PHPhotoLibrary.requestAuthorization { status in
                                        if status == .authorized {
                                            // Photo access granted, proceed with downloading the video
-                                           if let videoURL = post.mediaUrls.first{
-                                               if let url = URL(string: videoURL) {
-                                                   downloadViewModel.downloadVideo(url: url)
-                                               }
+                                           let mediaURL: String?
+                                           if post.mediaType == "photo", let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
+                                               mediaURL = post.mediaUrls[index]
+                                           } else {
+                                               mediaURL = post.mediaUrls.first
+                                           }
+                                           
+                                           if let mediaURL = mediaURL, let url = URL(string: mediaURL) {
+                                                   if post.mediaType == "photo" {
+                                                       downloadViewModel.downloadMedia(url: url, mediaType: .photo)
+                                                   } else if post.mediaType == "video" {
+                                                       downloadViewModel.downloadMedia(url: url, mediaType: .video)
+                                                   }
                                            }
                                        } else {
                                            // Handle denied or restricted access
@@ -67,7 +79,7 @@ struct ShareView: View {
                                     .foregroundStyle(.blue)
                             }
                         }
-                    Text("Save Video")
+                    Text("Save \(post.mediaType)")
                         .font(.subheadline)
                         .padding(.top,1)
                     
@@ -76,23 +88,33 @@ struct ShareView: View {
             VStack{
                 
                 Button(action: {
-                    if let mediaURL = post.mediaUrls.first {
-                        if let url = URL(string: mediaURL) {
-                            Task{
-                                downloadMedia(url: url)
-                            }
+                    let mediaURL: String?
+                    if post.mediaType == "photo", let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
+                        mediaURL = post.mediaUrls[index]
+                    } else {
+                        mediaURL = post.mediaUrls.first
+                    }
+                    
+                    if let mediaURL = mediaURL, let url = URL(string: mediaURL) {
+                        Task {
+                            preppingMessage = true
+                            await downloadMedia(url: url)
+                            isShowingMessageView.toggle()
                         }
                     }
-                    isShowingMessageView.toggle()
                 }) {
-                    Image(systemName: "message.fill")
-                        .font(.title)
-                        .foregroundStyle(.white)
-                        .background(
-                            Circle()
-                                .foregroundColor(.green)
-                                .frame(width: 50, height: 50)
-                        )
+                    if !preppingMessage{
+                        Image(systemName: "message.fill")
+                            .font(.title)
+                            .foregroundStyle(.white)
+                            .background(
+                                Circle()
+                                    .foregroundColor(.green)
+                                    .frame(width: 50, height: 50)
+                            )
+                    } else {
+                        ProgressView()
+                    }
                 }
                 Text("Messages")
                     .font(.subheadline)
@@ -131,21 +153,28 @@ struct ShareView: View {
                 secondaryButton: .cancel(Text("Cancel"))
             )
         }
-
+        
         .sheet(isPresented: $isShowingMessageView) {
-                if let mediaData = downloadedMediaData {
-                    MessageComposeView(messageBody: "Hello, check out this content!", mediaData: mediaData, mediaType: post.mediaType)
-                } else {
-                    NavigationStack{
-                        ProgressView()
-                            .modifier(BackButtonModifier())
-                    }
+            if let mediaData = downloadedMediaData {
+                if let restaurant = post.restaurant, let city = restaurant.city{
+                    MessageComposeView(messageBody: "I'm absolutely frothing to try this restaurant called \(restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
+                        .onDisappear{preppingMessage = false}
+                } else if let recipe = post.recipe {
+                    MessageComposeView(messageBody: "Dude. We need to make this \(recipe.name) recipe that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
+                        .onDisappear{preppingMessage = false}
+                }
+            } else {
+                NavigationStack{
+                    ProgressView()
+                        .modifier(BackButtonModifier())
                 }
             }
+        }
+        
         .padding()
                 
     }
-    private func downloadMedia(url: URL) {
+    private func downloadMedia(url: URL) async {
             Task {
                 do {
                     let (data, _) = try await URLSession.shared.data(from: url)

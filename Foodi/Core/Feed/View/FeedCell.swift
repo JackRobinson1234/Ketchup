@@ -335,7 +335,8 @@ struct FeedCell: View {
                     
                 }
                 if post.mediaType == "video" {
-                    Slider(value: $videoCoordinator.currentTime, in: 0...videoCoordinator.duration, onEditingChanged: sliderEditingChanged)
+                    let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
+                    Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
                         .onAppear {
                             let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear) // Adjust radius and line width as needed
                                 UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
@@ -389,7 +390,7 @@ struct FeedCell: View {
                 .onDisappear{Task{ videoCoordinator.play()}}
         }
         .sheet(isPresented: $showShareView) {
-            ShareView(post: post)
+            ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear{Task {videoCoordinator.play()}}
         }

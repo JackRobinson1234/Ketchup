@@ -159,6 +159,7 @@ struct FeedView: View {
                                         .shadow(radius: 4)
                                         .font(.system(size: 23))
                                     
+                                    
                                     if !filtersViewModel.filters.isEmpty {
                                         Circle()
                                             .fill(Color.red)
@@ -191,7 +192,7 @@ struct FeedView: View {
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                 }
                 /// loads the next 5 videos in the cache
