@@ -14,19 +14,20 @@ struct MapRestaurantView: View {
         
         VStack {
             ZStack(alignment: .topTrailing) {
-                if let images = restaurant.imageURLs {
-                    TabView {
-                        ForEach(images, id: \.self) { image in
-                            KFImage(URL(string: image))
-                                .resizable()
-                                .scaledToFill()
-                                .clipShape(Rectangle())
-                        }
-                        }
+//                if let images = restaurant.imageURLs {
+                TabView {
+                    //                        ForEach(images, id: \.self) { image in
+                    if let image = restaurant.profileImageUrl{
+                        KFImage(URL(string: image))
+                            .resizable()
+                            .scaledToFill()
+                            .clipShape(Rectangle())
+                    }
+                }
                     .frame(height: 200)
                     .tabViewStyle(.page)
                 }
-            }
+            
             
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {

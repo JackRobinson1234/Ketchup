@@ -9,12 +9,14 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.921618733326-3q5ggsk7tg91e9ldnhe4heatnt4bcp7b</string>
+				<string>com.googleusercontent.apps.921618733326-fs9hmge8ng0ge0egpp91giejm3on1jsi</string>
 			</array>
 		</dict>
 	</array>
 	<key>GIDClientID</key>
-	<string>921618733326-3q5ggsk7tg91e9ldnhe4heatnt4bcp7b.apps.googleusercontent.com</string>
+	<string>921618733326-fs9hmge8ng0ge0egpp91giejm3on1jsi.apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
