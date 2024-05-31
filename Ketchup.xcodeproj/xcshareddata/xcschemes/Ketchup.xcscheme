@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F84FE2472B6A531200144F01"
-               BuildableName = "Foodi.app"
-               BlueprintName = "Foodi"
-               ReferencedContainer = "container:Foodi.xcodeproj">
+               BuildableName = "Ketchup.app"
+               BlueprintName = "Ketchup"
+               ReferencedContainer = "container:Ketchup.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,9 +35,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F84FE2582B6A531300144F01"
-               BuildableName = "FoodiTests.xctest"
-               BlueprintName = "FoodiTests"
-               ReferencedContainer = "container:Foodi.xcodeproj">
+               BuildableName = "KetchupTests.xctest"
+               BlueprintName = "KetchupTests"
+               ReferencedContainer = "container:Ketchup.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -46,9 +46,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F84FE2622B6A531300144F01"
-               BuildableName = "FoodiUITests.xctest"
-               BlueprintName = "FoodiUITests"
-               ReferencedContainer = "container:Foodi.xcodeproj">
+               BuildableName = "KetchupUITests.xctest"
+               BlueprintName = "KetchupUITests"
+               ReferencedContainer = "container:Ketchup.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,9 +68,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F84FE2472B6A531200144F01"
-            BuildableName = "Foodi.app"
-            BlueprintName = "Foodi"
-            ReferencedContainer = "container:Foodi.xcodeproj">
+            BuildableName = "Ketchup.app"
+            BlueprintName = "Ketchup"
+            ReferencedContainer = "container:Ketchup.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -85,9 +85,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F84FE2472B6A531200144F01"
-            BuildableName = "Foodi.app"
-            BlueprintName = "Foodi"
-            ReferencedContainer = "container:Foodi.xcodeproj">
+            BuildableName = "Ketchup.app"
+            BlueprintName = "Ketchup"
+            ReferencedContainer = "container:Ketchup.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -96,6 +96,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "Ketchup"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

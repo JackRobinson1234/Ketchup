@@ -201,8 +201,8 @@ struct RegistrationView: View {
             } label: {
                 Image("Google-SignUp")
                     .resizable()
-                    .scaledToFill()
-                    .frame(width: 30, height: 50, alignment: .center)
+                    .scaledToFit()
+                    .frame(width: 200)
             }
             Spacer()
             

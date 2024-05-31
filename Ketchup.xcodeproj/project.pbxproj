@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		640D3EFF1A12A71443A2D29C /* Pods_Foodi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6BDD09B2BBC16A4012ADC17 /* Pods_Foodi.framework */; };
-		6FB87C3B2BEFDCBF001C7CDD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */; };
 		ACAB518993C9290DE42EEFB1 /* Pods_FoodiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */; };
 		D770486F7DB5BCC50E038E9B /* Pods_Foodi_FoodiUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
@@ -188,6 +187,7 @@
 		F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A42BD58A9C00B4B329 /* CameraView.swift */; };
 		F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */; };
 		F8CC21A92BD58B1D00B4B329 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A82BD58B1C00B4B329 /* TabBarController.swift */; };
+		F8CD4B1E2C09501F005797BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8CD4B1D2C09501F005797BA /* GoogleService-Info.plist */; };
 		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
@@ -232,7 +232,6 @@
 		1994C0BE6B42346710B65EA6 /* Pods-Foodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.release.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.release.xcconfig"; sourceTree = "<group>"; };
 		1EC2E35BC5228973F4BDAE0A /* Pods_Foodi_FoodiUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foodi_FoodiUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D2AB9C2FCEA8E5132B6D007 /* Pods-Foodi-FoodiUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi-FoodiUITests.release.xcconfig"; path = "Target Support Files/Pods-Foodi-FoodiUITests/Pods-Foodi-FoodiUITests.release.xcconfig"; sourceTree = "<group>"; };
-		6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9DB884AE9D9C005017912FA5 /* Pods-FoodiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FoodiTests.debug.xcconfig"; path = "Target Support Files/Pods-FoodiTests/Pods-FoodiTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C5720005FB4714A74EC74E50 /* Pods-Foodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foodi.debug.xcconfig"; path = "Target Support Files/Pods-Foodi/Pods-Foodi.debug.xcconfig"; sourceTree = "<group>"; };
 		E16BF1E7FFF041DE0771854E /* Pods_FoodiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FoodiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,15 +256,15 @@
 		F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantReviewSelector.swift; sourceTree = "<group>"; };
 		F846F4702BFF97A9009D1303 /* ClusterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterCell.swift; sourceTree = "<group>"; };
-		F84FE2482B6A531200144F01 /* Foodi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F84FE2482B6A531200144F01 /* Ketchup.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ketchup.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F84FE24F2B6A531300144F01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F84FE2512B6A531300144F01 /* Foodi.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Foodi.entitlements; sourceTree = "<group>"; };
 		F84FE2532B6A531300144F01 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		F84FE2592B6A531300144F01 /* FoodiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F84FE2592B6A531300144F01 /* KetchupTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KetchupTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE25D2B6A531300144F01 /* FoodiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiTests.swift; sourceTree = "<group>"; };
-		F84FE2632B6A531300144F01 /* FoodiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F84FE2632B6A531300144F01 /* KetchupUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KetchupUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE2672B6A531300144F01 /* FoodiUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiUITests.swift; sourceTree = "<group>"; };
 		F84FE2692B6A531300144F01 /* FoodiUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		F84FE2942B6A55F800144F01 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
@@ -413,6 +412,7 @@
 		F8CC21A42BD58A9C00B4B329 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		F8CC21A82BD58B1C00B4B329 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		F8CD4B1D2C09501F005797BA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -579,9 +579,9 @@
 		F84FE2492B6A531200144F01 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F84FE2482B6A531200144F01 /* Foodi.app */,
-				F84FE2592B6A531300144F01 /* FoodiTests.xctest */,
-				F84FE2632B6A531300144F01 /* FoodiUITests.xctest */,
+				F84FE2482B6A531200144F01 /* Ketchup.app */,
+				F84FE2592B6A531300144F01 /* KetchupTests.xctest */,
+				F84FE2632B6A531300144F01 /* KetchupUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -597,7 +597,7 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
-				6FB87C3A2BEFDCBF001C7CDD /* GoogleService-Info.plist */,
+				F8CD4B1D2C09501F005797BA /* GoogleService-Info.plist */,
 				F84FE2512B6A531300144F01 /* Foodi.entitlements */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
@@ -1444,9 +1444,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F84FE2472B6A531200144F01 /* Foodi */ = {
+		F84FE2472B6A531200144F01 /* Ketchup */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F84FE26D2B6A531300144F01 /* Build configuration list for PBXNativeTarget "Foodi" */;
+			buildConfigurationList = F84FE26D2B6A531300144F01 /* Build configuration list for PBXNativeTarget "Ketchup" */;
 			buildPhases = (
 				381977BC9A90EF027AFF9BFD /* [CP] Check Pods Manifest.lock */,
 				F84FE2442B6A531200144F01 /* Sources */,
@@ -1458,7 +1458,7 @@
 			);
 			dependencies = (
 			);
-			name = Foodi;
+			name = Ketchup;
 			packageProductDependencies = (
 				F8CC21902BD5810E00B4B329 /* InstantSearch */,
 				F8CC21922BD5810E00B4B329 /* InstantSearchCore */,
@@ -1469,12 +1469,12 @@
 				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
 			);
 			productName = Foodi;
-			productReference = F84FE2482B6A531200144F01 /* Foodi.app */;
+			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
 			productType = "com.apple.product-type.application";
 		};
-		F84FE2582B6A531300144F01 /* FoodiTests */ = {
+		F84FE2582B6A531300144F01 /* KetchupTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F84FE2702B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiTests" */;
+			buildConfigurationList = F84FE2702B6A531300144F01 /* Build configuration list for PBXNativeTarget "KetchupTests" */;
 			buildPhases = (
 				67A2DA2C657D2C4A67E8C894 /* [CP] Check Pods Manifest.lock */,
 				F84FE2552B6A531300144F01 /* Sources */,
@@ -1486,14 +1486,14 @@
 			dependencies = (
 				F84FE25B2B6A531300144F01 /* PBXTargetDependency */,
 			);
-			name = FoodiTests;
+			name = KetchupTests;
 			productName = FoodiTests;
-			productReference = F84FE2592B6A531300144F01 /* FoodiTests.xctest */;
+			productReference = F84FE2592B6A531300144F01 /* KetchupTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		F84FE2622B6A531300144F01 /* FoodiUITests */ = {
+		F84FE2622B6A531300144F01 /* KetchupUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F84FE2732B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiUITests" */;
+			buildConfigurationList = F84FE2732B6A531300144F01 /* Build configuration list for PBXNativeTarget "KetchupUITests" */;
 			buildPhases = (
 				3043F02E9A14FCCE85DDC9A6 /* [CP] Check Pods Manifest.lock */,
 				F84FE25F2B6A531300144F01 /* Sources */,
@@ -1506,9 +1506,9 @@
 			dependencies = (
 				F84FE2652B6A531300144F01 /* PBXTargetDependency */,
 			);
-			name = FoodiUITests;
+			name = KetchupUITests;
 			productName = FoodiUITests;
-			productReference = F84FE2632B6A531300144F01 /* FoodiUITests.xctest */;
+			productReference = F84FE2632B6A531300144F01 /* KetchupUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -1534,7 +1534,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F84FE2432B6A531200144F01 /* Build configuration list for PBXProject "Foodi" */;
+			buildConfigurationList = F84FE2432B6A531200144F01 /* Build configuration list for PBXProject "Ketchup" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -1552,9 +1552,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F84FE2472B6A531200144F01 /* Foodi */,
-				F84FE2582B6A531300144F01 /* FoodiTests */,
-				F84FE2622B6A531300144F01 /* FoodiUITests */,
+				F84FE2472B6A531200144F01 /* Ketchup */,
+				F84FE2582B6A531300144F01 /* KetchupTests */,
+				F84FE2622B6A531300144F01 /* KetchupUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -1565,8 +1565,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
-				6FB87C3B2BEFDCBF001C7CDD /* GoogleService-Info.plist in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
+				F8CD4B1E2C09501F005797BA /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1903,12 +1903,12 @@
 /* Begin PBXTargetDependency section */
 		F84FE25B2B6A531300144F01 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F84FE2472B6A531200144F01 /* Foodi */;
+			target = F84FE2472B6A531200144F01 /* Ketchup */;
 			targetProxy = F84FE25A2B6A531300144F01 /* PBXContainerItemProxy */;
 		};
 		F84FE2652B6A531300144F01 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F84FE2472B6A531200144F01 /* Foodi */;
+			target = F84FE2472B6A531200144F01 /* Ketchup */;
 			targetProxy = F84FE2642B6A531300144F01 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -2068,7 +2068,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi5;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2114,7 +2114,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Foodi.Foodi5;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2144,7 +2144,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Foodi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Foodi";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ketchup.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ketchup";
 			};
 			name = Debug;
 		};
@@ -2168,7 +2168,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Foodi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Foodi";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ketchup.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ketchup";
 			};
 			name = Release;
 		};
@@ -2221,7 +2221,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F84FE2432B6A531200144F01 /* Build configuration list for PBXProject "Foodi" */ = {
+		F84FE2432B6A531200144F01 /* Build configuration list for PBXProject "Ketchup" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84FE26B2B6A531300144F01 /* Debug */,
@@ -2230,7 +2230,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F84FE26D2B6A531300144F01 /* Build configuration list for PBXNativeTarget "Foodi" */ = {
+		F84FE26D2B6A531300144F01 /* Build configuration list for PBXNativeTarget "Ketchup" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84FE26E2B6A531300144F01 /* Debug */,
@@ -2239,7 +2239,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F84FE2702B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiTests" */ = {
+		F84FE2702B6A531300144F01 /* Build configuration list for PBXNativeTarget "KetchupTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84FE2712B6A531300144F01 /* Debug */,
@@ -2248,7 +2248,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F84FE2732B6A531300144F01 /* Build configuration list for PBXNativeTarget "FoodiUITests" */ = {
+		F84FE2732B6A531300144F01 /* Build configuration list for PBXNativeTarget "KetchupUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84FE2742B6A531300144F01 /* Debug */,

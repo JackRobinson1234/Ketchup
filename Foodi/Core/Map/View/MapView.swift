@@ -205,15 +205,15 @@ struct MapView: View {
                                 ZStack {
                                     Image(systemName: "slider.horizontal.3")
                                         .imageScale(.large)
-                                        .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.red, radius: 4)
+                                        .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
                                         .font(.system(size: 23))
                                     
-                                    if !viewModel.filters.isEmpty {
-                                        Circle()
-                                            .fill(Color.red)
-                                            .frame(width: 12, height: 12)
-                                            .offset(x: 12, y: 12) // Adjust the offset as needed
-                                    }
+//                                    if !viewModel.filters.isEmpty {
+//                                        Circle()
+//                                            .fill(Color.red)
+//                                            .frame(width: 12, height: 12)
+//                                            .offset(x: 12, y: 12) // Adjust the offset as needed
+//                                    }
                                 }
                             }
                         }

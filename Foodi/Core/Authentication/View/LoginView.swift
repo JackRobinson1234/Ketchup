@@ -27,7 +27,7 @@ struct LoginView: View {
             VStack {
                 Spacer()
                 // logo image
-                Text("Foodi")
+                Text("Ketchup")
                 
                 //MARK: Enter Email
                 VStack {
@@ -138,8 +138,11 @@ struct LoginView: View {
                 } label: {
                     Image("Google-SignIn")
                         .resizable()
-                        .frame(width: 30, height: 50, alignment: .center)
-                        .scaledToFill()
+                            .scaledToFill()
+                            .frame(width: 100, height: 50) 
+                            .scaledToFit()
+                            .frame(width: 200)// Adjust these dimensions as needed
+                            //.clipped()
                         
                 }
                 Spacer()
