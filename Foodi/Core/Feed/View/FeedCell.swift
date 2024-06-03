@@ -109,7 +109,8 @@ struct FeedCell: View {
                     } else {
                         KFImage(URL(string: post.mediaUrls[currentImageIndex]))
                             .resizable()
-                            .scaledToFit()
+                            //.scaledToFit()
+                            .scaledToFill()
                             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                             .cornerRadius(20)
                             .containerRelativeFrame([.horizontal, .vertical])

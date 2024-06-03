@@ -81,10 +81,10 @@ struct DeveloperPreview {
                 mediaType: "video",
                 mediaUrls: ["https://example.com/video.mp4"],
                 caption: "Check out this delicious dish!",
-                likes: 100,
+                likes: 141,
                 commentCount: 20,
                 repostCount: 10,
-                thumbnailUrl: "https://example.com/thumbnail.jpg",
+                thumbnailUrl: "https://picsum.photos/400/500",
                 timestamp: Timestamp(date: Date()),
                 user: PostUser(
                     id: "user1",
@@ -244,5 +244,24 @@ struct DeveloperPreview {
                favoriteItems: ["Burgers", "Fries"]
            )
        ]
-
+    static var samplePostRecipe: PostRecipe = PostRecipe(
+            name: "Spaghetti Carbonara",
+            cookingTime: 30,
+            dietary: ["Gluten-Free", "Vegetarian"],
+            instructions: [
+                .init(title: "Step 1", description: "Bring a large pot of salted water to a boil. Add spaghetti and cook until al dente."),
+                .init(title: "Step 2", description: "In a large bowl, whisk together eggs and Parmesan until combined."),
+                .init(title: "Step 3", description: "In a large skillet over medium heat, cook pancetta until crispy. Remove from heat and set aside."),
+                .init(title: "Step 4", description: "Drain pasta and reserve 1 cup of pasta water."),
+                .init(title: "Step 5", description: "Quickly add pasta to egg mixture and toss to combine, adding reserved pasta water a little at a time until creamy."),
+                .init(title: "Step 6", description: "Add pancetta and mix well. Season with salt and pepper to taste. Serve immediately with extra Parmesan.")
+            ],
+            ingredients: [
+                .init(quantity: "12 oz", item: "spaghetti"),
+                .init(quantity: "3", item: "large eggs"),
+                .init(quantity: "1 cup", item: "grated Parmesan cheese"),
+                .init(quantity: "4 oz", item: "pancetta, diced"),
+                .init(quantity: "to taste", item: "Salt and freshly ground black pepper")
+            ]
+        )
 }

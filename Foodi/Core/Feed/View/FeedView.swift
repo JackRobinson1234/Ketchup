@@ -203,6 +203,7 @@ struct FeedView: View {
                     viewModel.updateCache(scrollPosition: newValue)
                     }
                 .background(Color("Colors/HingeGray"))
+                //.background(.black)
                 .ignoresSafeArea()
                 
                 /// sets destination of user profile links

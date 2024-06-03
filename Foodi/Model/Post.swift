@@ -135,6 +135,8 @@ struct PostRecipe: Codable, Hashable {
     var dietary: [String]?
     var instructions: [Instruction]?
     var ingredients: [Ingredient]?
+    var difficulty: RecipeDifficulty?
+    var servings: Int?
 }
 
 struct Instruction: Codable, Hashable {
@@ -158,3 +160,18 @@ enum PostType: Int, Codable {
         }
     }
 }
+
+enum RecipeDifficulty: Int, Codable {
+    case easy
+    case medium
+    case hard
+    var text: String {
+        switch self {
+        case .easy: return "Easy"
+        case .medium: return "Medium"
+        case .hard: return "Hard"
+            
+        }
+    }
+}
+
