@@ -57,7 +57,7 @@ struct CaptionEditorView: View {
                         
                         Text("\(maxCharacters - caption.count) characters remaining")
                             .font(.caption)
-                            .foregroundColor(caption.count > maxCharacters ? .red : .gray)
+                            .foregroundColor(caption.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                             .padding(.horizontal, 10)
                     }
                     

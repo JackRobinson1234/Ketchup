@@ -51,7 +51,7 @@ struct RegistrationView: View {
                     }
                 if let validEmail = viewModel.validRegistrationEmail, !viewModel.email.isEmpty && !validEmail {
                     Text("Please enter a valid email address")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.caption)
                 }
                 // MARK: Password
@@ -75,7 +75,7 @@ struct RegistrationView: View {
                 
                 if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                     Text("Password must be at least 6 characters")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.caption)
                 }
                 // MARK: Full Name
@@ -154,7 +154,7 @@ struct RegistrationView: View {
                 } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty{
                     Text("Username is already taken. Please try a different username")
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
             }
             // MARK: Sign up button
@@ -183,12 +183,12 @@ struct RegistrationView: View {
             if viewModel.registrationAttempts >= maxRegistrationAttempts{
                 Text("Please wait 20 seconds before attempting to register again")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color("Colors/AccentColor"))
             }
             if viewModel.showAlert {
                 Text("An account with that email already exists, please try another email")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color("Colors/AccentColor"))
             }
             Divider()
             Text("Or")

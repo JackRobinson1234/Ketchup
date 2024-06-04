@@ -36,7 +36,7 @@ struct EditCollectionView: View {
                             } label: {
                                 Text("Delete Collection")
                                     .font(.subheadline)
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(Color("Colors/AccentColor"))
                             }
                             //Image Selector
                             CoverPhotoSelector(viewModel: collectionsViewModel)
@@ -85,7 +85,7 @@ struct EditCollectionView: View {
                                             print(collectionsViewModel.deleteItems)
                                         } label: {
                                             Text("Remove")
-                                                .foregroundStyle(.red)
+                                                .foregroundStyle(Color("Colors/AccentColor"))
                                                 .font(.subheadline)
                                         }
                                     }

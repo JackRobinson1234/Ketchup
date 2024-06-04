@@ -31,7 +31,7 @@ struct ForgotPasswordView: View {
             //MARK: Email format warning
             if let validEmail = viewModel.validResetEmail, !viewModel.resetEmailText.isEmpty && !validEmail {
                 Text("Please Enter a Valid Email Address")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color("Colors/AccentColor"))
                     .font(.caption)
             }
             //MARK: Reset Button

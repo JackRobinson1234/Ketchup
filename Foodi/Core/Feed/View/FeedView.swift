@@ -162,7 +162,7 @@ struct FeedView: View {
                                     
                                     if !filtersViewModel.filters.isEmpty {
                                         Circle()
-                                            .fill(Color.red)
+                                            .fill(Color("Colors/AccentColor"))
                                             .frame(width: 12, height: 12)
                                             .offset(x: 12, y: 12) // Adjust the offset as needed
                                     }

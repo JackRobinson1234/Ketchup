@@ -32,7 +32,8 @@ struct RestaurantCell: View {
                 let city = restaurant.city ?? "Unknown City"
                 let state = restaurant.state ?? "Unknown State"
                 
-                Text("\(address) \(city), \(state)")
+                Text("\(address)")
+                //Text("\(address) \(city), \(state)")
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
             }

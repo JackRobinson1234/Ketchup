@@ -94,7 +94,7 @@ struct SettingsView: View {
                 } label: {
                     Text("Delete Account")
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 //MARK: Delete Account Alert
                 .alert("Delete account", isPresented: $showDeleteAccountAlert, presenting: profileViewModel.user) { user in

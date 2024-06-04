@@ -40,7 +40,7 @@ struct MapCuisineFilter: View {
                         ForEach(mapViewModel.selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
                                             mapViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })

@@ -26,7 +26,7 @@ struct MapFiltersView: View {
                         mapViewModel.clearFilters()
                     } label: {
                         Text("Remove all filters")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     
                     if selectedOption == .cuisine {

@@ -38,7 +38,7 @@ struct PriceFilter: View {
                         ForEach(filtersViewModel.selectedPrice, id: \.self) { price in
                             HStack {
                                 Image(systemName: "xmark")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
                                             filtersViewModel.selectedPrice.removeAll(where: { $0 == price })

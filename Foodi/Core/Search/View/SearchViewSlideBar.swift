@@ -25,7 +25,7 @@ struct SearchViewSlideBar: View {
                         }
                         .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
                     
-                    Text("At Home Posts")
+                    Text("Cooking Posts")
                         .onTapGesture {
                             withAnimation {
                                 self.searchConfig = .posts

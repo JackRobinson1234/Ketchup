@@ -45,7 +45,7 @@ struct ReviewCell: View {
                                 if review.recommendation {
                                     HStack(spacing: 0){
                                         Image(systemName: "heart")
-                                            .foregroundColor(.red)
+                                            .foregroundColor(Color("Colors/AccentColor"))
                                         
                                         Text("Recommends")
                                             .foregroundStyle(.black)
@@ -78,7 +78,7 @@ struct ReviewCell: View {
                                 handleLikeTapped()
                             } label: {
                                 Image(systemName: didLike ? "heart.fill" : "heart")
-                                    .foregroundStyle(didLike ? .red : .black)
+                                    .foregroundStyle(didLike ? Color("Colors/AccentColor") : .black)
                             }
                         }
                         Button {

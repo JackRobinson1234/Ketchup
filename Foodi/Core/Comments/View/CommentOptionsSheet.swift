@@ -24,7 +24,7 @@ struct CommentOptionsSheet: View {
                 } label: {
                     Text("Delete Comment")
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
                     Alert(

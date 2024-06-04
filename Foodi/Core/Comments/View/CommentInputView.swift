@@ -36,7 +36,7 @@ struct CommentInputView: View {
                 Image(systemName: "arrow.up.circle.fill")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color("Colors/AccentColor"))
             }
             .padding(.horizontal)
         }

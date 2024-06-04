@@ -211,11 +211,6 @@ struct FeedCell: View {
                                     .font(.footnote)
                             }
                             else {
-                                Text("Cuisine: \(post.cuisine ?? "")")
-                                
-                                //MARKL  price
-                                Text("Price: \(post.price ?? "")")
-                                
                                 //MARK: Menu Button
                                 
                                 if let restaurant = post.restaurant {
@@ -241,11 +236,15 @@ struct FeedCell: View {
                         
                         //controls box size
                         .padding(10)
-                        .background(Color.black.opacity(0.3))
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.3))
+                        )
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
                         .font(.subheadline)
                         .foregroundStyle(.white)
                         .padding(.horizontal)
+                        
                         
                         Spacer()
                         //MARK: Right hand VStack
@@ -306,7 +305,7 @@ struct FeedCell: View {
                             } label: {
                                 FeedCellActionButtonView(imageName: didLike ? "heart.fill": "heart.fill",
                                                          value: post.likes,
-                                                         tintColor: didLike ? .red : .white)
+                                                         tintColor: didLike ? Color("Colors/AccentColor") : .white)
                             }
                             //MARK: comment button
                             Button {
@@ -395,10 +394,10 @@ struct FeedCell: View {
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear{Task {videoCoordinator.play()}}
         }
-        //            .sheet(isPresented: $showRecipe) {
-        //                RecipeView(post: post)
-        //                    .onDisappear{Task {videoCoordinator.play()}}
-        //            }
+                    .sheet(isPresented: $showRecipe) {
+                        NewRecipeView(post: post)
+                            .onDisappear{Task {videoCoordinator.play()}}
+                    }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)

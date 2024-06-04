@@ -9,19 +9,24 @@ import SwiftUI
 import InstantSearchSwiftUI
 
 struct CollectionsSearchListView: View {
-    @StateObject var viewModel: CollectionListSearchViewModel
+    @StateObject var viewModel = CollectionListSearchViewModel()
     var debouncer = Debouncer(delay: 1.0)
+    @State var showCollection = false
+    @State var selectedCollection: Collection? = nil
+    @StateObject var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
 
-    init() {
-        self._viewModel = StateObject(wrappedValue: CollectionListSearchViewModel())
-    }
-
+   
     var body: some View {
         ScrollView{
             InfiniteList(viewModel.hits, itemView: { hit in
-                //NavigationLink(value: hit.object) {
-                CollectionListCell(collection: hit.object)
-                    .padding()
+                Button{
+                    collectionsViewModel.selectedCollection = hit.object
+                    showCollection = true
+                } label: {
+                    CollectionListCell(collection: hit.object)
+                        .padding()
+                }
+                    
                 
                 Divider()
             }, noResults: {
@@ -34,10 +39,13 @@ struct CollectionsSearchListView: View {
                     viewModel.notifyQueryChanged()
                 }
             }
+            .sheet(isPresented: $showCollection) {
+                    CollectionView(collectionsViewModel: collectionsViewModel)
+            }
         }
     }
 }
 
 #Preview {
-    CollectionsSearchListView()
+    CollectionsSearchListView(viewModel: CollectionListSearchViewModel())
 }

@@ -179,7 +179,7 @@ struct TextBox: View {
                 Spacer()
                 Text("\(maxCharacters - text.count) characters remaining")
                     .font(.caption)
-                    .foregroundColor(text.count > maxCharacters ? .red : .gray)
+                    .foregroundColor(text.count > maxCharacters ? Color("Colors/AccentColor"): .gray)
                     .padding(.horizontal, 10)
             }
             Divider()
@@ -247,7 +247,7 @@ struct EditorView: View {
                         
                         Text("\(maxCharacters - text.count) characters remaining")
                             .font(.caption)
-                            .foregroundColor(text.count > maxCharacters ? .red : .gray)
+                            .foregroundColor(text.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                             .padding(.horizontal, 10)
                     }
                     

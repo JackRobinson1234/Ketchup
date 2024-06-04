@@ -23,7 +23,7 @@ struct AddMenuItemsReview: View {
                             HStack{
                                 HStack {
                                     Image(systemName: "xmark")
-                                        .foregroundColor(.red)
+                                        .foregroundColor(Color("Colors/AccentColor"))
                                         .onTapGesture {
                                             withAnimation(.snappy) {
                                                 removeItem(item)

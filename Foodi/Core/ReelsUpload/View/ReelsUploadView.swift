@@ -64,7 +64,7 @@ struct ReelsUploadView: View {
                             
                             Text("\(maxCharacters - titleText.count) characters remaining")
                                 .font(.caption)
-                                .foregroundColor(titleText.count > maxCharacters ? .red : .gray)
+                                .foregroundColor(titleText.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                                 .padding(.horizontal, 10)
                         }
                         }

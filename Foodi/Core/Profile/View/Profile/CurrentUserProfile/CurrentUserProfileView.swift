@@ -69,7 +69,7 @@ struct CurrentUserProfileView: View {
                                 
                                 if profileViewModel.user.notificationAlert == true{
                                     Circle()
-                                        .fill(Color.red)
+                                        .fill(Color("Colors/AccentColor"))
                                         .frame(width: 10, height: 10)
                                         .offset(x: 10, y: -10)
                                 }

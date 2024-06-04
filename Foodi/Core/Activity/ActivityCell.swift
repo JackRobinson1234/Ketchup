@@ -230,7 +230,7 @@ struct ActivityCell: View {
                             if let recs = activity.recommendation, recs {
                                 HStack(spacing: 0){
                                     Image(systemName: "heart")
-                                        .foregroundColor(.red)
+                                        .foregroundColor(Color("Colors/AccentColor"))
                                     Text("Recommends")
                                         .foregroundStyle(.black)
                                     

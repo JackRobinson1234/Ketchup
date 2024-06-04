@@ -31,7 +31,7 @@ struct ShareView: View {
                     
                 } else if downloadViewModel.downloadFailure {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
+                        .foregroundColor(Color("Colors/AccentColor"))
                         .font(.system(size: 50))
                     Text("Save Failed")
                         .font(.subheadline)

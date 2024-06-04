@@ -34,7 +34,7 @@ struct CookingTimeFilter: View {
                 HStack{
                     HStack {
                         Image(systemName: "xmark")
-                            .foregroundColor(.red)
+                            .foregroundColor(Color("Colors/AccentColor"))
                             .onTapGesture {
                                 withAnimation(.snappy) {
                                     filtersViewModel.selectedCookingTime.removeAll()

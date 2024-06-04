@@ -41,7 +41,7 @@ struct DietaryFilter: View {
                         ForEach(filtersViewModel.selectedDietary, id: \.self) { dietary in
                             HStack {
                                 Image(systemName: "xmark")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
                                             filtersViewModel.selectedDietary.removeAll(where: { $0 == dietary })

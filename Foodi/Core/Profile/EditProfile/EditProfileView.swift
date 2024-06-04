@@ -92,13 +92,13 @@ struct EditProfileView: View {
                     } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Username is already taken. Please try a different username")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     //MARK: emptyUsername
                     if viewModel.username.count == 0 {
                         Text("Full name can not be empty")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
 
                     //MARK: Fullname
@@ -112,13 +112,13 @@ struct EditProfileView: View {
                     if viewModel.fullname.count == 64 {
                         Text("Max 64 Characters")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     //MARK: fullname empty
                     if viewModel.fullname.count == 0 {
                         Text("Full name can not be empty")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     
                     editFavoritesView(user: user, editProfileViewModel: viewModel)
@@ -244,7 +244,7 @@ struct editFavoritesView: View {
                         } label: {
                             VStack{
                                 Text("Clear")
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(Color("Colors/AccentColor"))
                                     .font(.caption)
                             }
                         }

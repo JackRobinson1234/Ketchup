@@ -25,7 +25,7 @@ struct ReviewOptionsSheet: View {
                 } label: {
                     Text("Delete Review")
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
                     Alert(

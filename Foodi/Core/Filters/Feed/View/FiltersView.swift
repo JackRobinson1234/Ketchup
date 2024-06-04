@@ -28,7 +28,7 @@ struct FiltersView: View {
                         filtersViewModel.clearFilters()
                     } label: {
                         Text("Remove all filters")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
 //                    if selectedOption == .postType {
                         VStack(alignment: .leading){

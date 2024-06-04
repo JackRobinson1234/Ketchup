@@ -215,7 +215,7 @@ struct VideoCameraControls: View {
                     .fill(.black.opacity(0.25))
                 
                 Rectangle()
-                    .fill(Color.red)
+                    .fill(Color("Colors/AccentColor"))
                     .frame(width: 390.0 * (cameraViewModel.recordedDuration / cameraViewModel.maxDuration))
             }
             .frame(height: 20)
@@ -242,7 +242,7 @@ struct VideoCameraControls: View {
                     .cornerRadius(3)
                     .background {
                         Capsule()
-                            .fill(.red)
+                            .fill(Color("Colors/AccentColor"))
                     }
                 }
                 .frame(width: 100)
@@ -266,7 +266,7 @@ struct VideoCameraControls: View {
                             .frame(width: 70, height: 70)
                         
                         Circle()
-                            .fill(cameraViewModel.isRecording ? .clear : .red)
+                            .fill(cameraViewModel.isRecording ? .clear : Color("Colors/AccentColor"))
                             .frame(width: 60, height: 60)
                     }
                 }
@@ -406,7 +406,7 @@ struct PhotoCameraControls: View {
                     } label: {
                         Text("Delete")
                             .frame(width: 100, height: 50)
-                            .background(.red)
+                            .background(Color("Colors/AccentColor"))
                             .cornerRadius(3.0)
                             .foregroundColor(.white)
                     }

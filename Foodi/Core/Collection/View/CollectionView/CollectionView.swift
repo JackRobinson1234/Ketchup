@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher 
+import FirebaseAuth
 enum collectionSection {
     case grid, map
 }
@@ -109,7 +110,7 @@ struct CollectionView: View {
                             }
                             //MARK: Edit
                             ToolbarItem(placement: .topBarTrailing) {
-                                if collectionsViewModel.user.isCurrentUser{
+                                if let currentUser = Auth.auth().currentUser?.uid, let uid = collectionsViewModel.selectedCollection?.uid, uid == currentUser {
                                     Button {
                                         showEditCollection.toggle()
                                     } label: {

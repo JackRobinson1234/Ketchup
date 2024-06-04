@@ -12,6 +12,7 @@ import Foundation
 import SwiftUI
 
 final class CollectionListSearchViewModel: ObservableObject {
+    
     @Published var searchQuery: String = ""
     @Published var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Collection>>>
     private var itemsSearcher: HitsSearcher
@@ -36,7 +37,6 @@ final class CollectionListSearchViewModel: ObservableObject {
     }
     
     func notifyQueryChanged() {
-        print("Running Notify Query *************")
             //if !searchQuery.isEmpty {
                 itemsSearcher.request.query.query = searchQuery
                 itemsSearcher.search()

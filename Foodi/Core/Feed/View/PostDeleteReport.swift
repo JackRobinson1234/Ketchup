@@ -24,7 +24,7 @@ struct PostOptionsSheet: View {
                 } label: {
                     Text("Delete Post")
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
                     Alert(
@@ -32,7 +32,7 @@ struct PostOptionsSheet: View {
                         message: Text("Are you sure you want to delete this post?"),
                         primaryButton: .destructive(Text("Delete")) {
                             Task {
-                                try await viewModel.deletePost(post: post)
+                               await viewModel.deletePost(post: post)
                                 optionsSheetDismissed = true
                                 dismiss()
                             }

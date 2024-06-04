@@ -32,21 +32,24 @@ struct RestaurantProfileHeaderView: View {
                                 .foregroundStyle(.white)
                             
                         }
+                        .frame(maxWidth: .infinity)
                         .background(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
-                                startPoint: .bottomLeading,
-                                endPoint: .topTrailing
+                                gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.6),]),
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
-                            
                         )
                     }
                 VStack (alignment: .leading, spacing: 8){
                     VStack(alignment: .leading){
                         if let street = restaurant.address, !street.isEmpty {
-                            Text(street)
-                                .font(.headline)
-                                .fontWeight(.semibold)
+                            HStack{
+                                Text(street)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                            }
                         }
 //                        if let city = restaurant.city, let state = restaurant.state {
 //                            Text("\(city), \(state)")

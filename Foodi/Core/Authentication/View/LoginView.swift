@@ -42,7 +42,7 @@ struct LoginView: View {
                         }
                     if let validEmail = viewModel.validLoginEmail, !viewModel.email.isEmpty && !validEmail {
                         Text("Please enter a valid email address")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                             .font(.caption)
                     }
                     //MARK: Enter Password
@@ -55,7 +55,7 @@ struct LoginView: View {
                         }
                     if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                         Text("Password is at least 6 characters")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                             .font(.caption)
                     }
                 }
@@ -108,17 +108,17 @@ struct LoginView: View {
                 //MARK: Error Messages
                 if viewModel.loginAttempts >= maxLoginAttempts{
                     Text("Please wait 10 seconds before logging in again")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.caption)
                 }
                 if viewModel.showAlert {
                     Text("Wrong credentials, try again or press forgot password!")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.caption)
                 }
                 if viewModel.showReAuthAlert {
                     Text("Different credentials than the current account, please try again!")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.caption)
                 }
                 Divider()
