@@ -154,6 +154,9 @@ struct NewRecipeView: View {
         }
     }
 }
+#Preview {
+    NewRecipeView(post: DeveloperPreview.posts[0])
+}
 
 
 
