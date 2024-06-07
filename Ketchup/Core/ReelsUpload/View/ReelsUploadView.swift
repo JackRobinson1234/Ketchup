@@ -179,7 +179,6 @@ struct ReelsUploadView: View {
             }
             .navigationDestination(isPresented: $isAddingRecipe) {
                 EditRecipeView(uploadViewModel: uploadViewModel)
-                    .navigationTitle("Create Recipe")
             }
     }
     

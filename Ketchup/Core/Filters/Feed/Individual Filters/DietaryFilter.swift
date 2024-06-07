@@ -113,7 +113,7 @@ struct DietaryFilter: View {
                 }
                 /// if maximum filters are selected, display this message
             } else if filtersViewModel.selectedDietary.count >= maximumSelections {
-                Text("Maximum filters selected (max \(maximumSelections)")
+                Text("Maximum filters selected (max \(maximumSelections))")
                     .font(.subheadline)
                     .padding()
             }

@@ -31,7 +31,7 @@ class UploadViewModel: ObservableObject {
     @Published var cookingTime: Int = 0
     
     @Published var recipeServings: Int = 0
-    @Published var recipeDifficulty: RecipeDifficulty? = nil
+    @Published var recipeDifficulty: RecipeDifficulty = .easy
     
     @Published var instructions: [Instruction] = []
     

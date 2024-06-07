@@ -1,16 +1,16 @@
 //
-//  DietaryFilter.swift
-//  Foodi
+//  dietary.swift
+//  Ketchup
 //
-//  Created by Jack Robinson on 4/4/24.
+//  Created by Jack Robinson on 6/7/24.
 //
 
 import SwiftUI
 
-struct DietaryFilter: View {
+struct EditDietaryRestrictions: View {
     @State private var filteredDietary: [String] = dietaryCategories
     @State private var searchText = ""
-    @ObservedObject var filtersViewModel: FiltersViewModel
+    @ObservedObject var uploadViewModel: UploadViewModel
     
     ///Maximum # of filters allowed to select
     @State private var maximumSelections: Int = 10
@@ -20,7 +20,7 @@ struct DietaryFilter: View {
         VStack {
             /// Title
             HStack{
-                Text("Filter by Dietary Restrictions")
+                Text("Add Dietary Restrictions")
                     .font(.title2)
                     .fontWeight(.semibold)
                 Spacer()
@@ -28,23 +28,23 @@ struct DietaryFilter: View {
             .padding(.leading)
             
             HStack{
-                Text("Dietary Restriction Filters Selected (Max 10):")
+                Text("Dietary Restriction Selected (Max 10):")
                     .font(.caption)
                 Spacer()
             }
             .padding(.leading)
             //MARK: Selected Dietary
             /// Selected dietaries  from the list to be filtered by
-            if !filtersViewModel.selectedDietary.isEmpty{
+            if !uploadViewModel.dietaryRestrictions.isEmpty{
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(filtersViewModel.selectedDietary, id: \.self) { dietary in
+                        ForEach(uploadViewModel.dietaryRestrictions, id: \.self) { dietary in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            filtersViewModel.selectedDietary.removeAll(where: { $0 == dietary })
+                                            uploadViewModel.dietaryRestrictions.removeAll(where: { $0 == dietary })
                                         }
                                     }
                                 Text(dietary)
@@ -90,7 +90,7 @@ struct DietaryFilter: View {
                     .foregroundStyle(Color(.systemGray4)))
             //MARK: Dietary options
             /// If there are no selections and they haven't reached the maximum # of selections
-            if !filteredDietary.isEmpty && filtersViewModel.selectedDietary.count < maximumSelections {
+            if !filteredDietary.isEmpty && uploadViewModel.dietaryRestrictions.count < maximumSelections {
                 ScrollView(.horizontal){
                     HStack{
                         ForEach(filteredDietary, id: \.self) { dietary in
@@ -98,8 +98,8 @@ struct DietaryFilter: View {
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !filtersViewModel.selectedDietary.contains(dietary) {
-                                            filtersViewModel.selectedDietary.insert(dietary, at: 0)}
+                                        if !uploadViewModel.dietaryRestrictions.contains(dietary) {
+                                            uploadViewModel.dietaryRestrictions.insert(dietary, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -112,8 +112,8 @@ struct DietaryFilter: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 /// if maximum filters are selected, display this message
-            } else if filtersViewModel.selectedDietary.count >= maximumSelections {
-                Text("Maximum filters selected (max \(maximumSelections)")
+            } else if uploadViewModel.dietaryRestrictions.count >= maximumSelections {
+                Text("Maximum filters selected (max \(maximumSelections))")
                     .font(.subheadline)
                     .padding()
             }
@@ -127,9 +127,8 @@ struct DietaryFilter: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: filtersViewModel.selectedDietary) {oldValue, newValue in
+        .onChange(of: uploadViewModel.dietaryRestrictions) {oldValue, newValue in
             filteredDietary = filteredDietary(searchText)
-            filtersViewModel.disableFilters()
         }
         .onAppear{
             filteredDietary = filteredDietary(searchText)
@@ -138,19 +137,19 @@ struct DietaryFilter: View {
     func filteredDietary(_ query: String) -> [String] {
         if query.isEmpty{
             return dietaryCategories.filter { dietary in
-                !filtersViewModel.selectedDietary.contains(dietary)}
+                !uploadViewModel.dietaryRestrictions.contains(dietary)}
         } else {
             let lowercasedQuery = query.lowercased()
             let filtered = dietaryCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
             }).map { $0.capitalized }
             return filtered.filter { dietary in
-                !filtersViewModel.selectedDietary.contains(dietary)
+                !uploadViewModel.dietaryRestrictions.contains(dietary)
             }
         }
     }
 }
 
-#Preview {
-    DietaryFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
-}
+//#Preview {
+//    DietaryFilter(uploadViewModel: UploadViewModel())
+//}

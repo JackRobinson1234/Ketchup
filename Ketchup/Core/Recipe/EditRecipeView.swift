@@ -12,9 +12,11 @@ struct EditRecipeView: View {
     @State private var showCookingTimePicker = false
     @State private var showServingsPicker = false
     @State private var showDifficultyPicker = false
+    @State private var showEditDietary = false
     @State private var selectedCookingTime = 0
     @State private var selectedServings = 0
     @State private var selectedDifficulty: RecipeDifficulty = .easy
+
     
     var body: some View {
         NavigationStack {
@@ -33,7 +35,7 @@ struct EditRecipeView: View {
                                 Image(uiImage: images[0])
                                     .resizable()
                                     .scaledToFill()
-                                    
+                                
                             }
                         }
                         .frame(height: 300)
@@ -85,22 +87,26 @@ struct EditRecipeView: View {
                                 }
                             }
                             
-                            if let difficulty = uploadViewModel.recipeDifficulty {
-                                InfoCircle(text: difficulty.text, image: "star")
+                            Button {
+                                showDifficultyPicker.toggle()
+                            } label: {
+                                InfoCircle(text: uploadViewModel.recipeDifficulty.text, image: "star")
                                     .onTapGesture {
-                                        selectedDifficulty = difficulty
+                                        selectedDifficulty = uploadViewModel.recipeDifficulty
                                         showDifficultyPicker.toggle()
                                     }
-                            } else {
-                                InfoCircle(text: "N/A", image: "flame")
                             }
                             Spacer()
                         }
                         .padding(.top)
                         
                         // Dietary restrictions
-                        Text("Dietary Restrictions")
-                            .font(.headline)
+                        Button {
+                            showEditDietary.toggle()
+                        } label: {
+                            Text("Edit Dietary Restrictions")
+                                .font(.headline)
+                        }
                         if !uploadViewModel.dietaryRestrictions.isEmpty {
                             VStack(alignment: .leading) {
                                 HStack {
@@ -162,88 +168,65 @@ struct EditRecipeView: View {
                 }
                 .padding(.bottom, 16) // Add bottom padding to ensure last content is not cut off
             }
+            .navigationBarBackButtonHidden()
             .edgesIgnoringSafeArea(.top)
             .modifier(BackButtonModifier())
-            .overlay(
-                            Group {
-                                if showCookingTimePicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Cooking Time", selection: $uploadViewModel.cookingTime) {
-                                                ForEach(Array(stride(from: 5, to: 125, by: 5)), id: \.self) { time in
-                                                    Text("\(time) min").tag(time)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showCookingTimePicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
-                                if showServingsPicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Servings", selection: $uploadViewModel.recipeServings) {
-                                                ForEach(1..<21, id: \.self) { servings in
-                                                    Text("\(servings) servings").tag(servings)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showServingsPicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
-                                if showDifficultyPicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Difficulty", selection: $uploadViewModel.recipeDifficulty) {
-                                                ForEach(RecipeDifficulty.allCases, id: \.self) { difficulty in
-                                                    Text(difficulty.text).tag(difficulty)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showDifficultyPicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
+            .sheet(isPresented: $showCookingTimePicker) {
+                
+                    VStack {
+                        Picker("Cooking Time", selection: $uploadViewModel.cookingTime) {
+                            ForEach(Array(stride(from: 5, to: 125, by: 5)), id: \.self) { time in
+                                Text("\(time) min").tag(time)
                             }
-                        )
-            .navigationBarBackButtonHidden()
-        }
-    }
-}
-
-struct ModalOverlay<Content: View>: View {
-    let content: () -> Content
-    
-    var body: some View {
-        VStack {
-            Spacer()
-            VStack {
-                content()
+                        }
+                        .labelsHidden()
+                        .pickerStyle(WheelPickerStyle())
+                        Button("Done") {
+                            showCookingTimePicker.toggle()
+                        }
+                        .padding()
+                    }
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+                
+            }
+            .sheet(isPresented: $showServingsPicker) {
+                
+                VStack {
+                    Picker("Servings", selection: $uploadViewModel.recipeServings) {
+                        ForEach(1..<21, id: \.self) { servings in
+                            Text("\(servings) servings").tag(servings)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(WheelPickerStyle())
+                    Button("Done") {
+                        showServingsPicker.toggle()
+                    }
                     .padding()
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(radius: 10)
+                }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
             }
-            .frame(maxWidth: .infinity)
-            .background(Color.black.opacity(0.5))
-            .onTapGesture {
-                // Dismiss the modal overlay when tapping outside of it
+            .sheet(isPresented: $showDifficultyPicker) {
+                VStack {
+                    let options: [RecipeDifficulty] = [.easy, .medium, .hard]
+                    Picker("Difficulty", selection: $uploadViewModel.recipeDifficulty) {
+                        ForEach(options, id: \.self) { difficulty in
+                            Text(difficulty.text).tag(difficulty)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(WheelPickerStyle())
+                    Button("Done") {
+                        showDifficultyPicker.toggle()
+                    }
+                    .padding()
+                }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+            }
+            .sheet(isPresented: $showEditDietary) {
+                EditDietaryRestrictions(uploadViewModel: uploadViewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
             }
         }
-        .edgesIgnoringSafeArea(.all)
     }
 }
-
