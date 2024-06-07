@@ -1,0 +1,6 @@
+framework module Pods_Ketchup_KetchupUITests {
+  umbrella header "Pods-Ketchup-KetchupUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
