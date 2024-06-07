@@ -333,6 +333,8 @@ struct PhotoCameraControls: View {
     @ObservedObject var uploadViewModel: UploadViewModel
     
     @State private var showFlash = false
+    @State private var maxPhotosReached = false
+    @State private var showWarning = false
     
     var body: some View {
         
@@ -342,6 +344,18 @@ struct PhotoCameraControls: View {
                 
                 // TOP BUTTONS
                 HStack {
+                    
+                    Button {
+                        cameraViewModel.clearPics()
+                        cameraViewModel.mediaType = "none"
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.title)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, 12)
+                    .padding(.leading)
+                    .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                     
                     Spacer()
                     
@@ -401,10 +415,9 @@ struct PhotoCameraControls: View {
                 
                 HStack(spacing: 30) {
                     Button {
-                        cameraViewModel.untakePic()
-                        cameraViewModel.mediaType = "none"
+                        cameraViewModel.clearLatestPic()
                     } label: {
-                        Text("Delete")
+                        Text("Delete Latest")
                             .frame(width: 100, height: 50)
                             .background(Color("Colors/AccentColor"))
                             .cornerRadius(3.0)
@@ -415,18 +428,33 @@ struct PhotoCameraControls: View {
                     
                     // TAKE PIC BUTTON
                     Button {
-                        cameraViewModel.takePic()
+                        if !maxPhotosReached {
+                            cameraViewModel.takePic()
+                        } else {
+                            showWarning = true
+                        }
                     } label: {
                         ZStack {
                             Circle()
-                                .stroke(.white, lineWidth: 5)
+                                .stroke(maxPhotosReached || cameraViewModel.isLoading ? .gray : .white, lineWidth: 5)
                                 .frame(width: 70, height: 70)
-                            
+
                             Circle()
-                                .fill(.white)
+                                .fill(maxPhotosReached || cameraViewModel.isLoading ? .gray : .white)
                                 .frame(width: 60, height: 60)
                         }
+                        .overlay(
+                            Group {
+                                if cameraViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            }
+                        )
                     }
+                    .disabled(cameraViewModel.isLoading)
+
+              
                     
                     
                     // NAV TO UPLOAD BUTTON
@@ -464,6 +492,24 @@ struct PhotoCameraControls: View {
                     .transition(.opacity)
                     .animation(.easeOut(duration: 0.3), value: showFlash)
             }
+            
+            if showWarning {
+                Text("Maximum photos reached")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .padding()
+                    .background(Color.red.opacity(0.8))
+                    .cornerRadius(10)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            showWarning = false
+                        }
+                    }
+            }
+        }
+        .onChange(of: cameraViewModel.images.count) { count in
+            maxPhotosReached = count >= 5
         }
     }
 }

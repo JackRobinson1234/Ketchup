@@ -306,25 +306,23 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func takePic() {
         if images.count < 5 {
-            DispatchQueue.global(qos:.background).async {
-                let photoSettings = AVCapturePhotoSettings()
-                if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
-                    photoSettings.flashMode = self.flashMode
-                }
-                
-                if self.flashMode == .off {
-                    DispatchQueue.main.async {
-                        self.showFlashOverlay = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self.showFlashOverlay = false
-                        }
+            let photoSettings = AVCapturePhotoSettings()
+            if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
+                photoSettings.flashMode = self.flashMode
+            }
+            
+            if self.flashMode == .off {
+                DispatchQueue.main.async {
+                    self.showFlashOverlay = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.showFlashOverlay = false
                     }
                 }
-                self.isLoading = true
-                self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
             }
+            self.isLoading = true
+            self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
         } else {
-            // Additional logic if needed
+            // Additional logic
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
@@ -333,20 +331,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
 
-    func untakePic() {
-
-        DispatchQueue.global(qos: .background).async {
-
-            self.session.startRunning()
-
-            DispatchQueue.main.async {
-                self.images.removeAll()
-                self.isPhotoTaken.toggle()
-                // self.isPhotoSaved = false
-            }
-
+    func clearPics() {
+        self.images.removeAll()
+        self.isPhotoTaken.toggle()
+    }
+    
+    func clearLatestPic() {
+        
+        let _ = self.images.popLast()
+        
+        if self.images.isEmpty {
+            self.isPhotoTaken.toggle()
         }
-
     }
     
 
