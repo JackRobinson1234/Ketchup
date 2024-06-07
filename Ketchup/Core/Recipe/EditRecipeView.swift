@@ -164,62 +164,62 @@ struct EditRecipeView: View {
             }
             .edgesIgnoringSafeArea(.top)
             .modifier(BackButtonModifier())
-            .overlay(
-                            Group {
-                                if showCookingTimePicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Cooking Time", selection: $uploadViewModel.cookingTime) {
-                                                ForEach(Array(stride(from: 5, to: 125, by: 5)), id: \.self) { time in
-                                                    Text("\(time) min").tag(time)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showCookingTimePicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
-                                if showServingsPicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Servings", selection: $uploadViewModel.recipeServings) {
-                                                ForEach(1..<21, id: \.self) { servings in
-                                                    Text("\(servings) servings").tag(servings)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showServingsPicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
-                                if showDifficultyPicker {
-                                    ModalOverlay {
-                                        VStack {
-                                            Picker("Difficulty", selection: $uploadViewModel.recipeDifficulty) {
-                                                ForEach(RecipeDifficulty.allCases, id: \.self) { difficulty in
-                                                    Text(difficulty.text).tag(difficulty)
-                                                }
-                                            }
-                                            .labelsHidden()
-                                            .pickerStyle(WheelPickerStyle())
-                                            Button("Done") {
-                                                showDifficultyPicker.toggle()
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                }
-                            }
-                        )
-            .navigationBarBackButtonHidden()
+//            .overlay(
+//                            Group {
+//                                 if showCookingTimePicker {
+//                                    ModalOverlay {
+//                                        VStack {
+//                                            Picker("Cooking Time", selection: $uploadViewModel.cookingTime) {
+//                                                ForEach(Array(stride(from: 5, to: 125, by: 5)), id: \.self) { time in
+//                                                    Text("\(time) min").tag(time)
+//                                                }
+//                                            }
+//                                            .labelsHidden()
+//                                            .pickerStyle(WheelPickerStyle())
+//                                            Button("Done") {
+//                                                showCookingTimePicker.toggle()
+//                                            }
+//                                            .padding()
+//                                        }
+//                                    }
+//                                }
+//                                if showServingsPicker {
+//                                    ModalOverlay {
+//                                        VStack {
+//                                            Picker("Servings", selection: $uploadViewModel.recipeServings) {
+//                                                ForEach(1..<21, id: \.self) { servings in
+//                                                    Text("\(servings) servings").tag(servings)
+//                                                }
+//                                            }
+//                                            .labelsHidden()
+//                                            .pickerStyle(WheelPickerStyle())
+//                                            Button("Done") {
+//                                                showServingsPicker.toggle()
+//                                            }
+//                                            .padding()
+//                                        }
+//                                    }
+//                                }
+//                                if showDifficultyPicker {
+//                                    ModalOverlay {
+//                                        VStack {
+//                                            Picker("Difficulty", selection: $uploadViewModel.recipeDifficulty) {
+//                                                ForEach(RecipeDifficulty.allCases, id: \.self) { difficulty in
+//                                                    Text(difficulty.text).tag(difficulty)
+//                                                }
+//                                            }
+//                                            .labelsHidden()
+//                                            .pickerStyle(WheelPickerStyle())
+//                                            Button("Done") {
+//                                                showDifficultyPicker.toggle()
+//                                            }
+//                                            .padding()
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        )
+//            .navigationBarBackButtonHidden()
         }
     }
 }

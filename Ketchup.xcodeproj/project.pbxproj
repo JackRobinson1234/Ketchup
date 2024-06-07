@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		041BA6C0E504284D9EDD2B88 /* Pods_KetchupTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */; };
+		6F7DCEC22C1392DC0021C9AE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6F7DCEC12C1392DC0021C9AE /* GoogleService-Info.plist */; };
 		BF4ECAA5861844FCBF9545D7 /* Pods_Ketchup_KetchupUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD47335C88E6D58B651BE686 /* Pods_Ketchup_KetchupUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
 		F801F1882BBDBE5700D3FBE2 /* PostTypeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F801F1872BBDBE5700D3FBE2 /* PostTypeFilter.swift */; };
@@ -192,7 +193,6 @@
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
-		F8D69FE02C1247C300560904 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8F494F62BBF98610043B515 /* DietaryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F52BBF98610043B515 /* DietaryFilter.swift */; };
@@ -234,6 +234,7 @@
 		31329280271327784B737FE5 /* Pods-Ketchup.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.debug.xcconfig"; sourceTree = "<group>"; };
 		564626C80C85D5EDEA43E98E /* Pods-Ketchup.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.release.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.release.xcconfig"; sourceTree = "<group>"; };
 		637A013B4E0E22F9D1A33813 /* Pods-KetchupTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.release.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.release.xcconfig"; sourceTree = "<group>"; };
+		6F7DCEC12C1392DC0021C9AE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8FA06695D014C3F41D31D087 /* Pods-Ketchup-KetchupUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup-KetchupUITests.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup-KetchupUITests/Pods-Ketchup-KetchupUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		A6029513531672DE69C99B19 /* Pods-KetchupTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.debug.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.debug.xcconfig"; sourceTree = "<group>"; };
 		AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KetchupTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -420,7 +421,6 @@
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
-		F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8F494F52BBF98610043B515 /* DietaryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietaryFilter.swift; sourceTree = "<group>"; };
@@ -473,6 +473,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F7DCEC32C1399180021C9AE /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F8CC219F2BD587EE00B4B329 /* Photo.swift */,
+				F88E0B042B6B09E400EC159B /* Movie.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		7763BF9F6AA6FE5FA0A9306B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -593,7 +602,7 @@
 		F84FE24A2B6A531200144F01 /* Ketchup */ = {
 			isa = PBXGroup;
 			children = (
-				F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */,
+				6F7DCEC12C1392DC0021C9AE /* GoogleService-Info.plist */,
 				F871B0112B919B7200E4EB5F /* Info.plist */,
 				F84FE27B2B6A542D00144F01 /* App */,
 				F84FE27A2B6A541900144F01 /* Core */,
@@ -700,7 +709,7 @@
 				F8670A632BF3FD5600F527D9 /* Recipe */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
-				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
+				F8CC21982BD5871E00B4B329 /* Upload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
 				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
@@ -716,7 +725,6 @@
 				F84FE28A2B6A554300144F01 /* RestaurantProfile */,
 				F84FE28B2B6A555400144F01 /* Root */,
 				F84FE28C2B6A555B00144F01 /* Search */,
-				F84FE28D2B6A556400144F01 /* UploadMedia */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -848,14 +856,6 @@
 				F88E0AD72B6B075500EC159B /* Model */,
 			);
 			path = Search;
-			sourceTree = "<group>";
-		};
-		F84FE28D2B6A556400144F01 /* UploadMedia */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0B032B6B09BF00EC159B /* Model */,
-			);
-			path = UploadMedia;
 			sourceTree = "<group>";
 		};
 		F84FE28E2B6A55CC00144F01 /* View */ = {
@@ -1287,15 +1287,6 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		F88E0B032B6B09BF00EC159B /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				F88E0B042B6B09E400EC159B /* Movie.swift */,
-				F8CC219F2BD587EE00B4B329 /* Photo.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		F88E0B252B6C9FC400EC159B /* Modifiers */ = {
 			isa = PBXGroup;
 			children = (
@@ -1390,14 +1381,15 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		F8CC21982BD5871E00B4B329 /* ReelsUpload */ = {
+		F8CC21982BD5871E00B4B329 /* Upload */ = {
 			isa = PBXGroup;
 			children = (
+				6F7DCEC32C1399180021C9AE /* Model */,
 				F8670A662BF40EEA00F527D9 /* Components */,
 				F8670A652BF40E9D00F527D9 /* View */,
 				F8670A642BF40E8B00F527D9 /* ViewModel */,
 			);
-			path = ReelsUpload;
+			path = Upload;
 			sourceTree = "<group>";
 		};
 		F8CC21A32BD58A7B00B4B329 /* Camera */ = {
@@ -1571,8 +1563,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
+				6F7DCEC22C1392DC0021C9AE /* GoogleService-Info.plist in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
-				F8D69FE02C1247C300560904 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2051,7 +2043,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
@@ -2076,7 +2068,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2097,7 +2089,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Foodi/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Foodi/Info.plist;
@@ -2122,7 +2114,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
