@@ -23,7 +23,6 @@ struct ReelsUploadView: View {
     @State var showPostTypeMenu: Bool = true
     @State var titleText: String = ""
     private let maxCharacters = 50
-    // POST TYPE OPTIONS
     let postTypeOptions: [PostType] = [.dining, .cooking]
     
     var body: some View {

@@ -77,12 +77,11 @@ struct CurrentUserProfileView: View {
                         }
                         .font(.headline)
                         .foregroundColor(.black)
-                        .padding()
                     }
                 }
                 
                 
-                .navigationTitle(Text("@\(profileViewModel.user.username)"))
+                //.navigationTitle(Text("@\(profileViewModel.user.username)"))
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: User.self) { user in
                     ProfileView(uid: user.id)

@@ -101,11 +101,15 @@ struct EditRecipeView: View {
                         .padding(.top)
                         
                         // Dietary restrictions
+                        Text("Ingredients")
+                            .font(.headline)
                         Button {
                             showEditDietary.toggle()
                         } label: {
                             Text("Edit Dietary Restrictions")
                                 .font(.headline)
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                            
                         }
                         if !uploadViewModel.dietaryRestrictions.isEmpty {
                             VStack(alignment: .leading) {

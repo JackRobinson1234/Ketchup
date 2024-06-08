@@ -14,63 +14,44 @@ struct ProfileHeaderView: View {
     @State private var userFavorites: [FavoriteRestaurant]? = []
     @State var showFollowersList: Bool = false
     @State var showFollowingList: Bool = false
+    
     init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = []) {
         self.viewModel = viewModel
         self.userFavorites = viewModel.user.favorites
-        
     }
     
     var body: some View {
-       let user = viewModel.user
-            VStack(spacing: 16) {
-                HStack(spacing: 15) {
-                        UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xLarge)
-                    
-                    VStack(alignment: .leading){
-                        Text("\(user.fullname)")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .padding(10)
-                            .padding(.leading)
-                        HStack(spacing: 15) {
-                            Button{
-                                showFollowingList.toggle()
-                            } label: {
-                                UserStatView(value: user.stats.following, title: "Following")
-                            }
-                            .disabled(user.stats.following == 0)
-                            
-                            Button{
-                                showFollowersList.toggle()
-                            } label: {
-                                UserStatView(value: user.stats.followers, title: "Followers")
-                            }
-                            .disabled(user.stats.followers == 0)
-                            
-                            UserStatView(value: user.stats.posts, title: "Posts")
-                            
-                            UserStatView(value: user.stats.collections, title: "Collections")
-                            
-                        }
-                    }
-                }
-                .padding(.horizontal,10)
+        let user = viewModel.user
+        //let user = DeveloperPreview.users[0]
+        let frameWidth = UIScreen.main.bounds.width / 3 - 15
+        VStack(spacing: 10) {
+            HStack (alignment: .bottom) {
+                Spacer()
+                Text("@\(user.username)")
+                    .font(.subheadline)
+                    .foregroundColor(.black)
+                    .frame(width: frameWidth)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 
-                if user.privateMode == false || user.isCurrentUser {
-                    FavoriteRestaurantsView(user: user, favorites: user.favorites)
-                }
-                // action button view
+                Spacer()
+                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
+                    .frame(width: frameWidth)
+                Spacer()
+                
                 if user.isCurrentUser {
                     Button {
                         showEditProfile.toggle()
                     } label: {
                         Text("Edit Profile")
-                            .font(.system(size: 14, weight: .semibold))
-                            .frame(width: 360, height: 32)
-                            .foregroundStyle(.black)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .foregroundColor(.black)
                             .background(Color(.systemGray6))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
-                    
+                            .frame(width: frameWidth)
                     }
                 } else {
                     Button {
@@ -79,30 +60,53 @@ struct ProfileHeaderView: View {
                         Text(user.isFollowed ? "Following" : "Follow")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .frame(width: 360, height: 32)
-                            .foregroundStyle(user.isFollowed ? .black : .white)
-                            .background(user.isFollowed ? .white : .blue)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .foregroundColor(user.isFollowed ? .black : .white)
+                            .background(user.isFollowed ? Color.white : Color.red)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(Color.gray, lineWidth: user.isFollowed ? 1 : 0)
                             }
+                            .frame(width: frameWidth)
                     }
                 }
+                Spacer()
                 
-                
-                Divider()
             }
-            .fullScreenCover(isPresented: $showEditProfile) {
-                EditProfileView(user: $viewModel.user)
+            
+          
+            Text(user.fullname)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.black)
+            
+      
+            
+            HStack(spacing: 4) {
+                UserStatView(value: user.stats.followers, title: "Followers")
+                UserStatView(value: user.stats.following, title: "Following")
+                UserStatView(value: user.stats.posts, title: "Posts")
+                UserStatView(value: user.stats.collections, title: "Collections")
             }
-            .sheet(isPresented: $showFollowingList) {
-                ProfileUserLists(config: .following(uid: user.id))
+            if user.privateMode == false || user.isCurrentUser {
+                FavoriteRestaurantsView(user: user, favorites: user.favorites)
             }
-            .sheet(isPresented: $showFollowersList) {
-                ProfileUserLists(config: .followers(uid: user.id))
-            }
+            
+            // Additional components if needed
         }
+        .padding([.bottom])
+        .fullScreenCover(isPresented: $showEditProfile) {
+            EditProfileView(user: $viewModel.user)
+        }
+        .sheet(isPresented: $showFollowingList) {
+            ProfileUserLists(config: .following(uid: user.id))
+        }
+        .sheet(isPresented: $showFollowersList) {
+            ProfileUserLists(config: .followers(uid: user.id))
+        }
+    }
     
     func handleFollowTapped() {
         viewModel.user.isFollowed ? viewModel.unfollow() : viewModel.follow()
@@ -123,15 +127,13 @@ struct UserStatView: View {
                 .foregroundStyle(.gray)
         }
         .opacity(value == 0 ? 0.5 : 1.0)
-        //.frame(width: 80, alignment: .center)
+        .frame(width:  UIScreen.main.bounds.width / 4 - 30, alignment: .center)
+        .padding(.vertical, 10)
         .foregroundColor(.black)
     }
 }
-/*
+
 #Preview {
-    ProfileHeaderView(viewModel: ProfileViewModel(
-        user: DeveloperPreview.users[0],
-        postService: PostService())
+    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234")
     )
 }
-*/

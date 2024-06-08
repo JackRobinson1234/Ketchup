@@ -17,7 +17,6 @@ struct NewRecipeView: View {
                         ZStack(alignment: .bottomLeading) {
                             ListingImageCarouselView(images: [post.thumbnailUrl])
                             
-                            
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(recipe.name)
                                     .font(.title)
@@ -39,13 +38,10 @@ struct NewRecipeView: View {
                             .padding(.horizontal)
                             .padding(.bottom)
                             .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
-                            
-                            
-                            
                         }
                         
                         // Red circle outline with white text for cooking time, difficulty, and serving number
-                    VStack(alignment: .leading, spacing: 20){
+                        VStack(alignment: .leading, spacing: 20) {
                             HStack(spacing: 10) {
                                 Spacer()
                                 if let cookingTime = recipe.cookingTime, cookingTime != 0 {
@@ -77,7 +73,6 @@ struct NewRecipeView: View {
                                             DietaryRestrictionBox(text: restriction)
                                         }
                                     }
-                                    
                                 }
                             } else {
                                 Text("None Listed")
@@ -100,7 +95,6 @@ struct NewRecipeView: View {
                                         }
                                     }
                                 }
-                               
                             } else {
                                 Text("None Listed")
                                     .font(.subheadline)
@@ -118,18 +112,23 @@ struct NewRecipeView: View {
                                                 .font(.subheadline)
                                                 .foregroundColor(.secondary)
                                                 .padding(.bottom, 4)
-                                            Text(instructions[index].title)
-                                                .bold()
-                                            Text(instructions[index].description)
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(instructions[index].title)
+                                                    .bold()
+                                                Text(instructions[index].description)
+                                            }
+                                            
                                         }
-                                        
+                                        .padding()
+                                        .background(Color.white)
+                                        .cornerRadius(10)
+                                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                                        .padding(.bottom, 8) // Add spacing between steps
                                     }
                                 }
-                                
                             } else {
                                 Text("None Listed")
                                     .font(.subheadline)
-                                
                             }
                         }
                         .padding(.horizontal)
@@ -143,9 +142,11 @@ struct NewRecipeView: View {
         }
     }
 }
+
 #Preview {
     NewRecipeView(post: DeveloperPreview.posts[0])
 }
+
 
 
 
