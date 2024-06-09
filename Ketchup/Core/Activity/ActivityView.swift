@@ -36,7 +36,7 @@ struct ActivityView: View {
                             Button {
                                 viewModel.letsKetchupOption = .friends
                             } label: {
-                                Text("Friends Activity")
+                                Text("Friends")
                                     .padding()
                                     .background(viewModel.letsKetchupOption == .friends ? Color("Colors/AccentColor") : Color.clear)
                                     .cornerRadius(8)
@@ -50,7 +50,7 @@ struct ActivityView: View {
                             Button {
                                 viewModel.letsKetchupOption = .trending
                             } label: {
-                                Text("Trending Activity")
+                                Text("Trending")
                                     .padding()
                                     .background(viewModel.letsKetchupOption == .trending ? Color("Colors/AccentColor") : Color.clear)
                                     .cornerRadius(8)

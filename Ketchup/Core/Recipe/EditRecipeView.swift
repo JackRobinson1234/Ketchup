@@ -13,6 +13,8 @@ struct EditRecipeView: View {
     @State private var showServingsPicker = false
     @State private var showDifficultyPicker = false
     @State private var showEditDietary = false
+    @State private var showEditIngredients = false
+    @State private var showEditInstructions = false
     @State private var selectedCookingTime = 0
     @State private var selectedServings = 0
     @State private var selectedDifficulty: RecipeDifficulty = .easy
@@ -63,13 +65,13 @@ struct EditRecipeView: View {
                                 showCookingTimePicker.toggle()
                             } label: {
                                 if uploadViewModel.cookingTime != 0 {
-                                    InfoCircle(text: "\(uploadViewModel.cookingTime) min", image: "clock")
+                                    InfoCircle(text: "\(uploadViewModel.cookingTime) min", image: "clock", edit: true)
                                         .onTapGesture {
                                             selectedCookingTime = uploadViewModel.cookingTime
                                             showCookingTimePicker.toggle()
                                         }
                                 } else {
-                                    InfoCircle(text: "N/A", image: "clock")
+                                    InfoCircle(text: "N/A", image: "clock", edit: true)
                                 }
                             }
                             
@@ -77,20 +79,20 @@ struct EditRecipeView: View {
                                 showServingsPicker.toggle()
                             } label: {
                                 if uploadViewModel.recipeServings != 0 {
-                                    InfoCircle(text: "\(uploadViewModel.recipeServings) servings", image: "person.3")
+                                    InfoCircle(text: "\(uploadViewModel.recipeServings) servings", image: "person.3", edit: true)
                                         .onTapGesture {
                                             selectedServings = uploadViewModel.recipeServings
                                             showServingsPicker.toggle()
                                         }
                                 } else {
-                                    InfoCircle(text: "N/A", image: "person.3")
+                                    InfoCircle(text: "N/A", image: "person.3", edit: true)
                                 }
                             }
                             
                             Button {
                                 showDifficultyPicker.toggle()
                             } label: {
-                                InfoCircle(text: uploadViewModel.recipeDifficulty.text, image: "star")
+                                InfoCircle(text: uploadViewModel.recipeDifficulty.text, image: "star", edit: true)
                                     .onTapGesture {
                                         selectedDifficulty = uploadViewModel.recipeDifficulty
                                         showDifficultyPicker.toggle()
@@ -101,15 +103,16 @@ struct EditRecipeView: View {
                         .padding(.top)
                         
                         // Dietary restrictions
-                        Text("Ingredients")
-                            .font(.headline)
+                        
                         Button {
                             showEditDietary.toggle()
                         } label: {
-                            Text("Edit Dietary Restrictions")
-                                .font(.headline)
-                                .foregroundStyle(Color("Colors/AccentColor"))
-                            
+                            HStack(spacing: 0){
+                                Image(systemName: "pencil")
+                                Text(" Edit Dietary Restrictions")
+                                    .font(.headline)
+                                    .foregroundStyle(.black)
+                            }
                         }
                         if !uploadViewModel.dietaryRestrictions.isEmpty {
                             VStack(alignment: .leading) {
@@ -120,14 +123,22 @@ struct EditRecipeView: View {
                                 }
                             }
                         } else {
-                            Text("None Listed")
+                            Text("No Dietary Restrictions Listed")
                                 .font(.subheadline)
+                                .foregroundStyle(.gray)
                         }
                         
                         // Ingredients
-                        Text("Ingredients")
-                            .font(.headline)
-                        
+                        Button{
+                            showEditIngredients.toggle()
+                        } label: {
+                            HStack(spacing: 0){
+                                Image(systemName: "pencil")
+                                Text(" Edit Ingredients")
+                                    .font(.headline)
+                                    .foregroundStyle(.black)
+                            }
+                        }
                         if !uploadViewModel.ingredients.isEmpty {
                             VStack(alignment: .leading, spacing: 16) {
                                 ForEach(uploadViewModel.ingredients, id: \.self) { ingredient in
@@ -141,13 +152,22 @@ struct EditRecipeView: View {
                                 }
                             }
                         } else {
-                            Text("None Listed")
+                            Text("No Ingredients Listed")
                                 .font(.subheadline)
+                                .foregroundStyle(.gray)
                         }
                         
                         // Instructions
-                        Text("Instructions")
-                            .font(.headline)
+                        Button{
+                            showEditInstructions.toggle()
+                        } label: {
+                            HStack(spacing: 0){
+                                Image(systemName: "pencil")
+                                Text(" Edit Instructions")
+                                    .font(.headline)
+                                    .foregroundStyle(.black)
+                            }
+                        }
                         
                         if !uploadViewModel.instructions.isEmpty {
                             VStack(alignment: .leading, spacing: 16) {
@@ -164,8 +184,9 @@ struct EditRecipeView: View {
                                 }
                             }
                         } else {
-                            Text("None Listed")
+                            Text("No Instructions Listed")
                                 .font(.subheadline)
+                                .foregroundStyle(.gray)
                         }
                     }
                     .padding(.horizontal)

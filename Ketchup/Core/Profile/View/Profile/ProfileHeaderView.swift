@@ -27,49 +27,57 @@ struct ProfileHeaderView: View {
         VStack(spacing: 10) {
             HStack (alignment: .bottom) {
                 Spacer()
-                Text("@\(user.username)")
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .frame(width: frameWidth)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                
-                Spacer()
                 UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
                     .frame(width: frameWidth)
-                Spacer()
-                
-                if user.isCurrentUser {
-                    Button {
-                        showEditProfile.toggle()
-                    } label: {
-                        Text("Edit Profile")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .foregroundColor(.black)
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .frame(width: frameWidth)
-                    }
-                } else {
-                    Button {
-                        handleFollowTapped()
-                    } label: {
-                        Text(user.isFollowed ? "Following" : "Follow")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .foregroundColor(user.isFollowed ? .black : .white)
-                            .background(user.isFollowed ? Color.white : Color.red)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.gray, lineWidth: user.isFollowed ? 1 : 0)
-                            }
-                            .frame(width: frameWidth)
+                VStack(alignment: .leading) {
+                    Text(user.fullname)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                    Text("@\(user.username)")
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                        //.frame(width: frameWidth)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    
+                    if user.isCurrentUser {
+                        Button {
+                            showEditProfile.toggle()
+                        } label: {
+                            Text("Edit Profile")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 30)
+                                .padding(.vertical, 8)
+                                .foregroundColor(Color("Colors/AccentColor"))
+                                //.background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color("Colors/AccentColor"), lineWidth: 1)
+                                }
+                                //.frame(width: frameWidth)
+                        }
+                    } else {
+                        Button {
+                            handleFollowTapped()
+                        } label: {
+                            Text(user.isFollowed ? "Following" : "Follow")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+//                                .padding(.horizontal, 30)
+                                .frame(width: 130)
+                                .padding(.vertical, 8)
+                                .foregroundColor(user.isFollowed ? Color("Colors/AccentColor") : .white)
+                                .background(user.isFollowed ? Color.white : Color.red)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color("Colors/AccentColor"), lineWidth: user.isFollowed ? 1 : 0)
+                                }
+                                //.frame(width: frameWidth)
+                        }
                     }
                 }
                 Spacer()
@@ -77,10 +85,7 @@ struct ProfileHeaderView: View {
             }
             
           
-            Text(user.fullname)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
+          
             
       
             
@@ -131,6 +136,7 @@ struct UserStatView: View {
         .padding(.vertical, 10)
         .foregroundColor(.black)
     }
+        
 }
 
 #Preview {

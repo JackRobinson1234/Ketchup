@@ -57,7 +57,7 @@ struct NewRecipeView: View {
                                 if let difficulty = recipe.difficulty {
                                     InfoCircle(text: difficulty.text, image: "star")
                                 } else {
-                                    InfoCircle(text: "N/A", image: "flame")
+                                    InfoCircle(text: "N/A", image: "star")
                                 }
                                 Spacer()
                             }
@@ -107,23 +107,7 @@ struct NewRecipeView: View {
                             if let instructions = recipe.instructions, !instructions.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
                                     ForEach(instructions.indices, id: \.self) { index in
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text("Step \(index + 1)")
-                                                .font(.subheadline)
-                                                .foregroundColor(.secondary)
-                                                .padding(.bottom, 4)
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(instructions[index].title)
-                                                    .bold()
-                                                Text(instructions[index].description)
-                                            }
-                                            
-                                        }
-                                        .padding()
-                                        .background(Color.white)
-                                        .cornerRadius(10)
-                                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                                        .padding(.bottom, 8) // Add spacing between steps
+                                        InstructionBoxView(stepNumber: (index + 1), title: instructions[index].title, description: instructions[index].description)
                                     }
                                 }
                             } else {
@@ -150,28 +134,6 @@ struct NewRecipeView: View {
 
 
 
-struct InfoCircle: View {
-    var text: String
-    var image: String
-    
-    var body: some View {
-        VStack {
-            Image(systemName: image)
-                .font(.title)
-                .foregroundColor(.black)
-            
-            Text(text)
-                .foregroundColor(.black)
-                .font(.subheadline)
-        }
-        .frame(width: 100, height: 100)
-        .overlay(
-            Circle()
-                .stroke(Color("Colors/AccentColor"), lineWidth: 2)
-        )
-        
-    }
-}
 
 struct DietaryRestrictionBox: View {
     var text: String
@@ -182,5 +144,31 @@ struct DietaryRestrictionBox: View {
             .padding(8)
             .background(Color.gray.opacity(0.2))
             .cornerRadius(8)
+    }
+}
+
+
+struct InstructionBoxView: View {
+    var stepNumber: Int
+    var title: String
+    var description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Step \(stepNumber)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 4)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .bold()
+                Text(description)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding(.bottom, 8) // Add spacing between steps
     }
 }
