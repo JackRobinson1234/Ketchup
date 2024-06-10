@@ -1175,7 +1175,6 @@
 		F88E0ACA2B6B05DB00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */,
 				F88E0ACC2B6B05ED00EC159B /* SlideBarView */,
 				F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */,
 				F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */,
@@ -1196,6 +1195,7 @@
 		F88E0ACC2B6B05ED00EC159B /* SlideBarView */ = {
 			isa = PBXGroup;
 			children = (
+				F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */,
 				F88E0ACF2B6B069000EC159B /* RestaurantProfileSlideBarView.swift */,
 			);
 			path = SlideBarView;

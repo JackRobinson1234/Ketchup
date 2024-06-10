@@ -14,31 +14,31 @@ class ActivityService {
     private var userIDs: [String] = []
     
     func fetchUserIDs() async throws {
-            let users = try await UserService.shared.fetchFollowingUsers()
-            userIDs = users.map { $0.id }
-        }
+        let users = try await UserService.shared.fetchFollowingUsers()
+        userIDs = users.map { $0.id }
+    }
     
     func fetchFollowingActivities() async throws -> [Activity] {
         if !fetchedUsers {
             try await fetchUserIDs()
             fetchedUsers = true
         }
-           var allActivities = [Activity]()
-           var users = userIDs
-           while !users.isEmpty {
-               let batchSize = min(30, users.count)
-               let batchUserIDs = Array(users.prefix(batchSize))
-               users.removeFirst(batchSize)
-               
-               let activities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
-               allActivities.append(contentsOf: activities)
-           }
-           
-           return allActivities
-       }
-       
-       
-       private func fetchActivitiesForUsers(userIds: [String]) async throws -> [Activity] {
+        var allActivities = [Activity]()
+        var users = userIDs
+        while !users.isEmpty {
+            let batchSize = min(30, users.count)
+            let batchUserIDs = Array(users.prefix(batchSize))
+            users.removeFirst(batchSize)
+            
+            let activities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
+            allActivities.append(contentsOf: activities)
+        }
+        allActivities.sort(by: { $0.timestamp > $1.timestamp })
+        return allActivities
+    }
+    
+    
+    private func fetchActivitiesForUsers(userIds: [String]) async throws -> [Activity] {
            var activities = [Activity]()
            // Query activities for the specified user ID, sorted by timestamp in descending order
            let query = FirestoreConstants.ActivityCollection

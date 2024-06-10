@@ -18,7 +18,7 @@ struct MapView: View {
     @State private var inSearchView: Bool = false /// Changes the camera to be fixed on the selected restaurant(s)
     @State private var isSearchPresented: Bool = false /// Search View sheet
     @State private var isFiltersPresented: Bool = false /// Filters View Sheet
-    @ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
+    //@ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
     @Namespace var mapScope
     @State var cameraZoomedEnough = false
@@ -32,7 +32,7 @@ struct MapView: View {
     @State private var mapSize: CGSize = .zero
     @State private var noNearbyRestaurants = false
     @State private var showAlert = false
-
+    
     
     
     init() {
@@ -66,20 +66,7 @@ struct MapView: View {
                                 }
                             }
                         }
-//                        ForEach(viewModel.restaurants, id: \.self) { restaurant in
-//                            if let coordinates = restaurant.coordinates {
-//                                Annotation(restaurant.name, coordinate: coordinates) {
-//                                    let distanceFromCenter = calculateDistanceInKilometers(from: center, to: coordinates, minDistanceKm: kmToShowPhoto)
-//                                    if isZoomedEnoughForPhotos,  distanceFromCenter{
-//                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, color: .blue, size: .medium)
-//                                    } else {
-//                                        Circle()
-//                                            .foregroundStyle(.blue)
-//                                            .frame(width: 10, height: 10)
-//                                    }
-//                                }
-//                            }
-//                        }
+                        
                         /// User Icon
                         UserAnnotation()
                     }
@@ -160,7 +147,7 @@ struct MapView: View {
                     // MARK: User Location button
                     .overlay(alignment: .bottomTrailing) {
                         VStack {
-                            if locationManager.userLocation == nil {
+                            if LocationManager.shared.userLocation == nil {
                                 Button{
                                     showAlert = true
                                 } label: {
@@ -170,14 +157,14 @@ struct MapView: View {
                                 MapUserLocationButton(scope: mapScope)
                             }
                         }
-                            .padding([.bottom, .trailing], 20)
-                            .buttonBorderShape(.circle)
-                        }
-                        .mapScope(mapScope)
-                        .mapStyle(.standard(pointsOfInterest: .excludingAll))
-                        
+                        .padding([.bottom, .trailing], 20)
+                        .buttonBorderShape(.circle)
                     }
-                    )
+                    .mapScope(mapScope)
+                    .mapStyle(.standard(pointsOfInterest: .excludingAll))
+                    
+                }
+                )
                 
                 
                 VStack {
@@ -208,12 +195,6 @@ struct MapView: View {
                                         .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
                                         .font(.system(size: 23))
                                     
-//                                    if !viewModel.filters.isEmpty {
-//                                        Circle()
-//                                            .fill(Color.red)
-//                                            .frame(width: 12, height: 12)
-//                                            .offset(x: 12, y: 12) // Adjust the offset as needed
-//                                    }
                                 }
                             }
                         }

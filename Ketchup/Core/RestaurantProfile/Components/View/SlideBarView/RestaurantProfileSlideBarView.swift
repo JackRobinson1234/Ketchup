@@ -67,19 +67,19 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .menu))
                     .frame(maxWidth: .infinity)
-                
-                Image(systemName: currentSection == .map ? "location.fill" : "location")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 22)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            self.currentSection = .map
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
-                    .frame(maxWidth: .infinity)
+//                
+//                Image(systemName: currentSection == .map ? "location.fill" : "location")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fit)
+//                    .frame(width: 50, height: 22)
+//                
+//                    .onTapGesture {
+//                        withAnimation {
+//                            self.currentSection = .map
+//                        }
+//                    }
+//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
+//                    .frame(maxWidth: .infinity)
                 
                 Image(systemName: currentSection == .collections ? "folder.fill" : "folder")
                     .resizable()
@@ -108,9 +108,9 @@ struct RestaurantProfileSlideBarView: View {
         if currentSection == .reviews{
             ReviewListView(viewModel: reviewsViewModel)
         }
-        if currentSection == .map {
-            MapRestaurantProfileView(viewModel: viewModel)
-        }
+//        if currentSection == .map {
+//            MapRestaurantProfileView(viewModel: viewModel)
+//        }
         if currentSection == .collections {
             RestaurantCollectionListView(viewModel: viewModel)
         }

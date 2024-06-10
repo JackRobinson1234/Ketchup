@@ -7,11 +7,15 @@
 
 import SwiftUI
 import Kingfisher
+import MapKit
 struct RestaurantProfileHeaderView: View {
     @Binding var currentSection: Section
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showAddToCollection = false
     @State var user: User? = nil
+    @State var showMapView: Bool = false
+    @State var route: MKRoute?
+    @State private var travelInterval: TimeInterval?
 
     
     var body: some View {
@@ -22,92 +26,106 @@ struct RestaurantProfileHeaderView: View {
                     ZStack(alignment: .bottomLeading) {
                         if let imageURLs = restaurant.profileImageUrl{
                             ListingImageCarouselView(images: [imageURLs])
+                                .overlay(
+                                        LinearGradient(
+                                            gradient: Gradient(stops: [
+                                                .init(color: Color.clear, location: 0.6),
+                                                .init(color: Color.black.opacity(0.6), location: 1.0)
+                                            ]),
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
                         }
-                        VStack(alignment: .leading, spacing: 8) {
+                        
                             HStack{
-                                Text("\(restaurant.name)")
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                    .multilineTextAlignment(.center)
-                                    .padding()
-                                    .foregroundStyle(.white)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(restaurant.name)")
+                                        .font(.title)
+                                        .fontWeight(.semibold)
+                                        .multilineTextAlignment(.center)
+                                        .foregroundStyle(.white)
+                                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                                        Text("\(cuisine), \(price)")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white)
+                                            
+                                    } else if let cuisine = restaurant.cuisine {
+                                        Text(cuisine)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white)
+                                           
+                                    } else if let price = restaurant.price {
+                                        Text(price)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                                .padding()
+                                
                                 Spacer()
                             }
                             
                         }
                         .frame(maxWidth: .infinity)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.6),]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    }
-                VStack (alignment: .leading, spacing: 8){
-                    VStack(alignment: .leading){
+        
+                    
+               
+                VStack(alignment: .leading) {
+                    Button{
+                        showMapView.toggle()
+                        
+                    } label: {
                         if let street = restaurant.address, !street.isEmpty {
-                            HStack{
+                            VStack(alignment: .leading) {
                                 Text(street)
                                     .font(.headline)
                                     .fontWeight(.semibold)
-                                Spacer()
+                                Text("View on map")
+                                    .font(.caption)
+                                    
                             }
                         }
-//                        if let city = restaurant.city, let state = restaurant.state {
-//                            Text("\(city), \(state)")
-//                                .font(.subheadline)
-//                                .fontWeight(.semibold)
-//                        }
+                        
                     }
-                        
-                        if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                            Text("\(cuisine), \(price)")
-                                .font(.subheadline)
-                                
-                        } else if let cuisine = restaurant.cuisine {
-                            Text(cuisine)
-                                .font(.subheadline)
-                               
-                        } else if let price = restaurant.price {
-                            Text(price)
-                                .font(.subheadline)
-                        }
-                       
-                        Text("\(restaurant.bio ?? "")")
-                            .font(.subheadline)
-                            .multilineTextAlignment(.leading)
-                            .padding(.top)
-                        
-                        
+                    
+                    Text("\(restaurant.bio ?? "")")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.leading)
                     
                     
-                    HStack {
-                        Spacer()
-                        Text("Featured In:")
-                            .foregroundStyle(.gray)
-                            .font(.subheadline)
-                        
-                        UserStatView(value: restaurant.stats.collectionCount, title: "Collections")
-                        UserStatView(value: restaurant.stats.postCount, title: "Posts")
-                        Spacer()
-                    }
-                   
-                    }
-                .padding([.horizontal, .top])
-                    
-                    
-                    
-                    RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)
                 }
-                //.padding(.bottom, 100)
+                .padding()
                 
-
+                
+                
+                
+                RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)
+            }
+            
+            .onReceive(LocationManager.shared.$userLocation) { userLocation in
+                guard let userLocation = userLocation else {
+                    return
+                }
+                Task {
+                    if let restaurant = viewModel.restaurant, let coordinates = restaurant.coordinates {
+                        let result = await LocationManager.shared.fetchRoute(coordinates: coordinates)
+                        route = result.0
+                        travelInterval = result.1
+                        print("TravelInterval")
+                    }
+                }
+            }
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {
                 if let user {
                     AddItemCollectionList(user: user, restaurant: restaurant)
                 }
+            }
+            .sheet(isPresented: $showMapView) {
+                MapRestaurantProfileView(viewModel: viewModel, route: $route, travelInterval: $travelInterval)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                    
             }
         }
     }
@@ -115,4 +133,3 @@ struct RestaurantProfileHeaderView: View {
 #Preview {
     RestaurantProfileHeaderView(currentSection: .constant(.menu), viewModel: RestaurantViewModel(restaurantId: ""))
 }
-
