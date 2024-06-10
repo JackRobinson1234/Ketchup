@@ -94,9 +94,6 @@ struct PostGridView: View {
                                     
                                 }
                                     .padding(4)
-//                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
-//                                                               startPoint: .top,
-//                                                               endPoint: .bottom))
                                     .onTapGesture { selectedPost = post }
                             )
                     }
@@ -110,9 +107,14 @@ struct PostGridView: View {
                 }
             }
             else {
-                Text("No Posts to Show")
-                    .foregroundStyle(.gray)
-                    .font(.subheadline)
+                HStack{
+                    Spacer()
+                    Text("No Posts to Show")
+                        .foregroundStyle(.gray)
+                        .font(.subheadline)
+                    Spacer()
+                }
+                .padding()
             }
         }
     }

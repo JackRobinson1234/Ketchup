@@ -16,61 +16,66 @@ struct RestaurantProfileHeaderView: View {
     @State var showMapView: Bool = false
     @State var route: MKRoute?
     @State private var travelInterval: TimeInterval?
-
-    
+    var travelTime: String? {
+        guard let travelInterval else { return nil}
+        let formatter = DateComponentsFormatter()
+            formatter.unitsStyle = .full
+            formatter.allowedUnits = [.hour, .minute]
+            formatter.maximumUnitCount = 2 
+        return formatter.string(from: travelInterval)
+    }
     var body: some View {
         if let restaurant = viewModel.restaurant {
-            
-            VStack (alignment: .leading){
-                    //ListingImageCarouselView(images: restaurant.imageURLs)
-                    ZStack(alignment: .bottomLeading) {
-                        if let imageURLs = restaurant.profileImageUrl{
-                            ListingImageCarouselView(images: [imageURLs])
-                                .overlay(
-                                        LinearGradient(
-                                            gradient: Gradient(stops: [
-                                                .init(color: Color.clear, location: 0.6),
-                                                .init(color: Color.black.opacity(0.6), location: 1.0)
-                                            ]),
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                        }
-                        
-                            HStack{
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(restaurant.name)")
-                                        .font(.title)
-                                        .fontWeight(.semibold)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundStyle(.white)
-                                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                                        Text("\(cuisine), \(price)")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.white)
-                                            
-                                    } else if let cuisine = restaurant.cuisine {
-                                        Text(cuisine)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.white)
-                                           
-                                    } else if let price = restaurant.price {
-                                        Text(price)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.white)
-                                    }
-                                }
-                                .padding()
-                                
-                                Spacer()
-                            }
-                            
-                        }
-                        .frame(maxWidth: .infinity)
-        
+            VStack (alignment: .leading, spacing: 6){
+                //ListingImageCarouselView(images: restaurant.imageURLs)
+                ZStack(alignment: .bottomLeading) {
+                    if let imageURLs = restaurant.profileImageUrl{
+                        ListingImageCarouselView(images: [imageURLs])
+                            .overlay(
+                                LinearGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: Color.clear, location: 0.6),
+                                        .init(color: Color.black.opacity(0.6), location: 1.0)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
                     
-               
+                    HStack{
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(restaurant.name)")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.white)
+                            if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                                Text("\(cuisine), \(price)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white)
+                                
+                            } else if let cuisine = restaurant.cuisine {
+                                Text(cuisine)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white)
+                                
+                            } else if let price = restaurant.price {
+                                Text(price)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .padding([.horizontal, .bottom])
+                        
+                        Spacer()
+                    }
+                    
+                }
+                .frame(maxWidth: .infinity)
+                
+                
+                
                 VStack(alignment: .leading) {
                     Button{
                         showMapView.toggle()
@@ -81,19 +86,27 @@ struct RestaurantProfileHeaderView: View {
                                 Text(street)
                                     .font(.headline)
                                     .fontWeight(.semibold)
-                                Text("View on map")
-                                    .font(.caption)
+                                    .multilineTextAlignment(.leading)
+                                if let travelTime {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "car")
+                                        Text(" \(travelTime)")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.black)
+                                       
+                                    }
                                     
+                                }
+                                Text("(Click to view on map)")
+                                    .font(.caption)
                             }
                         }
-                        
                     }
                     
                     Text("\(restaurant.bio ?? "")")
                         .font(.subheadline)
                         .multilineTextAlignment(.leading)
-                    
-                    
+
                 }
                 .padding()
                 
@@ -103,8 +116,8 @@ struct RestaurantProfileHeaderView: View {
                 RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)
             }
             
-            .onReceive(LocationManager.shared.$userLocation) { userLocation in
-                guard let userLocation = userLocation else {
+            .onReceive(LocationManager.shared.$userLocation.dropFirst().prefix(1)) { userLocation in
+                guard userLocation != nil else {
                     return
                 }
                 Task {
@@ -112,7 +125,6 @@ struct RestaurantProfileHeaderView: View {
                         let result = await LocationManager.shared.fetchRoute(coordinates: coordinates)
                         route = result.0
                         travelInterval = result.1
-                        print("TravelInterval")
                     }
                 }
             }
@@ -125,7 +137,7 @@ struct RestaurantProfileHeaderView: View {
             .sheet(isPresented: $showMapView) {
                 MapRestaurantProfileView(viewModel: viewModel, route: $route, travelInterval: $travelInterval)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
-                    
+                
             }
         }
     }

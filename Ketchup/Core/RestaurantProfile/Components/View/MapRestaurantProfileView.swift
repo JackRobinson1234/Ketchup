@@ -16,7 +16,15 @@ struct MapRestaurantProfileView: View {
     @Binding var route: MKRoute?
     @Binding var travelInterval: TimeInterval?
     @State var cameraPosition: MapCameraPosition = .automatic
-
+    var travelTime: String? {
+        guard let travelInterval else { return nil}
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.maximumUnitCount = 2
+        return formatter.string(from: travelInterval)
+    }
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -46,7 +54,23 @@ struct MapRestaurantProfileView: View {
                                 .clipShape(Circle())
                         }
                         .padding()
-
+                            if let travelTime = travelTime {
+                                    HStack {
+                                        Spacer()
+                                        HStack(spacing: 0){
+                                            Image(systemName: "car")
+                                            Text(" \(travelTime)")
+                                        }
+                                            .foregroundColor(.black)
+                                            .padding(8)
+                                            .background(Color.white)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        
+                                    }
+                                    .padding()
+    
+                            
+                        }
                         VStack {
                             Spacer()
                             HStack {
@@ -59,21 +83,34 @@ struct MapRestaurantProfileView: View {
                                         }
                                     }
                                 }) {
-                                    Text("Open in Maps")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(Color.black.opacity(0.6))
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    HStack (spacing: 0) {
+                                        Text("Open in ")
+                                        Image(systemName: "applelogo")
+                                        Text(" Maps")
+                                        
+                                    }
+                                    .foregroundColor(.black)
+                                    .padding(8)
+                                    .background(Color.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                                 }
                                 Spacer()
                             }
+                            .padding(.bottom, 25)
                         }
                     }
                     .onAppear {
-                                            if let rect = route?.polyline.boundingMapRect {
-                                                cameraPosition = .rect(rect)
-                                            }
-                                        }
+                        if let rect = route?.polyline.boundingMapRect {
+                            let margin: Double = 5000 // Adjust this margin value as needed
+                            let expandedRect = MKMapRect(
+                                x: rect.origin.x - margin,
+                                y: rect.origin.y - margin,
+                                width: rect.size.width + (2 * margin),
+                                height: rect.size.height + (2 * margin)
+                            )
+                            cameraPosition = .rect(expandedRect)
+                        }
+                    }
                 } else {
                     Text("No Location Found")
                 }

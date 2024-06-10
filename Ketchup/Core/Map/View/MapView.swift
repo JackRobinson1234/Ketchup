@@ -139,11 +139,12 @@ struct MapView: View {
                     
                     //MARK: Initial Camera
                     /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
-                    .onAppear{
-                        let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04))
-                        position = .userLocation(fallback: .region(losAngelesRegion))
-                        mapSize = geometryProxy.size
-                    }
+//                    .onAppear{
+//                        let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04))
+//                        position = .userLocation(fallback: .region(losAngelesRegion))
+//                        mapSize = geometryProxy.size
+//                    }
+                    
                     // MARK: User Location button
                     .overlay(alignment: .bottomTrailing) {
                         VStack {
@@ -152,9 +153,13 @@ struct MapView: View {
                                     showAlert = true
                                 } label: {
                                     MapUserLocationButton(scope: mapScope)
+                                        .buttonBorderShape(.circle)
+                                        
                                 }
                             } else {
                                 MapUserLocationButton(scope: mapScope)
+                                    .buttonBorderShape(.circle)
+                                    
                             }
                         }
                         .padding([.bottom, .trailing], 20)
@@ -247,6 +252,7 @@ struct MapView: View {
                     withAnimation(.snappy) {
                         MapRestaurantView(restaurant: annotation.restaurant)
                             .onTapGesture {
+                                selectedRestaurant = nil
                                 showRestaurantPreview.toggle()
                             }
                         

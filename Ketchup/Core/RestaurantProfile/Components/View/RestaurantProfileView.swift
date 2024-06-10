@@ -76,6 +76,9 @@ struct RestaurantProfileView: View {
                     }
                 }
             }
+            .onAppear{
+                LocationManager.shared.requestLocation()
+            }
         }
     }
 }
