@@ -115,13 +115,14 @@ struct EditRecipeView: View {
                             }
                         }
                         if !uploadViewModel.dietaryRestrictions.isEmpty {
-                            VStack(alignment: .leading) {
+                            ScrollView(.horizontal, showsIndicators: false){
                                 HStack {
                                     ForEach(uploadViewModel.dietaryRestrictions, id: \.self) { restriction in
                                         DietaryRestrictionBox(text: restriction)
                                     }
                                 }
                             }
+                            
                         } else {
                             Text("No Dietary Restrictions Listed")
                                 .font(.subheadline)
@@ -172,15 +173,7 @@ struct EditRecipeView: View {
                         if !uploadViewModel.instructions.isEmpty {
                             VStack(alignment: .leading, spacing: 16) {
                                 ForEach(uploadViewModel.instructions.indices, id: \.self) { index in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Step \(index + 1)")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
-                                            .padding(.bottom, 4)
-                                        Text(uploadViewModel.instructions[index].title)
-                                            .bold()
-                                        Text(uploadViewModel.instructions[index].description)
-                                    }
+                                    InstructionBoxView(stepNumber: (index + 1), title: uploadViewModel.instructions[index].title, description: uploadViewModel.instructions[index].description)
                                 }
                             }
                         } else {
@@ -251,6 +244,14 @@ struct EditRecipeView: View {
             .sheet(isPresented: $showEditDietary) {
                 EditDietaryRestrictions(uploadViewModel: uploadViewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+            }
+            .sheet(isPresented: $showEditIngredients) {
+                EditIngredientsView(uploadViewModel: uploadViewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+            }
+            .sheet(isPresented: $showEditInstructions) {
+                EditInstructionsView(uploadViewModel: uploadViewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
         }
     }

@@ -20,7 +20,7 @@ struct EditDietaryRestrictions: View {
         VStack {
             /// Title
             HStack{
-                Text("Add Dietary Restrictions")
+                Text("Edit Dietary Restrictions")
                     .font(.title2)
                     .fontWeight(.semibold)
                 Spacer()

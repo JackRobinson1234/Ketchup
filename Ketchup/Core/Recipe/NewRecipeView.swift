@@ -67,7 +67,7 @@ struct NewRecipeView: View {
                             Text("Dietary Restrictions")
                                 .font(.headline)
                             if let dietaryRestrictions = recipe.dietary, !dietaryRestrictions.isEmpty {
-                                VStack(alignment: .leading) {
+                                ScrollView(.horizontal, showsIndicators: false){
                                     HStack {
                                         ForEach(dietaryRestrictions, id: \.self) { restriction in
                                             DietaryRestrictionBox(text: restriction)
@@ -84,7 +84,7 @@ struct NewRecipeView: View {
                                 .font(.headline)
                             
                             if let ingredients = recipe.ingredients, !ingredients.isEmpty {
-                                VStack(alignment: .leading, spacing: 16) {
+                                VStack(alignment: .leading, spacing: 8) {
                                     ForEach(ingredients, id: \.self) { ingredient in
                                         HStack(alignment: .top, spacing: 4) {
                                             Text(ingredient.quantity)
@@ -154,17 +154,22 @@ struct InstructionBoxView: View {
     var description: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Step \(stepNumber)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.bottom, 4)
+        HStack{
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .bold()
-                Text(description)
+                Text("Step \(stepNumber)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 4)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .bold()
+                    Text(description)
+                        .multilineTextAlignment(.leading)
+                }
             }
+            Spacer()
         }
+        .frame(maxWidth: .infinity)
         .padding()
         .background(Color.white)
         .cornerRadius(10)
