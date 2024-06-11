@@ -171,20 +171,36 @@ struct FeedCell: View {
                                     //MARK: Recipe Scenario
                                 } else if let recipe = post.cookingTitle{
                                     VStack (alignment: .leading) {
-                                        Button{showRecipe.toggle()} label: {
-                                            Text("\(recipe)")
-                                                .font(.title3)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        //MARK: recipe fullname
-                                        NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(.white)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
+                                        HStack(){
+                                            if post.recipeId != nil{
+                                                Button{
+                                                    showRecipe.toggle()
+                                                } label: {
+                                                    VStack(spacing: 0){
+                                                        Image("WhiteChefHat")
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 60, height: 60)
+                                                        
+                                                    }
+                                                }
+                                            }
+                                            VStack(alignment: .leading){
+                                                //MARK: recipe fullname
+                                                
+                                                Text("\(recipe)")
+                                                    .font(.title3)
+                                                    .bold()
+                                                    .multilineTextAlignment(.leading)
+                                                NavigationLink(value: post.user) {
+                                                    Text("by \(post.user.fullname)")
+                                                        .font(.subheadline)
+                                                        .fontWeight(.semibold)
+                                                        .foregroundStyle(.white)
+                                                        .bold()
+                                                        .multilineTextAlignment(.leading)
+                                                }
+                                            }
                                         }
                                     }
                                 }
