@@ -24,7 +24,7 @@ struct Post: Identifiable, Codable {
     var timestamp: Timestamp?
     var user: PostUser
     var restaurant: PostRestaurant? = nil
-    var recipe: PostRecipe? = nil
+    var recipeId: String? = nil
     var cuisine: String?
     var price: String?
     var didLike: Bool
@@ -32,6 +32,7 @@ struct Post: Identifiable, Codable {
     var fromInAppCamera: Bool
     var repost: Bool
     var didRepost: Bool
+    var cookingTitle: String?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -47,7 +48,7 @@ struct Post: Identifiable, Codable {
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
-        self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
+        self.recipeId = try container.decodeIfPresent(String.self, forKey: .recipeId)
         self.cuisine = try container.decodeIfPresent(String.self, forKey: .cuisine)
         self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
@@ -55,6 +56,7 @@ struct Post: Identifiable, Codable {
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
+        self.cookingTitle = try container.decodeIfPresent(String.self, forKey: .cookingTitle)
     }
     
     init(
@@ -70,14 +72,15 @@ struct Post: Identifiable, Codable {
         timestamp: Timestamp?,
         user: PostUser,
         restaurant: PostRestaurant? = nil,
-        recipe: PostRecipe? = nil,
+        recipeId: String? = nil,
         cuisine: String? = nil,
         price: String? = nil,
         didLike: Bool = false,
         didSave: Bool = false,
         fromInAppCamera: Bool,
         repost: Bool = false,
-        didRepost: Bool = false
+        didRepost: Bool = false,
+        cookingTitle: String? = nil
     ) {
         self.id = id
         self.postType = postType
@@ -91,7 +94,7 @@ struct Post: Identifiable, Codable {
         self.timestamp = timestamp
         self.user = user
         self.restaurant = restaurant
-        self.recipe = recipe
+        self.recipeId = recipeId
         self.cuisine = cuisine
         self.price = price
         self.didLike = didLike
@@ -99,6 +102,7 @@ struct Post: Identifiable, Codable {
         self.fromInAppCamera = fromInAppCamera
         self.repost = repost
         self.didRepost = didRepost
+        self.cookingTitle = cookingTitle
     }
 }
 
@@ -129,25 +133,6 @@ struct PostUser: Codable, Hashable, Identifiable {
     var username: String
 }
 
-struct PostRecipe: Codable, Hashable {
-    var name: String
-    var cookingTime: Int?
-    var dietary: [String]?
-    var instructions: [Instruction]?
-    var ingredients: [Ingredient]?
-    var difficulty: RecipeDifficulty?
-    var servings: Int?
-}
-
-struct Instruction: Codable, Hashable {
-    var title: String
-    var description: String
-}
-
-struct Ingredient: Codable, Hashable {
-    var quantity: String
-    var item: String
-}
 
 enum PostType: Int, Codable {
     case dining
@@ -161,17 +146,5 @@ enum PostType: Int, Codable {
     }
 }
 
-enum RecipeDifficulty: Int, Codable {
-    case easy
-    case medium
-    case hard
-    var text: String {
-        switch self {
-        case .easy: return "Easy"
-        case .medium: return "Medium"
-        case .hard: return "Hard"
-            
-        }
-    }
-}
+
 

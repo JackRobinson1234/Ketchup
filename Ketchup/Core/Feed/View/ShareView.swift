@@ -159,8 +159,8 @@ struct ShareView: View {
                 if let restaurant = post.restaurant, let city = restaurant.city{
                     MessageComposeView(messageBody: "I'm absolutely frothing to try this restaurant called \(restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
                         .onDisappear{preppingMessage = false}
-                } else if let recipe = post.recipe {
-                    MessageComposeView(messageBody: "Dude. We need to make this \(recipe.name) recipe that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
+                } else if let recipe = post.cookingTitle {
+                    MessageComposeView(messageBody: "Dude. We need to make this \(recipe) recipe that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
                         .onDisappear{preppingMessage = false}
                 }
             } else {

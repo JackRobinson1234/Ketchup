@@ -244,8 +244,9 @@ struct DeveloperPreview {
                favoriteItems: ["Burgers", "Fries"]
            )
        ]
-    static var samplePostRecipe: PostRecipe = PostRecipe(
-            name: "Spaghetti Carbonara",
+    static var samplePostRecipe: Recipe = Recipe(
+        id: "",
+        name: "Spaghetti Carbonara",
             cookingTime: 30,
             dietary: ["Gluten-Free", "Vegetarian"],
             instructions: [
@@ -264,7 +265,8 @@ struct DeveloperPreview {
                 .init(quantity: "to taste", item: "Salt and freshly ground black pepper")
             ],
             difficulty: .easy,
-            servings: 4
+            servings: 4,
+        postId: ""
             
         )
 }

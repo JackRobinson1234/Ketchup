@@ -63,7 +63,7 @@ struct FeedGridView: View {
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
                                           
-                                        }  else if let recipe = post.recipe {
+                                        }  else if let recipe = post.cookingTitle {
                                             Image(systemName: "frying.pan.fill")
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
@@ -82,8 +82,8 @@ struct FeedGridView: View {
                                                     .bold()
                                                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             }
-                                            else if let recipe = post.recipe {
-                                                Text("\(recipe.name)")
+                                            else if let recipe = post.cookingTitle {
+                                                Text("\(recipe)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
@@ -101,7 +101,9 @@ struct FeedGridView: View {
                                 //                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
                                 //                                                               startPoint: .top,
                                 //                                                               endPoint: .bottom))
-                                    .onTapGesture { selectedPost = post }
+                                    .onTapGesture {
+                                        selectedPost = post
+                                    }
                             )
                         
                     }

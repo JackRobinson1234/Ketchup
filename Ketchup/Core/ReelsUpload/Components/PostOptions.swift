@@ -23,7 +23,7 @@ struct PostOptions: View {
                 } label: {
                     // ADD RECIPE
                     
-                    if !uploadViewModel.savedRecipe {
+                    if !uploadViewModel.hasRecipeDetailsChanged() {
                         HStack {
                             Image(systemName: "book.circle")
                                 .resizable()

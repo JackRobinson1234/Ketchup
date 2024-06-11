@@ -21,11 +21,10 @@ struct FeedView: View {
     @State private var selectedFeed: FeedType = .discover
     @State var pauseVideo = false
     private var posts: [Post]
-    //@State private var fetchTask: Task<Void, Error>?
     @StateObject var filtersViewModel: FiltersViewModel
-    @State var feedViewOption: FeedViewOption = .feed
     @Environment(\.dismiss) var dismiss
     private var hideFeedOptions: Bool
+ 
     
     
     
@@ -37,6 +36,7 @@ struct FeedView: View {
         self.posts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
+        
         
     }
     
@@ -56,7 +56,7 @@ struct FeedView: View {
             //MARK: Video Cells
             NavigationStack {
                 ZStack(alignment: .topTrailing) {
-                        if feedViewOption == .feed {
+                    if viewModel.feedViewOption == .feed {
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach($viewModel.posts) { post in
@@ -64,21 +64,24 @@ struct FeedView: View {
                                             .id(post.id)
                                     }
                                 }
-                                
                             }
+                            
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
+                            
+                            
                         }
-                           
-                        else if feedViewOption == .grid {
+                    
+                    else if viewModel.feedViewOption == .grid {
                             ScrollView(showsIndicators: false) {
                                 VStack{
                                     FeedGridView(viewModel: viewModel)
                                 }
                             }
+                            
                         }
-            
+                    
                     
                     
                     if !hideFeedOptions {
@@ -87,56 +90,56 @@ struct FeedView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 60, height: 17)
-                                .padding(.horizontal)
+                                
                             
                             // Button for "Grid"
                             Spacer()
                             ZStack {
-                                Color.white.opacity(0.1) // Adjust opacity as needed
+                                Color.white.opacity(0.3) // Adjust opacity as needed
                                     .cornerRadius(15)
                                     .frame(width: 100, height: 45)
                                 HStack(spacing: 10){
                                     Button{
-                                        feedViewOption = .grid
+                                        viewModel.feedViewOption = .grid
                                         
                                     } label: {
                                         ZStack {
-                                            if feedViewOption == .grid {
+                                            if viewModel.feedViewOption == .grid {
                                                 Color("Colors/AccentColor") // Red background for selected option
                                                     .cornerRadius(12) // Adjust corner radius as needed
                                                     .frame(width: 38, height: 38) // Adjust size as needed
                                             }
                                             Image(systemName: "square.grid.2x2")
                                                 .font(.title)
-                                                .foregroundColor(feedViewOption == .grid ? .white : .gray)
-                                                .fontWeight(feedViewOption == .grid ? .bold : .regular)
+                                                .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
+                                                .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
                                         }
                                         
                                     }
-                                    .disabled(feedViewOption == .grid)
+                                    .disabled(viewModel.feedViewOption == .grid)
                                     
                                     // Vertical Line
                                     
                                     
                                     // Button for "Feed"
                                     Button{
-                                        feedViewOption = .feed
+                                        viewModel.feedViewOption = .feed
                                         
                                     } label: {
                                         ZStack {
-                                            if feedViewOption == .feed {
+                                            if viewModel.feedViewOption == .feed {
                                                 Color("Colors/AccentColor") // Red background for selected option
                                                     .cornerRadius(12) // Adjust corner radius as needed
                                                     .frame(width: 38, height: 38) // Adjust size as needed
                                             }
                                             Image(systemName: "line.3.horizontal")
                                                 .font(.title)
-                                                .foregroundColor(feedViewOption == .feed ? .white : .gray)
-                                                .fontWeight(feedViewOption == .feed ? .bold : .regular)
+                                                .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
+                                                .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
                                         }
                                         //.frame(width: 78)
                                     }
-                                    .disabled(feedViewOption == .feed)
+                                    .disabled(viewModel.feedViewOption == .feed)
                                 }
                             }
                             Spacer()
@@ -170,9 +173,10 @@ struct FeedView: View {
                             }
                                 //MARK: Filters and Search Buttons
                             }
+                            .frame(width: 60)
                         }
                         .padding(.top, 70)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 40)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -182,7 +186,7 @@ struct FeedView: View {
                     }
                     
                 }
-                
+                .gesture(viewModel.drag)
                 
                 
                 //MARK: Loading/ No posts

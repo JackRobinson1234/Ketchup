@@ -82,7 +82,6 @@ struct ReelsUploadView: View {
                         Task {
                             if uploadViewModel.postType == .cooking {
                                 uploadViewModel.recipeTitle = titleText
-                                uploadViewModel.savedRecipe = true
                             }
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()

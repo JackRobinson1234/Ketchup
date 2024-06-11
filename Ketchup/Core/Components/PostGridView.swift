@@ -53,7 +53,7 @@ struct PostGridView: View {
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
                                             
-                                        }  else if post.recipe != nil {
+                                        }  else if post.cookingTitle != nil {
                                             Image(systemName: "frying.pan.fill")
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
@@ -78,8 +78,8 @@ struct PostGridView: View {
                                                     .bold()
                                                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             }
-                                            else if let recipe = post.recipe {
-                                                Text("\(recipe.name)")
+                                            else if let recipe = post.cookingTitle{
+                                                Text("\(recipe)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)

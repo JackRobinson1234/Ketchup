@@ -98,7 +98,7 @@ struct FeedCell: View {
                 }
             } else if post.mediaType == "photo" {
                 
-                ZStack {
+                ZStack (alignment: .top){
                     if post.fromInAppCamera {
                         KFImage(URL(string: post.mediaUrls[currentImageIndex]))
                             .resizable()
@@ -117,29 +117,19 @@ struct FeedCell: View {
                     }
                     
                     VStack {
-                        HStack {
-                            Spacer()
-                            
-                            Text("\(currentImageIndex + 1) of \(post.mediaUrls.count)")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .padding(8)
-                                .background(Color.black.opacity(0.5))
-                                .cornerRadius(10)
-                                .foregroundColor(.white)
-                                .padding(.top, 10)
-                            
-                            Spacer()
+                        
+                        HStack(spacing: 6) {
+                            if post.mediaUrls.count > 1 {
+                                ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                    Circle()
+                                        .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.white)
+                                        .frame(width: 10, height: 10)
+                                }
+                            }
                         }
-                        
-                        
-                        Spacer()
+                        .padding(.top, 130)
+                    
                     }
-                    .frame(width: UIScreen.main.bounds.width, height: 650)
-                    
-                    
-                    
-                    
                 }
             }
             ZStack (alignment: .bottom){
@@ -179,10 +169,10 @@ struct FeedCell: View {
                                         }
                                     }
                                     //MARK: Recipe Scenario
-                                } else if let recipe = post.recipe{
+                                } else if let recipe = post.cookingTitle{
                                     VStack (alignment: .leading) {
                                         Button{showRecipe.toggle()} label: {
-                                            Text("\(recipe.name)")
+                                            Text("\(recipe)")
                                                 .font(.title3)
                                                 .bold()
                                                 .multilineTextAlignment(.leading)
@@ -219,18 +209,19 @@ struct FeedCell: View {
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
-                                } else if post.recipe != nil {
-                                    Button{
-                                        showRecipe.toggle()
-                                        Task{
-                                            videoCoordinator.pause()
-                                        }
-                                    } label: {
-                                        Text("View Recipe")
-                                    }
-                                    .modifier(StandardButtonModifier(width: 175))
-                                    
-                                }
+                                } 
+//                                else if post.recipe != nil {
+//                                    Button{
+//                                        showRecipe.toggle()
+//                                        Task{
+//                                            videoCoordinator.pause()
+//                                        }
+//                                    } label: {
+//                                        Text("View Recipe")
+//                                    }
+//                                    .modifier(StandardButtonModifier(width: 175))
+//                                    
+//                                }
                             }
                         }
                         

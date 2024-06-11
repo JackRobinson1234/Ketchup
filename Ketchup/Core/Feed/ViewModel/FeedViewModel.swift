@@ -15,6 +15,7 @@ enum FeedType: String, CaseIterable {
 
 @MainActor
 class FeedViewModel: ObservableObject {
+    @Published var feedViewOption: FeedViewOption = .feed
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -31,6 +32,20 @@ class FeedViewModel: ObservableObject {
     private var lastFetched: String? = nil
     @Published var duration: Double = 0.0
     @Published var currentTime: Double = 0.0
+    @Published var isDragging = false
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 85)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.feedViewOption = .grid
+                    self.isDragging = false
+                } else {
+                    self.feedViewOption = .feed
+                    self.isDragging = false
+                }
+            }
+    }
     
     
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {

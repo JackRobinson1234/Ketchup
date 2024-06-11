@@ -43,8 +43,8 @@ struct PostListCell: View {
             //MARK: Recipe Info
             else if post.postType == .cooking {
                 VStack(alignment: .leading) {
-                    if let recipe = post.recipe {
-                        Text(recipe.name)
+                    if let recipe = post.cookingTitle {
+                        Text(recipe)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
@@ -52,11 +52,6 @@ struct PostListCell: View {
                         .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
-                            .font(.footnote)
-                    }
-                    
-                    if let cookingTime = post.recipe?.cookingTime {
-                        Text("\(cookingTime) minutes")
                             .font(.footnote)
                     }
                 }

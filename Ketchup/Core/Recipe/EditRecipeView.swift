@@ -23,70 +23,64 @@ struct EditRecipeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    ZStack(alignment: .bottomLeading) {
-                        TabView {
-                            if let url = uploadViewModel.videoURL?.absoluteString {
-                                if let uiImage = MediaHelpers.generateThumbnail(path: url) {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                    
-                                }
-                            } else if let images = uploadViewModel.images {
-                                Image(uiImage: images[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                
-                            }
-                        }
-                        .frame(height: 300)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(uploadViewModel.recipeTitle)
-                                .font(.title)
-                                .bold()
-                                .foregroundStyle(.white)
-                            
-                            Text("by: @\(AuthService.shared.userSession!.username)")
-                                .font(.subheadline)
-                                .foregroundStyle(.white)
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom)
-                        .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
-                    }
+                VStack(alignment: .leading, spacing: 24) {
+//                    ZStack(alignment: .bottomLeading) {
+//                        TabView {
+//                            if let url = uploadViewModel.videoURL?.absoluteString {
+//                                if let uiImage = MediaHelpers.generateThumbnail(path: url) {
+//                                    Image(uiImage: uiImage)
+//                                        .resizable()
+//                                        .scaledToFill()
+//                                    
+//                                }
+//                            } else if let images = uploadViewModel.images {
+//                                Image(uiImage: images[0])
+//                                    .resizable()
+//                                    .scaledToFill()
+//                                
+//                            }
+//                        }
+//                        .frame(height: 300)
+//                        
+//                        VStack(alignment: .leading, spacing: 4) {
+//                            Text(uploadViewModel.recipeTitle)
+//                                .font(.title)
+//                                .bold()
+//                                .foregroundStyle(.white)
+//                            
+//                            Text("by: @\(AuthService.shared.userSession!.username)")
+//                                .font(.subheadline)
+//                                .foregroundStyle(.white)
+//                        }
+//                        .padding(.horizontal)
+//                        .padding(.bottom)
+//                        .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
+//                    }
                     
                     // Red circle outline with white text for cooking time, difficulty, and serving number
-                    VStack(alignment: .leading, spacing: 20) {
+                    
                         HStack(spacing: 10) {
                             Spacer()
                             Button {
                                 showCookingTimePicker.toggle()
                             } label: {
-                                if uploadViewModel.cookingTime != 0 {
                                     InfoCircle(text: "\(uploadViewModel.cookingTime) min", image: "clock", edit: true)
                                         .onTapGesture {
                                             selectedCookingTime = uploadViewModel.cookingTime
                                             showCookingTimePicker.toggle()
                                         }
-                                } else {
-                                    InfoCircle(text: "N/A", image: "clock", edit: true)
-                                }
                             }
                             
                             Button {
                                 showServingsPicker.toggle()
                             } label: {
-                                if uploadViewModel.recipeServings != 0 {
+                                
                                     InfoCircle(text: "\(uploadViewModel.recipeServings) servings", image: "person.3", edit: true)
                                         .onTapGesture {
                                             selectedServings = uploadViewModel.recipeServings
                                             showServingsPicker.toggle()
                                         }
-                                } else {
-                                    InfoCircle(text: "N/A", image: "person.3", edit: true)
-                                }
+                               
                             }
                             
                             Button {
@@ -103,7 +97,7 @@ struct EditRecipeView: View {
                         .padding(.top)
                         
                         // Dietary restrictions
-                        
+                    VStack(alignment: .leading, spacing: 16) {
                         Button {
                             showEditDietary.toggle()
                         } label: {
@@ -128,8 +122,9 @@ struct EditRecipeView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.gray)
                         }
-                        
+                    }
                         // Ingredients
+                    VStack(alignment: .leading, spacing: 16) {
                         Button{
                             showEditIngredients.toggle()
                         } label: {
@@ -157,7 +152,8 @@ struct EditRecipeView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.gray)
                         }
-                        
+                    }
+                    VStack(alignment: .leading, spacing: 16) {
                         // Instructions
                         Button{
                             showEditInstructions.toggle()
@@ -182,12 +178,12 @@ struct EditRecipeView: View {
                                 .foregroundStyle(.gray)
                         }
                     }
-                    .padding(.horizontal)
+                    
                 }
-                .padding(.bottom, 16) // Add bottom padding to ensure last content is not cut off
+                .padding() // Add bottom padding to ensure last content is not cut off
             }
             .navigationBarBackButtonHidden()
-            .edgesIgnoringSafeArea(.top)
+            .navigationTitle("Add a Recipe")
             .modifier(BackButtonModifier())
             .sheet(isPresented: $showCookingTimePicker) {
                 
