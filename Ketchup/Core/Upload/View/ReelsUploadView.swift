@@ -14,6 +14,7 @@ struct ReelsUploadView: View {
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
+    @EnvironmentObject var tabBarController: TabBarController
         
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
@@ -88,6 +89,7 @@ struct ReelsUploadView: View {
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()
                             cameraViewModel.reset()
+                            tabBarController.selectedTab = 0
                         }
                         
                     } label: {
@@ -189,10 +191,10 @@ struct ReelsUploadView: View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
-
-#Preview {
-    ReelsUploadView(uploadViewModel: UploadViewModel(), cameraViewModel: CameraViewModel(), showPostTypeMenu: false)
-}
+//
+//#Preview {
+//    ReelsUploadView(uploadViewModel: UploadViewModel(), cameraViewModel: CameraViewModel(), showPostTypeMenu: false)
+//}
 
 
 

@@ -52,6 +52,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     //LOADING STUFF
     @Published var isLoading = false
     
+    // PERMISSIONS
+    @Published var audioOrVideoPermissionsDenied = false
+
     // USER CAMERA SETTINGS
     @Published var cameraPosition: CameraPosition = .back
     @Published var flashMode: AVCaptureDevice.FlashMode = .off
@@ -68,6 +71,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
         }
 
+    @Published var isZooming: Bool = false
+    
     private var initialZoomFactor: CGFloat = 1.0
     @Published var isDragEnabled: Bool = true
     var drag: some Gesture {
@@ -106,38 +111,60 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         let sensitivity: CGFloat = 1
         let newZoomFactor = initialZoomFactor * (1 + (scale - 1) * sensitivity)
         zoomFactor = newZoomFactor
+        isZooming = true
     }
 
     func startPinchGesture() {
         initialZoomFactor = zoomFactor
+        isZooming = false
     }
     
     func checkPermission() {
+        let videoPermission = AVCaptureDevice.authorizationStatus(for: .video)
+        let audioPermission = AVCaptureDevice.authorizationStatus(for: .audio)
         
-        // check perms
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-            
-        case .authorized:
-            setUp()
-            return
-            
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { (status) in
-                if status {
-                    self.setUp()
-                }
+        if videoPermission == .authorized && audioPermission == .authorized {
+            DispatchQueue.main.async {
+                self.setUp()
             }
-            
-        case .denied:
-            self.alert.toggle()
             return
-            
-        default:
-            return
-            
         }
         
+        if videoPermission == .denied || audioPermission == .denied {
+            DispatchQueue.main.async {
+                self.audioOrVideoPermissionsDenied = true
+            }
+            return
+        }
+        
+        if videoPermission == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.checkPermission()
+                    } else {
+                        self.audioOrVideoPermissionsDenied = true
+                    }
+                }
+            }
+            return
+        }
+        
+        if audioPermission == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.checkPermission()
+                    } else {
+                        self.audioOrVideoPermissionsDenied = true
+                    }
+                }
+            }
+            return
+        }
     }
+
+    
     
     func setUp() {
         
@@ -156,8 +183,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
             let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             
+            print("CEHCKING AUD PERMS HERE?")
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
+            print("AUDIO PERMS CHECKED")
             
             // check for input
             if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
