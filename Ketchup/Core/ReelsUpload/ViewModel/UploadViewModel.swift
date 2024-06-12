@@ -71,8 +71,7 @@ class UploadViewModel: ObservableObject {
     }
     
     func hasRecipeDetailsChanged() -> Bool {
-        return !(recipeTitle.isEmpty &&
-                 ingredients.isEmpty &&
+        return !(ingredients.isEmpty &&
                  dietaryRestrictions.isEmpty &&
                  cookingTime == 0 &&
                  recipeServings == 0 &&

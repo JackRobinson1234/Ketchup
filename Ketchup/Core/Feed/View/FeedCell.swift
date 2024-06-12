@@ -210,6 +210,7 @@ struct FeedCell: View {
                             //MARK: caption
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
+                                .font(.subheadline)
                             
                             //MARK: see more
                             if !expandCaption{
@@ -221,23 +222,23 @@ struct FeedCell: View {
                                 
                                 if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
-                                        Text("View Menu")
+                                        Text("View Restaurant")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
                                 } 
-//                                else if post.recipe != nil {
-//                                    Button{
-//                                        showRecipe.toggle()
-//                                        Task{
-//                                            videoCoordinator.pause()
-//                                        }
-//                                    } label: {
-//                                        Text("View Recipe")
-//                                    }
-//                                    .modifier(StandardButtonModifier(width: 175))
-//                                    
-//                                }
+                                else if post.recipeId != nil {
+                                    Button{
+                                        showRecipe.toggle()
+                                        Task{
+                                            videoCoordinator.pause()
+                                        }
+                                    } label: {
+                                        Text("View Recipe")
+                                    }
+                                    .modifier(StandardButtonModifier(width: 175))
+                                    
+                                }
                             }
                         }
                         
