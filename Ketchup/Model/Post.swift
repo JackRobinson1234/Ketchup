@@ -24,7 +24,7 @@ struct Post: Identifiable, Codable {
     var timestamp: Timestamp?
     var user: PostUser
     var restaurant: PostRestaurant? = nil
-    var recipeId: String? = nil
+    var recipe: PostRecipe? = nil
     var cuisine: String?
     var price: String?
     var didLike: Bool
@@ -48,7 +48,7 @@ struct Post: Identifiable, Codable {
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
-        self.recipeId = try container.decodeIfPresent(String.self, forKey: .recipeId)
+        self.recipe = try container.decodeIfPresent(PostRecipe.self, forKey: .recipe)
         self.cuisine = try container.decodeIfPresent(String.self, forKey: .cuisine)
         self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
@@ -57,6 +57,7 @@ struct Post: Identifiable, Codable {
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
         self.cookingTitle = try container.decodeIfPresent(String.self, forKey: .cookingTitle)
+    
     }
     
     init(
@@ -72,7 +73,7 @@ struct Post: Identifiable, Codable {
         timestamp: Timestamp?,
         user: PostUser,
         restaurant: PostRestaurant? = nil,
-        recipeId: String? = nil,
+        recipe: PostRecipe? = nil,
         cuisine: String? = nil,
         price: String? = nil,
         didLike: Bool = false,
@@ -94,7 +95,7 @@ struct Post: Identifiable, Codable {
         self.timestamp = timestamp
         self.user = user
         self.restaurant = restaurant
-        self.recipeId = recipeId
+        self.recipe = recipe
         self.cuisine = cuisine
         self.price = price
         self.didLike = didLike
@@ -133,6 +134,24 @@ struct PostUser: Codable, Hashable, Identifiable {
     var username: String
 }
 
+struct PostRecipe: Codable, Hashable {
+    var cookingTime: Int?
+    var dietary: [String]?
+    var instructions: [Instruction]?
+    var ingredients: [Ingredient]?
+    var difficulty: RecipeDifficulty?
+    var servings: Int?
+}
+
+struct Instruction: Codable, Hashable {
+    var title: String
+    var description: String
+}
+
+struct Ingredient: Codable, Hashable {
+    var quantity: String
+    var item: String
+}
 
 enum PostType: Int, Codable {
     case dining
@@ -142,6 +161,20 @@ enum PostType: Int, Codable {
         case .dining: return "Dining"
         case .cooking: return "Cooking"
        
+        }
+    }
+}
+
+enum RecipeDifficulty: Int, Codable {
+    case easy
+    case medium
+    case hard
+    var text: String {
+        switch self {
+        case .easy: return "Easy"
+        case .medium: return "Medium"
+        case .hard: return "Hard"
+            
         }
     }
 }

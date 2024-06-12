@@ -85,27 +85,29 @@ class PostService {
     
     
     func fetchPosts(lastDocument: DocumentSnapshot?, pageSize: Int, withFilters filters: [String: [Any]]? = nil) async throws -> ([Post], DocumentSnapshot?) {
-        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).limit(to: pageSize)
-        
-        if let lastDocument = lastDocument {
-            query = query.start(afterDocument: lastDocument)
-        }
-        
-        if let filters = filters, !filters.isEmpty {
-            if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates, lastDocument: lastDocument)
-                return filteredPosts
-            }
-                query = await applyFilters(toQuery: query, filters: filters)
-        }
-        let snapshot = try await query.getDocuments()
-        let posts = try snapshot.documents.map { document in
-            let post = try document.data(as: Post.self)
-            return post
-        }
-        let lastDocumentSnapshot = snapshot.documents.last
-        return (posts, lastDocumentSnapshot)
-    }
+           var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).limit(to: pageSize)
+           
+           if let lastDocument = lastDocument {
+               query = query.start(afterDocument: lastDocument)
+           }
+           
+           if let filters = filters, !filters.isEmpty {
+               if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+                   let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates, lastDocument: lastDocument)
+                   return filteredPosts
+               }
+               
+               query = applyFilters(toQuery: query, filters: filters)
+           }
+           
+           let snapshot = try await query.getDocuments()
+           let posts = snapshot.documents.map { document in
+               var post = try! document.data(as: Post.self)
+               return post
+           }
+               let lastDocumentSnapshot = snapshot.documents.last
+           return (posts, lastDocumentSnapshot)
+       }
     
     
     //MARK: applyFilters
@@ -117,46 +119,18 @@ class PostService {
     ///
     ///
     /// Built a hacky solution where for cooking time posts, it fetches the matching postId, but for cooking it fetches the matching recipe Ids. Will probably want to look into a sql database for recipe storage.
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) async -> Query {
+    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
         print("applying filters", filters)
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
             case "recipe.dietary":
                 // Step 1: Fetch the recipes matching the dietary criteria
-                
-                do{
-                    let recipes = try await FirestoreConstants.RecipesCollection
-                        .whereField("dietary", arrayContainsAny: value)
-                        .limit(to: 30)
-                        .getDocuments(as: Recipe.self)
-                    
-                    // Step 2: Extract the recipe IDs
-                    let recipeIDs = recipes.compactMap { $0.id }
-                    
-                    if !recipeIDs.isEmpty {
-                        updatedQuery = updatedQuery.whereField("recipeId", arrayContainsAny: recipeIDs)
-                    }
-                } catch {
-                    print("error")
-                }
-                
+                updatedQuery = updatedQuery.whereField(field, arrayContainsAny: value)
             case "recipe.cookingTime":
-                do{
-                    let recipes = try await FirestoreConstants.RecipesCollection
-                        .whereField("cookingTime", isLessThan: value)
-                        .limit(to: 30)
-                        .getDocuments(as: Recipe.self)
-                    
-                    // Step 2: Extract the recipe IDs
-                    let postIDs = recipes.compactMap { $0.postId }
-                    
-                    if !postIDs.isEmpty {
-                        updatedQuery = updatedQuery.whereField("id", arrayContainsAny: postIDs)
-                    }
-                } catch {
-                    print("error")
-                }
+                if let cookingTime = value.first as? Int {
+                                            updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
+                                        }
             case "location":
                 continue
             default:
@@ -184,7 +158,7 @@ class PostService {
             
             for bound in queryBounds {
                 group.addTask {
-                    var query = await self.applyFilters(toQuery: FirestoreConstants.PostsCollection
+                    var query = self.applyFilters(toQuery: FirestoreConstants.PostsCollection
                         .order(by: "restaurant.geoHash")
                         .start(at: [bound.startValue])
                         .end(at: [bound.endValue]), filters: filters)

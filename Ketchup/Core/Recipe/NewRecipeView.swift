@@ -9,33 +9,22 @@ import SwiftUI
 
 struct NewRecipeView: View {
     var post: Post
-    @State var recipe: Recipe? = nil
     @State private var isLoading = true
     var body: some View {
         NavigationStack {
-            if isLoading {
-                // Loading screen
-                ProgressView("Loading...")
-                    .onAppear {
-                        Task {
-                            if let id = post.recipeId{
-                                recipe = try await RecipeService.shared.fetchRecipe(withId: id)
-                            }
-                            isLoading = false
-                        }
-                    }
-            } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        if let recipe = recipe {
+                        if let recipe = post.recipe {
                             ZStack(alignment: .bottomLeading) {
                                 ListingImageCarouselView(images: [post.thumbnailUrl])
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(recipe.name)
-                                        .font(.title)
-                                        .bold()
-                                        .foregroundColor(.white)
+                                    if let title = post.cookingTitle{
+                                        Text(title)
+                                            .font(.title)
+                                            .bold()
+                                            .foregroundColor(.white)
+                                    }
                                     HStack {
                                         Text("by: @\(post.user.username)")
                                             .font(.subheadline)
@@ -139,7 +128,6 @@ struct NewRecipeView: View {
                 .modifier(BackButtonModifier())
             }
         }
-    }
 }
 
 #Preview {
