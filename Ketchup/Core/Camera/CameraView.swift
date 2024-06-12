@@ -700,6 +700,9 @@ struct PhotoReorderView: View {
 
                             Button(action: {
                                 cameraViewModel.images.remove(at: index)
+                                if cameraViewModel.images.isEmpty {
+                                    cameraViewModel.isPhotoTaken = false
+                                }
                             }) {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(.red)
