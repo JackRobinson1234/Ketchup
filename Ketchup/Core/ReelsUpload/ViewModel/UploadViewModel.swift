@@ -108,7 +108,7 @@ class UploadViewModel: ObservableObject {
         error = nil
         var cookingTitle: String? = recipeTitle
         if recipeTitle.isEmpty {
-           cookingTitle = nil
+            cookingTitle = nil
         }
         
         do {
