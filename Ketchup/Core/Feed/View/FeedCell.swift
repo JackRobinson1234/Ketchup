@@ -45,6 +45,8 @@ struct FeedCell: View {
                     self.dragDirection = "left"
                     if self.currentImageIndex > 0 {
                         self.currentImageIndex -= 1
+                    } else {
+                        viewModel.feedViewOption = .grid
                     }
                 } else {
                     self.dragDirection = "right"

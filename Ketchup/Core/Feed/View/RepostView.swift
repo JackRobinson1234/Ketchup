@@ -29,12 +29,12 @@ struct RepostView: View {
                     .overlay(
                         VStack{
                             HStack {
-                                if let restaurant = post.restaurant {
+                                if post.restaurant != nil{
                                     Image(systemName: "storefront.fill")
                                         .foregroundStyle(.white)
                                         .font(.caption)
                                     
-                                }  else if let recipe = post.cookingTitle {
+                                }  else if post.cookingTitle != nil{
                                     Image(systemName: "frying.pan.fill")
                                         .foregroundStyle(.white)
                                         .font(.caption)

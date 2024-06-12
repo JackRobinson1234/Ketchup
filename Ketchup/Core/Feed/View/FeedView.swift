@@ -52,34 +52,48 @@ struct FeedView: View {
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
+                .gesture(viewModel.drag)
         } else {
             //MARK: Video Cells
             NavigationStack {
                 ZStack(alignment: .topTrailing) {
                     if viewModel.feedViewOption == .feed {
+                        
+                        ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach($viewModel.posts) { post in
                                         FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
                                             .id(post.id)
+                                            
                                     }
                                 }
                             }
-                            
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
-                            
+                            .onAppear {
+                                scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
+                                viewModel.startingPostId = ""
+                            }
                             
                         }
+                        .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
+                        
+                       
+                        
+                    }
                     
                     else if viewModel.feedViewOption == .grid {
                             ScrollView(showsIndicators: false) {
                                 VStack{
                                     FeedGridView(viewModel: viewModel)
+                                        
                                 }
+                                
                             }
-                            
+                            .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
+                            .gesture(viewModel.drag)
                         }
                     
                     

@@ -46,8 +46,12 @@ struct FeedGridView: View {
                             .frame(width: width, height: width * heightRatio)
                             .cornerRadius(cornerRadius)
                             .clipped()
-                            //.cornerRadius(cornerRadius)
-                            .onTapGesture { selectedPost = post}
+                            .onTapGesture {
+                                viewModel.scrollPosition = post.id
+                                viewModel.startingPostId = post.id
+                                viewModel.feedViewOption = .feed
+                              
+                            }
                             .onAppear{
                                 if viewModel.isLastItem(post) {
                                     Task {
@@ -63,7 +67,7 @@ struct FeedGridView: View {
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
                                           
-                                        }  else if let recipe = post.cookingTitle {
+                                        }  else if post.cookingTitle != nil {
                                             Image(systemName: "frying.pan.fill")
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
@@ -127,12 +131,12 @@ struct FeedGridView: View {
                 //                    }
             }
             .padding(spacing/2)
-            .sheet(item: $selectedPost) { post in
-                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
-                    .onDisappear {
-                        //player.replaceCurrentItem(with: nil)
-                    }
-            }
+//            .sheet(item: $selectedPost) { post in
+//                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+//                    .onDisappear {
+//                        //player.replaceCurrentItem(with: nil)
+//                    }
+//            }
         }
     }
 }
