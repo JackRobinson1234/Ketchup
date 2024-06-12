@@ -11,7 +11,7 @@ import SwiftUI
 
 struct UploadService {
     
-    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: PostType, postRestaurant: PostRestaurant?, recipe: Recipe?, fromInAppCamera: Bool, cookingTitle: String?) async throws {
+    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: PostType, postRestaurant: PostRestaurant?, recipe: PostRecipe?, fromInAppCamera: Bool, cookingTitle: String?) async throws {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
         
@@ -60,7 +60,7 @@ struct UploadService {
             timestamp: Timestamp(),
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
-            recipeId: recipe?.id,
+            recipe: recipe,
             fromInAppCamera: fromInAppCamera,
             cookingTitle: cookingTitle
         )
@@ -75,16 +75,6 @@ struct UploadService {
         try await ref.setData(postData)
         print("Post created successfully")
         
-        if let recipe {
-            //Updates the recipe with the postID
-            var updatedRecipe = recipe
-            updatedRecipe.postId = ref.documentID
-            guard let recipeData = try? Firestore.Encoder().encode(updatedRecipe) else {
-                print("Encoding failed for post data")
-                throw UploadError.encodingFailed
-            }
-            try await FirestoreConstants.RecipesCollection.document(recipe.id).setData(recipeData)
-        }
 
         // Update the thumbnail after the post is created if it's a video
     }

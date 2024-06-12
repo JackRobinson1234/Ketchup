@@ -172,7 +172,7 @@ struct FeedCell: View {
                                 } else if let recipe = post.cookingTitle{
                                     VStack (alignment: .leading) {
                                         HStack(){
-                                            if post.recipeId != nil{
+                                            if post.recipe != nil{
                                                 Button{
                                                     showRecipe.toggle()
                                                 } label: {
@@ -227,7 +227,7 @@ struct FeedCell: View {
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
                                 } 
-                                else if post.recipeId != nil {
+                                else if post.recipe != nil {
                                     Button{
                                         showRecipe.toggle()
                                         Task{

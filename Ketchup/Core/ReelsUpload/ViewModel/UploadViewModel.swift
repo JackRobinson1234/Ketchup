@@ -81,15 +81,15 @@ class UploadViewModel: ObservableObject {
     func uploadPost() async {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
-        var recipe: Recipe? = nil
+        var recipe: PostRecipe? = nil
         if hasRecipeDetailsChanged() {
-            recipe = Recipe(id: NSUUID().uuidString,
-                            name: recipeTitle,
+            recipe = PostRecipe(
                             cookingTime: cookingTime,
                             dietary: dietaryRestrictions,
                             instructions: instructions,
                             ingredients: ingredients,
-                            postId: "")
+                            servings: recipeServings
+                            )
         }
         
         if let restaurant = restaurant {

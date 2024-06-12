@@ -173,7 +173,6 @@
 		F8ABCED62C14E7E6002088B8 /* EditInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8ABCED52C14E7E5002088B8 /* EditInstructionsView.swift */; };
 		F8ABCED82C14EAD3002088B8 /* EditIngredientsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8ABCED72C14EAD3002088B8 /* EditIngredientsView.swift */; };
 		F8ABCEDA2C17DFED002088B8 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8ABCED92C17DFED002088B8 /* Recipe.swift */; };
-		F8ABCEDC2C17E89D002088B8 /* RecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8ABCEDB2C17E89D002088B8 /* RecipeService.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
 		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
 		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
@@ -408,7 +407,6 @@
 		F8ABCED52C14E7E5002088B8 /* EditInstructionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInstructionsView.swift; sourceTree = "<group>"; };
 		F8ABCED72C14EAD3002088B8 /* EditIngredientsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditIngredientsView.swift; sourceTree = "<group>"; };
 		F8ABCED92C17DFED002088B8 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
-		F8ABCEDB2C17E89D002088B8 /* RecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeService.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
 		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
 		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
@@ -667,7 +665,6 @@
 				F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */,
 				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
 				F846F45B2BFBF708009D1303 /* ReviewService.swift */,
-				F8ABCEDB2C17E89D002088B8 /* RecipeService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1756,7 +1753,6 @@
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */,
 				F846F4662BFD91AC009D1303 /* RestaurantReviewSelector.swift in Sources */,
-				F8ABCEDC2C17E89D002088B8 /* RecipeService.swift in Sources */,
 				F85288B12BC067B500153126 /* CookingTimeFilter.swift in Sources */,
 				F8ABBAF72C0E34E300280C22 /* NewRecipeView.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
