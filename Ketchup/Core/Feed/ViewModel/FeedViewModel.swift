@@ -28,13 +28,13 @@ class FeedViewModel: ObservableObject {
     private let pageSize = 15
     private let fetchingThreshold = -5
     private var filters: [String: [Any]]? = [:]
-    @State var maxFetched: Bool = false
     private var lastFetched: Int = 0
     @Published var duration: Double = 0.0
     @Published var currentTime: Double = 0.0
     @Published var isDragging = false
     @Published var startingPostId: String
     @Published var earlyPosts: [Post]
+    @Published var hasMorePosts: Bool = true
 
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
@@ -62,7 +62,7 @@ class FeedViewModel: ObservableObject {
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
-        maxFetched = false
+        hasMorePosts = true
         self.filters = filters
         isLoading = true
         await fetchPosts(withFilters: filters, isInitialLoad: true)
@@ -85,7 +85,8 @@ class FeedViewModel: ObservableObject {
     
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
-        if maxFetched {
+        if !hasMorePosts{
+            print("Doesn't have any more posts")
             return
         }
         do {
@@ -98,8 +99,14 @@ class FeedViewModel: ObservableObject {
             }
             
             let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
-            self.lastDocument = lastDoc
-            self.posts.append(contentsOf: newPosts)
+            if newPosts.isEmpty || newPosts.count < self.pageSize {
+                self.posts.append(contentsOf: newPosts)
+                self.lastDocument = lastDoc
+                self.hasMorePosts = false // No more posts are available.
+            } else {
+                self.posts.append(contentsOf: newPosts)
+                self.lastDocument = lastDoc
+            }
             self.showEmptyView = self.posts.isEmpty
             await checkIfUserLikedPosts()
         } catch {
@@ -232,11 +239,11 @@ extension FeedViewModel {
         
         let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
         let postPosition = posts.firstIndex(where: { $0.id == currentPost })
-        if let postPosition, postPosition >= thresholdIndex && lastFetched < postPosition {
+        if let postPosition, postPosition >= thresholdIndex && lastFetched <= postPosition {
             print("Fetching more posts")
             self.lastFetched = postPosition
             await fetchMorePosts()
-        } else if lastFetched == postPosition {
+        } else if let postPosition, lastFetched > postPosition {
             print("posts already been fetched from this index")
         }
     }

@@ -18,17 +18,17 @@ struct PostGridView: View {
     
     private let spacing: CGFloat = 8
     private var width: CGFloat {
-            (UIScreen.main.bounds.width - (spacing * 2)) / 3
-        }
+        (UIScreen.main.bounds.width - (spacing * 2)) / 3
+    }
     let cornerRadius: CGFloat = 5
     
     private var items: [GridItem] {
-           [
-               GridItem(.flexible(), spacing:  2),
-               GridItem(.flexible(), spacing:  2),
-               GridItem(.flexible(), spacing:  2),
-           ]
-       }
+        [
+            GridItem(.flexible(), spacing:  2),
+            GridItem(.flexible(), spacing:  2),
+            GridItem(.flexible(), spacing:  2),
+        ]
+    }
     init(posts: [Post]?) {
         self.posts = posts
     }
@@ -60,10 +60,10 @@ struct PostGridView: View {
                                         }
                                         Spacer()
                                         if post.repost{
-                                                Image(systemName: "arrow.2.squarepath")
-                                                    .foregroundStyle(.white)
-                                                    .font(.caption)
-                                            }
+                                            Image(systemName: "arrow.2.squarepath")
+                                                .foregroundStyle(.white)
+                                                .font(.caption)
+                                        }
                                     }
                                     
                                     Spacer()
@@ -99,13 +99,13 @@ struct PostGridView: View {
                     }
                 }
                 .padding(spacing/2)
-                .fullScreenCover(item: $selectedPost) { post in
+                .sheet(item: $selectedPost) { post in
                     if let posts = posts{
                         if let index = posts.firstIndex(where: { $0.id == post.id }) {
                             let earlyPosts = Array(posts[..<index])
                             let laterPosts = Array(posts[index...])
                             FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: laterPosts, earlyPosts: earlyPosts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id)
-                        } 
+                        }
                     }
                 }
             }
