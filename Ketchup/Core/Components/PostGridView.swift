@@ -99,11 +99,10 @@ struct PostGridView: View {
                     }
                 }
                 .padding(spacing/2)
-                .sheet(item: $selectedPost) { post in
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
-                        .onDisappear {
-                            //player.replaceCurrentItem(with: nil)
-                        }
+                .fullScreenCover(item: $selectedPost) { post in
+                    if let posts = posts{
+                        FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: posts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id)
+                    }
                 }
             }
             else {

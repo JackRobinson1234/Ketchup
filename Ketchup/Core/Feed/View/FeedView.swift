@@ -10,39 +10,41 @@ import AVKit
 import Combine
 
 struct FeedView: View {
-    
-    //MARK: Variables
     @ObservedObject var videoCoordinator: VideoPlayerCoordinator
     @StateObject var viewModel: FeedViewModel
-    @State private var scrollPosition: String?
+    @State var scrollPosition: String?
     @State private var showSearchView = false
     @State private var showFilters = false
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
     @State var pauseVideo = false
     private var posts: [Post]
+    private var earlyPosts: [Post]
     @StateObject var filtersViewModel: FiltersViewModel
     @Environment(\.dismiss) var dismiss
     private var hideFeedOptions: Bool
- 
+    @State var startingPostId: String?
     
     
-    
-    
-    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], hideFeedOptions: Bool = false) {
+    // Initialize with an optional startingPostId
+    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], earlyPosts: [Post] = [], hideFeedOptions: Bool = false, startingPostId: String? = nil, initialScrollPosition: String? = nil) {
         self.videoCoordinator = videoCoordinator
-        let viewModel = FeedViewModel(posts: posts)
+        let viewModel = FeedViewModel(posts: posts, startingPostId: startingPostId ?? "")
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.posts = posts
+        self.earlyPosts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
-        
-        
+        self._scrollPosition = State(initialValue: initialScrollPosition)
+        self.startingPostId = startingPostId
     }
+    
+    
+    
     
     var body: some View {
         /// Loading screen will only appear when the app first opens and will fetch posts
-        if isLoading && posts.isEmpty {
+        if isLoading && posts.isEmpty{
             // Loading screen
             ProgressView("Loading...")
                 .onAppear {
@@ -52,49 +54,57 @@ struct FeedView: View {
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
-                .gesture(viewModel.drag)
         } else {
             //MARK: Video Cells
             NavigationStack {
                 ZStack(alignment: .topTrailing) {
                     if viewModel.feedViewOption == .feed {
-                        
+                    
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach($viewModel.posts) { post in
-                                        FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                        
+                                        FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
                                             .id(post.id)
                                             
+                                        
+                                    }
+                                }
+                                .onAppear {
+                                    if startingPostId != nil{
+                                        scrollProxy.scrollTo(startingPostId, anchor: .top)
+                                        startingPostId = nil
+                                    } else if !viewModel.startingPostId.isEmpty{
+                                        scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
+                                        viewModel.startingPostId = ""
+                                        
+                                        
                                     }
                                 }
                             }
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
-                            .onAppear {
-                                scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
-                                viewModel.startingPostId = ""
-                            }
+                           
+                            
                             
                         }
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                         
-                       
-                        
                     }
                     
                     else if viewModel.feedViewOption == .grid {
-                            ScrollView(showsIndicators: false) {
-                                VStack{
-                                    FeedGridView(viewModel: viewModel)
-                                        
-                                }
+                        ScrollView(showsIndicators: false) {
+                            VStack{
+                                FeedGridView(viewModel: viewModel)
                                 
                             }
-                            .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-                            .gesture(viewModel.drag)
+                            
                         }
+                        .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
+                        .gesture(viewModel.drag)
+                    }
                     
                     
                     
@@ -104,7 +114,7 @@ struct FeedView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 60, height: 17)
-                                
+                            
                             
                             // Button for "Grid"
                             Spacer()
@@ -197,10 +207,29 @@ struct FeedView: View {
                         .padding(.bottom, 10)
                         //.opacity(1)
                         .shadow(color: Color.gray.opacity(0.5), radius: 5, x: 0, y: 5)
+                    } else {
+                        HStack {
+                            
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(.white)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                            .frame(width: 40, height: 40) // Adjust the size as needed
+                                    )
+                                    .padding()
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(20)
+                        
                     }
-                    
                 }
-                .gesture(viewModel.drag)
+                
                 
                 
                 //MARK: Loading/ No posts
@@ -264,24 +293,10 @@ struct FeedView: View {
                 .fullScreenCover(isPresented: $showFilters) {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
-                .toolbar {
-                    if hideFeedOptions{
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(.white)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                            .frame(width: 30, height: 30) // Adjust the size as needed
-                                    )
-                                    .padding()
-                            }
-                        }
-                    }
-                }
+                .navigationBarHidden(true)
+                
+                
+                
                 
             }
         }

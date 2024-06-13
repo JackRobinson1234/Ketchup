@@ -33,7 +33,8 @@ class FeedViewModel: ObservableObject {
     @Published var duration: Double = 0.0
     @Published var currentTime: Double = 0.0
     @Published var isDragging = false
-    @Published var startingPostId = ""
+    @Published var startingPostId: String
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
             .onChanged { _ in self.isDragging = true }
@@ -49,11 +50,13 @@ class FeedViewModel: ObservableObject {
     }
     
     
-    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = []) {
+    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "") {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
+        
         self._scrollPosition = scrollPosition
+        self.startingPostId = startingPostId
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {

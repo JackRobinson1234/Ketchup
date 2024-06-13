@@ -36,6 +36,8 @@ struct FeedCell: View {
     @State private var currentImageIndex = 0
     @State var isDragging = false
     @State var dragDirection = "left"
+    var hideFeedOptions: Bool
+    @Environment(\.dismiss) var dismiss
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
@@ -45,6 +47,8 @@ struct FeedCell: View {
                     self.dragDirection = "left"
                     if self.currentImageIndex > 0 {
                         self.currentImageIndex -= 1
+                    } else if hideFeedOptions{
+                        dismiss()
                     } else {
                         viewModel.feedViewOption = .grid
                     }
@@ -488,7 +492,8 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         videoCoordinator: VideoPlayerCoordinator(),
         viewModel: FeedViewModel()
         ,scrollPosition: .constant(""),
-        pauseVideo: .constant(true)
+        pauseVideo: .constant(true),
+        hideFeedOptions: true
     )
 }
 
