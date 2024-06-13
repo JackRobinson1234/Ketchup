@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 import AVKit
 import PhotosUI
+import UniformTypeIdentifiers
+
 
 struct CameraView: View {
     
@@ -25,27 +27,32 @@ struct CameraView: View {
                 
                 Color.black
                     .ignoresSafeArea()
-
                 
                 // WHAT THE CAMERA SEES
-                CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-                    .cornerRadius(10)
-                    .environmentObject(cameraViewModel)
-                    .onAppear { cameraViewModel.checkPermission() }
-                    .gesture(cameraViewModel.getDragStatus() ? cameraViewModel.drag : nil)
-                    .onTapGesture(count: 2) {
-                        cameraViewModel.toggleCamera()
-                    }
-                    .gesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                cameraViewModel.handlePinchGesture(scale: value)
-                            }
-                            .onEnded { _ in
-                                // Reset initial zoom factor at the end of the gesture
-                                cameraViewModel.startPinchGesture()
-                            }
-                    )
+                if cameraViewModel.audioOrVideoPermissionsDenied {
+                    PermissionDeniedView()
+                } else {
+                    CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+                        .cornerRadius(10)
+                        .environmentObject(cameraViewModel)
+                        .onAppear {
+                            cameraViewModel.checkPermission()
+                        }
+                        .gesture(cameraViewModel.getDragStatus() ? cameraViewModel.drag : nil)
+                        .onTapGesture(count: 2) {
+                            cameraViewModel.toggleCamera()
+                        }
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    cameraViewModel.handlePinchGesture(scale: value)
+                                }
+                                .onEnded { _ in
+                                    // Reset initial zoom factor at the end of the gesture
+                                    cameraViewModel.startPinchGesture()
+                                }
+                        )
+                }
                 
                 if cameraViewModel.showFlashOverlay {
                     Color.white.opacity(0.5)
@@ -53,14 +60,15 @@ struct CameraView: View {
                 }
                 
                 // MARK: CameraControls
-                ZStack {
-                    if cameraViewModel.dragDirection == "left" {
-                        VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
-                    } else {
-                        PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+                if !cameraViewModel.audioOrVideoPermissionsDenied {
+                    ZStack {
+                        if cameraViewModel.dragDirection == "left" {
+                            VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+                        } else {
+                            PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+                        }
                     }
                 }
-                
                 
                 // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
                 VStack {
@@ -73,109 +81,110 @@ struct CameraView: View {
                                 .font(.title)
                                 .foregroundColor(.white)
                         }
-                        .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording || !cameraViewModel.isPhotoTaken ? 1 : 0)
                         .padding(.top, 35)
                         .padding(.leading)
-
+                        
                         Spacer()
                         
                     }
                     
-                    
                     Spacer()
                     
-                    
-                    ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 30, height: 30)
+                    if !cameraViewModel.audioOrVideoPermissionsDenied {
                         
-                        // Write actual zoom level here
-                        Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.white)
-                            .blendMode(.destinationOut)
-                    }
-                    .padding(.bottom, 20)
-                    
-                    
-                    HStack {
-                        Button {
-                            cameraViewModel.uploadFromLibray = true
-                        } label: {
+                        if cameraViewModel.isZooming {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 30, height: 30)
+                                
+                                // Write actual zoom level here
+                                Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .blendMode(.destinationOut)
+                            }
+                            .padding(.bottom, 20)
+                        }
+                        
+                        
+                        HStack {
+                            Button {
+                                cameraViewModel.uploadFromLibray = true
+                            } label: {
                                 Image(systemName: "photo.on.rectangle")
                                     .resizable()
                                     .foregroundColor(.white)
                                     .scaledToFit()
-                                    .frame(width: 50, height:50)
+                                    .frame(width: 50, height: 50)
                                     .padding(.leading, 60)
+                            }
+                            
+                            Spacer()
                         }
+                        .padding(.bottom, 20)
                         
-                        Spacer()
+                        HStack {
+                            Text("Video")
+                                .foregroundColor(cameraViewModel.dragDirection == "left" ? .white : .gray)
+                                .fontWeight(cameraViewModel.dragDirection == "left" ? .bold : .regular)
+                                .onTapGesture {
+                                    cameraViewModel.dragDirection = "left"
+                                }
+                            
+                            Text("Photo")
+                                .foregroundColor(cameraViewModel.dragDirection == "right" ? .white : .gray)
+                                .fontWeight(cameraViewModel.dragDirection == "right" ? .bold : .regular)
+                                .onTapGesture {
+                                    cameraViewModel.dragDirection = "right"
+                                }
+                        }
+                        .padding(.bottom, 10)
                     }
-                    
-                    .padding(.bottom, 20)
-                    
-                    HStack {
-                        Text("Video")
-                            .foregroundColor(cameraViewModel.dragDirection == "left" ? .white : .gray)
-                            .fontWeight(cameraViewModel.dragDirection == "left" ? .bold : .regular)
-                            .onTapGesture {
-                                cameraViewModel.dragDirection = "left"
-                            }
-                        
-                        Text("Photo")
-                            .foregroundColor(cameraViewModel.dragDirection == "right" ? .white : .gray)
-                            .fontWeight(cameraViewModel.dragDirection == "right" ? .bold : .regular)
-                            .onTapGesture {
-                                cameraViewModel.dragDirection = "right"
-                            }
-                    }
-                    .padding(.bottom, 10)
-                    
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
                 
-                HStack {
-                    
-                    Spacer()
-                    
-                    VStack(spacing: 20) {
-                        
-                        Button(action: {
-                            cameraViewModel.toggleCamera()
-                        }) {
-                            Image(systemName: "camera.rotate")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.white)
-                        }
-                        
-                        Button(action: {
-                            switch cameraViewModel.flashMode {
-                            case .off:
-                                cameraViewModel.flashMode = .on
-                            case .on:
-                                cameraViewModel.flashMode = .off
-                            default:
-                                cameraViewModel.flashMode = .off
-                            }
-                        }) {
-                            Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.white)
-                        }
+                if !cameraViewModel.audioOrVideoPermissionsDenied {
+                    HStack {
                         
                         Spacer()
+                        
+                        VStack(spacing: 20) {
+                            
+                            Button(action: {
+                                cameraViewModel.toggleCamera()
+                            }) {
+                                Image(systemName: "camera.rotate")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 35, height: 35)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Button(action: {
+                                switch cameraViewModel.flashMode {
+                                case .off:
+                                    cameraViewModel.flashMode = .on
+                                case .on:
+                                    cameraViewModel.flashMode = .off
+                                default:
+                                    cameraViewModel.flashMode = .off
+                                }
+                            }) {
+                                Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 35, height: 35)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.trailing)
+                        .padding(.top, 35)
                     }
-                    .padding(.trailing)
-                    .padding(.top, 35)
+                    .opacity(cameraViewModel.isRecording ? 0 : 1)
                 }
-                .opacity(cameraViewModel.isRecording ? 0 : 1)
-                
                 
             }
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
@@ -327,21 +336,29 @@ struct VideoCameraControls: View {
 }
 
 struct PhotoCameraControls: View {
-    
     @ObservedObject var cameraViewModel: CameraViewModel
-    
     @ObservedObject var uploadViewModel: UploadViewModel
     
     @State private var showFlash = false
-    
+    @State private var maxPhotosReached = false
+    @State private var showWarning = false
+    @State private var showReorderView = false
+
     var body: some View {
-        
-        
         ZStack {
             VStack {
-                
-                // TOP BUTTONS
                 HStack {
+                    Button {
+                        cameraViewModel.clearPics()
+                        cameraViewModel.mediaType = "none"
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.title)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, 12)
+                    .padding(.leading)
+                    .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                     
                     Spacer()
                     
@@ -355,7 +372,10 @@ struct PhotoCameraControls: View {
                                         .frame(width: 31.2, height: 45)
                                         .clipShape(RoundedRectangle(cornerRadius: 5))
                                         .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                        .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for reversed order
+                                        .offset(x: CGFloat((2 - index) * 10), y: 0)
+                                        .onTapGesture {
+                                            showReorderView.toggle()
+                                        }
                                 } else {
                                     if cameraViewModel.isLoading && index == 0 {
                                         Rectangle()
@@ -367,21 +387,15 @@ struct PhotoCameraControls: View {
                                                     .tint(.white)
                                             )
                                             .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0)
                                     } else {
                                         Rectangle()
                                             .fill(Color.gray)
                                             .frame(width: 31.2, height: 45)
                                             .clipShape(RoundedRectangle(cornerRadius: 5))
-                                            .overlay(
-                                                Text("+")
-                                                    .font(.system(size: 20))
-                                                    .foregroundColor(.white)
-                                            )
                                             .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                                            .offset(x: CGFloat((2 - index) * 10), y: 0) // Adjust offset for placeholders
+                                            .offset(x: CGFloat((2 - index) * 10), y: 0)
                                     }
-                                    
                                 }
                             }
                         }
@@ -394,17 +408,20 @@ struct PhotoCameraControls: View {
                     
                     Spacer()
                     
+                    Image(systemName: "xmark")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .padding(.trailing)
+                        .opacity(0)
                 }
                 
                 Spacer()
                 
-                
                 HStack(spacing: 30) {
                     Button {
-                        cameraViewModel.untakePic()
-                        cameraViewModel.mediaType = "none"
+                        cameraViewModel.clearLatestPic()
                     } label: {
-                        Text("Delete")
+                        Text("Delete Latest")
                             .frame(width: 100, height: 50)
                             .background(Color("Colors/AccentColor"))
                             .cornerRadius(3.0)
@@ -412,24 +429,32 @@ struct PhotoCameraControls: View {
                     }
                     .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                     
-                    
-                    // TAKE PIC BUTTON
                     Button {
-                        cameraViewModel.takePic()
+                        if !maxPhotosReached {
+                            cameraViewModel.takePic()
+                        } else {
+                            showWarning = true
+                        }
                     } label: {
                         ZStack {
                             Circle()
-                                .stroke(.white, lineWidth: 5)
+                                .stroke(maxPhotosReached || cameraViewModel.isLoading ? .gray : .white, lineWidth: 5)
                                 .frame(width: 70, height: 70)
-                            
                             Circle()
-                                .fill(.white)
+                                .fill(maxPhotosReached || cameraViewModel.isLoading ? .gray : .white)
                                 .frame(width: 60, height: 60)
                         }
+                        .overlay(
+                            Group {
+                                if cameraViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            }
+                        )
                     }
-                    
-                    
-                    // NAV TO UPLOAD BUTTON
+                    .disabled(cameraViewModel.isLoading)
+
                     Button {
                         if cameraViewModel.isPhotoTaken {
                             cameraViewModel.navigateToUpload.toggle()
@@ -464,6 +489,27 @@ struct PhotoCameraControls: View {
                     .transition(.opacity)
                     .animation(.easeOut(duration: 0.3), value: showFlash)
             }
+            
+            if showWarning {
+                Text("Maximum photos reached")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .padding()
+                    .background(Color.red.opacity(0.8))
+                    .cornerRadius(10)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            showWarning = false
+                        }
+                    }
+            }
+        }
+        .onChange(of: cameraViewModel.images.count) { count in
+            maxPhotosReached = count >= 5
+        }
+        .sheet(isPresented: $showReorderView) {
+            PhotoReorderView(cameraViewModel: cameraViewModel)
         }
     }
 }
@@ -559,4 +605,176 @@ struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {
     }
     
+}
+
+struct PermissionDeniedView: View {
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            Text("Allow Ketchup to access camera and microphone")
+                .font(.title2)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
+            
+            Text("This will let you use the in app camera")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
+                .opacity(0.8)
+                .padding()
+            
+            Button(action: {
+                openAppSettings()
+            }) {
+                Text("Open Settings")
+                    .foregroundColor(Color("Colors/AccentColor"))
+            }
+            
+            Spacer()
+        }
+    }
+    
+    func openAppSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+}
+
+struct PhotoReorderView: View {
+    @ObservedObject var cameraViewModel: CameraViewModel
+    @Environment(\.presentationMode) var presentationMode
+
+    @State private var draggedItem: UIImage?
+    @State private var draggedIndex: Int?
+    @State private var dropIndex: Int?
+
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Done")
+                        .foregroundColor(.blue)
+                        .padding()
+                }
+                Spacer()
+            }
+
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(cameraViewModel.images.indices, id: \.self) { index in
+                        ZStack(alignment: .topTrailing) {
+                            Image(uiImage: cameraViewModel.images[index])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 104, height: 225)
+                                .cornerRadius(10)
+                                .clipped()
+                                .shadow(radius: 5)
+                                //.offset(y: draggedIndex == index ? -20 : 0)
+                                .onDrag {
+                                    self.draggedItem = cameraViewModel.images[index]
+                                    self.draggedIndex = index
+                                    return NSItemProvider(object: String(index) as NSString)
+                                }
+                                .onDrop(of: [UTType.text], delegate: DragRelocateDelegate(item: cameraViewModel.images[index], listData: $cameraViewModel.images, current: index, draggedIndex: $draggedIndex, dropIndex: $dropIndex))
+                                .onHover { hovering in
+                                    if hovering {
+                                        self.dropIndex = index
+                                    } else {
+                                        if self.dropIndex == index {
+                                            self.dropIndex = nil
+                                        }
+                                    }
+                                }
+
+                            Button(action: {
+                                cameraViewModel.images.remove(at: index)
+                                if cameraViewModel.images.isEmpty {
+                                    cameraViewModel.isPhotoTaken = false
+                                }
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.red)
+                                    .padding(5)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+        .onChange(of: dropIndex) { _ in
+            if let draggedIndex = draggedIndex, let dropIndex = dropIndex {
+                
+                    reorderImages(from: draggedIndex, to: dropIndex)
+                
+            }
+        }
+        .onChange(of: draggedIndex) { _ in
+            if draggedIndex == nil {
+                dropIndex = nil
+            }
+        }
+    }
+
+
+    private func reorderImages(from source: Int, to destination: Int) {
+        if source != destination {
+            var images = cameraViewModel.images
+            let item = images.remove(at: source)
+            images.insert(item, at: destination)
+            cameraViewModel.images = images
+            self.draggedIndex = destination
+        }
+    }
+}
+
+struct DragRelocateDelegate: DropDelegate {
+    let item: UIImage
+    @Binding var listData: [UIImage]
+    let current: Int
+    @Binding var draggedIndex: Int?
+    @Binding var dropIndex: Int?
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedIndex = draggedIndex else { return }
+        if current != draggedIndex {
+            withAnimation {
+                moveItem(from: draggedIndex, to: current)
+            }
+        }
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let draggedIndex = draggedIndex, let dropIndex = dropIndex else { return false }
+        withAnimation {
+            moveItem(from: draggedIndex, to: dropIndex)
+        }
+        self.draggedIndex = nil
+        self.dropIndex = nil
+        return true
+    }
+
+    private func moveItem(from source: Int, to destination: Int) {
+        if source != destination {
+            var updatedList = listData
+            let item = updatedList.remove(at: source)
+            updatedList.insert(item, at: destination)
+            listData = updatedList
+            self.draggedIndex = destination
+        }
+    }
 }

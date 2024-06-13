@@ -52,6 +52,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     //LOADING STUFF
     @Published var isLoading = false
     
+    // PERMISSIONS
+    @Published var audioOrVideoPermissionsDenied = false
+
     // USER CAMERA SETTINGS
     @Published var cameraPosition: CameraPosition = .back
     @Published var flashMode: AVCaptureDevice.FlashMode = .off
@@ -68,6 +71,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
         }
 
+    @Published var isZooming: Bool = false
+    
     private var initialZoomFactor: CGFloat = 1.0
     @Published var isDragEnabled: Bool = true
     var drag: some Gesture {
@@ -106,38 +111,60 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         let sensitivity: CGFloat = 1
         let newZoomFactor = initialZoomFactor * (1 + (scale - 1) * sensitivity)
         zoomFactor = newZoomFactor
+        isZooming = true
     }
 
     func startPinchGesture() {
         initialZoomFactor = zoomFactor
+        isZooming = false
     }
     
     func checkPermission() {
+        let videoPermission = AVCaptureDevice.authorizationStatus(for: .video)
+        let audioPermission = AVCaptureDevice.authorizationStatus(for: .audio)
         
-        // check perms
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-            
-        case .authorized:
-            setUp()
-            return
-            
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { (status) in
-                if status {
-                    self.setUp()
-                }
+        if videoPermission == .authorized && audioPermission == .authorized {
+            DispatchQueue.main.async {
+                self.setUp()
             }
-            
-        case .denied:
-            self.alert.toggle()
             return
-            
-        default:
-            return
-            
         }
         
+        if videoPermission == .denied || audioPermission == .denied {
+            DispatchQueue.main.async {
+                self.audioOrVideoPermissionsDenied = true
+            }
+            return
+        }
+        
+        if videoPermission == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.checkPermission()
+                    } else {
+                        self.audioOrVideoPermissionsDenied = true
+                    }
+                }
+            }
+            return
+        }
+        
+        if audioPermission == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.checkPermission()
+                    } else {
+                        self.audioOrVideoPermissionsDenied = true
+                    }
+                }
+            }
+            return
+        }
     }
+
+    
     
     func setUp() {
         
@@ -156,8 +183,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
             let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             
+            print("CEHCKING AUD PERMS HERE?")
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
+            print("AUDIO PERMS CHECKED")
             
             // check for input
             if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
@@ -306,25 +335,23 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func takePic() {
         if images.count < 5 {
-            DispatchQueue.global(qos:.background).async {
-                let photoSettings = AVCapturePhotoSettings()
-                if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
-                    photoSettings.flashMode = self.flashMode
-                }
-                
-                if self.flashMode == .off {
-                    DispatchQueue.main.async {
-                        self.showFlashOverlay = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self.showFlashOverlay = false
-                        }
+            let photoSettings = AVCapturePhotoSettings()
+            if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
+                photoSettings.flashMode = self.flashMode
+            }
+            
+            if self.flashMode == .off {
+                DispatchQueue.main.async {
+                    self.showFlashOverlay = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.showFlashOverlay = false
                     }
                 }
-                self.isLoading = true
-                self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
             }
+            self.isLoading = true
+            self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
         } else {
-            // Additional logic if needed
+            // Additional logic
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
@@ -333,20 +360,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
 
-    func untakePic() {
-
-        DispatchQueue.global(qos: .background).async {
-
-            self.session.startRunning()
-
-            DispatchQueue.main.async {
-                self.images.removeAll()
-                self.isPhotoTaken.toggle()
-                // self.isPhotoSaved = false
-            }
-
+    func clearPics() {
+        self.images.removeAll()
+        self.isPhotoTaken.toggle()
+    }
+    
+    func clearLatestPic() {
+        
+        let _ = self.images.popLast()
+        
+        if self.images.isEmpty {
+            self.isPhotoTaken.toggle()
         }
-
     }
     
 

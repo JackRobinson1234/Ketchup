@@ -13,7 +13,7 @@ struct PostGridView: View {
     //var viewModel: any PostGridViewModelProtocol
     //@State private var player = AVPlayer()
     @State private var selectedPost: Post?
-    
+    @Environment(\.dismiss) var dismiss
     private let posts: [Post]?
     
     private let spacing: CGFloat = 8
@@ -101,7 +101,11 @@ struct PostGridView: View {
                 .padding(spacing/2)
                 .fullScreenCover(item: $selectedPost) { post in
                     if let posts = posts{
-                        FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: posts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id)
+                        if let index = posts.firstIndex(where: { $0.id == post.id }) {
+                            let earlyPosts = Array(posts[..<index])
+                            let laterPosts = Array(posts[index...])
+                            FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: laterPosts, earlyPosts: earlyPosts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id)
+                        } 
                     }
                 }
             }

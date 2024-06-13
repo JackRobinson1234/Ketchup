@@ -29,12 +29,13 @@ class FeedViewModel: ObservableObject {
     private let fetchingThreshold = -5
     private var filters: [String: [Any]]? = [:]
     @State var maxFetched: Bool = false
-    private var lastFetched: String? = nil
+    private var lastFetched: Int = 0
     @Published var duration: Double = 0.0
     @Published var currentTime: Double = 0.0
     @Published var isDragging = false
     @Published var startingPostId: String
-    
+    @Published var earlyPosts: [Post]
+
     var drag: some Gesture {
         DragGesture(minimumDistance: 85)
             .onChanged { _ in self.isDragging = true }
@@ -50,13 +51,14 @@ class FeedViewModel: ObservableObject {
     }
     
     
-    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "") {
+    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
         
         self._scrollPosition = scrollPosition
         self.startingPostId = startingPostId
+        self.earlyPosts = earlyPosts
     }
     
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
@@ -67,7 +69,13 @@ class FeedViewModel: ObservableObject {
         isLoading = false
         
     }
-    
+    func combineEarlyPosts() {
+        print("EARLY COUNT", earlyPosts.count)
+        print("LATE COUNT" , posts.count)
+        posts.insert(contentsOf: earlyPosts, at: 0)
+        print("COMBINED COUNT", posts.count)
+        earlyPosts = []
+    }
     func fetchMorePosts() async {
         guard !isFetching else { return }
         isFetching = true
@@ -217,14 +225,18 @@ extension FeedViewModel {
     /// Fetches more content when the scroll positon reaches the threshold posoton
     /// - Parameter currentPost: Current scroll position postID
     func loadMoreContentIfNeeded(currentPost: String?) async {
-        guard let currentPost = currentPost else { return }
+        guard let currentPost = currentPost, !isFetching else {
+            print("error with currentPost")
+            print("Either no current post, currently fetching, or no more posts to fetch.")
+                    return }
+        
         let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
         let postPosition = posts.firstIndex(where: { $0.id == currentPost })
-        if postPosition == thresholdIndex && lastFetched != scrollPosition{
+        if let postPosition, postPosition >= thresholdIndex && lastFetched < postPosition {
             print("Fetching more posts")
-            lastFetched = scrollPosition
+            self.lastFetched = postPosition
             await fetchMorePosts()
-        } else if postPosition == thresholdIndex && lastFetched == scrollPosition {
+        } else if lastFetched == postPosition {
             print("posts already been fetched from this index")
         }
     }

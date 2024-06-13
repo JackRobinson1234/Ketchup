@@ -29,7 +29,7 @@ struct FeedView: View {
     // Initialize with an optional startingPostId
     init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], earlyPosts: [Post] = [], hideFeedOptions: Bool = false, startingPostId: String? = nil, initialScrollPosition: String? = nil) {
         self.videoCoordinator = videoCoordinator
-        let viewModel = FeedViewModel(posts: posts, startingPostId: startingPostId ?? "")
+        let viewModel = FeedViewModel(posts: posts, startingPostId: startingPostId ?? "", earlyPosts: earlyPosts)
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.posts = posts
         self.earlyPosts = posts
@@ -59,27 +59,23 @@ struct FeedView: View {
             NavigationStack {
                 ZStack(alignment: .topTrailing) {
                     if viewModel.feedViewOption == .feed {
-                    
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach($viewModel.posts) { post in
-                                        
                                         FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
                                             .id(post.id)
-                                            
                                         
                                     }
                                 }
                                 .onAppear {
-                                    if startingPostId != nil{
-                                        scrollProxy.scrollTo(startingPostId, anchor: .top)
-                                        startingPostId = nil
-                                    } else if !viewModel.startingPostId.isEmpty{
+                                    if hideFeedOptions{
+                                        Debouncer(delay: 0.5).schedule{
+                                            viewModel.combineEarlyPosts()
+                                        }
+                                    } else {
                                         scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
                                         viewModel.startingPostId = ""
-                                        
-                                        
                                     }
                                 }
                             }
@@ -102,6 +98,8 @@ struct FeedView: View {
                             }
                             
                         }
+                        .scrollTargetLayout()
+                        .scrollPosition(id: $scrollPosition)
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                         .gesture(viewModel.drag)
                     }
@@ -225,7 +223,7 @@ struct FeedView: View {
                             
                             Spacer()
                         }
-                        .padding(20)
+                        .padding(40)
                         
                     }
                 }

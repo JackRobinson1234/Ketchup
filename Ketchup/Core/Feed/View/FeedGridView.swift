@@ -48,21 +48,18 @@ struct FeedGridView: View {
                             .clipped()
                             .onTapGesture {
                                 viewModel.scrollPosition = post.id
-                                viewModel.startingPostId = post.id
-                                viewModel.feedViewOption = .feed
+                               viewModel.startingPostId = post.id
+                               viewModel.feedViewOption = .feed
+                                
+                                
                               
                             }
-                            .onAppear{
-                                if viewModel.isLastItem(post) {
-                                    Task {
-                                        await viewModel.loadMoreContentIfNeeded(currentPost: post.id )
-                                    }
-                                }
-                            }
+                            .id(post.id)
+                            
                             .overlay(
                                 VStack{
                                     HStack {
-                                        if let restaurant = post.restaurant {
+                                        if post.restaurant != nil {
                                             Image(systemName: "storefront.fill")
                                                 .foregroundStyle(.white)
                                                 .font(.caption)
@@ -114,6 +111,14 @@ struct FeedGridView: View {
                     Color.clear
                         .frame(width: width, height: width * heightRatio)
                         .cornerRadius(cornerRadius)
+                        .onAppear{
+                            print("CLEAR APPEARED")
+                            if let last = viewModel.posts.last {
+                                Task {
+                                    await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                }
+                            }
+                        }
                     Color.clear
                         .frame(width: width, height: width * heightRatio)
                         .cornerRadius(cornerRadius)
