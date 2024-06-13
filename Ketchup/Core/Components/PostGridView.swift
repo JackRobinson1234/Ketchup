@@ -15,6 +15,7 @@ struct PostGridView: View {
     @State private var selectedPost: Post?
     @Environment(\.dismiss) var dismiss
     private let posts: [Post]?
+    private let feedTitleText: String?
     
     private let spacing: CGFloat = 8
     private var width: CGFloat {
@@ -29,8 +30,9 @@ struct PostGridView: View {
             GridItem(.flexible(), spacing:  2),
         ]
     }
-    init(posts: [Post]?) {
+    init(posts: [Post]?, feedTitleText: String?) {
         self.posts = posts
+        self.feedTitleText = feedTitleText
     }
     
     var body: some View {
@@ -99,12 +101,12 @@ struct PostGridView: View {
                     }
                 }
                 .padding(spacing/2)
-                .sheet(item: $selectedPost) { post in
+                .fullScreenCover(item: $selectedPost) { post in
                     if let posts = posts{
                         if let index = posts.firstIndex(where: { $0.id == post.id }) {
                             let earlyPosts = Array(posts[..<index])
                             let laterPosts = Array(posts[index...])
-                            FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: laterPosts, earlyPosts: earlyPosts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id)
+                            FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: laterPosts, earlyPosts: earlyPosts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
                         }
                     }
                 }
@@ -124,5 +126,5 @@ struct PostGridView: View {
 }
 
 #Preview {
-    PostGridView(posts: DeveloperPreview.posts)
+    PostGridView(posts: DeveloperPreview.posts, feedTitleText: nil)
 }

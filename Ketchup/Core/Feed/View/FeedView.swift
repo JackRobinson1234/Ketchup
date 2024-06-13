@@ -24,10 +24,12 @@ struct FeedView: View {
     @Environment(\.dismiss) var dismiss
     private var hideFeedOptions: Bool
     @State var startingPostId: String?
+    private var titleText: String
+    
     
     
     // Initialize with an optional startingPostId
-    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], earlyPosts: [Post] = [], hideFeedOptions: Bool = false, startingPostId: String? = nil, initialScrollPosition: String? = nil) {
+    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], earlyPosts: [Post] = [], hideFeedOptions: Bool = false, startingPostId: String? = nil, initialScrollPosition: String? = nil, titleText: String = "") {
         self.videoCoordinator = videoCoordinator
         let viewModel = FeedViewModel(posts: posts, startingPostId: startingPostId ?? "", earlyPosts: earlyPosts)
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -36,7 +38,10 @@ struct FeedView: View {
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
         self._scrollPosition = State(initialValue: initialScrollPosition)
+        self.titleText = titleText
         self.startingPostId = startingPostId
+        
+        
     }
     
     
@@ -207,7 +212,6 @@ struct FeedView: View {
                         .shadow(color: Color.gray.opacity(0.5), radius: 5, x: 0, y: 5)
                     } else {
                         HStack {
-                            
                             Button {
                                 dismiss()
                             } label: {
@@ -220,11 +224,20 @@ struct FeedView: View {
                                     )
                                     .padding()
                             }
-                            
                             Spacer()
                         }
-                        .padding(40)
-                        
+                        .padding(30)
+                        HStack{
+                            Spacer()
+                            
+                            Text(titleText)
+                                .foregroundStyle(.white)
+                                .font(.headline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            Spacer()
+                        }
+                        .padding(.top, 70)
                     }
                 }
                 
@@ -242,10 +255,12 @@ struct FeedView: View {
                 }
                 /// loads the next 5 videos in the cache
                 .onChange(of: scrollPosition) {oldValue, newValue in
-                    Task {
-                        await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
+                    if !hideFeedOptions{
+                        Task {
+                            await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
+                        }
+                        viewModel.updateCache(scrollPosition: newValue)
                     }
-                    viewModel.updateCache(scrollPosition: newValue)
                     }
                 .background(Color("Colors/HingeGray"))
                 //.background(.black)

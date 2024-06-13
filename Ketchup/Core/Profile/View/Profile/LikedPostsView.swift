@@ -23,7 +23,7 @@ struct LikedPostsView: View {
                     }
                 }
         } else {
-            PostGridView(posts: viewModel.likedPosts)
+            PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts Liked by @\(viewModel.user.username)")
         }
     }
 }

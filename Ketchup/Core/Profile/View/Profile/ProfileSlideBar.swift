@@ -90,7 +90,7 @@ struct ProfileSlideBar: View {
         // MARK: Section Logic
         
         if profileSection == .posts {
-            PostGridView(posts: viewModel.posts)
+            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)")
         }
         
         if profileSection == .reviews {

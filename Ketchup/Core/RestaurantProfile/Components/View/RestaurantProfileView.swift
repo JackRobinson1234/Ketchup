@@ -35,6 +35,8 @@ struct RestaurantProfileView: View {
                         isLoading = false
                     }
                 }
+                .navigationBarBackButtonHidden()
+                .ignoresSafeArea(edges: .top)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -50,6 +52,7 @@ struct RestaurantProfileView: View {
                         }
                     }
                 }
+                
         } else {
             ScrollView{
                 VStack{
