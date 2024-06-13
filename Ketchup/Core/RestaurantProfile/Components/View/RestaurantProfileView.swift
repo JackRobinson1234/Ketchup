@@ -9,25 +9,55 @@ import SwiftUI
 
 struct RestaurantProfileView: View {
     @Environment(\.dismiss) var dismiss
-    @State var currentSection: Section
     @StateObject var viewModel: RestaurantViewModel
     @State private var isLoading = true
     private let restaurantId: String
     private let restaurant: Restaurant?
+    @State var dragDirection = "left"
+    @State var isDragging = false
     
-    init(restaurantId: String, currentSection: Section = .posts, restaurant: Restaurant? = nil) {
+    
+    init(restaurantId: String, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
         let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId)
         self._viewModel = StateObject(wrappedValue: restaurantViewModel)
-        self._currentSection = State(initialValue: currentSection)
         self.restaurant = restaurant
     }
-    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    if viewModel.currentSection == .posts {
+                        dismiss()
+                    } else if viewModel.currentSection == .reviews{
+                        viewModel.currentSection = .posts
+                    } else if viewModel.currentSection == .menu{
+                        viewModel.currentSection = .reviews
+                    } else if viewModel.currentSection == .collections{
+                        viewModel.currentSection = .menu
+                    }
+                } else {
+                        self.dragDirection = "right"
+                        if viewModel.currentSection == .posts {
+                            viewModel.currentSection = .reviews
+                        } else if viewModel.currentSection == .reviews{
+                            viewModel.currentSection = .menu
+                        } else if viewModel.currentSection == .menu{
+                            viewModel.currentSection = .collections
+                        }
+                        self.isDragging = false
+                    }
+                
+            }
+    }
     
     var body: some View {
         if isLoading {
             // Loading screen
             ProgressView("Loading...")
+                .gesture(drag)
                 .onAppear {
                     Task {
                         viewModel.restaurant = restaurant
@@ -52,15 +82,18 @@ struct RestaurantProfileView: View {
                         }
                     }
                 }
+               
                 
         } else {
             ScrollView{
                 VStack{
                     if viewModel.restaurant != nil {
-                        RestaurantProfileHeaderView(currentSection: $currentSection, viewModel: viewModel)
+                        RestaurantProfileHeaderView(viewModel: viewModel)
                     }
                 }
+                
             }
+            .gesture(drag)
             .ignoresSafeArea(edges: .top)
             .navigationBarBackButtonHidden()
             .toolbar(.hidden, for: .tabBar)

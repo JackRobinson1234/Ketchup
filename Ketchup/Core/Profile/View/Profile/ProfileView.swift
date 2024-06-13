@@ -17,8 +17,38 @@ struct ProfileView: View {
     }*/
     @State var profileSection: ProfileSectionEnum
     @State private var showingOptionsSheet = false
+    @State var isDragging = false
+    @State var dragDirection = "left"
     private let uid: String
-
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    if profileSection == .posts {
+                        dismiss()
+                    } else if profileSection == .reviews{
+                        profileSection = .posts
+                    } else if profileSection == .likes{
+                        profileSection = .reviews
+                    } else if profileSection == .collections{
+                        profileSection = .likes
+                    }
+                } else {
+                        self.dragDirection = "right"
+                        if profileSection == .posts {
+                            profileSection = .reviews
+                        } else if profileSection == .reviews{
+                            profileSection = .likes
+                        } else if profileSection == .likes{
+                            profileSection = .collections
+                        }
+                        self.isDragging = false
+                    }
+                
+            }
+    }
 
     init(uid: String, profileSection: ProfileSectionEnum = .posts) {
         self.uid = uid
@@ -55,6 +85,7 @@ struct ProfileView: View {
                     }
                 }
             }
+            .gesture(drag)
             .sheet(isPresented: $showingOptionsSheet) {
                 ProfileOptionsSheet(user: profileViewModel.user)
                         .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])

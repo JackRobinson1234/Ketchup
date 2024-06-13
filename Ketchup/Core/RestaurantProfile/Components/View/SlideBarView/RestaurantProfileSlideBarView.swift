@@ -14,12 +14,10 @@ enum Section {
 }
 
 struct RestaurantProfileSlideBarView: View {
-    @Binding var currentSection: Section
         @ObservedObject var viewModel: RestaurantViewModel
         @StateObject var reviewsViewModel: ReviewsViewModel
         
-        init(currentSection: Binding<Section>, viewModel: RestaurantViewModel) {
-            self._currentSection = currentSection
+        init(viewModel: RestaurantViewModel) {
             self.viewModel = viewModel
             self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
         }
@@ -27,6 +25,7 @@ struct RestaurantProfileSlideBarView: View {
         //MARK: Selecting Images
         VStack{
             HStack(spacing: 0) {
+                var currentSection = viewModel.currentSection
                 Image(systemName: currentSection == .posts ? "square.grid.2x2.fill" : "square.grid.2x2")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -34,7 +33,7 @@ struct RestaurantProfileSlideBarView: View {
                 
                     .onTapGesture {
                         withAnimation {
-                            self.currentSection = .posts
+                            viewModel.currentSection = .posts
                         }
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .posts))
@@ -48,7 +47,7 @@ struct RestaurantProfileSlideBarView: View {
                     .font(currentSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
                     .onTapGesture {
                         withAnimation {
-                            self.currentSection = .reviews
+                            viewModel.currentSection = .reviews
                         }
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
@@ -62,7 +61,7 @@ struct RestaurantProfileSlideBarView: View {
                 
                     .onTapGesture {
                         withAnimation {
-                            self.currentSection = .menu
+                            viewModel.currentSection = .menu
                         }
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .menu))
@@ -88,7 +87,7 @@ struct RestaurantProfileSlideBarView: View {
                 
                     .onTapGesture {
                         withAnimation {
-                            self.currentSection = .collections
+                            viewModel.currentSection = .collections
                         }
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
@@ -102,18 +101,18 @@ struct RestaurantProfileSlideBarView: View {
         
         
         // MARK: Section Logic
-        if currentSection == .posts {
+        if viewModel.currentSection == .posts {
             if let name = viewModel.restaurant?.name{
                 PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)")
             }
         }
-        if currentSection == .reviews{
+        if viewModel.currentSection == .reviews{
             ReviewListView(viewModel: reviewsViewModel)
         }
 //        if currentSection == .map {
 //            MapRestaurantProfileView(viewModel: viewModel)
 //        }
-        if currentSection == .collections {
+        if viewModel.currentSection == .collections {
             RestaurantCollectionListView(viewModel: viewModel)
         }
     }

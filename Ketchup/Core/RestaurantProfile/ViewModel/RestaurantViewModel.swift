@@ -10,11 +10,26 @@ import SwiftUI
 
 @MainActor
 class RestaurantViewModel: ObservableObject {
-    @Published var posts = [Post]()
+    @Published var posts: [Post] = []
     @Published var collections = [Collection]()
     @Published var restaurant: Restaurant?
     @Published var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
     private let restaurantId: String
+    @Published var isDragging = false
+    @Published var currentSection: Section = .posts
+    @Environment(\.dismiss) var dismiss
+    
+//    var drag: some Gesture {
+//        DragGesture(minimumDistance: 85)
+//            .onChanged { _ in self.isDragging = true }
+//            .onEnded { endedGesture in
+//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+//                    if self.currentSection == .posts{
+//                        self.dismiss()
+//                    }
+//                }
+//            }
+//        }
     
     
     init(restaurantId: String) {

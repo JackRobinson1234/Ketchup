@@ -227,7 +227,7 @@ struct FeedCell: View {
                                 //MARK: Menu Button
                                 
                                 if let restaurant = post.restaurant {
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                         Text("View Restaurant")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))

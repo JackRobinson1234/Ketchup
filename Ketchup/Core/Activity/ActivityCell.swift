@@ -55,6 +55,7 @@ struct ActivityCell: View {
                                 VStack(alignment: .leading){
                                     Text("@\(activity.username) created a new restaurant post for: ")
                                         .foregroundStyle(.black)
+                                        .activityCellFontStyle()
                                     +
                                     Text(activity.name)
                                         .bold()

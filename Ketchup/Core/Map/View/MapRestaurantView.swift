@@ -92,7 +92,7 @@ struct MapRestaurantView: View {
                 }
                 
                 Spacer()
-                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id, currentSection: .menu)) {
+                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                         Text("View Profile")
                     }
                     .modifier(StandardButtonModifier(width: 150))

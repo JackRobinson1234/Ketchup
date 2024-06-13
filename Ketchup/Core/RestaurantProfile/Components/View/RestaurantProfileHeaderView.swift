@@ -9,7 +9,6 @@ import SwiftUI
 import Kingfisher
 import MapKit
 struct RestaurantProfileHeaderView: View {
-    @Binding var currentSection: Section
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showAddToCollection = false
     @State var user: User? = nil
@@ -113,7 +112,7 @@ struct RestaurantProfileHeaderView: View {
                 
                 
                 
-                RestaurantProfileSlideBarView(currentSection: $currentSection, viewModel: viewModel)
+                RestaurantProfileSlideBarView(viewModel: viewModel)
             }
             
             .onReceive(LocationManager.shared.$userLocation.dropFirst().prefix(1)) { userLocation in
@@ -143,5 +142,5 @@ struct RestaurantProfileHeaderView: View {
     }
 }
 #Preview {
-    RestaurantProfileHeaderView(currentSection: .constant(.menu), viewModel: RestaurantViewModel(restaurantId: ""))
+    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))
 }

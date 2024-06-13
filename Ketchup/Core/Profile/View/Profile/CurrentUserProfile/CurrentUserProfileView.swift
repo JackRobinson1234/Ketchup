@@ -12,6 +12,36 @@ struct CurrentUserProfileView: View {
     @State var isLoading = true
     @State var showNotifications = false
     @State var showSettings = false
+    @State var isDragging = false
+    @State var dragDirection = "left"
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    if currentProfileSection == .reviews{
+                        currentProfileSection = .posts
+                    } else if currentProfileSection == .likes{
+                        currentProfileSection = .reviews
+                    } else if currentProfileSection == .collections{
+                        currentProfileSection = .likes
+                    }
+                } else {
+                        self.dragDirection = "right"
+                        if currentProfileSection == .posts {
+                            currentProfileSection = .reviews
+                        } else if currentProfileSection == .reviews{
+                            currentProfileSection = .likes
+                        } else if currentProfileSection == .likes{
+                            currentProfileSection = .collections
+                        }
+                        self.isDragging = false
+                    }
+                
+            }
+    }
+
     init(currentProfileSection: ProfileSectionEnum = .posts) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
@@ -43,7 +73,7 @@ struct CurrentUserProfileView: View {
                         
                     }
                 }
-                
+                .gesture(drag)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button{
