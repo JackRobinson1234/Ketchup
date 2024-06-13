@@ -108,8 +108,13 @@ struct FeedView: View {
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                         .gesture(viewModel.drag)
                     }
-                    
-                    
+                    if viewModel.feedViewOption == .grid{
+                        Color.white
+                            .frame(height: 135) // Set the height of the rectangle
+                            .edgesIgnoringSafeArea(.top)
+                    }
+                                    
+                      
                     
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
@@ -202,14 +207,15 @@ struct FeedView: View {
                             }
                             .frame(width: 60)
                         }
+                        .frame(maxWidth: .infinity)
+                        .ignoresSafeArea()
                         .padding(.top, 70)
                         .padding(.horizontal, 40)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
                         .padding(.bottom, 10)
                         //.opacity(1)
-                        .shadow(color: Color.gray.opacity(0.5), radius: 5, x: 0, y: 5)
+                        .shadow(color: Color.gray.opacity(0.7), radius: 5, x: 0, y: 0)
                     } else {
                         HStack {
                             Button {
