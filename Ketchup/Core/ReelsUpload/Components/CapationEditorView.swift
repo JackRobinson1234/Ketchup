@@ -32,14 +32,8 @@ struct CaptionEditorView: View {
                         } label: {
                             Text("Done")
                                 .fontWeight(.bold)
-                                
+                                .modifier(StandardButtonModifier())
                         }
-                        .padding(8)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 10)
-                        
                     }
                     .padding(.top, 10)
                     .frame(width: 330)

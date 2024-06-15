@@ -29,6 +29,7 @@ struct FavoriteRestaurantsView: View {
                                     .multilineTextAlignment(.center)
                                     .lineLimit(2)
                                     .foregroundStyle(.black)
+                                    
                             }
                             
                         

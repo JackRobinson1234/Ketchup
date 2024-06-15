@@ -80,6 +80,9 @@ struct MapView: View {
                     .onMapCameraChange(frequency: .onEnd) { context in
                         Task.detached { await viewModel.reloadAnnotations() }
                     }
+                    
+                    
+                    
                     //MARK: Zoom Message
                     .overlay{if !cameraZoomedEnough {
                         Spacer()
@@ -139,11 +142,11 @@ struct MapView: View {
                     
                     //MARK: Initial Camera
                     /// Sets the camera position to either the users location or Los Angeles if the users location is unavailable
-//                    .onAppear{
-//                        let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04))
-//                        position = .userLocation(fallback: .region(losAngelesRegion))
-//                        mapSize = geometryProxy.size
-//                    }
+                    //                    .onAppear{
+                    //                        let losAngelesRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04))
+                    //                        position = .userLocation(fallback: .region(losAngelesRegion))
+                    //                        mapSize = geometryProxy.size
+                    //                    }
                     
                     // MARK: User Location button
                     .overlay(alignment: .bottomTrailing) {
@@ -154,12 +157,12 @@ struct MapView: View {
                                 } label: {
                                     MapUserLocationButton(scope: mapScope)
                                         .buttonBorderShape(.circle)
-                                        
+                                    
                                 }
                             } else {
                                 MapUserLocationButton(scope: mapScope)
                                     .buttonBorderShape(.circle)
-                                    
+                                
                             }
                         }
                         .padding([.bottom, .trailing], 20)
@@ -251,11 +254,23 @@ struct MapView: View {
                 if showRestaurantPreview, let annotation = selectedRestaurant {
                     withAnimation(.snappy) {
                         MapRestaurantView(restaurant: annotation.restaurant)
-                            .onTapGesture {
-                                selectedRestaurant = nil
-                                showRestaurantPreview.toggle()
-                            }
-                        
+                            .overlay(
+                                Button{
+                                    selectedRestaurant = nil
+                                    showRestaurantPreview.toggle()
+                                } label: {
+                                    Image(systemName: "chevron.left")
+                                        .font(.title)
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .shadow(radius: 3)
+                                        .padding(.top, 10)
+                                        .padding(.leading, 10)
+                                    
+                                    
+                                }
+                                ,alignment: .topLeading
+                            )
                     }
                 }
             }

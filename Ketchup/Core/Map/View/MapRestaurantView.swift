@@ -23,10 +23,9 @@ struct MapRestaurantView: View {
     var body: some View {
         
         VStack {
+            NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
             ZStack(alignment: .bottomLeading) {
-//                if let images = restaurant.imageURLs {
                 TabView {
-                    //                        ForEach(images, id: \.self) { image in
                     if let image = restaurant.profileImageUrl{
                         KFImage(URL(string: image))
                             .resizable()
@@ -46,14 +45,16 @@ struct MapRestaurantView: View {
                 }
                     .frame(height: 200)
                     .tabViewStyle(.page)
-                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+               
                     Text("\(restaurant.name)")
-                        .font(.title)
+                    .font(.title)
                         .bold()
                         .multilineTextAlignment(.leading)
                         .foregroundStyle(.white)
+                        .padding(.horizontal)
+                        .lineLimit(1)  // Restricts the text to a single line
+                        .minimumScaleFactor(0.5) 
                 }
-                .padding()
                 }
             
             
@@ -100,7 +101,7 @@ struct MapRestaurantView: View {
             }
             .foregroundColor(.black)
             .font(.footnote)
-            .padding()
+            .padding([.horizontal, .bottom])
         }
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 10))

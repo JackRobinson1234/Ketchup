@@ -74,7 +74,6 @@ struct EditRecipeView: View {
                             Button {
                                 showServingsPicker.toggle()
                             } label: {
-                                
                                     InfoCircle(text: "\(uploadViewModel.recipeServings) servings", image: "person.3", edit: true)
                                         .onTapGesture {
                                             selectedServings = uploadViewModel.recipeServings
@@ -235,19 +234,19 @@ struct EditRecipeView: View {
                     }
                     .padding()
                 }
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.66)])
             }
             .sheet(isPresented: $showEditDietary) {
                 EditDietaryRestrictions(uploadViewModel: uploadViewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.66)])
             }
             .sheet(isPresented: $showEditIngredients) {
                 EditIngredientsView(uploadViewModel: uploadViewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.66)])
             }
             .sheet(isPresented: $showEditInstructions) {
                 EditInstructionsView(uploadViewModel: uploadViewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.66)])
             }
         }
     }

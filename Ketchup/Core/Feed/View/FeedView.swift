@@ -106,7 +106,7 @@ struct FeedView: View {
                         .scrollTargetLayout()
                         .scrollPosition(id: $scrollPosition)
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-                        .gesture(viewModel.drag)
+                        //.gesture(viewModel.drag)
                     }
                     if viewModel.feedViewOption == .grid{
                         Color.white

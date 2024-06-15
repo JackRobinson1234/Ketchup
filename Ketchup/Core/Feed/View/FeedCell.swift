@@ -49,9 +49,10 @@ struct FeedCell: View {
                         self.currentImageIndex -= 1
                     } else if hideFeedOptions{
                         dismiss()
-                    } else {
-                        viewModel.feedViewOption = .grid
                     }
+                    //                    } else {
+                    //                        viewModel.feedViewOption = .grid
+                    //                    }
                 } else {
                     self.dragDirection = "right"
                     if self.currentImageIndex < post.mediaUrls.count - 1 {
@@ -115,7 +116,7 @@ struct FeedCell: View {
                     } else {
                         KFImage(URL(string: post.mediaUrls[currentImageIndex]))
                             .resizable()
-                            //.scaledToFit()
+                        //.scaledToFit()
                             .scaledToFill()
                             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                             .cornerRadius(20)
@@ -134,18 +135,15 @@ struct FeedCell: View {
                             }
                         }
                         .padding(.top, 130)
-                    
+                        
                     }
                 }
             }
             ZStack (alignment: .bottom){
                 VStack {
                     Spacer()
-                    
                     HStack(alignment: .bottom) {
-                        
                         // MARK: Caption Box
-                        
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
                                 //MARK:  restaurant profile image
@@ -187,17 +185,20 @@ struct FeedCell: View {
                                                             .resizable()
                                                             .scaledToFit()
                                                             .frame(width: 60, height: 60)
-                                                        
                                                     }
                                                 }
                                             }
                                             VStack(alignment: .leading){
                                                 //MARK: recipe fullname
-                                                
-                                                Text("\(recipe)")
-                                                    .font(.title3)
-                                                    .bold()
-                                                    .multilineTextAlignment(.leading)
+                                                Button{
+                                                    showRecipe.toggle()
+                                                } label: {
+                                                    Text("\(recipe)")
+                                                        .font(.title3)
+                                                        .bold()
+                                                        .multilineTextAlignment(.leading)
+                                                        .foregroundStyle(.white)
+                                                }
                                                 NavigationLink(value: post.user) {
                                                     Text("by \(post.user.fullname)")
                                                         .font(.subheadline)
@@ -232,7 +233,7 @@ struct FeedCell: View {
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
-                                } 
+                                }
                                 else if post.recipe != nil {
                                     Button{
                                         showRecipe.toggle()
@@ -258,8 +259,7 @@ struct FeedCell: View {
                         .font(.subheadline)
                         .foregroundStyle(.white)
                         .padding(.horizontal)
-                        
-                        
+    
                         Spacer()
                         //MARK: Right hand VStack
                         VStack(spacing: 28) {
@@ -300,8 +300,6 @@ struct FeedCell: View {
                                         Text("\(post.repostCount)")
                                             .font(.caption)
                                             .fontWeight(.bold)
-                                        
-                                        
                                     }
                                     .foregroundStyle(.white)
                                 }
@@ -353,7 +351,7 @@ struct FeedCell: View {
                     Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
                         .onAppear {
                             let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear) // Adjust radius and line width as needed
-                                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
+                            UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
                         }
                         .offset(y: 40)
                 }
@@ -408,10 +406,10 @@ struct FeedCell: View {
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear{Task {videoCoordinator.play()}}
         }
-                    .sheet(isPresented: $showRecipe) {
-                        NewRecipeView(post: post)
-                            .onDisappear{Task {videoCoordinator.play()}}
-                    }
+        .sheet(isPresented: $showRecipe) {
+            NewRecipeView(post: post)
+                .onDisappear{Task {videoCoordinator.play()}}
+        }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)
@@ -484,8 +482,6 @@ func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
 }
 
 
-
-
 #Preview {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
@@ -502,13 +498,13 @@ extension UIImage {
         UIGraphicsBeginImageContextWithOptions(CGSize(width: radius * 2, height: radius * 2), false, 0.0)
         defer { UIGraphicsEndImageContext() }
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
-
+        
         context.setLineWidth(lineWidth)
         context.setStrokeColor(color.cgColor)
         let rectangle = CGRect(x: lineWidth / 2, y: lineWidth / 2, width: radius * 2 - lineWidth, height: radius * 2 - lineWidth)
         context.addEllipse(in: rectangle)
         context.strokePath()
-
+        
         return UIGraphicsGetImageFromCurrentImageContext()?.withRenderingMode(.alwaysOriginal)
     }
 }

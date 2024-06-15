@@ -123,7 +123,7 @@ struct EditInstructionsView: View {
                             }
                             HStack{
                                 Button(action: saveInstruction) {
-                                    Text("Add")
+                                    Image(systemName: "plus")
                                         .padding()
                                         .foregroundColor(.white)
                                         .background(isSaveButtonEnabled ? Color("Colors/AccentColor") : Color.gray)

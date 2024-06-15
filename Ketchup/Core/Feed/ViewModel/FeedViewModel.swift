@@ -36,20 +36,20 @@ class FeedViewModel: ObservableObject {
     @Published var earlyPosts: [Post]
     @Published var hasMorePosts: Bool = true
     
-
-    var drag: some Gesture {
-        DragGesture(minimumDistance: 85)
-            .onChanged { _ in self.isDragging = true }
-            .onEnded { endedGesture in
-                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-                    self.feedViewOption = .grid
-                    self.isDragging = false
-                } else {
-                    self.feedViewOption = .feed
-                    self.isDragging = false
-                }
-            }
-    }
+//
+//    var drag: some Gesture {
+//        DragGesture(minimumDistance: 85)
+//            .onChanged { _ in self.isDragging = true }
+//            .onEnded { endedGesture in
+//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+//                    self.feedViewOption = .grid
+//                    self.isDragging = false
+//                } else {
+//                    self.feedViewOption = .feed
+//                    self.isDragging = false
+//                }
+//            }
+//    }
     
     
     init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {

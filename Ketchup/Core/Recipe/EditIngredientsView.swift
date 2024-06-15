@@ -77,7 +77,7 @@ struct EditIngredientsView: View {
                             }
                             
                             Button(action: saveIngredient) {
-                                Text("Add")
+                                Image(systemName: "plus")
                                     .padding(6)
                                     .foregroundColor(.white)
                                     .background(isSaveButtonEnabled ? Color("Colors/AccentColor") : Color.gray)
