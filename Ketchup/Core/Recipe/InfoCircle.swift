@@ -17,10 +17,10 @@ struct InfoCircle: View {
             VStack {
                 Image(systemName: image)
                     .font(.title)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 
                 Text(text)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .font(.subheadline)
             }
             .frame(width: 100, height: 100)
@@ -31,7 +31,7 @@ struct InfoCircle: View {
             
             if let edit = edit, edit {
                 Text("Edit")
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .font(.subheadline)
             }
         }

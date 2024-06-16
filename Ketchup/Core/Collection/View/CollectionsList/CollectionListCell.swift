@@ -20,6 +20,7 @@ struct CollectionListCell: View {
                     .frame(width: size, height: size)
                     .clipShape(Rectangle())
                     .cornerRadius(10)
+                
             } else {
                 Image(systemName: "folder")
                     .resizable()
@@ -35,20 +36,23 @@ struct CollectionListCell: View {
                         .font(.caption)
                         .foregroundColor(.gray)
                         .lineLimit(1)
+                        .foregroundStyle(.primary)
                 Text("By \(collection.username)")
                     .font(.caption)
                     .lineLimit(1)
+                    .foregroundStyle(.primary)
                 if let description = collection.description {
                     Text(description)
                         .font(.caption)
                         .lineLimit(1)
+                        .foregroundStyle(.primary)
                 }
             
         }
         Spacer()
         
         Image(systemName: "chevron.right")
-            .foregroundStyle(.black)
+            .foregroundStyle(.primary)
             .padding(.horizontal)
     }
         .padding(.horizontal)

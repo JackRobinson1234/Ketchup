@@ -50,10 +50,10 @@ struct MapSearchView: View {
                             HStack{
                                 VStack(alignment: .leading) {
                                     Text(location.title)
-                                        .foregroundColor(Color.black)
+                                        .foregroundColor(Color.primary)
                                     Text(location.subtitle)
                                         .font(.system(.caption))
-                                        .foregroundColor(Color.black)
+                                        .foregroundColor(Color.primary)
                                 }
                                 .padding(.horizontal)
                                 Spacer()

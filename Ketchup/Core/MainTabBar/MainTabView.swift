@@ -18,7 +18,7 @@ struct MainTabView: View {
                 .tabItem {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         
                     }.padding()
@@ -29,14 +29,14 @@ struct MainTabView: View {
                 }
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
-                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             MapView()
                 .tabItem {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         
                     }
@@ -48,13 +48,13 @@ struct MainTabView: View {
                 }
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
-                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
       
             CameraView()
                 .tabItem {
                     Image(systemName: "plus.app")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.primary)
                         .padding()
                 }
             
@@ -64,14 +64,14 @@ struct MainTabView: View {
                 }
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
-                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             ActivityView()
                 .tabItem {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 3 ? "bolt.fill" : "bolt")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                             
                         
@@ -84,7 +84,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
-                .toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             CurrentUserProfileView()
@@ -92,7 +92,7 @@ struct MainTabView: View {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
                             .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                         
                     }
                     .padding()
@@ -104,7 +104,7 @@ struct MainTabView: View {
                 .tag(4)
                 .toolbar(tabBarController.visibility, for: .tabBar)
         }
-        .foregroundStyle(.black)
+        .foregroundStyle(.primary)
         .tint(Color("Colors/AccentColor"))
         
     }

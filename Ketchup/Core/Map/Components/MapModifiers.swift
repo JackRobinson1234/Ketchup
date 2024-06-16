@@ -11,7 +11,7 @@ struct OverlayModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(.subheadline)
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 8)

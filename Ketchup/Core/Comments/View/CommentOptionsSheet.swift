@@ -46,7 +46,7 @@ struct CommentOptionsSheet: View {
                 } label: {
                     Text("Report Comment")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
         }

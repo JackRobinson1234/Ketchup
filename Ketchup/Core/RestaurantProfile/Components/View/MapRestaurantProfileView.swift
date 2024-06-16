@@ -50,7 +50,7 @@ struct MapRestaurantProfileView: View {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
                                 .padding(6)
-                                .background(Color.black.opacity(0.6))
+                                .background(Color.primary.opacity(0.6))
                                 .clipShape(Circle())
                         }
                         .padding()
@@ -61,7 +61,7 @@ struct MapRestaurantProfileView: View {
                                             Image(systemName: "car")
                                             Text(" \(travelTime)")
                                         }
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                             .padding(8)
                                             .background(Color.white)
                                             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -89,7 +89,7 @@ struct MapRestaurantProfileView: View {
                                         Text(" Maps")
                                         
                                     }
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                     .padding(8)
                                     .background(Color.white)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))

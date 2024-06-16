@@ -23,6 +23,7 @@ struct DietaryFilter: View {
                 Text("Filter by Dietary Restrictions")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -30,6 +31,7 @@ struct DietaryFilter: View {
             HStack{
                 Text("Dietary Restriction Filters Selected (Max 10):")
                     .font(.caption)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -48,6 +50,7 @@ struct DietaryFilter: View {
                                         }
                                     }
                                 Text(dietary)
+                                    .foregroundStyle(.gray)
                                     .font(.caption)
                             }
                             .padding()
@@ -62,6 +65,7 @@ struct DietaryFilter: View {
             } else {
                 HStack{
                     Text("No Dietary Filters Selected")
+                        .foregroundStyle(.gray)
                         .font(.subheadline)
                         .bold()
                     Spacer()
@@ -73,7 +77,9 @@ struct DietaryFilter: View {
             HStack{
                 Image(systemName: "magnifyingglass")
                     .imageScale(.small)
+                    .foregroundStyle(.gray)
                 TextField("Search Dietary", text: $searchText)
+                    .foregroundStyle(.black)
                     .font(.subheadline)
                     .frame(height:44)
                     .padding(.horizontal)
@@ -95,6 +101,7 @@ struct DietaryFilter: View {
                     HStack{
                         ForEach(filteredDietary, id: \.self) { dietary in
                             Text(dietary)
+                                .foregroundStyle(.gray)
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
@@ -116,6 +123,7 @@ struct DietaryFilter: View {
                 Text("Maximum filters selected (max \(maximumSelections))")
                     .font(.subheadline)
                     .padding()
+                    .foregroundStyle(.gray)
             }
             
             /// if the search doesn't return any results
@@ -123,6 +131,7 @@ struct DietaryFilter: View {
                 Text("No Dietary Restrictions matching \"\(searchText)\" found")
                     .font(.subheadline)
                     .padding()
+                    .foregroundStyle(.gray)
             }
             
         }

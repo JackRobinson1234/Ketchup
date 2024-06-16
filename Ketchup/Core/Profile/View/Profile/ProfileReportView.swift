@@ -20,7 +20,7 @@ struct ProfileOptionsSheet: View {
                 } label: {
                     Text("Report Profile")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .bold()
                 }
         }

@@ -22,6 +22,7 @@ struct MapCuisineFilter: View {
                 Text("Filter by Cuisine")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -29,6 +30,7 @@ struct MapCuisineFilter: View {
             HStack{
                 Text("Cuisine Filters Selected (Max 10):")
                     .font(.caption)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -40,6 +42,7 @@ struct MapCuisineFilter: View {
                         ForEach(mapViewModel.selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
+                                
                                     .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
@@ -48,6 +51,7 @@ struct MapCuisineFilter: View {
                                     }
                                 Text(cuisine)
                                     .font(.caption)
+                                    .foregroundStyle(.gray)
                             }
                             .padding()
                             .background(Color.white)
@@ -63,6 +67,7 @@ struct MapCuisineFilter: View {
                     Text("No Cuisine Filters Selected")
                         .font(.subheadline)
                         .bold()
+                        .foregroundStyle(.gray)
                     Spacer()
                 }
                 .padding()
@@ -72,7 +77,9 @@ struct MapCuisineFilter: View {
             HStack{
                 Image(systemName: "magnifyingglass")
                     .imageScale(.small)
+                    .foregroundStyle(.gray)
                 TextField("Search Cuisines", text: $searchText)
+                    .foregroundStyle(.gray)
                     .font(.subheadline)
                     .frame(height:44)
                     .padding(.horizontal)
@@ -94,6 +101,7 @@ struct MapCuisineFilter: View {
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
+                                .foregroundStyle(.gray)
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
@@ -115,6 +123,7 @@ struct MapCuisineFilter: View {
                 Text("Maximum filters selected (max \(maximumSelections)")
                     .font(.subheadline)
                     .padding()
+                    .foregroundStyle(.gray)
             }
             
             /// if the search doesn't return any results
@@ -122,6 +131,7 @@ struct MapCuisineFilter: View {
                 Text("No cuisines matching \"\(searchText)\" found")
                     .font(.subheadline)
                     .padding()
+                    .foregroundStyle(.gray)
             }
             
         }

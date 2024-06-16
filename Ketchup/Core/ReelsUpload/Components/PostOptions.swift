@@ -27,11 +27,11 @@
 //                        HStack {
 //                            Image(systemName: "book.circle")
 //                                .resizable()
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                                .frame(width: 40, height: 40, alignment: .center)
 //                            
 //                            Text("Add recipe")
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                            
 //                            Spacer()
 //                            
@@ -46,11 +46,11 @@
 //                        HStack {
 //                            Image(systemName: "book.circle")
 //                                .resizable()
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                                .frame(width: 40, height: 40, alignment: .center)
 //                            
 //                            Text("Recipe Saved")
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                            
 //                            Spacer()
 //                            
@@ -77,7 +77,7 @@
 //                                .frame(width: 40, height: 40, alignment: .center)
 //                            
 //                            Text(restaurant.name)
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                            
 //                            Spacer()
 //                            
@@ -98,11 +98,11 @@
 //                        HStack {
 //                            Image(systemName: "fork.knife.circle")
 //                                .resizable()
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                                .frame(width: 40, height: 40, alignment: .center)
 //                            
 //                            Text("Add restaurant")
-//                                .foregroundColor(.black)
+//                                .foregroundColor(.primary)
 //                            
 //                            Spacer()
 //                            

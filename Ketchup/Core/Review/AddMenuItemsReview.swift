@@ -71,7 +71,7 @@ struct AddMenuItemsReview: View {
                 Button(action: addItem) {
                     Image(systemName:"plus")
                         .frame(height:44)
-                        .foregroundColor(favoriteMenuItem.isEmpty ? .gray : .black)
+                        .foregroundColor(favoriteMenuItem.isEmpty ? .gray : .primary)
                         .cornerRadius(5)
                     
                 }

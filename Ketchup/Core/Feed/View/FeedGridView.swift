@@ -81,7 +81,7 @@ struct FeedGridView: View {
                                                     .foregroundColor(.white)
                                                     .font(.footnote)
                                                     .bold()
-                                                    .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                    .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                             }
                                             else if let recipe = post.cookingTitle {
                                                 Text("\(recipe)")
@@ -90,7 +90,7 @@ struct FeedGridView: View {
                                                     .foregroundColor(.white)
                                                     .font(.footnote)
                                                     .bold()
-                                                    .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                    .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                             }
                                         }
                                         
@@ -99,7 +99,7 @@ struct FeedGridView: View {
                                     
                                 }
                                     .padding(4)
-                                //                                    .background(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.3), .clear, .clear, .black.opacity(0.3)]),
+                                //                                    .background(LinearGradient(gradient: Gradient(colors: [.primary.opacity(0.3), .clear, .clear, .primary.opacity(0.3)]),
                                 //                                                               startPoint: .top,
                                 //                                                               endPoint: .bottom))
                                     .onTapGesture {

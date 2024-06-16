@@ -23,27 +23,30 @@ struct RestaurantCell: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
+                    .foregroundColor(.primary)
                 
                 Text(restaurant.cuisine ?? "Unknown Cuisine")
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
+                    .foregroundColor(.primary)
                 
                 let address = restaurant.address ?? "Unknown Address"
-                let city = restaurant.city ?? "Unknown City"
-                let state = restaurant.state ?? "Unknown State"
+//                let city = restaurant.city ?? "Unknown City"
+//                let state = restaurant.state ?? "Unknown State"
                 
                 Text("\(address)")
                 //Text("\(address) \(city), \(state)")
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
+                    .foregroundColor(.primary)
             }
-            .foregroundStyle(.black)
+            .foregroundStyle(.primary)
             
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 .padding([.leading, .trailing])
         
         }

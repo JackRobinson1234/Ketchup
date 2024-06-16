@@ -22,6 +22,7 @@ struct CuisineFilter: View {
                 Text("Filter by Cuisine")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -29,6 +30,7 @@ struct CuisineFilter: View {
             HStack{
                 Text("Cuisine Filters Selected (Max 10):")
                     .font(.caption)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -48,6 +50,7 @@ struct CuisineFilter: View {
                                     }
                                 Text(cuisine)
                                     .font(.caption)
+                                    .foregroundStyle(.gray)
                             }
                             .padding()
                             .background(Color.white)
@@ -61,6 +64,7 @@ struct CuisineFilter: View {
             } else {
                 HStack{
                     Text("No Cuisine Filters Selected")
+                        .foregroundStyle(.gray)
                         .font(.subheadline)
                         .bold()
                     Spacer()
@@ -72,10 +76,12 @@ struct CuisineFilter: View {
             HStack{
                 Image(systemName: "magnifyingglass")
                     .imageScale(.small)
+                    .foregroundStyle(.gray)
                 TextField("Search Cuisines", text: $searchText)
                     .font(.subheadline)
                     .frame(height:44)
                     .padding(.horizontal)
+                    .foregroundStyle(.gray)
                     .onChange(of: searchText) {oldValue, newValue in
                         filteredCuisines = filteredCuisine(newValue)
                     }
@@ -94,6 +100,7 @@ struct CuisineFilter: View {
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
+                                .foregroundStyle(.gray)
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {
@@ -113,6 +120,7 @@ struct CuisineFilter: View {
                 /// if maximum filters are selected, display this message
             } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
+                    .foregroundStyle(.gray)
                     .font(.subheadline)
                     .padding()
             }
@@ -120,6 +128,7 @@ struct CuisineFilter: View {
             /// if the search doesn't return any results
             else if filteredCuisines.isEmpty {
                 Text("No cuisines matching \"\(searchText)\" found")
+                    .foregroundStyle(.gray)
                     .font(.subheadline)
                     .padding()
             }

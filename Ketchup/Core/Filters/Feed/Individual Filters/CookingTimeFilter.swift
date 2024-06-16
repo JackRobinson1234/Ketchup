@@ -18,12 +18,14 @@ struct CookingTimeFilter: View {
                 Text("Filter by Cooking Time")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
             HStack{
                 Text("Cooking Time Filter Selected (Max 1):")
                     .font(.caption)
+                    .foregroundStyle(.gray)
                 Spacer()
             }
             .padding(.leading)
@@ -42,6 +44,7 @@ struct CookingTimeFilter: View {
                             }
                         Text("< \(String(filtersViewModel.selectedCookingTime.first ?? 0)) minutes")
                             .font(.caption)
+                            .foregroundStyle(.gray)
                     }
                     .padding()
                     .background(Color.white)
@@ -56,6 +59,7 @@ struct CookingTimeFilter: View {
                     Text("No Cooking Time Filter Selected")
                         .font(.subheadline)
                         .bold()
+                        .foregroundStyle(.gray)
                     Spacer()
                 }
                 .padding()
@@ -67,6 +71,7 @@ struct CookingTimeFilter: View {
                     HStack{
                         ForEach(cookingTimeCategories, id: \.self) { cookingTime in
                             Text("< \(cookingTime) minutes")
+                                .foregroundStyle(.gray)
                                 .font(.subheadline)
                                 .onTapGesture {
                                     withAnimation(.snappy) {

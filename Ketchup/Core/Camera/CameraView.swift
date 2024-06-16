@@ -25,7 +25,7 @@ struct CameraView: View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 
-                Color.black
+                Color.primary
                     .ignoresSafeArea()
                 
                 // WHAT THE CAMERA SEES
@@ -221,7 +221,7 @@ struct VideoCameraControls: View {
             // VIDEO PROGRESS BAR
             ZStack(alignment: .leading) {
                 Rectangle()
-                    .fill(.black.opacity(0.25))
+                    .fill(.primary.opacity(0.25))
                 
                 Rectangle()
                     .fill(Color("Colors/AccentColor"))
@@ -296,7 +296,7 @@ struct VideoCameraControls: View {
                         if cameraViewModel.isLoading{
                             // Merging Videos
                             ProgressView()
-                                .tint(.black)
+                                .tint(.primary)
                         }
                         else{
                             Label {
@@ -305,7 +305,7 @@ struct VideoCameraControls: View {
                             } icon: {
                                 Text("Next")
                             }
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                         }
                     }
                     .frame(width: 70, height: 30)
@@ -469,7 +469,7 @@ struct PhotoCameraControls: View {
                         } icon: {
                             Text("Preview")
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding(.horizontal,10)
                         .padding(.vertical,5)
                         .background {
@@ -540,12 +540,12 @@ struct LibraryTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .opacity(0.6)
                                     
                         Text("Upload Videos")
                             .font(.subheadline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     .frame(width: 130, height: 100)
                 }
@@ -561,12 +561,12 @@ struct LibraryTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .opacity(0.6)
                         
                         Text("Upload Photos")
                             .font(.subheadline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     .frame(width: 130, height: 100)
                 }

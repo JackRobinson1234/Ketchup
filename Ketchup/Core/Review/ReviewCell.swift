@@ -34,12 +34,12 @@ struct ReviewCell: View {
                                 if viewModel.selectedRestaurant != nil {
                                     Text("@\(review.user.username)")
                                         .font(.subheadline)
-                                        .foregroundStyle(.black)
+                                        .foregroundColor(.primary)
                                         .bold()
                                 } else {
                                     Text("\(review.restaurant.name)")
                                         .font(.subheadline)
-                                        .foregroundStyle(.black)
+                                        .foregroundColor(.primary)
                                         .bold()
                                 }
                                 if review.recommendation {
@@ -48,7 +48,7 @@ struct ReviewCell: View {
                                             .foregroundColor(Color("Colors/AccentColor"))
                                         
                                         Text("Recommends")
-                                            .foregroundStyle(.black)
+                                            .foregroundColor(.primary)
                                         
                                     }
                                     .font(.caption)
@@ -78,7 +78,7 @@ struct ReviewCell: View {
                                 handleLikeTapped()
                             } label: {
                                 Image(systemName: didLike ? "heart.fill" : "heart")
-                                    .foregroundStyle(didLike ? Color("Colors/AccentColor") : .black)
+                                    .foregroundStyle(didLike ? Color("Colors/AccentColor") : .primary)
                             }
                         }
                         Button {

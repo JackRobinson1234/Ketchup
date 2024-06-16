@@ -55,7 +55,7 @@ struct RepostView: View {
                                             .foregroundColor(.white)
                                             .font(.footnote)
                                             .bold()
-                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                            .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                     }
                                     else if let recipe = post.cookingTitle {
                                         Text("\(recipe)")
@@ -64,7 +64,7 @@ struct RepostView: View {
                                             .foregroundColor(.white)
                                             .font(.footnote)
                                             .bold()
-                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                            .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                     }
                                 }
                             }

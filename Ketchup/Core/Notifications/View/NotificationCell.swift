@@ -54,8 +54,8 @@ struct NotificationCell: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .frame(width: 88, height: 32)
-                            .foregroundColor(isFollowed ? .black : .white)
-                            .background(isFollowed ? Color(.systemGroupedBackground) : Color.pink)
+                            .foregroundColor(isFollowed ? .primary : .white)
+//                            .background(isFollowed ? Color(.systemGroupedBackground) : Color.pink)
                             .cornerRadius(6)
                     })
             } else {

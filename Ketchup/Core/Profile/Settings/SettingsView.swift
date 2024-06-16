@@ -32,16 +32,16 @@ struct SettingsView: View {
                 } label: {
                     HStack {
                         Text("Private Mode")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                         Spacer()
                         Text(viewModel.privateMode ? "On" : "Off")
                                .foregroundColor(.gray)
                         if showPrivateModeDropdown == false {
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primary)
                         } else {
                             Image(systemName: "chevron.down")
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primary)
                         }
                     }
                     .padding()
@@ -80,7 +80,7 @@ struct SettingsView: View {
                     AuthService.shared.signout()
                 } label: {
                     Text("Sign Out")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.primary)
                         .padding()
                 }
                 .font(.subheadline)

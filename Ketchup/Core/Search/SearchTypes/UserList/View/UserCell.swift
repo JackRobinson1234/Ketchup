@@ -22,11 +22,12 @@ struct UserCell: View {
                 Text(user.username)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                
+                    .foregroundStyle(.primary)
                 Text(user.fullname)
                     .font(.footnote)
+                    .foregroundStyle(.primary)
             }
-            .foregroundStyle(.black)
+            .foregroundStyle(.primary)
             
             Spacer()
             

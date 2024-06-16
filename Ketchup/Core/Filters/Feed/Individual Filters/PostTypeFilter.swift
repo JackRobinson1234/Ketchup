@@ -18,13 +18,17 @@ struct PostTypeFilter: View {
                     Text("Filter by Post Type")
                         .font(.title2)
                         .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
                     Text("At least one post type must be selected")
                         .font(.caption)
+                        .foregroundStyle(.gray)
                 }
                 Spacer()
             }
             Toggle("Restaurant Posts", isOn: $filtersViewModel.restaurantChecked)
+                .foregroundStyle(.gray)
             Toggle("At Home Posts", isOn: $filtersViewModel.atHomeChecked)
+                .foregroundStyle(.gray)
         }
         .padding(.horizontal)
         .cornerRadius(8)

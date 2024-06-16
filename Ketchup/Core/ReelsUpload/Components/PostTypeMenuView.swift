@@ -34,12 +34,12 @@ struct PostTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .opacity(0.6)
                                     
                         Text("Cooking Post")
                             .font(.subheadline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     .frame(width: 130, height: 100)
                 }
@@ -56,12 +56,12 @@ struct PostTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .opacity(0.6)
                         
                         Text("Dining Post")
                             .font(.subheadline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     .frame(width: 130, height: 100)
                 }

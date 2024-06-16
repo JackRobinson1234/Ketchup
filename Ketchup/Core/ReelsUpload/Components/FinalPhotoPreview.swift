@@ -31,7 +31,7 @@ struct FinalPhotoPreview: View {
                         }
                     }
                 }
-                .background(.black)
+                .background(.primary)
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }

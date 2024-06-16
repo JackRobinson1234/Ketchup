@@ -39,7 +39,7 @@ struct CollectionItemCell: View {
                 ZStack(alignment: .bottom){
                     Rectangle()
                         .frame(width: width, height: 70) // Height of the caption background
-                        .foregroundColor(.white) // Light yellow background with opacity
+                        .foregroundColor(Color(.white)) // Light yellow background with opacity
                         .offset(y: 25)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     Rectangle()

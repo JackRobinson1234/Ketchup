@@ -129,7 +129,7 @@ struct CollectionView: View {
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 6, height: 6)
-                                                .foregroundStyle(.black)
+                                                .foregroundStyle(.primary)
                                             
                                         }
                                     }

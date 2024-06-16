@@ -28,7 +28,7 @@ struct FavoriteRestaurantsView: View {
                                     .font(.caption)
                                     .multilineTextAlignment(.center)
                                     .lineLimit(2)
-                                    .foregroundStyle(.black)
+                                    .foregroundStyle(.primary)
                                     
                             }
                             

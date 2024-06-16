@@ -269,7 +269,7 @@ struct FeedView: View {
                     }
                     }
                 .background(Color("Colors/HingeGray"))
-                //.background(.black)
+                //.background(.primary)
                 .ignoresSafeArea()
                 
                 /// sets destination of user profile links

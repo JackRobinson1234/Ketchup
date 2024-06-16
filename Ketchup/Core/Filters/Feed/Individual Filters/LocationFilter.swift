@@ -19,6 +19,7 @@ struct LocationFilter: View {
         VStack{
             HStack{
                 Text("Filter by Location")
+                    .foregroundStyle(.gray)
                     .font(.title2)
                     .fontWeight(.semibold)
                 Spacer()
@@ -28,8 +29,10 @@ struct LocationFilter: View {
             if filtersViewModel.selectedLocation.isEmpty{
                 HStack{
                     Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.gray)
                         .imageScale(.small)
                     TextField("Search destinations", text: $mapSearch.searchTerm)
+                        .foregroundStyle(.black)
                         .font(.subheadline)
                         .frame(height:44)
                         .padding(.horizontal)
@@ -52,10 +55,10 @@ struct LocationFilter: View {
                             HStack{
                                 VStack(alignment: .leading) {
                                     Text(location.title)
-                                        .foregroundColor(Color.black)
+                                        .foregroundColor(.gray)
                                     Text(location.subtitle)
                                         .font(.system(.caption))
-                                        .foregroundColor(Color.black)
+                                        .foregroundColor(.gray)
                                 }
                                 Spacer()
                             }

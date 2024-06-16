@@ -56,7 +56,7 @@ struct NewRecipeView: View {
                             }
                             .padding(.horizontal)
                             .padding(.bottom)
-                            .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
+                            .background(LinearGradient(gradient: Gradient(colors: [Color.primary.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
                         }
                         
                         // Red circle outline with white text for cooking time, difficulty, and serving number
@@ -193,7 +193,7 @@ struct InstructionBoxView: View {
         .padding()
         .background(Color.white)
         .cornerRadius(10)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .shadow(color: Color.primary.opacity(0.1), radius: 5, x: 0, y: 2)
         .padding(.bottom, 8) // Add spacing between steps
     }
 }

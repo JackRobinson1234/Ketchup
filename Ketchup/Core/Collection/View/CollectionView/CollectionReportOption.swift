@@ -20,7 +20,7 @@ struct CollectionOptionsSheet: View {
                 } label: {
                     Text("Report Collection")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .bold()
                 }
         }

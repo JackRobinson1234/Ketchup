@@ -54,7 +54,7 @@ struct EditRecipeView: View {
 //                        }
 //                        .padding(.horizontal)
 //                        .padding(.bottom)
-//                        .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
+//                        .background(LinearGradient(gradient: Gradient(colors: [Color.primary.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
 //                    }
                     
                     // Red circle outline with white text for cooking time, difficulty, and serving number
@@ -104,7 +104,7 @@ struct EditRecipeView: View {
                                 Image(systemName: "pencil")
                                 Text(" Edit Dietary Restrictions")
                                     .font(.headline)
-                                    .foregroundStyle(.black)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         if !uploadViewModel.dietaryRestrictions.isEmpty {
@@ -131,7 +131,7 @@ struct EditRecipeView: View {
                                 Image(systemName: "pencil")
                                 Text(" Edit Ingredients")
                                     .font(.headline)
-                                    .foregroundStyle(.black)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         if !uploadViewModel.ingredients.isEmpty {
@@ -161,7 +161,7 @@ struct EditRecipeView: View {
                                 Image(systemName: "pencil")
                                 Text(" Edit Instructions")
                                     .font(.headline)
-                                    .foregroundStyle(.black)
+                                    .foregroundStyle(.primary)
                             }
                         }
                         

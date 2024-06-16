@@ -89,12 +89,12 @@ struct CreateReviewButton: View {
             VStack(alignment: .leading){
                 Text("Add a New Review")
                     .font(.subheadline)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.primary)
             }
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 .padding(.horizontal)
         }
         .padding(.horizontal)

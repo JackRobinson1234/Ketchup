@@ -97,7 +97,6 @@ struct RestaurantProfileSlideBarView: View {
             }
         }
         .padding()
-        .background(Color.white)
         
         
         // MARK: Section Logic
@@ -129,7 +128,7 @@ struct UnderlineImageModifier: ViewModifier {
                         .frame(height: 40) // Adjust the height of the spacer to control the distance between the image and the underline bar
                     Rectangle()
                         .frame(height: 2)
-                        .foregroundColor(isSelected ? .black : .clear)
+                        .foregroundColor(isSelected ? .primary : .clear)
                 }
             )
     }

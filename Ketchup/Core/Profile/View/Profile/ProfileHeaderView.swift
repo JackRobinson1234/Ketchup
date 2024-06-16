@@ -35,10 +35,10 @@ struct ProfileHeaderView: View {
                     Text(user.fullname)
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     Text("@\(user.username)")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         //.frame(width: frameWidth)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
@@ -72,7 +72,7 @@ struct ProfileHeaderView: View {
                                 .frame(width: 130)
                                 .padding(.vertical, 8)
                                 .foregroundColor(user.isFollowed ? Color("Colors/AccentColor") : .white)
-                                .background(user.isFollowed ? Color.white : Color.red)
+                                .background(user.isFollowed ? Color.clear : Color.red)
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 6)
@@ -152,7 +152,7 @@ struct UserStatView: View {
         .opacity(value == 0 ? 0.5 : 1.0)
         .frame(width:  UIScreen.main.bounds.width / 4 - 30, alignment: .center)
         .padding(.vertical, 10)
-        .foregroundColor(.black)
+        .foregroundColor(.primary)
     }
         
 }

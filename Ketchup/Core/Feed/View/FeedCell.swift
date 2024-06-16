@@ -374,9 +374,8 @@ struct FeedCell: View {
                 if newValue == true {
                     videoCoordinator.pause()
                 } else {
-                    
                     videoCoordinator.play()
-                    
+
                 }
             }
         }

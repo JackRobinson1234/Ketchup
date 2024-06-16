@@ -25,6 +25,7 @@ struct RestaurantListView: View {
             Divider()
         }, noResults: {
             Text("No results found")
+                .foregroundStyle(.primary)
         })
         .navigationTitle("Explore")
         .searchable(text: $viewModel.searchQuery,

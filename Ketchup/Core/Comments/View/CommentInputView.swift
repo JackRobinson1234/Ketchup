@@ -40,6 +40,6 @@ struct CommentInputView: View {
             }
             .padding(.horizontal)
         }
-        .tint(.black)
+        .tint(.primary)
     }
 }

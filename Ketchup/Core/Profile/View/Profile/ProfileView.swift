@@ -98,7 +98,7 @@ struct ProfileView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -114,7 +114,7 @@ struct ProfileView: View {
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 5, height: 5)
-                                    .foregroundStyle(.black)
+                                    .foregroundStyle(.primary)
                                 
                             }
                         }

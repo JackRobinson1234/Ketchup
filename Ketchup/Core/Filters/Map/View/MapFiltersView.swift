@@ -76,7 +76,7 @@ struct MapFiltersView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .imageScale(.small)
-                                .foregroundColor(.black)
+                                .foregroundColor(.primary)
                                 .padding(6)
                                 .overlay(
                                     Circle()

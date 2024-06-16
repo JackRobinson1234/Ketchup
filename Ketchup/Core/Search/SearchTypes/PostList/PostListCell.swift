@@ -26,18 +26,22 @@ struct PostListCell: View {
                     Text(restaurant.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
                     Text("by \(post.user.fullname)")
                         .font(.caption)
+                        .foregroundStyle(.primary)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
                             .font(.footnote)
+                            .foregroundStyle(.primary)
                     }
                     let city = restaurant.city ?? ""
                     let state = restaurant.state ?? ""
                     Text("\(city), \(state)")
                         .font(.footnote)
+                        .foregroundStyle(.primary)
                 }
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 
             }
             //MARK: Recipe Info
@@ -49,17 +53,19 @@ struct PostListCell: View {
                             .fontWeight(.semibold)
                     }
                     Text("by \(post.user.fullname)")
+                        .foregroundStyle(.primary)
                         .font(.caption)
                     if let cuisine = post.cuisine {
                         Text(cuisine)
                             .font(.footnote)
+                            .foregroundStyle(.primary)
                     }
                 }
             }
             Spacer()
             //MARK: Right Arrow
             Image(systemName: "chevron.right")
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 .padding([.leading, .trailing])
         }
     }

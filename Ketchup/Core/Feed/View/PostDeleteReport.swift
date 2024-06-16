@@ -46,7 +46,7 @@ struct PostOptionsSheet: View {
                 } label: {
                     Text("Report Post")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
         }

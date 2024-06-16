@@ -82,7 +82,7 @@ struct ReelsUploadView: View {
                                         .font(.largeTitle) // Adjust the size as needed
                                         .foregroundColor(Color("Colors/AccentColor"))
                                     Text("Add a restaurant")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                 }
                             } else if let restaurant = uploadViewModel.restaurant{
                                 VStack{
@@ -92,24 +92,24 @@ struct ReelsUploadView: View {
                                     if let cuisine = restaurant.cuisine, let price = restaurant.price {
                                         Text("\(cuisine), \(price)")
                                             .font(.caption)
-                                            .foregroundStyle(.black)
+                                            .foregroundStyle(.primary)
                                         
                                         
                                     } else if let cuisine = restaurant.cuisine {
                                         Text(cuisine)
                                             .font(.caption)
-                                            .foregroundStyle(.black)
+                                            .foregroundStyle(.primary)
                                         
                                         
                                     } else if let price = restaurant.price {
                                         Text(price)
                                             .font(.caption)
-                                            .foregroundStyle(.black)
+                                            .foregroundStyle(.primary)
                                     }
                                     if let address = restaurant.address{
                                         Text(address)
                                             .font(.caption)
-                                            .foregroundStyle(.black)
+                                            .foregroundStyle(.primary)
                                     }
                                     Text("Edit")
                                         .foregroundStyle(Color("Colors/AccentColor"))
@@ -146,7 +146,7 @@ struct ReelsUploadView: View {
                         Rectangle()
                             .frame(width: width, height: 150) // Half of the original dimensions
                             .cornerRadius(5) // Adjusted corner radius to maintain proportionality
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.primary)
                     }
                     Spacer()
                 }
@@ -221,7 +221,7 @@ struct ReelsUploadView: View {
                                     .frame(width: 40, height: 40, alignment: .center)
                                 
                                 Text("Edit Recipe")
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 
                                 Spacer()
                                 
@@ -297,20 +297,20 @@ struct ReelsUploadView: View {
                     if uploadViewModel.postType == posttype {
                         HStack {
                             Text(posttype == .cooking ? "Cooking" : "Dining")
-                                .foregroundColor(.black)
+                                .foregroundColor(.primary)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()
                             
                             Spacer()
                             
                             Image(systemName: "checkmark")
-                                .foregroundColor(.black)
+                                .foregroundColor(.primary)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()
                         }
                     } else {
                         Text(posttype.postTypeTitle)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding()
                         

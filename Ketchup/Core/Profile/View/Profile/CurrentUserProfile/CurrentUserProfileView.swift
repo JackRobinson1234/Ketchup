@@ -80,7 +80,7 @@ struct CurrentUserProfileView: View {
                             showSettings.toggle()
                         } label: {
                             Image(systemName: "gearshape")
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primary)
                         }
                     }
                         
@@ -94,7 +94,7 @@ struct CurrentUserProfileView: View {
                             ZStack {
                                 Image(systemName: "bell")
                                     .font(.headline)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                     .padding()
                                 
                                 if profileViewModel.user.notificationAlert == true{
@@ -106,7 +106,7 @@ struct CurrentUserProfileView: View {
                             }
                         }
                         .font(.headline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     }
                 }
                 

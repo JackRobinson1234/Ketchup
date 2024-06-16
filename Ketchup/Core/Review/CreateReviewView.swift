@@ -59,7 +59,7 @@ struct CreateReviewView: View {
                             Button(action: { recommend = false }) {
                                 VStack {
                                     Image(systemName: "heart.slash")
-                                        .foregroundColor(recommend == false ? .black : .gray)
+                                        .foregroundColor(recommend == false ? .primary : .gray)
                                         .font(.title)
                                     Text("Don't Recommend")
                                         .font(.caption)
@@ -82,12 +82,12 @@ struct CreateReviewView: View {
                                     NavigationLink(destination: AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)) {
                                         HStack {
                                             Image(systemName: "fork.knife.circle")
-                                                .foregroundStyle(.black)
+                                                .foregroundStyle(.primary)
                                                 .font(.subheadline)
                                             VStack (alignment: .leading){
                                                 Text("Add Favorite Menu Items")
                                                     .font(.subheadline)
-                                                    .foregroundStyle(.black)
+                                                    .foregroundStyle(.primary)
                                                 if !favoriteMenuItems.isEmpty{
                                                     Text("\(favoriteMenuItems.count) items selected")
                                                         .font(.footnote)
@@ -96,7 +96,7 @@ struct CreateReviewView: View {
                                             }
                                             Spacer()
                                             Image(systemName: "chevron.right")
-                                                .foregroundStyle(.black)
+                                                .foregroundStyle(.primary)
                                                
                                         }
                                         .padding()

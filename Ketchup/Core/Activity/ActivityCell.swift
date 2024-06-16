@@ -54,7 +54,7 @@ struct ActivityCell: View {
                             else {
                                 VStack(alignment: .leading){
                                     Text("@\(activity.username) created a new restaurant post for: ")
-                                        .foregroundStyle(.black)
+                                        .foregroundStyle(.primary)
                                         .activityCellFontStyle()
                                     +
                                     Text(activity.name)
@@ -156,7 +156,7 @@ struct ActivityCell: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60, height:60)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -214,7 +214,7 @@ struct ActivityCell: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60, height:60)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -233,7 +233,7 @@ struct ActivityCell: View {
                                     Image(systemName: "heart")
                                         .foregroundColor(Color("Colors/AccentColor"))
                                     Text("Recommends")
-                                        .foregroundStyle(.black)
+                                        .foregroundStyle(.primary)
                                     
                                 }
                                 .font(.caption)
@@ -338,7 +338,7 @@ struct ActivityCell: View {
 extension Text {
     func activityCellFontStyle() -> Text {
         self.font(.subheadline) // Customize the font style here
-            .foregroundColor(.black) // Customize the text color if needed
+            .foregroundColor(.primary) // Customize the text color if needed
     }
 }
 #Preview {

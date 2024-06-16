@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import MapKit
 struct RestaurantProfileHeaderView: View {
+    @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showAddToCollection = false
     @State var user: User? = nil
@@ -34,7 +35,7 @@ struct RestaurantProfileHeaderView: View {
                                 LinearGradient(
                                     gradient: Gradient(stops: [
                                         .init(color: Color.clear, location: 0.6),
-                                        .init(color: Color.black.opacity(0.6), location: 1.0)
+                                        .init(color: Color.primary.opacity(0.6), location: 1.0)
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -47,7 +48,7 @@ struct RestaurantProfileHeaderView: View {
                             Text("\(restaurant.name)")
                                 .font(.title)
                                 .fontWeight(.semibold)
-                                .multilineTextAlignment(.center)
+                                .multilineTextAlignment(.leading)
                                 .foregroundStyle(.white)
                             if let cuisine = restaurant.cuisine, let price = restaurant.price {
                                 Text("\(cuisine), \(price)")
@@ -69,7 +70,24 @@ struct RestaurantProfileHeaderView: View {
                         
                         Spacer()
                     }
-                    
+                    VStack{
+                        HStack{
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(.white)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                            .frame(width: 30, height: 30) // Adjust the size as needed
+                                    )
+                            }
+                            Spacer()
+                        }
+                        .padding(35)
+                        Spacer()
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 
@@ -91,7 +109,7 @@ struct RestaurantProfileHeaderView: View {
                                         Image(systemName: "car")
                                         Text(" \(travelTime)")
                                             .font(.subheadline)
-                                            .foregroundStyle(.black)
+                                            .foregroundStyle(.primary)
                                        
                                     }
                                     

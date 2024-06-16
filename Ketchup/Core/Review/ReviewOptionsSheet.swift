@@ -47,7 +47,7 @@ struct ReviewOptionsSheet: View {
                 } label: {
                     Text("Report Review")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
         }
