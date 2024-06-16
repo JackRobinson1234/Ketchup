@@ -71,7 +71,7 @@ struct ProfileView: View {
         } else{
             ScrollView {
                 VStack(spacing: 2) {
-                    ProfileHeaderView(viewModel: profileViewModel)
+                    ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection)
                     if !profileViewModel.user.privateMode {
                         ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection)
                     } else {

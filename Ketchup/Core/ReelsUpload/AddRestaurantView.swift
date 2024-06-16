@@ -24,14 +24,13 @@ struct AddRestaurantView: View {
                 VStack {
                     
                         TextField("Restaurant Name", text: $name)
-                        //.textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding()
                         Divider()
                         TextField("City", text: $city)
                             .padding()
                         Divider()
                         TextField("State", text: $state)
-                        //.textFieldStyle(RoundedBorderTextFieldStyle())
+                
                             .padding()
                         Divider()
                         

@@ -14,10 +14,12 @@ struct ProfileHeaderView: View {
     @State private var userFavorites: [FavoriteRestaurant]? = []
     @State var showFollowersList: Bool = false
     @State var showFollowingList: Bool = false
-    
-    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = []) {
+    @Binding var profileSection: ProfileSectionEnum
+    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = [], profileSection: Binding<ProfileSectionEnum>) {
         self.viewModel = viewModel
+        self._profileSection = profileSection
         self.userFavorites = viewModel.user.favorites
+      
     }
     
     var body: some View {
@@ -90,10 +92,26 @@ struct ProfileHeaderView: View {
       
             
             HStack(spacing: 4) {
-                UserStatView(value: user.stats.followers, title: "Followers")
-                UserStatView(value: user.stats.following, title: "Following")
-                UserStatView(value: user.stats.posts, title: "Posts")
-                UserStatView(value: user.stats.collections, title: "Collections")
+                Button{ 
+                    showFollowersList.toggle()
+                }label: {
+                    UserStatView(value: user.stats.followers, title: "Followers")
+                }
+                Button{
+                    showFollowingList.toggle()
+                } label: {
+                    UserStatView(value: user.stats.following, title: "Following")
+                }
+                Button{
+                    profileSection = .posts
+                } label: {
+                    UserStatView(value: user.stats.posts, title: "Posts")
+                }
+                Button{
+                    profileSection = .collections
+                } label: {
+                    UserStatView(value: user.stats.collections, title: "Collections")
+                }
             }
             if user.privateMode == false || user.isCurrentUser {
                 FavoriteRestaurantsView(user: user, favorites: user.favorites)
@@ -140,6 +158,6 @@ struct UserStatView: View {
 }
 
 #Preview {
-    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234")
+    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234"), profileSection: .constant(.posts)
     )
 }

@@ -65,7 +65,7 @@ struct CurrentUserProfileView: View {
                 ScrollView {
                     VStack(spacing: 2) {
                         //MARK: Profile Header
-                        ProfileHeaderView(viewModel: profileViewModel)
+                        ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection)
                             .padding(.top)
                             //MARK: Slide bar
                         ProfileSlideBar(viewModel: profileViewModel, profileSection: $currentProfileSection)

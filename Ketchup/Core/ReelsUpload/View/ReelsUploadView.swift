@@ -39,7 +39,6 @@ struct ReelsUploadView: View {
                         VStack{
                             ZStack(alignment: .topLeading){
                                 ZStack(alignment: .topLeading) {
-                                    
                                     TextEditor(text: $titleText)
                                         .font(.title3)
                                         .frame(height: 75)
