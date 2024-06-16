@@ -18,7 +18,18 @@ struct SelectRestaurantListView: View {
     var debouncer = Debouncer(delay: 1.0)
     
     var body: some View {
-       
+        Button{
+            createRestaurantView.toggle()
+        } label: {
+            VStack{
+                Text("Can't find the restaurant you're looking for?")
+                    .foregroundStyle(.gray)
+                    .font(.footnote)
+                Text("Request a Restaurant")
+                    .foregroundStyle(Color("Colors/AccentColor"))
+                    .font(.footnote)
+            }
+        }
         InfiniteList(viewModel.hits, itemView: { hit in
             Button{
                 uploadViewModel.restaurant = hit.object
@@ -37,16 +48,7 @@ struct SelectRestaurantListView: View {
             }
             Divider()
         }, noResults: {
-            Button{
-                createRestaurantView.toggle()
-            } label: {
-                VStack{
-                    Text("Can't find the restaurant you're looking for?")
-                        .foregroundStyle(.gray)
-                    Text("Request a Restaurant Now")
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                }
-            }
+           Text("No Results Found")
         })
         .navigationTitle("Explore")
         .searchable(text: $viewModel.searchQuery,
