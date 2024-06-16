@@ -13,12 +13,16 @@ struct SelectRestaurantListView: View {
     @StateObject var viewModel = RestaurantListViewModel()
     @ObservedObject var uploadViewModel: UploadViewModel
     @Environment(\.dismiss) var dismiss
+    @State var createRestaurantView = false
+    @State var dismissRestaurantList = false
     var debouncer = Debouncer(delay: 1.0)
     
     var body: some View {
+       
         InfiniteList(viewModel.hits, itemView: { hit in
             Button{
                 uploadViewModel.restaurant = hit.object
+                uploadViewModel.restaurantRequest = nil
                 let restaurant = hit.object
                     if let geopoint = restaurant.geoPoint{
                         uploadViewModel.restaurant?.geoPoint = geopoint
@@ -33,7 +37,16 @@ struct SelectRestaurantListView: View {
             }
             Divider()
         }, noResults: {
-            Text("No results found")
+            Button{
+                createRestaurantView.toggle()
+            } label: {
+                VStack{
+                    Text("Can't find the restaurant you're looking for?")
+                        .foregroundStyle(.gray)
+                    Text("Request a Restaurant Now")
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                }
+            }
         })
         .navigationTitle("Explore")
         .searchable(text: $viewModel.searchQuery,
@@ -43,7 +56,18 @@ struct SelectRestaurantListView: View {
                 viewModel.notifyQueryChanged()
             }
         }
-        
+        .fullScreenCover(isPresented: $createRestaurantView) {
+            AddRestaurantView(uploadViewModel: uploadViewModel, dismissRestaurantList: $dismissRestaurantList)
+                .onDisappear{
+                        print("APPEARED")
+                        if dismissRestaurantList{
+                          print("APPEARED- dismissing")
+                            dismiss()
+                            dismissRestaurantList = false
+                        }
+                    
+                }
+        }
     }
 }
 

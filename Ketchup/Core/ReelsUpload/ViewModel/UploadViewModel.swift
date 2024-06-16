@@ -16,7 +16,6 @@ class UploadViewModel: ObservableObject {
     @Published var caption = ""
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
-    
     // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
     @Published var images: [UIImage]?
@@ -33,7 +32,7 @@ class UploadViewModel: ObservableObject {
     @Published var postType: PostType? = nil
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
-    
+    @Published var restaurantRequest: RestaurantRequest?
     private var uploadService = UploadService()
     
     func reset() {
@@ -77,7 +76,18 @@ class UploadViewModel: ObservableObject {
                  recipeServings == 0 &&
                  instructions.isEmpty)
     }
-    
+    func createPostRestaurant(from restaurant: Restaurant) -> PostRestaurant {
+        return PostRestaurant(
+            id: restaurant.id,
+            name: restaurant.name,
+            geoPoint: restaurant.geoPoint,
+            geoHash: restaurant.geoHash,
+            address: restaurant.address,
+            city: restaurant.city,
+            state: restaurant.state,
+            profileImageUrl: restaurant.profileImageUrl
+        )
+    }
     func uploadPost() async {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
@@ -93,16 +103,23 @@ class UploadViewModel: ObservableObject {
         }
         
         if let restaurant = restaurant {
+            postRestaurant = createPostRestaurant(from: restaurant)
+        } else if let restaurant = restaurantRequest {
             postRestaurant = PostRestaurant(
-                id: restaurant.id,
+                id: UUID().uuidString,
                 name: restaurant.name,
-                geoPoint: restaurant.geoPoint,
-                geoHash: restaurant.geoHash,
-                address: restaurant.address,
-                city: restaurant.city,
-                state: restaurant.state,
-                profileImageUrl: restaurant.profileImageUrl
+                geoPoint: nil,
+                geoHash: nil,
+                address: nil,
+                city: restaurant.city.isEmpty ? nil : restaurant.city,
+                state: restaurant.state.isEmpty ? nil : restaurant.state,
+                profileImageUrl: nil
             )
+            do{
+                try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
+            } catch {
+                print("error uploading restaurant request")
+            }
         }
         
         error = nil

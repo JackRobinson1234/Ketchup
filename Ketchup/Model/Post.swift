@@ -117,12 +117,12 @@ extension Post: Equatable {
 
 struct PostRestaurant: Codable, Hashable, Identifiable {
     let id: String
-    let name: String
-    let geoPoint: GeoPoint?
-    let geoHash: String?
-    let address: String?
-    let city: String?
-    let state: String?
+    var name: String
+    var geoPoint: GeoPoint?
+    var geoHash: String?
+    var address: String?
+    var city: String?
+    var state: String?
     var profileImageUrl: String?
 }
 

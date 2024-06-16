@@ -33,8 +33,8 @@ struct ReelsUploadView: View {
     var body: some View {
         ZStack {
             VStack {
-                HStack(alignment: .bottom, spacing: 20){
-                    
+                HStack{
+                    Spacer()
                     if uploadViewModel.postType == .cooking {
                         VStack{
                             ZStack(alignment: .topLeading){
@@ -77,7 +77,7 @@ struct ReelsUploadView: View {
                         Button {
                             isPickingRestaurant = true
                         } label: {
-                            if uploadViewModel.restaurant == nil{
+                            if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil{
                                 VStack {
                                     Image(systemName: "plus")
                                         .font(.largeTitle) // Adjust the size as needed
@@ -117,10 +117,24 @@ struct ReelsUploadView: View {
                                         .font(.caption)
                                     
                                 }
+                            } else if let request = uploadViewModel.restaurantRequest {
+                                VStack{
+                                    RestaurantCircularProfileImageView(size: .xLarge)
+                                    Text(request.name)
+                                        .font(.title)
+                                    Text("\(request.city), \(request.state)")
+                                        .font(.caption)
+                                    Text("(To be created)")
+                                        .foregroundStyle(.gray)
+                                        .font(.footnote)
+                                    Text("Edit")
+                                        .foregroundStyle(Color("Colors/AccentColor"))
+                                        .font(.caption)
+                                }
                             }
                         }
                     }
-                    
+                    Spacer()
                     if uploadViewModel.mediaType == "video" {
                         FinalVideoPreview(uploadViewModel: uploadViewModel)
                             .frame(width: width, height: 150) // Half of the original dimensions
@@ -135,6 +149,7 @@ struct ReelsUploadView: View {
                             .cornerRadius(5) // Adjusted corner radius to maintain proportionality
                             .foregroundStyle(.black)
                     }
+                    Spacer()
                 }
                 .padding(.vertical)
                 
@@ -170,11 +185,6 @@ struct ReelsUploadView: View {
                         uploadViewModel.caption = String(uploadViewModel.caption.prefix(150))
                     }
                 }
-                //                    Button(action: {
-                //                        self.isEditingCaption = true
-                //                    }) {
-                //                        CaptionBox(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
-                //                    }
                 Divider()
                 
                 
@@ -231,7 +241,7 @@ struct ReelsUploadView: View {
                     if uploadViewModel.postType == .cooking && titleText.isEmpty {
                         alertMessage = "Please add a title for your post."
                         showAlert = true
-                    } else if uploadViewModel.postType == .dining && uploadViewModel.restaurant == nil {
+                    } else if uploadViewModel.postType == .dining && (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
                         alertMessage = "Please select a restaurant."
                         showAlert = true
                     } else {
@@ -255,11 +265,8 @@ struct ReelsUploadView: View {
                         }
                 }
                 .opacity(uploadViewModel.postType == .cooking && titleText.isEmpty ? 0.5 : 1.0)
-                //                .disabled(
-                //                    uploadViewModel.postType == .cooking && titleText.isEmpty)
-                //                .disabled(
-                //                    uploadViewModel.postType == .dining && uploadViewModel.restaurant == nil)
-                .opacity(uploadViewModel.postType == .dining && uploadViewModel.restaurant == nil ? 0.5 : 1.0)
+
+                .opacity(uploadViewModel.postType == .dining && (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
                 .alert(isPresented: $showAlert) {
                     Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 }

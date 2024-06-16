@@ -21,7 +21,7 @@ struct MainTabView: View {
                             .foregroundStyle(.black)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         
-                    }
+                    }.padding()
                 }
                 .onAppear { 
                     tabBarController.selectedTab = 0
@@ -40,6 +40,7 @@ struct MainTabView: View {
                             .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         
                     }
+                    .padding()
                 }
                 .onAppear {
                     tabBarController.selectedTab = 1
@@ -54,6 +55,7 @@ struct MainTabView: View {
                 .tabItem {
                     Image(systemName: "plus.app")
                         .foregroundStyle(.black)
+                        .padding()
                 }
             
                 .onAppear {
@@ -74,6 +76,7 @@ struct MainTabView: View {
                             
                         
                     }
+                    .padding()
                 }
                 .onAppear {
                     tabBarController.selectedTab = 3
@@ -92,6 +95,7 @@ struct MainTabView: View {
                             .foregroundStyle(.black)
                         
                     }
+                    .padding()
                 }
                 .onAppear {
                     tabBarController.selectedTab = 4

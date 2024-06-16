@@ -173,5 +173,16 @@ class RestaurantService {
             throw error
         }
     }
-    
+    func requestRestaurant(requestRestaurant: RestaurantRequest) async throws {
+        let ref = FirestoreConstants.RequestRestaurantCollection.document(requestRestaurant.id)
+        guard let requestData = try? Firestore.Encoder().encode(requestRestaurant) else {
+            print("not encoding request right")
+            return
+        }
+        do {
+            try await ref.setData(requestData)
+        } catch {
+            print("uploading a request failed")
+        }
+    }
 }

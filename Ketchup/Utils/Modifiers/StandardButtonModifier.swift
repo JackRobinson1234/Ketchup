@@ -20,3 +20,23 @@ struct StandardButtonModifier: ViewModifier {
             .cornerRadius(8)
     }
 }
+
+struct OutlineButtonModifier: ViewModifier {
+    var width: CGFloat = 350
+    var borderColor: Color = Color("Colors/AccentColor")
+    var borderWidth: CGFloat = 1
+
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .foregroundColor(.red)  // Set the text color to red
+            .frame(width: width, height: 44)
+            .background(Color.clear)  // Set the background to clear
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(borderColor, lineWidth: borderWidth)  // Add a red border
+            )
+            .cornerRadius(8)
+    }
+}
