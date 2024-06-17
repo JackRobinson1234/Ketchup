@@ -19,7 +19,7 @@ struct User: Identifiable, Codable {
     }
     var favorites: [FavoriteRestaurant]
     var privateMode: Bool
-    var notificationAlert: Bool = false
+    var notificationAlert: Int = 0
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -31,10 +31,10 @@ struct User: Identifiable, Codable {
         self.stats = try container.decodeIfPresent(UserStats.self, forKey: .stats) ?? UserStats(following: 0, followers: 0, posts: 0, collections: 0)
         self.favorites = try container.decode([FavoriteRestaurant].self, forKey: .favorites)
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
-        self.notificationAlert = try container.decodeIfPresent(Bool.self, forKey: .notificationAlert) ?? false
+        self.notificationAlert = try container.decodeIfPresent(Int.self, forKey: .notificationAlert) ?? 0
     }
     
-    init(id: String, username: String, fullname: String, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Bool = false) {
+    init(id: String, username: String, fullname: String, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0) {
         self.id = id
         self.username = username
         self.fullname = fullname

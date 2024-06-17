@@ -11,13 +11,20 @@ struct MainTabView: View {
     @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     @EnvironmentObject var tabBarController: TabBarController
-        
+//    var alertValue: Int {
+//        if let alert = AuthService.shared.userSession?.notificationAlert, alert == true {
+//            return 0
+//        } else {
+//            return 1
+//        }
+//    }
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             FeedView(videoCoordinator: videoCoordinator)
                 .tabItem {
                     
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
+                        .resizable()
                             .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         
@@ -29,7 +36,7 @@ struct MainTabView: View {
                 }
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
-                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+               
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             MapView()
@@ -48,7 +55,7 @@ struct MainTabView: View {
                 }
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
-                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                
                 .toolbar(tabBarController.visibility, for: .tabBar)
       
             CameraView()
@@ -64,7 +71,7 @@ struct MainTabView: View {
                 }
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
-                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+                
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             ActivityView()
@@ -84,7 +91,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
-                //.toolbarBackground(Color.white.opacity(0.8), for: .tabBar)
+               
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             CurrentUserProfileView()
@@ -92,17 +99,12 @@ struct MainTabView: View {
                     VStack(){
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
                     
-                        //let _ = print(AuthService.shared.userSession?.notificationAlert)
-//                        if let alert = AuthService.shared.userSession?.notificationAlert, alert == true {
-                    
-                          
-                               //.offset(x: 15, y: 15)
-                        //}
                     }
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.primary)
-                    .padding()
+                    
                 }
+                .badge(AuthService.shared.userSession?.notificationAlert ?? 0)
                 .onAppear {
                     tabBarController.selectedTab = 4
                     tabBarController.visibility = .visible

@@ -102,9 +102,10 @@ extension ProfileViewModel {
     
     func clearNotificationAlerts() async throws {
         do {
-            user.notificationAlert = false
+            user.notificationAlert = 0
+            AuthService.shared.userSession?.notificationAlert = 0
             try await UserService.shared.clearNotificationAlert()
-            AuthService.shared.userSession?.notificationAlert = false
+           
         } catch {
             print("error clearing notification alert")
         }

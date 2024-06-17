@@ -58,12 +58,12 @@ struct CollectionGridView: View {
                                             Image(systemName: "pencil")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 30)
+                                                .frame(width: 20)
                                                 .foregroundColor(Color("Colors/AccentColor"))
                                                 
 
                                             Text("Notes")
-                                                .foregroundStyle(Color("Colors/AccentColor"))
+                                                .foregroundStyle(Color(.black))
                                                 .font(.footnote)
                                             
                                         }

@@ -110,7 +110,7 @@ class UserService {
     func clearNotificationAlert() async throws {
            guard let currentUid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
            let userRef = FirestoreConstants.UserCollection.document(currentUid)
-           try await userRef.updateData(["notificationAlert": false])
+           try await userRef.updateData(["notificationAlert": 0])
        }
     
 }

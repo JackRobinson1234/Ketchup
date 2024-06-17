@@ -97,7 +97,7 @@ struct CurrentUserProfileView: View {
                                     .foregroundColor(.primary)
                                     .padding()
                                 
-                                if profileViewModel.user.notificationAlert == true{
+                                if profileViewModel.user.notificationAlert > 0{
                                     Circle()
                                         .fill(Color("Colors/AccentColor"))
                                         .frame(width: 10, height: 10)
