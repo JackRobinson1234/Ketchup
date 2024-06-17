@@ -28,7 +28,7 @@ struct ActivityCell: View {
                 if let postType = activity.postType {
                     HStack{
                         Button{showUserProfile.toggle()} label: {
-                            UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
+                            UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                         }
                         //MARK: Post: Restaurant
                         if postType == .dining{
@@ -116,7 +116,7 @@ struct ActivityCell: View {
             else if activity.type == .newCollection {
                 HStack{
                     Button{showUserProfile.toggle()} label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
+                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     VStack(alignment: .leading){
                         Text("@\(activity.username) created a new collection: ")
@@ -166,7 +166,7 @@ struct ActivityCell: View {
             } else if activity.type == .newCollectionItem {
                 HStack{
                     Button{showUserProfile.toggle()} label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
+                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     VStack(alignment: .leading){
                         Text("@\(activity.username) added ")
@@ -224,7 +224,7 @@ struct ActivityCell: View {
             } else if activity.type == .newReview {
                 HStack{
                     Button{showUserProfile.toggle()} label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .medium)
+                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     if let text = activity.text{
                         VStack(alignment: .leading){

@@ -358,7 +358,19 @@ struct FeedCell: View {
             }
             .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
         }
-        
+        .onTapGesture(count: 2) {
+            withAnimation {
+                if post.didLike{
+                    Task{
+                       await viewModel.unlike(post)
+                    }
+                } else {
+                    Task{
+                        await viewModel.like(post)
+                    }
+                }
+            }
+        }
         .gesture(drag)
         //MARK: Scroll Position replay/ pause
         .onChange(of: scrollPosition) {oldValue, newValue in

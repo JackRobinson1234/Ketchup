@@ -16,12 +16,12 @@ struct MainTabView: View {
         TabView(selection: $tabBarController.selectedTab) {
             FeedView(videoCoordinator: videoCoordinator)
                 .tabItem {
-                    VStack {
+                    
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
                             .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         
-                    }.padding()
+                    .padding()
                 }
                 .onAppear { 
                     tabBarController.selectedTab = 0
@@ -34,12 +34,12 @@ struct MainTabView: View {
             
             MapView()
                 .tabItem {
-                    VStack {
+                    
                         Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
                             .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         
-                    }
+                    
                     .padding()
                 }
                 .onAppear {
@@ -69,13 +69,13 @@ struct MainTabView: View {
             
             ActivityView()
                 .tabItem {
-                    VStack {
+                    
                         Image(systemName: tabBarController.selectedTab == 3 ? "bolt.fill" : "bolt")
                             .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                             
                         
-                    }
+                    
                     .padding()
                 }
                 .onAppear {
@@ -89,12 +89,18 @@ struct MainTabView: View {
             
             CurrentUserProfileView()
                 .tabItem {
-                    VStack {
+                    VStack(){
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
-                            .foregroundStyle(.primary)
-                        
+                    
+                        //let _ = print(AuthService.shared.userSession?.notificationAlert)
+//                        if let alert = AuthService.shared.userSession?.notificationAlert, alert == true {
+                    
+                          
+                               //.offset(x: 15, y: 15)
+                        //}
                     }
+                    .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
+                    .foregroundStyle(.primary)
                     .padding()
                 }
                 .onAppear {

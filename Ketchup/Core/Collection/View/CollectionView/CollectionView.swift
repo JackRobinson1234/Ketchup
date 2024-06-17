@@ -20,7 +20,20 @@ struct CollectionView: View {
     @State var deletedCollection: Bool = false
     @State private var showingOptionsSheet = false
     @FocusState private var isNotesFocused: Bool
+    @State var isDragging = false
+    @State var dragDirection = "left"
     
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    
+                    dismiss()
+                }
+            }
+    }
     var body: some View {
         //MARK: Selecting Images
         NavigationStack{

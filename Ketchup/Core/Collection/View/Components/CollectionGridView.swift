@@ -45,7 +45,7 @@ struct CollectionGridView: View {
                     
                     ForEach(collectionsViewModel.items, id: \.id) { item in
                         if item.postType == .dining {
-                            ZStack{
+                            ZStack(alignment: .topTrailing){
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
                                     CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
                                         .aspectRatio(1.0, contentMode: .fit)
@@ -54,16 +54,27 @@ struct CollectionGridView: View {
                                     Button {
                                         collectionsViewModel.notesPreview = item
                                     } label: {
-                                        Image(systemName: "line.3.horizontal")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 30)
-                                            .foregroundColor(.white)
-                                        
-                                            .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
-                                            .opacity(0.8)
+                                        VStack(spacing: 0){
+                                            Image(systemName: "pencil")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 30)
+                                                .foregroundColor(Color("Colors/AccentColor"))
+                                                
+
+                                            Text("Notes")
+                                                .foregroundStyle(Color("Colors/AccentColor"))
+                                                .font(.footnote)
+                                            
+                                        }
+                                        .padding(.vertical, 3)
+                                        .padding(.horizontal, 6)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 10) // Set the corner radius for rounded corners
+                                                .fill(Color.white) // Set the background color to white
+                                        )
                                     }
-                                    .offset(x: width/2.8, y: -width/2.3 )
+//                                    .offset(x: width/2.8, y: -width/2.3 )
                                 }
                             }
                         } else if item.postType == .cooking {

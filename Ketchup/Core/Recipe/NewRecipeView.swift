@@ -56,7 +56,7 @@ struct NewRecipeView: View {
                             }
                             .padding(.horizontal)
                             .padding(.bottom)
-                            .background(LinearGradient(gradient: Gradient(colors: [Color.primary.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
+                            .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]), startPoint: .bottom, endPoint: .top))
                         }
                         
                         // Red circle outline with white text for cooking time, difficulty, and serving number

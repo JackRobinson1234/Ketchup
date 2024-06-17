@@ -123,7 +123,7 @@ struct CreateCollectionButton: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20)
-                .foregroundStyle(.blue.opacity(1))
+                .foregroundStyle(Color("Colors/AccentColor"))
                 .padding(.horizontal)
             VStack(alignment: .leading){
                 Text("Create a New Collection")

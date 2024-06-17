@@ -50,7 +50,7 @@ struct ActivityView: View {
                             Button {
                                 viewModel.letsKetchupOption = .trending
                             } label: {
-                                Text("Trending")
+                                Text("Global")
                                     .padding()
                                     .background(viewModel.letsKetchupOption == .trending ? Color("Colors/AccentColor") : Color.clear)
                                     .cornerRadius(8)
@@ -99,7 +99,7 @@ struct ActivityView: View {
                                 }
                             } else {
                                 Spacer()
-                                Text("There is no trending activity")
+                                Text("There is no Global activity")
                                 Spacer()
                             }
                         }

@@ -25,7 +25,7 @@ struct RestaurantProfileSlideBarView: View {
         //MARK: Selecting Images
         VStack{
             HStack(spacing: 0) {
-                var currentSection = viewModel.currentSection
+                let currentSection = viewModel.currentSection
                 Image(systemName: currentSection == .posts ? "square.grid.2x2.fill" : "square.grid.2x2")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -122,13 +122,14 @@ struct UnderlineImageModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .foregroundStyle(isSelected ? Color("Colors/AccentColor") : .primary)
             .overlay(
                 VStack {
                     Spacer()
                         .frame(height: 40) // Adjust the height of the spacer to control the distance between the image and the underline bar
                     Rectangle()
                         .frame(height: 2)
-                        .foregroundColor(isSelected ? .primary : .clear)
+                        .foregroundColor(isSelected ? Color("Colors/AccentColor") : .clear)
                 }
             )
     }

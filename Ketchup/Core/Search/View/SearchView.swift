@@ -9,6 +9,7 @@ import SwiftUI
 
 
 struct SearchView: View {
+    @Environment(\.dismiss) var dismiss
     @State var searchText: String = ""
     @State var searchSlideBar: Bool
     @State var searchConfig: SearchModelConfig
@@ -17,7 +18,43 @@ struct SearchView: View {
         self._searchConfig = State(initialValue: searchConfig)
         self._searchSlideBar = State(initialValue: searchSlideBar)
     }
-    
+    @State var dragDirection = "left"
+    @State var isDragging = false
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 30)
+            .onChanged { _ in self.isDragging = true
+            print("DRAGGING ")}
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+//                    if !searchSlideBar {
+//                        dismiss()
+//                    } else {
+                        if searchConfig == .restaurants {
+                            dismiss()
+                        } else if searchConfig == .posts{
+                            searchConfig = .restaurants
+                        } else if searchConfig == .users{
+                            searchConfig = .posts
+                        } else if searchConfig == .collections{
+                            searchConfig = .users
+                        }
+                    }
+                 else {
+
+                        self.dragDirection = "right"
+                        if searchConfig == .restaurants {
+                            searchConfig = .posts
+                        } else if searchConfig == .posts{
+                            searchConfig = .users
+                        } else if searchConfig == .users{
+                            searchConfig = .collections
+                        }
+                        self.isDragging = false
+                    }
+                
+            }
+    }
     var body: some View {
         // Conditionally embed in NavigationStack only when searchSlideBar is true
 
@@ -32,10 +69,12 @@ struct SearchView: View {
                     .navigationDestination(for: Restaurant.self) { restaurant in
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
+                    .gesture(drag)
                 
             }
         } else {
             internalBody
+                .gesture(drag)
         }
     }
     
