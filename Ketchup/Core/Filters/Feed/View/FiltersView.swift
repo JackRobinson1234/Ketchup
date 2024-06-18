@@ -31,13 +31,13 @@ struct FiltersView: View {
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
 //                    if selectedOption == .postType {
-                        VStack(alignment: .leading){
-                            PostTypeFilter(filtersViewModel: filtersViewModel)
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 140))
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}
-                        }
+//                        VStack(alignment: .leading){
+//                            PostTypeFilter(filtersViewModel: filtersViewModel)
+//                        }
+//                        .modifier(CollapsibleFilterViewModifier(frame: 140))
+//                        .onTapGesture(count:2){
+//                            withAnimation(.snappy){ selectedOption = .noneSelected}
+//                        }
                         
 //                    } else {
 //                        CollapsedPickerView(title: "Post Type", emptyDescription: "Filter by Post Type", count: filtersViewModel.updateSelectedPostTypes().count, singularDescription: {
@@ -115,48 +115,48 @@ struct FiltersView: View {
                         }
                     }
                     //MARK: Dietary Restrictions
-                                    
-                    VStack{
-                        if selectedOption == .dietary {
-                            VStack(alignment: .leading){
-                                DietaryFilter(filtersViewModel: filtersViewModel)
-                            }
-
-                            .modifier(CollapsibleFilterViewModifier(frame: 270))
-                            .onTapGesture(count:2){
-                                withAnimation(.snappy){ selectedOption = .noneSelected}}
-                        }
-                        else {
-                            /// "Filter Dietary" if no options selected
-                            CollapsedPickerView(title: "At Home Dietary Restrictions", emptyDescription: "Filter by Dietary", count: filtersViewModel.selectedDietary.count, singularDescription: "Restriction Selected", pluralDescription: "Restrictions Selected")
-                                .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
-                                .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
-                                .onTapGesture{
-                                    withAnimation(.snappy){ selectedOption = .dietary}
-                                }
-                        }
-                    }
+//                                    
+//                    VStack{
+//                        if selectedOption == .dietary {
+//                            VStack(alignment: .leading){
+//                                DietaryFilter(filtersViewModel: filtersViewModel)
+//                            }
+//
+//                            .modifier(CollapsibleFilterViewModifier(frame: 270))
+//                            .onTapGesture(count:2){
+//                                withAnimation(.snappy){ selectedOption = .noneSelected}}
+//                        }
+//                        else {
+//                            /// "Filter Dietary" if no options selected
+//                            CollapsedPickerView(title: "At Home Dietary Restrictions", emptyDescription: "Filter by Dietary", count: filtersViewModel.selectedDietary.count, singularDescription: "Restriction Selected", pluralDescription: "Restrictions Selected")
+//                                .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
+//                                .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
+//                                .onTapGesture{
+//                                    withAnimation(.snappy){ selectedOption = .dietary}
+//                                }
+//                        }
+//                    }
                 }
                 
                 //MARK: Cooking Time
-                VStack{
-                    if selectedOption == .cookingTime {
-                        VStack(alignment: .leading){
-                            CookingTimeFilter(filtersViewModel: filtersViewModel)
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 190))
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}}
-                    }
-                    else {
-                        CollapsedPickerView(title: "At Home Cooking Time", emptyDescription: "Filter by Time", count: filtersViewModel.selectedCookingTime.count, singularDescription: "Time Selected")
-                            .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
-                            .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .cookingTime}
-                            }
-                    }
-                }
+//                VStack{
+//                    if selectedOption == .cookingTime {
+//                        VStack(alignment: .leading){
+//                            CookingTimeFilter(filtersViewModel: filtersViewModel)
+//                        }
+//                        .modifier(CollapsibleFilterViewModifier(frame: 190))
+//                        .onTapGesture(count:2){
+//                            withAnimation(.snappy){ selectedOption = .noneSelected}}
+//                    }
+//                    else {
+//                        CollapsedPickerView(title: "At Home Cooking Time", emptyDescription: "Filter by Time", count: filtersViewModel.selectedCookingTime.count, singularDescription: "Time Selected")
+//                            .opacity(filtersViewModel.disableAtHomeFilters ? 0.5 : 1.0)
+//                            .allowsHitTesting(!filtersViewModel.disableAtHomeFilters)
+//                            .onTapGesture{
+//                                withAnimation(.snappy){ selectedOption = .cookingTime}
+//                            }
+//                    }
+//                }
             }
             //MARK: Navigation Title
             .onChange(of: filtersViewModel.disableAtHomeFilters) {

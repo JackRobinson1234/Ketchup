@@ -32,10 +32,9 @@ struct SearchView: View {
 //                    } else {
                         if searchConfig == .restaurants {
                             dismiss()
-                        } else if searchConfig == .posts{
-                            searchConfig = .restaurants
                         } else if searchConfig == .users{
-                            searchConfig = .posts
+                            searchConfig = .restaurants
+                       
                         } else if searchConfig == .collections{
                             searchConfig = .users
                         }
@@ -44,8 +43,6 @@ struct SearchView: View {
 
                         self.dragDirection = "right"
                         if searchConfig == .restaurants {
-                            searchConfig = .posts
-                        } else if searchConfig == .posts{
                             searchConfig = .users
                         } else if searchConfig == .users{
                             searchConfig = .collections
@@ -85,13 +82,6 @@ struct SearchView: View {
             }
             
             switch searchConfig {
-            case .posts:
-                PostListView()
-                    .modifier(BackButtonModifier())
-                    .navigationBarBackButtonHidden()
-                    
-                
-                
             
             case .users:
                     UserListView()
@@ -113,7 +103,7 @@ struct SearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView(searchConfig: .posts)
+        SearchView(searchConfig: .restaurants)
     }
 }
 

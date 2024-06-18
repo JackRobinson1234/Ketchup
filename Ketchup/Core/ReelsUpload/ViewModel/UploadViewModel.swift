@@ -29,7 +29,7 @@ class UploadViewModel: ObservableObject {
     @Published var recipeDifficulty: RecipeDifficulty = .easy
     @Published var instructions: [Instruction] = []
     @Published var restaurant: Restaurant?
-    @Published var postType: PostType? = nil
+    @Published var postType: PostType? = .dining
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
@@ -53,7 +53,7 @@ class UploadViewModel: ObservableObject {
         recipeServings = 0
         instructions = []
         restaurant = nil
-        postType = nil
+        postType = .dining
         navigateToUpload = false
         fromInAppCamera = true
         recommend = nil

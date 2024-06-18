@@ -15,7 +15,7 @@ struct SearchViewSlideBar: View {
     
     var body: some View {
         VStack{
-            ScrollView(.horizontal, showsIndicators: false) {
+            //ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     Text("Restaurants")
                         .onTapGesture {
@@ -24,15 +24,7 @@ struct SearchViewSlideBar: View {
                             }
                         }
                         .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
-                    
-                    Text("Cooking Posts")
-                        .onTapGesture {
-                            withAnimation {
-                                self.searchConfig = .posts
-                            }
-                        }
-                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .posts))
-                    //.frame(maxWidth: .infinity)
+
                     
                     Text("Users")
                         .frame(width: 50, height: 25)
@@ -59,7 +51,7 @@ struct SearchViewSlideBar: View {
                     
                 }
                 .padding()
-            }
+            //}
         }
     }
 }
@@ -83,5 +75,5 @@ struct UnderlineTextModifier: ViewModifier {
 
 
 #Preview {
-    SearchViewSlideBar(searchConfig: .constant(.posts))
+    SearchViewSlideBar(searchConfig: .constant(.restaurants))
 }

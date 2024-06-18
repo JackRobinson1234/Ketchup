@@ -9,7 +9,6 @@
 import Foundation
 
 enum SearchModelConfig: Hashable {
-    case posts
     case users
     case restaurants
     case collections
