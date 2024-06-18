@@ -44,7 +44,7 @@ class FiltersViewModel: ObservableObject {
         if selectedCuisines.isEmpty {
             filters.removeValue(forKey: "cuisine")
         } else {
-            filters["cuisine"] = selectedCuisines
+            filters["restaurant.cuisine"] = selectedCuisines
         }
         /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
         let selectedPostTypes = updateSelectedPostTypes()
@@ -64,7 +64,7 @@ class FiltersViewModel: ObservableObject {
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
         } else {
-            filters["price"] = selectedPrice
+            filters["restaurant.price"] = selectedPrice
         }
         ///Dietary checking if there are any selected
         if selectedDietary.isEmpty {

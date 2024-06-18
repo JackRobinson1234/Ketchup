@@ -33,18 +33,23 @@ struct CreateReviewView: View {
                     if let profileImageUrl = restaurant.profileImageUrl {
                         RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .xLarge)
                     }
-                    Text(restaurant.name)
-                        .bold()
-                        .font(.title3)
-                    Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                        .font(.subheadline)
-                        .padding(.horizontal)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    
-                    Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
-                        .font(.subheadline)
-                        .padding(.horizontal)
+                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                        Text("\(cuisine), \(price)")
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        
+                        
+                    } else if let cuisine = restaurant.cuisine {
+                        Text(cuisine)
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        
+                        
+                    } else if let price = restaurant.price {
+                        Text(price)
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                    }
                     
                     
                     Spacer()

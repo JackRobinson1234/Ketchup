@@ -104,7 +104,7 @@ struct CameraView: View {
                         } else if selectedCamTab == 1 {
                             PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                         } else if selectedCamTab == 2 {
-                            UploadWrittenReviewView(uploadViewModel: uploadViewModel)
+                            UploadWrittenReviewView(reviewViewModel: reviewsViewModel, changeTab: true)
                         }
                     }
                 }

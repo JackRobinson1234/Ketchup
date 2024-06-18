@@ -27,7 +27,9 @@ struct ReviewListView: View {
             else{
                 //MARK: Add Collection Button
                     LazyVStack(alignment: .leading){
-                        if let restaurant = viewModel.selectedRestaurant{
+                        
+                        if viewModel.selectedRestaurant != nil{
+                            Divider()
                             Button{
                                 showAddReview.toggle()
                             } label: {
@@ -35,11 +37,13 @@ struct ReviewListView: View {
                             }
                             .padding(.vertical)
                         } else if let user = viewModel.selectedUser, user.isCurrentUser {
+                            Divider()
                             Button{
                                 showRestaurantSelector.toggle()
                             } label: {
                                 CreateReviewButton()
                             }
+                            .padding(.vertical)
                         }
                         Divider()
                         if !viewModel.reviews.isEmpty {
@@ -65,7 +69,8 @@ struct ReviewListView: View {
             }
         }
         .sheet(isPresented: $showRestaurantSelector) {
-            RestaurantReviewSelector(reviewsViewModel: viewModel)
+            UploadWrittenReviewView(reviewViewModel: viewModel)
+//            RestaurantReviewSelector(reviewsViewModel: viewModel)
                 .onDisappear{
                     viewModel.selectedRestaurant = nil
                 }
@@ -84,10 +89,10 @@ struct CreateReviewButton: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20)
-                .foregroundStyle(.blue.opacity(1))
+                .foregroundStyle(Color("Colors/AccentColor"))
                 .padding(.horizontal)
             VStack(alignment: .leading){
-                Text("Add a New Review")
+                Text("Create a New Review")
                     .font(.subheadline)
                     .foregroundStyle(.primary)
             }

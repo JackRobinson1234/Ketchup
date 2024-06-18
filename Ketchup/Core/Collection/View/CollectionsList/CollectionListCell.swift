@@ -62,11 +62,12 @@ private func itemCountText(for collection: Collection) -> some View {
     let restaurantCount = collection.restaurantCount
     let atHomeCount = collection.atHomeCount
     let itemCountText: String
-    if restaurantCount == 0 && atHomeCount == 0 {
-        itemCountText = "0 Items"
+    if restaurantCount > 0 {
+        itemCountText = "\(restaurantCount) \(pluralText(for: restaurantCount, singular: "Restaurant", plural: "Restaurants"))"
     } else {
-        itemCountText = "\(restaurantCount > 0 ? "\(restaurantCount) \(pluralText(for: restaurantCount, singular: "Restaurant", plural: "Restaurants"))" : "")\(restaurantCount > 0 && atHomeCount > 0 ? ", " : "")\(atHomeCount > 0 ? "\(atHomeCount) \(pluralText(for: atHomeCount, singular: "At Home Post", plural: "At Home Posts"))" : "")"
+        itemCountText = "No Items Yet"
     }
+
     
     return Text(itemCountText)
 }

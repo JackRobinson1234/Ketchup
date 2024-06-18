@@ -90,8 +90,8 @@ struct CollectionRestaurantSearch: View {
                         if dismissSearchView{
                             dismiss()
                         
-                        }
                     }
+                }
             }
             
         }

@@ -8,13 +8,8 @@
 import SwiftUI
 
 struct UploadWrittenReviewView: View {
-    
-    @ObservedObject var uploadViewModel: UploadViewModel
-    @StateObject var reviewViewModel = ReviewsViewModel()
+    @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
-
-    
-    
     @State var description: String = ""
     var maxCharacters = 150
     @State var recommend: Bool? = nil
@@ -29,24 +24,24 @@ struct UploadWrittenReviewView: View {
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }
+    @Environment(\.dismiss) var dismiss
+    @State var changeTab: Bool = false
     
     var body: some View {
-        
         ZStack {
-            
             Color.white
                 .frame(width: UIScreen.main.bounds.width, height: 765)
                 .cornerRadius(10)
-            
             VStack {
-                
-                if let restaurant = uploadViewModel.restaurant {
-                    
+                if let restaurant = reviewViewModel.selectedRestaurant {
                     Button {
                         isPickingRestaurant = true
                     } label: {
                         // REPLACE RESTAURANT
-                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
+                      
+                            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
+                            
+                        
                     }
                 } else {
                     Button {
@@ -66,7 +61,7 @@ struct UploadWrittenReviewView: View {
                     }
                 }
                 
-                if let restaurant = uploadViewModel.restaurant {
+                if let restaurant = reviewViewModel.selectedRestaurant {
                     Text(restaurant.name)
                         .bold()
                         .font(.title3)
@@ -76,10 +71,31 @@ struct UploadWrittenReviewView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     
-                    Text("\(restaurant.cuisine ?? ""), \(restaurant.price ?? "")")
-                        .font(.subheadline)
-                        .padding(.horizontal)
-                    
+                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                        Text("\(cuisine), \(price)")
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        
+                        
+                    } else if let cuisine = restaurant.cuisine {
+                        Text(cuisine)
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        
+                        
+                    } else if let price = restaurant.price {
+                        Text(price)
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                    }
+                    if let restaurantRequest = reviewViewModel.restaurantRequest{
+                        Text("To be Created")
+                            .foregroundStyle(.primary)
+                            .font(.caption)
+                    }
+                    Text("Edit")
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.caption)
                     HStack(spacing: 20) {
                         Button(action: { recommend = true }) {
                             VStack {
@@ -144,8 +160,11 @@ struct UploadWrittenReviewView: View {
                                         if let recommend {
                                             try await reviewViewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
                                         }
-                                        uploadViewModel.reset()
-                                        tabBarController.selectedTab = 0
+                                        if changeTab {
+                                            tabBarController.selectedTab = 0
+                                        } else {
+                                            dismiss()
+                                        }
                                     }
                                 } label: {
                                     Text("Post Review")
@@ -174,20 +193,20 @@ struct UploadWrittenReviewView: View {
             }
             
         }
-        .onChange(of: uploadViewModel.restaurant) {
-            reviewViewModel.selectedRestaurant = uploadViewModel.restaurant
-        }
+//        .onChange(of: uploadViewModel.restaurant) {
+//            reviewViewModel.selectedRestaurant = uploadViewModel.restaurant
+//        }
         .onChange(of: description) {
             Debouncer(delay: 0.3).schedule{
                 editedReview = true
             }
         }
-        .navigationDestination(isPresented: $isPickingRestaurant) {
-            SelectRestaurantListView(uploadViewModel: uploadViewModel)
+        .sheet(isPresented: $isPickingRestaurant) {
+            RestaurantReviewSelector(reviewsViewModel: reviewViewModel)
                 .navigationTitle("Select Restaurant")
         }
     }
 }
-#Preview {
-    UploadWrittenReviewView(uploadViewModel: UploadViewModel())
-}
+//#Preview {
+//    UploadWrittenReviewView(review)
+//}

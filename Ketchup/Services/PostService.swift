@@ -78,6 +78,7 @@ class PostService {
         let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
+            .whereField("user.privateMode", isEqualTo: false)
             .getDocuments(as: Post.self)
         return posts
     }

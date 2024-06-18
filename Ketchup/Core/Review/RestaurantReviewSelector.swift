@@ -13,21 +13,42 @@ struct RestaurantReviewSelector: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var reviewsViewModel: ReviewsViewModel
     var debouncer = Debouncer(delay: 1.0)
-    @State var selectedItem: CollectionItem?
+    @State var createRestaurantView = false
+    @State var dismissSearchView: Bool = false
+   
+    
 
     
     var body: some View {
         NavigationStack{
-            InfiniteList(viewModel.hits, itemView: { hit in
-                    NavigationLink(value: hit.object) {
+            VStack{
+                Button{
+                    createRestaurantView.toggle()
+                } label: {
+                    VStack{
+                        Text("Can't find the restaurant you're looking for?")
+                            .foregroundStyle(.gray)
+                            .font(.footnote)
+                        Text("Request a Restaurant")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.footnote)
+                    }
+                }
+                InfiniteList(viewModel.hits, itemView: { hit in
+                    //NavigationLink(value: hit.object) {
+                    Button{
+                        reviewsViewModel.restaurantRequest = nil
+                        reviewsViewModel.selectedRestaurant = hit.object
+                        dismiss()
+                    } label: {
                         RestaurantCell(restaurant: hit.object)
                             .padding(.leading)
                     }
-                Divider()
-            }, noResults: {
-                Text("No results found")
-            })
-            
+                    Divider()
+                }, noResults: {
+                    Text("No results found")
+                })
+            }
             .navigationDestination(for: Restaurant.self) { restaurant in
                 CreateReviewView(viewModel: reviewsViewModel, restaurant: restaurant)
             }
@@ -48,6 +69,15 @@ struct RestaurantReviewSelector: View {
             .onChange(of: viewModel.searchQuery) {
                 debouncer.schedule {
                     viewModel.notifyQueryChanged()
+                }
+            }
+            .fullScreenCover(isPresented: $createRestaurantView) {
+                ReviewCreateRestaurantView(reviewsViewModel: reviewsViewModel, dismissListView: $dismissSearchView)
+                    .onDisappear{
+                        if dismissSearchView{
+                            dismiss()
+                        
+                    }
                 }
             }
            

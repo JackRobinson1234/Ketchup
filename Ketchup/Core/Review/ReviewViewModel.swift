@@ -12,6 +12,7 @@ class ReviewsViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var selectedRestaurant: Restaurant?
     @Published var selectedUser: User?
+    @Published var restaurantRequest: RestaurantRequest?
     init(restaurant: Restaurant? = nil, user: User? = nil) {
         self.selectedRestaurant = restaurant
         self.selectedUser = user
@@ -19,7 +20,13 @@ class ReviewsViewModel: ObservableObject {
     
     
     func uploadReview(description: String, recommends: Bool, favorites: [String]?) async throws {
-
+        if let restaurant = restaurantRequest {
+            do{
+                try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
+            } catch {
+                print("error uploading restaurant request")
+            }
+        }
         if let user = AuthService.shared.userSession, let restaurant = self.selectedRestaurant {
             do {
                 let review = try await ReviewService.shared.uploadReview(restaurant: restaurant, recommends: recommends, description: description, favoriteItems: favorites, user: user)

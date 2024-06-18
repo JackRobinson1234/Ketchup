@@ -55,21 +55,7 @@ struct ProfileSlideBar: View {
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .reviews))
                     .frame(maxWidth: .infinity)
                 
-                Image(systemName: profileSection == .likes ? "heart.fill" : "heart")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 45, height: 20)
                 
-                    .onTapGesture {
-                        withAnimation {
-                            self.profileSection = .likes
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
-                    .frame(maxWidth: .infinity)
-                    
-                
-               
                 Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -82,6 +68,20 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
                     .frame(maxWidth: .infinity)
+                
+                Image(systemName: profileSection == .likes ? "heart.fill" : "heart")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 45, height: 20)
+                
+                    .onTapGesture {
+                        withAnimation {
+                            self.profileSection = .likes
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
+                    .frame(maxWidth: .infinity)
+
             }
         }
         .padding()

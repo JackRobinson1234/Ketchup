@@ -25,17 +25,11 @@ struct CollectionsListView: View {
             }
             else{
                 //MARK: Add Collection Button
-                ScrollView{
+                //ScrollView{
                     LazyVStack{
                         if viewModel.user.isCurrentUser {
                             Divider()
                             Button{
-                                if let post = viewModel.post{
-                                    print("POST", post)
-                                }
-                                if let post = viewModel.restaurant{
-                                    print("RESTAURANT", post)
-                                }
                                 showAddCollection.toggle()
                             } label: {
                                 CreateCollectionButton()
@@ -84,7 +78,7 @@ struct CollectionsListView: View {
                                     .padding()
                             }
                         }
-                    }
+                    //}
                 }
                 .fullScreenCover(isPresented: $showCollection) {CollectionView(collectionsViewModel: viewModel)}
                 //.navigationDestination(for: Collection.self) {collection in
