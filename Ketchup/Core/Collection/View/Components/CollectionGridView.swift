@@ -115,8 +115,8 @@ struct CollectionGridView: View {
                 .padding(3)
             }
             //MARK: Add Item Sheet
-            .sheet(isPresented: $showAddItem) {
-                ItemSelectorView( collectionsViewModel: collectionsViewModel)
+            .fullScreenCover(isPresented: $showAddItem) {
+                CollectionRestaurantSearch(collectionsViewModel: collectionsViewModel)
             }
             //MARK: Show Post Sheet
             .sheet(isPresented: $showPost) {

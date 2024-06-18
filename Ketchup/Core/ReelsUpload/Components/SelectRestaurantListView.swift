@@ -17,6 +17,7 @@ struct SelectRestaurantListView: View {
     @State var dismissRestaurantList = false
     var debouncer = Debouncer(delay: 1.0)
     
+    
     var body: some View {
         Button{
             createRestaurantView.toggle()

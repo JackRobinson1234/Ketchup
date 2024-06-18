@@ -30,9 +30,6 @@ final class RestaurantListViewModel: ObservableObject {
                                          apiKey: apiKey,
                                          indexName: "restaurants")
         self.itemsSearcher = itemsSearcher
-        /*self.itemsSearcher.shouldTriggerSearchForQuery = {
-            return $0.query.query != ""
-        }*/
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<Restaurant>.self)
     }

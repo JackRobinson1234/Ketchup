@@ -408,10 +408,11 @@ struct FeedCell: View {
                     }
                 }
 
-                if !viewModel.posts.isEmpty,
-                   let firstPost = viewModel.posts.first,
-                   firstPost.id == post.id && scrollPosition == nil {
-                    videoCoordinator.replay()
+                if !viewModel.posts.isEmpty{
+                    if let firstPost = viewModel.posts.first,
+                       firstPost.id == post.id && scrollPosition == nil {
+                        videoCoordinator.replay()
+                    }
                 }
             }
         }

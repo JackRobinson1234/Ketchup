@@ -15,14 +15,16 @@ struct RestaurantRequest: Codable {
     let state: String
     let city: String
     let timestamp: Timestamp
+    let postType: String
     // Unix timestamp in seconds
 
-    init(id: String, userid: String, name: String, state: String, city: String, timestamp: Timestamp) {
+    init(id: String, userid: String, name: String, state: String, city: String, timestamp: Timestamp, postType: String) {
         self.id = id
         self.userid = userid
         self.name = name
         self.state = state
         self.city = city
         self.timestamp = timestamp
+        self.postType = postType
     }
 }

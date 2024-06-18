@@ -14,7 +14,6 @@ struct ItemNotesView: View {
     var body: some View {
         VStack {
                 VStack {
-                    
                     HStack() {
                         Button {
                             viewModel.notesPreview = nil

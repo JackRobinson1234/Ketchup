@@ -33,6 +33,14 @@ struct AddNotesView: View {
                     TextEditor(text: $notes)
                         .frame(height: 100)  // Adjust the height as needed
                         .padding(4)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    dismissKeyboard()
+                                }
+                            }
+                        }
                     
                     if notes.isEmpty {
                         Text("Add some notes...")

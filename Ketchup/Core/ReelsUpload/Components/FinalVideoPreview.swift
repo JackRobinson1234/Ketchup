@@ -27,6 +27,3 @@ struct FinalVideoPreview: View {
     }
 }
 
-//#Preview {
-//    FinalVideoPreview()
-//}

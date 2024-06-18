@@ -35,44 +35,6 @@ struct ReelsUploadView: View {
             VStack {
                 HStack{
                     Spacer()
-//                    if uploadViewModel.postType == .cooking {
-//                        VStack{
-//                            ZStack(alignment: .topLeading){
-//                                ZStack(alignment: .topLeading) {
-//                                    TextEditor(text: $titleText)
-//                                        .font(.title3)
-//                                        .frame(height: 75)
-//                                        .padding(.horizontal, 20)
-//                                        .background(Color.white)
-//                                        .cornerRadius(5)
-//                                    if titleText.isEmpty {
-//                                        Text("Create a title...")
-//                                            .font(.title3)
-//                                            .foregroundColor(Color.gray)
-//                                            .padding(.horizontal, 25)
-//                                            .padding(.top, 8)
-//                                    }// Optional: Adds rounded corners to the text editor
-//                                }
-//                                
-//                            }
-//                            .onChange(of: titleText) {
-//                                if titleText.count > maxCharacters {
-//                                    titleText = String(titleText.prefix(maxCharacters))
-//                                }
-//                            }
-//                            
-//                            
-//                            HStack {
-//                                Spacer()
-//                                
-//                                Text("\(titleText.count)/\(maxCharacters)")
-//                                    .font(.caption)
-//                                    .foregroundColor(titleText.count == 0 ? Color("Colors/AccentColor") : .gray)
-//                                    .padding(.horizontal, 10)
-//                            }
-//                        }
-//                        
-//                    } else if uploadViewModel.postType == .dining {
                         Button {
                             isPickingRestaurant = true
                         } label: {
@@ -186,54 +148,6 @@ struct ReelsUploadView: View {
                 }
                 Divider()
                 
-                
-//                if uploadViewModel.postType == .cooking{
-//                    Button {
-//                        isAddingRecipe = true
-//                    } label: {
-//                        // ADD RECIPE
-//                        if !uploadViewModel.hasRecipeDetailsChanged() {
-//                            HStack {
-//                                Image("BlackChefHat")
-//                                    .resizable()
-//                                    .frame(width: 40, height: 40, alignment: .center)
-//                                    .opacity(0.2)
-//                                
-//                                Text("Add recipe")
-//                                    .font(.subheadline)
-//                                    .foregroundColor(.gray)
-//                                
-//                                Spacer()
-//                                
-//                                Image(systemName: "chevron.right")
-//                                    .foregroundColor(.gray)
-//                                
-//                            }
-//                            .padding(.horizontal , 15)
-//                            .padding(.vertical, 3)
-//                        } else {
-//                            HStack {
-//                                Image(systemName: "checkmark")
-//                                    .foregroundStyle(.green)
-//                                    .padding(.trailing, 30)
-//                                Image("BlackChefHat")
-//                                    .resizable()
-//                                    .frame(width: 40, height: 40, alignment: .center)
-//                                
-//                                Text("Edit Recipe")
-//                                    .foregroundColor(.primary)
-//                                
-//                                Spacer()
-//                                
-//                                Image(systemName: "chevron.right")
-//                                    .foregroundStyle(.gray)
-//                            }
-//                            .padding(.horizontal , 15)
-//                            .padding(.vertical, 3)
-//                        }
-//                    }
-//                    Divider()
-//                } else {
                     HStack(spacing: 20) {
                         Button(action: { uploadViewModel.recommend = true }) {
                             VStack {
@@ -359,12 +273,13 @@ struct ReelsUploadView: View {
     
     
     // Dismiss keyboard method
-    private func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
+    
 }
 
 #Preview {
     ReelsUploadView(uploadViewModel: UploadViewModel(), cameraViewModel: CameraViewModel())
 }
 
+func dismissKeyboard() {
+    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+}

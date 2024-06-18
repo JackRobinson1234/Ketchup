@@ -29,9 +29,7 @@ struct AddRestaurantView: View {
                         TextField("City", text: $city)
                             .padding()
                         Divider()
-                        TextField("State", text: $state)
-                
-                            .padding()
+                        TextField("State", text: $state)                            .padding()
                         Divider()
                         
                     
@@ -74,7 +72,8 @@ struct AddRestaurantView: View {
                 name: name,
                 state: state,
                 city: city,
-                timestamp: Timestamp()
+                timestamp: Timestamp(),
+                postType: "Post"
             )
         uploadViewModel.restaurantRequest = newRestaurantRequest
         uploadViewModel.restaurant = nil

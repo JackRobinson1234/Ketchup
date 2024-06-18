@@ -33,6 +33,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var notes: String = ""
     @Published var notesPreview: CollectionItem?
     @Published var editItems: [CollectionItem] = []
+    @Published var restaurantRequest: RestaurantRequest?
     
     init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.user = user
@@ -67,6 +68,13 @@ class CollectionsViewModel: ObservableObject {
     /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(collectionItem: CollectionItem) async throws {
         var item = collectionItem
+         if let restaurant = restaurantRequest {
+             do{
+                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
+             } catch {
+                 print("error uploading restaurant request")
+             }
+        }
         if let selectedCollection = self.selectedCollection {
             item.collectionId = selectedCollection.id
             item.notes = notes
@@ -131,6 +139,22 @@ class CollectionsViewModel: ObservableObject {
         }
         return nil
     }
+    
+    func convertRequestToCollectionItem(name: String, city: String, state: String) -> CollectionItem {
+        let collectionItem = CollectionItem(
+            collectionId: "",
+            id: "construction" + NSUUID().uuidString,
+            postType: .dining,
+            name: name,
+            image: nil,
+            city: city,
+            state: state,
+            geoPoint: nil,
+            privateMode: user.privateMode
+        )
+        return collectionItem
+    }
+    
     //MARK: addRestaurantToCollection
     
     /// adds self.restaurant to selectedCollection on Firebase

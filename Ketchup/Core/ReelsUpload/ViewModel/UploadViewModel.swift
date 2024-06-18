@@ -110,7 +110,7 @@ class UploadViewModel: ObservableObject {
             postRestaurant = createPostRestaurant(from: restaurant)
         } else if let restaurant = restaurantRequest {
             postRestaurant = PostRestaurant(
-                id: UUID().uuidString,
+                id: "construction" + NSUUID().uuidString,
                 name: restaurant.name,
                 geoPoint: nil,
                 geoHash: nil,
