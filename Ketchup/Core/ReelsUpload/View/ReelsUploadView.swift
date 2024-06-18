@@ -14,6 +14,7 @@ struct ReelsUploadView: View {
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
+    @EnvironmentObject var tabBarController: TabBarController
         
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
@@ -86,6 +87,7 @@ struct ReelsUploadView: View {
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()
                             cameraViewModel.reset()
+                            tabBarController.selectedTab = 0
                         }
                         
                     } label: {

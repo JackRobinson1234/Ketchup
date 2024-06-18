@@ -1,4 +1,5 @@
 {
+  "originHash" : "3c3498ab686d17ea90a23cfca49f8b943813c650f84c2db3a0c707ee1e8a41b7",
   "pins" : [
     {
       "identity" : "algoliasearch-client-swift",
@@ -64,5 +65,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
