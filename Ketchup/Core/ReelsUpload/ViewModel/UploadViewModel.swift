@@ -34,6 +34,7 @@ class UploadViewModel: ObservableObject {
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
     private var uploadService = UploadService()
+    @Published var recommend: Bool?
     
     func reset() {
         isLoading = false
@@ -55,6 +56,7 @@ class UploadViewModel: ObservableObject {
         postType = nil
         navigateToUpload = false
         fromInAppCamera = true
+        recommend = nil
     }
     
     func addEmptyIngredient() {
@@ -85,7 +87,9 @@ class UploadViewModel: ObservableObject {
             address: restaurant.address,
             city: restaurant.city,
             state: restaurant.state,
-            profileImageUrl: restaurant.profileImageUrl
+            profileImageUrl: restaurant.profileImageUrl,
+            cuisine: restaurant.cuisine,
+            price: restaurant.price
         )
     }
     func uploadPost() async {
@@ -143,7 +147,8 @@ class UploadViewModel: ObservableObject {
                                                        postRestaurant: postRestaurant,
                                                        recipe: recipe,
                                                        fromInAppCamera: fromInAppCamera,
-                                                       cookingTitle: cookingTitle)
+                                                       cookingTitle: cookingTitle,
+                                                       recommendation: recommend)
                 } else if mediaType == "photo" {
                     guard let images = images else {
                         throw UploadError.invalidMediaData
@@ -156,7 +161,8 @@ class UploadViewModel: ObservableObject {
                                                        postRestaurant: postRestaurant,
                                                        recipe: recipe,
                                                        fromInAppCamera: fromInAppCamera,
-                                                       cookingTitle: cookingTitle)
+                                                       cookingTitle: cookingTitle,
+                                                       recommendation: recommend)
                 } else {
                     throw UploadError.invalidMediaType
                 }

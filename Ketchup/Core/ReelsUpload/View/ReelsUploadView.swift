@@ -233,8 +233,32 @@ struct ReelsUploadView: View {
                         }
                     }
                     Divider()
+                } else {
+                    HStack(spacing: 20) {
+                        Button(action: { uploadViewModel.recommend = true }) {
+                            VStack {
+                                Image(systemName: "heart")
+                                    .foregroundColor(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
+                                    .font(.title)
+                                Text("Recommend")
+                                    .font(.caption)
+                                    .foregroundStyle(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
+                            }
+                        }
+                        
+                        Button(action: { uploadViewModel.recommend = false }) {
+                            VStack {
+                                Image(systemName: "heart.slash")
+                                    .foregroundColor(uploadViewModel.recommend == false ? .primary : .gray)
+                                    .font(.title)
+                                Text("Don't Recommend")
+                                    .font(.caption)
+                                    .foregroundStyle(uploadViewModel.recommend == false ? .black : .gray)
+                            }
+                        }
+                    }
+                    .padding(20)
                 }
-                
                 Spacer()
                 Button {
                     if uploadViewModel.postType == .cooking && titleText.isEmpty {
@@ -274,14 +298,6 @@ struct ReelsUploadView: View {
             .padding()
             .blur(radius: showPostTypeMenu ? 10 : 0)
             
-            //                if isEditingCaption {
-            //                    CaptionEditorView(caption: $uploadViewModel.caption, isEditingCaption: $isEditingCaption)
-            //                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-            //                        .onAppear {
-            //                            isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
-            //                        }
-            //                }
-            //
             if showPostTypeMenu {
                 PostTypeMenuView(uploadViewModel: uploadViewModel, showPostTypeMenu: $showPostTypeMenu)
             }

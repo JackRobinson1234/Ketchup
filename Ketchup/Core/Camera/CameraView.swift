@@ -13,19 +13,57 @@ import PhotosUI
 import UniformTypeIdentifiers
 
 
+import Foundation
+import SwiftUI
+import AVKit
+import PhotosUI
+import UniformTypeIdentifiers
+
+
 struct CameraView: View {
     
     @StateObject var cameraViewModel = CameraViewModel()
     
     @StateObject var uploadViewModel = UploadViewModel()
     
+    @StateObject var reviewsViewModel = ReviewsViewModel()
+    
     @EnvironmentObject var tabBarController: TabBarController
+    
+    @State private var selectedCamTab = 0
+    
+    @State var dragDirection = "left"
+    @State var isDragging = false
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    if selectedCamTab == 1 {
+                        selectedCamTab = 0
+                    } else if selectedCamTab == 2 {
+                        selectedCamTab = 1
+                    }
+                } else {
+                        self.dragDirection = "right"
+                        if selectedCamTab == 0 {
+                            selectedCamTab = 1
+                        } else if selectedCamTab == 1 {
+                            selectedCamTab = 2
+                        }
+                        self.isDragging = false
+                    }
+                
+            }
+    }
+    
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                
-                Color.primary
+                Color.black
                     .ignoresSafeArea()
                 
                 // WHAT THE CAMERA SEES
@@ -38,7 +76,6 @@ struct CameraView: View {
                         .onAppear {
                             cameraViewModel.checkPermission()
                         }
-                        .gesture(cameraViewModel.getDragStatus() ? cameraViewModel.drag : nil)
                         .onTapGesture(count: 2) {
                             cameraViewModel.toggleCamera()
                         }
@@ -62,10 +99,12 @@ struct CameraView: View {
                 // MARK: CameraControls
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     ZStack {
-                        if cameraViewModel.dragDirection == "left" {
+                        if selectedCamTab == 0 {
                             VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
-                        } else {
+                        } else if selectedCamTab == 1 {
                             PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+                        } else if selectedCamTab == 2 {
+                            UploadWrittenReviewView(uploadViewModel: uploadViewModel)
                         }
                     }
                 }
@@ -79,7 +118,7 @@ struct CameraView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.title)
-                                .foregroundColor(.white)
+                                .foregroundColor(selectedCamTab == 2 ? .gray : .white)
                         }
                         .padding(.top, 35)
                         .padding(.leading)
@@ -92,7 +131,7 @@ struct CameraView: View {
                     
                     if !cameraViewModel.audioOrVideoPermissionsDenied {
                         
-                        if cameraViewModel.isZooming {
+                        if cameraViewModel.isZooming && !(selectedCamTab == 2) {
                             ZStack {
                                 Circle()
                                     .fill(Color.white)
@@ -122,24 +161,33 @@ struct CameraView: View {
                             
                             Spacer()
                         }
-                        .padding(.bottom, 20)
-                        
-                        HStack {
-                            Text("Video")
-                                .foregroundColor(cameraViewModel.dragDirection == "left" ? .white : .gray)
-                                .fontWeight(cameraViewModel.dragDirection == "left" ? .bold : .regular)
-                                .onTapGesture {
-                                    cameraViewModel.dragDirection = "left"
-                                }
-                            
-                            Text("Photo")
-                                .foregroundColor(cameraViewModel.dragDirection == "right" ? .white : .gray)
-                                .fontWeight(cameraViewModel.dragDirection == "right" ? .bold : .regular)
-                                .onTapGesture {
-                                    cameraViewModel.dragDirection = "right"
-                                }
-                        }
                         .padding(.bottom, 10)
+                        .opacity(selectedCamTab == 2 ? 0 : 1)
+                        
+                        if uploadViewModel.restaurant == nil {
+                            HStack {
+                                CameraTabBarButton(text: "Video", isSelected: selectedCamTab == 0)
+                                    .onTapGesture {
+                                        withAnimation {
+                                            selectedCamTab = 0
+                                        }
+                                    }
+                                CameraTabBarButton(text: "Photo", isSelected: selectedCamTab == 1)
+                                    .onTapGesture {
+                                        withAnimation {
+                                            selectedCamTab = 1
+                                        }
+                                    }
+                                CameraTabBarButton(text: "Written", isSelected: selectedCamTab == 2)
+                                    .onTapGesture {
+                                        withAnimation {
+                                            selectedCamTab = 2
+                                        }
+                                    }
+                            }
+                            .padding(.bottom, 5)
+                        }
+                        
                     }
                 }
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
@@ -184,9 +232,13 @@ struct CameraView: View {
                         .padding(.top, 35)
                     }
                     .opacity(cameraViewModel.isRecording ? 0 : 1)
+                    .opacity(selectedCamTab == 2 ? 0 : 1)
                 }
                 
             }
+            .gesture(
+                cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
+            )
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
@@ -195,16 +247,21 @@ struct CameraView: View {
                 LibrarySelectorView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
             }
-
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
             
             .onChange(of: tabBarController.selectedTab) {
                 cameraViewModel.reset()
                 uploadViewModel.reset()
             }
+            .onAppear {
+                if uploadViewModel.restaurant == nil {
+                    selectedCamTab = 0
+                }
+            }
         }
     }
 }
+
 
 
 struct VideoCameraControls: View {
@@ -221,7 +278,7 @@ struct VideoCameraControls: View {
             // VIDEO PROGRESS BAR
             ZStack(alignment: .leading) {
                 Rectangle()
-                    .fill(.primary.opacity(0.25))
+                    .fill(.black.opacity(0.25))
                 
                 Rectangle()
                     .fill(Color("Colors/AccentColor"))
@@ -296,7 +353,7 @@ struct VideoCameraControls: View {
                         if cameraViewModel.isLoading{
                             // Merging Videos
                             ProgressView()
-                                .tint(.primary)
+                                .tint(.black)
                         }
                         else{
                             Label {
@@ -305,7 +362,7 @@ struct VideoCameraControls: View {
                             } icon: {
                                 Text("Next")
                             }
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                         }
                     }
                     .frame(width: 70, height: 30)
@@ -320,7 +377,7 @@ struct VideoCameraControls: View {
                 
                 
             }
-            .padding(.bottom, 50)
+            .padding(.bottom, 70)
             
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
@@ -467,9 +524,9 @@ struct PhotoCameraControls: View {
                             Image(systemName: "chevron.right")
                                 .font(.callout)
                         } icon: {
-                            Text("Preview")
+                            Text("Next")
                         }
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .padding(.horizontal,10)
                         .padding(.vertical,5)
                         .background {
@@ -480,7 +537,7 @@ struct PhotoCameraControls: View {
                     .frame(width: 100)
                     .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                 }
-                .padding(.bottom, 50)
+                .padding(.bottom, 70)
             }
             
             if showFlash {
@@ -540,12 +597,12 @@ struct LibraryTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .opacity(0.6)
                                     
                         Text("Upload Videos")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)
                 }
@@ -561,12 +618,12 @@ struct LibraryTypeMenuView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .opacity(0.6)
                         
                         Text("Upload Photos")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)
                 }
@@ -776,5 +833,42 @@ struct DragRelocateDelegate: DropDelegate {
             listData = updatedList
             self.draggedIndex = destination
         }
+    }
+}
+
+struct CameraTabBarButton: View {
+    let text: String
+    let isSelected: Bool
+    
+    var body: some View {
+        VStack {
+            if text == "Written" && isSelected {
+                Text(text)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 20)
+            } else {
+                Text(text)
+                    .foregroundColor(isSelected ? .white : .gray)
+                    .padding(.horizontal, 20)
+            }
+
+            if isSelected {
+                if text == "Written" {
+                    Circle()
+                        .frame(width: 6, height: 6)
+                        .foregroundColor(.gray)
+                } else {
+                    Circle()
+                        .frame(width: 6, height: 6)
+                        .foregroundColor(.white)
+                }
+                
+            } else {
+                Circle()
+                    .frame(width: 6, height: 6)
+                    .foregroundColor(.clear)
+            }
+        }
+        .frame(width: 100, height: 50)
     }
 }

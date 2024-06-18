@@ -1,15 +1,20 @@
 //
-//  CreateReviewView.swift
-//  Foodi
+//  UploadWrittenReviewView.swift
+//  Ketchup
 //
-//  Created by Jack Robinson on 5/20/24.
+//  Created by Jack Robinson on 6/18/24.
 //
 
 import SwiftUI
-import SwiftUI
-struct CreateReviewView: View {
-    @Environment(\.dismiss) var dismiss
-    @ObservedObject var viewModel: ReviewsViewModel
+
+struct UploadWrittenReviewView: View {
+    
+    @ObservedObject var uploadViewModel: UploadViewModel
+    @StateObject var reviewViewModel = ReviewsViewModel()
+    @EnvironmentObject var tabBarController: TabBarController
+
+    
+    
     @State var description: String = ""
     var maxCharacters = 150
     @State var recommend: Bool? = nil
@@ -20,19 +25,48 @@ struct CreateReviewView: View {
     private let maxMenuItemCharacters = 50
     private let maxFavoriteMenuItems = 5
     @State var editedReview = false
-    var restaurant: Restaurant?
+    @State var isPickingRestaurant = false
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }
     
     var body: some View {
-        //NavigationStack{
-        if let restaurant = restaurant ?? viewModel.selectedRestaurant {
-            ZStack{
-                VStack{
-                    if let profileImageUrl = restaurant.profileImageUrl {
-                        RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .xLarge)
+        
+        ZStack {
+            
+            Color.white
+                .frame(width: UIScreen.main.bounds.width, height: 765)
+                .cornerRadius(10)
+            
+            VStack {
+                
+                if let restaurant = uploadViewModel.restaurant {
+                    
+                    Button {
+                        isPickingRestaurant = true
+                    } label: {
+                        // REPLACE RESTAURANT
+                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
                     }
+                } else {
+                    Button {
+                        isPickingRestaurant = true
+                    } label: {
+                        // ADD RESTAURANT
+                        VStack {
+                            Image(systemName: "plus.circle")
+                                .resizable()
+                                .foregroundColor(.black)
+                                .frame(width: 80, height: 80, alignment: .center)
+                            
+                            Text("Add restaurant")
+                                .foregroundColor(.black)
+                            
+                        }
+                    }
+                }
+                
+                if let restaurant = uploadViewModel.restaurant {
                     Text(restaurant.name)
                         .bold()
                         .font(.title3)
@@ -46,8 +80,6 @@ struct CreateReviewView: View {
                         .font(.subheadline)
                         .padding(.horizontal)
                     
-                    
-                    Spacer()
                     HStack(spacing: 20) {
                         Button(action: { recommend = true }) {
                             VStack {
@@ -80,7 +112,6 @@ struct CreateReviewView: View {
                                 TextBox(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150)
                             }
                             
-                            
                             if !description.isEmpty, editedReview == true {
                                 
                                 NavigationLink(destination: AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)) {
@@ -107,22 +138,20 @@ struct CreateReviewView: View {
                                     
                                 }
                                 Divider()
-                                Spacer()
+                                
                                 Button{
-                                    viewModel.selectedRestaurant = restaurant
                                     Task{
                                         if let recommend {
-                                            try await viewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
+                                            try await reviewViewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
                                         }
-                                        dismiss()
-                                        dismiss()
+                                        uploadViewModel.reset()
+                                        tabBarController.selectedTab = 0
                                     }
                                 } label: {
                                     Text("Post Review")
                                         .modifier(StandardButtonModifier())
                                     
                                 }
-                                
                                 .opacity(recommend != nil ? 1 : 0)
                                 .disabled(!canPostReview)
                             }
@@ -131,31 +160,34 @@ struct CreateReviewView: View {
                         .opacity(recommend != nil ? 1 : 0)
                         
                     }
-                    
                 }
-                .padding()
-                .padding(.top, 30)
-                
-                
-                if isEditingCaption {
-                    EditorView(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150, title: "Review")
-                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
-                        }
-                }
+            }
+            .padding()
+            .padding(.top, 30)
+            
+            if isEditingCaption {
+                EditorView(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150, title: "Review")
+                    .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
+                    .onAppear {
+                        isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+                    }
             }
             
-            .onChange(of: description) {
-                Debouncer(delay: 0.3).schedule{
-                    editedReview = true
-                }
+        }
+        .onChange(of: uploadViewModel.restaurant) {
+            reviewViewModel.selectedRestaurant = uploadViewModel.restaurant
+        }
+        .onChange(of: description) {
+            Debouncer(delay: 0.3).schedule{
+                editedReview = true
             }
-            .modifier(BackButtonModifier())
-            .navigationBarBackButtonHidden()
+        }
+        .navigationDestination(isPresented: $isPickingRestaurant) {
+            SelectRestaurantListView(uploadViewModel: uploadViewModel)
+                .navigationTitle("Select Restaurant")
         }
     }
 }
 #Preview {
-    CreateReviewView(viewModel: ReviewsViewModel(restaurant: DeveloperPreview.restaurants[0]))
+    UploadWrittenReviewView(uploadViewModel: UploadViewModel())
 }

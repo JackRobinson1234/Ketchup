@@ -33,6 +33,7 @@ struct Post: Identifiable, Codable {
     var repost: Bool
     var didRepost: Bool
     var cookingTitle: String?
+    var recommendation: Bool?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -57,6 +58,7 @@ struct Post: Identifiable, Codable {
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
         self.cookingTitle = try container.decodeIfPresent(String.self, forKey: .cookingTitle)
+        self.recommendation = try container.decodeIfPresent(Bool.self, forKey: .recommendation)
     
     }
     
@@ -81,7 +83,8 @@ struct Post: Identifiable, Codable {
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false,
-        cookingTitle: String? = nil
+        cookingTitle: String? = nil,
+        recommendation: Bool?
     ) {
         self.id = id
         self.postType = postType
@@ -104,6 +107,7 @@ struct Post: Identifiable, Codable {
         self.repost = repost
         self.didRepost = didRepost
         self.cookingTitle = cookingTitle
+        self.recommendation = recommendation
     }
 }
 
@@ -124,6 +128,8 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     var city: String?
     var state: String?
     var profileImageUrl: String?
+    var cuisine: String?
+    var price: String?
 }
 
 struct PostUser: Codable, Hashable, Identifiable {

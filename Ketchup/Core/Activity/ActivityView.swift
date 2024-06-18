@@ -37,7 +37,7 @@ struct ActivityView: View {
                                 viewModel.letsKetchupOption = .friends
                             } label: {
                                 Text("Friends")
-                                    .padding()
+                                    .padding(8)
                                     .background(viewModel.letsKetchupOption == .friends ? Color("Colors/AccentColor") : Color.clear)
                                     .cornerRadius(8)
                                     .overlay(
@@ -51,7 +51,7 @@ struct ActivityView: View {
                                 viewModel.letsKetchupOption = .trending
                             } label: {
                                 Text("Global")
-                                    .padding()
+                                    .padding(8)
                                     .background(viewModel.letsKetchupOption == .trending ? Color("Colors/AccentColor") : Color.clear)
                                     .cornerRadius(8)
                                     .overlay(

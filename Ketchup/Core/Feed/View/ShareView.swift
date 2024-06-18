@@ -123,19 +123,19 @@ struct ShareView: View {
             }
             VStack{
             //Debug: Needs to be transferable
-                if let image = (URL(string: post.thumbnailUrl)) {
-                    ShareLink(item: image, preview: SharePreview("Big Ben", image: image)) {
-                        VStack{
-                            Image(systemName: "ellipsis.circle")
-                                .foregroundColor(.blue)
-                                .font(.system(size: 40))
-                            Text("More")
-                                .font(.subheadline)
-                                .padding(.top, 1)
-                        }
-                    }
-                    
-                }
+//                if let image = (URL(string: post.thumbnailUrl)) {
+//                    ShareLink(item: image, preview: SharePreview("Big Ben", image: image)) {
+//                        VStack{
+//                            Image(systemName: "ellipsis.circle")
+//                                .foregroundColor(.blue)
+//                                .font(.system(size: 40))
+//                            Text("More")
+//                                .font(.subheadline)
+//                                .padding(.top, 1)
+//                        }
+//                    }
+//                    
+//                }
             }
             
             Spacer()

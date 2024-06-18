@@ -23,6 +23,7 @@ struct CollectionGridView: View {
         if isLoading {
             ProgressView()
                 .onAppear{
+                    print("FETCHING ITEMS")
                     Task{
                         try await collectionsViewModel.fetchItems()
                         isLoading = false

@@ -18,15 +18,15 @@ class ActivityViewModel: ObservableObject {
     @Published var friendsActivity: [Activity] = []
     private var friendsCurrentPage = 1
     private var pageSize = 30
-
     @Published var letsKetchupOption: LetsKetchupOptions = .friends
     @State var outOfTrending = false
     @Published var isFetching: Bool = false
     private let fetchingThreshold: Int = -5
     private var lastFetched: Activity? = nil
-    
+    @Published var collectionsViewModel =  CollectionsViewModel(user: AuthService.shared.userSession!)
     private var lastTrendingDocumentSnapshot: DocumentSnapshot? = nil
     var user: User?
+    
     
     func fetchFriendsActivities() async throws {
             self.friendsActivity = try await service.fetchFollowingActivities()

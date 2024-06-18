@@ -12,66 +12,106 @@ struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationsViewModel
     var notification: Notification
     @State var isFollowed: Bool = false
-    
-    
+    @State var showRestaurant = false
+    @State var selectedRestaurantId: String? = nil
+    @State var post: Post?
+    @State var showPost: Bool = false
+
     var body: some View {
         HStack {
             NavigationLink(value: notification.user) {
-                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .xSmall)
-                VStack (alignment: .leading){
+                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
+                VStack(alignment: .leading) {
                     HStack(spacing: 0) {
-                        Text(notification.user?.username ?? "")
-                            .font(.footnote)
-                            .fontWeight(.semibold) +
-                        
-                        Text(notification.type.notificationMessage)
-                            .font(.footnote)
-                        if let text = notification.text{
-                            Text(text)
-                                .font(.footnote)
+                        if let restaurantName = notification.restaurantName, let text = notification.text {
+                            Button {
+                                if let restaurantId = notification.restaurantId {
+                                    print("Setting selectedRestaurantId to \(restaurantId)")
+                                    self.selectedRestaurantId = restaurantId
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        self.showRestaurant.toggle()
+                                    }
+                                }
+                            } label: {
+                                VStack {
+                                    Text(notification.user?.username ?? "")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary)
+                                        .fontWeight(.semibold) +
+                                    Text(notification.type.notificationMessage)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary) +
+                                    Text("\(restaurantName): ")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary) +
+                                    Text(text)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary)
+                                }
+                                .multilineTextAlignment(.leading)
+                            }
+                        } else {
+                            VStack {
+                                Text(notification.user?.username ?? "")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.primary)
+                                    .fontWeight(.semibold) +
+                                Text(notification.type.notificationMessage)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.primary)
+                            }
+                            .multilineTextAlignment(.leading)
                         }
                     }
-                    .multilineTextAlignment(.leading)
-                    
                     Text("\(notification.timestamp.timestampString())")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
                 .multilineTextAlignment(.leading)
-                
             }
-            
             Spacer()
-            
             if notification.type == .follow {
-                    Button(action: {
-                        Task {
-                            isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId:notification.uid)
-                            self.isFollowed.toggle()
+                Button(action: {
+                    Task {
+                        isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId: notification.uid)
+                        self.isFollowed.toggle()
+                    }
+                }, label: {
+                    Text(isFollowed ? "Following" : "Follow")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .frame(width: 110)
+                        .padding(.vertical, 8)
+                        .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
+                        .background(isFollowed ? Color.clear : Color.red)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
                         }
-                    }, label: {
-                        Text(isFollowed ? "Following" : "Follow")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .frame(width: 88, height: 32)
-                            .foregroundColor(isFollowed ? .primary : .white)
-//                            .background(isFollowed ? Color(.systemGroupedBackground) : Color.pink)
-                            .cornerRadius(6)
-                    })
+                })
             } else {
-                if let post = notification.postThumbnail {
-                    
-                        KFImage(URL(string: post))
+                if let postThumbnail = notification.postThumbnail {
+                    Button {
+                        if let postId = notification.postId {
+                            Task {
+                                print("Fetching post with ID \(postId)")
+                                self.post = try await PostService.shared.fetchPost(postId: postId)
+                                print("Fetched post: \(String(describing: self.post))")
+                                showPost.toggle()
+                            }
+                        }
+                    } label: {
+                        KFImage(URL(string: postThumbnail))
                             .resizable()
                             .scaledToFill()
                             .frame(width: 48, height: 48)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
-                    
+                    }
                 }
             }
         }
-        /// Checks to see if the user is followed or not
-        .onAppear{
+        .onAppear {
             if notification.type == .follow {
                 Task {
                     self.isFollowed = await viewModel.checkIfUserIsFollowed(userId: notification.uid)
@@ -79,9 +119,27 @@ struct NotificationCell: View {
             }
         }
         .padding(.horizontal)
+        .sheet(isPresented: Binding(
+            get: { showRestaurant && selectedRestaurantId != nil },
+            set: { showRestaurant = $0 }
+        )) {
+            NavigationStack {
+                if let selectedRestaurantId = selectedRestaurantId {
+                    let _ =  print("Showing RestaurantProfileView for \(selectedRestaurantId)")
+                    RestaurantProfileView(restaurantId: selectedRestaurantId)
+                }
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { showPost && post != nil },
+            set: { showPost = $0 }
+        )) {
+            NavigationStack {
+                if let post = post {
+                    let _ = print("Showing FeedView for post: \(post)")
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+                }
+            }
+        }
     }
 }
-//
-//#Preview {
-//    NotificationCell(notification: DeveloperPreview.notifications[0])
-//}

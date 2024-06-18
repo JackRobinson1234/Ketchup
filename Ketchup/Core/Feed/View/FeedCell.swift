@@ -171,6 +171,7 @@ struct FeedCell: View {
                                                 .bold()
                                                 .multilineTextAlignment(.leading)
                                         }
+                                        
                                     }
                                     //MARK: Recipe Scenario
                                 } else if let recipe = post.cookingTitle{
@@ -209,6 +210,7 @@ struct FeedCell: View {
                                                 }
                                             }
                                         }
+                                       
                                     }
                                 }
                             }
@@ -218,6 +220,11 @@ struct FeedCell: View {
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
                                 .font(.subheadline)
+                            if let timestamp = post.timestamp{
+                                Text(getTimeElapsedString(from: timestamp))
+                                    .font(.caption)
+                                    .foregroundColor(Color("Colors/HingeGray"))
+                            }
                             
                             //MARK: see more
                             if !expandCaption{
@@ -394,10 +401,16 @@ struct FeedCell: View {
         //MARK: Configure Player
         .onAppear {
             Task{
-                if let videoURL = post.mediaUrls.first {
-                    videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                if !post.mediaUrls.isEmpty{
+                    if let videoURLString = post.mediaUrls.first,
+                       let videoURL = URL(string: videoURLString) {
+                        videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                    }
                 }
-                if viewModel.posts.first?.id == post.id && scrollPosition == nil {
+
+                if !viewModel.posts.isEmpty,
+                   let firstPost = viewModel.posts.first,
+                   firstPost.id == post.id && scrollPosition == nil {
                     videoCoordinator.replay()
                 }
             }

@@ -105,7 +105,8 @@ struct DeveloperPreview {
                 ),
                 cuisine: "Italian",
                 price: "$$$",
-                fromInAppCamera: false
+                fromInAppCamera: false,
+                recommendation: false
             
         )
     ]

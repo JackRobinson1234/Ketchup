@@ -74,20 +74,20 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var isZooming: Bool = false
     
     private var initialZoomFactor: CGFloat = 1.0
-    @Published var isDragEnabled: Bool = true
-    var drag: some Gesture {
-        DragGesture(minimumDistance: 85)
-            .onChanged { _ in self.isDragging = true }
-            .onEnded { endedGesture in
-                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-                    self.dragDirection = "left"
-                    self.isDragging = false
-                } else {
-                    self.dragDirection = "right"
-                    self.isDragging = false
-                }
-            }
-    }
+//    @Published var isDragEnabled: Bool = true
+//    var drag: some Gesture {
+//        DragGesture(minimumDistance: 85)
+//            .onChanged { _ in self.isDragging = true }
+//            .onEnded { endedGesture in
+//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+//                    self.dragDirection = "left"
+//                    self.isDragging = false
+//                } else {
+//                    self.dragDirection = "right"
+//                    self.isDragging = false
+//                }
+//            }
+//    }
 
     
     @Published var recordedURLs: [URL] = []
@@ -183,10 +183,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
             let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             
-            print("CEHCKING AUD PERMS HERE?")
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
-            print("AUDIO PERMS CHECKED")
             
             // check for input
             if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
@@ -452,7 +450,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         recordedDuration = 0
         isDragging = false
         uploadFromLibray = false
-        isDragEnabled = true
+        //isDragEnabled = true
         
     }
     
@@ -524,16 +522,3 @@ extension CameraPosition {
         }
     }
 }
-
-//    func savePic() {
-//
-//        // prob shouldnt force unwrap
-//        let image = UIImage(data: self.picData)!
-//
-//        // saving image
-//        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-//
-//        self.isSaved = true
-//    }
-//
-//}

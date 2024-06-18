@@ -15,48 +15,29 @@ struct ActivityCell: View {
     @State var showCollection: Bool = false
     @State var showUserProfile: Bool = false
     @State var showRestaurant = false
-    
     @State var post: Post?
     @State var collection: Collection?
     @ObservedObject var viewModel: ActivityViewModel
     @State var selectedRestaurantId: String? = nil
-   
+    @StateObject var collectionsViewModel: CollectionsViewModel = CollectionsViewModel(user: DeveloperPreview.user)
     var body: some View {
-        //MARK: newPost
-        VStack{
+        VStack {
+            //MARK: newPost
             if activity.type == .newPost {
                 if let postType = activity.postType {
-                    HStack{
-                        Button{showUserProfile.toggle()} label: {
+                    HStack {
+                        Button { 
+                            showUserProfile = true
+                        } label: {
                             UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                         }
                         //MARK: Post: Restaurant
-                        if postType == .dining{
-                            if let restaurantId = activity.restaurantId{
-                                Button{
-                                    self.selectedRestaurantId = restaurantId
-                                    showRestaurant.toggle()
-                                } label: {
-                                    VStack(alignment: .leading){
-                                        Text("@\(activity.username) created a new restaurant post for: ")
-                                            .activityCellFontStyle()
-                                        +
-                                        Text(activity.name)
-                                            .bold()
-                                            .activityCellFontStyle()
-                                        + Text(" !")
-                                            .activityCellFontStyle()
-                                    }
-                                    .multilineTextAlignment(.leading)
-                                    
-                                }
-                            }
-                            else {
-                                VStack(alignment: .leading){
+                        if postType == .dining {
+                
+                                VStack(alignment: .leading) {
                                     Text("@\(activity.username) created a new restaurant post for: ")
                                         .foregroundStyle(.primary)
-                                        .activityCellFontStyle()
-                                    +
+                                        .activityCellFontStyle() +
                                     Text(activity.name)
                                         .bold()
                                         .activityCellFontStyle()
@@ -65,37 +46,33 @@ struct ActivityCell: View {
                                         .foregroundColor(.gray)
                                 }
                                 .multilineTextAlignment(.leading)
-                                
-                                
-                            }
-                            //MARK: Post: AtHome
+                            
+                        //MARK: Post: AtHome
                         } else if postType == .cooking {
-                            VStack(alignment: .leading){
+                            VStack(alignment: .leading) {
                                 Text("@\(activity.username) created a new at home post: ")
                                     .activityCellFontStyle() +
                                 Text(activity.name)
                                     .activityCellFontStyle()
-                                    .bold()
-                                + Text(" !")
+                                    .bold() +
+                                Text(" !")
                                     .activityCellFontStyle()
                                 Text(getTimeElapsedString(from: activity.timestamp))
                                     .font(.caption)
                                     .foregroundColor(.gray)
-                                
                             }
                             .multilineTextAlignment(.leading)
-                           
-                            
-                            
                         }
                         Spacer()
                         //MARK: Post Image
                         if let image = activity.image {
-                            Button{
-                                if let postId = activity.postId{
-                                    Task{
+                            Button {
+                                if let postId = activity.postId {
+                                    Task {
+                                        print("Fetching post with ID \(postId)")
                                         self.post = try await PostService.shared.fetchPost(postId: postId)
                                         if self.post != nil {
+                                            print("Fetched post: \(String(describing: self.post))")
                                             showPost.toggle()
                                         }
                                     }
@@ -103,50 +80,48 @@ struct ActivityCell: View {
                             } label: {
                                 KFImage(URL(string: image))
                                     .resizable()
-                                    .frame(width: 50, height: 70) // Set the image size to 50x50
-                                    .aspectRatio(contentMode: .fit) // Maintain aspect ratio
+                                    .frame(width: 50, height: 70)
+                                    .aspectRatio(contentMode: .fit)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
                     }
                     .padding()
                 }
-            }
             //MARK: New Collection
-            else if activity.type == .newCollection {
-                HStack{
-                    Button{showUserProfile.toggle()} label: {
+            } else if activity.type == .newCollection {
+                HStack {
+                    Button { showUserProfile = true } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
-                    VStack(alignment: .leading){
+                    VStack(alignment: .leading) {
                         Text("@\(activity.username) created a new collection: ")
-                            .activityCellFontStyle()
-                        +
+                            .activityCellFontStyle() +
                         Text((activity.name))
                             .bold()
-                            .activityCellFontStyle()
-                        + Text("!")
+                            .activityCellFontStyle() +
+                        Text("!")
                             .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
                             .font(.caption)
                             .foregroundColor(.gray)
-                        
                     }
                     .multilineTextAlignment(.leading)
-                
                     Spacer()
                     if let image = activity.image {
                         KFImage(URL(string: image))
                             .resizable()
-                            .frame(width: 50, height: 70) // Set the image size to 50x50
-                            .aspectRatio(contentMode: .fit) // Maintain aspect ratio
+                            .frame(width: 50, height: 70)
+                            .aspectRatio(contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     } else {
-                        Button{
-                            Task{
-                                if let collectionId = activity.collectionId{
+                        Button {
+                            Task {
+                                if let collectionId = activity.collectionId {
                                     self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if self.collection != nil, viewModel.user != nil{
+                                    if let collection = self.collection , viewModel.user != nil {
+                                        print("Fetched collection: \(String(describing: self.collection))")
+                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
                                         showCollection.toggle()
                                     }
                                 }
@@ -155,20 +130,19 @@ struct ActivityCell: View {
                             Image(systemName: "folder")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 60, height:60)
+                                .frame(width: 60, height: 60)
                                 .foregroundStyle(.primary)
                         }
                     }
                 }
                 .padding()
-                
-                //MARK: CollectionItem
+            //MARK: CollectionItem
             } else if activity.type == .newCollectionItem {
-                HStack{
-                    Button{showUserProfile.toggle()} label: {
+                HStack {
+                    Button { showUserProfile = true } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
-                    VStack(alignment: .leading){
+                    VStack(alignment: .leading) {
                         Text("@\(activity.username) added ")
                             .activityCellFontStyle() +
                         Text(activity.name)
@@ -183,11 +157,13 @@ struct ActivityCell: View {
                     .multilineTextAlignment(.leading)
                     Spacer()
                     if let image = activity.image {
-                        Button{
-                            Task{
-                                if let collectionId = activity.collectionId{
+                        Button {
+                            Task {
+                                if let collectionId = activity.collectionId {
                                     self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if self.collection != nil, viewModel.user != nil{
+                                    if let collection = self.collection, viewModel.user != nil {
+                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
+                                        print("Fetched collection: \(String(describing: self.collection))")
                                         showCollection.toggle()
                                     }
                                 }
@@ -195,50 +171,51 @@ struct ActivityCell: View {
                         } label: {
                             KFImage(URL(string: image))
                                 .resizable()
-                                .frame(width: 50, height: 50) // Set the image size to 50x50
-                                .aspectRatio(contentMode: .fit) // Maintain aspect ratio
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
                     } else {
-                        Button{
-                            Task{
-                                if let collectionId = activity.collectionId{
+                        Button {
+                            Task {
+                                if let collectionId = activity.collectionId {
                                     self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if self.collection != nil, viewModel.user != nil{
+                                    if let collection = self.collection, viewModel.user != nil {
+                                        print("Fetched collection: \(String(describing: self.collection))")
+                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
                                         showCollection.toggle()
                                     }
+                                    
                                 }
                             }
                         } label: {
                             Image(systemName: "folder")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 60, height:60)
+                                .frame(width: 60, height: 60)
                                 .foregroundStyle(.primary)
                         }
                     }
                 }
                 .padding()
-                
-                //MARK: newReview
+            //MARK: newReview
             } else if activity.type == .newReview {
-                HStack{
-                    Button{showUserProfile.toggle()} label: {
+                HStack {
+                    Button { showUserProfile = true } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
-                    if let text = activity.text{
-                        VStack(alignment: .leading){
+                    if let text = activity.text {
+                        VStack(alignment: .leading) {
                             if let recs = activity.recommendation, recs {
-                                HStack(spacing: 0){
+                                HStack(spacing: 0) {
                                     Image(systemName: "heart")
                                         .foregroundColor(Color("Colors/AccentColor"))
                                     Text("Recommends")
                                         .foregroundStyle(.primary)
-                                    
                                 }
                                 .font(.caption)
                             } else {
-                                HStack(spacing: 0){
+                                HStack(spacing: 0) {
                                     Image(systemName: "heart.slash")
                                         .foregroundColor(.gray)
                                         .font(.subheadline)
@@ -261,86 +238,95 @@ struct ActivityCell: View {
                         }
                         .multilineTextAlignment(.leading)
                     }
-                    
                     Spacer()
                     if let image = activity.image {
-                        if let restaurantId = activity.restaurantId{
-                            Button{
+                        if let restaurantId = activity.restaurantId {
+                            Button {
+                                print("Setting selectedRestaurantId to \(restaurantId)")
                                 self.selectedRestaurantId = restaurantId
-                                showRestaurant.toggle()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    self.showRestaurant.toggle()
+                                }
                             } label: {
                                 KFImage(URL(string: image))
                                     .resizable()
-                                    .frame(width: 50, height: 50) // Set the image size to 50x50
-                                    .aspectRatio(contentMode: .fit) // Maintain aspect ratio
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
                     }
-                }.padding()
+                }
+                .padding()
             }
         }
         //MARK: Sheets
-        .sheet(isPresented: $showPost){
-            if let post = self.post{
+        .sheet(isPresented: Binding(
+            get: { showPost && post != nil },
+            set: { showPost = $0 }
+        )) {
+            if let post = self.post {
+                let _ = print("Showing FeedView for post: \(post)")
                 FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
             }
         }
-        
-        
-        .sheet(isPresented: $showCollection) {
-            if let collection = self.collection, let user = viewModel.user {
-                CollectionView(collectionsViewModel: CollectionsViewModel(user: user, selectedCollection: collection))
+        .sheet(isPresented: Binding(
+            get: { showCollection && collection != nil },
+            set: { showCollection = $0 }
+        )) {
+            if  self.collection != nil {
+                CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
             }
         }
-        
-        
-        .sheet(isPresented: $showRestaurant){
-            if let selectedRestaurantId {
-                NavigationStack{
+        .sheet(isPresented: Binding(
+            get: { showRestaurant && selectedRestaurantId != nil },
+            set: { showRestaurant = $0 }
+        )) {
+            if let selectedRestaurantId = selectedRestaurantId {
+                let _ = print("Showing RestaurantProfileView for \(selectedRestaurantId)")
+                NavigationStack {
                     RestaurantProfileView(restaurantId: selectedRestaurantId)
                 }
             }
         }
-        
         .sheet(isPresented: $showUserProfile) {
-            NavigationStack{
+            NavigationStack {
                 ProfileView(uid: activity.uid)
             }
         }
     }
-    //MARK: getTimeElapsedString
-    func getTimeElapsedString(from timestamp: Timestamp) -> String {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        if calendar.isDateInToday(timestamp.dateValue()) {
-            let components = calendar.dateComponents([.hour, .minute], from: timestamp.dateValue(), to: now)
-            if let hours = components.hour, hours > 0 {
-                return "\(hours)h ago"
-            } else if let minutes = components.minute, minutes > 5 {
-                return "\(minutes)m ago"
-            }
-            return "Just now"
-        } else if calendar.isDateInYesterday(timestamp.dateValue()) {
-            return "Yesterday"
-        } else {
-            let components = calendar.dateComponents([.day, .weekOfYear], from: timestamp.dateValue(), to: now)
-            if let days = components.day, days > 0 {
-                return "\(days)d ago"
-            } else if let weeks = components.weekOfYear, weeks > 0 {
-                return "\(weeks)w ago"
-            }
-        }
-        return ""
-    }
+
+    
 }
+
 extension Text {
     func activityCellFontStyle() -> Text {
-        self.font(.subheadline) // Customize the font style here
-            .foregroundColor(.primary) // Customize the text color if needed
+        self.font(.subheadline)
+            .foregroundColor(.primary)
     }
 }
-#Preview {
-    ActivityCell(activity: DeveloperPreview.activity2, viewModel: ActivityViewModel())
+
+func getTimeElapsedString(from timestamp: Timestamp) -> String {
+    let calendar = Calendar.current
+    let now = Date()
+    
+    if calendar.isDateInToday(timestamp.dateValue()) {
+        let components = calendar.dateComponents([.hour, .minute], from: timestamp.dateValue(), to: now)
+        if let hours = components.hour, hours > 0 {
+            return "\(hours)h ago"
+        } else if let minutes = components.minute, minutes > 5 {
+            return "\(minutes)m ago"
+        }
+        return "Just now"
+    } else if calendar.isDateInYesterday(timestamp.dateValue()) {
+        return "Yesterday"
+    } else {
+        let components = calendar.dateComponents([.day, .weekOfYear], from: timestamp.dateValue(), to: now)
+        if let days = components.day, days > 0 {
+            return "\(days)d ago"
+        } else if let weeks = components.weekOfYear, weeks > 0 {
+            return "\(weeks)w ago"
+        }
+    }
+    return ""
 }
