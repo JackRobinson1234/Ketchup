@@ -55,13 +55,17 @@ struct RestaurantProfileView: View {
     
     var body: some View {
         if isLoading {
-            // Loading screen
+            
             ProgressView("Loading...")
                 .gesture(drag)
                 .onAppear {
                     Task {
-                        viewModel.restaurant = restaurant
-                        try await viewModel.fetchRestaurant(id: restaurantId)
+                        do {
+                            viewModel.restaurant = restaurant
+                            try await viewModel.fetchRestaurant(id: restaurantId)
+                        } catch {
+                            print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
+                        }
                         isLoading = false
                     }
                 }
@@ -83,24 +87,33 @@ struct RestaurantProfileView: View {
                         }
                     }
                 }
-               
-                
+            
+            
         } else {
-            ScrollView{
-                VStack{
-                    if viewModel.restaurant != nil {
-                        RestaurantProfileHeaderView(viewModel: viewModel)
+            if viewModel.restaurant != nil {
+                ScrollView{
+                    VStack{
+                        if viewModel.restaurant != nil {
+                            RestaurantProfileHeaderView(viewModel: viewModel)
+                        } else {
+                            
+                        }
                     }
+                    
                 }
+                .gesture(drag)
+                .ignoresSafeArea(edges: .top)
+                .navigationBarBackButtonHidden()
+                .toolbar(.hidden, for: .tabBar)
+                .toolbar(.hidden)
+                .onAppear{
+                    LocationManager.shared.requestLocation()
+                }
+            } else {
+                Text("Profile Under Construction")
+                    .modifier(BackButtonModifier())
+                    .navigationBarBackButtonHidden()
                 
-            }
-            .gesture(drag)
-            .ignoresSafeArea(edges: .top)
-            .navigationBarBackButtonHidden()
-            .toolbar(.hidden, for: .tabBar)
-            .toolbar(.hidden)
-            .onAppear{
-                LocationManager.shared.requestLocation()
             }
         }
     }

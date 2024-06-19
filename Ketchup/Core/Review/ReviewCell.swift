@@ -20,53 +20,93 @@ struct ReviewCell: View {
         HStack{
             VStack(alignment: .leading){
                 HStack{
-                    Button{showUserProfile.toggle()} label: {
-                        HStack {
-                            if viewModel.selectedRestaurant != nil {
-                                UserCircularProfileImageView(profileImageUrl: review.user.profileImageUrl, size: .medium)
-                            } else {
-                                RestaurantCircularProfileImageView(imageUrl: review.restaurant.profileImageUrl, size: .medium)
-                            }
-                            VStack(alignment: .leading){
-                                Text(getTimeElapsedString(from: review.timestamp))
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                    if viewModel.selectedRestaurant != nil {
+                        Button{
+                            showUserProfile.toggle()
+                        } label: {
+                            HStack {
                                 if viewModel.selectedRestaurant != nil {
-                                    Text("@\(review.user.username)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.primary)
-                                        .bold()
+                                    UserCircularProfileImageView(profileImageUrl: review.user.profileImageUrl, size: .medium)
                                 } else {
-                                    Text("\(review.restaurant.name)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.primary)
-                                        .bold()
+                                    RestaurantCircularProfileImageView(imageUrl: review.restaurant.profileImageUrl, size: .medium)
                                 }
-                                if review.recommendation {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        
-                                        Text("Recommends")
-                                            .foregroundColor(.primary)
-                                        
-                                    }
-                                    .font(.caption)
-                                } else {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(.gray)
+                                VStack(alignment: .leading){
+                                    Text(getTimeElapsedString(from: review.timestamp))
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                        Text("@\(review.user.username)")
                                             .font(.subheadline)
-                                        Text("Does not recommend")
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(.primary)
                                             .bold()
-                                        
-                                        
+                                        if review.recommendation {
+                                            HStack(spacing: 0){
+                                                Image(systemName: "heart")
+                                                    .foregroundColor(Color("Colors/AccentColor"))
+                                                Text("Recommends")
+                                                    .foregroundColor(.primary)
+                                                
+                                            }
+                                            .font(.caption)
+                                        } else {
+                                            HStack(spacing: 0){
+                                                Image(systemName: "heart.slash")
+                                                    .foregroundColor(.gray)
+                                                    .font(.subheadline)
+                                                Text("Does not recommend")
+                                                    .foregroundColor(.gray)
+                                                    .bold()
+                                                
+                                                
+                                            }
+                                            .font(.caption)
+                                        }
                                     }
-                                    .font(.caption)
+                                }
+                        }
+                    } else {
+                        NavigationLink(destination: RestaurantProfileView(restaurantId: review.restaurant.id)){
+                            HStack {
+                                if viewModel.selectedRestaurant != nil {
+                                    UserCircularProfileImageView(profileImageUrl: review.user.profileImageUrl, size: .medium)
+                                } else {
+                                    RestaurantCircularProfileImageView(imageUrl: review.restaurant.profileImageUrl, size: .medium)
+                                }
+                                VStack(alignment: .leading){
+                                    Text(getTimeElapsedString(from: review.timestamp))
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    
+                                        Text("\(review.restaurant.name)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.primary)
+                                            .bold()
+                                    
+                                        if review.recommendation {
+                                            HStack(spacing: 0){
+                                                Image(systemName: "heart")
+                                                    .foregroundColor(Color("Colors/AccentColor"))
+                                                
+                                                Text("Recommends")
+                                                    .foregroundColor(.primary)
+                                                
+                                            }
+                                            .font(.caption)
+                                        } else {
+                                            HStack(spacing: 0){
+                                                Image(systemName: "heart.slash")
+                                                    .foregroundColor(.gray)
+                                                    .font(.subheadline)
+                                                Text("Does not recommend")
+                                                    .foregroundColor(.gray)
+                                                    .bold()
+                                                
+                                                
+                                            }
+                                            .font(.caption)
+                                        }
+                                    }
                                 }
                             }
-                        }
                     }
                     Spacer()
                     if !previewMode{

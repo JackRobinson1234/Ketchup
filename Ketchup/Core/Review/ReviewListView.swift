@@ -25,7 +25,7 @@ struct ReviewListView: View {
                     }
             }
             else{
-                //MARK: Add Collection Button
+                //MARK: Add REVIEW Button
                     LazyVStack(alignment: .leading){
                         
                         if viewModel.selectedRestaurant != nil{

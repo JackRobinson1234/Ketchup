@@ -19,17 +19,6 @@ class RestaurantViewModel: ObservableObject {
     @Published var currentSection: Section = .posts
     @Environment(\.dismiss) var dismiss
     
-//    var drag: some Gesture {
-//        DragGesture(minimumDistance: 85)
-//            .onChanged { _ in self.isDragging = true }
-//            .onEnded { endedGesture in
-//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-//                    if self.currentSection == .posts{
-//                        self.dismiss()
-//                    }
-//                }
-//            }
-//        }
     
     
     init(restaurantId: String) {
@@ -43,6 +32,7 @@ class RestaurantViewModel: ObservableObject {
                 self.restaurant = try await RestaurantService.shared.fetchRestaurant(withId: id)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+                
             }
         }
         if let unwrappedRestaurant = self.restaurant{
@@ -67,6 +57,7 @@ extension RestaurantViewModel {
                 self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+                
             }
         }
     }
