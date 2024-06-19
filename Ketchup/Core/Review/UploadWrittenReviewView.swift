@@ -20,7 +20,7 @@ struct UploadWrittenReviewView: View {
     private let maxMenuItemCharacters = 50
     private let maxFavoriteMenuItems = 5
     @State var editedReview = false
-    @State var isPickingRestaurant = false
+    @State var isPickingRestaurant = true
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }
@@ -30,8 +30,10 @@ struct UploadWrittenReviewView: View {
     var body: some View {
         ZStack {
             Color.white
-                .frame(width: UIScreen.main.bounds.width, height: 765)
+                .edgesIgnoringSafeArea(.all) // Ensure it covers the entire screen including safe area
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height) // Set to full screen height
                 .cornerRadius(10)
+            
             VStack {
                 if let restaurant = reviewViewModel.selectedRestaurant {
                     Button {
@@ -41,7 +43,40 @@ struct UploadWrittenReviewView: View {
                       
                             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
                             
+                        Text(restaurant.name)
+                            .bold()
+                            .font(.title3)
+                        Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                            .font(.subheadline)
+                            .padding(.horizontal)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                         
+                        if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                            Text("\(cuisine), \(price)")
+                                .font(.caption)
+                                .foregroundStyle(.primary)
+                            
+                            
+                        } else if let cuisine = restaurant.cuisine {
+                            Text(cuisine)
+                                .font(.caption)
+                                .foregroundStyle(.primary)
+                            
+                            
+                        } else if let price = restaurant.price {
+                            Text(price)
+                                .font(.caption)
+                                .foregroundStyle(.primary)
+                        }
+                        if let restaurantRequest = reviewViewModel.restaurantRequest{
+                            Text("To be Created")
+                                .foregroundStyle(.primary)
+                                .font(.caption)
+                        }
+                        Text("Edit")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.caption)
                     }
                 } else {
                     Button {
@@ -49,10 +84,10 @@ struct UploadWrittenReviewView: View {
                     } label: {
                         // ADD RESTAURANT
                         VStack {
-                            Image(systemName: "plus.circle")
+                            Image(systemName: "plus")
                                 .resizable()
-                                .foregroundColor(.black)
-                                .frame(width: 80, height: 80, alignment: .center)
+                                .foregroundColor(Color("Colors/AccentColor"))
+                                .frame(width: 40, height: 40, alignment: .center)
                             
                             Text("Add restaurant")
                                 .foregroundColor(.black)
@@ -62,40 +97,7 @@ struct UploadWrittenReviewView: View {
                 }
                 
                 if let restaurant = reviewViewModel.selectedRestaurant {
-                    Text(restaurant.name)
-                        .bold()
-                        .font(.title3)
-                    Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                        .font(.subheadline)
-                        .padding(.horizontal)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
                     
-                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                        Text("\(cuisine), \(price)")
-                            .font(.caption)
-                            .foregroundStyle(.primary)
-                        
-                        
-                    } else if let cuisine = restaurant.cuisine {
-                        Text(cuisine)
-                            .font(.caption)
-                            .foregroundStyle(.primary)
-                        
-                        
-                    } else if let price = restaurant.price {
-                        Text(price)
-                            .font(.caption)
-                            .foregroundStyle(.primary)
-                    }
-                    if let restaurantRequest = reviewViewModel.restaurantRequest{
-                        Text("To be Created")
-                            .foregroundStyle(.primary)
-                            .font(.caption)
-                    }
-                    Text("Edit")
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
                     HStack(spacing: 20) {
                         Button(action: { recommend = true }) {
                             VStack {
@@ -122,11 +124,29 @@ struct UploadWrittenReviewView: View {
                     .padding(20)
                     if recommend != nil {
                         VStack{
-                            Button(action: {
-                                self.isEditingCaption = true
-                            }) {
-                                TextBox(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150)
+                            ZStack(alignment: .topLeading) {
+                                
+                                TextEditor(text: $description)
+                                    .frame(height: 100)  // Adjust the height as needed
+                                    .padding(4)
+                                    .toolbar {
+                                        ToolbarItemGroup(placement: .keyboard) {
+                                            Spacer()
+                                            Button("Done") {
+                                                dismissKeyboard()
+                                            }
+                                        }
+                                    }
+                                
+                                if description.isEmpty {
+                                    Text("Add a review...")
+                                        .foregroundColor(.gray.opacity(0.6))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 12)
+                                }
                             }
+                            .padding()
+                            Divider()
                             
                             if !description.isEmpty, editedReview == true {
                                 
@@ -183,19 +203,27 @@ struct UploadWrittenReviewView: View {
             }
             .padding()
             .padding(.top, 30)
-            
-            if isEditingCaption {
-                EditorView(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150, title: "Review")
-                    .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                    .onAppear {
-                        isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
+            if !changeTab {
+                VStack{
+                    HStack{
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(.white)
+                                .padding(6)
+                                .background(Color.primary.opacity(0.6))
+                                .clipShape(Circle())
+                        }
+                        Spacer()
                     }
+                    Spacer()
+                }
+                .padding()
             }
             
         }
-//        .onChange(of: uploadViewModel.restaurant) {
-//            reviewViewModel.selectedRestaurant = uploadViewModel.restaurant
-//        }
+
         .onChange(of: description) {
             Debouncer(delay: 0.3).schedule{
                 editedReview = true

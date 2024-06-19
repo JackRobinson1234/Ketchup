@@ -33,6 +33,16 @@ struct CreateReviewView: View {
                     if let profileImageUrl = restaurant.profileImageUrl {
                         RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .xLarge)
                     }
+                   
+                        Text(restaurant.name)
+                            .bold()
+                            .font(.title3)
+                        Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                            .font(.subheadline)
+                            .padding(.horizontal)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        
                     if let cuisine = restaurant.cuisine, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
                             .font(.caption)
@@ -52,7 +62,6 @@ struct CreateReviewView: View {
                     }
                     
                     
-                    Spacer()
                     HStack(spacing: 20) {
                         Button(action: { recommend = true }) {
                             VStack {
@@ -79,11 +88,29 @@ struct CreateReviewView: View {
                     .padding(20)
                     if recommend != nil {
                         VStack{
-                            Button(action: {
-                                self.isEditingCaption = true
-                            }) {
-                                TextBox(text: $description, isEditing: $isEditingCaption, placeholder: "What's your review?", maxCharacters: 150)
+                            ZStack(alignment: .topLeading) {
+                                
+                                TextEditor(text: $description)
+                                    .frame(height: 100)  // Adjust the height as needed
+                                    .padding(4)
+                                    .toolbar {
+                                        ToolbarItemGroup(placement: .keyboard) {
+                                            Spacer()
+                                            Button("Done") {
+                                                dismissKeyboard()
+                                            }
+                                        }
+                                    }
+                                
+                                if description.isEmpty {
+                                    Text("Add a review...")
+                                        .foregroundColor(.gray.opacity(0.6))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 12)
+                                }
                             }
+                            .padding()
+                            Divider()
                             
                             
                             if !description.isEmpty, editedReview == true {

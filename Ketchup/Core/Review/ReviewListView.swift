@@ -39,6 +39,7 @@ struct ReviewListView: View {
                         } else if let user = viewModel.selectedUser, user.isCurrentUser {
                             Divider()
                             Button{
+    
                                 showRestaurantSelector.toggle()
                             } label: {
                                 CreateReviewButton()
@@ -69,11 +70,14 @@ struct ReviewListView: View {
             }
         }
         .sheet(isPresented: $showRestaurantSelector) {
-            UploadWrittenReviewView(reviewViewModel: viewModel)
-//            RestaurantReviewSelector(reviewsViewModel: viewModel)
-                .onDisappear{
-                    viewModel.selectedRestaurant = nil
-                }
+                UploadWrittenReviewView(reviewViewModel: viewModel)
+                
+                //            RestaurantReviewSelector(reviewsViewModel: viewModel)
+                    .onDisappear{
+                        viewModel.selectedRestaurant = nil
+                    }
+                    
+            
         }
     }
 }

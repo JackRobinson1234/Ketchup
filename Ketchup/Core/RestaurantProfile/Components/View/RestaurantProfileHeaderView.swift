@@ -85,7 +85,7 @@ struct RestaurantProfileHeaderView: View {
                             }
                             Spacer()
                         }
-                        .padding(40)
+                        .padding(50)
                         Spacer()
                     }
                 }

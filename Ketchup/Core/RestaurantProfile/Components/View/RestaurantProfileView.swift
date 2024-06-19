@@ -110,10 +110,13 @@ struct RestaurantProfileView: View {
                     LocationManager.shared.requestLocation()
                 }
             } else {
-                Text("Profile Under Construction")
-                    .modifier(BackButtonModifier())
-                    .navigationBarBackButtonHidden()
-                
+                VStack{
+                    Text("Profile Under Construction")
+                        .modifier(BackButtonModifier())
+                        .navigationBarBackButtonHidden()
+                }
+                .gesture(drag) 
+                    
             }
         }
     }
