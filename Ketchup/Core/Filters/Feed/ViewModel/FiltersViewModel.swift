@@ -42,7 +42,7 @@ class FiltersViewModel: ObservableObject {
     func fetchFilteredPosts() async {
         /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
         if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "cuisine")
+            filters.removeValue(forKey: "restaurant.cuisine")
         } else {
             filters["restaurant.cuisine"] = selectedCuisines
         }
@@ -62,7 +62,7 @@ class FiltersViewModel: ObservableObject {
         
         ///Price checking if there are any selected
         if selectedPrice.isEmpty {
-            filters.removeValue(forKey: "price")
+            filters.removeValue(forKey: "restaurant.price")
         } else {
             filters["restaurant.price"] = selectedPrice
         }
@@ -111,6 +111,7 @@ class FiltersViewModel: ObservableObject {
         selectedState = ""
         restaurantChecked = true
         atHomeChecked = true
+        filters = [:]
     }
     
     func disableFilters() {
@@ -130,11 +131,3 @@ class FiltersViewModel: ObservableObject {
         }
     }
 }
-
-import CoreLocation
-
-//extension CLLocationCoordinate2D: Equatable {
-//    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
-//        return lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
-//    }
-//}

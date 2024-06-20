@@ -202,6 +202,15 @@ struct MapView: View {
                                         .imageScale(.large)
                                         .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
                                         .font(.system(size: 23))
+                                   
+                                        
+                                        //One because location filter is on
+                                    if viewModel.filters.count > 1 {
+                                        Circle()
+                                            .fill(Color("Colors/AccentColor"))
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12) // Adjust the offset as needed
+                                    }
                                     
                                 }
                             }

@@ -15,7 +15,7 @@ class MapViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
     @Published var restaurants = [Restaurant]()
     @Published var searchPreview = [Restaurant]()
-    var filters: [String: [Any]] = [:]
+    @Published var filters: [String: [Any]] = [:]
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedLocation: [CLLocationCoordinate2D] = []

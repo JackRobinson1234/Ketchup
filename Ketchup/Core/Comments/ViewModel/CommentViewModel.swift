@@ -11,11 +11,22 @@ import SwiftUI
 @MainActor
 class CommentViewModel: ObservableObject {
     @Published var comments = [Comment]()
-    @Published var commentText = ""
+    @Published var commentText: String = "" {
+           didSet {
+               if commentText.count > 300 {
+                   commentText = String(commentText.prefix(300))
+                   charLimitReached = true
+               } else {
+                   charLimitReached = false
+               }
+           }
+       }
+    @Published var charLimitReached: Bool = false
     @Published var showEmptyView = false
     
     @Binding var post: Post
-    
+    @Published var showOptionsSheet: Bool = false
+    @Published var selectedComment: Comment?
     var commentCountText: String {
         return "\(comments.count) comments"
     }

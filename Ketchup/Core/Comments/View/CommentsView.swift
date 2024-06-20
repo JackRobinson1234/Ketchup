@@ -47,6 +47,12 @@ struct CommentsView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
+        .sheet(isPresented: $viewModel.showOptionsSheet) {
+            if let comment = viewModel.selectedComment{
+                CommentOptionsSheet(comment: comment, viewModel: viewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+            }
+        }
         .overlay {
             if viewModel.showEmptyView {
                 ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")

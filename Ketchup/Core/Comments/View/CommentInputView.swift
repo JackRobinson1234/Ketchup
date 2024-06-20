@@ -13,33 +13,42 @@ struct CommentInputView: View {
     @FocusState private var fieldIsActive: Bool
     
     var body: some View {
-        ZStack(alignment: .trailing) {
-            TextField("Add a comment", text: $viewModel.commentText, axis: .vertical)
-                .padding(10)
-                .padding(.leading, 4)
-                .padding(.trailing, 48)
-                .background(Color(.systemGroupedBackground))
-                .clipShape(Capsule())
-                .font(.footnote)
-                .focused($fieldIsActive)
-                .overlay {
-                    Capsule()
-                        .stroke(Color(.systemGray5), lineWidth: 0)
+        VStack {
+            ZStack(alignment: .trailing) {
+                TextField("Add a comment", text: $viewModel.commentText, axis: .vertical)
+                    .padding(10)
+                    .padding(.leading, 4)
+                    .padding(.trailing, 48)
+                    .background(Color(.systemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .font(.footnote)
+                    .focused($fieldIsActive)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color(.systemGray5), lineWidth: 1)
+                    )
+                
+                Button {
+                    Task {
+                        await viewModel.uploadComment()
+                        fieldIsActive = false
+                    }
+                } label: {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
-            
-            Button {
-                Task {
-                    await viewModel.uploadComment()
-                    fieldIsActive = false
-                }
-            } label: {
-                Image(systemName: "arrow.up.circle.fill")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Color("Colors/AccentColor"))
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            .tint(.primary)
+            
+            if viewModel.charLimitReached {
+                Text("Max characters reached")
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.top, 4)
+            }
         }
-        .tint(.primary)
     }
 }

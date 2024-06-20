@@ -28,6 +28,16 @@ class ActivityViewModel: ObservableObject {
     var user: User?
     
     
+    // Sheet state properties
+    @Published var showPost: Bool = false
+    @Published var showCollection: Bool = false
+    @Published var showUserProfile: Bool = false
+    @Published var showRestaurant = false
+    @Published var post: Post?
+    @Published var collection: Collection?
+    @Published var selectedRestaurantId: String? = nil
+    @Published var selectedUid: String? = nil
+    
     func fetchFriendsActivities() async throws {
             self.friendsActivity = try await service.fetchFollowingActivities()
         }

@@ -65,6 +65,7 @@ struct CollectionView: View {
                             if let description = collection.description {
                                 Text(description)
                                     .font(.subheadline)
+                                    .padding(.horizontal    )
                             }
                             // MARK: Grid View
                             HStack(spacing: 0) {

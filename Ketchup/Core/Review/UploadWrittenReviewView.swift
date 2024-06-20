@@ -20,7 +20,7 @@ struct UploadWrittenReviewView: View {
     private let maxMenuItemCharacters = 50
     private let maxFavoriteMenuItems = 5
     @State var editedReview = false
-    @State var isPickingRestaurant = true
+    @State var isPickingRestaurant = false
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }
@@ -30,8 +30,8 @@ struct UploadWrittenReviewView: View {
     var body: some View {
         ZStack {
             Color.white
-                .edgesIgnoringSafeArea(.all) // Ensure it covers the entire screen including safe area
-                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height) // Set to full screen height
+                 // Ensure it covers the entire screen including safe area
+                .frame(width: UIScreen.main.bounds.width, height: 765) // Set to full screen height
                 .cornerRadius(10)
             
             VStack {
@@ -40,43 +40,44 @@ struct UploadWrittenReviewView: View {
                         isPickingRestaurant = true
                     } label: {
                         // REPLACE RESTAURANT
-                      
+                        VStack{
                             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
                             
-                        Text(restaurant.name)
-                            .bold()
-                            .font(.title3)
-                        Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                            .font(.subheadline)
-                            .padding(.horizontal)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                        
-                        if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                            Text("\(cuisine), \(price)")
+                            Text(restaurant.name)
+                                .bold()
+                                .font(.title3)
+                            Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                                .font(.subheadline)
+                                .padding(.horizontal)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            
+                            if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                                Text("\(cuisine), \(price)")
+                                    .font(.caption)
+                                    .foregroundStyle(.primary)
+                                
+                                
+                            } else if let cuisine = restaurant.cuisine {
+                                Text(cuisine)
+                                    .font(.caption)
+                                    .foregroundStyle(.primary)
+                                
+                                
+                            } else if let price = restaurant.price {
+                                Text(price)
+                                    .font(.caption)
+                                    .foregroundStyle(.primary)
+                            }
+                            if let restaurantRequest = reviewViewModel.restaurantRequest{
+                                Text("To be Created")
+                                    .foregroundStyle(.primary)
+                                    .font(.caption)
+                            }
+                            Text("Edit")
+                                .foregroundStyle(Color("Colors/AccentColor"))
                                 .font(.caption)
-                                .foregroundStyle(.primary)
-                            
-                            
-                        } else if let cuisine = restaurant.cuisine {
-                            Text(cuisine)
-                                .font(.caption)
-                                .foregroundStyle(.primary)
-                            
-                            
-                        } else if let price = restaurant.price {
-                            Text(price)
-                                .font(.caption)
-                                .foregroundStyle(.primary)
                         }
-                        if let restaurantRequest = reviewViewModel.restaurantRequest{
-                            Text("To be Created")
-                                .foregroundStyle(.primary)
-                                .font(.caption)
-                        }
-                        Text("Edit")
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.caption)
                     }
                 } else {
                     Button {

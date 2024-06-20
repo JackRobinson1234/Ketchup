@@ -10,30 +10,35 @@ import SwiftUI
 struct CommentCell: View {
     let comment: Comment
     @ObservedObject var viewModel: CommentViewModel
-    @State private var showingOptionsSheet = false
     var previewMode: Bool = false
     
     var body: some View {
-        HStack {
-            UserCircularProfileImageView(profileImageUrl: comment.user?.profileImageUrl, size: .xxSmall)
+        HStack (alignment: .top){
+            UserCircularProfileImageView(profileImageUrl: comment.user?.profileImageUrl, size: .medium )
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 2) {
-                    Text(comment.user?.username ?? "")
+                    Text("@\(comment.user?.username ?? "")")
                         .fontWeight(.semibold)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
                     
                     Text(" \(comment.timestamp.timestampString())")
                         .foregroundColor(.gray)
+                        .font(.footnote)
                 }
                 
                 Text(comment.commentText)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
             }
             .font(.caption)
             
             Spacer()
             if !previewMode {
                 Button {
-                    showingOptionsSheet = true
+                    viewModel.selectedComment = comment
+                    viewModel.showOptionsSheet = true
                 } label: {
                     ZStack {
                            Color.clear
@@ -45,10 +50,7 @@ struct CommentCell: View {
                                .font(.system(size: 18))
                        }
                 }
-                .sheet(isPresented: $showingOptionsSheet) {
-                    CommentOptionsSheet(comment: comment, viewModel: viewModel)
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                }
+ 
             }
         }
     }

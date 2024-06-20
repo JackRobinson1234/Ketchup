@@ -65,6 +65,25 @@ struct RestaurantProfileHeaderView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.white)
                             }
+                            if let city = restaurant.city, !city.isEmpty, let state = restaurant.state, !state.isEmpty {
+                                Text("\(city), \(state)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.white)
+                            } else if let city = restaurant.city, !city.isEmpty {
+                                Text("\(city)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.white)
+                            } else if let state = restaurant.state, !state.isEmpty {
+                                Text("\(state)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.white)
+                            }
                         }
                         .padding([.horizontal, .bottom])
                         
@@ -99,23 +118,19 @@ struct RestaurantProfileHeaderView: View {
                         
                     } label: {
                         if let street = restaurant.address, !street.isEmpty {
-                            VStack(alignment: .leading) {
-                                Text(street)
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                    .multilineTextAlignment(.leading)
-                                if let travelTime {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "car")
-                                        Text(" \(travelTime)")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.primary)
-                                       
+                            VStack(alignment: .leading){
+                                    if let travelTime {
+                                        HStack(spacing: 0){
+                                            Image(systemName: "car")
+                                            Text(" \(travelTime)")
+                                                .font(.subheadline)
+                                                .foregroundStyle(.primary)
+                                        }
                                     }
-                                    
-                                }
-                                Text("(Click to view on map)")
-                                    .font(.caption)
+                                
+                                    Text("(Click to view on map)")
+                                        .font(.caption)
+                                
                             }
                         }
                     }

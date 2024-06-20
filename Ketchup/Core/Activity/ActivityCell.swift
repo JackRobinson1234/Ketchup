@@ -11,42 +11,35 @@ import FirebaseFirestoreInternal
 struct ActivityCell: View {
     var activity: Activity
     @Environment(\.dismiss) var dismiss
-    @State var showPost: Bool = false
-    @State var showCollection: Bool = false
-    @State var showUserProfile: Bool = false
-    @State var showRestaurant = false
-    @State var post: Post?
-    @State var collection: Collection?
     @ObservedObject var viewModel: ActivityViewModel
-    @State var selectedRestaurantId: String? = nil
     @StateObject var collectionsViewModel: CollectionsViewModel = CollectionsViewModel(user: DeveloperPreview.user)
+    
     var body: some View {
         VStack {
             //MARK: newPost
             if activity.type == .newPost {
                 if let postType = activity.postType {
                     HStack {
-                        Button { 
-                            showUserProfile = true
+                        Button {
+                            viewModel.selectedUid = activity.uid
+                            viewModel.showUserProfile = true
                         } label: {
                             UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                         }
                         //MARK: Post: Restaurant
                         if postType == .dining {
-                
-                                VStack(alignment: .leading) {
-                                    Text("@\(activity.username) created a new restaurant post for: ")
-                                        .foregroundStyle(.primary)
-                                        .activityCellFontStyle() +
-                                    Text(activity.name)
-                                        .bold()
-                                        .activityCellFontStyle()
-                                    Text(getTimeElapsedString(from: activity.timestamp))
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                .multilineTextAlignment(.leading)
-                            
+                            VStack(alignment: .leading) {
+                                Text("@\(activity.username) created a new restaurant post for: ")
+                                    .foregroundStyle(.primary)
+                                    .activityCellFontStyle() +
+                                Text(activity.name)
+                                    .bold()
+                                    .activityCellFontStyle()
+                                Text(getTimeElapsedString(from: activity.timestamp))
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .multilineTextAlignment(.leading)
                         //MARK: Post: AtHome
                         } else if postType == .cooking {
                             VStack(alignment: .leading) {
@@ -70,10 +63,10 @@ struct ActivityCell: View {
                                 if let postId = activity.postId {
                                     Task {
                                         print("Fetching post with ID \(postId)")
-                                        self.post = try await PostService.shared.fetchPost(postId: postId)
-                                        if self.post != nil {
-                                            print("Fetched post: \(String(describing: self.post))")
-                                            showPost.toggle()
+                                        viewModel.post = try await PostService.shared.fetchPost(postId: postId)
+                                        if viewModel.post != nil {
+                                            print("Fetched post: \(String(describing: viewModel.post))")
+                                            viewModel.showPost.toggle()
                                         }
                                     }
                                 }
@@ -91,7 +84,10 @@ struct ActivityCell: View {
             //MARK: New Collection
             } else if activity.type == .newCollection {
                 HStack {
-                    Button { showUserProfile = true } label: {
+                    Button {
+                        viewModel.selectedUid = activity.uid
+                        viewModel.showUserProfile = true
+                    } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     VStack(alignment: .leading) {
@@ -118,11 +114,11 @@ struct ActivityCell: View {
                         Button {
                             Task {
                                 if let collectionId = activity.collectionId {
-                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = self.collection , viewModel.user != nil {
-                                        print("Fetched collection: \(String(describing: self.collection))")
+                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                                    if let collection = viewModel.collection , viewModel.user != nil {
+                                        print("Fetched collection: \(String(describing: viewModel.collection))")
                                         viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        showCollection.toggle()
+                                        viewModel.showCollection.toggle()
                                     }
                                 }
                             }
@@ -139,7 +135,10 @@ struct ActivityCell: View {
             //MARK: CollectionItem
             } else if activity.type == .newCollectionItem {
                 HStack {
-                    Button { showUserProfile = true } label: {
+                    Button {
+                        viewModel.selectedUid = activity.uid
+                        viewModel.showUserProfile = true
+                    } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     VStack(alignment: .leading) {
@@ -160,11 +159,11 @@ struct ActivityCell: View {
                         Button {
                             Task {
                                 if let collectionId = activity.collectionId {
-                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = self.collection, viewModel.user != nil {
+                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                                    if let collection = viewModel.collection, viewModel.user != nil {
                                         viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        print("Fetched collection: \(String(describing: self.collection))")
-                                        showCollection.toggle()
+                                        print("Fetched collection: \(String(describing: viewModel.collection))")
+                                        viewModel.showCollection.toggle()
                                     }
                                 }
                             }
@@ -179,11 +178,11 @@ struct ActivityCell: View {
                         Button {
                             Task {
                                 if let collectionId = activity.collectionId {
-                                    self.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = self.collection, viewModel.user != nil {
-                                        print("Fetched collection: \(String(describing: self.collection))")
+                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                                    if let collection = viewModel.collection, viewModel.user != nil {
+                                        print("Fetched collection: \(String(describing: viewModel.collection))")
                                         viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        showCollection.toggle()
+                                        viewModel.showCollection.toggle()
                                     }
                                     
                                 }
@@ -201,7 +200,9 @@ struct ActivityCell: View {
             //MARK: newReview
             } else if activity.type == .newReview {
                 HStack {
-                    Button { showUserProfile = true } label: {
+                    Button { viewModel.showUserProfile = true
+                        viewModel.selectedUid = activity.uid
+                    } label: {
                         UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                     }
                     if let text = activity.text {
@@ -243,9 +244,9 @@ struct ActivityCell: View {
                         if let restaurantId = activity.restaurantId {
                             Button {
                                 print("Setting selectedRestaurantId to \(restaurantId)")
-                                self.selectedRestaurantId = restaurantId
+                                viewModel.selectedRestaurantId = restaurantId
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    self.showRestaurant.toggle()
+                                    viewModel.showRestaurant.toggle()
                                 }
                             } label: {
                                 KFImage(URL(string: image))
@@ -261,42 +262,31 @@ struct ActivityCell: View {
             }
         }
         //MARK: Sheets
-        .sheet(isPresented: Binding(
-            get: { showPost && post != nil },
-            set: { showPost = $0 }
-        )) {
-            if let post = self.post {
-                let _ = print("Showing FeedView for post: \(post)")
+        .sheet(isPresented: $viewModel.showPost){
+            if let post = viewModel.post {
                 FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
             }
         }
-        .sheet(isPresented: Binding(
-            get: { showCollection && collection != nil },
-            set: { showCollection = $0 }
-        )) {
-            if  self.collection != nil {
+        .sheet(isPresented: $viewModel.showCollection) {
+            if let collection = viewModel.collection, let user = viewModel.user {
                 CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
             }
         }
-        .sheet(isPresented: Binding(
-            get: { showRestaurant && selectedRestaurantId != nil },
-            set: { showRestaurant = $0 }
-        )) {
-            if let selectedRestaurantId = selectedRestaurantId {
-                let _ = print("Showing RestaurantProfileView for \(selectedRestaurantId)")
-                NavigationStack {
+        .sheet(isPresented: $viewModel.showRestaurant){
+            if let selectedRestaurantId = viewModel.selectedRestaurantId {
+                NavigationStack{
                     RestaurantProfileView(restaurantId: selectedRestaurantId)
                 }
             }
         }
-        .sheet(isPresented: $showUserProfile) {
-            NavigationStack {
-                ProfileView(uid: activity.uid)
+        .sheet(isPresented: $viewModel.showUserProfile) {
+            if let selectedUid = viewModel.selectedUid {
+                NavigationStack{
+                    ProfileView(uid: selectedUid)
+                }
             }
         }
     }
-
-    
 }
 
 extension Text {
