@@ -19,7 +19,7 @@ struct ActivityCell: View {
             //MARK: newPost
             if activity.type == .newPost {
                 if let postType = activity.postType {
-                    HStack {
+                    HStack(alignment: .top){
                         Button {
                             viewModel.selectedUid = activity.uid
                             viewModel.showUserProfile = true
@@ -83,7 +83,7 @@ struct ActivityCell: View {
                 }
             //MARK: New Collection
             } else if activity.type == .newCollection {
-                HStack {
+                HStack(alignment: .top) {
                     Button {
                         viewModel.selectedUid = activity.uid
                         viewModel.showUserProfile = true
@@ -134,7 +134,7 @@ struct ActivityCell: View {
                 .padding()
             //MARK: CollectionItem
             } else if activity.type == .newCollectionItem {
-                HStack {
+                HStack (alignment: .top){
                     Button {
                         viewModel.selectedUid = activity.uid
                         viewModel.showUserProfile = true
@@ -199,7 +199,7 @@ struct ActivityCell: View {
                 .padding()
             //MARK: newReview
             } else if activity.type == .newReview {
-                HStack {
+                HStack (alignment: .top){
                     Button { viewModel.showUserProfile = true
                         viewModel.selectedUid = activity.uid
                     } label: {

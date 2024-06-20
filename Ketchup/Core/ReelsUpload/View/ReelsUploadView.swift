@@ -29,71 +29,71 @@ struct ReelsUploadView: View {
     }
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
-    
+    @EnvironmentObject var tabBarController: TabBarController
     var body: some View {
         ZStack {
             VStack {
                 HStack{
                     Spacer()
-                        Button {
-                            isPickingRestaurant = true
-                        } label: {
-                            if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil{
-                                VStack {
-                                    Image(systemName: "plus")
-                                        .font(.largeTitle) // Adjust the size as needed
-                                        .foregroundColor(Color("Colors/AccentColor"))
-                                    Text("Add a restaurant")
-                                        .foregroundColor(.primary)
-                                }
-                            } else if let restaurant = uploadViewModel.restaurant{
-                                VStack{
-                                    RestaurantCircularProfileImageView(imageUrl: uploadViewModel.restaurant?.profileImageUrl, size: .xLarge)
-                                    Text(restaurant.name)
-                                        .font(.title)
-                                    if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                                        Text("\(cuisine), \(price)")
-                                            .font(.caption)
-                                            .foregroundStyle(.primary)
-                                        
-                                        
-                                    } else if let cuisine = restaurant.cuisine {
-                                        Text(cuisine)
-                                            .font(.caption)
-                                            .foregroundStyle(.primary)
-                                        
-                                        
-                                    } else if let price = restaurant.price {
-                                        Text(price)
-                                            .font(.caption)
-                                            .foregroundStyle(.primary)
-                                    }
-                                    if let address = restaurant.address{
-                                        Text(address)
-                                            .font(.caption)
-                                            .foregroundStyle(.primary)
-                                    }
-                                    Text("Edit")
-                                        .foregroundStyle(Color("Colors/AccentColor"))
+                    Button {
+                        isPickingRestaurant = true
+                    } label: {
+                        if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil{
+                            VStack {
+                                Image(systemName: "plus")
+                                    .font(.largeTitle) // Adjust the size as needed
+                                    .foregroundColor(Color("Colors/AccentColor"))
+                                Text("Add a restaurant")
+                                    .foregroundColor(.primary)
+                            }
+                        } else if let restaurant = uploadViewModel.restaurant{
+                            VStack{
+                                RestaurantCircularProfileImageView(imageUrl: uploadViewModel.restaurant?.profileImageUrl, size: .xLarge)
+                                Text(restaurant.name)
+                                    .font(.title)
+                                if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                                    Text("\(cuisine), \(price)")
                                         .font(.caption)
+                                        .foregroundStyle(.primary)
                                     
-                                }
-                            } else if let request = uploadViewModel.restaurantRequest {
-                                VStack{
-                                    RestaurantCircularProfileImageView(size: .xLarge)
-                                    Text(request.name)
-                                        .font(.title)
-                                    Text("\(request.city), \(request.state)")
+                                    
+                                } else if let cuisine = restaurant.cuisine {
+                                    Text(cuisine)
                                         .font(.caption)
-                                    Text("(To be created)")
-                                        .foregroundStyle(.gray)
-                                        .font(.footnote)
-                                    Text("Edit")
-                                        .foregroundStyle(Color("Colors/AccentColor"))
+                                        .foregroundStyle(.primary)
+                                    
+                                    
+                                } else if let price = restaurant.price {
+                                    Text(price)
                                         .font(.caption)
+                                        .foregroundStyle(.primary)
                                 }
+                                if let address = restaurant.address{
+                                    Text(address)
+                                        .font(.caption)
+                                        .foregroundStyle(.primary)
+                                }
+                                Text("Edit")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.caption)
+                                
+                            }
+                        } else if let request = uploadViewModel.restaurantRequest {
+                            VStack{
+                                RestaurantCircularProfileImageView(size: .xLarge)
+                                Text(request.name)
+                                    .font(.title)
+                                Text("\(request.city), \(request.state)")
+                                    .font(.caption)
+                                Text("(To be created)")
+                                    .foregroundStyle(.gray)
+                                    .font(.footnote)
+                                Text("Edit")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.caption)
                             }
                         }
+                    }
                     //}
                     Spacer()
                     if uploadViewModel.mediaType == "video" {
@@ -123,6 +123,15 @@ struct ReelsUploadView: View {
                             .padding(.horizontal, 20)
                             .background(Color.white)
                             .cornerRadius(5)
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") {
+                                        dismissKeyboard()
+                                    }
+                                }
+                            }
+
                         
                         if uploadViewModel.caption.isEmpty {
                             Text("Enter a caption...")
@@ -148,30 +157,30 @@ struct ReelsUploadView: View {
                 }
                 Divider()
                 
-                    HStack(spacing: 20) {
-                        Button(action: { uploadViewModel.recommend = true }) {
-                            VStack {
-                                Image(systemName: "heart")
-                                    .foregroundColor(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
-                                    .font(.title)
-                                Text("Recommend")
-                                    .font(.caption)
-                                    .foregroundStyle(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
-                            }
-                        }
-                        
-                        Button(action: { uploadViewModel.recommend = false }) {
-                            VStack {
-                                Image(systemName: "heart.slash")
-                                    .foregroundColor(uploadViewModel.recommend == false ? .primary : .gray)
-                                    .font(.title)
-                                Text("Don't Recommend")
-                                    .font(.caption)
-                                    .foregroundStyle(uploadViewModel.recommend == false ? .black : .gray)
-                            }
+                HStack(spacing: 20) {
+                    Button(action: { uploadViewModel.recommend = true }) {
+                        VStack {
+                            Image(systemName: "heart")
+                                .foregroundColor(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
+                                .font(.title)
+                            Text("Recommend")
+                                .font(.caption)
+                                .foregroundStyle(uploadViewModel.recommend == true ? Color("Colors/AccentColor") : .gray)
                         }
                     }
-                    .padding(20)
+                    
+                    Button(action: { uploadViewModel.recommend = false }) {
+                        VStack {
+                            Image(systemName: "heart.slash")
+                                .foregroundColor(uploadViewModel.recommend == false ? .primary : .gray)
+                                .font(.title)
+                            Text("Don't Recommend")
+                                .font(.caption)
+                                .foregroundStyle(uploadViewModel.recommend == false ? .black : .gray)
+                        }
+                    }
+                }
+                .padding(20)
                 //}
                 Spacer()
                 Button {
@@ -189,6 +198,7 @@ struct ReelsUploadView: View {
                             await uploadViewModel.uploadPost()
                             uploadViewModel.reset()
                             cameraViewModel.reset()
+                            tabBarController.selectedTab = 0
                         }
                     }
                 } label: {
@@ -202,7 +212,7 @@ struct ReelsUploadView: View {
                         }
                 }
                 .opacity(uploadViewModel.postType == .cooking && titleText.isEmpty ? 0.5 : 1.0)
-
+                
                 .opacity(uploadViewModel.postType == .dining && (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
                 .alert(isPresented: $showAlert) {
                     Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -210,44 +220,9 @@ struct ReelsUploadView: View {
             }
             
             .padding()
-            //.blur(radius: showPostTypeMenu ? 10 : 0)
-            
-//            if showPostTypeMenu {
-//                PostTypeMenuView(uploadViewModel: uploadViewModel, showPostTypeMenu: $showPostTypeMenu)
-//            }
         }
-        //.navigationBarHidden(showPostTypeMenu)
-        //.navigationTitle(uploadViewModel.postType?.postTypeTitle ?? "Select a Post Type")
         .navigationBarTitleDisplayMode(.inline)
-//        .toolbarTitleMenu {
-//            ForEach(postTypeOptions, id: \.self) { posttype in
-//                Button {
-//                    uploadViewModel.postType = posttype
-//                } label: {
-//                    if uploadViewModel.postType == posttype {
-//                        HStack {
-//                            Text(posttype == .cooking ? "Cooking" : "Dining")
-//                                .foregroundColor(.primary)
-//                                .frame(maxWidth: .infinity, alignment: .center)
-//                                .padding()
-//                            
-//                            Spacer()
-//                            
-//                            Image(systemName: "checkmark")
-//                                .foregroundColor(.primary)
-//                                .frame(maxWidth: .infinity, alignment: .center)
-//                                .padding()
-//                        }
-//                    } else {
-//                        Text(posttype.postTypeTitle)
-//                            .foregroundColor(.primary)
-//                            .frame(maxWidth: .infinity, alignment: .center)
-//                            .padding()
-//                        
-//                    }
-//                }
-//            }
-//        }
+
         .toolbarBackground(.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .preferredColorScheme(.light)

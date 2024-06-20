@@ -29,6 +29,7 @@ struct CaptionBox: View {
                             isEditingCaption = true // Activate editing mode
                         }
                     
+                    
                     if caption.isEmpty {
                         Text(title)
                             .foregroundColor(.gray)
@@ -51,7 +52,3 @@ struct CaptionBox: View {
     }
 }
 
-
-//#Preview {
-//    CaptionBox()
-//}

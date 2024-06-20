@@ -23,15 +23,15 @@ struct AddRestaurantView: View {
             ScrollView {
                 VStack {
                     
-                        TextField("Restaurant Name", text: $name)
-                            .padding()
-                        Divider()
-                        TextField("City", text: $city)
-                            .padding()
-                        Divider()
-                        TextField("State", text: $state)                            .padding()
-                        Divider()
-                        
+                    TextField("Restaurant Name", text: $name)
+                        .padding()
+                    Divider()
+                    TextField("City", text: $city)
+                        .padding()
+                    Divider()
+                    TextField("State", text: $state)                            .padding()
+                    Divider()
+                    
                     
                     Button {
                         if isSubmitButtonDisabled {
@@ -48,10 +48,10 @@ struct AddRestaurantView: View {
                     .opacity(isSubmitButtonDisabled ? 0.5 : 1.0)
                     .padding()
                     .alert("Missing Fields", isPresented: $showAlert) {
-                                            Button("OK", role: .cancel) { }
-                                        } message: {
-                                            Text("Please fill out all required fields before submitting.")
-                                        }
+                        Button("OK", role: .cancel) { }
+                    } message: {
+                        Text("Please fill out all required fields before submitting.")
+                    }
                     Text("The Ketchup team will update your restaurant profile request within 48 hours! Your post can still be posted now.")
                         .font(.footnote)
                         .padding(.horizontal)
@@ -67,22 +67,22 @@ struct AddRestaurantView: View {
     func submitRestaurantDetails() {
         
         let newRestaurantRequest = RestaurantRequest(
-                id: UUID().uuidString,
-                userid: Auth.auth().currentUser!.uid,  // Replace with actual user ID
-                name: name,
-                state: state,
-                city: city,
-                timestamp: Timestamp(),
-                postType: "Post"
-            )
+            id: UUID().uuidString,
+            userid: Auth.auth().currentUser!.uid,  // Replace with actual user ID
+            name: name,
+            state: state,
+            city: city,
+            timestamp: Timestamp(),
+            postType: "Post"
+        )
         uploadViewModel.restaurantRequest = newRestaurantRequest
         uploadViewModel.restaurant = nil
         // Implement the logic to save this newRestaurant to your database
     }
     private var isSubmitButtonDisabled: Bool {
-           // Check if any of the required fields are empty
-           name.isEmpty || city.isEmpty || state.isEmpty
-       }
+        // Check if any of the required fields are empty
+        name.isEmpty || city.isEmpty || state.isEmpty
+    }
 }
 
 #Preview{
