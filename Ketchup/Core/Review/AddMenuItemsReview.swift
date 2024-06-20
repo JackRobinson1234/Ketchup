@@ -49,7 +49,16 @@ struct AddMenuItemsReview: View {
             HStack {
                 TextField("Add a favorite menu item", text: $favoriteMenuItem, onCommit: {
                     addItem()
+                    
                 })
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            dismissKeyboard()
+                        }
+                    }
+                }
                 
                 
                 .frame(height:44)

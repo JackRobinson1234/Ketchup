@@ -49,9 +49,9 @@ struct RestaurantReviewSelector: View {
                     Text("No results found")
                 })
             }
-            .navigationDestination(for: Restaurant.self) { restaurant in
-                CreateReviewView(viewModel: reviewsViewModel, restaurant: restaurant)
-            }
+//            .navigationDestination(for: Restaurant.self) { restaurant in
+//                UploadWrittenReviewView(reviewViewModel: reviewsViewModel, restaurant: restaurant, setRestaurant: true)
+//            }
             .navigationTitle("Write a Review")
             .searchable(text: $viewModel.searchQuery,
                         prompt: "Search")

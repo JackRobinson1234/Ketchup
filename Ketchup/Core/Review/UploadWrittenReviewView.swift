@@ -21,11 +21,13 @@ struct UploadWrittenReviewView: View {
     private let maxFavoriteMenuItems = 5
     @State var editedReview = false
     @State var isPickingRestaurant = false
+    @State var setRestaurant = false
     private var canPostReview: Bool {
         return !description.isEmpty && recommend != nil
     }
     @Environment(\.dismiss) var dismiss
     @State var changeTab: Bool = false
+    @State var pickingFavorites: Bool = false
     
     var body: some View {
         ZStack {
@@ -74,11 +76,15 @@ struct UploadWrittenReviewView: View {
                                     .foregroundStyle(.primary)
                                     .font(.caption)
                             }
-                            Text("Edit")
-                                .foregroundStyle(Color("Colors/AccentColor"))
-                                .font(.caption)
+                            if !setRestaurant {
+                                Text("Edit")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.caption)
+                            }
                         }
+                        
                     }
+                    .disabled(setRestaurant)
                 } else {
                     Button {
                         isPickingRestaurant = true
@@ -151,7 +157,7 @@ struct UploadWrittenReviewView: View {
                             
                             if !description.isEmpty, editedReview == true {
                                 
-                                NavigationLink(destination: AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)) {
+                                Button{pickingFavorites = true} label: {
                                     HStack {
                                         Image(systemName: "fork.knife.circle")
                                             .foregroundStyle(.black)
@@ -224,7 +230,12 @@ struct UploadWrittenReviewView: View {
             }
             
         }
-
+        .sheet(isPresented: $pickingFavorites){
+            NavigationStack{
+                AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)
+            }
+            .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
+        }
         .onChange(of: description) {
             Debouncer(delay: 0.3).schedule{
                 editedReview = true

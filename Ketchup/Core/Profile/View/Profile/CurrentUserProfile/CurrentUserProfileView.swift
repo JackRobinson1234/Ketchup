@@ -22,19 +22,19 @@ struct CurrentUserProfileView: View {
                     self.dragDirection = "left"
                     if currentProfileSection == .reviews{
                         currentProfileSection = .posts
-                    } else if currentProfileSection == .likes{
-                        currentProfileSection = .reviews
                     } else if currentProfileSection == .collections{
-                        currentProfileSection = .likes
+                        currentProfileSection = .reviews
+                    } else if currentProfileSection == .likes{
+                        currentProfileSection = .collections
                     }
                 } else {
                         self.dragDirection = "right"
                         if currentProfileSection == .posts {
                             currentProfileSection = .reviews
                         } else if currentProfileSection == .reviews{
-                            currentProfileSection = .likes
-                        } else if currentProfileSection == .likes{
                             currentProfileSection = .collections
+                        } else if currentProfileSection == .collections{
+                            currentProfileSection = .likes
                         }
                         self.isDragging = false
                     }

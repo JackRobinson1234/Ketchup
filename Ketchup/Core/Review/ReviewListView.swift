@@ -64,20 +64,19 @@ struct ReviewListView: View {
                 }
             }
         }
-        .sheet(isPresented: $showAddReview) {
+        .fullScreenCover(isPresented: $showAddReview) {
             NavigationStack{
-                CreateReviewView(viewModel: viewModel)
+                UploadWrittenReviewView(reviewViewModel: viewModel, setRestaurant: true)
             }
         }
-        .sheet(isPresented: $showRestaurantSelector) {
+        .fullScreenCover(isPresented: $showRestaurantSelector) {
+            NavigationStack{
                 UploadWrittenReviewView(reviewViewModel: viewModel)
-                
-                //            RestaurantReviewSelector(reviewsViewModel: viewModel)
-                    .onDisappear{
-                        viewModel.selectedRestaurant = nil
-                    }
                     
-            
+            }
+            .onDisappear{
+                viewModel.selectedRestaurant = nil
+            }
         }
     }
 }

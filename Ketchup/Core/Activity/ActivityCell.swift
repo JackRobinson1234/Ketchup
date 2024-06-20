@@ -299,24 +299,24 @@ extension Text {
 func getTimeElapsedString(from timestamp: Timestamp) -> String {
     let calendar = Calendar.current
     let now = Date()
+    let date = timestamp.dateValue()
     
-    if calendar.isDateInToday(timestamp.dateValue()) {
-        let components = calendar.dateComponents([.hour, .minute], from: timestamp.dateValue(), to: now)
-        if let hours = components.hour, hours > 0 {
-            return "\(hours)h ago"
-        } else if let minutes = components.minute, minutes > 5 {
-            return "\(minutes)m ago"
+    let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date, to: now)
+    
+    if let year = components.year, year > 0 {
+        return "\(year)y ago"
+    } else if let month = components.month, month > 0 {
+        return "\(month)mo ago"
+    } else if let day = components.day, day > 0 {
+        if day == 1 {
+            return "Yesterday"
         }
-        return "Just now"
-    } else if calendar.isDateInYesterday(timestamp.dateValue()) {
-        return "Yesterday"
+        return "\(day)d ago"
+    } else if let hour = components.hour, hour > 0 {
+        return "\(hour)h ago"
+    } else if let minute = components.minute, minute > 0 {
+        return "\(minute)m ago"
     } else {
-        let components = calendar.dateComponents([.day, .weekOfYear], from: timestamp.dateValue(), to: now)
-        if let days = components.day, days > 0 {
-            return "\(days)d ago"
-        } else if let weeks = components.weekOfYear, weeks > 0 {
-            return "\(weeks)w ago"
-        }
+        return "Just now"
     }
-    return ""
 }

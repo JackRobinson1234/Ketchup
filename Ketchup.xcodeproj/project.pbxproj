@@ -25,7 +25,6 @@
 		F846F4582BFBF66B009D1303 /* ReviewListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4572BFBF66B009D1303 /* ReviewListView.swift */; };
 		F846F45A2BFBF6EC009D1303 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */; };
 		F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45B2BFBF708009D1303 /* ReviewService.swift */; };
-		F846F45E2BFBFBE3009D1303 /* CreateReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */; };
 		F846F4602BFC500B009D1303 /* AddMenuItemsReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */; };
 		F846F4622BFD1459009D1303 /* ReviewOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */; };
 		F846F4642BFD16F3009D1303 /* CommentOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */; };
@@ -259,7 +258,6 @@
 		F846F4572BFBF66B009D1303 /* ReviewListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListView.swift; sourceTree = "<group>"; };
 		F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
 		F846F45B2BFBF708009D1303 /* ReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewService.swift; sourceTree = "<group>"; };
-		F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateReviewView.swift; sourceTree = "<group>"; };
 		F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMenuItemsReview.swift; sourceTree = "<group>"; };
 		F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentOptionsSheet.swift; sourceTree = "<group>"; };
@@ -571,7 +569,6 @@
 				F846F4552BFBDB57009D1303 /* ReviewCell.swift */,
 				F846F4572BFBF66B009D1303 /* ReviewListView.swift */,
 				F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */,
-				F846F45D2BFBFBE3009D1303 /* CreateReviewView.swift */,
 				F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */,
 				F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */,
 				F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */,
@@ -1844,7 +1841,6 @@
 				F88E0A832B6B00F600EC159B /* UserCircularImageProfileView.swift in Sources */,
 				F88E0A7E2B6AFFBE00EC159B /* RestaurantCircularProfileView.swift in Sources */,
 				F88E0B302B6CA0C700EC159B /* StandardBackButtonModifier.swift in Sources */,
-				F846F45E2BFBFBE3009D1303 /* CreateReviewView.swift in Sources */,
 				F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */,
 				F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,

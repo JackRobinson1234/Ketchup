@@ -59,13 +59,19 @@ struct CollectionView: View {
                             Text(collection.name)
                                 .font(.title)
                                 .bold()
+                                .foregroundStyle(.primary)
                             //MARK: UserName
                             Text("by: @\(collection.username)")
-                                .font(.title3)
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                             if let description = collection.description {
-                                Text(description)
-                                    .font(.subheadline)
-                                    .padding(.horizontal    )
+                                VStack{
+                                    Text(description)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary)
+                                }
+                                .frame(width: UIScreen.main.bounds.width * 3 / 4)
+                                      
                             }
                             // MARK: Grid View
                             HStack(spacing: 0) {
@@ -130,6 +136,7 @@ struct CollectionView: View {
                                     } label: {
                                         Text("Edit")
                                             .padding()
+                                            .foregroundStyle(.primary)
                                     }
                                 } else {
                                     Button {
