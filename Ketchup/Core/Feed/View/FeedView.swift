@@ -18,38 +18,29 @@ struct FeedView: View {
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
     @State var pauseVideo = false
-    private var posts: [Post]
-    private var earlyPosts: [Post]
     @StateObject var filtersViewModel: FiltersViewModel
     @Environment(\.dismiss) var dismiss
     private var hideFeedOptions: Bool
     @State var startingPostId: String?
     private var titleText: String
-    
-    
-    
-    // Initialize with an optional startingPostId
-    init(videoCoordinator: VideoPlayerCoordinator, posts: [Post] = [], earlyPosts: [Post] = [], hideFeedOptions: Bool = false, startingPostId: String? = nil, initialScrollPosition: String? = nil, titleText: String = "") {
+
+    // Initialize with a FeedViewModel instance
+    init(videoCoordinator: VideoPlayerCoordinator, viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
         self.videoCoordinator = videoCoordinator
-        let viewModel = FeedViewModel(posts: posts, startingPostId: startingPostId ?? "", earlyPosts: earlyPosts)
         self._viewModel = StateObject(wrappedValue: viewModel)
-        self.posts = posts
-        self.earlyPosts = posts
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
         self._scrollPosition = State(initialValue: initialScrollPosition)
         self.titleText = titleText
-        self.startingPostId = startingPostId
-        
-        
+        self.startingPostId = viewModel.startingPostId
     }
-    
+
     
     
     
     var body: some View {
         /// Loading screen will only appear when the app first opens and will fetch posts
-        if isLoading && posts.isEmpty{
+        if isLoading && viewModel.posts.isEmpty{
             // Loading screen
             ProgressView("Loading...")
                 .onAppear {
@@ -324,7 +315,7 @@ struct FeedView: View {
 
 
 #Preview {
-    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: DeveloperPreview.posts)
+    FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: FeedViewModel())
 }
 
 

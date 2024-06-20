@@ -35,7 +35,10 @@ class UploadViewModel: ObservableObject {
     @Published var restaurantRequest: RestaurantRequest?
     private var uploadService = UploadService()
     @Published var recommend: Bool?
-    
+    @ObservedObject var feedViewModel: FeedViewModel
+    init(feedViewModel: FeedViewModel) {
+           self.feedViewModel = feedViewModel
+       }
     func reset() {
         isLoading = false
         error = nil
@@ -131,7 +134,7 @@ class UploadViewModel: ObservableObject {
         if recipeTitle.isEmpty {
             cookingTitle = nil
         }
-        
+        var post: Post? = nil
         do {
             if let postType = postType {
                 if mediaType == "video" {
@@ -139,7 +142,7 @@ class UploadViewModel: ObservableObject {
                         throw UploadError.invalidMediaData
                     }
                     
-                    try await uploadService.uploadPost(videoURL: videoURL,
+                    post = try await uploadService.uploadPost(videoURL: videoURL,
                                                        images: nil,
                                                        mediaType: mediaType,
                                                        caption: caption,
@@ -153,7 +156,7 @@ class UploadViewModel: ObservableObject {
                     guard let images = images else {
                         throw UploadError.invalidMediaData
                     }
-                    try await uploadService.uploadPost(videoURL: nil,
+                    post = try await uploadService.uploadPost(videoURL: nil,
                                                        images: images,
                                                        mediaType: mediaType,
                                                        caption: caption,
@@ -171,6 +174,10 @@ class UploadViewModel: ObservableObject {
         } catch {
             self.error = error
             uploadFailure = true
+        }
+        if let post {
+            feedViewModel.feedViewOption = .grid
+            feedViewModel.posts.insert(post, at: 0)
         }
         isLoading = false
     }

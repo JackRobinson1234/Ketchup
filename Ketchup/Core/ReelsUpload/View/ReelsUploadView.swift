@@ -30,6 +30,8 @@ struct ReelsUploadView: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @EnvironmentObject var tabBarController: TabBarController
+    
+    
     var body: some View {
         ZStack {
             VStack {
@@ -251,9 +253,9 @@ struct ReelsUploadView: View {
     
 }
 
-#Preview {
-    ReelsUploadView(uploadViewModel: UploadViewModel(), cameraViewModel: CameraViewModel())
-}
+//#Preview {
+//    ReelsUploadView(uploadViewModel: UploadViewModel(), cameraViewModel: CameraViewModel())
+//}
 
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

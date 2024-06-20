@@ -21,19 +21,20 @@ import UniformTypeIdentifiers
 
 
 struct CameraView: View {
-    
     @StateObject var cameraViewModel = CameraViewModel()
-    
-    @StateObject var uploadViewModel = UploadViewModel()
-    
-    @StateObject var reviewsViewModel = ReviewsViewModel()
-    
-    @EnvironmentObject var tabBarController: TabBarController
-    
-    @State private var selectedCamTab = 0
-    
-    @State var dragDirection = "left"
-    @State var isDragging = false
+        @StateObject var reviewsViewModel = ReviewsViewModel()
+        @EnvironmentObject var tabBarController: TabBarController
+        @ObservedObject var feedViewModel: FeedViewModel
+        @StateObject var uploadViewModel: UploadViewModel
+        
+        @State private var selectedCamTab = 0
+        @State var dragDirection = "left"
+        @State var isDragging = false
+        
+        init(feedViewModel: FeedViewModel) {
+            _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
+            _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
+        }
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)

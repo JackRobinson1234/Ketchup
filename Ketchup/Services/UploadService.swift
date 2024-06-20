@@ -11,7 +11,7 @@ import SwiftUI
 
 struct UploadService {
     
-    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: PostType, postRestaurant: PostRestaurant?, recipe: PostRecipe?, fromInAppCamera: Bool, cookingTitle: String?, recommendation: Bool?) async throws {
+    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: PostType, postRestaurant: PostRestaurant?, recipe: PostRecipe?, fromInAppCamera: Bool, cookingTitle: String?, recommendation: Bool?)  async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
         
@@ -75,7 +75,7 @@ struct UploadService {
         // Set the post data in Firestore
         try await ref.setData(postData)
         print("Post created successfully")
-        
+        return post
 
         // Update the thumbnail after the post is created if it's a video
     }

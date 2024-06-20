@@ -167,7 +167,7 @@ struct EditInstructionsView: View {
     }
 }
 
-#Preview {
-    EditInstructionsView(uploadViewModel: UploadViewModel())
-}
+//#Preview {
+//    EditInstructionsView(uploadViewModel: UploadViewModel())
+//}
 

@@ -11,16 +11,11 @@ struct MainTabView: View {
     @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     @EnvironmentObject var tabBarController: TabBarController
-//    var alertValue: Int {
-//        if let alert = AuthService.shared.userSession?.notificationAlert, alert == true {
-//            return 0
-//        } else {
-//            return 1
-//        }
-//    }
+    @StateObject var feedViewModel = FeedViewModel()
+
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            FeedView(videoCoordinator: videoCoordinator)
+            FeedView(videoCoordinator: videoCoordinator, viewModel: feedViewModel)
                 .tabItem {
                     
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
@@ -58,7 +53,7 @@ struct MainTabView: View {
                 
                 .toolbar(tabBarController.visibility, for: .tabBar)
       
-            CameraView()
+            CameraView(feedViewModel: feedViewModel)
                 .tabItem {
                     Image(systemName: "plus.app")
                         .foregroundStyle(.primary)

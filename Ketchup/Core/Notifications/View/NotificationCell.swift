@@ -137,7 +137,8 @@ struct NotificationCell: View {
             NavigationStack {
                 if let post = post {
                     let _ = print("Showing FeedView for post: \(post)")
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+                    let feedViewModel = FeedViewModel(posts: [post])
+                    FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: feedViewModel, hideFeedOptions: true)
                 }
             }
         }

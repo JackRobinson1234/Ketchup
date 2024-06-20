@@ -42,7 +42,8 @@ struct PostListView: View {
                 }
             }
             .sheet(item: $selectedPost) { post in
-                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+                let feedViewModel = FeedViewModel(posts: [post])
+                FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: feedViewModel, hideFeedOptions: true)
                     .onDisappear {
                         //player.replaceCurrentItem(with: nil)
                     }

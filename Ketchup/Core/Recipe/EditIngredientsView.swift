@@ -136,6 +136,6 @@ struct EditIngredientsView: View {
     }
 }
 
-#Preview {
-    EditIngredientsView(uploadViewModel: UploadViewModel())
-}
+//#Preview {
+//    EditIngredientsView(uploadViewModel: UploadViewModel())
+//}

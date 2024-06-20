@@ -112,6 +112,6 @@ struct CollectionAddRestaurantView: View {
     }
 }
 
-#Preview{
-    AddRestaurantView(uploadViewModel: UploadViewModel(), dismissRestaurantList: .constant(true))
-}
+//#Preview{
+//    AddRestaurantView(uploadViewModel: UploadViewModel(), dismissRestaurantList: .constant(true))
+//}

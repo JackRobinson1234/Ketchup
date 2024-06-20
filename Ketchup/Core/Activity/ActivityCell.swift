@@ -264,7 +264,8 @@ struct ActivityCell: View {
         //MARK: Sheets
         .sheet(isPresented: $viewModel.showPost){
             if let post = viewModel.post {
-                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
+                let feedViewModel = FeedViewModel(posts: [post])
+                FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: feedViewModel, hideFeedOptions: true)
             }
         }
         .sheet(isPresented: $viewModel.showCollection) {

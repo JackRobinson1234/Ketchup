@@ -106,7 +106,8 @@ struct PostGridView: View {
                         if let index = posts.firstIndex(where: { $0.id == post.id }) {
                             let earlyPosts = Array(posts[..<index])
                             let laterPosts = Array(posts[index...])
-                            FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: laterPosts, earlyPosts: earlyPosts, hideFeedOptions: true, startingPostId: post.id, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
+                            let feedViewModel = FeedViewModel(posts: laterPosts, startingPostId: post.id, earlyPosts: earlyPosts)
+                            FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
                         }
                     }
                 }
