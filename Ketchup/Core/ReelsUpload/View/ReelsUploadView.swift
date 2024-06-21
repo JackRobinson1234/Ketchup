@@ -249,17 +249,12 @@ struct ReelsUploadView: View {
                     Divider()
                     Spacer()
                     Button {
-                        if uploadViewModel.postType == .cooking && titleText.isEmpty {
-                            alertMessage = "Please add a title for your post."
-                            showAlert = true
-                        } else if uploadViewModel.postType == .dining && (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
+                        if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
                             alertMessage = "Please select a restaurant."
                             showAlert = true
                         } else {
                             Task {
-                                if uploadViewModel.postType == .cooking {
-                                    uploadViewModel.recipeTitle = titleText
-                                }
+                                
                                 await uploadViewModel.uploadPost()
                                 uploadViewModel.reset()
                                 cameraViewModel.reset()
@@ -276,8 +271,8 @@ struct ReelsUploadView: View {
                                 }
                             }
                     }
-                    .opacity(uploadViewModel.postType == .cooking && titleText.isEmpty ? 0.5 : 1.0)
-                    .opacity(uploadViewModel.postType == .dining && (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
+                   
+                    .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
                     .alert(isPresented: $showAlert) {
                         Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                     }

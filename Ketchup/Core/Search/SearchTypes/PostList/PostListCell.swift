@@ -21,7 +21,7 @@ struct PostListCell: View {
                 .clipped()
             
             //MARK: Restaurant Info
-            if post.postType == .dining, let restaurant = post.restaurant{
+            if let restaurant = post.restaurant{
                 VStack(alignment: .leading) {
                     Text(restaurant.name)
                         .font(.subheadline)
@@ -30,7 +30,7 @@ struct PostListCell: View {
                     Text("by \(post.user.fullname)")
                         .font(.caption)
                         .foregroundStyle(.primary)
-                    if let cuisine = post.cuisine {
+                    if let cuisine = restaurant.cuisine {
                         Text(cuisine)
                             .font(.footnote)
                             .foregroundStyle(.primary)
@@ -43,24 +43,6 @@ struct PostListCell: View {
                 }
                 .foregroundStyle(.primary)
                 
-            }
-            //MARK: Recipe Info
-            else if post.postType == .cooking {
-                VStack(alignment: .leading) {
-                    if let recipe = post.cookingTitle {
-                        Text(recipe)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                    Text("by \(post.user.fullname)")
-                        .foregroundStyle(.primary)
-                        .font(.caption)
-                    if let cuisine = post.cuisine {
-                        Text(cuisine)
-                            .font(.footnote)
-                            .foregroundStyle(.primary)
-                    }
-                }
             }
             Spacer()
             //MARK: Right Arrow

@@ -71,15 +71,7 @@ struct FeedGridView: View {
                                                     .bold()
                                                     .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                             }
-                                            else if let recipe = post.cookingTitle {
-                                                Text("\(recipe)")
-                                                    .lineLimit(2)
-                                                    .truncationMode(.tail)
-                                                    .foregroundColor(.white)
-                                                    .font(.footnote)
-                                                    .bold()
-                                                    .shadow(color: .primary, radius: 2, x: 0, y: 1)
-                                            }
+                                           
                                         }
                                         
                                         Spacer()
@@ -87,9 +79,6 @@ struct FeedGridView: View {
                                     
                                 }
                                     .padding(4)
-                                //                                    .background(LinearGradient(gradient: Gradient(colors: [.primary.opacity(0.3), .clear, .clear, .primary.opacity(0.3)]),
-                                //                                                               startPoint: .top,
-                                //                                                               endPoint: .bottom))
                                     .onTapGesture {
                                         selectedPost = post
                                     }
@@ -115,21 +104,10 @@ struct FeedGridView: View {
                         .cornerRadius(cornerRadius)
                     
                 }
-                //                ProgressView()
-                //                    .frame(width: width, height: 160)
-                //                    .onAppear{
-                //                        Task {
-                //                            await loadNextPageIfNeeded()
-                //                        }
-                //                    }
+
             }
             .padding(spacing/2)
-//            .sheet(item: $selectedPost) { post in
-//                FeedView(videoCoordinator: VideoPlayerCoordinator(), posts: [post], hideFeedOptions: true)
-//                    .onDisappear {
-//                        //player.replaceCurrentItem(with: nil)
-//                    }
-//            }
+
         }
     }
 }

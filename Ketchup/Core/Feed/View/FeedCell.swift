@@ -173,45 +173,6 @@ struct FeedCell: View {
                                         }
                                         
                                     }
-                                    //MARK: Recipe Scenario
-                                } else if let recipe = post.cookingTitle{
-                                    VStack (alignment: .leading) {
-                                        HStack(){
-                                            if post.recipe != nil{
-                                                Button{
-                                                    showRecipe.toggle()
-                                                } label: {
-                                                    VStack(spacing: 0){
-                                                        Image("WhiteChefHat")
-                                                            .resizable()
-                                                            .scaledToFit()
-                                                            .frame(width: 60, height: 60)
-                                                    }
-                                                }
-                                            }
-                                            VStack(alignment: .leading){
-                                                //MARK: recipe fullname
-                                                Button{
-                                                    showRecipe.toggle()
-                                                } label: {
-                                                    Text("\(recipe)")
-                                                        .font(.title3)
-                                                        .bold()
-                                                        .multilineTextAlignment(.leading)
-                                                        .foregroundStyle(.white)
-                                                }
-                                                NavigationLink(value: post.user) {
-                                                    Text("by \(post.user.fullname)")
-                                                        .font(.subheadline)
-                                                        .fontWeight(.semibold)
-                                                        .foregroundStyle(.white)
-                                                        .bold()
-                                                        .multilineTextAlignment(.leading)
-                                                }
-                                            }
-                                        }
-                                       
-                                    }
                                 }
                             }
                             
@@ -342,18 +303,7 @@ struct FeedCell: View {
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
                                 }
-                                else if post.recipe != nil {
-                                    Button{
-                                        showRecipe.toggle()
-                                        Task{
-                                            videoCoordinator.pause()
-                                        }
-                                    } label: {
-                                        Text("View Recipe")
-                                    }
-                                    .modifier(StandardButtonModifier(width: 175))
-                                    
-                                }
+                                
                             }
                         }
                         

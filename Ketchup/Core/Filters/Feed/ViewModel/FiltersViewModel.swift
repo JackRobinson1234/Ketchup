@@ -47,12 +47,6 @@ class FiltersViewModel: ObservableObject {
             filters["restaurant.cuisine"] = selectedCuisines
         }
         /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
-        let selectedPostTypes = updateSelectedPostTypes()
-        if selectedPostTypes.isEmpty {
-            filters.removeValue(forKey: "postType")
-        } else {
-            filters["postType"] = selectedPostTypes
-        }
         
         if selectedLocation.isEmpty {
             filters.removeValue(forKey: "location")
@@ -67,39 +61,13 @@ class FiltersViewModel: ObservableObject {
             filters["restaurant.price"] = selectedPrice
         }
         ///Dietary checking if there are any selected
-        if selectedDietary.isEmpty {
-            filters.removeValue(forKey: "recipe.dietary")
-        } else {
-            filters["recipe.dietary"] = selectedDietary
-        }
-        /// Cooking Time checking if there are any selected
-        if selectedCookingTime.isEmpty {
-            filters.removeValue(forKey: "recipe.cookingTime")
-        } else {
-            filters["recipe.cookingTime"] = selectedCookingTime
-        }
         print("Filters", filters)
         await feedViewModel.fetchInitialPosts(withFilters: self.filters)
     }
     
     //MARK: update selected posts
     /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
-    func updateSelectedPostTypes() -> [Int] {
-        if restaurantChecked && atHomeChecked {
-            /// If all postType toggles are on, make selectedPosts a blank array
-            return []
-        }
-        else {
-            var updatedPostTypes: [Int] = []
-            if restaurantChecked {
-                updatedPostTypes.append(0)
-            }
-            if atHomeChecked {
-                updatedPostTypes.append(1)
-            }
-            return updatedPostTypes
-        }
-    }
+    
     
     func clearFilters() {
         selectedCuisines = []
