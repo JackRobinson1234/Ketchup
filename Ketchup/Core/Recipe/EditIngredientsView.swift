@@ -135,7 +135,3 @@ struct EditIngredientsView: View {
         isSaveButtonEnabled = !quantityInput.isEmpty && !ingredientInput.isEmpty && uploadViewModel.ingredients.count < 15
     }
 }
-
-//#Preview {
-//    EditIngredientsView(uploadViewModel: UploadViewModel())
-//}

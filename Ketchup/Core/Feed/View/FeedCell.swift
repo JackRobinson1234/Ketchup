@@ -217,14 +217,15 @@ struct FeedCell: View {
                             
                             
                             //MARK: caption
-                            Text(post.caption)
-                                .lineLimit(expandCaption ? 50 : 1)
-                                .font(.subheadline)
                             if let timestamp = post.timestamp{
                                 Text(getTimeElapsedString(from: timestamp))
                                     .font(.caption)
                                     .foregroundColor(Color("Colors/HingeGray"))
                             }
+                            Text(post.caption)
+                                .lineLimit(expandCaption ? 50 : 1)
+                                .font(.subheadline)
+                           
                             
                             //MARK: see more
                             if !expandCaption{
@@ -232,8 +233,108 @@ struct FeedCell: View {
                                     .font(.footnote)
                             }
                             else {
+                                if let recommendation = post.recommendation, recommendation {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart")
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Recommends")
+                                            .foregroundColor(.white)
+                                        
+                                    }
+                                    .font(.caption)
+                                } else if let recommendation = post.recommendation, !recommendation{
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart.slash")
+                                            .foregroundColor(Color(white: 0.7))
+                                            .font(.subheadline)
+                                        Text("Does not recommend")
+                                            .foregroundColor(Color(white: 0.7))
+                                            .bold()
+                                        
+                                        
+                                    }
+                                    .font(.caption)
+                                }
                                 //MARK: Menu Button
-                                
+                                if let serviceRating = post.serviceRating, serviceRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart")
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Service")
+                                            .foregroundColor(.white)
+                                    }
+                                    .font(.caption)
+                                } else if let serviceRating = post.serviceRating, !serviceRating{
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart.slash")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .font(.subheadline)
+                                        Text("Service")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .bold()
+                                    }
+                                    .font(.caption)
+                                }
+
+                                if let atmosphereRating = post.atmosphereRating, atmosphereRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart")
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Atmosphere")
+                                            .foregroundColor(.white)
+                                    }
+                                    .font(.caption)
+                                } else if let atmosphereRating = post.atmosphereRating, !atmosphereRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart.slash")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .font(.subheadline)
+                                        Text("Atmosphere")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .bold()
+                                    }
+                                    .font(.caption)
+                                }
+
+                                if let valueRating = post.valueRating, valueRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart")
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Value")
+                                            .foregroundColor(.white)
+                                    }
+                                    .font(.caption)
+                                } else  if let valueRating = post.valueRating, !valueRating{
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart.slash")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .font(.subheadline)
+                                        Text("Value")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .bold()
+                                    }
+                                    .font(.caption)
+                                }
+
+                                if let foodRating = post.foodRating, foodRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart")
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Food")
+                                            .foregroundColor(.white)
+                                    }
+                                    .font(.caption)
+                                } else if let foodRating = post.foodRating, !foodRating {
+                                    HStack(spacing: 0){
+                                        Image(systemName: "heart.slash")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .font(.subheadline)
+                                        Text("Food")
+                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+                                            .bold()
+                                    }
+                                    .font(.caption)
+                                }
                                 if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                         Text("View Restaurant")

@@ -11,7 +11,7 @@ struct ReviewListView: View {
     @ObservedObject var viewModel: ReviewsViewModel
     @State var showAddReview: Bool = false
     @State var showRestaurantSelector: Bool = false
-    
+
     var body: some View {
         VStack{
             if viewModel.isLoading {
@@ -67,13 +67,46 @@ struct ReviewListView: View {
         .fullScreenCover(isPresented: $showAddReview) {
             NavigationStack{
                 UploadWrittenReviewView(reviewViewModel: viewModel, setRestaurant: true)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                dismissKeyboard()
+                            }
+                        }
+                    }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        dismissKeyboard()
+                    }
+                }
             }
         }
         .fullScreenCover(isPresented: $showRestaurantSelector) {
             NavigationStack{
                 UploadWrittenReviewView(reviewViewModel: viewModel)
-                    
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                dismissKeyboard()
+                            }
+                        }
+                    }
+                
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        dismissKeyboard()
+                    }
+                }
+            }
+            
             .onDisappear{
                 viewModel.selectedRestaurant = nil
             }

@@ -11,7 +11,6 @@ struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    var maxCharacters = 150
     @State var recommend: Bool? = nil
     @State private var favoriteMenuItem: String = ""
     @State private var favoriteMenuItems: [String] = []
@@ -28,12 +27,14 @@ struct UploadWrittenReviewView: View {
     @Environment(\.dismiss) var dismiss
     @State var changeTab: Bool = false
     @State var pickingFavorites: Bool = false
-    
+    @State private var showAlert = false
+    private let characterLimit = 300
+    @State private var isEditingDescription = false
+    @FocusState private var isDescriptionFocused: Bool
     var body: some View {
         ZStack {
             Color.white
-                 // Ensure it covers the entire screen including safe area
-                .frame(width: UIScreen.main.bounds.width, height: 765) // Set to full screen height
+                .frame(width: UIScreen.main.bounds.width, height: 765)
                 .cornerRadius(10)
             
             VStack {
@@ -41,8 +42,7 @@ struct UploadWrittenReviewView: View {
                     Button {
                         isPickingRestaurant = true
                     } label: {
-                        // REPLACE RESTAURANT
-                        VStack{
+                        VStack {
                             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
                             
                             Text(restaurant.name)
@@ -58,20 +58,16 @@ struct UploadWrittenReviewView: View {
                                 Text("\(cuisine), \(price)")
                                     .font(.caption)
                                     .foregroundStyle(.primary)
-                                
-                                
                             } else if let cuisine = restaurant.cuisine {
                                 Text(cuisine)
                                     .font(.caption)
                                     .foregroundStyle(.primary)
-                                
-                                
                             } else if let price = restaurant.price {
                                 Text(price)
                                     .font(.caption)
                                     .foregroundStyle(.primary)
                             }
-                            if let restaurantRequest = reviewViewModel.restaurantRequest{
+                            if let restaurantRequest = reviewViewModel.restaurantRequest {
                                 Text("To be Created")
                                     .foregroundStyle(.primary)
                                     .font(.caption)
@@ -82,14 +78,12 @@ struct UploadWrittenReviewView: View {
                                     .font(.caption)
                             }
                         }
-                        
                     }
                     .disabled(setRestaurant)
                 } else {
                     Button {
                         isPickingRestaurant = true
                     } label: {
-                        // ADD RESTAURANT
                         VStack {
                             Image(systemName: "plus")
                                 .resizable()
@@ -98,7 +92,6 @@ struct UploadWrittenReviewView: View {
                             
                             Text("Add restaurant")
                                 .foregroundColor(.black)
-                            
                         }
                     }
                 }
@@ -130,43 +123,29 @@ struct UploadWrittenReviewView: View {
                     }
                     .padding(20)
                     if recommend != nil {
-                        VStack{
-                            ZStack(alignment: .topLeading) {
-                                
-                                TextEditor(text: $description)
-                                    .frame(height: 100)  // Adjust the height as needed
-                                    .padding(4)
-                                    .toolbar {
-                                        ToolbarItemGroup(placement: .keyboard) {
-                                            Spacer()
-                                            Button("Done") {
-                                                dismissKeyboard()
-                                            }
-                                        }
-                                    }
-                                
-                                if description.isEmpty {
-                                    Text("Add a review...")
-                                        .foregroundColor(.gray.opacity(0.6))
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 12)
+                        VStack {
+                            
+                                Button(action: {
+                                    self.isEditingDescription = true
+                                }) {
+                                    TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...*", maxCharacters: characterLimit)
                                 }
-                            }
-                            .padding()
-                            Divider()
+                                .padding(.vertical)
+                            
                             
                             if !description.isEmpty, editedReview == true {
-                                
-                                Button{pickingFavorites = true} label: {
+                                Button {
+                                    pickingFavorites = true
+                                } label: {
                                     HStack {
                                         Image(systemName: "fork.knife.circle")
                                             .foregroundStyle(.black)
                                             .font(.subheadline)
-                                        VStack (alignment: .leading){
+                                        VStack(alignment: .leading) {
                                             Text("Add Favorite Menu Items")
                                                 .font(.subheadline)
                                                 .foregroundStyle(.black)
-                                            if !favoriteMenuItems.isEmpty{
+                                            if !favoriteMenuItems.isEmpty {
                                                 Text("\(favoriteMenuItems.count) items selected")
                                                     .font(.footnote)
                                                     .foregroundStyle(.gray)
@@ -175,44 +154,42 @@ struct UploadWrittenReviewView: View {
                                         Spacer()
                                         Image(systemName: "chevron.right")
                                             .foregroundStyle(.black)
-                                        
                                     }
                                     .padding()
-                                    
                                 }
                                 Divider()
                                 
-                                Button{
-                                    Task{
+                                Button {
+                                    Task {
                                         if let recommend {
                                             try await reviewViewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
-                                        }
-                                        if changeTab {
-                                            tabBarController.selectedTab = 0
-                                        } else {
-                                            dismiss()
+                                            showAlert = true
                                         }
                                     }
                                 } label: {
                                     Text("Post Review")
                                         .modifier(StandardButtonModifier())
-                                    
                                 }
                                 .opacity(recommend != nil ? 1 : 0)
                                 .disabled(!canPostReview)
                             }
-                            
                         }
                         .opacity(recommend != nil ? 1 : 0)
-                        
                     }
                 }
             }
             .padding()
             .padding(.top, 30)
+            if isEditingDescription {
+                EditorView(text: $description, isEditing: $isEditingDescription, placeholder: "Enter a Review...", maxCharacters: characterLimit, title: "Review")
+                    .focused($isDescriptionFocused) // Connects the focus state to the editor view
+                    .onAppear {
+                        isDescriptionFocused = true // Automatically focuses the TextEditor when it appears
+                    }
+            }
             if !changeTab {
-                VStack{
-                    HStack{
+                VStack {
+                    HStack {
                         Button(action: {
                             dismiss()
                         }) {
@@ -228,16 +205,28 @@ struct UploadWrittenReviewView: View {
                 }
                 .padding()
             }
-            
         }
-        .sheet(isPresented: $pickingFavorites){
-            NavigationStack{
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Review Successful"),
+                message: Text("Your review has been posted."),
+                dismissButton: .default(Text("OK")) {
+                    if changeTab {
+                        tabBarController.selectedTab = 0
+                    } else {
+                        dismiss()
+                    }
+                }
+            )
+        }
+        .sheet(isPresented: $pickingFavorites) {
+            NavigationView {
                 AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)
             }
             .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
         }
         .onChange(of: description) {
-            Debouncer(delay: 0.3).schedule{
+            Debouncer(delay: 0.3).schedule {
                 editedReview = true
             }
         }
@@ -247,6 +236,34 @@ struct UploadWrittenReviewView: View {
         }
     }
 }
-//#Preview {
-//    UploadWrittenReviewView(review)
-//}
+
+import Combine
+@Observable
+final class KeyboardToolbarViewModel {
+    var isKeyboardVisible = false
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .sink { [weak self] _ in
+                withAnimation(.easeIn.delay(0.15)) {
+                    self?.isKeyboardVisible = true
+                }
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .sink { [weak self] _ in
+                self?.isKeyboardVisible = false
+            }
+            .store(in: &cancellables)
+    }
+}
+
+class Router: ObservableObject {
+    @Published var path = NavigationPath()
+
+    func reset() {
+      path = NavigationPath()
+    }
+}

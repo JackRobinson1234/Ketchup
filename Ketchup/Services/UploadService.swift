@@ -11,7 +11,22 @@ import SwiftUI
 
 struct UploadService {
     
-    func uploadPost(videoURL: URL?, images: [UIImage]?, mediaType: String, caption: String, postType: PostType, postRestaurant: PostRestaurant?, recipe: PostRecipe?, fromInAppCamera: Bool, cookingTitle: String?, recommendation: Bool?)  async throws -> Post {
+    func uploadPost(
+        videoURL: URL?,
+        images: [UIImage]?,
+        mediaType: String,
+        caption: String,
+        postType: PostType,
+        postRestaurant: PostRestaurant?,
+        recipe: PostRecipe?,
+        fromInAppCamera: Bool,
+        cookingTitle: String?,
+        recommendation: Bool?,
+        serviceRating: Bool?,
+        atmosphereRating: Bool?,
+        valueRating: Bool?,
+        foodRating: Bool?
+    ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
         
@@ -45,7 +60,6 @@ struct UploadService {
             }
         }
         
-
         // Create the post object
         let post = Post(
             id: ref.documentID,
@@ -61,9 +75,19 @@ struct UploadService {
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
             recipe: recipe,
+            cuisine: nil,
+            price: nil,
+            didLike: false,
+            didSave: false,
             fromInAppCamera: fromInAppCamera,
+            repost: false,
+            didRepost: false,
             cookingTitle: cookingTitle,
-            recommendation: recommendation
+            recommendation: recommendation,
+            serviceRating: serviceRating,
+            atmosphereRating: atmosphereRating,
+            valueRating: valueRating,
+            foodRating: foodRating
         )
         
         // Encode the post data
@@ -76,8 +100,6 @@ struct UploadService {
         try await ref.setData(postData)
         print("Post created successfully")
         return post
-
-        // Update the thumbnail after the post is created if it's a video
     }
     
     func updateThumbnailUrl(fromVideoUrl videoUrl: String) async throws -> String{

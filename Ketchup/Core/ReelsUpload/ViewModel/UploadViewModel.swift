@@ -36,9 +36,15 @@ class UploadViewModel: ObservableObject {
     private var uploadService = UploadService()
     @Published var recommend: Bool?
     @ObservedObject var feedViewModel: FeedViewModel
+    @Published var serviceRating: Bool?
+    @Published var atmosphereRating: Bool?
+    @Published var valueRating: Bool?
+    @Published var foodRating: Bool?
+    
+    
     init(feedViewModel: FeedViewModel) {
-           self.feedViewModel = feedViewModel
-       }
+        self.feedViewModel = feedViewModel
+    }
     func reset() {
         isLoading = false
         error = nil
@@ -99,14 +105,15 @@ class UploadViewModel: ObservableObject {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
         var recipe: PostRecipe? = nil
+        
         if hasRecipeDetailsChanged() {
             recipe = PostRecipe(
-                            cookingTime: cookingTime,
-                            dietary: dietaryRestrictions,
-                            instructions: instructions,
-                            ingredients: ingredients,
-                            servings: recipeServings
-                            )
+                cookingTime: cookingTime,
+                dietary: dietaryRestrictions,
+                instructions: instructions,
+                ingredients: ingredients,
+                servings: recipeServings
+            )
         }
         
         if let restaurant = restaurant {
@@ -122,7 +129,7 @@ class UploadViewModel: ObservableObject {
                 state: restaurant.state.isEmpty ? nil : restaurant.state,
                 profileImageUrl: nil
             )
-            do{
+            do {
                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
             } catch {
                 print("error uploading restaurant request")
@@ -142,30 +149,42 @@ class UploadViewModel: ObservableObject {
                         throw UploadError.invalidMediaData
                     }
                     
-                    post = try await uploadService.uploadPost(videoURL: videoURL,
-                                                       images: nil,
-                                                       mediaType: mediaType,
-                                                       caption: caption,
-                                                       postType: postType,
-                                                       postRestaurant: postRestaurant,
-                                                       recipe: recipe,
-                                                       fromInAppCamera: fromInAppCamera,
-                                                       cookingTitle: cookingTitle,
-                                                       recommendation: recommend)
+                    post = try await uploadService.uploadPost(
+                        videoURL: videoURL,
+                        images: nil,
+                        mediaType: mediaType,
+                        caption: caption,
+                        postType: postType,
+                        postRestaurant: postRestaurant,
+                        recipe: recipe,
+                        fromInAppCamera: fromInAppCamera,
+                        cookingTitle: cookingTitle,
+                        recommendation: recommend,
+                        serviceRating: serviceRating,
+                        atmosphereRating: atmosphereRating,
+                        valueRating: valueRating,
+                        foodRating: foodRating
+                    )
                 } else if mediaType == "photo" {
                     guard let images = images else {
                         throw UploadError.invalidMediaData
                     }
-                    post = try await uploadService.uploadPost(videoURL: nil,
-                                                       images: images,
-                                                       mediaType: mediaType,
-                                                       caption: caption,
-                                                       postType: postType,
-                                                       postRestaurant: postRestaurant,
-                                                       recipe: recipe,
-                                                       fromInAppCamera: fromInAppCamera,
-                                                       cookingTitle: cookingTitle,
-                                                       recommendation: recommend)
+                    post = try await uploadService.uploadPost(
+                        videoURL: nil,
+                        images: images,
+                        mediaType: mediaType,
+                        caption: caption,
+                        postType: postType,
+                        postRestaurant: postRestaurant,
+                        recipe: recipe,
+                        fromInAppCamera: fromInAppCamera,
+                        cookingTitle: cookingTitle,
+                        recommendation: recommend,
+                        serviceRating: serviceRating,
+                        atmosphereRating: atmosphereRating,
+                        valueRating: valueRating,
+                        foodRating: foodRating
+                    )
                 } else {
                     throw UploadError.invalidMediaType
                 }
@@ -177,6 +196,7 @@ class UploadViewModel: ObservableObject {
         }
         if let post {
             feedViewModel.feedViewOption = .grid
+            feedViewModel.showPostAlert = true
             feedViewModel.posts.insert(post, at: 0)
         }
         isLoading = false

@@ -564,9 +564,9 @@
 		F846F4542BFBDB43009D1303 /* Review */ = {
 			isa = PBXGroup;
 			children = (
+				F8E3466E2C24C97800DE369C /* ViewModel */,
 				F846F4552BFBDB57009D1303 /* ReviewCell.swift */,
 				F846F4572BFBF66B009D1303 /* ReviewListView.swift */,
-				F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */,
 				F846F45F2BFC500B009D1303 /* AddMenuItemsReview.swift */,
 				F846F4612BFD1459009D1303 /* ReviewOptionsSheet.swift */,
 				F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */,
@@ -1420,6 +1420,14 @@
 				F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */,
 			);
 			path = Camera;
+			sourceTree = "<group>";
+		};
+		F8E3466E2C24C97800DE369C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F8F494F22BBF8C230043B515 /* Individual Filters */ = {

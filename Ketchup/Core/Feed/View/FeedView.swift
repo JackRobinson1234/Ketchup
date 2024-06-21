@@ -23,7 +23,7 @@ struct FeedView: View {
     private var hideFeedOptions: Bool
     @State var startingPostId: String?
     private var titleText: String
-
+    
     // Initialize with a FeedViewModel instance
     init(videoCoordinator: VideoPlayerCoordinator, viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
         self.videoCoordinator = videoCoordinator
@@ -34,7 +34,7 @@ struct FeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-
+    
     
     
     
@@ -78,7 +78,7 @@ struct FeedView: View {
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
-                           
+                            
                             
                             
                         }
@@ -104,8 +104,8 @@ struct FeedView: View {
                             .frame(height: 135) // Set the height of the rectangle
                             .edgesIgnoringSafeArea(.top)
                     }
-                                    
-                      
+                    
+                    
                     
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
@@ -258,7 +258,7 @@ struct FeedView: View {
                         }
                         viewModel.updateCache(scrollPosition: newValue)
                     }
-                    }
+                }
                 .background(Color("Colors/HingeGray"))
                 //.background(.primary)
                 .ignoresSafeArea()
@@ -304,10 +304,11 @@ struct FeedView: View {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-                
-                
-                
-                
+                .alert(isPresented: $viewModel.showPostAlert) {
+                    Alert(title: Text("Post Uploaded"),
+                          message: Text("Post uploaded successfully!"),
+                          dismissButton: .default(Text("OK")))
+                }
             }
         }
     }

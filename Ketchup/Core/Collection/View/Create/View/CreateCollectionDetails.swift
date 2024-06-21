@@ -225,7 +225,7 @@ struct EditorView: View {
                                 
                         }
                         .padding(8)
-                        .background(Color.blue)
+                        .background(Color("Colors/AccentColor"))
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         .padding(.horizontal, 10)

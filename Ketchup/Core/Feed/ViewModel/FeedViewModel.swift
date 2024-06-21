@@ -35,6 +35,7 @@ class FeedViewModel: ObservableObject {
     @Published var startingPostId: String
     @Published var earlyPosts: [Post]
     @Published var hasMorePosts: Bool = true
+    @Published var showPostAlert: Bool = false
 
     
     

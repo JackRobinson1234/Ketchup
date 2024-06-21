@@ -34,7 +34,11 @@ struct Post: Identifiable, Codable {
     var didRepost: Bool
     var cookingTitle: String?
     var recommendation: Bool?
-    
+    var serviceRating: Bool?
+    var atmosphereRating: Bool?
+    var valueRating: Bool?
+    var foodRating: Bool?
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -59,9 +63,12 @@ struct Post: Identifiable, Codable {
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
         self.cookingTitle = try container.decodeIfPresent(String.self, forKey: .cookingTitle)
         self.recommendation = try container.decodeIfPresent(Bool.self, forKey: .recommendation)
-    
+        self.serviceRating = try container.decodeIfPresent(Bool.self, forKey: .serviceRating)
+        self.atmosphereRating = try container.decodeIfPresent(Bool.self, forKey: .atmosphereRating)
+        self.valueRating = try container.decodeIfPresent(Bool.self, forKey: .valueRating)
+        self.foodRating = try container.decodeIfPresent(Bool.self, forKey: .foodRating)
     }
-    
+
     init(
         id: String,
         postType: PostType,
@@ -84,7 +91,11 @@ struct Post: Identifiable, Codable {
         repost: Bool = false,
         didRepost: Bool = false,
         cookingTitle: String? = nil,
-        recommendation: Bool?
+        recommendation: Bool? = nil,
+        serviceRating: Bool? = nil,
+        atmosphereRating: Bool? = nil,
+        valueRating: Bool? = nil,
+        foodRating: Bool? = nil
     ) {
         self.id = id
         self.postType = postType
@@ -108,6 +119,10 @@ struct Post: Identifiable, Codable {
         self.didRepost = didRepost
         self.cookingTitle = cookingTitle
         self.recommendation = recommendation
+        self.serviceRating = serviceRating
+        self.atmosphereRating = atmosphereRating
+        self.valueRating = valueRating
+        self.foodRating = foodRating
     }
 }
 
@@ -166,7 +181,6 @@ enum PostType: Int, Codable {
         switch self {
         case .dining: return "Dining"
         case .cooking: return "Cooking"
-       
         }
     }
 }
@@ -180,10 +194,8 @@ enum RecipeDifficulty: Int, Codable {
         case .easy: return "Easy"
         case .medium: return "Medium"
         case .hard: return "Hard"
-            
         }
     }
 }
-
 
 

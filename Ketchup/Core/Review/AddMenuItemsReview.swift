@@ -52,7 +52,7 @@ struct AddMenuItemsReview: View {
                     
                 })
                 .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
+                    ToolbarItem(placement: .keyboard) {
                         Spacer()
                         Button("Done") {
                             dismissKeyboard()
