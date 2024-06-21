@@ -16,8 +16,6 @@ struct UploadWrittenReviewView: View {
     @State private var favoriteMenuItems: [String] = []
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
-    private let maxMenuItemCharacters = 50
-    private let maxFavoriteMenuItems = 5
     @State var editedReview = false
     @State var isPickingRestaurant = false
     @State var setRestaurant = false
@@ -221,7 +219,7 @@ struct UploadWrittenReviewView: View {
         }
         .sheet(isPresented: $pickingFavorites) {
             NavigationView {
-                AddMenuItemsReview(favoriteMenuItem: $favoriteMenuItem, favoriteMenuItems: $favoriteMenuItems)
+                AddMenuItemsReview(favoriteMenuItems: $favoriteMenuItems)
             }
             .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
         }

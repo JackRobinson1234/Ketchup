@@ -60,7 +60,6 @@ struct CollectionListCell: View {
         
 private func itemCountText(for collection: Collection) -> some View {
     let restaurantCount = collection.restaurantCount
-    let atHomeCount = collection.atHomeCount
     let itemCountText: String
     if restaurantCount > 0 {
         itemCountText = "\(restaurantCount) \(pluralText(for: restaurantCount, singular: "Restaurant", plural: "Restaurants"))"

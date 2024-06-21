@@ -22,7 +22,6 @@ struct ReelsUploadView: View {
     //@State var showPostTypeMenu: Bool = true
     @State var titleText: String = ""
     private let maxCharacters = 25
-    let postTypeOptions: [PostType] = [.dining]
     private let spacing: CGFloat = 20
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (spacing * 2)) / 3
@@ -30,6 +29,7 @@ struct ReelsUploadView: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @EnvironmentObject var tabBarController: TabBarController
+    @State var pickingFavorites: Bool = false
     
     var body: some View {
         ScrollView{
@@ -221,7 +221,32 @@ struct ReelsUploadView: View {
                             }
                         }
                     }
+                    Divider()
+                    Button {
+                        pickingFavorites = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "fork.knife.circle")
+                                .foregroundStyle(.black)
+                                .font(.subheadline)
+                            VStack(alignment: .leading) {
+                                Text("Add Favorite Menu Items")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.black)
+                                if !uploadViewModel.favoriteMenuItems.isEmpty {
+                                    Text("\(uploadViewModel.favoriteMenuItems.count) items selected")
+                                        .font(.footnote)
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.black)
+                        }
+                        
+                    }
                     .padding(20)
+                    Divider()
                     Spacer()
                     Button {
                         if uploadViewModel.postType == .cooking && titleText.isEmpty {
@@ -278,8 +303,13 @@ struct ReelsUploadView: View {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
         }
-        .navigationDestination(isPresented: $isAddingRecipe) {
-            EditRecipeView(uploadViewModel: uploadViewModel)
+       
+        .sheet(isPresented: $pickingFavorites) {
+            NavigationView {
+                AddMenuItemsReview(favoriteMenuItems: $uploadViewModel.favoriteMenuItems)
+            }
+            
+            .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
         }
     }
     

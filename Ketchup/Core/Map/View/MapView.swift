@@ -283,8 +283,20 @@ struct MapView: View {
                     }
                 }
             }
+            .onAppear{
+                Task{
+                    LocationManager.shared.requestLocation()
+                   
+                    if let userLocation = LocationManager.shared.userLocation {
+                        center = userLocation.coordinate
+                    } else {
+                        center = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426) // Los Angeles
+                    }
+                    await fetchRestaurantsInView(center: center)
+                }
+            }
             /// Asks for location permission
-            .onAppear{LocationManager.shared.requestLocation()}
+//            .onAppear{LocationManager.shared.requestLocation()}
         }
         
     }

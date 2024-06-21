@@ -45,7 +45,6 @@ struct CollectionGridView: View {
                     //MARK: VGrid of Items
                     
                     ForEach(collectionsViewModel.items, id: \.id) { item in
-                        if item.postType == .dining {
                             ZStack(alignment: .topTrailing){
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.id)) {
                                     CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
@@ -78,38 +77,7 @@ struct CollectionGridView: View {
 //                                    .offset(x: width/2.8, y: -width/2.3 )
                                 }
                             }
-                        } else if item.postType == .cooking {
                         
-                            ZStack{
-                                Button{
-                                    Task{
-                                        selectedPost = try await
-                                        PostService.shared.fetchPost(postId: item.id)
-                                    }
-                                    showPost.toggle()
-                                } label: {
-                                    CollectionItemCell(item: item, width: width, viewModel: collectionsViewModel)
-                                        .aspectRatio(1.0, contentMode: .fit)
-                                }
-                                if let notes = item.notes, !notes.isEmpty {
-                                    Button {
-                                        collectionsViewModel.notesPreview = item
-                                    } label: {
-                                        Image(systemName: "line.3.horizontal")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 30)
-                                            .foregroundColor(.white)
-                                        
-                                            .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
-                                            .opacity(0.8)
-                                    }
-                                    .offset(x: width/2.8, y: -width/2.3 )
-                                }
-                            
-                            }
-                            
-                        }
                     }
                 }
                 .padding(3)

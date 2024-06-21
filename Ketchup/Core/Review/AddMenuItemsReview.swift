@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddMenuItemsReview: View {
-    @Binding var favoriteMenuItem: String
+    @State var favoriteMenuItem: String = ""
     @Binding var favoriteMenuItems: [String]
     @FocusState private var isTextFieldFocused: Bool
     var maxMenuItemCharacters: Int = 50
@@ -110,5 +110,5 @@ struct AddMenuItemsReview: View {
 }
 
 #Preview {
-    AddMenuItemsReview(favoriteMenuItem: .constant(""), favoriteMenuItems: .constant([]))
+    AddMenuItemsReview(favoriteMenuItems: .constant([]))
 }

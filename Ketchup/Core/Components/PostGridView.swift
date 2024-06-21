@@ -50,21 +50,11 @@ struct PostGridView: View {
                             .overlay(
                                 VStack(alignment: .leading){
                                     HStack {
-                                        if post.restaurant != nil {
-                                            Image(systemName: "storefront.fill")
-                                                .foregroundStyle(.white)
-                                                .font(.caption)
-                                            
-                                        }  else if post.cookingTitle != nil {
-                                            Image(systemName: "frying.pan.fill")
-                                                .foregroundStyle(.white)
-                                                .font(.caption)
-                                        }
                                         Spacer()
                                         if post.repost{
                                             Image(systemName: "arrow.2.squarepath")
                                                 .foregroundStyle(.white)
-                                                .font(.caption)
+                                                .font(.subheadline)
                                         }
                                     }
                                     

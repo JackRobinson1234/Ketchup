@@ -29,20 +29,10 @@ struct RepostView: View {
                     .overlay(
                         VStack{
                             HStack {
-                                if post.restaurant != nil{
-                                    Image(systemName: "storefront.fill")
-                                        .foregroundStyle(.white)
-                                        .font(.caption)
-                                    
-                                }  else if post.cookingTitle != nil{
-                                    Image(systemName: "frying.pan.fill")
-                                        .foregroundStyle(.white)
-                                        .font(.caption)
-                                }
                                 Spacer()
                                 Image(systemName: "arrow.2.squarepath")
                                     .foregroundStyle(.white)
-                                    .font(.caption)
+                                    .font(.subheadline)
                             }
                             
                             Spacer()
@@ -57,15 +47,7 @@ struct RepostView: View {
                                             .bold()
                                             .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                     }
-                                    else if let recipe = post.cookingTitle {
-                                        Text("\(recipe)")
-                                            .lineLimit(2)
-                                            .truncationMode(.tail)
-                                            .foregroundColor(.white)
-                                            .font(.footnote)
-                                            .bold()
-                                            .shadow(color: .primary, radius: 2, x: 0, y: 1)
-                                    }
+                                    
                                 }
                             }
                         }
@@ -74,6 +56,7 @@ struct RepostView: View {
                     .padding()
                 Button{
                     handleRepostTapped()
+                    viewModel.showRepostAlert = true
                     dismiss()
                 } label: {
                     if post.didRepost == false {

@@ -21,6 +21,10 @@ struct Review: Identifiable, Codable, Hashable, Equatable{
     var didLike = false
     var recommendation: Bool
     var favoriteItems: [String]?
+    var serviceRating: Bool?
+    var atmosphereRating: Bool?
+    var valueRating: Bool?
+    var foodRating: Bool?
     
     
     init(from decoder: Decoder) throws {

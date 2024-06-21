@@ -23,8 +23,8 @@ struct FeedView: View {
     private var hideFeedOptions: Bool
     @State var startingPostId: String?
     private var titleText: String
+    @State private var showSuccessMessage = false
     
-    // Initialize with a FeedViewModel instance
     init(videoCoordinator: VideoPlayerCoordinator, viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
         self.videoCoordinator = videoCoordinator
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -34,14 +34,9 @@ struct FeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-    
-    
-    
-    
+
     var body: some View {
-        /// Loading screen will only appear when the app first opens and will fetch posts
-        if isLoading && viewModel.posts.isEmpty{
-            // Loading screen
+        if isLoading && viewModel.posts.isEmpty {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
@@ -51,9 +46,8 @@ struct FeedView: View {
                 }
                 .toolbar(.hidden, for: .tabBar)
         } else {
-            //MARK: Video Cells
             NavigationStack {
-                ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .top) {
                     if viewModel.feedViewOption == .feed {
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
@@ -61,12 +55,11 @@ struct FeedView: View {
                                     ForEach($viewModel.posts) { post in
                                         FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
                                             .id(post.id)
-                                        
                                     }
                                 }
                                 .onAppear {
-                                    if hideFeedOptions{
-                                        Debouncer(delay: 0.5).schedule{
+                                    if hideFeedOptions {
+                                        Debouncer(delay: 0.5).schedule {
                                             viewModel.combineEarlyPosts()
                                         }
                                     } else {
@@ -78,34 +71,24 @@ struct FeedView: View {
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
-                            
-                            
-                            
                         }
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-                        
-                    }
-                    
-                    else if viewModel.feedViewOption == .grid {
+                    } else if viewModel.feedViewOption == .grid {
                         ScrollView(showsIndicators: false) {
-                            VStack{
+                            VStack {
                                 FeedGridView(viewModel: viewModel)
-                                
                             }
-                            
                         }
                         .scrollTargetLayout()
                         .scrollPosition(id: $scrollPosition)
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-                        //.gesture(viewModel.drag)
                     }
-                    if viewModel.feedViewOption == .grid{
+                    
+                    if viewModel.feedViewOption == .grid {
                         Color.white
-                            .frame(height: 135) // Set the height of the rectangle
+                            .frame(height: 135)
                             .edgesIgnoringSafeArea(.top)
                     }
-                    
-                    
                     
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
@@ -114,87 +97,72 @@ struct FeedView: View {
                                 .scaledToFill()
                                 .frame(width: 60, height: 17)
                             
-                            
-                            // Button for "Grid"
                             Spacer()
                             ZStack {
-                                Color.white.opacity(0.3) // Adjust opacity as needed
+                                Color.white.opacity(0.3)
                                     .cornerRadius(15)
                                     .frame(width: 100, height: 45)
-                                HStack(spacing: 10){
-                                    Button{
+                                HStack(spacing: 10) {
+                                    Button {
                                         viewModel.feedViewOption = .grid
-                                        
                                     } label: {
                                         ZStack {
                                             if viewModel.feedViewOption == .grid {
-                                                Color("Colors/AccentColor") // Red background for selected option
-                                                    .cornerRadius(12) // Adjust corner radius as needed
-                                                    .frame(width: 38, height: 38) // Adjust size as needed
+                                                Color("Colors/AccentColor")
+                                                    .cornerRadius(12)
+                                                    .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "square.grid.2x2")
                                                 .font(.title)
                                                 .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
                                         }
-                                        
                                     }
                                     .disabled(viewModel.feedViewOption == .grid)
                                     
-                                    // Vertical Line
-                                    
-                                    
-                                    // Button for "Feed"
-                                    Button{
+                                    Button {
                                         viewModel.feedViewOption = .feed
-                                        
                                     } label: {
                                         ZStack {
                                             if viewModel.feedViewOption == .feed {
-                                                Color("Colors/AccentColor") // Red background for selected option
-                                                    .cornerRadius(12) // Adjust corner radius as needed
-                                                    .frame(width: 38, height: 38) // Adjust size as needed
+                                                Color("Colors/AccentColor")
+                                                    .cornerRadius(12)
+                                                    .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "line.3.horizontal")
                                                 .font(.title)
                                                 .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
                                         }
-                                        //.frame(width: 78)
                                     }
                                     .disabled(viewModel.feedViewOption == .feed)
                                 }
                             }
                             Spacer()
-                            HStack (spacing: 10) {
-                                Button{
+                            HStack(spacing: 10) {
+                                Button {
                                     showSearchView.toggle()
-                                    
                                 } label: {
                                     Image(systemName: "magnifyingglass")
                                         .font(.system(size: 27))
                                 }
-                                //MARK: Filters Button
                                 Button {
                                     showFilters.toggle()
-                                }
-                            label: {
-                                ZStack {
-                                    Image(systemName: "slider.horizontal.3")
-                                        .imageScale(.large)
-                                        .shadow(radius: 4)
-                                        .font(.system(size: 23))
-                                    
-                                    
-                                    if !filtersViewModel.filters.isEmpty {
-                                        Circle()
-                                            .fill(Color("Colors/AccentColor"))
-                                            .frame(width: 12, height: 12)
-                                            .offset(x: 12, y: 12) // Adjust the offset as needed
+                                } label: {
+                                    ZStack {
+                                        Image(systemName: "slider.horizontal.3")
+                                            .imageScale(.large)
+                                            .shadow(radius: 4)
+                                            .font(.system(size: 23))
+                                        
+                                        if !filtersViewModel.filters.isEmpty {
+                                            Circle()
+                                                .fill(Color("Colors/AccentColor"))
+                                                .frame(width: 12, height: 12)
+                                                .offset(x: 12, y: 12)
+                                        }
                                     }
                                 }
-                            }
-                                //MARK: Filters and Search Buttons
                             }
                             .frame(width: 60)
                         }
@@ -202,10 +170,8 @@ struct FeedView: View {
                         .ignoresSafeArea()
                         .padding(.top, 70)
                         .padding(.horizontal, 40)
-                        .frame(maxWidth: .infinity)
                         .foregroundStyle(.white)
                         .padding(.bottom, 10)
-                        //.opacity(1)
                         .shadow(color: Color.gray.opacity(0.7), radius: 5, x: 0, y: 0)
                     } else {
                         HStack {
@@ -222,10 +188,6 @@ struct FeedView: View {
                                     .padding()
                             }
                             Spacer()
-                        }
-                        .padding(30)
-                        HStack{
-                            Spacer()
                             
                             Text(titleText)
                                 .foregroundStyle(.white)
@@ -233,26 +195,41 @@ struct FeedView: View {
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                             Spacer()
+                            Rectangle()
+                                .frame(width: 40, height: 40)
+                                .foregroundStyle(.clear)
                         }
-                        .padding(.top, 70)
+                        .padding(30)
+                        .padding(.vertical)
+                       
                     }
                 }
-                
-                
-                
-                //MARK: Loading/ No posts
-                
-                //MARK: Navigation
-                
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
+                    if viewModel.showPostAlert {
+                        SuccessMessageOverlay(text: "Post Uploaded!")
+                            .transition(.opacity)
+                            .onAppear{
+                                Debouncer(delay: 2.0).schedule{
+                                    viewModel.showPostAlert = false
+                                }
+                            }
+                    }
+                    if viewModel.showRepostAlert {
+                        SuccessMessageOverlay(text: "Reposted!")
+                            .transition(.opacity)
+                            .onAppear{
+                                Debouncer(delay: 2.0).schedule{
+                                    viewModel.showRepostAlert = false
+                                }
+                            }
+                    }
                 }
-                /// loads the next 5 videos in the cache
-                .onChange(of: scrollPosition) {oldValue, newValue in
-                    if !hideFeedOptions{
+                .onChange(of: scrollPosition) { oldValue, newValue in
+                    if !hideFeedOptions {
                         Task {
                             await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                         }
@@ -260,57 +237,68 @@ struct FeedView: View {
                     }
                 }
                 .background(Color("Colors/HingeGray"))
-                //.background(.primary)
                 .ignoresSafeArea()
-                
-                /// sets destination of user profile links
                 .navigationDestination(for: PostUser.self) { user in
                     ProfileView(uid: user.id)
                 }
-                
-                /// sets destination of searchview for the search button
                 .navigationDestination(for: SearchModelConfig.self) { config in
-                    SearchView(searchConfig: config)}
-                
-                /// sets the destination of the restaurant profile when the restaurant profile is clicked
-                .navigationDestination(for: PostRestaurant.self) { restaurant in
-                    RestaurantProfileView(restaurantId: restaurant.id)}
-                
-                /// pauses the video when search button is clicked
-                .onChange(of: showSearchView) { oldValue, newValue in
-                    if newValue {
-                        pauseVideo = true
-                    }
-                    else {
-                        pauseVideo = false
-                    }
+                    SearchView(searchConfig: config)
                 }
-                /// puts the search view in view when search button is clicked
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
+                }
+                .onChange(of: showSearchView) { oldValue, newValue in
+                    pauseVideo = newValue
+                }
                 .fullScreenCover(isPresented: $showSearchView) {
                     SearchView(searchConfig: .restaurants, searchSlideBar: true)
                 }
-                /// pauses the video when filters are shown
                 .onChange(of: showFilters) { oldValue, newValue in
-                    if newValue {
-                        pauseVideo = true
-                    }
-                    else {
-                        pauseVideo = false
-                    }
+                    pauseVideo = newValue
                 }
-                
-                /// presents the filters view when filters are clicked
                 .fullScreenCover(isPresented: $showFilters) {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-                .alert(isPresented: $viewModel.showPostAlert) {
-                    Alert(title: Text("Post Uploaded"),
-                          message: Text("Post uploaded successfully!"),
-                          dismissButton: .default(Text("OK")))
+                .onChange(of: viewModel.showPostAlert) {oldValue, newValue in
+                    if newValue {
+                        showSuccessMessage = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showSuccessMessage = false
+                        }
+                    }
                 }
+               
             }
         }
+    }
+}
+
+struct SuccessMessageOverlay: View {
+    var text: String
+    var body: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack {
+                    Image(systemName: "checkmark")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(.green)
+                    Text(text)
+                        .foregroundColor(.white)
+                        .font(.subheadline)
+                        .bold()
+                }
+                .padding()
+                .background(Color.gray.opacity(1.0))
+                .cornerRadius(15)
+                Spacer()
+            }
+            Spacer()
+        }
+        .transition(.opacity)
     }
 }
 

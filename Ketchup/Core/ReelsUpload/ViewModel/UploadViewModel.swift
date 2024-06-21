@@ -20,16 +20,8 @@ class UploadViewModel: ObservableObject {
     @Published var videoURL: URL?
     @Published var images: [UIImage]?
     @Published var mediaType: String = "none"
-    @Published var recipeTitle = ""
-    @Published var ingredients: [Ingredient] = []
-    @Published var recipeCuisine: String = ""
-    @Published var dietaryRestrictions: [String] = []
-    @Published var cookingTime: Int = 0
-    @Published var recipeServings: Int = 0
-    @Published var recipeDifficulty: RecipeDifficulty = .easy
-    @Published var instructions: [Instruction] = []
     @Published var restaurant: Restaurant?
-    @Published var postType: PostType? = .dining
+    
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
@@ -40,6 +32,7 @@ class UploadViewModel: ObservableObject {
     @Published var atmosphereRating: Bool?
     @Published var valueRating: Bool?
     @Published var foodRating: Bool?
+    @Published var favoriteMenuItems: [String] = []
     
     
     init(feedViewModel: FeedViewModel) {
@@ -54,39 +47,17 @@ class UploadViewModel: ObservableObject {
         videoURL = nil
         images = []
         mediaType = "none"
-        recipeTitle = ""
-        ingredients = []
-        recipeCuisine = ""
-        dietaryRestrictions = []
-        cookingTime = 0
-        recipeServings = 0
-        instructions = []
         restaurant = nil
-        postType = .dining
         navigateToUpload = false
         fromInAppCamera = true
         recommend = nil
+        serviceRating = nil
+        atmosphereRating = nil
+        valueRating = nil
+        foodRating = nil
     }
     
-    func addEmptyIngredient() {
-        ingredients.append(Ingredient(quantity: "", item: ""))
-    }
-    
-    func addEmptyRestriction() {
-        dietaryRestrictions.append("")
-    }
-    
-    func addEmptyInstruction() {
-        instructions.append(Instruction(title: "", description: ""))
-    }
-    
-    func hasRecipeDetailsChanged() -> Bool {
-        return !(ingredients.isEmpty &&
-                 dietaryRestrictions.isEmpty &&
-                 cookingTime == 0 &&
-                 recipeServings == 0 &&
-                 instructions.isEmpty)
-    }
+   
     func createPostRestaurant(from restaurant: Restaurant) -> PostRestaurant {
         return PostRestaurant(
             id: restaurant.id,
@@ -104,17 +75,6 @@ class UploadViewModel: ObservableObject {
     func uploadPost() async {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
-        var recipe: PostRecipe? = nil
-        
-        if hasRecipeDetailsChanged() {
-            recipe = PostRecipe(
-                cookingTime: cookingTime,
-                dietary: dietaryRestrictions,
-                instructions: instructions,
-                ingredients: ingredients,
-                servings: recipeServings
-            )
-        }
         
         if let restaurant = restaurant {
             postRestaurant = createPostRestaurant(from: restaurant)
@@ -137,13 +97,9 @@ class UploadViewModel: ObservableObject {
         }
         
         error = nil
-        var cookingTitle: String? = recipeTitle
-        if recipeTitle.isEmpty {
-            cookingTitle = nil
-        }
+        
         var post: Post? = nil
         do {
-            if let postType = postType {
                 if mediaType == "video" {
                     guard let videoURL = videoURL else {
                         throw UploadError.invalidMediaData
@@ -154,16 +110,14 @@ class UploadViewModel: ObservableObject {
                         images: nil,
                         mediaType: mediaType,
                         caption: caption,
-                        postType: postType,
                         postRestaurant: postRestaurant,
-                        recipe: recipe,
                         fromInAppCamera: fromInAppCamera,
-                        cookingTitle: cookingTitle,
                         recommendation: recommend,
                         serviceRating: serviceRating,
                         atmosphereRating: atmosphereRating,
                         valueRating: valueRating,
-                        foodRating: foodRating
+                        foodRating: foodRating,
+                        favoriteItems: favoriteMenuItems
                     )
                 } else if mediaType == "photo" {
                     guard let images = images else {
@@ -174,22 +128,20 @@ class UploadViewModel: ObservableObject {
                         images: images,
                         mediaType: mediaType,
                         caption: caption,
-                        postType: postType,
                         postRestaurant: postRestaurant,
-                        recipe: recipe,
                         fromInAppCamera: fromInAppCamera,
-                        cookingTitle: cookingTitle,
                         recommendation: recommend,
                         serviceRating: serviceRating,
                         atmosphereRating: atmosphereRating,
                         valueRating: valueRating,
-                        foodRating: foodRating
+                        foodRating: foodRating,
+                        favoriteItems: favoriteMenuItems
                     )
                 } else {
                     throw UploadError.invalidMediaType
                 }
                 uploadSuccess = true
-            }
+            
         } catch {
             self.error = error
             uploadFailure = true

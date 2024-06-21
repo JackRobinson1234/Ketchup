@@ -62,10 +62,8 @@ class CollectionService {
         }
         let query = subCollectionRef.whereField("id", isEqualTo: collectionItem.id)
         let querySnapshot = try await query.getDocuments()
-        if collectionItem.postType == .dining, querySnapshot.documents.isEmpty {
+        if querySnapshot.documents.isEmpty {
             try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(1))])
-        } else if collectionItem.postType == .cooking, querySnapshot.documents.isEmpty {
-            try await collectionRef.updateData(["atHomeCount": FieldValue.increment(Int64(1))])
         }
         try await subCollectionRef.document(collectionItem.id).setData(itemData)
     }
@@ -75,14 +73,10 @@ class CollectionService {
     func removeItemFromCollection(collectionItem: CollectionItem) async throws {
         let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
         let subCollectionRef = collectionRef.collection("items").document(collectionItem.id)
-        
         // Delete the item document from the subcollection
         try await subCollectionRef.delete()
-        if collectionItem.postType == .dining {
-            try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
-        } else if collectionItem.postType == .cooking{
-            try await collectionRef.updateData(["atHomeCount": FieldValue.increment(Int64(-1))])
-        }
+        try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
+        
     }
     //MARK: uploadCollection
     /// Uploads a new Collection to firebase
@@ -106,7 +100,7 @@ class CollectionService {
                     return nil
                 }
             }
-            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, fullname: fullname, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, atHomeCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
+            let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, fullname: fullname, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
             print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
                 print("not encoding collection right")

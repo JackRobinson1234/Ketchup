@@ -18,7 +18,7 @@ struct ActivityCell: View {
         VStack {
             //MARK: newPost
             if activity.type == .newPost {
-                if let postType = activity.postType {
+                
                     HStack(alignment: .top){
                         Button {
                             viewModel.selectedUid = activity.uid
@@ -27,7 +27,7 @@ struct ActivityCell: View {
                             UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
                         }
                         //MARK: Post: Restaurant
-                        if postType == .dining {
+                       
                             VStack(alignment: .leading) {
                                 Text("@\(activity.username) created a new restaurant post for: ")
                                     .foregroundStyle(.primary)
@@ -41,21 +41,7 @@ struct ActivityCell: View {
                             }
                             .multilineTextAlignment(.leading)
                         //MARK: Post: AtHome
-                        } else if postType == .cooking {
-                            VStack(alignment: .leading) {
-                                Text("@\(activity.username) created a new at home post: ")
-                                    .activityCellFontStyle() +
-                                Text(activity.name)
-                                    .activityCellFontStyle()
-                                    .bold() +
-                                Text(" !")
-                                    .activityCellFontStyle()
-                                Text(getTimeElapsedString(from: activity.timestamp))
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                            .multilineTextAlignment(.leading)
-                        }
+                        
                         Spacer()
                         //MARK: Post Image
                         if let image = activity.image {
@@ -80,7 +66,7 @@ struct ActivityCell: View {
                         }
                     }
                     .padding()
-                }
+                
             //MARK: New Collection
             } else if activity.type == .newCollection {
                 HStack(alignment: .top) {

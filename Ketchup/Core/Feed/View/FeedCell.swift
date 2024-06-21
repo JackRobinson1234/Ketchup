@@ -502,19 +502,14 @@ struct FeedCell: View {
         //MARK: Configure Player
         .onAppear {
             Task{
-                if !post.mediaUrls.isEmpty{
-                    if let videoURLString = post.mediaUrls.first,
-                       let videoURL = URL(string: videoURLString) {
-                        videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                    }
-                }
+                if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
+                            videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                        }
 
-                if !viewModel.posts.isEmpty{
-                    if let firstPost = viewModel.posts.first,
-                       firstPost.id == post.id && scrollPosition == nil {
-                        videoCoordinator.replay()
-                    }
-                }
+                        // Check if viewModel.posts is not empty and the first post's id matches the current post's id
+                        if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                            videoCoordinator.replay()
+                        }
             }
         }
         .onDisappear{
@@ -532,10 +527,7 @@ struct FeedCell: View {
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear{Task {videoCoordinator.play()}}
         }
-        .sheet(isPresented: $showRecipe) {
-            NewRecipeView(post: post)
-                .onDisappear{Task {videoCoordinator.play()}}
-        }
+        
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)

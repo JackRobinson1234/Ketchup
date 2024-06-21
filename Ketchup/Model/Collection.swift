@@ -21,7 +21,7 @@ struct Collection: Identifiable, Codable, Hashable {
     var description: String?
     var coverImageUrl: String?
     var restaurantCount: Int
-    var atHomeCount: Int
+
     var privateMode: Bool
     var profileImageUrl: String?
     
@@ -36,14 +36,14 @@ struct Collection: Identifiable, Codable, Hashable {
         self.uid = try container.decode(String.self, forKey: .uid)
         self.coverImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.restaurantCount = try container.decode(Int.self, forKey: .restaurantCount)
-        self.atHomeCount = try container.decode(Int.self, forKey: .atHomeCount)
+        
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
        
         
     }
     
-    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int, atHomeCount: Int, privateMode: Bool, profileImageUrl: String? = nil) {
+    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int,  privateMode: Bool, profileImageUrl: String? = nil) {
         self.id = id
         self.name = name
         self.timestamp = timestamp
@@ -53,7 +53,7 @@ struct Collection: Identifiable, Codable, Hashable {
         self.uid = uid
         self.coverImageUrl = coverImageUrl
         self.restaurantCount = restaurantCount
-        self.atHomeCount = atHomeCount
+        
         self.privateMode = privateMode
         self.profileImageUrl = profileImageUrl
     }
@@ -63,7 +63,6 @@ struct Collection: Identifiable, Codable, Hashable {
 struct CollectionItem: Codable, Hashable, Identifiable {
     var collectionId: String
     var id: String
-    var postType: PostType //defined in post
     var name: String
     var image: String?
     //atHome post type specific

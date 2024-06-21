@@ -16,16 +16,14 @@ struct UploadService {
         images: [UIImage]?,
         mediaType: String,
         caption: String,
-        postType: PostType,
         postRestaurant: PostRestaurant?,
-        recipe: PostRecipe?,
         fromInAppCamera: Bool,
-        cookingTitle: String?,
         recommendation: Bool?,
         serviceRating: Bool?,
         atmosphereRating: Bool?,
         valueRating: Bool?,
-        foodRating: Bool?
+        foodRating: Bool?,
+        favoriteItems: [String]
     ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
@@ -59,11 +57,9 @@ struct UploadService {
                 thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: url)
             }
         }
-        
         // Create the post object
         let post = Post(
             id: ref.documentID,
-            postType: postType,
             mediaType: mediaType,
             mediaUrls: mediaUrls,
             caption: caption,
@@ -74,20 +70,18 @@ struct UploadService {
             timestamp: Timestamp(),
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
-            recipe: recipe,
-            cuisine: nil,
-            price: nil,
             didLike: false,
             didSave: false,
             fromInAppCamera: fromInAppCamera,
             repost: false,
             didRepost: false,
-            cookingTitle: cookingTitle,
             recommendation: recommendation,
             serviceRating: serviceRating,
             atmosphereRating: atmosphereRating,
             valueRating: valueRating,
-            foodRating: foodRating
+            foodRating: foodRating,
+            favoriteItems: favoriteItems.isEmpty ? nil : favoriteItems
+            
         )
         
         // Encode the post data

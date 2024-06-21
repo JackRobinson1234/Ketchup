@@ -83,11 +83,9 @@ class CollectionsViewModel: ObservableObject {
             if !self.items.contains(item){
                 self.items.append(item)
                 if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                    if collectionItem.postType == .dining{
+                    
                         collections[index].restaurantCount += 1
-                    } else if collectionItem.postType == .cooking{
-                        collections[index].atHomeCount += 1
-                    }
+                    
                 }
             }
         }
@@ -108,25 +106,11 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: A CollectionItem
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
-            if post.postType == .cooking{
-                let collectionItem = CollectionItem(
-                    collectionId: "",
-                    id: post.id,
-                    postType: post.postType,
-                    name: post.caption,
-                    image: post.thumbnailUrl,
-                    postUserFullname: post.user.fullname,
-                    postUserId: post.user.id,
-                    privateMode: user.privateMode
-                )
-                return collectionItem
-            } else if post.postType == .dining,
-                      let id = post.restaurant?.id,
-                      let name = post.restaurant?.name{
+            if let id = post.restaurant?.id, let name = post.restaurant?.name{
                 let collectionItem = CollectionItem(
                     collectionId: "",
                     id: id,
-                    postType: post.postType,
+                    
                     name: name,
                     image: post.restaurant?.profileImageUrl,
                     city: post.restaurant?.city,
@@ -137,6 +121,7 @@ class CollectionsViewModel: ObservableObject {
                 return collectionItem
             }
         }
+        
         return nil
     }
     
@@ -144,7 +129,6 @@ class CollectionsViewModel: ObservableObject {
         let collectionItem = CollectionItem(
             collectionId: "",
             id: "construction" + NSUUID().uuidString,
-            postType: .dining,
             name: name,
             image: nil,
             city: city,
@@ -178,7 +162,6 @@ class CollectionsViewModel: ObservableObject {
             var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
-                postType: .dining,
                 name: restaurant.name,
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
@@ -199,7 +182,6 @@ class CollectionsViewModel: ObservableObject {
             var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
-                postType: .dining,
                 name: restaurant.name,
                 image: restaurant.profileImageUrl,
                 city: restaurant.city,
@@ -328,11 +310,8 @@ class CollectionsViewModel: ObservableObject {
                 if  !self.deleteItems.isEmpty {
                     for item in self.deleteItems {
                         try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
-                        if item.postType == .dining{
                             collections[index].restaurantCount -= 1
-                        } else if item.postType == .cooking{
-                            collections[index].atHomeCount -= 1
-                        }
+                        
                     }
                     self.items = self.items.filter { !self.deleteItems.contains($0) }
                 }

@@ -77,7 +77,7 @@ struct DeveloperPreview {
     static var posts: [Post] = [
         .init(
                 id: "1",
-                postType: .dining,
+               
                 mediaType: "video",
                 mediaUrls: ["https://example.com/video.mp4"],
                 caption: "Check out this delicious dish!",
@@ -103,8 +103,7 @@ struct DeveloperPreview {
                     state: "Stateville",
                     profileImageUrl: "https://example.com/restaurant.jpg"
                 ),
-                cuisine: "Italian",
-                price: "$$$",
+                
                 fromInAppCamera: false,
                 recommendation: false
             
@@ -169,7 +168,7 @@ struct DeveloperPreview {
                 fullname: "Jack Rob",
                 uid: "",
                 restaurantCount: 0,
-                atHomeCount: 0,
+               
                 privateMode: false
                 )
         ]
@@ -177,7 +176,6 @@ struct DeveloperPreview {
             .init(
                 collectionId: "af",
                 id: "QOxHzulwskv9pSS3vsSH",
-                postType: .cooking,
                 name: "Pasta Carbonara",
                 image: "https://picsum.photos/200/300",
                 postUserFullname: "Will Bond"
@@ -187,7 +185,6 @@ struct DeveloperPreview {
             .init(
                 collectionId: "af",
                 id: "-1QvxFtMgOLpSbO-oAtUgA",
-                postType: .dining,
                 name: "Bella Italia",
                 image: "https://picsum.photos/250/350",
                 city: "Hermosa Beach",
@@ -197,7 +194,7 @@ struct DeveloperPreview {
                 notes: ""
             )
         ]
-    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum", postType: .cooking)
+    static let activity1 = Activity(id: "1", username: "user1", postId: "123", timestamp: Timestamp(date: Date()), type: .newPost, uid: "uid1", image: "https://picsum.photos/200/300", restaurantId: nil, collectionId: nil, name: "yum")
 
         static let activity2 = Activity(id: "2", username: "user2", postId: nil, timestamp: Timestamp(date: Date()), type: .newCollection, uid: "uid2", image: nil, restaurantId: nil, collectionId: "456", name: "My Collection")
 
@@ -245,27 +242,4 @@ struct DeveloperPreview {
                favoriteItems: ["Burgers", "Fries"]
            )
        ]
-    static var samplePostRecipe: PostRecipe = PostRecipe(
-        
-            cookingTime: 30,
-            dietary: ["Gluten-Free", "Vegetarian"],
-            instructions: [
-                .init(title: "Boil Water", description: "Bring a large pot of salted water to a boil. Add spaghetti and cook until al dente."),
-                .init(title: "Whisk Eggs", description: "In a large bowl, whisk together eggs and Parmesan until combined."),
-                .init(title: "Cook Pancetta", description: "In a large skillet over medium heat, cook pancetta until crispy. Remove from heat and set aside."),
-                .init(title: "Drain Pasta", description: "Drain pasta and reserve 1 cup of pasta water."),
-                .init(title: "Combine Pasta", description: "Quickly add pasta to egg mixture and toss to combine, adding reserved pasta water a little at a time until creamy."),
-                .init(title: "Add Pancetta", description: "Add pancetta and mix well. Season with salt and pepper to taste. Serve immediately with extra Parmesan.")
-            ],
-            ingredients: [
-                .init(quantity: "12 oz", item: "spaghetti"),
-                .init(quantity: "3", item: "large eggs"),
-                .init(quantity: "1 cup", item: "grated Parmesan cheese"),
-                .init(quantity: "4 oz", item: "pancetta, diced"),
-                .init(quantity: "to taste", item: "Salt and freshly ground black pepper")
-            ],
-            difficulty: .easy,
-            servings: 4
-            
-        )
 }

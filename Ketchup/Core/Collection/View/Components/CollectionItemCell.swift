@@ -44,7 +44,7 @@ struct CollectionItemCell: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     Rectangle()
                         .frame(width: width, height: 70) // Height of the caption background
-                        .foregroundColor(item.postType == .dining ? .gray.opacity(0.1): .blue.opacity(0.1)) // Light yellow background with opacity
+                        .foregroundColor(.gray.opacity(0.1)) // Light yellow background with opacity
                         .offset(y: 25)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     VStack{
