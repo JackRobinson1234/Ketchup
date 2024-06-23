@@ -12,6 +12,10 @@ struct UploadWrittenReviewView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
     @State var recommend: Bool? = nil
+    @State var serviceRating: Bool?
+    @State var atmosphereRating: Bool?
+    @State var valueRating: Bool?
+    @State var foodRating: Bool?
     @State private var favoriteMenuItem: String = ""
     @State private var favoriteMenuItems: [String] = []
     @State private var isEditingCaption = false
@@ -47,33 +51,33 @@ struct UploadWrittenReviewView: View {
                                 .bold()
                                 .font(.title3)
                             Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                                 .padding(.horizontal)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                             
                             if let cuisine = restaurant.cuisine, let price = restaurant.price {
                                 Text("\(cuisine), \(price)")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(.primary)
                             } else if let cuisine = restaurant.cuisine {
                                 Text(cuisine)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(.primary)
                             } else if let price = restaurant.price {
                                 Text(price)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(.primary)
                             }
                             if let restaurantRequest = reviewViewModel.restaurantRequest {
                                 Text("To be Created")
                                     .foregroundStyle(.primary)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                             }
                             if !setRestaurant {
                                 Text("Edit")
                                     .foregroundStyle(Color("Colors/AccentColor"))
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                             }
                         }
                     }
@@ -101,21 +105,80 @@ struct UploadWrittenReviewView: View {
                             VStack {
                                 Image(systemName: "heart")
                                     .foregroundColor(recommend == true ? Color("Colors/AccentColor") : .gray)
-                                    .font(.title)
+                                    .font(.custom("MuseoSans-500", size: 20))
                                 Text("Recommend")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(recommend == true ? Color("Colors/AccentColor") : .gray)
                             }
                         }
                         
                         Button(action: { recommend = false }) {
                             VStack {
-                                Image(systemName: "heart.slash")
-                                    .foregroundColor(recommend == false ? .black : .gray)
-                                    .font(.title)
-                                Text("Don't Recommend")
-                                    .font(.caption)
-                                    .foregroundStyle(recommend == false ? .black : .gray)
+                                HStack(spacing: 20) {
+                                    RatingButton(title: "Recommend", systemImage: "heart", isActive: recommend == true) {
+                                        recommend = true
+                                    }
+                                    RatingButton(title: "Don't Recommend", systemImage: "heart.slash", isActive: recommend == false) {
+                                        recommend = false
+                                    }
+                                }
+                            }
+                            
+                            HStack {
+                                Text("Service")
+                                    .font(.custom("MuseoSans-500", size: 18))
+                                Spacer()
+                                HStack(spacing: 20) {
+                                    RatingButton(title: "Service", systemImage: "heart", isActive: serviceRating == true) {
+                                       serviceRating = true
+                                    }
+                                    RatingButton(title: "No Service", systemImage: "heart.slash", isActive: serviceRating == false) {
+                                        serviceRating = false
+                                    }
+                                }
+                            }
+                            
+                            HStack {
+                                Text("Atmosphere")
+                                    .font(.custom("MuseoSans-500", size: 18))
+                                Spacer()
+                                HStack(spacing: 20) {
+                                    RatingButton(title: "Atmosphere", systemImage: "heart", isActive: atmosphereRating == true) {
+                                        atmosphereRating = true
+                                    }
+                                    RatingButton(title: "No Atmosphere", systemImage: "heart.slash", isActive: atmosphereRating == false) {
+                                        atmosphereRating = false
+                                    }
+                                }
+                            }
+                            
+                            HStack {
+                                Text("Value")
+                                    .font(.custom("MuseoSans-500", size: 18))
+                                Spacer()
+                                HStack(spacing: 20) {
+                                    RatingButton(title: "Value", systemImage: "heart", isActive: valueRating == true) {
+                                        valueRating = true
+                                    }
+                                    RatingButton(title: "No Value", systemImage: "heart.slash", isActive: valueRating == false) {
+                                        valueRating = false
+                                    }
+                                }
+                            }
+                            
+                            HStack {
+                                Text("Food")
+                                    .font(.custom("MuseoSans-500", size: 18))
+                                Spacer()
+                                HStack(spacing: 20) {
+                                    RatingButton(title: "Food", systemImage: "heart", isActive: foodRating == true) {
+                                        foodRating = true
+                                    }
+                                    RatingButton(title: "No Food", systemImage: "heart.slash", isActive: foodRating == false) {
+                                        foodRating = false
+                                    }
+                                }
+                            
                             }
                         }
                     }
@@ -138,14 +201,14 @@ struct UploadWrittenReviewView: View {
                                     HStack {
                                         Image(systemName: "fork.knife.circle")
                                             .foregroundStyle(.black)
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         VStack(alignment: .leading) {
                                             Text("Add Favorite Menu Items")
-                                                .font(.subheadline)
+                                                .font(.custom("MuseoSans-500", size: 16))
                                                 .foregroundStyle(.black)
                                             if !favoriteMenuItems.isEmpty {
                                                 Text("\(favoriteMenuItems.count) items selected")
-                                                    .font(.footnote)
+                                                    .font(.custom("MuseoSans-500", size: 10))
                                                     .foregroundStyle(.gray)
                                             }
                                         }

@@ -80,7 +80,7 @@ struct ProfileView: View {
                                 .font(.largeTitle)
                                 .padding()
                             Text("Account is private")
-                                .font(.headline)
+                                .font(.custom("MuseoSans-500", size: 18))
                         }
                     }
                 }

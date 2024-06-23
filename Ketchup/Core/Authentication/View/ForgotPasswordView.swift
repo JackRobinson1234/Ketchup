@@ -15,7 +15,7 @@ struct ForgotPasswordView: View {
         VStack{
             Text("Foodi")
             Text("Reset your Password")
-                .font(.title)
+                .font(.custom("MuseoSans-500", size: 20))
                 .fontWeight(.semibold)
             //MARK: Enter Email
             TextField("Enter your email", text: $viewModel.resetEmailText)
@@ -32,7 +32,7 @@ struct ForgotPasswordView: View {
             if let validEmail = viewModel.validResetEmail, !viewModel.resetEmailText.isEmpty && !validEmail {
                 Text("Please Enter a Valid Email Address")
                     .foregroundStyle(Color("Colors/AccentColor"))
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
             }
             //MARK: Reset Button
             Button {
@@ -56,14 +56,14 @@ struct ForgotPasswordView: View {
             //MARK: Confirmation/ Time Remaining
             if !viewModel.canResetEmail {
                 Text("Reset Password email Sent! Please wait \(viewModel.timeRemaining) seconds to try again")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                 Button {
                     dismiss()
                 } label: {
                     Text("Back to Sign in")
                         .fontWeight(.semibold)
                         .foregroundStyle(.blue)
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                 }
                 .padding(.vertical, 16)
             }

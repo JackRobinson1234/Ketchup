@@ -64,7 +64,7 @@ struct CollectionGridView: View {
 
                                             Text("Notes")
                                                 .foregroundStyle(Color(.black))
-                                                .font(.footnote)
+                                                .font(.custom("MuseoSans-500", size: 10))
                                             
                                         }
                                         .padding(.vertical, 3)

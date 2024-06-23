@@ -15,14 +15,26 @@ struct ContentView: View {
     var body: some View {
         Group {
             if Auth.auth().currentUser != nil {
-                    MainTabView()
-                        .environmentObject(viewModel)
-                        .environmentObject(tabBarController)
-                    
+                MainTabView()
+                    .environmentObject(viewModel)
+                    .environmentObject(tabBarController)
+                    .customFont()
+                
             } else if viewModel.userSession == nil {
                 LoginView()
+                    .customFont()
             }
         }
+        //        .onAppear{
+        //            for familyName in UIFont.familyNames{
+        //                print(familyName)
+        //                for fontName in UIFont.fontNames(forFamilyName: familyName) {
+        //                    print(" -- \(fontName)")
+        //                }
+        //            }
+        //        }
+        
+        
     }
 }
 

@@ -49,29 +49,29 @@ struct CollectionItemCell: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     VStack{
                         Text(item.name)
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                             .bold()
                             .foregroundStyle(.black)
                             .lineLimit(1)
                         HStack{
                             if let city = item.city, let state = item.state {
                                 Text("\(city), \(state)")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let name = item.postUserFullname {
                                 Text("by @\(name)")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let city = item.city {
                                 Text("\(city)")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let state = item.state {
                                 Text("\(state)")
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             }

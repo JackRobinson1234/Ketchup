@@ -33,7 +33,7 @@ struct LocationFilter: View {
                         .imageScale(.small)
                     TextField("Search destinations", text: $mapSearch.searchTerm)
                         .foregroundStyle(.black)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .frame(height:44)
                         .padding(.horizontal)
                 }
@@ -79,7 +79,7 @@ struct LocationFilter: View {
                                 }
                             }
                         Text("\(filtersViewModel.selectedCity), \(filtersViewModel.selectedState)")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                     }
                     .padding()
                     .background(Color.white)

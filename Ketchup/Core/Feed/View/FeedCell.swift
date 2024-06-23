@@ -165,7 +165,7 @@ struct FeedCell: View {
                                         //MARK: Recipe Fullname
                                         NavigationLink(value: post.user) {
                                             Text("by \(post.user.fullname)")
-                                                .font(.subheadline)
+                                                .font(.custom("MuseoSans-500", size: 16))
                                                 .fontWeight(.semibold)
                                                 .foregroundStyle(.white)
                                                 .bold()
@@ -180,18 +180,18 @@ struct FeedCell: View {
                             //MARK: caption
                             if let timestamp = post.timestamp{
                                 Text(getTimeElapsedString(from: timestamp))
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundColor(Color("Colors/HingeGray"))
                             }
                             Text(post.caption)
                                 .lineLimit(expandCaption ? 50 : 1)
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                            
                             
                             //MARK: see more
                             if !expandCaption{
                                 Text("See more...")
-                                    .font(.footnote)
+                                    .font(.custom("MuseoSans-500", size: 10))
                             }
                             else {
                                 if let recommendation = post.recommendation, recommendation {
@@ -202,19 +202,19 @@ struct FeedCell: View {
                                             .foregroundColor(.white)
                                         
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 } else if let recommendation = post.recommendation, !recommendation{
                                     HStack(spacing: 0){
                                         Image(systemName: "heart.slash")
                                             .foregroundColor(Color(white: 0.7))
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         Text("Does not recommend")
                                             .foregroundColor(Color(white: 0.7))
                                             .bold()
                                         
                                         
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 }
                                 //MARK: Menu Button
                                 if let serviceRating = post.serviceRating, serviceRating {
@@ -224,17 +224,17 @@ struct FeedCell: View {
                                         Text("Service")
                                             .foregroundColor(.white)
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 } else if let serviceRating = post.serviceRating, !serviceRating{
                                     HStack(spacing: 0){
                                         Image(systemName: "heart.slash")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         Text("Service")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
                                             .bold()
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 }
 
                                 if let atmosphereRating = post.atmosphereRating, atmosphereRating {
@@ -244,17 +244,17 @@ struct FeedCell: View {
                                         Text("Atmosphere")
                                             .foregroundColor(.white)
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 } else if let atmosphereRating = post.atmosphereRating, !atmosphereRating {
                                     HStack(spacing: 0){
                                         Image(systemName: "heart.slash")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         Text("Atmosphere")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
                                             .bold()
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 }
 
                                 if let valueRating = post.valueRating, valueRating {
@@ -264,17 +264,17 @@ struct FeedCell: View {
                                         Text("Value")
                                             .foregroundColor(.white)
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 } else  if let valueRating = post.valueRating, !valueRating{
                                     HStack(spacing: 0){
                                         Image(systemName: "heart.slash")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         Text("Value")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
                                             .bold()
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 }
 
                                 if let foodRating = post.foodRating, foodRating {
@@ -284,17 +284,17 @@ struct FeedCell: View {
                                         Text("Food")
                                             .foregroundColor(.white)
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 } else if let foodRating = post.foodRating, !foodRating {
                                     HStack(spacing: 0){
                                         Image(systemName: "heart.slash")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                         Text("Food")
                                             .foregroundColor(Color(white: 0.7)) // Lighter gray
                                             .bold()
                                     }
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                 }
                                 if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
@@ -314,7 +314,7 @@ struct FeedCell: View {
                                 .fill(Color.black.opacity(0.3))
                         )
                         .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .foregroundStyle(.white)
                         .padding(.horizontal)
     
@@ -356,7 +356,7 @@ struct FeedCell: View {
                                             .foregroundStyle(.white)
                                             .rotationEffect(.degrees(90))
                                         Text("\(post.repostCount)")
-                                            .font(.caption)
+                                            .font(.custom("MuseoSans-500", size: 12))
                                             .fontWeight(.bold)
                                     }
                                     .foregroundStyle(.white)

@@ -23,7 +23,7 @@ struct SelectedRestaurantView: View {
                 .font(.title3)
                 .bold()
             Text("\(restaurant.address ?? ""), \(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                .font(.caption)
+                .font(.custom("MuseoSans-500", size: 12))
         }
     }
 }

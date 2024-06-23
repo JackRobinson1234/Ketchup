@@ -35,7 +35,7 @@ struct EditCollectionView: View {
                                 }
                             } label: {
                                 Text("Delete Collection")
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .foregroundStyle(Color("Colors/AccentColor"))
                             }
                             //Image Selector
@@ -86,7 +86,7 @@ struct EditCollectionView: View {
                                         } label: {
                                             Text("Remove")
                                                 .foregroundStyle(Color("Colors/AccentColor"))
-                                                .font(.subheadline)
+                                                .font(.custom("MuseoSans-500", size: 16))
                                         }
                                     }
                                     .padding(7)

@@ -113,7 +113,7 @@ struct FeedView: View {
                                                     .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "square.grid.2x2")
-                                                .font(.title)
+                                                .font(.custom("MuseoSans-500", size: 20))
                                                 .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
                                         }
@@ -130,7 +130,7 @@ struct FeedView: View {
                                                     .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "line.3.horizontal")
-                                                .font(.title)
+                                                .font(.custom("MuseoSans-500", size: 20))
                                                 .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
                                         }
@@ -191,7 +191,7 @@ struct FeedView: View {
                             
                             Text(titleText)
                                 .foregroundStyle(.white)
-                                .font(.headline)
+                                .font(.custom("MuseoSans-500", size: 18))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                             Spacer()
@@ -288,7 +288,7 @@ struct SuccessMessageOverlay: View {
                         .foregroundColor(.green)
                     Text(text)
                         .foregroundColor(.white)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .bold()
                 }
                 .padding()

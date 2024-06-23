@@ -50,7 +50,7 @@ struct MapRestaurantProfileView: View {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
                                 .padding(6)
-                                .background(Color.primary.opacity(0.6))
+                                .background(Color.white.opacity(0.6))
                                 .clipShape(Circle())
                         }
                         .padding()
@@ -59,7 +59,9 @@ struct MapRestaurantProfileView: View {
                                         Spacer()
                                         HStack(spacing: 0){
                                             Image(systemName: "car")
+                                                .foregroundStyle(.black)
                                             Text(" \(travelTime)")
+                                                .foregroundStyle(.black)
                                         }
                                             .foregroundColor(.primary)
                                             .padding(8)
@@ -85,8 +87,11 @@ struct MapRestaurantProfileView: View {
                                 }) {
                                     HStack (spacing: 0) {
                                         Text("Open in ")
+                                            .foregroundStyle(.black)
                                         Image(systemName: "applelogo")
+                                            .foregroundStyle(.black)
                                         Text(" Maps")
+                                            .foregroundStyle(.black)
                                         
                                     }
                                     .foregroundColor(.primary)

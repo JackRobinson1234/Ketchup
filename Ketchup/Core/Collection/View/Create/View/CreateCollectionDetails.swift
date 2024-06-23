@@ -178,7 +178,7 @@ struct TextBox: View {
             HStack {
                 Spacer()
                 Text("\(maxCharacters - text.count) characters remaining")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .foregroundColor(text.count > maxCharacters ? Color("Colors/AccentColor"): .gray)
                     .padding(.horizontal, 10)
             }
@@ -237,7 +237,7 @@ struct EditorView: View {
                     Divider()
                     
                     TextEditor(text: $text)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .background(Color.white)
                         .frame(width: 330, height: 150)
                         .focused($isFocused)
@@ -246,7 +246,7 @@ struct EditorView: View {
                         Spacer()
                         
                         Text("\(maxCharacters - text.count) characters remaining")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundColor(text.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                             .padding(.horizontal, 10)
                     }
@@ -307,11 +307,11 @@ struct CoverPhotoSelector: View{
                 }
                 if viewModel.coverImage == nil && viewModel.editImageUrl.isEmpty {
                     Text("Add a Cover Photo")
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                         .fontWeight(.semibold)
                 } else {
                     Text("Edit Cover Photo")
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                         .fontWeight(.semibold)
                 }
             }

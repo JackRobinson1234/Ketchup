@@ -42,7 +42,7 @@ struct EditProfileView: View {
                                     UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .large)
                                 }
                                 Text("Edit profile picture")
-                                    .font(.footnote)
+                                    .font(.custom("MuseoSans-500", size: 10))
                                     .fontWeight(.semibold)
                             }
                         }
@@ -75,29 +75,29 @@ struct EditProfileView: View {
                     //MARK: Username availability
                     if viewModel.username.count == 30 {
                         Text("Max 30 Characters")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                     }
                     //MARK: Checking username
                     if viewModel.validUsername == nil && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Checking if username is available...")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(.primary)
                     }
                     //MARK: Available Username
                     else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty && viewModel.username != user.username{
                         Text("Username Available!")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(.green)
                         //MARK: Taken Uername
                     } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Username is already taken. Please try a different username")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     //MARK: emptyUsername
                     if viewModel.username.count == 0 {
                         Text("Full name can not be empty")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
 
@@ -111,13 +111,13 @@ struct EditProfileView: View {
                     //MARK: fullname max
                     if viewModel.fullname.count == 64 {
                         Text("Max 64 Characters")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     //MARK: fullname empty
                     if viewModel.fullname.count == 0 {
                         Text("Full name can not be empty")
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     
@@ -132,7 +132,7 @@ struct EditProfileView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -144,7 +144,7 @@ struct EditProfileView: View {
                     }
                     .disabled(!formIsValid)
                     .opacity(formIsValid ? 1 : 0.5)
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .fontWeight(.semibold)
                 }
             }
@@ -189,7 +189,7 @@ struct EditProfileRowView: View {
                 Divider()
             }
         }
-        .font(.subheadline)
+        .font(.custom("MuseoSans-500", size: 16))
         .frame(height: 36)
     }
 }
@@ -215,7 +215,7 @@ struct editFavoritesView: View {
                     } label: {
                         VStack{
                             Text("Edit")
-                                .font(.caption)
+                                .font(.custom("MuseoSans-500", size: 12))
                                 .foregroundStyle(.blue)
                             HStack{
                                 VStack {
@@ -225,7 +225,7 @@ struct editFavoritesView: View {
                                         }
                                     }
                                     Text(favoriteRestaurant.name)
-                                        .font(.caption)
+                                        .font(.custom("MuseoSans-500", size: 12))
                                         .multilineTextAlignment(.center)
                                         .lineLimit(2)
                                         .frame(maxWidth: .infinity, alignment: .center) // Limit the width
@@ -245,7 +245,7 @@ struct editFavoritesView: View {
                             VStack{
                                 Text("Clear")
                                     .foregroundStyle(Color("Colors/AccentColor"))
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                             }
                         }
                     }

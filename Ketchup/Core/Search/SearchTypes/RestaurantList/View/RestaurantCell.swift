@@ -20,13 +20,13 @@ struct RestaurantCell: View {
             
             VStack(alignment: .leading) {
                 Text(restaurant.name)
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.primary)
                 
                 Text(restaurant.cuisine ?? "Unknown Cuisine")
-                    .font(.footnote)
+                    .font(.custom("MuseoSans-500", size: 10))
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.primary)
                 
@@ -36,7 +36,7 @@ struct RestaurantCell: View {
                 
                 Text("\(address)")
                 //Text("\(address) \(city), \(state)")
-                    .font(.footnote)
+                    .font(.custom("MuseoSans-500", size: 10))
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.primary)
             }

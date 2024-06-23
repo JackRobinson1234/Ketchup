@@ -24,21 +24,21 @@ struct PostListCell: View {
             if let restaurant = post.restaurant{
                 VStack(alignment: .leading) {
                     Text(restaurant.name)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
                     Text("by \(post.user.fullname)")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                         .foregroundStyle(.primary)
                     if let cuisine = restaurant.cuisine {
                         Text(cuisine)
-                            .font(.footnote)
+                            .font(.custom("MuseoSans-500", size: 10))
                             .foregroundStyle(.primary)
                     }
                     let city = restaurant.city ?? ""
                     let state = restaurant.state ?? ""
                     Text("\(city), \(state)")
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                         .foregroundStyle(.primary)
                 }
                 .foregroundStyle(.primary)

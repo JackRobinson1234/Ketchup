@@ -43,7 +43,7 @@ struct LoginView: View {
                     if let validEmail = viewModel.validLoginEmail, !viewModel.email.isEmpty && !validEmail {
                         Text("Please enter a valid email address")
                             .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                     }
                     //MARK: Enter Password
                     SecureField("Enter your password", text: $viewModel.password)
@@ -56,13 +56,13 @@ struct LoginView: View {
                     if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                         Text("Password is at least 6 characters")
                             .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.caption)
+                            .font(.custom("MuseoSans-500", size: 12))
                     }
                 }
                 //MARK: ForgotPassword
                 NavigationLink(destination: ForgotPasswordView(viewModel: viewModel)) {
                     Text("Forgot Password?")
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                         .fontWeight(.semibold)
                         .padding(.top)
                         .padding(.trailing, 28)
@@ -109,21 +109,21 @@ struct LoginView: View {
                 if viewModel.loginAttempts >= maxLoginAttempts{
                     Text("Please wait 10 seconds before logging in again")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 if viewModel.showAlert {
                     Text("Wrong credentials, try again or press forgot password!")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 if viewModel.showReAuthAlert {
                     Text("Different credentials than the current account, please try again!")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 Divider()
                 Text("or")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                 //MARK: Google Sign In
                 Button{
                     Task{
@@ -158,7 +158,7 @@ struct LoginView: View {
                             Text("Sign Up")
                                 .fontWeight(.semibold)
                         }
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                     }
                     .padding(.vertical, 16)
                 }

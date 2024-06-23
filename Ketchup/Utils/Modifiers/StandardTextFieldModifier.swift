@@ -11,7 +11,7 @@ import SwiftUI
 struct StandardTextFieldModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.subheadline)
+            .font(.custom("MuseoSans-500", size: 16))
             .padding(12)
             .background(Color(.systemGray6))
             .cornerRadius(10)

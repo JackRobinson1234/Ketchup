@@ -10,7 +10,7 @@ import SwiftUI
 struct OverlayModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.subheadline)
+            .font(.custom("MuseoSans-500", size: 16))
             .foregroundColor(.primary)
             .padding(10)
             .background(

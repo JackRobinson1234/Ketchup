@@ -24,7 +24,7 @@ struct FeedCellActionButtonView: View {
             
             if let value{
                 Text("\(value)")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .fontWeight(.bold)
             }
             

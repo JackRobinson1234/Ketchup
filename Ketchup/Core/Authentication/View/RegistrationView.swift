@@ -52,7 +52,7 @@ struct RegistrationView: View {
                 if let validEmail = viewModel.validRegistrationEmail, !viewModel.email.isEmpty && !validEmail {
                     Text("Please enter a valid email address")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 // MARK: Password
                 
@@ -76,7 +76,7 @@ struct RegistrationView: View {
                 if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                     Text("Password must be at least 6 characters")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 // MARK: Full Name
                 
@@ -100,7 +100,7 @@ struct RegistrationView: View {
                     }
                 if viewModel.fullname.count == 64 {
                     Text("Max 64 Characters")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 
                 
@@ -140,20 +140,20 @@ struct RegistrationView: View {
                 //MARK: Username availability
                 if viewModel.username.count == 30 {
                     Text("Max 30 Characters")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                 }
                 if viewModel.validUsername == nil && !viewModel.username.isEmpty{
                     Text("Checking if username is available...")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                         .foregroundStyle(.primary)
                 }
                 else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty{
                     Text("Username Available!")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                         .foregroundStyle(.green)
                 } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty{
                     Text("Username is already taken. Please try a different username")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
             }
@@ -182,17 +182,17 @@ struct RegistrationView: View {
             .padding(.vertical)
             if viewModel.registrationAttempts >= maxRegistrationAttempts{
                 Text("Please wait 20 seconds before attempting to register again")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
             if viewModel.showAlert {
                 Text("An account with that email already exists, please try another email")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
             Divider()
             Text("Or")
-                .font(.caption)
+                .font(.custom("MuseoSans-500", size: 12))
             //MARK: Google Sign Up Button
             Button{
                 Task{
@@ -217,7 +217,7 @@ struct RegistrationView: View {
                     Text("Sign in")
                         .fontWeight(.semibold)
                 }
-                .font(.footnote)
+                .font(.custom("MuseoSans-500", size: 10))
             }
             .padding(.vertical, 16)
         }

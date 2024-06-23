@@ -10,6 +10,7 @@ import FirebaseCore
 import AVFAudio
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+    
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
@@ -25,6 +26,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 @main
 struct foodiApp: App {
+    init() {
+        let appear = UINavigationBarAppearance()
+
+        let atters: [NSAttributedString.Key: Any] = [
+            .font: UIFont(name: "MuseoSans-500", size: 30)!
+        ]
+
+        appear.largeTitleTextAttributes = atters
+        appear.titleTextAttributes = atters
+        appear.configureWithTransparentBackground()
+        UINavigationBar.appearance().standardAppearance = appear
+        UINavigationBar.appearance().compactAppearance = appear
+        UINavigationBar.appearance().scrollEdgeAppearance = appear
+     }
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {

@@ -26,7 +26,7 @@ struct ShareView: View {
                         .foregroundStyle(.green)
                         .font(.system(size: 30))
                     Text("Saved!")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .padding(.top,1)
                     
                 } else if downloadViewModel.downloadFailure {
@@ -34,7 +34,7 @@ struct ShareView: View {
                         .foregroundColor(Color("Colors/AccentColor"))
                         .font(.system(size: 50))
                     Text("Save Failed")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .padding(.top,1)
                 } else {
                     Button(action: {
@@ -80,7 +80,7 @@ struct ShareView: View {
                             }
                         }
                     Text("Save \(post.mediaType)")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .padding(.top,1)
                     
                 }
@@ -105,7 +105,7 @@ struct ShareView: View {
                 }) {
                     if !preppingMessage{
                         Image(systemName: "message.fill")
-                            .font(.title)
+                            .font(.custom("MuseoSans-500", size: 20))
                             .foregroundStyle(.white)
                             .background(
                                 Circle()
@@ -117,7 +117,7 @@ struct ShareView: View {
                     }
                 }
                 Text("Messages")
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .padding(.top, 7)
                 
             }
@@ -130,7 +130,7 @@ struct ShareView: View {
 //                                .foregroundColor(.blue)
 //                                .font(.system(size: 40))
 //                            Text("More")
-//                                .font(.subheadline)
+//                                .font(.custom("MuseoSans-500", size: 16))
 //                                .padding(.top, 1)
 //                        }
 //                    }

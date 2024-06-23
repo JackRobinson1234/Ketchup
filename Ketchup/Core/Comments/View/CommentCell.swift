@@ -20,19 +20,19 @@ struct CommentCell: View {
                 HStack(spacing: 2) {
                     Text("@\(comment.user?.username ?? "")")
                         .fontWeight(.semibold)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .foregroundStyle(.primary)
                     
                     Text(" \(comment.timestamp.timestampString())")
                         .foregroundColor(.gray)
-                        .font(.footnote)
+                        .font(.custom("MuseoSans-500", size: 10))
                 }
                 
                 Text(comment.commentText)
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .foregroundStyle(.primary)
             }
-            .font(.caption)
+            .font(.custom("MuseoSans-500", size: 12))
             
             Spacer()
             if !previewMode {

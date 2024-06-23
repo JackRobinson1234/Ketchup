@@ -46,40 +46,40 @@ struct RestaurantProfileHeaderView: View {
                     HStack{
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(restaurant.name)")
-                                .font(.title)
+                                .font(.custom("MuseoSans-500", size: 20))
                                 .fontWeight(.semibold)
                                 .multilineTextAlignment(.leading)
                                 .foregroundStyle(.white)
                             if let cuisine = restaurant.cuisine, let price = restaurant.price {
                                 Text("\(cuisine), \(price)")
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .foregroundStyle(.white)
                                 
                             } else if let cuisine = restaurant.cuisine {
                                 Text(cuisine)
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .foregroundStyle(.white)
                                 
                             } else if let price = restaurant.price {
                                 Text(price)
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .foregroundStyle(.white)
                             }
                             if let city = restaurant.city, !city.isEmpty, let state = restaurant.state, !state.isEmpty {
                                 Text("\(city), \(state)")
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .fontWeight(.semibold)
                                     .multilineTextAlignment(.leading)
                                     .foregroundStyle(.white)
                             } else if let city = restaurant.city, !city.isEmpty {
                                 Text("\(city)")
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .fontWeight(.semibold)
                                     .multilineTextAlignment(.leading)
                                     .foregroundStyle(.white)
                             } else if let state = restaurant.state, !state.isEmpty {
                                 Text("\(state)")
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                                     .fontWeight(.semibold)
                                     .multilineTextAlignment(.leading)
                                     .foregroundStyle(.white)
@@ -123,20 +123,20 @@ struct RestaurantProfileHeaderView: View {
                                         HStack(spacing: 0){
                                             Image(systemName: "car")
                                             Text(" \(travelTime)")
-                                                .font(.subheadline)
+                                                .font(.custom("MuseoSans-500", size: 16))
                                                 .foregroundStyle(.primary)
                                         }
                                     }
                                 
                                     Text("(Click to view on map)")
-                                        .font(.caption)
+                                        .font(.custom("MuseoSans-500", size: 12))
                                 
                             }
                         }
                     }
                     
                     Text("\(restaurant.bio ?? "")")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .multilineTextAlignment(.leading)
 
                 }

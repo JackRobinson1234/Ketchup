@@ -32,10 +32,10 @@ struct ReviewCell: View {
                                 }
                                 VStack(alignment: .leading){
                                     Text(getTimeElapsedString(from: review.timestamp))
-                                        .font(.caption)
+                                        .font(.custom("MuseoSans-500", size: 12))
                                         .foregroundColor(.gray)
                                         Text("@\(review.user.username)")
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                             .foregroundColor(.primary)
                                             .bold()
                                         if review.recommendation {
@@ -46,19 +46,19 @@ struct ReviewCell: View {
                                                     .foregroundColor(.primary)
                                                 
                                             }
-                                            .font(.caption)
+                                            .font(.custom("MuseoSans-500", size: 12))
                                         } else {
                                             HStack(spacing: 0){
                                                 Image(systemName: "heart.slash")
                                                     .foregroundColor(.gray)
-                                                    .font(.subheadline)
+                                                    .font(.custom("MuseoSans-500", size: 16))
                                                 Text("Does not recommend")
                                                     .foregroundColor(.gray)
                                                     .bold()
                                                 
                                                 
                                             }
-                                            .font(.caption)
+                                            .font(.custom("MuseoSans-500", size: 12))
                                         }
                                     }
                                 }
@@ -73,11 +73,11 @@ struct ReviewCell: View {
                                 }
                                 VStack(alignment: .leading){
                                     Text(getTimeElapsedString(from: review.timestamp))
-                                        .font(.caption)
+                                        .font(.custom("MuseoSans-500", size: 12))
                                         .foregroundColor(.gray)
                                     
                                         Text("\(review.restaurant.name)")
-                                            .font(.subheadline)
+                                            .font(.custom("MuseoSans-500", size: 16))
                                             .foregroundColor(.primary)
                                             .bold()
                                     
@@ -90,19 +90,19 @@ struct ReviewCell: View {
                                                     .foregroundColor(.primary)
                                                 
                                             }
-                                            .font(.caption)
+                                            .font(.custom("MuseoSans-500", size: 12))
                                         } else {
                                             HStack(spacing: 0){
                                                 Image(systemName: "heart.slash")
                                                     .foregroundColor(.gray)
-                                                    .font(.subheadline)
+                                                    .font(.custom("MuseoSans-500", size: 16))
                                                 Text("Does not recommend")
                                                     .foregroundColor(.gray)
                                                     .bold()
                                                 
                                                 
                                             }
-                                            .font(.caption)
+                                            .font(.custom("MuseoSans-500", size: 12))
                                         }
                                     }
                                 }
@@ -112,7 +112,7 @@ struct ReviewCell: View {
                     if !previewMode{
                         HStack(spacing: 0){
                             Text("\(review.likes)")
-                                .font(.footnote)
+                                .font(.custom("MuseoSans-500", size: 10))
                                 .foregroundStyle(.gray)
                             Button {
                                 handleLikeTapped()
@@ -140,12 +140,12 @@ struct ReviewCell: View {
                     HStack{
                         if let favoriteItems = review.favoriteItems, !favoriteItems.isEmpty {
                             Text("Favorite Dishes:")
-                                .font(.caption)
+                                .font(.custom("MuseoSans-500", size: 12))
                             
                             
                             ForEach(favoriteItems, id: \.self) { item in
                                 Text(item)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .padding(.vertical, 2)
                                     .padding(.horizontal, 4)
                                     .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
@@ -154,10 +154,10 @@ struct ReviewCell: View {
                     }
                     HStack{
                         Text("Review: ")
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                             .bold() +
                         Text(review.description)
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                     }
                     .padding(.top)
                         

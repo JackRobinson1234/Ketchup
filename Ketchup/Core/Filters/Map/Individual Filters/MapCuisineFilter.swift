@@ -29,7 +29,7 @@ struct MapCuisineFilter: View {
             //MARK: Subtitle
             HStack{
                 Text("Cuisine Filters Selected (Max 10):")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .foregroundStyle(.gray)
                 Spacer()
             }
@@ -50,7 +50,7 @@ struct MapCuisineFilter: View {
                                         }
                                     }
                                 Text(cuisine)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(.gray)
                             }
                             .padding()
@@ -65,7 +65,7 @@ struct MapCuisineFilter: View {
             } else {
                 HStack{
                     Text("No Cuisine Filters Selected")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .bold()
                         .foregroundStyle(.gray)
                     Spacer()
@@ -80,7 +80,7 @@ struct MapCuisineFilter: View {
                     .foregroundStyle(.gray)
                 TextField("Search Cuisines", text: $searchText)
                     .foregroundStyle(.gray)
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .frame(height:44)
                     .padding(.horizontal)
                     .onChange(of: searchText) {oldValue, newValue in
@@ -102,7 +102,7 @@ struct MapCuisineFilter: View {
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
                                 .foregroundStyle(.gray)
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !mapViewModel.selectedCuisines.contains(cuisine) {
@@ -121,7 +121,7 @@ struct MapCuisineFilter: View {
                 /// if maximum filters are selected, display this message
             } else if mapViewModel.selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .padding()
                     .foregroundStyle(.gray)
             }
@@ -129,7 +129,7 @@ struct MapCuisineFilter: View {
             /// if the search doesn't return any results
             else if filteredCuisines.isEmpty {
                 Text("No cuisines matching \"\(searchText)\" found")
-                    .font(.subheadline)
+                    .font(.custom("MuseoSans-500", size: 16))
                     .padding()
                     .foregroundStyle(.gray)
             }

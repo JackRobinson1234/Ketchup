@@ -33,11 +33,11 @@ struct ProfileHeaderView: View {
                     .frame(width: frameWidth)
                 VStack(alignment: .leading) {
                     Text(user.fullname)
-                        .font(.title)
+                        .font(.custom("MuseoSans-500", size: 20))
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                     Text("@\(user.username)")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .foregroundColor(.primary)
                         //.frame(width: frameWidth)
                         .lineLimit(1)
@@ -48,7 +48,7 @@ struct ProfileHeaderView: View {
                             showEditProfile.toggle()
                         } label: {
                             Text("Edit Profile")
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                                 .fontWeight(.semibold)
                                 .padding(.horizontal, 30)
                                 .padding(.vertical, 8)
@@ -66,7 +66,7 @@ struct ProfileHeaderView: View {
                             handleFollowTapped()
                         } label: {
                             Text(user.isFollowed ? "Following" : "Follow")
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                                 .fontWeight(.semibold)
 //                                .padding(.horizontal, 30)
                                 .frame(width: 130)
@@ -142,11 +142,11 @@ struct UserStatView: View {
     var body: some View {
         VStack {
             Text("\(value)")
-                .font(.subheadline)
+                .font(.custom("MuseoSans-500", size: 16))
                 .fontWeight(.bold)
             
             Text(title)
-                .font(.caption)
+                .font(.custom("MuseoSans-500", size: 12))
                 .foregroundStyle(.gray)
         }
         .opacity(value == 0 ? 0.5 : 1.0)

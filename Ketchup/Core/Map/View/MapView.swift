@@ -111,7 +111,7 @@ struct MapView: View {
                                     }
                                 } label: {
                                     Text("Find Nearest Restaurant")
-                                        .font(.subheadline)
+                                        .font(.custom("MuseoSans-500", size: 16))
                                         .modifier(StandardButtonModifier(width: 190))
                                 }
                                 .padding()
@@ -269,7 +269,7 @@ struct MapView: View {
                                     showRestaurantPreview.toggle()
                                 } label: {
                                     Image(systemName: "chevron.left")
-                                        .font(.title)
+                                        .font(.custom("MuseoSans-500", size: 20))
                                         .padding()
                                         .foregroundColor(.white)
                                         .shadow(radius: 3)

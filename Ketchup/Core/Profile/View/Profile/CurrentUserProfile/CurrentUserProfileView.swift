@@ -93,7 +93,7 @@ struct CurrentUserProfileView: View {
                         } label : {
                             ZStack {
                                 Image(systemName: "bell")
-                                    .font(.headline)
+                                    .font(.custom("MuseoSans-500", size: 18))
                                     .foregroundColor(.primary)
                                     .padding()
                                 
@@ -105,7 +105,7 @@ struct CurrentUserProfileView: View {
                                 }
                             }
                         }
-                        .font(.headline)
+                        .font(.custom("MuseoSans-500", size: 18))
                         .foregroundColor(.primary)
                     }
                 }

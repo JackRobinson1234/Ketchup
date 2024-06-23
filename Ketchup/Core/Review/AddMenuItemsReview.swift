@@ -30,7 +30,7 @@ struct AddMenuItemsReview: View {
                                             }
                                         }
                                     Text(item)
-                                        .font(.caption)
+                                        .font(.custom("MuseoSans-500", size: 12))
                                 }
                                 .padding()
                                 .background(Color.white)
@@ -63,7 +63,7 @@ struct AddMenuItemsReview: View {
                 
                 .frame(height:44)
                 .padding(.horizontal)
-                .font(.subheadline)
+                .font(.custom("MuseoSans-500", size: 16))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(lineWidth: 1.0)

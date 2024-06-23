@@ -16,6 +16,8 @@
 		F8246CE32C223D8700C07BB1 /* ReviewCreateRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8246CE22C223D8700C07BB1 /* ReviewCreateRestaurantView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
+		F83380F22C28B2250056C973 /* MuseoSans-500.otf in Resources */ = {isa = PBXBuildFile; fileRef = F83380F12C28B2250056C973 /* MuseoSans-500.otf */; };
+		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
 		F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */; };
 		F83ED9B72BEBF2A4000B2F30 /* FeedGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */; };
 		F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */ = {isa = PBXBuildFile; productRef = F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */; };
@@ -239,6 +241,8 @@
 		F8246CE22C223D8700C07BB1 /* ReviewCreateRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCreateRestaurantView.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
+		F83380F12C28B2250056C973 /* MuseoSans-500.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "MuseoSans-500.otf"; path = "../../Museo Sans 500/Museo Sans 500-Desktop/Fonts/MuseoSans-500.otf"; sourceTree = "<group>"; };
+		F83380F32C28B31E0056C973 /* CustomFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
 		F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCollectionListView.swift; sourceTree = "<group>"; };
 		F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedGridView.swift; sourceTree = "<group>"; };
 		F846F4522BFBD534009D1303 /* Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Review.swift; sourceTree = "<group>"; };
@@ -590,6 +594,7 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
+				F83380F12C28B2250056C973 /* MuseoSans-500.otf */,
 				F84FE2512B6A531300144F01 /* Ketchup.entitlements */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
@@ -631,6 +636,7 @@
 				F871B0052B8AA16400E4EB5F /* NavigationLazyView.swift */,
 				F871B00A2B912CA500E4EB5F /* LocationRequest.swift */,
 				F871B00F2B914B6900E4EB5F /* photosRequest.swift */,
+				F83380F32C28B31E0056C973 /* CustomFont.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1554,6 +1560,7 @@
 			files = (
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
+				F83380F22C28B2250056C973 /* MuseoSans-500.otf in Resources */,
 				F8D69FE02C1247C300560904 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1844,6 +1851,7 @@
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */,
+				F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */,
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,

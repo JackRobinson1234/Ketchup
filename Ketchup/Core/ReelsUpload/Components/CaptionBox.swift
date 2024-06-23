@@ -44,7 +44,7 @@ struct CaptionBox: View {
             HStack {
                 Spacer()
                 Text("\(maxCharacters - caption.count) characters remaining")
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .foregroundColor(caption.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                     .padding(.horizontal, 10)
             }

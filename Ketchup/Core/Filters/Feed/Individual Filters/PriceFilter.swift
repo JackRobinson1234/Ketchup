@@ -27,7 +27,7 @@ struct PriceFilter: View {
             HStack{
                 Text("Price Filters Selected:")
                     .foregroundStyle(.gray)
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                 Spacer()
             }
             .padding(.leading)
@@ -47,7 +47,7 @@ struct PriceFilter: View {
                                         }
                                     }
                                 Text(price)
-                                    .font(.caption)
+                                    .font(.custom("MuseoSans-500", size: 12))
                                     .foregroundStyle(.gray)
                             }
                             .padding()
@@ -63,7 +63,7 @@ struct PriceFilter: View {
                 HStack{
                     Text("No Price Filters Selected")
                         .foregroundStyle(.gray)
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .bold()
                     Spacer()
                 }
@@ -77,7 +77,7 @@ struct PriceFilter: View {
                         ForEach(filteredPrice, id: \.self) { price in
                             Text(price)
                                 .foregroundStyle(.gray)
-                                .font(.subheadline)
+                                .font(.custom("MuseoSans-500", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !filtersViewModel.selectedPrice.contains(price) {

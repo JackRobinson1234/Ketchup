@@ -42,9 +42,9 @@ struct ItemNotesView: View {
                             VStack{
                                 Text("@\(username)'s notes: ")
                                     .bold()
-                                    .font(.subheadline) +
+                                    .font(.custom("MuseoSans-500", size: 16)) +
                                 Text(notes)
-                                    .font(.subheadline)
+                                    .font(.custom("MuseoSans-500", size: 16))
                             }
                             Spacer()
                         }

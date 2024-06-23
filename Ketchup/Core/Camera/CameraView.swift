@@ -118,7 +118,7 @@ struct CameraView: View {
                             tabBarController.selectedTab = 0
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.title)
+                                .font(.custom("MuseoSans-500", size: 20))
                                 .foregroundColor(selectedCamTab == 2 ? .gray : .white)
                         }
                         .padding(.top, 35)
@@ -411,7 +411,7 @@ struct PhotoCameraControls: View {
                         cameraViewModel.mediaType = "none"
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.title)
+                            .font(.custom("MuseoSans-500", size: 20))
                             .foregroundColor(.white)
                     }
                     .padding(.top, 12)
@@ -459,7 +459,7 @@ struct PhotoCameraControls: View {
                         }
                         
                         Text("\(cameraViewModel.images.count)/5")
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                             .foregroundColor(.white)
                     }
                     .padding(.top)
@@ -467,7 +467,7 @@ struct PhotoCameraControls: View {
                     Spacer()
                     
                     Image(systemName: "xmark")
-                        .font(.title)
+                        .font(.custom("MuseoSans-500", size: 20))
                         .foregroundColor(.white)
                         .padding(.trailing)
                         .opacity(0)
@@ -551,7 +551,7 @@ struct PhotoCameraControls: View {
             if showWarning {
                 Text("Maximum photos reached")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.custom("MuseoSans-500", size: 18))
                     .padding()
                     .background(Color.red.opacity(0.8))
                     .cornerRadius(10)
@@ -582,7 +582,7 @@ struct LibraryTypeMenuView: View {
             Divider()
             
             Text("Select Media Type")
-                .font(.headline)
+                .font(.custom("MuseoSans-500", size: 18))
                 .fontWeight(.bold)
                 .frame(height: 50)
             
@@ -602,7 +602,7 @@ struct LibraryTypeMenuView: View {
                             .opacity(0.6)
                                     
                         Text("Upload Videos")
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                             .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)
@@ -623,7 +623,7 @@ struct LibraryTypeMenuView: View {
                             .opacity(0.6)
                         
                         Text("Upload Photos")
-                            .font(.subheadline)
+                            .font(.custom("MuseoSans-500", size: 16))
                             .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)

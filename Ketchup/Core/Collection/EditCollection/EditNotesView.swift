@@ -47,7 +47,7 @@ struct EditNotesView: View {
                     Spacer()
                     
                     Text("\(maxCharacters - notes.count) characters remaining")
-                        .font(.caption)
+                        .font(.custom("MuseoSans-500", size: 12))
                         .padding(.horizontal, 10)
                     
                         .foregroundStyle(.gray)

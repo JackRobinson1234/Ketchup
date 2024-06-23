@@ -21,7 +21,7 @@ struct CommentInputView: View {
                     .padding(.trailing, 48)
                     .background(Color(.systemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .font(.footnote)
+                    .font(.custom("MuseoSans-500", size: 10))
                     .focused($fieldIsActive)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
@@ -46,7 +46,7 @@ struct CommentInputView: View {
             if viewModel.charLimitReached {
                 Text("Max characters reached")
                     .foregroundColor(.red)
-                    .font(.caption)
+                    .font(.custom("MuseoSans-500", size: 12))
                     .padding(.top, 4)
             }
         }

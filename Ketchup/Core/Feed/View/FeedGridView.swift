@@ -67,7 +67,7 @@ struct FeedGridView: View {
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
-                                                    .font(.footnote)
+                                                    .font(.custom("MuseoSans-500", size: 10))
                                                     .bold()
                                                     .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                             }

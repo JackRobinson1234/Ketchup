@@ -12,7 +12,7 @@ struct StandardButtonModifier: ViewModifier {
     var width: CGFloat = 350
     func body(content: Content) -> some View {
         content
-            .font(.subheadline)
+            .font(.custom("MuseoSans-500", size: 16))
             .fontWeight(.semibold)
             .foregroundColor(.white)
             .frame(width: width, height: 44)
@@ -28,7 +28,7 @@ struct OutlineButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.subheadline)
+            .font(.custom("MuseoSans-500", size: 16))
             .fontWeight(.semibold)
             .foregroundColor(.red)  // Set the text color to red
             .frame(width: width, height: 44)

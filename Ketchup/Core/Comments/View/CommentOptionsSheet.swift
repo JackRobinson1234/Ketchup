@@ -23,7 +23,7 @@ struct CommentOptionsSheet: View {
                     showingDeleteAlert = true
                 } label: {
                     Text("Delete Comment")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
@@ -45,7 +45,7 @@ struct CommentOptionsSheet: View {
                     showReportDetails = true
                 } label: {
                     Text("Report Comment")
-                        .font(.subheadline)
+                        .font(.custom("MuseoSans-500", size: 16))
                         .foregroundColor(.primary)
                 }
             }

@@ -21,7 +21,7 @@ struct ClusterCell: View {
                 )
             Text("\(cluster.count)")
                 .foregroundColor(.black)
-                .font(.footnote)
+                .font(.custom("MuseoSans-500", size: 10))
         }
     }
 }
