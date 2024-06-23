@@ -20,7 +20,7 @@ struct LocationFilter: View {
             HStack{
                 Text("Filter by Location")
                     .foregroundStyle(.gray)
-                    .font(.title2)
+                    .font(.custom("MuseoSans-500", size: 22))
                     .fontWeight(.semibold)
                 Spacer()
             }

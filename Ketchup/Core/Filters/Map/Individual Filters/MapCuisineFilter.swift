@@ -20,7 +20,7 @@ struct MapCuisineFilter: View {
             //MARK: Title
             HStack{
                 Text("Filter by Cuisine")
-                    .font(.title2)
+                    .font(.custom("MuseoSans-500", size: 22))
                     .fontWeight(.semibold)
                     .foregroundStyle(.gray)
                 Spacer()

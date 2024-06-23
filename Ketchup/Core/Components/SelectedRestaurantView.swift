@@ -20,7 +20,7 @@ struct SelectedRestaurantView: View {
         VStack  {
             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
             Text(restaurant.name)
-                .font(.title3)
+                .font(.custom("MuseoSans-500", size: 18))
                 .bold()
             Text("\(restaurant.address ?? ""), \(restaurant.city ?? ""), \(restaurant.state ?? "")")
                 .font(.custom("MuseoSans-500", size: 12))

@@ -671,7 +671,7 @@ struct PermissionDeniedView: View {
         VStack {
             Spacer()
             Text("Allow Ketchup to access camera and microphone")
-                .font(.title2)
+                .font(.custom("MuseoSans-500", size: 22))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)

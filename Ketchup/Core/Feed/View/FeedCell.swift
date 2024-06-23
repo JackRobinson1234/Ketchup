@@ -156,7 +156,7 @@ struct FeedCell: View {
                                     VStack (alignment: .leading) {
                                         NavigationLink(value: restaurant) {
                                             Text("\(restaurant.name)")
-                                                .font(.title3)
+                                                .font(.custom("MuseoSans-500", size: 20))
                                                 .bold()
                                                 .multilineTextAlignment(.leading)
                                         }

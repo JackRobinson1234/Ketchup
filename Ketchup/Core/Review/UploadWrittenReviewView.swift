@@ -49,7 +49,7 @@ struct UploadWrittenReviewView: View {
                             
                             Text(restaurant.name)
                                 .bold()
-                                .font(.title3)
+                                .font(.custom("MuseoSans-500", size: 18))
                             Text("\(restaurant.address ?? "") \(restaurant.city ?? ""), \(restaurant.state ?? "")")
                                 .font(.custom("MuseoSans-500", size: 16))
                                 .padding(.horizontal)

@@ -29,7 +29,7 @@ struct CollectionListCell: View {
             }
             VStack(alignment: .leading){
                 Text(collection.name)
-                    .font(.title3)
+                    .font(.custom("MuseoSans-500", size: 18))
                     .bold()
                     .lineLimit(1)
                     itemCountText(for: collection)

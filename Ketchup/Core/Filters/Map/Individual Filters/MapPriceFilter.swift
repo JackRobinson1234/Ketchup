@@ -18,7 +18,7 @@ struct MapPriceFilter: View {
             /// Title
             HStack{
                 Text("Filter by Price")
-                    .font(.title2)
+                    .font(.custom("MuseoSans-500", size: 22))
                     .fontWeight(.semibold)
                     .foregroundStyle(.gray)
                 Spacer()
