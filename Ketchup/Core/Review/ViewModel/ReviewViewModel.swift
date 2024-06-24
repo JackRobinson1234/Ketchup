@@ -19,9 +19,9 @@ class ReviewsViewModel: ObservableObject {
     }
     
     
-    func uploadReview(description: String, recommends: Bool, service: Bool, atmosphere: Bool,  value: Bool, food: Bool, favorites: [String]?) async throws {
+    func uploadReview(description: String, overallRating: Int, serviceRating: Int, atmosphereRating: Int, valueRating: Int, foodRating: Int, favorites: [String]) async throws {
         if let restaurant = restaurantRequest {
-            do{
+            do {
                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
             } catch {
                 print("error uploading restaurant request")
@@ -30,16 +30,27 @@ class ReviewsViewModel: ObservableObject {
         if let user = AuthService.shared.userSession, let restaurant = self.selectedRestaurant {
             do {
                 let postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
-                let review = try await UploadService.shared.uploadPost(videoURL: nil, images: nil, mediaType: "written", caption: description, postRestaurant: postRestaurant, fromInAppCamera: false, recommendation: recommends, serviceRating: <#T##Bool?#>, atmosphereRating: <#T##Bool?#>, valueRating: <#T##Bool?#>, foodRating: <#T##Bool?#>, favoriteItems: <#T##[String]#>)
+                let review = try await UploadService.shared.uploadPost(
+                    videoURL: nil,
+                    images: nil,
+                    mediaType: "written",
+                    caption: description,
+                    postRestaurant: postRestaurant,
+                    fromInAppCamera: false,
+                    overallRating: overallRating,
+                    serviceRating: serviceRating,
+                    atmosphereRating: atmosphereRating,
+                    valueRating: valueRating,
+                    foodRating: foodRating,
+                    favoriteItems: favorites
+                )
                 
-                /* try await ReviewService.shared.uploadReview(restaurant: restaurant, recommends: recommends, description: description, favoriteItems: favorites, user: user)*/
                 // Insert the review at position 0
-                if let review = review {
-                    reviews.insert(review, at: 0)
-                }
-                
+//                if let review = review {
+//                    reviews.insert(review, at: 0)
+//                }
             } catch {
-                // Handle the error
+                print("error uploading post")
                 throw error
             }
         }

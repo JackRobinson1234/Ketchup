@@ -25,18 +25,18 @@ class UploadViewModel: ObservableObject {
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
-    @Published var recommend: Bool?
     @ObservedObject var feedViewModel: FeedViewModel
-    @Published var serviceRating: Bool?
-    @Published var atmosphereRating: Bool?
-    @Published var valueRating: Bool?
-    @Published var foodRating: Bool?
+    @Published var overallRating: Int = 3
+    @Published var serviceRating: Int = 3
+    @Published var atmosphereRating: Int = 3
+    @Published var valueRating: Int = 3
+    @Published var foodRating: Int = 3
     @Published var favoriteMenuItems: [String] = []
-    
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
     }
+    
     func reset() {
         isLoading = false
         error = nil
@@ -49,14 +49,13 @@ class UploadViewModel: ObservableObject {
         restaurant = nil
         navigateToUpload = false
         fromInAppCamera = true
-        recommend = nil
-        serviceRating = nil
-        atmosphereRating = nil
-        valueRating = nil
-        foodRating = nil
+        overallRating = 3
+        serviceRating = 3
+        atmosphereRating = 3
+        valueRating = 3
+        foodRating = 3
+        favoriteMenuItems = []
     }
-    
-   
     
     func uploadPost() async {
         isLoading = true
@@ -74,6 +73,7 @@ class UploadViewModel: ObservableObject {
                 city: restaurant.city.isEmpty ? nil : restaurant.city,
                 state: restaurant.state.isEmpty ? nil : restaurant.state,
                 profileImageUrl: nil
+                
             )
             do {
                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
@@ -86,47 +86,47 @@ class UploadViewModel: ObservableObject {
         
         var post: Post? = nil
         do {
-                if mediaType == "video" {
-                    guard let videoURL = videoURL else {
-                        throw UploadError.invalidMediaData
-                    }
-                    
-                    post = try await UploadService.shared.uploadPost(
-                        videoURL: videoURL,
-                        images: nil,
-                        mediaType: mediaType,
-                        caption: caption,
-                        postRestaurant: postRestaurant,
-                        fromInAppCamera: fromInAppCamera,
-                        recommendation: recommend,
-                        serviceRating: serviceRating,
-                        atmosphereRating: atmosphereRating,
-                        valueRating: valueRating,
-                        foodRating: foodRating,
-                        favoriteItems: favoriteMenuItems
-                    )
-                } else if mediaType == "photo" {
-                    guard let images = images else {
-                        throw UploadError.invalidMediaData
-                    }
-                    post = try await UploadService.shared.uploadPost(
-                        videoURL: nil,
-                        images: images,
-                        mediaType: mediaType,
-                        caption: caption,
-                        postRestaurant: postRestaurant,
-                        fromInAppCamera: fromInAppCamera,
-                        recommendation: recommend,
-                        serviceRating: serviceRating,
-                        atmosphereRating: atmosphereRating,
-                        valueRating: valueRating,
-                        foodRating: foodRating,
-                        favoriteItems: favoriteMenuItems
-                    )
-                } else {
-                    throw UploadError.invalidMediaType
+            if mediaType == "video" {
+                guard let videoURL = videoURL else {
+                    throw UploadError.invalidMediaData
                 }
-                uploadSuccess = true
+                
+                post = try await UploadService.shared.uploadPost(
+                    videoURL: videoURL,
+                    images: nil,
+                    mediaType: mediaType,
+                    caption: caption,
+                    postRestaurant: postRestaurant,
+                    fromInAppCamera: fromInAppCamera,
+                    overallRating: overallRating,
+                    serviceRating: serviceRating,
+                    atmosphereRating: atmosphereRating,
+                    valueRating: valueRating,
+                    foodRating: foodRating,
+                    favoriteItems: favoriteMenuItems
+                )
+            } else if mediaType == "photo" {
+                guard let images = images else {
+                    throw UploadError.invalidMediaData
+                }
+                post = try await UploadService.shared.uploadPost(
+                    videoURL: nil,
+                    images: images,
+                    mediaType: mediaType,
+                    caption: caption,
+                    postRestaurant: postRestaurant,
+                    fromInAppCamera: fromInAppCamera,
+                    overallRating: overallRating,
+                    serviceRating: serviceRating,
+                    atmosphereRating: atmosphereRating,
+                    valueRating: valueRating,
+                    foodRating: foodRating,
+                    favoriteItems: favoriteMenuItems
+                )
+            } else {
+                throw UploadError.invalidMediaType
+            }
+            uploadSuccess = true
             
         } catch {
             self.error = error

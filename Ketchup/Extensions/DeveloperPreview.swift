@@ -77,7 +77,6 @@ struct DeveloperPreview {
     static var posts: [Post] = [
         .init(
                 id: "1",
-               
                 mediaType: "video",
                 mediaUrls: ["https://example.com/video.mp4"],
                 caption: "Check out this delicious dish!",
@@ -89,8 +88,8 @@ struct DeveloperPreview {
                 user: PostUser(
                     id: "user1",
                     fullname: "John Doe",
-                    profileImageUrl: "https://example.com/profile.jpg"
-                    ,privateMode: false,
+                    profileImageUrl: "https://example.com/profile.jpg",
+                    privateMode: false,
                     username: "Test"
                 ),
                 restaurant: PostRestaurant(
@@ -101,14 +100,23 @@ struct DeveloperPreview {
                     address: "123 Main St",
                     city: "Cityville",
                     state: "Stateville",
-                    profileImageUrl: "https://example.com/restaurant.jpg"
+                    profileImageUrl: "https://example.com/restaurant.jpg",
+                    cuisine: "Italian",
+                    price: "$$"
                 ),
-                
+                didLike: false,
+                didSave: false,
                 fromInAppCamera: false,
-                recommendation: false
-            
-        )
-    ]
+                repost: false,
+                didRepost: false,
+                overallRating: 5,
+                serviceRating: 4,
+                atmosphereRating: 4,
+                valueRating: 3,
+                foodRating: 5,
+                favoriteItems: ["Pasta", "Pizza"]
+            )
+        ]
     
     static var comment = Comment(
         id: NSUUID().uuidString,

@@ -17,7 +17,6 @@ import Combine
 
 import Firebase
 
-//@MainActor
 final class RestaurantListViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     var hits: PaginatedDataViewModel<AlgoliaHitsPage<Hit<Restaurant>>>

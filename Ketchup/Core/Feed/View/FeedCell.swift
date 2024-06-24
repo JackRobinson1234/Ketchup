@@ -194,108 +194,108 @@ struct FeedCell: View {
                                     .font(.custom("MuseoSansRounded-300", size: 10))
                             }
                             else {
-                                if let recommendation = post.recommendation, recommendation {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Text("Recommends")
-                                            .foregroundColor(.white)
-                                        
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                } else if let recommendation = post.recommendation, !recommendation{
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(Color(white: 0.7))
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                        Text("Does not recommend")
-                                            .foregroundColor(Color(white: 0.7))
-                                            .bold()
-                                        
-                                        
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
-                                //MARK: Menu Button
-                                if let serviceRating = post.serviceRating, serviceRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Text("Service")
-                                            .foregroundColor(.white)
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                } else if let serviceRating = post.serviceRating, !serviceRating{
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                        Text("Service")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .bold()
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
-
-                                if let atmosphereRating = post.atmosphereRating, atmosphereRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Text("Atmosphere")
-                                            .foregroundColor(.white)
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                } else if let atmosphereRating = post.atmosphereRating, !atmosphereRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                        Text("Atmosphere")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .bold()
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
-
-                                if let valueRating = post.valueRating, valueRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Text("Value")
-                                            .foregroundColor(.white)
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                } else  if let valueRating = post.valueRating, !valueRating{
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                        Text("Value")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .bold()
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
-
-                                if let foodRating = post.foodRating, foodRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart")
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Text("Food")
-                                            .foregroundColor(.white)
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                } else if let foodRating = post.foodRating, !foodRating {
-                                    HStack(spacing: 0){
-                                        Image(systemName: "heart.slash")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                        Text("Food")
-                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
-                                            .bold()
-                                    }
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
+//                                if let recommendation = post.recommendation, recommendation {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart")
+//                                            .foregroundColor(Color("Colors/AccentColor"))
+//                                        Text("Recommends")
+//                                            .foregroundColor(.white)
+//                                        
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                } else if let recommendation = post.recommendation, !recommendation{
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart.slash")
+//                                            .foregroundColor(Color(white: 0.7))
+//                                            .font(.custom("MuseoSansRounded-300", size: 16))
+//                                        Text("Does not recommend")
+//                                            .foregroundColor(Color(white: 0.7))
+//                                            .bold()
+//                                        
+//                                        
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                }
+//                                //MARK: Menu Button
+//                                if let serviceRating = post.serviceRating, serviceRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart")
+//                                            .foregroundColor(Color("Colors/AccentColor"))
+//                                        Text("Service")
+//                                            .foregroundColor(.white)
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                } else if let serviceRating = post.serviceRating, !serviceRating{
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart.slash")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .font(.custom("MuseoSansRounded-300", size: 10))
+//                                        Text("Service")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .bold()
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                }
+//
+//                                if let atmosphereRating = post.atmosphereRating, atmosphereRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart")
+//                                            .foregroundColor(Color("Colors/AccentColor"))
+//                                        Text("Atmosphere")
+//                                            .foregroundColor(.white)
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                } else if let atmosphereRating = post.atmosphereRating, !atmosphereRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart.slash")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .font(.custom("MuseoSansRounded-300", size: 10))
+//                                        Text("Atmosphere")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .bold()
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                }
+//
+//                                if let valueRating = post.valueRating, valueRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart")
+//                                            .foregroundColor(Color("Colors/AccentColor"))
+//                                        Text("Value")
+//                                            .foregroundColor(.white)
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                } else  if let valueRating = post.valueRating, !valueRating{
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart.slash")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .font(.custom("MuseoSansRounded-300", size: 10))
+//                                        Text("Value")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .bold()
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                }
+//
+//                                if let foodRating = post.foodRating, foodRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart")
+//                                            .foregroundColor(Color("Colors/AccentColor"))
+//                                        Text("Food")
+//                                            .foregroundColor(.white)
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                } else if let foodRating = post.foodRating, !foodRating {
+//                                    HStack(spacing: 0){
+//                                        Image(systemName: "heart.slash")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .font(.custom("MuseoSansRounded-300", size: 10))
+//                                        Text("Food")
+//                                            .foregroundColor(Color(white: 0.7)) // Lighter gray
+//                                            .bold()
+//                                    }
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                }
                                 if let restaurant = post.restaurant {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                         Text("View Restaurant")

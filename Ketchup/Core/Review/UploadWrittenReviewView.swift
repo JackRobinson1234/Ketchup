@@ -11,11 +11,11 @@ struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var recommend: Bool? = nil
-    @State var serviceRating: Bool?
-    @State var atmosphereRating: Bool?
-    @State var valueRating: Bool?
-    @State var foodRating: Bool?
+    @State var overallRating: Int = 3
+    @State var serviceRating: Int = 3
+    @State var atmosphereRating: Int = 3
+    @State var valueRating: Int = 3
+    @State var foodRating: Int = 3
     @State private var favoriteMenuItem: String = ""
     @State private var favoriteMenuItems: [String] = []
     @State private var isEditingCaption = false
@@ -101,70 +101,35 @@ struct UploadWrittenReviewView: View {
                             Text("Overall")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            HStack(spacing: 20) {
-                                RatingButton(title: "Recommend", systemImage: "heart", isActive: recommend == true) {
-                                    recommend = true
-                                }
-                                RatingButton(title: "Don't Recommend", systemImage: "heart.slash", isActive: recommend == false) {
-                                    recommend = false
-                                }
-                            }
+                            RatingButtonGroup(rating: $overallRating)
                         }
                         
                         HStack {
                             Text("Service")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            HStack(spacing: 20) {
-                                RatingButton(title: "Service", systemImage: "heart", isActive: serviceRating == true) {
-                                    serviceRating = true
-                                }
-                                RatingButton(title: "No Service", systemImage: "heart.slash", isActive: serviceRating == false) {
-                                    serviceRating = false
-                                }
-                            }
+                            RatingButtonGroup(rating: $serviceRating)
                         }
                         
                         HStack {
                             Text("Atmosphere")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            HStack(spacing: 20) {
-                                RatingButton(title: "Atmosphere", systemImage: "heart", isActive: atmosphereRating == true) {
-                                    atmosphereRating = true
-                                }
-                                RatingButton(title: "No Atmosphere", systemImage: "heart.slash", isActive: atmosphereRating == false) {
-                                    atmosphereRating = false
-                                }
-                            }
+                            RatingButtonGroup(rating: $atmosphereRating)
                         }
                         
                         HStack {
                             Text("Value")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            HStack(spacing: 20) {
-                                RatingButton(title: "Value", systemImage: "heart", isActive: valueRating == true) {
-                                    valueRating = true
-                                }
-                                RatingButton(title: "No Value", systemImage: "heart.slash", isActive: valueRating == false) {
-                                    valueRating = false
-                                }
-                            }
+                            RatingButtonGroup(rating: $valueRating)
                         }
                         
                         HStack {
                             Text("Food")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            HStack(spacing: 20) {
-                                RatingButton(title: "Food", systemImage: "heart", isActive: foodRating == true) {
-                                    foodRating = true
-                                }
-                                RatingButton(title: "No Food", systemImage: "heart.slash", isActive: foodRating == false) {
-                                    foodRating = false
-                                }
-                            }
+                            RatingButtonGroup(rating: $foodRating)
                         }
                     }
                     .padding(20)
@@ -207,10 +172,8 @@ struct UploadWrittenReviewView: View {
                                 showDetailsAlert = true
                             } else {
                                 Task {
-                                    if let recommend {
-                                        try await reviewViewModel.uploadReview(description: description, recommends: recommend, favorites: favoriteMenuItems)
-                                        showAlert = true
-                                    }
+                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating, favorites: favoriteMenuItems)
+                                    showAlert = true
                                 }
                             }
                         } label: {
@@ -284,4 +247,3 @@ struct UploadWrittenReviewView: View {
         }
     }
 }
-

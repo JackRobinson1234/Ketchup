@@ -19,11 +19,11 @@ struct UploadService {
         caption: String,
         postRestaurant: PostRestaurant?,
         fromInAppCamera: Bool,
-        recommendation: Bool?,
-        serviceRating: Bool?,
-        atmosphereRating: Bool?,
-        valueRating: Bool?,
-        foodRating: Bool?,
+        overallRating: Int,
+        serviceRating: Int,
+        atmosphereRating: Int,
+        valueRating: Int,
+        foodRating: Int,
         favoriteItems: [String]
     ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
@@ -46,9 +46,10 @@ struct UploadService {
                     // Optionally, you can also throw an error here to stop the process if any image fails to upload.
                 }
             }
-        } else {
-            throw UploadError.invalidMediaData
         }
+//        } else {
+//            throw UploadError.invalidMediaData
+//        }
         
         var thumbnailUrl = ""
         if let url = mediaUrls.first {
@@ -76,7 +77,7 @@ struct UploadService {
             fromInAppCamera: fromInAppCamera,
             repost: false,
             didRepost: false,
-            recommendation: recommendation,
+            overallRating: overallRating,
             serviceRating: serviceRating,
             atmosphereRating: atmosphereRating,
             valueRating: valueRating,

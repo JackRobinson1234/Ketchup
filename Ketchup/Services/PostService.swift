@@ -86,30 +86,33 @@ class PostService {
     
     
     func fetchPosts(lastDocument: DocumentSnapshot?, pageSize: Int, withFilters filters: [String: [Any]]? = nil) async throws -> ([Post], DocumentSnapshot?) {
-           var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).limit(to: pageSize)
-           
-           if let lastDocument = lastDocument {
-               query = query.start(afterDocument: lastDocument)
-           }
-           
-           if let filters = filters, !filters.isEmpty {
-               if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-                   let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates, lastDocument: lastDocument)
-                   return filteredPosts
-               }
-               
-               query = applyFilters(toQuery: query, filters: filters)
-           }
-           
-           let snapshot = try await query.getDocuments()
-           let posts = snapshot.documents.map { document in
-               var post = try! document.data(as: Post.self)
-               return post
-           }
-               let lastDocumentSnapshot = snapshot.documents.last
-           return (posts, lastDocumentSnapshot)
-       }
-    
+        var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).limit(to: pageSize)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
+        if let filters = filters, !filters.isEmpty {
+            if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
+                let filteredPosts = try await fetchPostsWithLocation(filters: filters, center: coordinates, lastDocument: lastDocument)
+                return filteredPosts
+            }
+            
+            query = applyFilters(toQuery: query, filters: filters)
+        }
+        
+        do {
+            let snapshot = try await query.getDocuments()
+            let posts = try snapshot.documents.compactMap { document in
+                try? document.data(as: Post.self)
+            }
+            let lastDocumentSnapshot = snapshot.documents.last
+            return (posts, lastDocumentSnapshot)
+        } catch {
+            // Handle or rethrow the error appropriately
+            throw error
+        }
+    }
     
     //MARK: applyFilters
     /// Applies .whereFields to an existing query that are associated with the filters
