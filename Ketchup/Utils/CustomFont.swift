@@ -11,7 +11,7 @@ import SwiftUI
 struct CustomFont: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.custom("MuseoSans-500", size: 16)) // Replace "MuseoSans" with the actual font name
+            .font(.custom("MuseoSansRounded-300", size: 16)) // Replace "MuseoSans" with the actual font name
     }
 }
 

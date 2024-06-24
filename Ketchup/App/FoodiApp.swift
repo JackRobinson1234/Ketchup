@@ -30,11 +30,14 @@ struct foodiApp: App {
         let appear = UINavigationBarAppearance()
 
         let atters: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "MuseoSans-500", size: 30)!
+            .font: UIFont(name: "MuseoSansRounded-1000", size: 30)!
         ]
+        let inlineTitleAttributes: [NSAttributedString.Key: Any] = [
+                   .font: UIFont(name: "MuseoSansRounded-1000", size: 20)! // Smaller size for inline title
+               ]
 
         appear.largeTitleTextAttributes = atters
-        appear.titleTextAttributes = atters
+        appear.titleTextAttributes = inlineTitleAttributes
         appear.configureWithTransparentBackground()
         UINavigationBar.appearance().standardAppearance = appear
         UINavigationBar.appearance().compactAppearance = appear

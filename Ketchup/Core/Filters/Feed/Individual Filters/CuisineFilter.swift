@@ -20,7 +20,7 @@ struct CuisineFilter: View {
             //MARK: Title
             HStack{
                 Text("Filter by Cuisine")
-                    .font(.custom("MuseoSans-500", size: 22))
+                    .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
                     .foregroundStyle(.gray)
                 Spacer()
@@ -29,7 +29,7 @@ struct CuisineFilter: View {
             //MARK: Subtitle
             HStack{
                 Text("Cuisine Filters Selected (Max 10):")
-                    .font(.custom("MuseoSans-500", size: 12))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(.gray)
                 Spacer()
             }
@@ -49,7 +49,7 @@ struct CuisineFilter: View {
                                         }
                                     }
                                 Text(cuisine)
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .foregroundStyle(.gray)
                             }
                             .padding()
@@ -65,7 +65,7 @@ struct CuisineFilter: View {
                 HStack{
                     Text("No Cuisine Filters Selected")
                         .foregroundStyle(.gray)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .bold()
                     Spacer()
                 }
@@ -78,7 +78,7 @@ struct CuisineFilter: View {
                     .imageScale(.small)
                     .foregroundStyle(.gray)
                 TextField("Search Cuisines", text: $searchText)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .frame(height:44)
                     .padding(.horizontal)
                     .foregroundStyle(.gray)
@@ -101,7 +101,7 @@ struct CuisineFilter: View {
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
                                 .foregroundStyle(.gray)
-                                .font(.custom("MuseoSans-500", size: 16))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !filtersViewModel.selectedCuisines.contains(cuisine) {
@@ -121,7 +121,7 @@ struct CuisineFilter: View {
             } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
                     .foregroundStyle(.gray)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .padding()
             }
             
@@ -129,7 +129,7 @@ struct CuisineFilter: View {
             else if filteredCuisines.isEmpty {
                 Text("No cuisines matching \"\(searchText)\" found")
                     .foregroundStyle(.gray)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .padding()
             }
             

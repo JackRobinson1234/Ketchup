@@ -19,7 +19,7 @@ struct CommentsView: View {
         VStack {
             if !viewModel.comments.isEmpty {
                 Text(viewModel.commentCountText)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .fontWeight(.semibold)
                     .padding(.top, 24)
             }

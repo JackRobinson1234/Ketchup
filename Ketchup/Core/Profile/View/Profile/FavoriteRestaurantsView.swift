@@ -25,7 +25,7 @@ struct FavoriteRestaurantsView: View {
                                     RestaurantCircularProfileImageView(imageUrl: imageUrl, /*color: Color("Colors/AccentColor"),*/ size: .large)
                                 }
                                 Text(favoriteRestaurant.name)
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .multilineTextAlignment(.center)
                                     .lineLimit(2)
                                     .foregroundStyle(.primary)

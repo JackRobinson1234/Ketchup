@@ -19,7 +19,7 @@ struct CollectionOptionsSheet: View {
                     showReportDetails = true
                 } label: {
                     Text("Report Collection")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(.primary)
                         .bold()
                 }

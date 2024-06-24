@@ -245,7 +245,7 @@ struct CollapsedPickerView: View {
                 }
             }
             .fontWeight(.semibold)
-            .font(.custom("MuseoSans-500", size: 16))
+            .font(.custom("MuseoSansRounded-300", size: 16))
         }
         .padding()
         .background(.white)

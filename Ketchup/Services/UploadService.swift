@@ -10,7 +10,8 @@ import Firebase
 import SwiftUI
 
 struct UploadService {
-    
+    static let shared = UploadService() // Singleton instance
+    private init() {}
     func uploadPost(
         videoURL: URL?,
         images: [UIImage]?,
@@ -107,6 +108,20 @@ struct UploadService {
 //            "thumbnailUrl": thumbnailUrl
 //        ])
         return thumbnailUrl
+    }
+    func createPostRestaurant(from restaurant: Restaurant) -> PostRestaurant {
+        return PostRestaurant(
+            id: restaurant.id,
+            name: restaurant.name,
+            geoPoint: restaurant.geoPoint,
+            geoHash: restaurant.geoHash,
+            address: restaurant.address,
+            city: restaurant.city,
+            state: restaurant.state,
+            profileImageUrl: restaurant.profileImageUrl,
+            cuisine: restaurant.cuisine,
+            price: restaurant.price
+        )
     }
 }
 

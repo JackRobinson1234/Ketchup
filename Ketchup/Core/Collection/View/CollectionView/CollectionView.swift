@@ -57,17 +57,17 @@ struct CollectionView: View {
                             }
                             //MARK: Title
                             Text(collection.name)
-                                .font(.custom("MuseoSans-500", size: 20))
+                                .font(.custom("MuseoSansRounded-300", size: 20))
                                 .bold()
                                 .foregroundStyle(.primary)
                             //MARK: UserName
                             Text("by: @\(collection.username)")
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                                 .foregroundStyle(.primary)
                             if let description = collection.description {
                                 VStack{
                                     Text(description)
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.primary)
                                 }
                                 .frame(width: UIScreen.main.bounds.width * 3 / 4)

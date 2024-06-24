@@ -53,8 +53,10 @@ struct FeedView: View {
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach($viewModel.posts) { post in
-                                        FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
-                                            .id(post.id)
+                                        if !post.mediaUrls.isEmpty {
+                                            FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
+                                                .id(post.id)
+                                        }
                                     }
                                 }
                                 .onAppear {
@@ -113,7 +115,7 @@ struct FeedView: View {
                                                     .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "square.grid.2x2")
-                                                .font(.custom("MuseoSans-500", size: 20))
+                                                .font(.custom("MuseoSansRounded-300", size: 20))
                                                 .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
                                         }
@@ -130,7 +132,7 @@ struct FeedView: View {
                                                     .frame(width: 38, height: 38)
                                             }
                                             Image(systemName: "line.3.horizontal")
-                                                .font(.custom("MuseoSans-500", size: 20))
+                                                .font(.custom("MuseoSansRounded-300", size: 20))
                                                 .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
                                                 .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
                                         }
@@ -191,7 +193,7 @@ struct FeedView: View {
                             
                             Text(titleText)
                                 .foregroundStyle(.white)
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                             Spacer()
@@ -288,7 +290,7 @@ struct SuccessMessageOverlay: View {
                         .foregroundColor(.green)
                     Text(text)
                         .foregroundColor(.white)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .bold()
                 }
                 .padding()

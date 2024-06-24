@@ -32,10 +32,10 @@ struct ReviewCell: View {
                                 }
                                 VStack(alignment: .leading){
                                     Text(getTimeElapsedString(from: review.timestamp))
-                                        .font(.custom("MuseoSans-500", size: 12))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundColor(.gray)
                                         Text("@\(review.user.username)")
-                                            .font(.custom("MuseoSans-500", size: 16))
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
                                             .foregroundColor(.primary)
                                             .bold()
                                         if review.recommendation {
@@ -46,19 +46,19 @@ struct ReviewCell: View {
                                                     .foregroundColor(.primary)
                                                 
                                             }
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                         } else {
                                             HStack(spacing: 0){
                                                 Image(systemName: "heart.slash")
                                                     .foregroundColor(.gray)
-                                                    .font(.custom("MuseoSans-500", size: 16))
+                                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                                 Text("Does not recommend")
                                                     .foregroundColor(.gray)
                                                     .bold()
                                                 
                                                 
                                             }
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                         }
                                     }
                                 }
@@ -73,11 +73,11 @@ struct ReviewCell: View {
                                 }
                                 VStack(alignment: .leading){
                                     Text(getTimeElapsedString(from: review.timestamp))
-                                        .font(.custom("MuseoSans-500", size: 12))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundColor(.gray)
                                     
                                         Text("\(review.restaurant.name)")
-                                            .font(.custom("MuseoSans-500", size: 16))
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
                                             .foregroundColor(.primary)
                                             .bold()
                                     
@@ -90,19 +90,19 @@ struct ReviewCell: View {
                                                     .foregroundColor(.primary)
                                                 
                                             }
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                         } else {
                                             HStack(spacing: 0){
                                                 Image(systemName: "heart.slash")
                                                     .foregroundColor(.gray)
-                                                    .font(.custom("MuseoSans-500", size: 16))
+                                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                                 Text("Does not recommend")
                                                     .foregroundColor(.gray)
                                                     .bold()
                                                 
                                                 
                                             }
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                         }
                                     }
                                 }
@@ -112,7 +112,7 @@ struct ReviewCell: View {
                     if !previewMode{
                         HStack(spacing: 0){
                             Text("\(review.likes)")
-                                .font(.custom("MuseoSans-500", size: 10))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                                 .foregroundStyle(.gray)
                             Button {
                                 handleLikeTapped()
@@ -140,12 +140,12 @@ struct ReviewCell: View {
                     HStack{
                         if let favoriteItems = review.favoriteItems, !favoriteItems.isEmpty {
                             Text("Favorite Dishes:")
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                             
                             
                             ForEach(favoriteItems, id: \.self) { item in
                                 Text(item)
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .padding(.vertical, 2)
                                     .padding(.horizontal, 4)
                                     .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
@@ -154,10 +154,10 @@ struct ReviewCell: View {
                     }
                     HStack{
                         Text("Review: ")
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .bold() +
                         Text(review.description)
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                     }
                     .padding(.top)
                         

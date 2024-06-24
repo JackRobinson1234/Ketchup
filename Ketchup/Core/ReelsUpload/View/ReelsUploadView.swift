@@ -32,7 +32,7 @@ struct ReelsUploadView: View {
     @State var pickingFavorites: Bool = false
     
     var body: some View {
-        ScrollView{
+        //ScrollView{
             ZStack {
                 VStack {
                     HStack{
@@ -52,42 +52,42 @@ struct ReelsUploadView: View {
                                 VStack {
                                     RestaurantCircularProfileImageView(imageUrl: uploadViewModel.restaurant?.profileImageUrl, size: .xLarge)
                                     Text(restaurant.name)
-                                        .font(.custom("MuseoSans-500", size: 20))
+                                        .font(.custom("MuseoSansRounded-300", size: 20))
                                     if let cuisine = restaurant.cuisine, let price = restaurant.price {
                                         Text("\(cuisine), \(price)")
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                             .foregroundStyle(.primary)
                                     } else if let cuisine = restaurant.cuisine {
                                         Text(cuisine)
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                             .foregroundStyle(.primary)
                                     } else if let price = restaurant.price {
                                         Text(price)
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                             .foregroundStyle(.primary)
                                     }
                                     if let address = restaurant.address {
                                         Text(address)
-                                            .font(.custom("MuseoSans-500", size: 12))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                             .foregroundStyle(.primary)
                                     }
                                     Text("Edit")
                                         .foregroundStyle(Color("Colors/AccentColor"))
-                                        .font(.custom("MuseoSans-500", size: 12))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                 }
                             } else if let request = uploadViewModel.restaurantRequest {
                                 VStack {
                                     RestaurantCircularProfileImageView(size: .xLarge)
                                     Text(request.name)
-                                        .font(.custom("MuseoSans-500", size: 20))
+                                        .font(.custom("MuseoSansRounded-300", size: 20))
                                     Text("\(request.city), \(request.state)")
-                                        .font(.custom("MuseoSans-500", size: 12))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                     Text("(To be created)")
                                         .foregroundStyle(.gray)
-                                        .font(.custom("MuseoSans-500", size: 10))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                     Text("Edit")
                                         .foregroundStyle(Color("Colors/AccentColor"))
-                                        .font(.custom("MuseoSans-500", size: 12))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                 }
                             }
                         }
@@ -114,7 +114,7 @@ struct ReelsUploadView: View {
                     VStack {
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $uploadViewModel.caption)
-                                .font(.custom("MuseoSans-500", size: 16))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .frame(height: 75)
                                 .padding(.horizontal, 20)
                                 .background(Color.white)
@@ -129,7 +129,7 @@ struct ReelsUploadView: View {
                                 }
                             if uploadViewModel.caption.isEmpty {
                                 Text("Enter a caption...")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundColor(Color.gray)
                                     .padding(.horizontal, 25)
                                     .padding(.top, 8)
@@ -138,7 +138,7 @@ struct ReelsUploadView: View {
                         HStack {
                             Spacer()
                             Text("\(uploadViewModel.caption.count)/150")
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                                 .foregroundColor(.gray)
                                 .padding(.horizontal, 10)
                         }
@@ -155,14 +155,14 @@ struct ReelsUploadView: View {
                         HStack {
                             Image(systemName: "fork.knife.circle")
                                 .foregroundStyle(.black)
-                                .font(.custom("MuseoSans-500", size: 16))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
                             VStack(alignment: .leading) {
                                 Text("Add Favorite Menu Items")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundStyle(.black)
                                 if !uploadViewModel.favoriteMenuItems.isEmpty {
                                     Text("\(uploadViewModel.favoriteMenuItems.count) items selected")
-                                        .font(.custom("MuseoSans-500", size: 10))
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundStyle(.gray)
                                 }
                             }
@@ -176,8 +176,8 @@ struct ReelsUploadView: View {
                     Divider()
                     VStack(spacing: 20) {
                         HStack {
-                            Text("Recommendation")
-                                .font(.custom("MuseoSans-500", size: 18))
+                            Text("Overall")
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
                             HStack(spacing: 20) {
                                 RatingButton(title: "Recommend", systemImage: "heart", isActive: uploadViewModel.recommend == true) {
@@ -191,7 +191,7 @@ struct ReelsUploadView: View {
                         
                         HStack {
                             Text("Service")
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
                             HStack(spacing: 20) {
                                 RatingButton(title: "Service", systemImage: "heart", isActive: uploadViewModel.serviceRating == true) {
@@ -205,7 +205,7 @@ struct ReelsUploadView: View {
                         
                         HStack {
                             Text("Atmosphere")
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
                             HStack(spacing: 20) {
                                 RatingButton(title: "Atmosphere", systemImage: "heart", isActive: uploadViewModel.atmosphereRating == true) {
@@ -219,7 +219,7 @@ struct ReelsUploadView: View {
                         
                         HStack {
                             Text("Value")
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
                             HStack(spacing: 20) {
                                 RatingButton(title: "Value", systemImage: "heart", isActive: uploadViewModel.valueRating == true) {
@@ -233,7 +233,7 @@ struct ReelsUploadView: View {
                         
                         HStack {
                             Text("Food")
-                                .font(.custom("MuseoSans-500", size: 18))
+                                .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
                             HStack(spacing: 20) {
                                 RatingButton(title: "Food", systemImage: "heart", isActive: uploadViewModel.foodRating == true) {
@@ -280,7 +280,7 @@ struct ReelsUploadView: View {
                 }
                 .padding()
             }
-        }
+        //}
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
@@ -322,10 +322,10 @@ struct RatingButton: View {
             VStack {
                 Image(systemName: systemImage)
                     .foregroundColor(isActive ? Color("Colors/AccentColor") : .gray)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .foregroundStyle(.gray)
 //                Text(title)
-//                    .font(.custom("MuseoSans-500", size: 12))
+//                    .font(.custom("MuseoSansRounded-300", size: 10))
 //                    .foregroundStyle(isActive ? Color("Colors/AccentColor") : .gray)
             }
         }

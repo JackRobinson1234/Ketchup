@@ -14,7 +14,7 @@ import FirebaseFirestore
 struct Post: Identifiable, Codable {
     let id: String
     let mediaType: String // either "video" or "image"
-    let mediaUrls: [String]
+    var mediaUrls: [String]
     let caption: String
     var likes: Int
     var commentCount: Int
@@ -28,11 +28,11 @@ struct Post: Identifiable, Codable {
     var fromInAppCamera: Bool
     var repost: Bool
     var didRepost: Bool
-    var recommendation: Bool?
-    var serviceRating: Bool?
-    var atmosphereRating: Bool?
-    var valueRating: Bool?
-    var foodRating: Bool?
+    var overallRating: Int?
+    var serviceRating: Int?
+    var atmosphereRating: Int?
+    var valueRating: Int?
+    var foodRating: Int?
     var favoriteItems: [String]?
 
     init(from decoder: Decoder) throws {
@@ -53,13 +53,12 @@ struct Post: Identifiable, Codable {
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
-        self.recommendation = try container.decodeIfPresent(Bool.self, forKey: .recommendation)
-        self.serviceRating = try container.decodeIfPresent(Bool.self, forKey: .serviceRating)
-        self.atmosphereRating = try container.decodeIfPresent(Bool.self, forKey: .atmosphereRating)
-        self.valueRating = try container.decodeIfPresent(Bool.self, forKey: .valueRating)
-        self.foodRating = try container.decodeIfPresent(Bool.self, forKey: .foodRating)
+        self.overallRating = try container.decodeIfPresent(Int.self, forKey: .overallRating)
+        self.serviceRating = try container.decodeIfPresent(Int.self, forKey: .serviceRating)
+        self.atmosphereRating = try container.decodeIfPresent(Int.self, forKey: .atmosphereRating)
+        self.valueRating = try container.decodeIfPresent(Int.self, forKey: .valueRating)
+        self.foodRating = try container.decodeIfPresent(Int.self, forKey: .foodRating)
         self.favoriteItems = try container.decodeIfPresent([String].self, forKey: .favoriteItems)
-        
     }
 
     init(
@@ -79,11 +78,11 @@ struct Post: Identifiable, Codable {
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false,
-        recommendation: Bool? = nil,
-        serviceRating: Bool? = nil,
-        atmosphereRating: Bool? = nil,
-        valueRating: Bool? = nil,
-        foodRating: Bool? = nil,
+        overallRating: Int? = nil,
+        serviceRating: Int? = nil,
+        atmosphereRating: Int? = nil,
+        valueRating: Int? = nil,
+        foodRating: Int? = nil,
         favoriteItems: [String]? = nil
     ) {
         self.id = id
@@ -102,7 +101,7 @@ struct Post: Identifiable, Codable {
         self.fromInAppCamera = fromInAppCamera
         self.repost = repost
         self.didRepost = didRepost
-        self.recommendation = recommendation
+        self.overallRating = overallRating
         self.serviceRating = serviceRating
         self.atmosphereRating = atmosphereRating
         self.valueRating = valueRating

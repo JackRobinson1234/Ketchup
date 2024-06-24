@@ -52,7 +52,7 @@ struct RegistrationView: View {
                 if let validEmail = viewModel.validRegistrationEmail, !viewModel.email.isEmpty && !validEmail {
                     Text("Please enter a valid email address")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 // MARK: Password
                 
@@ -76,7 +76,7 @@ struct RegistrationView: View {
                 if let validPassword = viewModel.validPassword, !viewModel.password.isEmpty && !validPassword {
                     Text("Password must be at least 6 characters")
                         .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 // MARK: Full Name
                 
@@ -100,7 +100,7 @@ struct RegistrationView: View {
                     }
                 if viewModel.fullname.count == 64 {
                     Text("Max 64 Characters")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 
                 
@@ -140,20 +140,20 @@ struct RegistrationView: View {
                 //MARK: Username availability
                 if viewModel.username.count == 30 {
                     Text("Max 30 Characters")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 if viewModel.validUsername == nil && !viewModel.username.isEmpty{
                     Text("Checking if username is available...")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundStyle(.primary)
                 }
                 else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty{
                     Text("Username Available!")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundStyle(.green)
                 } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty{
                     Text("Username is already taken. Please try a different username")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
             }
@@ -182,17 +182,17 @@ struct RegistrationView: View {
             .padding(.vertical)
             if viewModel.registrationAttempts >= maxRegistrationAttempts{
                 Text("Please wait 20 seconds before attempting to register again")
-                    .font(.custom("MuseoSans-500", size: 12))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
             if viewModel.showAlert {
                 Text("An account with that email already exists, please try another email")
-                    .font(.custom("MuseoSans-500", size: 12))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
             Divider()
             Text("Or")
-                .font(.custom("MuseoSans-500", size: 12))
+                .font(.custom("MuseoSansRounded-300", size: 10))
             //MARK: Google Sign Up Button
             Button{
                 Task{
@@ -217,7 +217,7 @@ struct RegistrationView: View {
                     Text("Sign in")
                         .fontWeight(.semibold)
                 }
-                .font(.custom("MuseoSans-500", size: 10))
+                .font(.custom("MuseoSansRounded-300", size: 10))
             }
             .padding(.vertical, 16)
         }

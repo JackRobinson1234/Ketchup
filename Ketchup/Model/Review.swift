@@ -41,27 +41,27 @@ struct Review: Identifiable, Codable, Hashable, Equatable{
     }
     
     init(
-            id: String,
-            description: String,
-            likes: Int,
-            timestamp: Timestamp,
-            user: ReviewUser,
-            restaurant: ReviewRestaurant,
-            didLike: Bool = false,
-            recommendation: Bool,
-            favoriteItems: [String]? = nil
-        ) {
-            self.id = id
-            self.description = description
-            self.likes = likes
-            self.timestamp = timestamp
-            self.user = user
-            self.restaurant = restaurant
-            self.didLike = didLike
-            self.recommendation = recommendation
-            self.favoriteItems = favoriteItems
-        }
+        id: String,
+        description: String,
+        likes: Int,
+        timestamp: Timestamp,
+        user: ReviewUser,
+        restaurant: ReviewRestaurant,
+        didLike: Bool = false,
+        recommendation: Bool,
+        favoriteItems: [String]? = nil
+    ) {
+        self.id = id
+        self.description = description
+        self.likes = likes
+        self.timestamp = timestamp
+        self.user = user
+        self.restaurant = restaurant
+        self.didLike = didLike
+        self.recommendation = recommendation
+        self.favoriteItems = favoriteItems
     }
+}
 
 
 

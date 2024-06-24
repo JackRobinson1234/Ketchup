@@ -54,7 +54,7 @@ struct PostGridView: View {
                                         if post.repost{
                                             Image(systemName: "arrow.2.squarepath")
                                                 .foregroundStyle(.white)
-                                                .font(.custom("MuseoSans-500", size: 16))
+                                                .font(.custom("MuseoSansRounded-300", size: 16))
                                         }
                                     }
                                     
@@ -66,7 +66,7 @@ struct PostGridView: View {
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
-                                                    .font(.custom("MuseoSans-500", size: 10))
+                                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                                     .bold()
                                                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             }
@@ -98,7 +98,7 @@ struct PostGridView: View {
                     Spacer()
                     Text("No Posts to Show")
                         .foregroundStyle(.gray)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                     Spacer()
                 }
                 .padding()

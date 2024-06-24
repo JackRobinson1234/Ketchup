@@ -453,7 +453,17 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         //isDragEnabled = true
         
     }
-    
+    func stopCameraSession() {
+            DispatchQueue.global(qos: .background).async {
+                self.session.stopRunning()
+            }
+        }
+
+    func startCameraSession() {
+            DispatchQueue.global(qos: .background).async {
+                self.session.startRunning()
+            }
+        }
     
     func configureFlash() {
         guard let device = AVCaptureDevice.default(for: .video) else { return }

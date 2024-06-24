@@ -24,7 +24,7 @@ struct MapSearchView: View {
                     Image(systemName: "magnifyingglass")
                         .imageScale(.small)
                     TextField("Search destinations", text:  $mapSearch.searchTerm)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         
                 }
                 .frame(height: 44)

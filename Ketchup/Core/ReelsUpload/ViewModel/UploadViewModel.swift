@@ -25,7 +25,6 @@ class UploadViewModel: ObservableObject {
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
-    private var uploadService = UploadService()
     @Published var recommend: Bool?
     @ObservedObject var feedViewModel: FeedViewModel
     @Published var serviceRating: Bool?
@@ -58,26 +57,13 @@ class UploadViewModel: ObservableObject {
     }
     
    
-    func createPostRestaurant(from restaurant: Restaurant) -> PostRestaurant {
-        return PostRestaurant(
-            id: restaurant.id,
-            name: restaurant.name,
-            geoPoint: restaurant.geoPoint,
-            geoHash: restaurant.geoHash,
-            address: restaurant.address,
-            city: restaurant.city,
-            state: restaurant.state,
-            profileImageUrl: restaurant.profileImageUrl,
-            cuisine: restaurant.cuisine,
-            price: restaurant.price
-        )
-    }
+    
     func uploadPost() async {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
         
         if let restaurant = restaurant {
-            postRestaurant = createPostRestaurant(from: restaurant)
+            postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
         } else if let restaurant = restaurantRequest {
             postRestaurant = PostRestaurant(
                 id: "construction" + NSUUID().uuidString,
@@ -105,7 +91,7 @@ class UploadViewModel: ObservableObject {
                         throw UploadError.invalidMediaData
                     }
                     
-                    post = try await uploadService.uploadPost(
+                    post = try await UploadService.shared.uploadPost(
                         videoURL: videoURL,
                         images: nil,
                         mediaType: mediaType,
@@ -123,7 +109,7 @@ class UploadViewModel: ObservableObject {
                     guard let images = images else {
                         throw UploadError.invalidMediaData
                     }
-                    post = try await uploadService.uploadPost(
+                    post = try await UploadService.shared.uploadPost(
                         videoURL: nil,
                         images: images,
                         mediaType: mediaType,

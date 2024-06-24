@@ -36,7 +36,7 @@ struct ActivityCell: View {
                                     .bold()
                                     .activityCellFontStyle()
                                 Text(getTimeElapsedString(from: activity.timestamp))
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
                                     .foregroundColor(.gray)
                             }
                             .multilineTextAlignment(.leading)
@@ -85,7 +85,7 @@ struct ActivityCell: View {
                         Text("!")
                             .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
-                            .font(.custom("MuseoSans-500", size: 12))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
                     }
                     .multilineTextAlignment(.leading)
@@ -136,7 +136,7 @@ struct ActivityCell: View {
                         Text(" to a collection")
                             .activityCellFontStyle()
                         Text(getTimeElapsedString(from: activity.timestamp))
-                            .font(.custom("MuseoSans-500", size: 12))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
                     }
                     .multilineTextAlignment(.leading)
@@ -200,17 +200,17 @@ struct ActivityCell: View {
                                     Text("Recommends")
                                         .foregroundStyle(.primary)
                                 }
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 12))
                             } else {
                                 HStack(spacing: 0) {
                                     Image(systemName: "heart.slash")
                                         .foregroundColor(.gray)
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                     Text("Does not recommend")
                                         .foregroundColor(.gray)
                                         .bold()
                                 }
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 12))
                             }
                             Text("@\(activity.username) reviewed ")
                                 .activityCellFontStyle() +
@@ -220,7 +220,7 @@ struct ActivityCell: View {
                             Text(": \(text)")
                                 .activityCellFontStyle()
                             Text(getTimeElapsedString(from: activity.timestamp))
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 12))
                                 .foregroundColor(.gray)
                         }
                         .multilineTextAlignment(.leading)
@@ -278,7 +278,7 @@ struct ActivityCell: View {
 
 extension Text {
     func activityCellFontStyle() -> Text {
-        self.font(.custom("MuseoSans-500", size: 16))
+        self.font(.custom("MuseoSansRounded-300", size: 14))
             .foregroundColor(.primary)
     }
 }

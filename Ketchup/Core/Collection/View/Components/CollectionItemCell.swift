@@ -49,29 +49,29 @@ struct CollectionItemCell: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     VStack{
                         Text(item.name)
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .bold()
                             .foregroundStyle(.black)
                             .lineLimit(1)
                         HStack{
                             if let city = item.city, let state = item.state {
                                 Text("\(city), \(state)")
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let name = item.postUserFullname {
                                 Text("by @\(name)")
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let city = item.city {
                                 Text("\(city)")
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             } else if let state = item.state {
                                 Text("\(state)")
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                             }

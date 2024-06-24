@@ -23,7 +23,7 @@ struct PostOptionsSheet: View {
                     showingDeleteAlert = true
                 } label: {
                     Text("Delete Post")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
@@ -45,7 +45,7 @@ struct PostOptionsSheet: View {
                     showReportDetails = true
                 } label: {
                     Text("Report Post")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(.primary)
                 }
             }

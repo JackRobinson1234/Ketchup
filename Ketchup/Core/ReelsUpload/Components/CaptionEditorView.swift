@@ -41,7 +41,7 @@ struct CaptionEditorView: View {
                     Divider()
                     
                     TextEditor(text: $caption)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .background(Color.white)
                         .frame(width: 330, height: 150)
                         .focused($isFocused)
@@ -50,7 +50,7 @@ struct CaptionEditorView: View {
                         Spacer()
                         
                         Text("\(maxCharacters - caption.count) characters remaining")
-                            .font(.custom("MuseoSans-500", size: 12))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundColor(caption.count > maxCharacters ? Color("Colors/AccentColor") : .gray)
                             .padding(.horizontal, 10)
                     }

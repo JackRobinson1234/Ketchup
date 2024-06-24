@@ -32,7 +32,7 @@ struct RepostView: View {
                                 Spacer()
                                 Image(systemName: "arrow.2.squarepath")
                                     .foregroundStyle(.white)
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                             }
                             
                             Spacer()
@@ -43,7 +43,7 @@ struct RepostView: View {
                                             .lineLimit(2)
                                             .truncationMode(.tail)
                                             .foregroundColor(.white)
-                                            .font(.custom("MuseoSans-500", size: 10))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
                                             .bold()
                                             .shadow(color: .primary, radius: 2, x: 0, y: 1)
                                     }
@@ -63,7 +63,7 @@ struct RepostView: View {
                         HStack(spacing: 0) {
                             Image(systemName: "arrow.2.squarepath")
                                 .foregroundStyle(.white)
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                             Text("Repost to my profile")
                                 .modifier(StandardButtonModifier())
                         }
@@ -71,7 +71,7 @@ struct RepostView: View {
                         HStack(spacing: 0) {
                             Image(systemName: "x.circle")
                                 .foregroundStyle(.white)
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                             Text("Remove repost from my profile")
                                 .modifier(StandardButtonModifier())
                         }

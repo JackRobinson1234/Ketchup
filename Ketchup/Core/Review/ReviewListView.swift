@@ -56,7 +56,7 @@ struct ReviewListView: View {
                             HStack{
                                 Spacer()
                                 Text("No reviews yet!")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundStyle(.gray)
                                 Spacer()
                             }
@@ -129,7 +129,7 @@ struct CreateReviewButton: View {
                 .padding(.horizontal)
             VStack(alignment: .leading){
                 Text("Create a New Review")
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .foregroundStyle(.primary)
             }
             Spacer()

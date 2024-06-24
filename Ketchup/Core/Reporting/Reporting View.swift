@@ -45,7 +45,7 @@ struct ReportingView: View {
                     
                     Text("Characters remaining: \(150 - customReason.count)")
                         .foregroundColor(.primary)
-                        .font(.custom("MuseoSans-500", size: 10))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .onChange(of: customReason) {oldValue, newValue in
                                if newValue.count > 50 {
                                    customReason = String(newValue.prefix(150))

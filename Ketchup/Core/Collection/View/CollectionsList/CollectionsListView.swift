@@ -70,11 +70,11 @@ struct CollectionsListView: View {
                         else {
                             if viewModel.user.isCurrentUser{
                                 Text("You don't have any collections yet!")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .padding()
                             } else {
                                 Text("\(viewModel.user.fullname) doesn't have any collections yet!")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .padding()
                             }
                         }
@@ -121,7 +121,7 @@ struct CreateCollectionButton: View {
                 .padding(.horizontal)
             VStack(alignment: .leading){
                 Text("Create a New Collection")
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .foregroundStyle(.primary)
             }
             Spacer()

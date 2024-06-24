@@ -30,7 +30,8 @@ struct ReviewCreateRestaurantView: View {
                 TextField("City", text: $city)
                     .padding()
                 Divider()
-                TextField("State", text: $state)                            .padding()
+                TextField("State", text: $state)                          
+                    .padding()
                 Divider()
                 
                 Button {
@@ -55,7 +56,7 @@ struct ReviewCreateRestaurantView: View {
                     Text("Please fill out all required fields before submitting.")
                 }
                 Text("The Ketchup team will update your restaurant profile request within 48 hours! Your post can still be posted now.")
-                    .font(.custom("MuseoSans-500", size: 10))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .padding(.horizontal)
                     .foregroundStyle(.gray)
             }
@@ -87,8 +88,6 @@ struct ReviewCreateRestaurantView: View {
         name.isEmpty || city.isEmpty || state.isEmpty
     }
     func convertRestaurantRequestToRestaurant(request: RestaurantRequest) -> Restaurant {
-        let geoLoc = geoLoc(lat: 0, lng: 0) // Replace with actual values if available
-        let stats = RestaurantStats(postCount: 0, collectionCount: 0) // Replace with actual values if available
         return Restaurant(
             id: "construction" + NSUUID().uuidString,
             name: request.name,

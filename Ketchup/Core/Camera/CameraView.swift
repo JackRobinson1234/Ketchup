@@ -22,20 +22,21 @@ import UniformTypeIdentifiers
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
-        @StateObject var reviewsViewModel = ReviewsViewModel()
-        @EnvironmentObject var tabBarController: TabBarController
-        @ObservedObject var feedViewModel: FeedViewModel
-        @StateObject var uploadViewModel: UploadViewModel
-        
-        @State private var selectedCamTab = 0
-        @State var dragDirection = "left"
-        @State var isDragging = false
-        
-        init(feedViewModel: FeedViewModel) {
-            _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
-            _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
-        }
-    
+    @StateObject var reviewsViewModel = ReviewsViewModel()
+    @EnvironmentObject var tabBarController: TabBarController
+    @ObservedObject var feedViewModel: FeedViewModel
+    @StateObject var uploadViewModel: UploadViewModel
+    @StateObject var keyboardObserver = KeyboardObserver() // Add this line
+
+    @State private var selectedCamTab = 0
+    @State var dragDirection = "left"
+    @State var isDragging = false
+
+    init(feedViewModel: FeedViewModel) {
+        _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
+        _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
+    }
+
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -48,56 +49,59 @@ struct CameraView: View {
                         selectedCamTab = 1
                     }
                 } else {
-                        self.dragDirection = "right"
-                        if selectedCamTab == 0 {
-                            selectedCamTab = 1
-                        } else if selectedCamTab == 1 {
-                            selectedCamTab = 2
-                        }
-                        self.isDragging = false
+                    self.dragDirection = "right"
+                    if selectedCamTab == 0 {
+                        selectedCamTab = 1
+                    } else if selectedCamTab == 1 {
+                        selectedCamTab = 2
                     }
-                
+                    self.isDragging = false
+                }
             }
     }
-    
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                Color.black
-                    .ignoresSafeArea()
-                
-                // WHAT THE CAMERA SEES
+                if selectedCamTab != 2 {
+                    Color.black
+                        .ignoresSafeArea()
+                } else {
+                    Color.white
+                        .ignoresSafeArea()
+                }
+
                 if cameraViewModel.audioOrVideoPermissionsDenied {
                     PermissionDeniedView()
                 } else {
-                    CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-                        .cornerRadius(10)
-                        .environmentObject(cameraViewModel)
-                        .onAppear {
-                            cameraViewModel.checkPermission()
-                        }
-                        .onTapGesture(count: 2) {
-                            cameraViewModel.toggleCamera()
-                        }
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    cameraViewModel.handlePinchGesture(scale: value)
-                                }
-                                .onEnded { _ in
-                                    // Reset initial zoom factor at the end of the gesture
-                                    cameraViewModel.startPinchGesture()
-                                }
-                        )
+                    if selectedCamTab != 2 {
+                        CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+                            .cornerRadius(10)
+                            .environmentObject(cameraViewModel)
+                            .onAppear {
+                                cameraViewModel.checkPermission()
+                                cameraViewModel.startCameraSession()
+                            }
+                            .onTapGesture(count: 2) {
+                                cameraViewModel.toggleCamera()
+                            }
+                            .gesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        cameraViewModel.handlePinchGesture(scale: value)
+                                    }
+                                    .onEnded { _ in
+                                        cameraViewModel.startPinchGesture()
+                                    }
+                            )
+                    }
                 }
-                
+
                 if cameraViewModel.showFlashOverlay {
                     Color.white.opacity(0.5)
                         .cornerRadius(10)
                 }
-                
-                // MARK: CameraControls
+
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     ZStack {
                         if selectedCamTab == 0 {
@@ -109,36 +113,31 @@ struct CameraView: View {
                         }
                     }
                 }
-                
-                // BEFORE ANY MEDIA PREVIEWS ARE CAPTURED
+
                 VStack {
-                    
                     HStack {
                         Button {
                             tabBarController.selectedTab = 0
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.custom("MuseoSans-500", size: 20))
+                                .font(.custom("MuseoSansRounded-300", size: 28))
                                 .foregroundColor(selectedCamTab == 2 ? .gray : .white)
                         }
                         .padding(.top, 35)
                         .padding(.leading)
-                        
+
                         Spacer()
-                        
                     }
-                    
+
                     Spacer()
-                    
+
                     if !cameraViewModel.audioOrVideoPermissionsDenied {
-                        
                         if cameraViewModel.isZooming && !(selectedCamTab == 2) {
                             ZStack {
                                 Circle()
                                     .fill(Color.white)
                                     .frame(width: 30, height: 30)
-                                
-                                // Write actual zoom level here
+
                                 Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(.white)
@@ -146,8 +145,7 @@ struct CameraView: View {
                             }
                             .padding(.bottom, 20)
                         }
-                        
-                        
+
                         HStack {
                             Button {
                                 cameraViewModel.uploadFromLibray = true
@@ -159,12 +157,12 @@ struct CameraView: View {
                                     .frame(width: 50, height: 50)
                                     .padding(.leading, 60)
                             }
-                            
+
                             Spacer()
                         }
                         .padding(.bottom, 10)
                         .opacity(selectedCamTab == 2 ? 0 : 1)
-                        
+
                         if uploadViewModel.restaurant == nil {
                             HStack {
                                 CameraTabBarButton(text: "Video", isSelected: selectedCamTab == 0)
@@ -187,19 +185,19 @@ struct CameraView: View {
                                     }
                             }
                             .padding(.bottom, 5)
+                            .opacity(keyboardObserver.keyboardHeight > 0 ? 0 : 1)
+                            .disabled(keyboardObserver.keyboardHeight > 0)
                         }
-                        
                     }
                 }
+                .padding(.bottom, keyboardObserver.keyboardHeight) // Add this line
+
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
-                
+
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     HStack {
-                        
                         Spacer()
-                        
                         VStack(spacing: 20) {
-                            
                             Button(action: {
                                 cameraViewModel.toggleCamera()
                             }) {
@@ -209,7 +207,7 @@ struct CameraView: View {
                                     .frame(width: 35, height: 35)
                                     .foregroundColor(.white)
                             }
-                            
+
                             Button(action: {
                                 switch cameraViewModel.flashMode {
                                 case .off:
@@ -226,7 +224,7 @@ struct CameraView: View {
                                     .frame(width: 35, height: 35)
                                     .foregroundColor(.white)
                             }
-                            
+
                             Spacer()
                         }
                         .padding(.trailing)
@@ -235,7 +233,6 @@ struct CameraView: View {
                     .opacity(cameraViewModel.isRecording ? 0 : 1)
                     .opacity(selectedCamTab == 2 ? 0 : 1)
                 }
-                
             }
             .gesture(
                 cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
@@ -249,7 +246,6 @@ struct CameraView: View {
                     .toolbar(.hidden, for: .tabBar)
             }
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-            
             .onChange(of: tabBarController.selectedTab) {
                 cameraViewModel.reset()
                 uploadViewModel.reset()
@@ -259,10 +255,16 @@ struct CameraView: View {
                     selectedCamTab = 0
                 }
             }
+            .onChange(of: selectedCamTab) { newValue in
+                if newValue == 2 {
+                    cameraViewModel.stopCameraSession()
+                } else {
+                    cameraViewModel.startCameraSession()
+                }
+            }
         }
     }
 }
-
 
 
 struct VideoCameraControls: View {
@@ -411,7 +413,7 @@ struct PhotoCameraControls: View {
                         cameraViewModel.mediaType = "none"
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.custom("MuseoSans-500", size: 20))
+                            .font(.custom("MuseoSansRounded-300", size: 20))
                             .foregroundColor(.white)
                     }
                     .padding(.top, 12)
@@ -459,7 +461,7 @@ struct PhotoCameraControls: View {
                         }
                         
                         Text("\(cameraViewModel.images.count)/5")
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundColor(.white)
                     }
                     .padding(.top)
@@ -467,7 +469,7 @@ struct PhotoCameraControls: View {
                     Spacer()
                     
                     Image(systemName: "xmark")
-                        .font(.custom("MuseoSans-500", size: 20))
+                        .font(.custom("MuseoSansRounded-300", size: 20))
                         .foregroundColor(.white)
                         .padding(.trailing)
                         .opacity(0)
@@ -551,7 +553,7 @@ struct PhotoCameraControls: View {
             if showWarning {
                 Text("Maximum photos reached")
                     .foregroundColor(.white)
-                    .font(.custom("MuseoSans-500", size: 18))
+                    .font(.custom("MuseoSansRounded-300", size: 18))
                     .padding()
                     .background(Color.red.opacity(0.8))
                     .cornerRadius(10)
@@ -582,7 +584,7 @@ struct LibraryTypeMenuView: View {
             Divider()
             
             Text("Select Media Type")
-                .font(.custom("MuseoSans-500", size: 18))
+                .font(.custom("MuseoSansRounded-300", size: 18))
                 .fontWeight(.bold)
                 .frame(height: 50)
             
@@ -602,7 +604,7 @@ struct LibraryTypeMenuView: View {
                             .opacity(0.6)
                                     
                         Text("Upload Videos")
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)
@@ -623,7 +625,7 @@ struct LibraryTypeMenuView: View {
                             .opacity(0.6)
                         
                         Text("Upload Photos")
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundColor(.black)
                     }
                     .frame(width: 130, height: 100)
@@ -655,7 +657,7 @@ struct CameraPreview: UIViewRepresentable {
         cameraViewModel.preview.videoGravity = .resizeAspectFill
         view.layer.addSublayer(cameraViewModel.preview)
         
-        cameraViewModel.session.startRunning()
+        cameraViewModel.startCameraSession()
         
         return view
     }
@@ -671,7 +673,7 @@ struct PermissionDeniedView: View {
         VStack {
             Spacer()
             Text("Allow Ketchup to access camera and microphone")
-                .font(.custom("MuseoSans-500", size: 22))
+                .font(.custom("MuseoSansRounded-300", size: 22))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
@@ -847,10 +849,13 @@ struct CameraTabBarButton: View {
                 Text(text)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 20)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    
             } else {
                 Text(text)
                     .foregroundColor(isSelected ? .white : .gray)
                     .padding(.horizontal, 20)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
             }
 
             if isSelected {
@@ -871,5 +876,30 @@ struct CameraTabBarButton: View {
             }
         }
         .frame(width: 100, height: 50)
+    }
+}
+import Combine
+import SwiftUI
+
+class KeyboardObserver: ObservableObject {
+    @Published var keyboardHeight: CGFloat = 0
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+            .sink { [weak self] height in
+                self?.keyboardHeight = height
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+            .sink { [weak self] height in
+                self?.keyboardHeight = height
+            }
+            .store(in: &cancellables)
     }
 }

@@ -41,7 +41,7 @@ struct RestaurantCollectionListView: View {
                             VStack(alignment: .leading){
                                 
                                 Text("Add \(viewModel.restaurant?.name ?? "") to your collection")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundStyle(.primary)
                                     .multilineTextAlignment(.leading)
                             }
@@ -70,7 +70,7 @@ struct RestaurantCollectionListView: View {
                     } else {
                         if let restaurant = viewModel.restaurant {
                             Text("\(restaurant.name) is not listed in any collections")
-                                .font(.custom("MuseoSans-500", size: 16))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .padding()
                         }
                     }

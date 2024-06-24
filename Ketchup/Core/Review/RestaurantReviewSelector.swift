@@ -28,10 +28,10 @@ struct RestaurantReviewSelector: View {
                     VStack{
                         Text("Can't find the restaurant you're looking for?")
                             .foregroundStyle(.gray)
-                            .font(.custom("MuseoSans-500", size: 10))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
                         Text("Request a Restaurant")
                             .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.custom("MuseoSans-500", size: 10))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
                     }
                 }
                 InfiniteList(viewModel.hits, itemView: { hit in

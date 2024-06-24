@@ -24,7 +24,7 @@ struct ReviewOptionsSheet: View {
                     showingDeleteAlert = true
                 } label: {
                     Text("Delete Review")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .alert(isPresented: $showingDeleteAlert) {
@@ -46,7 +46,7 @@ struct ReviewOptionsSheet: View {
                     showReportDetails = true
                 } label: {
                     Text("Report Review")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(.primary)
                 }
             }

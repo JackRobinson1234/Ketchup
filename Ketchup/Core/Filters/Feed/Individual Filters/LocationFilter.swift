@@ -20,7 +20,7 @@ struct LocationFilter: View {
             HStack{
                 Text("Filter by Location")
                     .foregroundStyle(.gray)
-                    .font(.custom("MuseoSans-500", size: 22))
+                    .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
                 Spacer()
             }
@@ -33,7 +33,7 @@ struct LocationFilter: View {
                         .imageScale(.small)
                     TextField("Search destinations", text: $mapSearch.searchTerm)
                         .foregroundStyle(.black)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .frame(height:44)
                         .padding(.horizontal)
                 }
@@ -79,7 +79,7 @@ struct LocationFilter: View {
                                 }
                             }
                         Text("\(filtersViewModel.selectedCity), \(filtersViewModel.selectedState)")
-                            .font(.custom("MuseoSans-500", size: 12))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
                     }
                     .padding()
                     .background(Color.white)

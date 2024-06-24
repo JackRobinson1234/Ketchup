@@ -18,7 +18,7 @@ struct MapPriceFilter: View {
             /// Title
             HStack{
                 Text("Filter by Price")
-                    .font(.custom("MuseoSans-500", size: 22))
+                    .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
                     .foregroundStyle(.gray)
                 Spacer()
@@ -26,7 +26,7 @@ struct MapPriceFilter: View {
             .padding(.leading)
             HStack{
                 Text("Price Filters Selected:")
-                    .font(.custom("MuseoSans-500", size: 12))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(.gray)
                 Spacer()
             }
@@ -47,7 +47,7 @@ struct MapPriceFilter: View {
                                         }
                                     }
                                 Text(price)
-                                    .font(.custom("MuseoSans-500", size: 12))
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                                     .foregroundStyle(.gray)
                             }
                             .padding()
@@ -62,7 +62,7 @@ struct MapPriceFilter: View {
             } else {
                 HStack{
                     Text("No Price Filters Selected")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(.gray)
                         .bold()
                     Spacer()
@@ -77,7 +77,7 @@ struct MapPriceFilter: View {
                         ForEach(filteredPrice, id: \.self) { price in
                             Text(price)
                                 .foregroundStyle(.gray)
-                                .font(.custom("MuseoSans-500", size: 16))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !mapViewModel.selectedPrice.contains(price) {

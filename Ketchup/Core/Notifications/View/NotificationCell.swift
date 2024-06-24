@@ -35,17 +35,17 @@ struct NotificationCell: View {
                             } label: {
                                 VStack {
                                     Text(notification.user?.username ?? "")
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.primary)
                                         .fontWeight(.semibold) +
                                     Text(notification.type.notificationMessage)
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.primary) +
                                     Text("\(restaurantName): ")
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.primary) +
                                     Text(text)
-                                        .font(.custom("MuseoSans-500", size: 16))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.primary)
                                 }
                                 .multilineTextAlignment(.leading)
@@ -53,11 +53,11 @@ struct NotificationCell: View {
                         } else {
                             VStack {
                                 Text(notification.user?.username ?? "")
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundStyle(.primary)
                                     .fontWeight(.semibold) +
                                 Text(notification.type.notificationMessage)
-                                    .font(.custom("MuseoSans-500", size: 16))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundStyle(.primary)
                             }
                             .multilineTextAlignment(.leading)
@@ -65,7 +65,7 @@ struct NotificationCell: View {
                     }
                     Text("\(notification.timestamp.timestampString())")
                         .foregroundColor(.gray)
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 .multilineTextAlignment(.leading)
             }
@@ -78,7 +78,7 @@ struct NotificationCell: View {
                     }
                 }, label: {
                     Text(isFollowed ? "Following" : "Follow")
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .fontWeight(.semibold)
                         .frame(width: 110)
                         .padding(.vertical, 8)

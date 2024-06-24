@@ -20,11 +20,11 @@ struct UserCell: View {
             
             VStack(alignment: .leading) {
                 Text(user.username)
-                    .font(.custom("MuseoSans-500", size: 16))
+                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary)
                 Text(user.fullname)
-                    .font(.custom("MuseoSans-500", size: 10))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(.primary)
             }
             .foregroundStyle(.primary)

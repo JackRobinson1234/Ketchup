@@ -54,7 +54,7 @@ struct AddNotesView: View {
                     Spacer()
                     
                     Text("\(maxCharacters - notes.count) characters remaining")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .padding(.horizontal, 10)
                     
                         .foregroundStyle(.gray)

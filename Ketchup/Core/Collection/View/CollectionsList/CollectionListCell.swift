@@ -29,21 +29,21 @@ struct CollectionListCell: View {
             }
             VStack(alignment: .leading){
                 Text(collection.name)
-                    .font(.custom("MuseoSans-500", size: 18))
+                    .font(.custom("MuseoSansRounded-300", size: 18))
                     .bold()
                     .lineLimit(1)
                     itemCountText(for: collection)
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                         .foregroundStyle(.primary)
                 Text("By \(collection.username)")
-                    .font(.custom("MuseoSans-500", size: 12))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                     .lineLimit(1)
                     .foregroundStyle(.primary)
                 if let description = collection.description {
                     Text(description)
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .lineLimit(1)
                         .foregroundStyle(.primary)
                 }

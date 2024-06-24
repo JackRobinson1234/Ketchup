@@ -47,7 +47,7 @@ struct MapRestaurantView: View {
                     .tabViewStyle(.page)
                
                     Text("\(restaurant.name)")
-                    .font(.custom("MuseoSans-500", size: 20))
+                    .font(.custom("MuseoSansRounded-300", size: 20))
                         .bold()
                         .multilineTextAlignment(.leading)
                         .foregroundStyle(.white)
@@ -64,30 +64,30 @@ struct MapRestaurantView: View {
                        
                     if let cuisine = restaurant.cuisine, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundStyle(.gray)
                         
                     } else if let cuisine = restaurant.cuisine {
                         Text(cuisine)
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundStyle(.gray)
                         
                     } else if let price = restaurant.price {
                         Text(price)
-                            .font(.custom("MuseoSans-500", size: 16))
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundStyle(.gray)
                     }
                 
                     Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                         .foregroundStyle(.gray)
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                     if let travelTime {
                         HStack(spacing: 0){
                             Image(systemName: "car")
                             Text(" \(travelTime)")
 
                         }
-                        .font(.custom("MuseoSans-500", size: 16))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(.gray)
                     }
                 }
@@ -100,7 +100,7 @@ struct MapRestaurantView: View {
                     
             }
             .foregroundColor(.primary)
-            .font(.custom("MuseoSans-500", size: 10))
+            .font(.custom("MuseoSansRounded-300", size: 10))
             .padding([.horizontal, .bottom])
         }
         .background(.white)

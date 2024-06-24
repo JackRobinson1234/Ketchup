@@ -52,7 +52,7 @@ struct SettingsView: View {
                         HStack {
                             Text("When in private mode, ALL users will not be able to see any of your posts, collections, or liked posts")
                                 .foregroundColor(.gray)
-                                .font(.custom("MuseoSans-500", size: 12))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                             Spacer()
                             Toggle("", isOn: $viewModel.privateMode)
                                 .labelsHidden()
@@ -83,7 +83,7 @@ struct SettingsView: View {
                         .foregroundStyle(.primary)
                         .padding()
                 }
-                .font(.custom("MuseoSans-500", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 16))
                 .fontWeight(.semibold)
                 .padding()
                 Divider()
@@ -93,7 +93,7 @@ struct SettingsView: View {
                     showDeleteAccountAlert = true
                 } label: {
                     Text("Delete Account")
-                        .font(.custom("MuseoSans-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 //MARK: Delete Account Alert
