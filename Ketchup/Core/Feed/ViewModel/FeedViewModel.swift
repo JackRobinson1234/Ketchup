@@ -15,7 +15,7 @@ enum FeedType: String, CaseIterable {
 
 @MainActor
 class FeedViewModel: ObservableObject {
-    @Published var feedViewOption: FeedViewOption = .feed
+    @Published var feedViewOption: FeedViewOption = .grid
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?

@@ -76,105 +76,102 @@ struct FeedView: View {
                         }
                         .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                     } else if viewModel.feedViewOption == .grid {
-                        ScrollView(showsIndicators: false) {
-                            VStack {
-                                FeedGridView(viewModel: viewModel)
+                        ScrollViewReader { scrollProxy in
+                            ScrollView(showsIndicators: false) {
+                                LazyVStack() {
+                                    ForEach($viewModel.posts) { post in
+                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition)
+                                            .id(post.id)
+                                    }
+                                }
+                                .scrollTargetLayout()
+                            }
+                            .safeAreaPadding(.vertical, 130)
+                            .scrollPosition(id: $scrollPosition)
+                            .onAppear {
+                                if hideFeedOptions {
+                                    Debouncer(delay: 0.5).schedule {
+                                        viewModel.combineEarlyPosts()
+                                    }
+                                } else {
+                                    scrollProxy.scrollTo(scrollPosition, anchor: .center)
+                                    viewModel.startingPostId = ""
+                                }
                             }
                         }
-                        .scrollTargetLayout()
-                        .scrollPosition(id: $scrollPosition)
-                        .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                     }
                     
                     if viewModel.feedViewOption == .grid {
                         Color.white
-                            .frame(height: 135)
+                            .frame(height: 100)
                             .edgesIgnoringSafeArea(.top)
                     }
                     
                     if !hideFeedOptions {
                         HStack(spacing: 0) {
-                            Image("KetchupTextWhite")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 17)
-                            
-                            Spacer()
-//                            ZStack {
-//                                Color.white.opacity(0.3)
-//                                    .cornerRadius(15)
-//                                    .frame(width: 100, height: 45)
-//                                HStack(spacing: 10) {
-//                                    Button {
-//                                        viewModel.feedViewOption = .grid
-//                                    } label: {
-//                                        ZStack {
-//                                            if viewModel.feedViewOption == .grid {
-//                                                Color("Colors/AccentColor")
-//                                                    .cornerRadius(12)
-//                                                    .frame(width: 38, height: 38)
-//                                            }
-//                                            Image(systemName: "square.grid.2x2")
-//                                                .font(.custom("MuseoSansRounded-300", size: 20))
-//                                                .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
-//                                                .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
-//                                        }
-//                                    }
-//                                    .disabled(viewModel.feedViewOption == .grid)
-//                                    
-//                                    Button {
-//                                        viewModel.feedViewOption = .feed
-//                                    } label: {
-//                                        ZStack {
-//                                            if viewModel.feedViewOption == .feed {
-//                                                Color("Colors/AccentColor")
-//                                                    .cornerRadius(12)
-//                                                    .frame(width: 38, height: 38)
-//                                            }
-//                                            Image(systemName: "line.3.horizontal")
-//                                                .font(.custom("MuseoSansRounded-300", size: 20))
-//                                                .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
-//                                                .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
-//                                        }
-//                                    }
-//                                    .disabled(viewModel.feedViewOption == .feed)
-//                                }
-//                            }
-                            Spacer()
-                            HStack(spacing: 10) {
+                            if viewModel.feedViewOption == .grid {
                                 Button {
                                     showSearchView.toggle()
                                 } label: {
                                     Image(systemName: "magnifyingglass")
                                         .font(.system(size: 27))
+                                        .frame(width: 60)
                                 }
-                                Button {
-                                    showFilters.toggle()
+                            } else {
+                                Button{
+                                    viewModel.feedViewOption = .grid
                                 } label: {
-                                    ZStack {
-                                        Image(systemName: "slider.horizontal.3")
-                                            .imageScale(.large)
-                                            .shadow(radius: 4)
-                                            .font(.system(size: 23))
-                                        
-                                        if !filtersViewModel.filters.isEmpty {
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(.white)
+                                        .background(
                                             Circle()
-                                                .fill(Color("Colors/AccentColor"))
-                                                .frame(width: 12, height: 12)
-                                                .offset(x: 12, y: 12)
-                                        }
-                                    }
+                                                .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                                .frame(width: 30, height: 30) // Adjust the size as needed
+                                        )
+                                        .padding()
                                 }
                             }
-                            .frame(width: 60)
+                            Spacer()
+                            if viewModel.feedViewOption == .grid {
+                                Image("KetchupTextRed")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
+                            } else {
+                                Image("KetchupTextWhite")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
+                            }
+                            Spacer()
+                            Button {
+                                showFilters.toggle()
+                            } label: {
+                                ZStack {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .imageScale(.large)
+                                        .shadow(radius: 4)
+                                        .font(.system(size: 23))
+                                    
+                                    if !filtersViewModel.filters.isEmpty {
+                                        Circle()
+                                            .fill(Color("Colors/AccentColor"))
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12)
+                                    }
+                                    
+                                }
+                                .frame(width: 60)
+                            }
+                            
                         }
                         .frame(maxWidth: .infinity)
                         .ignoresSafeArea()
-                        .padding(.top, 70)
-                        .padding(.horizontal, 40)
-                        .foregroundStyle(.white)
+                        .padding(.top, 55)
+                        .padding(.horizontal, 20)
+                        .foregroundStyle(.primary)
                         .padding(.bottom, 10)
-                        .shadow(color: Color.gray.opacity(0.7), radius: 5, x: 0, y: 0)
+                        
                     } else {
                         HStack {
                             Button {

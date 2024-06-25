@@ -25,6 +25,7 @@ struct WrittenFeedCell: View {
     var body: some View {
         
             VStack{
+                
                 HStack{
                     NavigationLink(value: post.user) {
                         UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
@@ -55,13 +56,18 @@ struct WrittenFeedCell: View {
                         LazyHStack{
                             ForEach(post.mediaUrls, id: \.self) { url in
                                 VStack{
-                                    KFImage(URL(string: url))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: pictureWidth, height: pictureHeight)
-                                        .clipped()
-                                        .cornerRadius(10)
-                                    
+                                    Button{
+                                       viewModel.scrollPosition = post.id
+                                       viewModel.startingPostId = post.id
+                                       viewModel.feedViewOption = .feed
+                                    } label: {
+                                        KFImage(URL(string: url))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: pictureWidth, height: pictureHeight)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                    }
                                     //.containerRelativeFrame(.horizontal)
                                         
                                     
@@ -76,7 +82,7 @@ struct WrittenFeedCell: View {
                         }
                         .frame(height: pictureHeight)
                         .scrollTargetLayout()
-                        .scrollBounceBehavior(.basedOnSize)
+                        
                     }
                     
                     .scrollTargetBehavior(.viewAligned)
@@ -92,7 +98,7 @@ struct WrittenFeedCell: View {
                     }
                     Spacer()
                 }
-                ScrollView(.horizontal){
+                ScrollView(.horizontal, showsIndicators: false){
                     HStack (spacing: 6){
                         RatingView(rating: post.overallRating, label: "Overall")
                         Divider().frame(height: 20)
@@ -179,8 +185,9 @@ struct WrittenFeedCell: View {
                     }
                     Spacer()
                 }
+                Divider()
             }
-            .padding(.horizontal)
+            .padding()
             
         
         .sheet(isPresented: $showComments) {
