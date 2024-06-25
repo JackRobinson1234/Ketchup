@@ -9,7 +9,7 @@ import SwiftUI
 import InstantSearchSwiftUI
 
 struct CollectionsSearchListView: View {
-    @StateObject var viewModel = CollectionListSearchViewModel()
+    @ObservedObject var viewModel: SearchViewModel
     var debouncer = Debouncer(delay: 1.0)
     @State var showCollection = false
     @State var selectedCollection: Collection? = nil
@@ -17,8 +17,7 @@ struct CollectionsSearchListView: View {
 
    
     var body: some View {
-        ScrollView{
-            InfiniteList(viewModel.hits, itemView: { hit in
+            InfiniteList(viewModel.collectionHits, itemView: { hit in
                 Button{
                     collectionsViewModel.selectedCollection = hit.object
                     showCollection = true
@@ -33,20 +32,12 @@ struct CollectionsSearchListView: View {
                 Text("No results found")
                     .foregroundStyle(.primary)
             })
-            .navigationTitle("Explore")
-            .searchable(text: $viewModel.searchQuery, prompt: "Search")
-            .onChange(of: viewModel.searchQuery) {
-                debouncer.schedule {
-                    viewModel.notifyQueryChanged()
-                }
-            }
             .sheet(isPresented: $showCollection) {
                     CollectionView(collectionsViewModel: collectionsViewModel)
             }
-        }
     }
 }
 
-#Preview {
-    CollectionsSearchListView(viewModel: CollectionListSearchViewModel())
-}
+//#Preview {
+//    CollectionsSearchListView(viewModel: CollectionListSearchViewModel())
+//}

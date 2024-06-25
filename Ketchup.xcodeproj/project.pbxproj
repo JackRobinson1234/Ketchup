@@ -173,6 +173,7 @@
 		F8B699582C28F95B00EE5C19 /* MuseoSansRounded500.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699522C28F95A00EE5C19 /* MuseoSansRounded500.otf */; };
 		F8B699592C28F95B00EE5C19 /* MuseoSansRounded900.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699532C28F95B00EE5C19 /* MuseoSansRounded900.otf */; };
 		F8B6995A2C28F95B00EE5C19 /* MuseoSansRounded700.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699542C28F95B00EE5C19 /* MuseoSansRounded700.otf */; };
+		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
 		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
 		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
@@ -406,6 +407,7 @@
 		F8B699522C28F95A00EE5C19 /* MuseoSansRounded500.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded500.otf; path = "../../museo-sans-rounded/MuseoSansRounded500.otf"; sourceTree = "<group>"; };
 		F8B699532C28F95B00EE5C19 /* MuseoSansRounded900.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded900.otf; path = "../../museo-sans-rounded/MuseoSansRounded900.otf"; sourceTree = "<group>"; };
 		F8B699542C28F95B00EE5C19 /* MuseoSansRounded700.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded700.otf; path = "../../museo-sans-rounded/MuseoSansRounded700.otf"; sourceTree = "<group>"; };
+		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
 		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
 		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
@@ -1205,6 +1207,7 @@
 			children = (
 				F88E0ADB2B6B079100EC159B /* SearchView.swift */,
 				F88E0ADD2B6B07A400EC159B /* SearchViewSlideBar.swift */,
+				F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1857,6 +1860,7 @@
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
 				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
+				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
 				F89CFA8C2C21D9B40003D449 /* UploadWrittenReviewView.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,

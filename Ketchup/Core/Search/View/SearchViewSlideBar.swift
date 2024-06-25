@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct SearchViewSlideBar: View {
-    @Binding var searchConfig: SearchModelConfig
-    init(searchConfig: Binding<SearchModelConfig>) {
-        self._searchConfig = searchConfig
-    }
+    @ObservedObject var viewModel: SearchViewModel
     
     var body: some View {
         VStack{
@@ -20,10 +17,10 @@ struct SearchViewSlideBar: View {
                     Text("Restaurants")
                         .onTapGesture {
                             withAnimation {
-                                self.searchConfig = .restaurants
+                                viewModel.searchConfig = .restaurants
                             }
                         }
-                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .restaurants))
+                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .restaurants))
 
                     
                     Text("Users")
@@ -31,10 +28,10 @@ struct SearchViewSlideBar: View {
                     
                         .onTapGesture {
                             withAnimation {
-                                self.searchConfig = .users
+                                viewModel.searchConfig = .users
                             }
                         }
-                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .users))
+                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .users))
                     //.frame(maxWidth: .infinity)
                     
                     
@@ -43,10 +40,10 @@ struct SearchViewSlideBar: View {
                     Text("Collections")
                         .onTapGesture {
                             withAnimation {
-                                self.searchConfig = .collections
+                                viewModel.searchConfig = .collections
                             }
                         }
-                        .modifier(UnderlineImageModifier(isSelected: searchConfig == .collections))
+                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .collections))
                     //.frame(maxWidth: .infinity)
                     
                 }
@@ -74,6 +71,6 @@ struct UnderlineTextModifier: ViewModifier {
 }
 
 
-#Preview {
-    SearchViewSlideBar(searchConfig: .constant(.restaurants))
-}
+//#Preview {
+//    SearchViewSlideBar(searchConfig: .constant(.restaurants))
+//}

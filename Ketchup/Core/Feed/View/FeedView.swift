@@ -243,9 +243,9 @@ struct FeedView: View {
                 .navigationDestination(for: PostUser.self) { user in
                     ProfileView(uid: user.id)
                 }
-                .navigationDestination(for: SearchModelConfig.self) { config in
-                    SearchView(searchConfig: config)
-                }
+//                .navigationDestination(for: SearchModelConfig.self) { config in
+//                    SearchView()
+//                }
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
@@ -253,7 +253,7 @@ struct FeedView: View {
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showSearchView) {
-                    SearchView(searchConfig: .restaurants, searchSlideBar: true)
+                    SearchView()
                 }
                 .onChange(of: showFilters) { oldValue, newValue in
                     pauseVideo = newValue

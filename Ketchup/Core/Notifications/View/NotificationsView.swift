@@ -34,8 +34,7 @@ struct NotificationsView: View {
             //.navigationDestination(for: notification.postId): {
             .navigationDestination(for: User.self, destination: {user in
                 ProfileView(uid: user.id)})
-            .navigationDestination(for: SearchModelConfig.self) { config in
-                SearchView(searchConfig: config)}
+           
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
