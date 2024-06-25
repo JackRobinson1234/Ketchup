@@ -19,7 +19,7 @@ class ReviewsViewModel: ObservableObject {
     }
     
     
-    func uploadReview(description: String, overallRating: Int, serviceRating: Int, atmosphereRating: Int, valueRating: Int, foodRating: Int, favorites: [String]) async throws {
+    func uploadReview(description: String, overallRating: Rating, serviceRating: Rating, atmosphereRating: Rating, valueRating: Rating, foodRating: Rating, favorites: [String]) async throws {
         if let restaurant = restaurantRequest {
             do {
                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)

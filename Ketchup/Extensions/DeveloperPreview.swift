@@ -109,11 +109,11 @@ struct DeveloperPreview {
                 fromInAppCamera: false,
                 repost: false,
                 didRepost: false,
-                overallRating: 5,
-                serviceRating: 4,
-                atmosphereRating: 4,
-                valueRating: 3,
-                foodRating: 5,
+                overallRating: .one,
+                serviceRating: .two,
+                atmosphereRating: .three,
+                valueRating: .four,
+                foodRating: .five,
                 favoriteItems: ["Pasta", "Pizza"]
             )
         ]

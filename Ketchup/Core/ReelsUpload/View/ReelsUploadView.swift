@@ -89,6 +89,7 @@ struct ReelsUploadView: View {
                             }
                         }
                     }
+                    
                     Spacer()
                     if uploadViewModel.mediaType == "video" {
                         FinalVideoPreview(uploadViewModel: uploadViewModel)
@@ -150,32 +151,32 @@ struct ReelsUploadView: View {
                 
                 Divider()
                 
-                Button {
-                    pickingFavorites = true
-                } label: {
-                    HStack {
-                        Image(systemName: "fork.knife.circle")
-                            .foregroundStyle(.black)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                        VStack(alignment: .leading) {
-                            Text("Add Favorite Menu Items")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .foregroundStyle(.black)
-                            if !uploadViewModel.favoriteMenuItems.isEmpty {
-                                Text("\(uploadViewModel.favoriteMenuItems.count) items selected")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundStyle(.gray)
-                            }
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(.black)
-                    }
-                    
-                }
-                .padding(20)
-                
-                Divider()
+//                Button {
+//                    pickingFavorites = true
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "fork.knife.circle")
+//                            .foregroundStyle(.black)
+//                            .font(.custom("MuseoSansRounded-300", size: 16))
+//                        VStack(alignment: .leading) {
+//                            Text("Add Favorite Menu Items")
+//                                .font(.custom("MuseoSansRounded-300", size: 16))
+//                                .foregroundStyle(.black)
+//                            if !uploadViewModel.favoriteMenuItems.isEmpty {
+//                                Text("\(uploadViewModel.favoriteMenuItems.count) items selected")
+//                                    .font(.custom("MuseoSansRounded-300", size: 10))
+//                                    .foregroundStyle(.gray)
+//                            }
+//                        }
+//                        Spacer()
+//                        Image(systemName: "chevron.right")
+//                            .foregroundStyle(.black)
+//                    }
+//                    
+//                }
+//                .padding(20)
+//                
+//                Divider()
                 
                 VStack(spacing: 20) {
                     HStack {
@@ -245,6 +246,7 @@ struct ReelsUploadView: View {
                     Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 }
             }
+          
             .padding()
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -275,13 +277,15 @@ struct ReelsUploadView: View {
 }
 
 struct RatingButtonGroup: View {
-    @Binding var rating: Int
+    @Binding var rating: Rating
     
     var body: some View {
         HStack(spacing: 10) {
-            ForEach(1..<6) { number in
-                RatingButton(isActive: rating == number) {
-                    rating = number
+            ForEach(0..<5, id: \.self) { number in
+                RatingButton(ratingValue: number, isActive: rating.rawValue == number) {
+                    if let value = Rating(rawValue: number){
+                        rating = value
+                    }
                 }
             }
         }
@@ -289,14 +293,20 @@ struct RatingButtonGroup: View {
 }
 
 struct RatingButton: View {
+    var ratingValue: Int
     var isActive: Bool
     var action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            Image(systemName: isActive ? "star.fill" : "star")
-                .foregroundColor(isActive ? Color("Colors/AccentColor") : .gray)
-                .font(.title2)
+            Rating.image(forValue: ratingValue)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 28, height: 28) // Adjust size as needed
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(isActive ? Color("Colors/AccentColor") : Color.clear, lineWidth: 1)
+                )
         }
     }
 }

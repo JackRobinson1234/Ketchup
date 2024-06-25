@@ -19,11 +19,11 @@ struct UploadService {
         caption: String,
         postRestaurant: PostRestaurant?,
         fromInAppCamera: Bool,
-        overallRating: Int,
-        serviceRating: Int,
-        atmosphereRating: Int,
-        valueRating: Int,
-        foodRating: Int,
+        overallRating: Rating,
+        serviceRating: Rating,
+        atmosphereRating: Rating,
+        valueRating: Rating,
+        foodRating: Rating,
         favoriteItems: [String]
     ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data

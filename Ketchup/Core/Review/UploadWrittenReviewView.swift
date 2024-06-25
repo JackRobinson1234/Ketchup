@@ -11,11 +11,11 @@ struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var overallRating: Int = 3
-    @State var serviceRating: Int = 3
-    @State var atmosphereRating: Int = 3
-    @State var valueRating: Int = 3
-    @State var foodRating: Int = 3
+    @State var overallRating: Rating = .three
+    @State var serviceRating: Rating = .three
+    @State var atmosphereRating: Rating = .three
+    @State var valueRating: Rating = .three
+    @State var foodRating: Rating = .three
     @State private var favoriteMenuItem: String = ""
     @State private var favoriteMenuItems: [String] = []
     @State private var isEditingCaption = false
@@ -67,7 +67,7 @@ struct UploadWrittenReviewView: View {
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundStyle(.primary)
                                 }
-                                if let restaurantRequest = reviewViewModel.restaurantRequest {
+                                if reviewViewModel.restaurantRequest != nil {
                                     Text("To be Created")
                                         .foregroundStyle(.primary)
                                         .font(.custom("MuseoSansRounded-300", size: 10))
@@ -79,6 +79,7 @@ struct UploadWrittenReviewView: View {
                                 }
                             }
                         }
+                        .padding(.bottom)
                         .disabled(setRestaurant)
                     } else {
                         Button {
@@ -94,6 +95,7 @@ struct UploadWrittenReviewView: View {
                                     .foregroundColor(.black)
                             }
                         }
+                        .padding(.bottom)
                     }
                     
                     VStack(spacing: 20) {
@@ -142,30 +144,30 @@ struct UploadWrittenReviewView: View {
                         }
                         .padding(.vertical)
                         
-                        Button {
-                            pickingFavorites = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "fork.knife.circle")
-                                    .foregroundStyle(.black)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                VStack(alignment: .leading) {
-                                    Text("Add Favorite Menu Items")
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.black)
-                                    if !favoriteMenuItems.isEmpty {
-                                        Text("\(favoriteMenuItems.count) items selected")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.gray)
-                                    }
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(.black)
-                            }
-                            .padding()
-                        }
-                        Divider()
+//                        Button {
+//                            pickingFavorites = true
+//                        } label: {
+//                            HStack {
+//                                Image(systemName: "fork.knife.circle")
+//                                    .foregroundStyle(.black)
+//                                    .font(.custom("MuseoSansRounded-300", size: 16))
+//                                VStack(alignment: .leading) {
+//                                    Text("Add Favorite Menu Items")
+//                                        .font(.custom("MuseoSansRounded-300", size: 16))
+//                                        .foregroundStyle(.black)
+//                                    if !favoriteMenuItems.isEmpty {
+//                                        Text("\(favoriteMenuItems.count) items selected")
+//                                            .font(.custom("MuseoSansRounded-300", size: 10))
+//                                            .foregroundStyle(.gray)
+//                                    }
+//                                }
+//                                Spacer()
+//                                Image(systemName: "chevron.right")
+//                                    .foregroundStyle(.black)
+//                            }
+//                            .padding()
+//                        }
+//                        Divider()
                         
                         Button {
                             if description.isEmpty {
@@ -183,8 +185,9 @@ struct UploadWrittenReviewView: View {
                         .opacity(canPostReview ? 1 : 0.6)
                     }
                 }
+                
                 .padding()
-                .padding(.top, 30)
+                .padding(.top, 50)
                 
                 if isEditingDescription {
                     EditorView(text: $description, isEditing: $isEditingDescription, placeholder: "Enter a Review...", maxCharacters: characterLimit, title: "Review")
