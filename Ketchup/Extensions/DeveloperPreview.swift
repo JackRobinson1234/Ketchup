@@ -113,8 +113,7 @@ struct DeveloperPreview {
                 serviceRating: .two,
                 atmosphereRating: .three,
                 valueRating: .four,
-                foodRating: .five,
-                favoriteItems: ["Pasta", "Pizza"]
+                foodRating: .five
             )
         ]
     

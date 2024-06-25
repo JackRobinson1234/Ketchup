@@ -81,8 +81,7 @@ struct UploadService {
             serviceRating: serviceRating,
             atmosphereRating: atmosphereRating,
             valueRating: valueRating,
-            foodRating: foodRating,
-            favoriteItems: favoriteItems.isEmpty ? nil : favoriteItems
+            foodRating: foodRating
             
         )
         
