@@ -33,7 +33,7 @@ class ReviewsViewModel: ObservableObject {
                 let review = try await UploadService.shared.uploadPost(
                     videoURL: nil,
                     images: nil,
-                    mediaType: "written",
+                    mediaType: .written,
                     caption: description,
                     postRestaurant: postRestaurant,
                     fromInAppCamera: false,

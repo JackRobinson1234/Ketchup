@@ -12,10 +12,7 @@ import Photos
 import Foundation
 import AVFoundation
 
-enum MediaType {
-    case photo
-    case video
-}
+
 @MainActor
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var progress: Float = 0
@@ -57,7 +54,10 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             destinationURL = documentsURL.appendingPathComponent("downloadedPhoto.jpg")
         case .video:
             destinationURL = documentsURL.appendingPathComponent("downloadedVideo.mp4")
+        case .written:
+            return
         }
+  
         
         do {
             try data.write(to: destinationURL)
@@ -122,7 +122,10 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                 assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: mediaURL)
             case .video:
                 assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: mediaURL)
+            case .written:
+                return 
             }
+            
             let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
             if let assetPlaceholder = assetChangeRequest?.placeholderForCreatedAsset {
                 albumChangeRequest?.addAssets([assetPlaceholder] as NSArray)

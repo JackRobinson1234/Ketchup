@@ -106,20 +106,19 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: A CollectionItem
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
-            if let id = post.restaurant?.id, let name = post.restaurant?.name{
+           
                 let collectionItem = CollectionItem(
                     collectionId: "",
-                    id: id,
-                    
-                    name: name,
-                    image: post.restaurant?.profileImageUrl,
-                    city: post.restaurant?.city,
-                    state: post.restaurant?.state,
-                    geoPoint: post.restaurant?.geoPoint,
+                    id: post.id,
+                    name: post.restaurant.name,
+                    image: post.restaurant.profileImageUrl,
+                    city: post.restaurant.city,
+                    state: post.restaurant.state,
+                    geoPoint: post.restaurant.geoPoint,
                     privateMode: user.privateMode
                 )
                 return collectionItem
-            }
+            
         }
         
         return nil

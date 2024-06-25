@@ -9,7 +9,7 @@ import MessageUI
 struct MessageComposeView: UIViewControllerRepresentable {
     let messageBody: String
     let mediaData: Data
-    let mediaType: String
+    let mediaType: MediaType
     @State private var isLoading = false
     
     func makeUIViewController(context: Context) -> MFMessageComposeViewController {
@@ -17,9 +17,9 @@ struct MessageComposeView: UIViewControllerRepresentable {
         composeVC.messageComposeDelegate = context.coordinator
         
         
-        if mediaType == "video"{
+        if mediaType == .video{
             composeVC.addAttachmentData(mediaData, typeIdentifier: "public.mpeg-4", filename: "video.mp4")
-        } else if mediaType == "photo" {
+        } else if mediaType == .photo {
             composeVC.addAttachmentData(mediaData, typeIdentifier: "public.jpeg", filename: "image.jpg")
 
         }

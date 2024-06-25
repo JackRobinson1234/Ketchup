@@ -72,7 +72,7 @@ struct LibrarySelectorView: View {
             if let video: Movie = try await videoItem.loadTransferable(type: Movie.self) {
                 DispatchQueue.main.async {
                     uploadViewModel.videoURL = video.url
-                    uploadViewModel.mediaType = "video"
+                    uploadViewModel.mediaType = .video
                     uploadViewModel.fromInAppCamera = false
                     uploadViewModel.navigateToUpload = true
                 }
@@ -98,7 +98,7 @@ struct LibrarySelectorView: View {
         }
         DispatchQueue.main.async {
             uploadViewModel.images = images
-            uploadViewModel.mediaType = "photo"
+            uploadViewModel.mediaType = .photo
             uploadViewModel.fromInAppCamera = false
             uploadViewModel.navigateToUpload = true
         }

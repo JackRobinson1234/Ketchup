@@ -36,7 +36,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     // EDIT/PREVIEW VIEW PROPERTIES
     @Published var navigateToUpload: Bool = false
-    @Published var mediaType: String = "none"
+    @Published var mediaType: MediaType = .photo
     
     // NAVIGATES TO LIBRARY SELECTION
     @Published var uploadFromLibray = false
@@ -446,7 +446,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         isPhotoTaken = false
         isRecording = false
         navigateToUpload = false
-        mediaType = "none"
+        mediaType = .photo
         recordedDuration = 0
         isDragging = false
         uploadFromLibray = false

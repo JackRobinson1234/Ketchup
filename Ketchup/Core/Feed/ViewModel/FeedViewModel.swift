@@ -130,7 +130,7 @@ class FeedViewModel: ObservableObject {
                 }
                 let post = posts[index]
                 Task{
-                    if post.mediaType == "video"{
+                    if post.mediaType == .video{
                         if let videoURL = post.mediaUrls.first {
                             if index == currentIndex + 1 {
                                 //await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
@@ -140,7 +140,7 @@ class FeedViewModel: ObservableObject {
                         }
                         
                         ///Prefetches all photos
-                    } else if post.mediaType == "photo" {
+                    } else if post.mediaType == .photo {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
                         prefetcher.start()
                     }
@@ -151,7 +151,7 @@ class FeedViewModel: ObservableObject {
                         prefetcher.start()
                     }
                     
-                    if let profileImageURL = post.restaurant?.profileImageUrl,
+                    if let profileImageURL = post.restaurant.profileImageUrl,
                        let restaurantProfileImageURL = URL(string: profileImageURL) {
                         let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
                         prefetcher.start()

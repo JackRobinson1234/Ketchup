@@ -62,15 +62,15 @@ struct FeedGridView: View {
                                     Spacer()
                                     HStack{
                                         VStack (alignment: .leading) {
-                                            if let restaurant = post.restaurant {
-                                                Text("\(restaurant.name)")
+                                            
+                                            Text("\(post.restaurant.name)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
                                                     .font(.custom("MuseoSansRounded-300", size: 10))
                                                     .bold()
                                                     .shadow(color: .primary, radius: 2, x: 0, y: 1)
-                                            }
+                                            
                                            
                                         }
                                         

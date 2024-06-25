@@ -21,7 +21,7 @@ struct PostListCell: View {
                 .clipped()
             
             //MARK: Restaurant Info
-            if let restaurant = post.restaurant{
+            let restaurant = post.restaurant
                 VStack(alignment: .leading) {
                     Text(restaurant.name)
                         .font(.custom("MuseoSansRounded-300", size: 16))
@@ -43,7 +43,7 @@ struct PostListCell: View {
                 }
                 .foregroundStyle(.primary)
                 
-            }
+            
             Spacer()
             //MARK: Right Arrow
             Image(systemName: "chevron.right")

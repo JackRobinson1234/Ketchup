@@ -77,30 +77,30 @@ struct DeveloperPreview {
     static var posts: [Post] = [
         .init(
                 id: "1",
-                mediaType: "video",
-                mediaUrls: ["https://example.com/video.mp4"],
+                mediaType: .photo,
+                mediaUrls: ["https://picsum.photos/400/500", "https://picsum.photos/300/200", "https://picsum.photos/500/700"],
                 caption: "Check out this delicious dish!",
                 likes: 141,
                 commentCount: 20,
                 repostCount: 10,
                 thumbnailUrl: "https://picsum.photos/400/500",
-                timestamp: Timestamp(date: Date()),
+                timestamp: Timestamp(),
                 user: PostUser(
                     id: "user1",
                     fullname: "John Doe",
-                    profileImageUrl: "https://example.com/profile.jpg",
+                    profileImageUrl: "https://picsum.photos/400/500",
                     privateMode: false,
-                    username: "Test"
+                    username: "johndoe123"
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",
-                    name: "Example Restaurant",
+                    name: "Martha's",
                     geoPoint: nil,
                     geoHash: "",
                     address: "123 Main St",
                     city: "Cityville",
                     state: "Stateville",
-                    profileImageUrl: "https://example.com/restaurant.jpg",
+                    profileImageUrl: "https://picsum.photos/400/500",
                     cuisine: "Italian",
                     price: "$$"
                 ),
@@ -114,6 +114,7 @@ struct DeveloperPreview {
                 atmosphereRating: .three,
                 valueRating: .four,
                 foodRating: .five
+               
             )
         ]
     

@@ -25,9 +25,7 @@ struct FeedCell: View {
     @State private var expandCaption = false
     @State private var showComments = false
     @State private var showShareView = false
-    @State private var showRecipe = false
     @State private var showCollections = false
-    @State private var videoConfigured = false
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
@@ -50,9 +48,7 @@ struct FeedCell: View {
                     } else if hideFeedOptions{
                         dismiss()
                     }
-                    //                    } else {
-                    //                        viewModel.feedViewOption = .grid
-                    //                    }
+
                 } else {
                     self.dragDirection = "right"
                     if self.currentImageIndex < post.mediaUrls.count - 1 {
@@ -67,7 +63,7 @@ struct FeedCell: View {
     var body: some View {
         //MARK: Loading Screen
         ZStack {
-            if post.mediaType == "video" {
+            if post.mediaType == .video {
                 if post.fromInAppCamera {
                     VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
@@ -103,7 +99,7 @@ struct FeedCell: View {
                             }
                         }
                 }
-            } else if post.mediaType == "photo" {
+            } else if post.mediaType == .photo {
                 
                 ZStack (alignment: .top){
                     if post.fromInAppCamera {
@@ -147,7 +143,7 @@ struct FeedCell: View {
                         VStack(alignment: .leading, spacing: 7) {
                             HStack{
                                 //MARK:  restaurant profile image
-                                if let restaurant = post.restaurant {
+                                let restaurant = post.restaurant 
                                     NavigationLink(value: restaurant) {
                                         RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
                                     }
@@ -173,7 +169,7 @@ struct FeedCell: View {
                                         }
                                         
                                     }
-                                }
+                                
                             }
                             
                             
@@ -296,13 +292,13 @@ struct FeedCell: View {
 //                                    }
 //                                    .font(.custom("MuseoSansRounded-300", size: 10))
 //                                }
-                                if let restaurant = post.restaurant {
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
                                         Text("View Restaurant")
                                     }
                                     .modifier(StandardButtonModifier(width: 175))
                                     //MARK: Show recipe
-                                }
+                                
                                 
                             }
                         }
@@ -404,7 +400,7 @@ struct FeedCell: View {
                     }
                     
                 }
-                if post.mediaType == "video" {
+                if post.mediaType == .video {
                     let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
                     Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
                         .onAppear {

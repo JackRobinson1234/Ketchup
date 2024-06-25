@@ -42,16 +42,16 @@ struct ShareView: View {
                                        if status == .authorized {
                                            // Photo access granted, proceed with downloading the video
                                            let mediaURL: String?
-                                           if post.mediaType == "photo", let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
+                                           if post.mediaType == .photo, let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
                                                mediaURL = post.mediaUrls[index]
                                            } else {
                                                mediaURL = post.mediaUrls.first
                                            }
                                            
                                            if let mediaURL = mediaURL, let url = URL(string: mediaURL) {
-                                                   if post.mediaType == "photo" {
+                                               if post.mediaType == .photo {
                                                        downloadViewModel.downloadMedia(url: url, mediaType: .photo)
-                                                   } else if post.mediaType == "video" {
+                                               } else if post.mediaType == .video {
                                                        downloadViewModel.downloadMedia(url: url, mediaType: .video)
                                                    }
                                            }
@@ -79,7 +79,8 @@ struct ShareView: View {
                                     .foregroundStyle(.blue)
                             }
                         }
-                    Text("Save \(post.mediaType)")
+                    
+                    Text("Save \(post.mediaType.text)")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .padding(.top,1)
                     
@@ -89,7 +90,7 @@ struct ShareView: View {
                 
                 Button(action: {
                     let mediaURL: String?
-                    if post.mediaType == "photo", let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
+                    if post.mediaType == .photo, let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
                         mediaURL = post.mediaUrls[index]
                     } else {
                         mediaURL = post.mediaUrls.first
@@ -156,8 +157,8 @@ struct ShareView: View {
         
         .sheet(isPresented: $isShowingMessageView) {
             if let mediaData = downloadedMediaData {
-                if let restaurant = post.restaurant, let city = restaurant.city{
-                    MessageComposeView(messageBody: "I'm absolutely frothing to try this restaurant called \(restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
+                if let city = post.restaurant.city{
+                    MessageComposeView(messageBody: "I need to try this restaurant called \(post.restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
                         .onDisappear{preppingMessage = false}
                 }
             } else {

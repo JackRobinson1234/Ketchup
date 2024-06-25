@@ -61,8 +61,8 @@ struct PostGridView: View {
                                     Spacer()
                                     HStack{
                                         VStack (alignment: .leading) {
-                                            if let restaurant = post.restaurant {
-                                                Text("\(restaurant.name)")
+                                            
+                                            Text("\(post.restaurant.name)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
@@ -70,7 +70,7 @@ struct PostGridView: View {
                                                     .bold()
                                                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             }
-                                        }
+                                        
                                         
                                         Spacer()
                                     }

@@ -15,9 +15,9 @@ struct UploadService {
     func uploadPost(
         videoURL: URL?,
         images: [UIImage]?,
-        mediaType: String,
+        mediaType: MediaType,
         caption: String,
-        postRestaurant: PostRestaurant?,
+        postRestaurant: PostRestaurant,
         fromInAppCamera: Bool,
         overallRating: Rating,
         serviceRating: Rating,
@@ -32,12 +32,12 @@ struct UploadService {
         var mediaUrls = [String]()
         
         // Determine the media URL based on type
-        if mediaType == "video", let videoURL = videoURL {
+        if mediaType == .video, let videoURL = videoURL {
             guard let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) else {
                 throw UploadError.videoUploadFailed
             }
             mediaUrls.append(videoUrl)
-        } else if mediaType == "photo", let images = images {
+        } else if mediaType == .photo, let images = images {
             for image in images {
                 if let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
                     mediaUrls.append(imageUrl)
@@ -53,9 +53,9 @@ struct UploadService {
         
         var thumbnailUrl = ""
         if let url = mediaUrls.first {
-            if mediaType == "photo" {
+            if mediaType == .photo {
                 thumbnailUrl = url
-            } else if mediaType == "video" {
+            } else if mediaType == .video {
                 thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: url)
             }
         }

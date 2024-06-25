@@ -100,46 +100,46 @@ struct FeedView: View {
                                 .frame(width: 60, height: 17)
                             
                             Spacer()
-                            ZStack {
-                                Color.white.opacity(0.3)
-                                    .cornerRadius(15)
-                                    .frame(width: 100, height: 45)
-                                HStack(spacing: 10) {
-                                    Button {
-                                        viewModel.feedViewOption = .grid
-                                    } label: {
-                                        ZStack {
-                                            if viewModel.feedViewOption == .grid {
-                                                Color("Colors/AccentColor")
-                                                    .cornerRadius(12)
-                                                    .frame(width: 38, height: 38)
-                                            }
-                                            Image(systemName: "square.grid.2x2")
-                                                .font(.custom("MuseoSansRounded-300", size: 20))
-                                                .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
-                                                .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
-                                        }
-                                    }
-                                    .disabled(viewModel.feedViewOption == .grid)
-                                    
-                                    Button {
-                                        viewModel.feedViewOption = .feed
-                                    } label: {
-                                        ZStack {
-                                            if viewModel.feedViewOption == .feed {
-                                                Color("Colors/AccentColor")
-                                                    .cornerRadius(12)
-                                                    .frame(width: 38, height: 38)
-                                            }
-                                            Image(systemName: "line.3.horizontal")
-                                                .font(.custom("MuseoSansRounded-300", size: 20))
-                                                .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
-                                                .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
-                                        }
-                                    }
-                                    .disabled(viewModel.feedViewOption == .feed)
-                                }
-                            }
+//                            ZStack {
+//                                Color.white.opacity(0.3)
+//                                    .cornerRadius(15)
+//                                    .frame(width: 100, height: 45)
+//                                HStack(spacing: 10) {
+//                                    Button {
+//                                        viewModel.feedViewOption = .grid
+//                                    } label: {
+//                                        ZStack {
+//                                            if viewModel.feedViewOption == .grid {
+//                                                Color("Colors/AccentColor")
+//                                                    .cornerRadius(12)
+//                                                    .frame(width: 38, height: 38)
+//                                            }
+//                                            Image(systemName: "square.grid.2x2")
+//                                                .font(.custom("MuseoSansRounded-300", size: 20))
+//                                                .foregroundColor(viewModel.feedViewOption == .grid ? .white : .gray)
+//                                                .fontWeight(viewModel.feedViewOption == .grid ? .bold : .regular)
+//                                        }
+//                                    }
+//                                    .disabled(viewModel.feedViewOption == .grid)
+//                                    
+//                                    Button {
+//                                        viewModel.feedViewOption = .feed
+//                                    } label: {
+//                                        ZStack {
+//                                            if viewModel.feedViewOption == .feed {
+//                                                Color("Colors/AccentColor")
+//                                                    .cornerRadius(12)
+//                                                    .frame(width: 38, height: 38)
+//                                            }
+//                                            Image(systemName: "line.3.horizontal")
+//                                                .font(.custom("MuseoSansRounded-300", size: 20))
+//                                                .foregroundColor(viewModel.feedViewOption == .feed ? .white : .gray)
+//                                                .fontWeight(viewModel.feedViewOption == .feed ? .bold : .regular)
+//                                        }
+//                                    }
+//                                    .disabled(viewModel.feedViewOption == .feed)
+//                                }
+//                            }
                             Spacer()
                             HStack(spacing: 10) {
                                 Button {

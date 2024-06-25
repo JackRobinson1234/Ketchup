@@ -19,7 +19,7 @@ class UploadViewModel: ObservableObject {
     // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
     @Published var images: [UIImage]?
-    @Published var mediaType: String = "none"
+    @Published var mediaType: MediaType = .video
     @Published var restaurant: Restaurant?
     
     @Published var navigateToUpload = false
@@ -45,7 +45,7 @@ class UploadViewModel: ObservableObject {
         uploadFailure = false
         videoURL = nil
         images = []
-        mediaType = "none"
+        mediaType = .video
         restaurant = nil
         navigateToUpload = false
         fromInAppCamera = true
@@ -86,7 +86,8 @@ class UploadViewModel: ObservableObject {
         
         var post: Post? = nil
         do {
-            if mediaType == "video" {
+            if let postRestaurant {
+            if mediaType == .video {
                 guard let videoURL = videoURL else {
                     throw UploadError.invalidMediaData
                 }
@@ -105,7 +106,7 @@ class UploadViewModel: ObservableObject {
                     foodRating: foodRating,
                     favoriteItems: favoriteMenuItems
                 )
-            } else if mediaType == "photo" {
+            } else if mediaType == .photo {
                 guard let images = images else {
                     throw UploadError.invalidMediaData
                 }
@@ -123,6 +124,7 @@ class UploadViewModel: ObservableObject {
                     foodRating: foodRating,
                     favoriteItems: favoriteMenuItems
                 )
+            }
             } else {
                 throw UploadError.invalidMediaType
             }

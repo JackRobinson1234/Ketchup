@@ -91,11 +91,11 @@ struct ReelsUploadView: View {
                     }
                     
                     Spacer()
-                    if uploadViewModel.mediaType == "video" {
+                    if uploadViewModel.mediaType == .video {
                         FinalVideoPreview(uploadViewModel: uploadViewModel)
                             .frame(width: width, height: 150) // Half of the original dimensions
                             .cornerRadius(5) // Adjusted corner radius to maintain proportionality
-                    } else if uploadViewModel.mediaType == "photo" {
+                    } else if uploadViewModel.mediaType == .photo {
                         FinalPhotoPreview(uploadViewModel: uploadViewModel)
                             .frame(width: width, height: 150) // Half of the original dimensions
                             .cornerRadius(5) // Adjusted corner radius to maintain proportionality

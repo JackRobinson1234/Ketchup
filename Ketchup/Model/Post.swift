@@ -13,7 +13,7 @@ import FirebaseFirestore
 
 struct Post: Identifiable, Codable {
     let id: String
-    let mediaType: String // either "video" or "image"
+    let mediaType: MediaType
     var mediaUrls: [String]
     let caption: String
     var likes: Int
@@ -22,22 +22,22 @@ struct Post: Identifiable, Codable {
     var thumbnailUrl: String
     var timestamp: Timestamp?
     var user: PostUser
-    var restaurant: PostRestaurant? = nil
+    var restaurant: PostRestaurant
     var didLike: Bool
     var didSave: Bool
     var fromInAppCamera: Bool
     var repost: Bool
     var didRepost: Bool
-    var overallRating: Rating?
-    var serviceRating: Rating?
-    var atmosphereRating: Rating?
-    var valueRating: Rating?
-    var foodRating: Rating?
+    var overallRating: Rating
+    var serviceRating: Rating
+    var atmosphereRating: Rating
+    var valueRating: Rating
+    var foodRating: Rating
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.mediaType = try container.decode(String.self, forKey: .mediaType)
+        self.mediaType = try container.decode(MediaType.self, forKey: .mediaType)
         self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
@@ -46,23 +46,23 @@ struct Post: Identifiable, Codable {
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
-        self.restaurant = try container.decodeIfPresent(PostRestaurant.self, forKey: .restaurant)
+        self.restaurant = try container.decode(PostRestaurant.self, forKey: .restaurant)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
         self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
-        self.overallRating = try container.decodeIfPresent(Rating.self, forKey: .overallRating)
-        self.serviceRating = try container.decodeIfPresent(Rating.self, forKey: .serviceRating)
-        self.atmosphereRating = try container.decodeIfPresent(Rating.self, forKey: .atmosphereRating)
-        self.valueRating = try container.decodeIfPresent(Rating.self, forKey: .valueRating)
-        self.foodRating = try container.decodeIfPresent(Rating.self, forKey: .foodRating)
+        self.overallRating = try container.decode(Rating.self, forKey: .overallRating)
+        self.serviceRating = try container.decode(Rating.self, forKey: .serviceRating)
+        self.atmosphereRating = try container.decode(Rating.self, forKey: .atmosphereRating)
+        self.valueRating = try container.decode(Rating.self, forKey: .valueRating)
+        self.foodRating = try container.decode(Rating.self, forKey: .foodRating)
         
     }
 
     init(
         id: String,
-        mediaType: String,
+        mediaType: MediaType,
         mediaUrls: [String],
         caption: String,
         likes: Int,
@@ -71,17 +71,17 @@ struct Post: Identifiable, Codable {
         thumbnailUrl: String,
         timestamp: Timestamp?,
         user: PostUser,
-        restaurant: PostRestaurant? = nil,
+        restaurant: PostRestaurant,
         didLike: Bool = false,
         didSave: Bool = false,
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false,
-        overallRating: Rating? = nil,
-        serviceRating: Rating? = nil,
-        atmosphereRating: Rating? = nil,
-        valueRating: Rating? = nil,
-        foodRating: Rating? = nil
+        overallRating: Rating,
+        serviceRating: Rating,
+        atmosphereRating: Rating,
+        valueRating: Rating,
+        foodRating: Rating
     ) {
         self.id = id
         self.mediaType = mediaType
@@ -163,3 +163,16 @@ enum Rating: Int, Codable {
 }
 
 
+enum MediaType: Int, Codable {
+    case video
+    case photo
+    case written
+    var text: String {
+        switch self {
+        case .video: return "Video"
+        case .photo: return "Photo"
+        case .written: return "Written"
+            
+        }
+    }
+}

@@ -345,10 +345,10 @@ struct VideoCameraControls: View {
                 Button {
                     if let _ = cameraViewModel.previewURL {
                         cameraViewModel.navigateToUpload.toggle()
-                        cameraViewModel.mediaType = "video"
+                        cameraViewModel.mediaType = .video
                         
                         uploadViewModel.videoURL = cameraViewModel.previewURL
-                        uploadViewModel.mediaType = "video"
+                        uploadViewModel.mediaType = .video
                         
                     }
                 } label: {
@@ -410,7 +410,7 @@ struct PhotoCameraControls: View {
                 HStack {
                     Button {
                         cameraViewModel.clearPics()
-                        cameraViewModel.mediaType = "none"
+                        cameraViewModel.mediaType = .video
                     } label: {
                         Image(systemName: "xmark")
                             .font(.custom("MuseoSansRounded-300", size: 20))
@@ -518,9 +518,9 @@ struct PhotoCameraControls: View {
                     Button {
                         if cameraViewModel.isPhotoTaken {
                             cameraViewModel.navigateToUpload.toggle()
-                            cameraViewModel.mediaType = "photo"
+                            cameraViewModel.mediaType = .photo
                             uploadViewModel.images = cameraViewModel.images
-                            uploadViewModel.mediaType = "photo"
+                            uploadViewModel.mediaType = .photo
                         }
                     } label: {
                         Label {
