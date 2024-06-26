@@ -487,6 +487,13 @@ struct FeedCell: View {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
         }
+        .onAppear{
+            if post.id == viewModel.startingPostId{
+                self.currentImageIndex = viewModel.startingImageIndex
+                viewModel.startingPostId = ""
+                viewModel.startingImageIndex = 0
+            }
+        }
         //MARK: Tap to play/pause
         
     }

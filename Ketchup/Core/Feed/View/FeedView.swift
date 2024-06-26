@@ -34,7 +34,7 @@ struct FeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-
+    
     var body: some View {
         if isLoading && viewModel.posts.isEmpty {
             ProgressView("Loading...")
@@ -56,6 +56,7 @@ struct FeedView: View {
                                         if !post.mediaUrls.isEmpty {
                                             FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
                                                 .id(post.id)
+                                               
                                         }
                                     }
                                 }
@@ -66,10 +67,11 @@ struct FeedView: View {
                                         }
                                     } else {
                                         scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
-                                        viewModel.startingPostId = ""
+                                        
                                     }
                                 }
                             }
+                            .transition(.slide)
                             .scrollTargetLayout()
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
@@ -82,11 +84,25 @@ struct FeedView: View {
                                     ForEach($viewModel.posts) { post in
                                         WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition)
                                             .id(post.id)
+                                            
                                     }
+                                    Rectangle()
+                                        .foregroundStyle(.clear)
+                                        .onAppear{
+                                            print("CLEAR APPEARED")
+                                            if let last = viewModel.posts.last {
+                                                Task {
+                                                    if !hideFeedOptions{
+                                                        await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                                    }
+                                                }
+                                            }
+                                        }
                                 }
                                 .scrollTargetLayout()
                             }
-                            .safeAreaPadding(.vertical, 130)
+                            .transition(.slide)
+                            .safeAreaPadding(.vertical, 115)
                             .scrollPosition(id: $scrollPosition)
                             .onAppear {
                                 if hideFeedOptions {
@@ -200,7 +216,7 @@ struct FeedView: View {
                         }
                         .padding(30)
                         .padding(.vertical)
-                       
+                        
                     }
                 }
                 .overlay {
@@ -228,21 +244,22 @@ struct FeedView: View {
                     }
                 }
                 .onChange(of: scrollPosition) { oldValue, newValue in
-                    if !hideFeedOptions {
+                    if !hideFeedOptions && viewModel.feedViewOption == .feed{
                         Task {
                             await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                         }
                         viewModel.updateCache(scrollPosition: newValue)
                     }
                 }
+                
                 .background(Color("Colors/HingeGray"))
                 .ignoresSafeArea()
                 .navigationDestination(for: PostUser.self) { user in
                     ProfileView(uid: user.id)
                 }
-//                .navigationDestination(for: SearchModelConfig.self) { config in
-//                    SearchView()
-//                }
+                //                .navigationDestination(for: SearchModelConfig.self) { config in
+                //                    SearchView()
+                //                }
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
@@ -267,7 +284,7 @@ struct FeedView: View {
                         }
                     }
                 }
-               
+                
             }
         }
     }

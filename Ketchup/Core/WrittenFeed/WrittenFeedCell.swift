@@ -54,12 +54,13 @@ struct WrittenFeedCell: View {
                 if post.mediaType == .photo{
                     ScrollView(.horizontal, showsIndicators: false){
                         LazyHStack{
-                            ForEach(post.mediaUrls, id: \.self) { url in
-                                VStack{
-                                    Button{
-                                       viewModel.scrollPosition = post.id
-                                       viewModel.startingPostId = post.id
-                                       viewModel.feedViewOption = .feed
+                            ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.scrollPosition = post.id
+                                        viewModel.startingPostId = post.id
+                                        viewModel.feedViewOption = .feed
                                     } label: {
                                         KFImage(URL(string: url))
                                             .resizable()
@@ -68,17 +69,13 @@ struct WrittenFeedCell: View {
                                             .clipped()
                                             .cornerRadius(10)
                                     }
-                                    //.containerRelativeFrame(.horizontal)
-                                        
-                                    
-                                    // Add horizontal padding
                                 }
                                 .scrollTransition(.animated, axis: .horizontal) { content, phase in
                                     content
                                         .opacity(phase.isIdentity ? 1.0 : 0.8)
                                 }
                             }
-                           
+                            
                         }
                         .frame(height: pictureHeight)
                         .scrollTargetLayout()
@@ -115,7 +112,7 @@ struct WrittenFeedCell: View {
                 HStack {
                     Text(post.caption)
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .lineLimit(expandCaption ? 50 : 1)
+                        //.lineLimit(expandCaption ? 50 : 1)
                     Spacer()
                     
                 }
