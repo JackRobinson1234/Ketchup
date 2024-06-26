@@ -86,7 +86,9 @@ class FeedViewModel: ObservableObject {
             }
             
             let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
+            print("postsfetched")
             if newPosts.isEmpty || newPosts.count < self.pageSize {
+                print("no more posts after this fetch")
                 self.posts.append(contentsOf: newPosts)
                 self.lastDocument = lastDoc
                 self.hasMorePosts = false // No more posts are available.

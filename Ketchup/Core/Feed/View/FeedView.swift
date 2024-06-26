@@ -81,7 +81,7 @@ struct FeedView: View {
                             ScrollView(showsIndicators: false) {
                                 LazyVStack() {
                                     ForEach($viewModel.posts) { post in
-                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition)
                                             .id(post.id)
                                             
                                     }
@@ -247,8 +247,9 @@ struct FeedView: View {
                         Task {
                             await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                         }
+                        viewModel.updateCache(scrollPosition: newValue)
                     }
-                    viewModel.updateCache(scrollPosition: newValue)
+                   
                 }
                 
                 .background(Color("Colors/HingeGray"))
