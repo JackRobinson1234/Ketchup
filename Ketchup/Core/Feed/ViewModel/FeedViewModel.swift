@@ -20,7 +20,6 @@ class FeedViewModel: ObservableObject {
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
     @Binding var scrollPosition: String?
-    var videoCoordinator = VideoPlayerCoordinator()
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
@@ -44,7 +43,7 @@ class FeedViewModel: ObservableObject {
     init(scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
-        videoCoordinator = VideoPlayerCoordinator()
+        //videoCoordinator = VideoPlayerCoordinator()
         self._scrollPosition = scrollPosition
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
@@ -102,6 +101,12 @@ class FeedViewModel: ObservableObject {
         }
     }
     
+    func prefetchVideosForVisiblePosts(post: Post) {
+        let coordinator = VideoPlayerCoordinatorPool.shared.coordinator(for: post.id)
+        if post.mediaUrls.first != nil{
+            //coordinator.prefetch(url: URL(string: post.id), postId: post.id)
+        }
+    }
     // Add other methods as needed...
     
     /// updates the cache with the next 3 post videos saved
@@ -138,7 +143,7 @@ class FeedViewModel: ObservableObject {
                                 //await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
                             }
                             print("running prefetch")
-                            await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
+                            //await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
                         }
                         
                         ///Prefetches all photos

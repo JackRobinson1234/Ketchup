@@ -11,38 +11,41 @@ import SwiftUI
 
 class VideoPlayerCoordinatorPool {
     static let shared = VideoPlayerCoordinatorPool()
-    private var coordinators: [VideoPlayerCoordinator] = []
+    private var coordinators: [String: VideoPlayerCoordinator] = [:]
     private let maxPoolSize: Int
     private let lock = NSLock()
 
-    init(maxPoolSize: Int = 5) {  // Adjust pool size based on your app's needs
+    private init(maxPoolSize: Int = 5) {
         self.maxPoolSize = maxPoolSize
     }
 
-    func getCoordinator() -> VideoPlayerCoordinator {
+    func coordinator(for postId: String) -> VideoPlayerCoordinator {
         lock.lock()
         defer { lock.unlock() }
 
-        if let coordinator = coordinators.first(where: { !$0.isInUse }) {
-            coordinator.isInUse = true
+        if let coordinator = coordinators[postId] {
             return coordinator
         } else {
             let newCoordinator = VideoPlayerCoordinator()
-            newCoordinator.isInUse = true
+            if coordinators.count >= maxPoolSize {
+                removeOldestCoordinator()
+            }
+            coordinators[postId] = newCoordinator
             return newCoordinator
         }
     }
 
-    func returnCoordinator(_ coordinator: VideoPlayerCoordinator) {
+    func releaseCoordinator(for postId: String) {
         lock.lock()
         defer { lock.unlock() }
 
-        if coordinators.count < maxPoolSize {
-            coordinator.resetPlayer()
-            coordinator.isInUse = false
-            coordinators.append(coordinator)
-        } else {
-            // Optionally handle the situation where the pool is full (e.g., release the coordinator)
-        }
+        coordinators[postId]?.resetPlayer()
+        coordinators.removeValue(forKey: postId)
+    }
+
+    private func removeOldestCoordinator() {
+        guard let oldestKey = coordinators.keys.first else { return }
+        coordinators[oldestKey]?.resetPlayer()
+        coordinators.removeValue(forKey: oldestKey)
     }
 }
