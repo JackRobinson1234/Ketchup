@@ -21,7 +21,8 @@ struct WrittenFeedCell: View {
     private var didLike: Bool { return post.didLike }
     private let pictureWidth: CGFloat = 240
     private let pictureHeight: CGFloat = 300
-    
+    @StateObject var videoCoordinator = VideoPlayerCoordinator()
+    @Binding var pauseVideo: Bool
     var body: some View {
         
             VStack{
@@ -84,16 +85,28 @@ struct WrittenFeedCell: View {
                     
                     .scrollTargetBehavior(.viewAligned)
                     .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
-                }
-                HStack{
-                    VStack(alignment: .leading){
-                        Text(post.restaurant.name)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .bold()
-                        Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
+                } else if post.mediaType == .video {
+                    Button {
+                        viewModel.scrollPosition = post.id
+                        viewModel.startingPostId = post.id
+                        viewModel.feedViewOption = .feed
+                    } label: {
+                        VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                            .frame(width: pictureWidth, height: pictureHeight)
+                            .cornerRadius(10)
                     }
-                    Spacer()
+                }
+                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
+                    HStack{
+                        VStack(alignment: .leading){
+                            Text(post.restaurant.name)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .bold()
+                            Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                        }
+                        Spacer()
+                    }
                 }
                 ScrollView(.horizontal, showsIndicators: false){
                     HStack (spacing: 6){
@@ -186,7 +199,26 @@ struct WrittenFeedCell: View {
             }
             .padding()
             
-        
+            .onAppear {
+                Task{
+                    if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
+                                videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                            }
+                            if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                                videoCoordinator.replay()
+                            }
+                }
+            }
+            .onDisappear{
+                videoCoordinator.pause()
+            }
+            .onChange(of: scrollPosition) {oldValue, newValue in
+                if newValue == post.id {
+                    videoCoordinator.replay()
+                } else {
+                    videoCoordinator.pause()
+                }
+            }
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
@@ -210,6 +242,9 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showingRepostSheet){
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
+        }
+        .onDisappear{
+            videoCoordinator.removeAllPlayerItems()
         }
     }
     private func handleLikeTapped() {
@@ -259,5 +294,5 @@ struct InteractionButtonView: View {
 }
 
 #Preview {
-    WrittenFeedCell(viewModel: FeedViewModel(), post: .constant(DeveloperPreview.posts[0]),  scrollPosition: .constant(""))
+    WrittenFeedCell(viewModel: FeedViewModel(), post: .constant(DeveloperPreview.posts[0]),  scrollPosition: .constant(""), pauseVideo: .constant(false))
 }

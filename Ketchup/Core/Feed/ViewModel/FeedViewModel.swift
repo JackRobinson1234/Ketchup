@@ -41,11 +41,10 @@ class FeedViewModel: ObservableObject {
 
     
     
-    init( scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
+    init(scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         videoCoordinator = VideoPlayerCoordinator()
-        
         self._scrollPosition = scrollPosition
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts

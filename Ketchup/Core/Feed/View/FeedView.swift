@@ -25,7 +25,6 @@ struct FeedView: View {
     @State private var showSuccessMessage = false
     
     init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
-        //self.videoCoordinator = videoCoordinator
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
@@ -47,7 +46,8 @@ struct FeedView: View {
         } else {
             NavigationStack {
                 ZStack(alignment: .top) {
-                    if viewModel.feedViewOption == .feed {
+                    switch viewModel.feedViewOption {
+                    case .feed:
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
@@ -59,6 +59,7 @@ struct FeedView: View {
                                         }
                                     }
                                 }
+                                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                                 .onAppear {
                                     if hideFeedOptions {
                                         Debouncer(delay: 0.5).schedule {
@@ -75,13 +76,13 @@ struct FeedView: View {
                             .scrollPosition(id: $scrollPosition)
                             .scrollTargetBehavior(.paging)
                         }
-                        .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-                    } else if viewModel.feedViewOption == .grid {
+                       
+                    case .grid:
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 LazyVStack() {
                                     ForEach($viewModel.posts) { post in
-                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition)
+                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
                                             .id(post.id)
                                             
                                     }
@@ -98,6 +99,7 @@ struct FeedView: View {
                                             }
                                         }
                                 }
+                                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing)))
                                 .scrollTargetLayout()
                             }
                             .transition(.slide)
@@ -114,7 +116,10 @@ struct FeedView: View {
                                 }
                             }
                         }
+                        
                     }
+                   
+                    
                     
                     if viewModel.feedViewOption == .grid {
                         Color.white
@@ -218,6 +223,7 @@ struct FeedView: View {
                         
                     }
                 }
+                .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")

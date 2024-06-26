@@ -493,6 +493,7 @@ struct FeedCell: View {
                 self.currentImageIndex = viewModel.startingImageIndex
                 viewModel.startingPostId = ""
                 viewModel.startingImageIndex = 0
+                videoCoordinator.replay()
             }
         }
         //MARK: Tap to play/pause

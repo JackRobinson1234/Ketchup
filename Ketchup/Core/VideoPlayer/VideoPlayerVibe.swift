@@ -50,7 +50,14 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var cancellables = Set<AnyCancellable>()
     @Published var currentTime: Double = 0.0
     @Published var duration: Double = 0.0
+    var isInUse = false
     
+    func resetPlayer() {
+        player.pause()
+        player.removeAllItems()
+        player.replaceCurrentItem(with: nil)
+        isInUse = false
+    }
     
     
     //MARK: configurePlayer
