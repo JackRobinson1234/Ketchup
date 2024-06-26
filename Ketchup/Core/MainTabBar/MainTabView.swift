@@ -8,14 +8,13 @@
 import SwiftUI
 import AVKit
 struct MainTabView: View {
-    @StateObject private var videoCoordinator = VideoPlayerCoordinator()
     @State private var playbackObserver: NSObjectProtocol?
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var feedViewModel = FeedViewModel()
 
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            FeedView(videoCoordinator: videoCoordinator, viewModel: feedViewModel)
+            FeedView(viewModel: feedViewModel)
                 .tabItem {
                     
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")

@@ -10,7 +10,6 @@ import AVKit
 import Combine
 
 struct FeedView: View {
-    @ObservedObject var videoCoordinator: VideoPlayerCoordinator
     @StateObject var viewModel: FeedViewModel
     @State var scrollPosition: String?
     @State private var showSearchView = false
@@ -25,8 +24,8 @@ struct FeedView: View {
     private var titleText: String
     @State private var showSuccessMessage = false
     
-    init(videoCoordinator: VideoPlayerCoordinator, viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
-        self.videoCoordinator = videoCoordinator
+    init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
+        //self.videoCoordinator = videoCoordinator
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
@@ -82,7 +81,7 @@ struct FeedView: View {
                             ScrollView(showsIndicators: false) {
                                 LazyVStack() {
                                     ForEach($viewModel.posts) { post in
-                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition)
+                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
                                             .id(post.id)
                                             
                                     }
@@ -248,8 +247,8 @@ struct FeedView: View {
                         Task {
                             await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                         }
-                        viewModel.updateCache(scrollPosition: newValue)
                     }
+                    viewModel.updateCache(scrollPosition: newValue)
                 }
                 
                 .background(Color("Colors/HingeGray"))
@@ -257,9 +256,6 @@ struct FeedView: View {
                 .navigationDestination(for: PostUser.self) { user in
                     ProfileView(uid: user.id)
                 }
-                //                .navigationDestination(for: SearchModelConfig.self) { config in
-                //                    SearchView()
-                //                }
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
@@ -320,7 +316,7 @@ struct SuccessMessageOverlay: View {
 
 
 #Preview {
-    FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: FeedViewModel())
+    FeedView(viewModel: FeedViewModel())
 }
 
 

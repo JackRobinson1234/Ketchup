@@ -460,6 +460,7 @@ struct FeedCell: View {
         }
         .onDisappear{
             videoCoordinator.pause()
+            videoCoordinator.removeAllPlayerItems()
         }
         //MARK: sheets
         //overlays the comments if showcomments is true

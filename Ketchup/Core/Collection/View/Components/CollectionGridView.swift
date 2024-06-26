@@ -90,7 +90,7 @@ struct CollectionGridView: View {
             .sheet(isPresented: $showPost) {
                 if let post = selectedPost {
                     let feedViewModel = FeedViewModel(posts: [post])
-                    FeedView(videoCoordinator: VideoPlayerCoordinator(), viewModel: feedViewModel, hideFeedOptions: true)
+                    FeedView(viewModel: feedViewModel, hideFeedOptions: true)
                 }
             }
             //MARK: Restaurant Sheet

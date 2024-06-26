@@ -97,11 +97,16 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         }
         setupTimeObserver()
     }
+    func removeAllPlayerItems() {
+        player.removeAllItems()
+        print("All player items have been removed.")
+    }
     //MARK: Prefetch
     /// downloads the given document and post ID to the cache at the savefilepath.  Needs to pass through an AVQueueplayer because thats the only way that i could trigger the download.
     /// - Parameters:
     ///   - url: url of the video to be prefetched
     ///   - postId: postId that is used as the cache storer identifier
+    ///   
     func prefetch(url: URL?, postId: String) {
         
         guard let url = url else {
