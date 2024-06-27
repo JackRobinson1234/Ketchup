@@ -55,6 +55,7 @@ struct FeedView: View {
                                         if !post.mediaUrls.isEmpty {
                                             FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
                                                 .id(post.id)
+                                                .containerRelativeFrame([.horizontal, .vertical])
                                                
                                         }
                                     }
@@ -66,8 +67,7 @@ struct FeedView: View {
                                             viewModel.combineEarlyPosts()
                                         }
                                     } else {
-                                        scrollProxy.scrollTo(viewModel.startingPostId, anchor: .top)
-                                        
+                                        scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
                                     }
                                 }
                             }
@@ -139,6 +139,7 @@ struct FeedView: View {
                                 }
                             } else {
                                 Button{
+                                    VideoPlayerCoordinatorPool.shared.resetPool()
                                     viewModel.feedViewOption = .grid
                                 } label: {
                                     Image(systemName: "chevron.left")

@@ -245,6 +245,10 @@ struct WrittenFeedCell: View {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
         }
+        .onDisappear{
+            videoCoordinator.resetPlayer()
+            
+        }
     }
     
     private func handleLikeTapped() {

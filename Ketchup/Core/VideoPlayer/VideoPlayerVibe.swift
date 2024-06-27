@@ -64,6 +64,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func configurePlayer(url: URL?, postId: String) {
         print("Running Configure Player")
+        
         guard !configured else {
             print("Player is already configured.")
             return
@@ -74,31 +75,41 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         resetPlayer()
         
         guard let url = url else {
-            print("URL Error")
+            print("URL Error: URL is nil")
             return
         }
         
-        var saveFilePath = try! FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        saveFilePath.appendPathComponent(postId)
-        saveFilePath.appendPathExtension("mp4")
-        
-        if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
-            print("Using existing cached item.")
-            playerItem = CachingPlayerItem(filePathURL: saveFilePath)
-        } else {
-            print("Creating new player item.")
-            playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
+        do {
+            var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            saveFilePath.appendPathComponent(postId)
+            saveFilePath.appendPathExtension("mp4")
+            
+            if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
+                print("Using existing cached item.")
+                playerItem = CachingPlayerItem(filePathURL: saveFilePath)
+            } else {
+                print("Creating new player item.")
+                playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
+            }
+            
+            if let playerItem = self.playerItem {
+                player.replaceCurrentItem(with: playerItem)
+                playerItem.delegate = self
+                player.automaticallyWaitsToMinimizeStalling = false
+                looper = AVPlayerLooper(player: player, templateItem: playerItem)
+                configured = true
+            } else {
+                print("Error: Failed to create player item.")
+            }
+            
+        } catch {
+            print("File path error: \(error)")
         }
         
-        if let playerItem = self.playerItem {
-            player.replaceCurrentItem(with: playerItem)
-            playerItem.delegate = self
-            player.automaticallyWaitsToMinimizeStalling = false
-            looper = AVPlayerLooper(player: player, templateItem: playerItem)
-            configured = true
-        }
         setupTimeObserver()
     }
+    
+    
 
     func prefetch(url: URL?, postId: String) {
         prefetching = true

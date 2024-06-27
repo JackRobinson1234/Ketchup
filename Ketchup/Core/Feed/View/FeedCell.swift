@@ -276,7 +276,7 @@ struct FeedCell: View {
             if post.mediaType == .video {
                 Task {
                     if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                        videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                        //videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
                     }
                     if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
                         videoCoordinator.replay()
@@ -315,12 +315,18 @@ struct FeedCell: View {
         .onAppear {
             if post.id == viewModel.startingPostId {
                 self.currentImageIndex = viewModel.startingImageIndex
-                viewModel.startingPostId = ""
+                Debouncer(delay: 2.0).schedule{
+                    viewModel.startingPostId = ""
+                }
                 viewModel.startingImageIndex = 0
                 if post.mediaType == .video {
                     videoCoordinator.replay()
                 }
             }
+        }
+        .onDisappear{
+            VideoPlayerCoordinatorPool.shared.releaseCoordinator(for: post.id)
+            videoCoordinator.resetPlayer()
         }
     }
     
