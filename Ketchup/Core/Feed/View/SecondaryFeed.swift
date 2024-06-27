@@ -52,11 +52,10 @@ struct SecondaryFeedView: View {
                             }
                         } else {
                             
-                                
-                                    scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
-                                
-                            }
-                        
+                            
+                            scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                            
+                        }
                     }
                 }
                 .transition(.slide)
@@ -66,25 +65,29 @@ struct SecondaryFeedView: View {
             }
             if !hideFeedOptions {
                 HStack(spacing: 0) {
-                        Button{
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.white)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                        .frame(width: 30, height: 30) // Adjust the size as needed
-                                )
-                                .padding()
+                    Button{
+                        if let scrollPosition = scrollPosition{
+                            print("assigning scroll position")
+                            viewModel.scrollPosition = scrollPosition
                         }
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundStyle(.white)
+                            .background(
+                                Circle()
+                                    .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                    .frame(width: 30, height: 30) // Adjust the size as needed
+                            )
+                            .padding()
+                    }
                     
                     Spacer()
                     
-                        Image("KetchupTextWhite")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 17)
+                    Image("KetchupTextWhite")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 17)
                     
                     Spacer()
                     Button {

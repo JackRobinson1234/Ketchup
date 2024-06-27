@@ -78,7 +78,8 @@ struct PrimaryFeedView: View {
                                 viewModel.combineEarlyPosts()
                             }
                         } else {
-                            scrollProxy.scrollTo(scrollPosition, anchor: .center)
+                            print("Scrolling to ", viewModel.startingPostId)
+                            scrollProxy.scrollTo(viewModel.scrollPosition, anchor: .center)
                             viewModel.startingPostId = ""
                         }
                     }

@@ -171,7 +171,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
         print("**************************ERROR*************************")
-        if let postId = currentPostId, let url = currentUrl, self.retries <= 10 {
+        if let postId = currentPostId, let url = currentUrl, self.retries <= 20 {
             debouncer.schedule{
                 self.configured = false
                 self.configurePlayer(url: url, postId: postId)
