@@ -37,7 +37,8 @@ class FeedViewModel: ObservableObject {
     @Published var showPostAlert: Bool = false
     @Published var showRepostAlert: Bool = false
     @Published var startingImageIndex = 0
-
+    let videoCoordinator = VideoPlayerCoordinator()
+    
     
     
     init(scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
@@ -55,8 +56,8 @@ class FeedViewModel: ObservableObject {
         isLoading = true
         await fetchPosts(withFilters: filters, isInitialLoad: true)
         isLoading = false
-        
     }
+    
     func combineEarlyPosts() {
         posts.insert(contentsOf: earlyPosts, at: 0)
         earlyPosts = []
@@ -101,12 +102,6 @@ class FeedViewModel: ObservableObject {
         }
     }
     
-    func prefetchVideosForVisiblePosts(post: Post) {
-        let coordinator = VideoPlayerCoordinatorPool.shared.coordinator(for: post.id)
-        if post.mediaUrls.first != nil{
-            //coordinator.prefetch(url: URL(string: post.id), postId: post.id)
-        }
-    }
     // Add other methods as needed...
     
     /// updates the cache with the next 3 post videos saved
@@ -126,49 +121,52 @@ class FeedViewModel: ObservableObject {
             print("scroll position = \(scrollPosition)")
             return
         }
-        // Starts at 2 posts ahead the current scroll position and prefetches the next 5 videos. Configures the next video in line for smoother scrolling.
+        
+        // Ensure the range is valid
+        let startIndex = currentIndex + 2
+        let endIndex = min(currentIndex + 6, posts.count)
+        
+        guard startIndex < endIndex else {
+            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+            return
+        }
+        
         let posts = self.posts
         DispatchQueue.global().async { [weak self] in
-            guard let self = self else {return}
-            let nextIndexes = Array(currentIndex + 2 ..< min(currentIndex + 6, posts.count + 2))
+            guard let self = self else { return }
+            let nextIndexes = Array(startIndex ..< endIndex)
             for index in nextIndexes {
                 if index >= posts.count {
                     break
                 }
                 let post = posts[index]
-                Task{
-                    if post.mediaType == .video{
-                        if let videoURL = post.mediaUrls.first {
+                Task {
+                    if post.mediaType == .video {
+                        if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
                             if index == currentIndex + 1 {
-                                //await self.videoCoordinator.configurePlayer(url: URL(string: videoURL), postId: post.id)
+                                // await self.videoCoordinator.configurePlayer(url: url, postId: post.id)
                             }
                             print("running prefetch")
-                            //await self.videoCoordinator.prefetch(url: URL(string: videoURL), postId: post.id)
+                            self.videoCoordinator.prefetch(url: url, postId: post.id)
                         }
-                        
-                        ///Prefetches all photos
                     } else if post.mediaType == .photo {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
                         prefetcher.start()
                     }
-                    
-                    if let profileImageUrl = post.user.profileImageUrl,
-                       let userProfileImageURL = URL(string: profileImageUrl) {
+
+                    if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
                         let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
                         prefetcher.start()
                     }
-                    
-                    if let profileImageURL = post.restaurant.profileImageUrl,
-                       let restaurantProfileImageURL = URL(string: profileImageURL) {
+
+                    if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
                         let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
                         prefetcher.start()
                     }
                 }
-                
             }
         }
     }
- 
 }
 
 // MARK: - Likes

@@ -40,9 +40,9 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     @Published var player = AVQueuePlayer()
     private var looper: AVPlayerLooper?
     private var playerItem: CachingPlayerItem?
-    @State var configured = false
-    @State var currentUrl: URL?
-    @State var currentPostId: String?
+    private var configured = false
+    private var currentUrl: URL?
+    private var currentPostId: String?
     private var retries: Int = 0
     private var playerTimeObserver: PlayerTimeObserver?
     private var cancellables = Set<AnyCancellable>()
@@ -53,66 +53,73 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     @State var prefetching = false
 
     func resetPlayer() {
-        player.pause()
-        player.removeAllItems()
-        player.replaceCurrentItem(with: nil)
-        playerItem = nil
-        isInUse = false
-        readyToPlay = false
-        configured = false
-    }
-    
-    func configurePlayer(url: URL?, postId: String) {
-        configured = true
-        print("Running Configure Player")
-        
-        guard !configured else {
-            print("Player is already configured.")
-            return
-        }
-        
-        currentUrl = url
-        currentPostId = postId
-        
-        guard let url = url else {
-            print("URL Error: URL is nil")
-            return
-        }
-        
-        do {
-            var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            saveFilePath.appendPathComponent(postId)
-            saveFilePath.appendPathExtension("mp4")
-            
-            if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
-                print("Using existing cached item.")
-                playerItem = CachingPlayerItem(filePathURL: saveFilePath)
-            } else {
-                print("Creating new player item.")
-                playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
-            }
-            
-            if let playerItem = self.playerItem {
-                resetPlayer()
-                player.replaceCurrentItem(with: playerItem)
-                playerItem.delegate = self
-                player.automaticallyWaitsToMinimizeStalling = false
-                looper = AVPlayerLooper(player: player, templateItem: playerItem)
-                
-            } else {
-                print("Error: Failed to create player item.")
-            }
-            
-        } catch {
-            print("File path error: \(error)")
-        }
-        
-        setupTimeObserver()
-    }
+           print("Resetting player")
+           player.pause()
+           player.removeAllItems()
+           player.replaceCurrentItem(with: nil)
+           playerItem = nil
+           isInUse = false
+           readyToPlay = false
+           configured = false
+       }
+
+       func configurePlayer(url: URL?, postId: String) {
+           currentUrl = url
+           currentPostId = postId
+           print("Running Configure Player for Post ID: \(postId)")
+           
+           if configured {
+               print("Player is already configured for this post.")
+               return
+           }
+          
+           resetPlayer()
+           configured = true
+           
+           
+           guard let url = url else {
+               print("URL Error: URL is nil")
+               return
+           }
+           
+           do {
+               var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+               saveFilePath.appendPathComponent(postId)
+               saveFilePath.appendPathExtension("mp4")
+               
+               if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
+                   print("Using existing cached item.")
+                   playerItem = CachingPlayerItem(filePathURL: saveFilePath)
+               } else {
+                   print("Creating new player item.")
+                   playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
+               }
+               
+               if let playerItem = self.playerItem {
+                   player.replaceCurrentItem(with: playerItem)
+                   playerItem.delegate = self
+                   player.automaticallyWaitsToMinimizeStalling = false
+                   looper = AVPlayerLooper(player: player, templateItem: playerItem)
+                   configured = true
+                   print("Player configured for Post ID: \(postId)")
+               } else {
+                   print("Error: Failed to create player item.")
+               }
+               
+           } catch {
+               print("File path error: \(error)")
+           }
+           
+           setupTimeObserver()
+       }
     
     
 
     func prefetch(url: URL?, postId: String) {
+        if prefetching{
+            print("Already prefetching")
+            return
+        }
         prefetching = true
         
         guard let url = url else {
@@ -163,11 +170,15 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
-        if let postId = currentPostId, let url = currentUrl, retries <= 10 {
-            debouncer.schedule {
+        print("**************************ERROR*************************")
+        print("postId", currentPostId)
+        print("Url", currentUrl)
+        if let postId = currentPostId, let url = currentUrl, self.retries <= 10 {
+            debouncer.schedule{
                 self.configured = false
                 self.configurePlayer(url: url, postId: postId)
                 self.retries += 1
+                print("***************** retrying *********************")
             }
         }
     }

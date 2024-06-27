@@ -251,7 +251,7 @@ struct ActivityCell: View {
         .sheet(isPresented: $viewModel.showPost){
             if let post = viewModel.post {
                 let feedViewModel = FeedViewModel(posts: [post])
-                FeedView(viewModel: feedViewModel, hideFeedOptions: true)
+                SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
             }
         }
         .sheet(isPresented: $viewModel.showCollection) {

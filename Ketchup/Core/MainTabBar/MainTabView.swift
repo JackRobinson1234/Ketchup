@@ -14,7 +14,15 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            FeedView(viewModel: feedViewModel, hideFeedOptions: false)
+            NavigationStack{
+                PrimaryFeedView(viewModel: feedViewModel, hideFeedOptions: false)
+                    .navigationDestination(for: PostUser.self) { user in
+                        ProfileView(uid: user.id)
+                    }
+                    .navigationDestination(for: PostRestaurant.self) { restaurant in
+                        RestaurantProfileView(restaurantId: restaurant.id)
+                    }
+            }
                 .tabItem {
                     
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")

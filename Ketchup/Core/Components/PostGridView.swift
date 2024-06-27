@@ -88,7 +88,9 @@ struct PostGridView: View {
                             let earlyPosts = Array(posts[..<index])
                             let laterPosts = Array(posts[index...])
                             let feedViewModel = FeedViewModel(posts: laterPosts, startingPostId: post.id, earlyPosts: earlyPosts)
-                            FeedView( viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
+                            NavigationStack{
+                                SecondaryFeedView( viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
+                            }
                         }
                     }
                 }

@@ -16,10 +16,11 @@ enum Section {
 struct RestaurantProfileSlideBarView: View {
         @ObservedObject var viewModel: RestaurantViewModel
         @StateObject var reviewsViewModel: ReviewsViewModel
-        
+        @StateObject var feedViewModel: FeedViewModel
         init(viewModel: RestaurantViewModel) {
             self.viewModel = viewModel
             self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
+            self._feedViewModel = StateObject(wrappedValue: FeedViewModel())
         }
     var body: some View {
         //MARK: Selecting Images

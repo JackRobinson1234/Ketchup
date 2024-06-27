@@ -18,27 +18,22 @@ struct WrittenFeedCell: View {
     @State private var showingRepostSheet = false
     @State private var currentImageIndex = 0
     @Binding var scrollPosition: String?
-    private var didLike: Bool { return post.didLike }
-    private let pictureWidth: CGFloat = 240
-    private let pictureHeight: CGFloat = 300
     @StateObject private var videoCoordinator: VideoPlayerCoordinator
     @Binding var pauseVideo: Bool
-
+    private let pictureWidth: CGFloat = 240
+    private let pictureHeight: CGFloat = 300
+    private var didLike: Bool {
+           return post.didLike
+       }
+    @State var configured = false
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
-        
-        let coordinator: VideoPlayerCoordinator
-        if post.wrappedValue.mediaType == .video {
-            coordinator = VideoPlayerCoordinatorPool.shared.coordinator(for: post.wrappedValue.id)
-        } else {
-            coordinator = VideoPlayerCoordinator() // Dummy coordinator for non-video posts
-        }
-        self._videoCoordinator = StateObject(wrappedValue: coordinator)
+        self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
     }
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -180,47 +175,51 @@ struct WrittenFeedCell: View {
                 }
                 
                 Button {
-                    showingOptionsSheet = true
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .fill(.clear)
-                            .frame(width: 20, height: 28)
-                        Image(systemName: "ellipsis")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 5, height: 5)
-                            .foregroundColor(.gray)
+                        showingOptionsSheet = true
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .fill(.clear)
+                                .frame(width: 20, height: 28)
+                            Image(systemName: "ellipsis")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 5, height: 5)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
+                Divider()
+            }
+            .padding()
+            .onAppear {
+                if post.mediaType == .video {
+                    Task {
+                        if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
+                            if !configured{
+                                videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                                configured = true
+                            }
+                        }
+                        if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                            videoCoordinator.replay()
+                        }
                     }
                 }
-                Spacer()
             }
-            Divider()
-        }
-        .padding()
-        .onAppear {
-            if post.mediaType == .video {
-                Task {
-                    if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                        videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                    }
-                    if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
-                        videoCoordinator.replay()
-                    }
-                }
-            }
-        }
-        .onDisappear {
-            if post.mediaType == .video {
-                videoCoordinator.pause()
-            }
-        }
-        .onChange(of: scrollPosition) { oldValue, newValue in
-            if post.mediaType == .video {
-                if newValue == post.id {
-                    videoCoordinator.replay()
-                } else {
+            .onDisappear {
+                if post.mediaType == .video {
                     videoCoordinator.pause()
+                    //videoCoordinator.resetPlayer()
+                }
+            }
+            .onChange(of: scrollPosition) { oldValue, newValue in
+                if post.mediaType == .video {
+                    if newValue == post.id {
+                        videoCoordinator.replay()
+                    } else {
+                        videoCoordinator.pause()
                 }
             }
         }
@@ -244,10 +243,6 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showingRepostSheet) {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
-        }
-        .onDisappear{
-            videoCoordinator.resetPlayer()
-            
         }
     }
     

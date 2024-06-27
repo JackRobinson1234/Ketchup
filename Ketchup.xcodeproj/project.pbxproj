@@ -32,7 +32,7 @@
 		F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46A2BFF8AE1009D1303 /* ClusterMap */; };
 		F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */; };
 		F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4702BFF97A9009D1303 /* ClusterCell.swift */; };
-		F84A61E12C2D0A6200FBEC2F /* PrimaryFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84A61E02C2D0A6100FBEC2F /* PrimaryFeed.swift */; };
+		F84A61E12C2D0A6200FBEC2F /* SecondaryFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
 		F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24D2B6A531200144F01 /* ContentView.swift */; };
 		F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84FE24F2B6A531300144F01 /* Assets.xcassets */; };
@@ -108,7 +108,7 @@
 		F88E0A8C2B6B01B300EC159B /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A8B2B6B01B300EC159B /* FeedViewModel.swift */; };
 		F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A8D2B6B01F100EC159B /* FeedCell.swift */; };
 		F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */; };
-		F88E0A922B6B023800EC159B /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A912B6B023800EC159B /* FeedView.swift */; };
+		F88E0A922B6B023800EC159B /* PrimaryFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */; };
 		F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A932B6B026D00EC159B /* FiltersView.swift */; };
 		F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A952B6B028900EC159B /* MainTabView.swift */; };
 		F88E0A982B6B02A300EC159B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A972B6B02A300EC159B /* MapView.swift */; };
@@ -262,7 +262,7 @@
 		F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantReviewSelector.swift; sourceTree = "<group>"; };
 		F846F4702BFF97A9009D1303 /* ClusterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterCell.swift; sourceTree = "<group>"; };
-		F84A61E02C2D0A6100FBEC2F /* PrimaryFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFeed.swift; sourceTree = "<group>"; };
+		F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryFeed.swift; sourceTree = "<group>"; };
 		F84FE2482B6A531200144F01 /* Ketchup.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ketchup.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84FE24B2B6A531200144F01 /* FoodiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodiApp.swift; sourceTree = "<group>"; };
 		F84FE24D2B6A531200144F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -344,7 +344,7 @@
 		F88E0A8B2B6B01B300EC159B /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
 		F88E0A8D2B6B01F100EC159B /* FeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
 		F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCellActionButtonView.swift; sourceTree = "<group>"; };
-		F88E0A912B6B023800EC159B /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
+		F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFeedView.swift; sourceTree = "<group>"; };
 		F88E0A932B6B026D00EC159B /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		F88E0A952B6B028900EC159B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		F88E0A972B6B02A300EC159B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -1111,12 +1111,12 @@
 				F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */,
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
-				F88E0A912B6B023800EC159B /* FeedView.swift */,
+				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
 				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
 				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,
 				F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */,
 				F86E15B02C039FA40059D15C /* RepostView.swift */,
-				F84A61E02C2D0A6100FBEC2F /* PrimaryFeed.swift */,
+				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1800,7 +1800,7 @@
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
-				F88E0A922B6B023800EC159B /* FeedView.swift in Sources */,
+				F88E0A922B6B023800EC159B /* PrimaryFeedView.swift in Sources */,
 				F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */,
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
@@ -1898,7 +1898,7 @@
 				F88E0AEC2B6B082300EC159B /* UserListView.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
-				F84A61E12C2D0A6200FBEC2F /* PrimaryFeed.swift in Sources */,
+				F84A61E12C2D0A6200FBEC2F /* SecondaryFeed.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
 				F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */,
 				F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */,

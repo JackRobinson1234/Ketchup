@@ -18,8 +18,7 @@ class RestaurantViewModel: ObservableObject {
     @Published var isDragging = false
     @Published var currentSection: Section = .posts
     @Environment(\.dismiss) var dismiss
-    
-    
+    @Published var feedViewModel = FeedViewModel()
     
     init(restaurantId: String) {
         self.restaurantId = restaurantId
