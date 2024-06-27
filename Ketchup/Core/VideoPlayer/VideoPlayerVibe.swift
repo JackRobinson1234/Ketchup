@@ -63,6 +63,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func configurePlayer(url: URL?, postId: String) {
+        configured = true
         print("Running Configure Player")
         
         guard !configured else {
@@ -72,7 +73,6 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         
         currentUrl = url
         currentPostId = postId
-        resetPlayer()
         
         guard let url = url else {
             print("URL Error: URL is nil")
@@ -93,11 +93,12 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             }
             
             if let playerItem = self.playerItem {
+                resetPlayer()
                 player.replaceCurrentItem(with: playerItem)
                 playerItem.delegate = self
                 player.automaticallyWaitsToMinimizeStalling = false
                 looper = AVPlayerLooper(player: player, templateItem: playerItem)
-                configured = true
+                
             } else {
                 print("Error: Failed to create player item.")
             }

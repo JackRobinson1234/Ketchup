@@ -67,7 +67,9 @@ struct FeedView: View {
                                             viewModel.combineEarlyPosts()
                                         }
                                     } else {
-                                        scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                                        DispatchQueue.main.async {
+                                               scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                                           }
                                     }
                                 }
                             }
@@ -254,7 +256,7 @@ struct FeedView: View {
                         Task {
                             await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
                         }
-                        viewModel.updateCache(scrollPosition: newValue)
+                        //viewModel.updateCache(scrollPosition: newValue)
                     }
                    
                 }

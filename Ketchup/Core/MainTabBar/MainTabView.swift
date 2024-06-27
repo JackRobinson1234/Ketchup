@@ -14,7 +14,7 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            FeedView(viewModel: feedViewModel)
+            FeedView(viewModel: feedViewModel, hideFeedOptions: false)
                 .tabItem {
                     
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
