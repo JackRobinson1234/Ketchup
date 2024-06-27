@@ -23,7 +23,7 @@ struct PrimaryFeedView: View {
     @State var startingPostId: String?
     private var titleText: String
     @State private var showSuccessMessage = false
-    
+    @State var selectedPost: Post?
     init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -50,7 +50,7 @@ struct PrimaryFeedView: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack() {
                             ForEach($viewModel.posts) { post in
-                                WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo)
+                                WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                     .id(post.id)
                                 
                             }
@@ -67,7 +67,6 @@ struct PrimaryFeedView: View {
                                     }
                                 }
                         }
-                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing)))
                         .scrollTargetLayout()
                     }
                     .transition(.slide)
@@ -164,14 +163,21 @@ struct PrimaryFeedView: View {
                         }
                 }
             }
-            .onChange(of: scrollPosition) { oldValue, newValue in
-                if !hideFeedOptions && viewModel.feedViewOption == .feed{
-                    Task {
-                        await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
+            .onChange(of: scrollPosition) { oldPostId, newPostId in
+                // Get the indices of the old and new post IDs
+                if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
+                   let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+                    
+                    // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
+                    if newIndex > oldIndex {
+                        if !hideFeedOptions {
+                            Task {
+                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                            }
+                        }
+                        viewModel.updateCache(scrollPosition: newPostId)
                     }
-                    //viewModel.updateCache(scrollPosition: newValue)
                 }
-                
             }
             
             .background(Color("Colors/HingeGray"))
@@ -198,11 +204,12 @@ struct PrimaryFeedView: View {
                     }
                 }
             }
-            .onChange(of: scrollPosition) { oldValue, newValue in
-                viewModel.updateCache(scrollPosition: newValue)
+            .fullScreenCover(item: $selectedPost) { post in
+                NavigationStack{
+                    SecondaryFeedView( viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                }
+            
             }
-            
-            
         }
     }
 }

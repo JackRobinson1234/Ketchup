@@ -26,12 +26,14 @@ struct WrittenFeedCell: View {
            return post.didLike
        }
     @State var configured = false
-    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>) {
+    @Binding var selectedPost: Post?
+    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
         self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
+        self._selectedPost = selectedPost
     }
 
     var body: some View {
@@ -68,9 +70,10 @@ struct WrittenFeedCell: View {
                             VStack {
                                 Button {
                                     viewModel.startingImageIndex = index
-                                    viewModel.scrollPosition = post.id
                                     viewModel.startingPostId = post.id
-                                    viewModel.feedViewOption = .feed
+                                    selectedPost = post
+                                    
+                                    
                                 } label: {
                                     KFImage(URL(string: url))
                                         .resizable()
@@ -92,14 +95,50 @@ struct WrittenFeedCell: View {
                 .scrollTargetBehavior(.viewAligned)
                 .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
             } else if post.mediaType == .video {
-                Button {
-                    viewModel.scrollPosition = post.id
-                    viewModel.startingPostId = post.id
-                    viewModel.feedViewOption = .feed
-                } label: {
-                    VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                        .frame(width: pictureWidth, height: pictureHeight)
-                        .cornerRadius(10)
+                HStack (alignment: .bottom){
+                    Rectangle()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.clear)
+                    Button {
+                        viewModel.startingPostId = post.id
+                        selectedPost = post
+                    } label: {
+                        VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                            .frame(width: pictureWidth, height: pictureHeight)
+                            .cornerRadius(10)
+                    }
+                    VStack {
+                        Button(action: {
+                            let player = videoCoordinator.player
+                            switch player.timeControlStatus {
+                            case .paused:
+                                videoCoordinator.play()
+                            case .waitingToPlayAtSpecifiedRate:
+                                print("WAITING TO PERFORM AT A SPECIFIED RATE")
+                            case .playing:
+                                videoCoordinator.pause()
+                            @unknown default:
+                                print("UNKNOWN PLAYING STATUS")
+                            }
+                        }) {
+                            Image(systemName: videoCoordinator.player.timeControlStatus == .playing ? "pause" : "play")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color.gray))
+                        }
+                        .frame(width: 40, height: 30)
+
+                        Button(action: {
+                            viewModel.isMuted.toggle()
+                            videoCoordinator.player.isMuted = viewModel.isMuted
+                        }) {
+                            Image(systemName: viewModel.isMuted ? "speaker.slash" : "speaker.wave.2")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color.gray))
+                        }
+                        .frame(width: 40, height: 30)
+                    }
                 }
             }
             NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
@@ -195,6 +234,7 @@ struct WrittenFeedCell: View {
             .padding()
             .onAppear {
                 if post.mediaType == .video {
+                    videoCoordinator.player.isMuted = viewModel.isMuted
                     Task {
                         if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
                             if !configured{
@@ -211,13 +251,13 @@ struct WrittenFeedCell: View {
             .onDisappear {
                 if post.mediaType == .video {
                     videoCoordinator.pause()
-                    //videoCoordinator.resetPlayer()
                 }
             }
             .onChange(of: scrollPosition) { oldValue, newValue in
+                videoCoordinator.player.isMuted = viewModel.isMuted
                 if post.mediaType == .video {
                     if newValue == post.id {
-                        videoCoordinator.replay()
+                        videoCoordinator.play()
                     } else {
                         videoCoordinator.pause()
                 }
@@ -244,6 +284,17 @@ struct WrittenFeedCell: View {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
         }
+        .onChange(of: selectedPost) {
+            if selectedPost != nil {
+                videoCoordinator.pause()
+            }
+        }
+//        .onChange(of: videoCoordinator.readyToPlay) {
+//            if videoCoordinator.readyToPlay && scrollPosition == post.id{
+//                videoCoordinator.play()
+//            }
+//        }
+        
     }
     
     private func handleLikeTapped() {
@@ -289,5 +340,5 @@ struct InteractionButtonView: View {
 }
 
 #Preview {
-    WrittenFeedCell(viewModel: FeedViewModel(), post: .constant(DeveloperPreview.posts[0]), scrollPosition: .constant(""), pauseVideo: .constant(false))
+    WrittenFeedCell(viewModel: FeedViewModel(), post: .constant(DeveloperPreview.posts[0]), scrollPosition: .constant(""), pauseVideo: .constant(false), selectedPost: .constant(nil))
 }

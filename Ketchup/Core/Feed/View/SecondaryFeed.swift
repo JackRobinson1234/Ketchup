@@ -51,10 +51,12 @@ struct SecondaryFeedView: View {
                                 viewModel.combineEarlyPosts()
                             }
                         } else {
-                            DispatchQueue.main.async {
-                                scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                            
+                                
+                                    scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                                
                             }
-                        }
+                        
                     }
                 }
                 .transition(.slide)
@@ -65,8 +67,7 @@ struct SecondaryFeedView: View {
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                         Button{
-                            VideoPlayerCoordinatorPool.shared.resetPool()
-                            viewModel.feedViewOption = .grid
+                            dismiss()
                         } label: {
                             Image(systemName: "chevron.left")
                                 .foregroundStyle(.white)
@@ -145,7 +146,6 @@ struct SecondaryFeedView: View {
                 
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
         .overlay {
             if viewModel.showEmptyView {
                 ContentUnavailableView("No posts to show", systemImage: "eye.slash")
@@ -170,14 +170,21 @@ struct SecondaryFeedView: View {
                     }
             }
         }
-        .onChange(of: scrollPosition) { oldValue, newValue in
-            if !hideFeedOptions && viewModel.feedViewOption == .feed{
-                Task {
-                    await viewModel.loadMoreContentIfNeeded(currentPost: newValue)
+        .onChange(of: scrollPosition) { oldPostId, newPostId in
+            // Get the indices of the old and new post IDs
+            if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
+               let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+                
+                // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
+                if newIndex > oldIndex {
+                    if !hideFeedOptions {
+                        Task {
+                            await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                        }
+                    }
+                    viewModel.updateCache(scrollPosition: newPostId)
                 }
-                //viewModel.updateCache(scrollPosition: newValue)
             }
-           
         }
         
         .background(Color("Colors/HingeGray"))

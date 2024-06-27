@@ -23,7 +23,7 @@ class FeedViewModel: ObservableObject {
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
-    @State var isFetching = false
+    private var isFetching = false
     private let pageSize = 15
     private let fetchingThreshold = -5
     private var filters: [String: [Any]]? = [:]
@@ -37,6 +37,7 @@ class FeedViewModel: ObservableObject {
     @Published var showPostAlert: Bool = false
     @Published var showRepostAlert: Bool = false
     @Published var startingImageIndex = 0
+    @Published var isMuted: Bool = false
     let videoCoordinator = VideoPlayerCoordinator()
     
     
@@ -230,10 +231,14 @@ extension FeedViewModel {
         
         let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
         let postPosition = posts.firstIndex(where: { $0.id == currentPost })
+        
+        
         if let postPosition, postPosition >= thresholdIndex && lastFetched <= postPosition {
             print("Fetching more posts")
             self.lastFetched = postPosition
             await fetchMorePosts()
+            
+            
         } else if let postPosition, lastFetched > postPosition {
             print("posts already been fetched from this index")
         }
