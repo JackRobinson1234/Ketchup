@@ -51,6 +51,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     var isInUse = false
     @State var readyToPlay = true
     @State var prefetching = false
+
     func resetPlayer() {
         player.pause()
         player.removeAllItems()
@@ -58,31 +59,34 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         playerItem = nil
         isInUse = false
         readyToPlay = false
+        configured = false
     }
     
     func configurePlayer(url: URL?, postId: String) {
-        if prefetching && !readyToPlay{
+        print("Running Configure Player")
+        guard !configured else {
+            print("Player is already configured.")
             return
         }
+        
         currentUrl = url
         currentPostId = postId
-        //configured = true
-        if !player.items().isEmpty {
-            player.removeAllItems()
-        }
+        resetPlayer()
+        
         guard let url = url else {
             print("URL Error")
             return
         }
+        
         var saveFilePath = try! FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         saveFilePath.appendPathComponent(postId)
         saveFilePath.appendPathExtension("mp4")
         
         if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
-            print("Existing Item")
+            print("Using existing cached item.")
             playerItem = CachingPlayerItem(filePathURL: saveFilePath)
         } else {
-            print("Creating New Item")
+            print("Creating new player item.")
             playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
         }
         
@@ -91,25 +95,11 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             playerItem.delegate = self
             player.automaticallyWaitsToMinimizeStalling = false
             looper = AVPlayerLooper(player: player, templateItem: playerItem)
+            configured = true
         }
         setupTimeObserver()
     }
-    
-    
-    private func setupPlayerItem() {
-            guard let playerItem = self.playerItem else { return }
-            player.replaceCurrentItem(with: playerItem)
-            player.automaticallyWaitsToMinimizeStalling = false
-            looper = AVPlayerLooper(player: player, templateItem: playerItem)
-            setupTimeObserver()
-        }
 
-    
-    func removeAllPlayerItems() {
-        player.removeAllItems()
-        print("All player items have been removed.")
-    }
-    
     func prefetch(url: URL?, postId: String) {
         prefetching = true
         
@@ -127,8 +117,6 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             return
         }
         
-        currentUrl = url
-        currentPostId = postId
         let prefetchedPlayerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
         let tempPlayer = AVQueuePlayer()
         tempPlayer.replaceCurrentItem(with: prefetchedPlayerItem)
@@ -159,14 +147,11 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
         print("Caching player item ready to play.")
-        if let currentPostId{
-            readyToPlay = true
-            configurePlayer(url: currentUrl, postId: currentPostId)
-        }
+        readyToPlay = true
     }
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
-        if let postId = currentPostId, let url = currentUrl, self.retries <= 10 {
+        if let postId = currentPostId, let url = currentUrl, retries <= 10 {
             debouncer.schedule {
                 self.configured = false
                 self.configurePlayer(url: url, postId: postId)
@@ -188,6 +173,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
+        // Handle download progress if needed
     }
     
     func setupTimeObserver() {
@@ -206,6 +192,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         }
     }
 }
+
 import Combine
 
 class PlayerTimeObserver {

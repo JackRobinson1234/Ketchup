@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import AVFAudio
+import Kingfisher
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
@@ -21,6 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
           } catch let error as NSError {
               print("Failed to set the audio session category and mode: \(error.localizedDescription)")
           }
+      configureKingfisherCache()
     return true
   }
 }
@@ -50,3 +52,23 @@ struct foodiApp: App {
         }
     }
 }
+func configureKingfisherCache() {
+    // Get the default cache
+    let cache = ImageCache.default
+    
+    // Set maximum disk cache size to 500 MB (500 * 1024 * 1024 bytes)
+    cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
+    
+    // Optionally set maximum memory cache size to 100 MB (100 * 1024 * 1024 bytes)
+    cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024
+    
+    // Set the expiration for cached images (e.g., 7 days)
+    cache.diskStorage.config.expiration = .days(7)
+    
+    // Optionally clear the cache if needed
+    // cache.clearDiskCache()
+    // cache.clearMemoryCache()
+}
+
+// Call this function early in your app lifecycle, such as in AppDelegate or SceneDelegate
+

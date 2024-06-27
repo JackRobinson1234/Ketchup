@@ -23,7 +23,7 @@ struct WrittenFeedCell: View {
     private let pictureHeight: CGFloat = 300
     @StateObject private var videoCoordinator: VideoPlayerCoordinator
     @Binding var pauseVideo: Bool
-    
+
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
@@ -34,7 +34,7 @@ struct WrittenFeedCell: View {
         if post.wrappedValue.mediaType == .video {
             coordinator = VideoPlayerCoordinatorPool.shared.coordinator(for: post.wrappedValue.id)
         } else {
-            coordinator = VideoPlayerCoordinator() // Create a dummy coordinator for non-video posts
+            coordinator = VideoPlayerCoordinator() // Dummy coordinator for non-video posts
         }
         self._videoCoordinator = StateObject(wrappedValue: coordinator)
     }
@@ -72,7 +72,6 @@ struct WrittenFeedCell: View {
                         ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
                             VStack {
                                 Button {
-                                    VideoPlayerCoordinatorPool.shared.releaseCoordinator(for: post.id)
                                     viewModel.startingImageIndex = index
                                     viewModel.scrollPosition = post.id
                                     viewModel.startingPostId = post.id
@@ -214,13 +213,11 @@ struct WrittenFeedCell: View {
         .onDisappear {
             if post.mediaType == .video {
                 videoCoordinator.pause()
-                videoCoordinator.removeAllPlayerItems()
-                VideoPlayerCoordinatorPool.shared.releaseCoordinator(for: post.id)
             }
         }
         .onChange(of: scrollPosition) { oldValue, newValue in
-            if newValue == post.id {
-                if post.mediaType == .video {
+            if post.mediaType == .video {
+                if newValue == post.id {
                     videoCoordinator.replay()
                 } else {
                     videoCoordinator.pause()
@@ -254,7 +251,6 @@ struct WrittenFeedCell: View {
         Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
     }
 }
-
 struct RatingView: View {
     var rating: Rating
     var label: String

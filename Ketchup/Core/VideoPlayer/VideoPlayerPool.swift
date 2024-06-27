@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 
 
-class VideoPlayerCoordinatorPool {
+class VideoPlayerCoordinatorPool: ObservableObject {
     static let shared = VideoPlayerCoordinatorPool()
-    private var coordinators: [String: VideoPlayerCoordinator] = [:]
+    @Published private var coordinators: [String: VideoPlayerCoordinator] = [:]
     private let maxPoolSize: Int
     private let lock = NSLock()
 
@@ -39,13 +39,29 @@ class VideoPlayerCoordinatorPool {
         lock.lock()
         defer { lock.unlock() }
 
-        coordinators[postId]?.resetPlayer()
-        coordinators.removeValue(forKey: postId)
+        if let coordinator = coordinators[postId] {
+            coordinator.resetPlayer()
+            coordinators.removeValue(forKey: postId)
+        }
     }
+    
+    func resetPool() {
+            lock.lock()
+            defer { lock.unlock() }
 
+            for (_, coordinator) in coordinators {
+                coordinator.resetPlayer()
+            }
+            coordinators.removeAll()
+        }
+    
     private func removeOldestCoordinator() {
-        guard let oldestKey = coordinators.keys.first else { return }
-        coordinators[oldestKey]?.resetPlayer()
-        coordinators.removeValue(forKey: oldestKey)
+        if let oldestKey = coordinators.keys.first {
+            if let oldestCoordinator = coordinators[oldestKey] {
+                oldestCoordinator.resetPlayer()
+                coordinators.removeValue(forKey: oldestKey)
+            }
+        }
     }
+    
 }

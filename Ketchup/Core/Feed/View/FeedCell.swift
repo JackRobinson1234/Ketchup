@@ -278,7 +278,6 @@ struct FeedCell: View {
                     if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
                         videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
                     }
-
                     if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
                         videoCoordinator.replay()
                     }
@@ -288,8 +287,6 @@ struct FeedCell: View {
         .onDisappear {
             if post.mediaType == .video {
                 videoCoordinator.pause()
-                videoCoordinator.removeAllPlayerItems()
-                VideoPlayerCoordinatorPool.shared.releaseCoordinator(for: post.id)
             }
         }
         .sheet(isPresented: $showComments) {
