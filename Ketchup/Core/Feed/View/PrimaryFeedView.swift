@@ -44,23 +44,22 @@ struct PrimaryFeedView: View {
                 }
                 .toolbar(.hidden, for: .tabBar)
         } else {
-            NavigationStack{
+            NavigationStack {
                 ZStack(alignment: .top) {
                     ScrollViewReader { scrollProxy in
                         ScrollView(showsIndicators: false) {
-                            LazyVStack() {
+                            LazyVStack {
                                 ForEach($viewModel.posts) { post in
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
-                                    
                                 }
                                 Rectangle()
                                     .foregroundStyle(.clear)
-                                    .onAppear{
+                                    .onAppear {
                                         print("CLEAR APPEARED")
                                         if let last = viewModel.posts.last {
                                             Task {
-                                                if !hideFeedOptions{
+                                                if !hideFeedOptions {
                                                     await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
                                                 }
                                             }
@@ -72,67 +71,63 @@ struct PrimaryFeedView: View {
                         .transition(.slide)
                         .conditionalSafeAreaPadding(!hideFeedOptions, padding: 115)
                         .scrollPosition(id: $scrollPosition)
-                        .onChange(of: viewModel.initialPrimaryScrollPosition){
+                        .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
                             scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
-                            
                         }
-                        
                     }
+                    .background(Color("Colors/HingeGray"))
                     
-                    
-                    if !hideFeedOptions{
-                        Color.white
-                            .frame(height: 100)
-                            .edgesIgnoringSafeArea(.top)
-                    }
                     
                     if !hideFeedOptions {
-                        HStack(spacing: 0) {
-                            Button {
-                                showSearchView.toggle()
-                            } label: {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 27))
-                                    .frame(width: 60)
-                            }
-                            Spacer()
-                            Image("KetchupTextRed")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 17)
-                            
-                            Spacer()
-                            Button {
-                                showFilters.toggle()
-                            } label: {
-                                ZStack {
-                                    Image(systemName: "slider.horizontal.3")
-                                        .imageScale(.large)
-                                        .shadow(radius: 4)
-                                        .font(.system(size: 23))
-                                    
-                                    if !filtersViewModel.filters.isEmpty {
-                                        Circle()
-                                            .fill(Color("Colors/AccentColor"))
-                                            .frame(width: 12, height: 12)
-                                            .offset(x: 12, y: 12)
-                                    }
-                                    
-                                }
-                                .frame(width: 60)
-                            }
-                            
-                        }
-                        .frame(maxWidth: .infinity)
-                        .ignoresSafeArea()
-                        .padding(.top, 55)
-                        .padding(.horizontal, 20)
-                        .foregroundStyle(.primary)
-                        .padding(.bottom, 10)
                         
+                            Color.white
+                                .frame(height: 100)
+                                .edgesIgnoringSafeArea(.top)
+                            
+                            HStack(spacing: 0) {
+                                Button {
+                                    showSearchView.toggle()
+                                } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .font(.system(size: 27))
+                                        .frame(width: 60)
+                                }
+                                Spacer()
+                                Image("KetchupTextRed")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
+                                
+                                Spacer()
+                                Button {
+                                    showFilters.toggle()
+                                } label: {
+                                    ZStack {
+                                        Image(systemName: "slider.horizontal.3")
+                                            .imageScale(.large)
+                                            .shadow(radius: 4)
+                                            .font(.system(size: 23))
+                                        
+                                        if !filtersViewModel.filters.isEmpty {
+                                            Circle()
+                                                .fill(Color("Colors/AccentColor"))
+                                                .frame(width: 12, height: 12)
+                                                .offset(x: 12, y: 12)
+                                        }
+                                    }
+                                    .frame(width: 60)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            
+                            //.padding(.top, 55)
+                            .padding(.horizontal, 20)
+                            .foregroundStyle(.primary)
+                            .padding(.bottom, 10)
+                        }
                     }
-                }
+                
                 .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
                 .overlay {
                     if viewModel.showEmptyView {
@@ -142,8 +137,8 @@ struct PrimaryFeedView: View {
                     if viewModel.showPostAlert {
                         SuccessMessageOverlay(text: "Post Uploaded!")
                             .transition(.opacity)
-                            .onAppear{
-                                Debouncer(delay: 2.0).schedule{
+                            .onAppear {
+                                Debouncer(delay: 2.0).schedule {
                                     viewModel.showPostAlert = false
                                 }
                             }
@@ -151,8 +146,8 @@ struct PrimaryFeedView: View {
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
                             .transition(.opacity)
-                            .onAppear{
-                                Debouncer(delay: 2.0).schedule{
+                            .onAppear {
+                                Debouncer(delay: 2.0).schedule {
                                     viewModel.showRepostAlert = false
                                 }
                             }
@@ -174,10 +169,6 @@ struct PrimaryFeedView: View {
                         }
                     }
                 }
-                
-                .background(Color("Colors/HingeGray"))
-                .ignoresSafeArea()
-                
                 .onChange(of: showSearchView) { oldValue, newValue in
                     pauseVideo = newValue
                 }
@@ -191,7 +182,7 @@ struct PrimaryFeedView: View {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-                .onChange(of: viewModel.showPostAlert) {oldValue, newValue in
+                .onChange(of: viewModel.showPostAlert) { oldValue, newValue in
                     if newValue {
                         showSuccessMessage = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -200,10 +191,9 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .fullScreenCover(item: $selectedPost) { post in
-                    NavigationStack{
-                        SecondaryFeedView( viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                    NavigationStack {
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
                     }
-                    
                 }
                 .navigationDestination(for: PostUser.self) { user in
                     ProfileView(uid: user.id)
@@ -244,13 +234,9 @@ struct SuccessMessageOverlay: View {
     }
 }
 
-
-
-
 enum FeedViewOption {
     case grid, feed
 }
-
 
 extension Color {
     init(hex: Int, alpha: Double = 1) {
@@ -263,6 +249,7 @@ extension Color {
         )
     }
 }
+
 struct ConditionalSafeAreaPadding: ViewModifier {
     var condition: Bool
     var padding: CGFloat
@@ -281,3 +268,11 @@ extension View {
         self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
     }
 }
+
+
+
+
+
+
+
+

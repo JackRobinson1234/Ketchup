@@ -86,14 +86,14 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
                var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
                saveFilePath.appendPathComponent(postId)
                saveFilePath.appendPathExtension("mp4")
-               
-               if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
-                   print("Using existing cached item.")
-                   playerItem = CachingPlayerItem(filePathURL: saveFilePath)
-               } else {
+//               
+//               if FileManager.default.fileExists(atPath: saveFilePath.path) && readyToPlay {
+//                   print("Using existing cached item.")
+//                   playerItem = CachingPlayerItem(filePathURL: saveFilePath)
+//               } else {
                    print("Creating new player item.")
                    playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
-               }
+              // }
                
                if let playerItem = self.playerItem {
                    player.replaceCurrentItem(with: playerItem)
@@ -115,16 +115,16 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     
 
-    func prefetch(url: URL?, postId: String) {
+    func prefetch(url: URL?, postId: String) -> AVQueuePlayer? {
         if prefetching{
             print("Already prefetching")
-            return
+            return nil
         }
         prefetching = true
         
         guard let url = url else {
             print("URL Error")
-            return
+            return nil
         }
         currentUrl = url
         currentPostId = postId
@@ -133,13 +133,14 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         saveFilePath.appendPathExtension("mp4")
         
         if FileManager.default.fileExists(atPath: saveFilePath.path) {
-            return
+            return nil
         }
         
         let prefetchedPlayerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
         let tempPlayer = AVQueuePlayer()
         tempPlayer.replaceCurrentItem(with: prefetchedPlayerItem)
         prefetchedPlayerItem.download()
+        return tempPlayer
     }
     
     func seekToTime(seconds: Double) {
