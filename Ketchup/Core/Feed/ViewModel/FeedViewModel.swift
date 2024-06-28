@@ -19,7 +19,7 @@ class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
-    @Binding var scrollPosition: String?
+    @Published var initialPrimaryScrollPosition: String?
     var isContainedInTabBar = true
     @Published var isLoading = false
     private var lastDocument: DocumentSnapshot?
@@ -42,11 +42,9 @@ class FeedViewModel: ObservableObject {
     
     
     
-    init(scrollPosition: Binding<String?> = .constant(""), posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
+    init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
-        //videoCoordinator = VideoPlayerCoordinator()
-        self._scrollPosition = scrollPosition
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
     }

@@ -37,10 +37,16 @@ struct SecondaryFeedView: View {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
                             if !post.mediaUrls.isEmpty {
-                                FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
-                                    .id(post.id)
-                                    .containerRelativeFrame([.horizontal, .vertical])
-                                
+                                ZStack{
+                                    Color.clear
+                                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                        .ignoresSafeArea(.all)
+                                        .containerRelativeFrame([.horizontal, .vertical])
+                                        
+                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
+                                }
+                                .ignoresSafeArea(.all)
+                                .id(post.id)
                             }
                         }
                     }
@@ -51,10 +57,7 @@ struct SecondaryFeedView: View {
                                 viewModel.combineEarlyPosts()
                             }
                         } else {
-                            
-                            
                             scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
-                            
                         }
                     }
                 }
@@ -66,11 +69,15 @@ struct SecondaryFeedView: View {
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
-                        if let scrollPosition = scrollPosition{
-                            print("assigning scroll position")
-                            viewModel.scrollPosition = scrollPosition
-                        }
-                        dismiss()
+                        
+                            if let scrollPosition = scrollPosition{
+                               
+                                viewModel.initialPrimaryScrollPosition = scrollPosition
+                                print("Assigning SCROLL", scrollPosition)
+                            }
+                            print("DISMISSING SCROLL")
+                            dismiss()
+                        
                     } label: {
                         Image(systemName: "chevron.left")
                             .foregroundStyle(.white)
@@ -81,6 +88,7 @@ struct SecondaryFeedView: View {
                             )
                             .padding()
                     }
+                    .frame(width: 60)
                     
                     Spacer()
                     
@@ -90,27 +98,11 @@ struct SecondaryFeedView: View {
                         .frame(width: 60, height: 17)
                     
                     Spacer()
-                    Button {
-                        showFilters.toggle()
-                    } label: {
-                        ZStack {
-                            Image(systemName: "slider.horizontal.3")
-                                .imageScale(.large)
-                                .shadow(radius: 4)
-                                .font(.system(size: 23))
-                            
-                            if !filtersViewModel.filters.isEmpty {
-                                Circle()
-                                    .fill(Color("Colors/AccentColor"))
-                                    .frame(width: 12, height: 12)
-                                    .offset(x: 12, y: 12)
-                            }
-                            
-                        }
-                        .frame(width: 60)
-                    }
+                    Color.clear
+                        .frame(width: 60, height: 17)
+                           
+                           }
                     
-                }
                 .frame(maxWidth: .infinity)
                 .ignoresSafeArea()
                 .padding(.top, 55)
@@ -137,6 +129,7 @@ struct SecondaryFeedView: View {
                     Text(titleText)
                         .foregroundStyle(.white)
                         .font(.custom("MuseoSansRounded-300", size: 18))
+                        .bold()
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     Spacer()

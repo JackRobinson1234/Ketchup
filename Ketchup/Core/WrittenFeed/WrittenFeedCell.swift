@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 struct WrittenFeedCell: View {
+    @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var viewModel: FeedViewModel
     @Binding var post: Post
     @State private var showComments = false
@@ -23,10 +24,11 @@ struct WrittenFeedCell: View {
     private let pictureWidth: CGFloat = 240
     private let pictureHeight: CGFloat = 300
     private var didLike: Bool {
-           return post.didLike
-       }
+        return post.didLike
+    }
     @State var configured = false
     @Binding var selectedPost: Post?
+    @State var showHeartOverlay = false
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
@@ -35,7 +37,7 @@ struct WrittenFeedCell: View {
         self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
         self._selectedPost = selectedPost
     }
-
+    
     var body: some View {
         VStack {
             HStack {
@@ -127,7 +129,7 @@ struct WrittenFeedCell: View {
                                 .background(Circle().fill(Color.gray))
                         }
                         .frame(width: 40, height: 30)
-
+                        
                         Button(action: {
                             viewModel.isMuted.toggle()
                             videoCoordinator.player.isMuted = viewModel.isMuted
@@ -141,7 +143,7 @@ struct WrittenFeedCell: View {
                     }
                 }
             }
-            NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
+            NavigationLink(value: post.restaurant) {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(post.restaurant.name)
@@ -173,6 +175,7 @@ struct WrittenFeedCell: View {
             }
             HStack {
                 Button {
+                    videoCoordinator.pause()
                     showComments.toggle()
                 } label: {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
@@ -185,6 +188,7 @@ struct WrittenFeedCell: View {
                 }
                 
                 Button {
+                    videoCoordinator.pause()
                     showingRepostSheet.toggle()
                 } label: {
                     HStack(spacing: 3) {
@@ -202,103 +206,147 @@ struct WrittenFeedCell: View {
                 }
                 
                 Button {
+                    videoCoordinator.pause()
                     showCollections.toggle()
                 } label: {
                     InteractionButtonView(icon: "folder.badge.plus")
                 }
                 
                 Button {
+                    videoCoordinator.pause()
                     showShareView.toggle()
                 } label: {
                     InteractionButtonView(icon: "arrowshape.turn.up.right")
                 }
                 
                 Button {
-                        showingOptionsSheet = true
-                    } label: {
-                        ZStack {
-                            Rectangle()
-                                .fill(.clear)
-                                .frame(width: 20, height: 28)
-                            Image(systemName: "ellipsis")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 5, height: 5)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    Spacer()
-                }
-                Divider()
-            }
-            .padding()
-            .onAppear {
-                if post.mediaType == .video {
-                    videoCoordinator.player.isMuted = viewModel.isMuted
-                    Task {
-                        if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                            if !configured{
-                                videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                                configured = true
-                            }
-                        }
-                        if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
-                            videoCoordinator.replay()
-                        }
+                    videoCoordinator.pause()
+                    showingOptionsSheet = true
+                } label: {
+                    ZStack {
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: 20, height: 28)
+                        Image(systemName: "ellipsis")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 5, height: 5)
+                            .foregroundColor(.gray)
                     }
                 }
+                Spacer()
             }
-            .onDisappear {
-                if post.mediaType == .video {
+            Divider()
+        }
+        .padding()
+        .onAppear {
+            if post.mediaType == .video {
+                videoCoordinator.player.isMuted = viewModel.isMuted
+                Task {
+                    if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
+                        if !configured{
+                            videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                            configured = true
+                        }
+                    }
+                    if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                        videoCoordinator.replay()
+                    }
+                }
+            }
+        }
+        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
+                if post.mediaType == .video && newTab !=  0 {
                     videoCoordinator.pause()
                 }
-            }
-            .onChange(of: scrollPosition) { oldValue, newValue in
-                videoCoordinator.player.isMuted = viewModel.isMuted
-                if post.mediaType == .video {
-                    if newValue == post.id {
-                        videoCoordinator.play()
-                    } else {
-                        videoCoordinator.pause()
+        }
+        .onChange(of: scrollPosition) { oldValue, newValue in
+            videoCoordinator.player.isMuted = viewModel.isMuted
+            if post.mediaType == .video {
+                if newValue == post.id {
+                    videoCoordinator.play()
+                } else {
+                    videoCoordinator.pause()
                 }
             }
         }
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                .onDisappear{
+                    videoCoordinator.play()
+                }
         }
         .sheet(isPresented: $showShareView) {
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onDisappear{
+                    videoCoordinator.play()
+                }
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)
+                    .onDisappear{
+                        videoCoordinator.play()
+                    }
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onDisappear{
+                    videoCoordinator.play()
+                }
         }
         .sheet(isPresented: $showingRepostSheet) {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
+                .onDisappear{
+                    videoCoordinator.play()
+                }
         }
         .onChange(of: selectedPost) {
             if selectedPost != nil {
                 videoCoordinator.pause()
             }
         }
-//        .onChange(of: videoCoordinator.readyToPlay) {
-//            if videoCoordinator.readyToPlay && scrollPosition == post.id{
-//                videoCoordinator.play()
-//            }
-//        }
-        
+        .overlay(
+            ZStack {
+                if showHeartOverlay {
+                    Image(systemName: "heart.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .transition(.opacity)
+                    
+                }
+            }
+        )
+        .onChange(of: pauseVideo){
+            if pauseVideo {
+                videoCoordinator.pause()
+            } else {
+                videoCoordinator.play()
+            }
+        }
     }
     
     private func handleLikeTapped() {
-        Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
+        Task {
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
+            if didLike {
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
+                    withAnimation {
+                        showHeartOverlay = false
+                    }
+                }
+            }
+        }
     }
 }
 struct RatingView: View {

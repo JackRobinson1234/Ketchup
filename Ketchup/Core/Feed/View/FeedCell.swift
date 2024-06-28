@@ -38,7 +38,7 @@ struct FeedCell: View {
     @State var dragDirection = "left"
     var hideFeedOptions: Bool
     @Environment(\.dismiss) var dismiss
-    
+    @State var showHeartOverlay = false
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -47,7 +47,7 @@ struct FeedCell: View {
                     self.dragDirection = "left"
                     if self.currentImageIndex > 0 {
                         self.currentImageIndex -= 1
-                    } else if hideFeedOptions{
+                    } else {
                         dismiss()
                     }
                    
@@ -66,43 +66,12 @@ struct FeedCell: View {
         //MARK: Loading Screen
         ZStack {
             if post.mediaType == .video {
-                if post.fromInAppCamera {
                     VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                         .containerRelativeFrame([.horizontal, .vertical])
-                        .onTapGesture {
-                            let player = videoCoordinator.player
-                            switch player.timeControlStatus {
-                            case .paused:
-                                videoCoordinator.play()
-                            case .waitingToPlayAtSpecifiedRate:
-                                break
-                            case .playing:
-                                videoCoordinator.pause()
-                            @unknown default:
-                                break
-                            }
-                        }
-                } else {
-                    VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspect)
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                        .containerRelativeFrame([.horizontal, .vertical])
-                        .onTapGesture {
-                            let player = videoCoordinator.player
-                            switch player.timeControlStatus {
-                            case .paused:
-                                videoCoordinator.play()
-                            case .waitingToPlayAtSpecifiedRate:
-                                break
-                            case .playing:
-                                videoCoordinator.pause()
-                            @unknown default:
-                                break
-                            }
-                        }
-                }
-            } else if post.mediaType == .photo {
+                        
                 
+            } else if post.mediaType == .photo {
                 ZStack (alignment: .top){
                     if post.fromInAppCamera {
                         KFImage(URL(string: post.mediaUrls[currentImageIndex]))
@@ -324,18 +293,36 @@ struct FeedCell: View {
                 }
             }
             .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
+                
+            
         }
-        .onTapGesture(count: 2) {
-            withAnimation {
-                if post.didLike{
-                    Task{
-                       await viewModel.unlike(post)
-                    }
-                } else {
-                    Task{
-                        await viewModel.like(post)
-                    }
+        .overlay(
+            ZStack {
+                if showHeartOverlay {
+                    Image(systemName: "heart.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .transition(.opacity)
+                    
                 }
+            }
+        )
+        .onTapGesture(count: 2) {
+            handleLikeTapped()
+        }
+        .onTapGesture {
+            let player = videoCoordinator.player
+            switch player.timeControlStatus {
+            case .paused:
+                videoCoordinator.play()
+            case .waitingToPlayAtSpecifiedRate:
+                break
+            case .playing:
+                videoCoordinator.pause()
+            @unknown default:
+                break
             }
         }
         .gesture(drag)
@@ -420,7 +407,18 @@ struct FeedCell: View {
     }
     //MARK: like and unlike functionality
     private func handleLikeTapped() {
-        Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post) }
+        Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post)
+            if didLike {
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
+                    withAnimation {
+                        showHeartOverlay = false
+                    }
+                }
+            }
+        }
     }
     private func formattedTime(time: Int?) -> String {
         guard let time = time else {

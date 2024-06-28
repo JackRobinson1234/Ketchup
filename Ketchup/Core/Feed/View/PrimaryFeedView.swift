@@ -44,172 +44,173 @@ struct PrimaryFeedView: View {
                 }
                 .toolbar(.hidden, for: .tabBar)
         } else {
-            
-            ZStack(alignment: .top) {
-                ScrollViewReader { scrollProxy in
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack() {
-                            ForEach($viewModel.posts) { post in
-                                WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
-                                    .id(post.id)
-                                
-                            }
-                            Rectangle()
-                                .foregroundStyle(.clear)
-                                .onAppear{
-                                    print("CLEAR APPEARED")
-                                    if let last = viewModel.posts.last {
-                                        Task {
-                                            if !hideFeedOptions{
-                                                await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+            NavigationStack{
+                ZStack(alignment: .top) {
+                    ScrollViewReader { scrollProxy in
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack() {
+                                ForEach($viewModel.posts) { post in
+                                    WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                                        .id(post.id)
+                                    
+                                }
+                                Rectangle()
+                                    .foregroundStyle(.clear)
+                                    .onAppear{
+                                        print("CLEAR APPEARED")
+                                        if let last = viewModel.posts.last {
+                                            Task {
+                                                if !hideFeedOptions{
+                                                    await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                                }
                                             }
                                         }
                                     }
-                                }
-                        }
-                        .scrollTargetLayout()
-                    }
-                    .transition(.slide)
-                    .conditionalSafeAreaPadding(!hideFeedOptions, padding: 115)
-                    .scrollPosition(id: $scrollPosition)
-                    .onAppear {
-                        if hideFeedOptions {
-                            Debouncer(delay: 0.5).schedule {
-                                viewModel.combineEarlyPosts()
                             }
-                        } else {
-                            print("Scrolling to ", viewModel.startingPostId)
-                            scrollProxy.scrollTo(viewModel.scrollPosition, anchor: .center)
-                            viewModel.startingPostId = ""
+                            .scrollTargetLayout()
                         }
-                    }
-                }
-                
-                
-                if !hideFeedOptions{
-                    Color.white
-                        .frame(height: 100)
-                        .edgesIgnoringSafeArea(.top)
-                }
-                
-                if !hideFeedOptions {
-                    HStack(spacing: 0) {
+                        .transition(.slide)
+                        .conditionalSafeAreaPadding(!hideFeedOptions, padding: 115)
+                        .scrollPosition(id: $scrollPosition)
+                        .onChange(of: viewModel.initialPrimaryScrollPosition){
+                            scrollPosition = viewModel.initialPrimaryScrollPosition
+                            scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
+                            
+                        }
                         
-                        Button {
-                            showSearchView.toggle()
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 27))
+                    }
+                    
+                    
+                    if !hideFeedOptions{
+                        Color.white
+                            .frame(height: 100)
+                            .edgesIgnoringSafeArea(.top)
+                    }
+                    
+                    if !hideFeedOptions {
+                        HStack(spacing: 0) {
+                            Button {
+                                showSearchView.toggle()
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 27))
+                                    .frame(width: 60)
+                            }
+                            Spacer()
+                            Image("KetchupTextRed")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 17)
+                            
+                            Spacer()
+                            Button {
+                                showFilters.toggle()
+                            } label: {
+                                ZStack {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .imageScale(.large)
+                                        .shadow(radius: 4)
+                                        .font(.system(size: 23))
+                                    
+                                    if !filtersViewModel.filters.isEmpty {
+                                        Circle()
+                                            .fill(Color("Colors/AccentColor"))
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12)
+                                    }
+                                    
+                                }
                                 .frame(width: 60)
+                            }
+                            
                         }
-                        Spacer()
-                        Image("KetchupTextRed")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 17)
+                        .frame(maxWidth: .infinity)
+                        .ignoresSafeArea()
+                        .padding(.top, 55)
+                        .padding(.horizontal, 20)
+                        .foregroundStyle(.primary)
+                        .padding(.bottom, 10)
                         
-                        Spacer()
-                        Button {
-                            showFilters.toggle()
-                        } label: {
-                            ZStack {
-                                Image(systemName: "slider.horizontal.3")
-                                    .imageScale(.large)
-                                    .shadow(radius: 4)
-                                    .font(.system(size: 23))
-                                
-                                if !filtersViewModel.filters.isEmpty {
-                                    Circle()
-                                        .fill(Color("Colors/AccentColor"))
-                                        .frame(width: 12, height: 12)
-                                        .offset(x: 12, y: 12)
+                    }
+                }
+                .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
+                .overlay {
+                    if viewModel.showEmptyView {
+                        ContentUnavailableView("No posts to show", systemImage: "eye.slash")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                    }
+                    if viewModel.showPostAlert {
+                        SuccessMessageOverlay(text: "Post Uploaded!")
+                            .transition(.opacity)
+                            .onAppear{
+                                Debouncer(delay: 2.0).schedule{
+                                    viewModel.showPostAlert = false
                                 }
-                                
                             }
-                            .frame(width: 60)
-                        }
+                    }
+                    if viewModel.showRepostAlert {
+                        SuccessMessageOverlay(text: "Reposted!")
+                            .transition(.opacity)
+                            .onAppear{
+                                Debouncer(delay: 2.0).schedule{
+                                    viewModel.showRepostAlert = false
+                                }
+                            }
+                    }
+                }
+                .onChange(of: scrollPosition) { oldPostId, newPostId in
+                    // Get the indices of the old and new post IDs
+                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
+                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
                         
+                        // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
+                        if newIndex > oldIndex {
+                            if !hideFeedOptions {
+                                Task {
+                                    await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                                }
+                            }
+                            viewModel.updateCache(scrollPosition: newPostId)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea()
-                    .padding(.top, 55)
-                    .padding(.horizontal, 20)
-                    .foregroundStyle(.primary)
-                    .padding(.bottom, 10)
+                }
+                
+                .background(Color("Colors/HingeGray"))
+                .ignoresSafeArea()
+                
+                .onChange(of: showSearchView) { oldValue, newValue in
+                    pauseVideo = newValue
+                }
+                .fullScreenCover(isPresented: $showSearchView) {
+                    SearchView()
+                }
+                .onChange(of: showFilters) { oldValue, newValue in
+                    pauseVideo = newValue
+                }
+                .fullScreenCover(isPresented: $showFilters) {
+                    FiltersView(filtersViewModel: filtersViewModel)
+                }
+                .navigationBarHidden(true)
+                .onChange(of: viewModel.showPostAlert) {oldValue, newValue in
+                    if newValue {
+                        showSuccessMessage = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showSuccessMessage = false
+                        }
+                    }
+                }
+                .fullScreenCover(item: $selectedPost) { post in
+                    NavigationStack{
+                        SecondaryFeedView( viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                    }
                     
                 }
-            }
-            .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
-            .overlay {
-                if viewModel.showEmptyView {
-                    ContentUnavailableView("No posts to show", systemImage: "eye.slash")
-                        .foregroundStyle(Color("Colors/AccentColor"))
+                .navigationDestination(for: PostUser.self) { user in
+                    ProfileView(uid: user.id)
                 }
-                if viewModel.showPostAlert {
-                    SuccessMessageOverlay(text: "Post Uploaded!")
-                        .transition(.opacity)
-                        .onAppear{
-                            Debouncer(delay: 2.0).schedule{
-                                viewModel.showPostAlert = false
-                            }
-                        }
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
                 }
-                if viewModel.showRepostAlert {
-                    SuccessMessageOverlay(text: "Reposted!")
-                        .transition(.opacity)
-                        .onAppear{
-                            Debouncer(delay: 2.0).schedule{
-                                viewModel.showRepostAlert = false
-                            }
-                        }
-                }
-            }
-            .onChange(of: scrollPosition) { oldPostId, newPostId in
-                // Get the indices of the old and new post IDs
-                if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-                   let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                    
-                    // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
-                    if newIndex > oldIndex {
-                        if !hideFeedOptions {
-                            Task {
-                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                            }
-                        }
-                        viewModel.updateCache(scrollPosition: newPostId)
-                    }
-                }
-            }
-            
-            .background(Color("Colors/HingeGray"))
-            .ignoresSafeArea()
-            
-            .onChange(of: showSearchView) { oldValue, newValue in
-                pauseVideo = newValue
-            }
-            .fullScreenCover(isPresented: $showSearchView) {
-                SearchView()
-            }
-            .onChange(of: showFilters) { oldValue, newValue in
-                pauseVideo = newValue
-            }
-            .fullScreenCover(isPresented: $showFilters) {
-                FiltersView(filtersViewModel: filtersViewModel)
-            }
-            .navigationBarHidden(true)
-            .onChange(of: viewModel.showPostAlert) {oldValue, newValue in
-                if newValue {
-                    showSuccessMessage = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        showSuccessMessage = false
-                    }
-                }
-            }
-            .fullScreenCover(item: $selectedPost) { post in
-                NavigationStack{
-                    SecondaryFeedView( viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
-                }
-            
             }
         }
     }

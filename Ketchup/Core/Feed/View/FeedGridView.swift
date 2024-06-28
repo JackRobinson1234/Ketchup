@@ -47,12 +47,8 @@ struct FeedGridView: View {
                             .cornerRadius(cornerRadius)
                             .clipped()
                             .onTapGesture {
-                                viewModel.scrollPosition = post.id
                                viewModel.startingPostId = post.id
                                viewModel.feedViewOption = .feed
-                                
-                                
-                              
                             }
                             .id(post.id)
                             
