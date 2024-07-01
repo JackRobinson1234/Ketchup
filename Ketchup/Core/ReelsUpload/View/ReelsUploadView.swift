@@ -151,32 +151,6 @@ struct ReelsUploadView: View {
                 
                 Divider()
                 
-//                Button {
-//                    pickingFavorites = true
-//                } label: {
-//                    HStack {
-//                        Image(systemName: "fork.knife.circle")
-//                            .foregroundStyle(.black)
-//                            .font(.custom("MuseoSansRounded-300", size: 16))
-//                        VStack(alignment: .leading) {
-//                            Text("Add Favorite Menu Items")
-//                                .font(.custom("MuseoSansRounded-300", size: 16))
-//                                .foregroundStyle(.black)
-//                            if !uploadViewModel.favoriteMenuItems.isEmpty {
-//                                Text("\(uploadViewModel.favoriteMenuItems.count) items selected")
-//                                    .font(.custom("MuseoSansRounded-300", size: 10))
-//                                    .foregroundStyle(.gray)
-//                            }
-//                        }
-//                        Spacer()
-//                        Image(systemName: "chevron.right")
-//                            .foregroundStyle(.black)
-//                    }
-//                    
-//                }
-//                .padding(20)
-//                
-//                Divider()
                 
                 VStack(spacing: 20) {
                     HStack {
@@ -241,6 +215,7 @@ struct ReelsUploadView: View {
                             }
                         }
                 }
+                .disabled(uploadViewModel.isLoading)
                 .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
                 .alert(isPresented: $showAlert) {
                     Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))

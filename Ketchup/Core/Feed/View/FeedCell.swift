@@ -20,7 +20,7 @@ import FirebaseAuth
 import UIKit
 struct FeedCell: View {
     @Binding var post: Post
-    @StateObject var videoCoordinator = VideoPlayerCoordinator()
+    @StateObject var videoCoordinator: VideoPlayerCoordinator
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
@@ -39,6 +39,27 @@ struct FeedCell: View {
     var hideFeedOptions: Bool
     @Environment(\.dismiss) var dismiss
     @State var showHeartOverlay = false
+
+    init(post: Binding<Post>,
+         viewModel: FeedViewModel,
+         scrollPosition: Binding<String?>,
+         pauseVideo: Binding<Bool>,
+         hideFeedOptions: Bool) {
+        self._post = post
+        self.viewModel = viewModel
+        self._scrollPosition = scrollPosition
+        self._pauseVideo = pauseVideo
+        self.hideFeedOptions = hideFeedOptions
+        
+        if post.wrappedValue.mediaType == .video {
+            let coordinator = VideoPrefetcher.shared.getPlayerItem(for: post.wrappedValue)
+            self._videoCoordinator = StateObject(wrappedValue: coordinator)
+        } else {
+            // Initialize with a dummy coordinator for non-video posts
+            self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
+        }
+    }
+
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -50,7 +71,6 @@ struct FeedCell: View {
                     } else {
                         dismiss()
                     }
-                   
                 } else {
                     self.dragDirection = "right"
                     if self.currentImageIndex < post.mediaUrls.count - 1 {
@@ -60,37 +80,24 @@ struct FeedCell: View {
                 self.isDragging = false
             }
     }
-    
-    
+
     var body: some View {
-        //MARK: Loading Screen
         ZStack {
+            // Video and Photo handling
             if post.mediaType == .video {
-                    VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                        .containerRelativeFrame([.horizontal, .vertical])
-                        
-                
+                VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                    .containerRelativeFrame([.horizontal, .vertical])
             } else if post.mediaType == .photo {
-                ZStack (alignment: .top){
-                    if post.fromInAppCamera {
-                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                            .cornerRadius(20)
-                            .containerRelativeFrame([.horizontal, .vertical])
-                    } else {
-                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                            .cornerRadius(20)
-                            .containerRelativeFrame([.horizontal, .vertical])
-                    }
-                    
+                ZStack(alignment: .top) {
+                    KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                        .cornerRadius(20)
+                        .containerRelativeFrame([.horizontal, .vertical])
+
                     VStack {
-                        
                         HStack(spacing: 6) {
                             if post.mediaUrls.count > 1 {
                                 ForEach(0..<post.mediaUrls.count, id: \.self) { index in
@@ -101,281 +108,53 @@ struct FeedCell: View {
                             }
                         }
                         .padding(.top, 130)
-                        
                     }
                 }
             }
-            ZStack (alignment: .bottom){
+
+            ZStack(alignment: .bottom) {
                 VStack {
                     Spacer()
                     HStack(alignment: .bottom) {
-                        // MARK: Caption Box
-                        VStack(alignment: .leading, spacing: 7) {
-                            HStack{
-                                //MARK:  restaurant profile image
-                                let restaurant = post.restaurant
-                                    NavigationLink(value: restaurant) {
-                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
-                                    }
-                                    
-                                    //MARK: Restaurant Name
-                                    VStack (alignment: .leading) {
-                                        NavigationLink(value: restaurant) {
-                                            Text("\(restaurant.name)")
-                                                .font(.custom("MuseoSansRounded-300", size: 20))
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        //MARK: Address
-                                        Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                                        //MARK: Recipe Fullname
-                                        NavigationLink(value: post.user) {
-                                            Text("by \(post.user.fullname)")
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(.white)
-                                                .bold()
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        
-                                    }
-                                
-                            }
-                            
-                            
-                            //MARK: caption
-                            if let timestamp = post.timestamp{
-                                Text(getTimeElapsedString(from: timestamp))
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundColor(Color("Colors/HingeGray"))
-                            }
-                            Text(post.caption)
-                                .lineLimit(expandCaption ? 50 : 1)
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                           
-                            
-                            //MARK: see more
-                            if !expandCaption{
-                                Text("See more...")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                            }
-                            else {
-                                VStack{
-                                    
-                                        RatingView(rating: post.overallRating, label: "Overall")
-                                        
-                                        RatingView(rating: post.foodRating, label: "Food")
-                                        
-                                        RatingView(rating: post.atmosphereRating, label: "Atmosphere")
-                                        
-                                        RatingView(rating: post.valueRating, label: "Value")
-                                        
-                                        RatingView(rating: post.serviceRating, label: "Service")
-                                    }
-                                
-                                
-                                
-                                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
-                                        Text("View Restaurant")
-                                    }
-                                    .modifier(StandardButtonModifier(width: 175))
-                                    //MARK: Show recipe
-                                
-                                
-                            }
-                        }
-                        
-                        //controls box size
-                        .padding(10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.black.opacity(0.3))
-                        )
-                        .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal)
-    
+                        // Caption and Ratings Box
+                        captionAndRatingsBox
                         Spacer()
-                        //MARK: Right hand VStack
-                        VStack(spacing: 28) {
-                            //MARK: user profile image
-                            NavigationLink(value: post.user) {
-                                UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
-                            }
-                            
-                            //MARK: Delete/ Report
-                            Button {
-                                videoCoordinator.pause()
-                                showingOptionsSheet = true
-                            } label: {
-                                ZStack{
-                                    Rectangle()
-                                        .fill(.clear)
-                                        .frame(width: 28, height: 28)
-                                    Image(systemName: "ellipsis")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 6, height: 6)
-                                        .foregroundStyle(.white)
-                                }
-                            }
-                            //MARK: Repost Button
-                            if let user = Auth.auth().currentUser?.uid,  post.user.id != user {
-                                Button {
-                                    showingRepostSheet.toggle()
-                                } label: {
-                                    VStack {
-                                        Image(systemName: "arrow.2.squarepath")
-                                        
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 28, height: 28)
-                                            .foregroundStyle(.white)
-                                            .rotationEffect(.degrees(90))
-                                        Text("\(post.repostCount)")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .fontWeight(.bold)
-                                    }
-                                    .foregroundStyle(.white)
-                                }
-                            }
-                            //MARK: Collection Button
-                            Button {
-                                videoCoordinator.pause()
-                                showCollections.toggle()
-                            } label: {
-                                FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
-                            }
-                            //MARK: Like button
-                            Button {
-                                handleLikeTapped()
-                            } label: {
-                                FeedCellActionButtonView(imageName: didLike ? "heart.fill": "heart.fill",
-                                                         value: post.likes,
-                                                         tintColor: didLike ? Color("Colors/AccentColor") : .white)
-                            }
-                            //MARK: comment button
-                            Button {
-                                videoCoordinator.pause()
-                                showComments.toggle()
-                            } label: {
-                                FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
-                            }
-                            // Bookmark button
-                            
-                            //MARK: share button
-                            Button {
-                                videoCoordinator.pause()
-                                showShareView.toggle()
-                            } label: {
-                                Image(systemName: "arrowshape.turn.up.right.fill")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 28, height: 28)
-                                    .foregroundStyle(.white)
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        
+                        // Right-hand VStack with actions
+                        actionButtons
                     }
-                    
                 }
+
+                // Video Slider
                 if post.mediaType == .video {
-                    let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
-                    Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
-                        .onAppear {
-                            let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear) // Adjust radius and line width as needed
-                            UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
-                        }
-                        .offset(y: 40)
+                    videoSlider
                 }
             }
             .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
-                
-            
         }
-        .overlay(
-            ZStack {
-                if showHeartOverlay {
-                    Image(systemName: "heart.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .transition(.opacity)
-                    
-                }
-            }
-        )
+        .overlay(heartOverlay)
         .onTapGesture(count: 2) {
             handleLikeTapped()
         }
         .onTapGesture {
-            let player = videoCoordinator.player
-            switch player.timeControlStatus {
-            case .paused:
-                videoCoordinator.play()
-            case .waitingToPlayAtSpecifiedRate:
-                break
-            case .playing:
-                videoCoordinator.pause()
-            @unknown default:
-                break
-            }
+            toggleVideoPlayback()
         }
         .gesture(drag)
-        //MARK: Scroll Position replay/ pause
-        .onChange(of: scrollPosition) {oldValue, newValue in
-            if newValue == post.id {
-                videoCoordinator.replay()
-            } else {
-                videoCoordinator.pause()
-            }
-        }
-        //MARK: Scroll Position play/pause
-        .onChange(of: pauseVideo) {oldValue, newValue in
-            if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil{
-                if newValue == true {
-                    videoCoordinator.pause()
-                } else {
-                    videoCoordinator.play()
-
-                }
-            }
-        }
-        //MARK: Configure Player
         .onAppear {
-            if post.mediaType == .video {
-                Task{
-                    if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                        videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                    }
-                    
-                    // Check if viewModel.posts is not empty and the first post's id matches the current post's id
-                    if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
-                        videoCoordinator.replay()
-                    }
-                }
-            }
+            handleOnAppear()
         }
-        .onDisappear{
+        .onDisappear {
             videoCoordinator.pause()
         }
-        //MARK: sheets
-        //overlays the comments if showcomments is true
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                .onDisappear{Task{ videoCoordinator.play()}}
+                .onDisappear { Task { videoCoordinator.play() } }
         }
         .sheet(isPresented: $showShareView) {
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                .onDisappear{Task {videoCoordinator.play()}}
+                .onDisappear { Task { videoCoordinator.play() } }
         }
-        
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)
@@ -385,29 +164,175 @@ struct FeedCell: View {
             PostOptionsSheet(post: post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
         }
-        .sheet(isPresented: $showingRepostSheet){
+        .sheet(isPresented: $showingRepostSheet) {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
         }
-        .onAppear {
-            if viewModel.startingPostId == post.id, post.mediaType == .photo {
-                print("CURRENT IMAGE INDEX", currentImageIndex)
-                print("STARTING IMAGE INDEX", viewModel.startingImageIndex)
-                self.currentImageIndex = viewModel.startingImageIndex
-                viewModel.startingPostId = ""
-                viewModel.startingImageIndex = 0
+        .onChange(of: scrollPosition) { oldValue, newValue in
+            handleScrollPositionChange(newValue: newValue)
+        }
+        .onChange(of: pauseVideo) { oldValue, newValue in
+            handlePauseVideoChange(newValue: newValue)
+        }
+    }
+
+    private var captionAndRatingsBox: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack {
+                let restaurant = post.restaurant
+                NavigationLink(value: restaurant) {
+                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                }
+                VStack(alignment: .leading) {
+                    NavigationLink(value: restaurant) {
+                        Text("\(restaurant.name)")
+                            .font(.custom("MuseoSansRounded-300", size: 20))
+                            .bold()
+                            .multilineTextAlignment(.leading)
+                    }
+                    Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
+                    NavigationLink(value: post.user) {
+                        Text("by \(post.user.fullname)")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .bold()
+                            .multilineTextAlignment(.leading)
+                    }
+                }
             }
-            else if viewModel.startingPostId == post.id, post.mediaType == .video {
-                Task{ videoCoordinator.play()}
-                
+            if let timestamp = post.timestamp {
+                Text(getTimeElapsedString(from: timestamp))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
+                    .foregroundColor(Color("Colors/HingeGray"))
+            }
+            Text(post.caption)
+                .lineLimit(expandCaption ? 50 : 1)
+                .font(.custom("MuseoSansRounded-300", size: 16))
+            if !expandCaption {
+                Text("See more...")
+                    .font(.custom("MuseoSansRounded-300", size: 10))
+            } else {
+                ratingsView
+                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
+                    Text("View Restaurant")
+                }
+                .modifier(StandardButtonModifier(width: 175))
             }
         }
-        //MARK: Tap to play/pause
-        
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.black.opacity(0.3)))
+        .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
+        .font(.custom("MuseoSansRounded-300", size: 16))
+        .foregroundStyle(.white)
+        .padding(.horizontal)
     }
-    //MARK: like and unlike functionality
+
+    private var ratingsView: some View {
+        VStack {
+            RatingView(rating: post.overallRating, label: "Overall")
+            RatingView(rating: post.foodRating, label: "Food")
+            RatingView(rating: post.atmosphereRating, label: "Atmosphere")
+            RatingView(rating: post.valueRating, label: "Value")
+            RatingView(rating: post.serviceRating, label: "Service")
+        }
+    }
+
+    private var actionButtons: some View {
+        VStack(spacing: 28) {
+            NavigationLink(value: post.user) {
+                UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+            }
+            Button {
+                videoCoordinator.pause()
+                showingOptionsSheet = true
+            } label: {
+                ZStack {
+                    Rectangle().fill(.clear).frame(width: 28, height: 28)
+                    Image(systemName: "ellipsis")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 6, height: 6)
+                        .foregroundStyle(.white)
+                }
+            }
+            if let user = Auth.auth().currentUser?.uid, post.user.id != user {
+                Button {
+                    showingRepostSheet.toggle()
+                } label: {
+                    VStack {
+                        Image(systemName: "arrow.2.squarepath")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 28, height: 28)
+                            .foregroundStyle(.white)
+                            .rotationEffect(.degrees(90))
+                        Text("\(post.repostCount)")
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .fontWeight(.bold)
+                    }
+                    .foregroundStyle(.white)
+                }
+            }
+            Button {
+                videoCoordinator.pause()
+                showCollections.toggle()
+            } label: {
+                FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
+            }
+            Button {
+                handleLikeTapped()
+            } label: {
+                FeedCellActionButtonView(imageName: didLike ? "heart.fill" : "heart.fill",
+                                         value: post.likes,
+                                         tintColor: didLike ? Color("Colors/AccentColor") : .white)
+            }
+            Button {
+                videoCoordinator.pause()
+                showComments.toggle()
+            } label: {
+                FeedCellActionButtonView(imageName: "ellipsis.bubble.fill", value: post.commentCount)
+            }
+            Button {
+                videoCoordinator.pause()
+                showShareView.toggle()
+            } label: {
+                Image(systemName: "arrowshape.turn.up.right.fill")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 28, height: 28)
+                    .foregroundStyle(.white)
+            }
+        }
+        .padding(.horizontal)
+    }
+    
+    private var videoSlider: some View {
+        let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
+        return Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
+            .onAppear {
+                let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
+                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
+            }
+            .offset(y: 40)
+    }
+    
+    private var heartOverlay: some View {
+        ZStack {
+            if showHeartOverlay {
+                Image(systemName: "heart.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+                    .foregroundStyle(Color("Colors/AccentColor"))
+                    .transition(.opacity)
+            }
+        }
+    }
+    
     private func handleLikeTapped() {
-        Task { didLike ? await viewModel.unlike(post) : await viewModel.like(post)
+        Task {
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
             if didLike {
                 withAnimation {
                     showHeartOverlay = true
@@ -420,26 +345,59 @@ struct FeedCell: View {
             }
         }
     }
-    private func formattedTime(time: Int?) -> String {
-        guard let time = time else {
-            return "Not specified"
+    
+    private func toggleVideoPlayback() {
+        guard post.mediaType == .video else { return }
+        let player = videoCoordinator.player
+        switch player.timeControlStatus {
+        case .paused:
+            videoCoordinator.play()
+        case .waitingToPlayAtSpecifiedRate:
+            break
+        case .playing:
+            videoCoordinator.pause()
+        @unknown default:
+            break
         }
-        
-        let hours = time / 60
-        let minutes = time % 60
-        var timeString = ""
-        
-        if hours > 0 {
-            timeString += "\(hours)h"
-        }
-        
-        if minutes > 0 {
-            timeString += " \(minutes)m"
-        }
-        
-        return timeString.isEmpty ? "Not specified" : timeString
     }
-    func sliderEditingChanged(_ editingStarted: Bool) {
+    
+    private func handleScrollPositionChange(newValue: String?) {
+        guard post.mediaType == .video else { return }
+        if newValue == post.id {
+            videoCoordinator.replay()
+        } else {
+            videoCoordinator.pause()
+        }
+    }
+    
+    private func handlePauseVideoChange(newValue: Bool) {
+        guard post.mediaType == .video else { return }
+        if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil {
+            if newValue == true {
+                videoCoordinator.pause()
+            } else {
+                videoCoordinator.play()
+            }
+        }
+    }
+    
+    private func handleOnAppear() {
+        if post.mediaType == .video {
+            if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                videoCoordinator.replay()
+            }
+        }
+        
+        if viewModel.startingPostId == post.id, post.mediaType == .photo {
+            self.currentImageIndex = viewModel.startingImageIndex
+            viewModel.startingPostId = ""
+            viewModel.startingImageIndex = 0
+        } else if viewModel.startingPostId == post.id, post.mediaType == .video {
+            Task { videoCoordinator.play() }
+        }
+    }
+    
+    private func sliderEditingChanged(_ editingStarted: Bool) {
         if editingStarted {
             videoCoordinator.pause()
         } else {
@@ -447,37 +405,29 @@ struct FeedCell: View {
             videoCoordinator.play()
         }
     }
-    
 }
-//MARK: Photo Library Acess
+
+//MARK: Photo Library Access
 func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
     PHPhotoLibrary.requestAuthorization { status in
         switch status {
         case .authorized:
-            // User has granted access
             completion(true)
-        case .denied, .restricted:
-            // User has denied or restricted access
-            completion(false)
-        case .notDetermined:
-            // User has not yet made a decision
+        case .denied, .restricted, .notDetermined:
             completion(false)
         case .limited:
             completion(true)
         @unknown default:
-            // Handle future cases
             completion(false)
         }
     }
 }
 
-
 #Preview {
     FeedCell(
         post: .constant(DeveloperPreview.posts[0]),
-        videoCoordinator: VideoPlayerCoordinator(),
-        viewModel: FeedViewModel()
-        ,scrollPosition: .constant(""),
+        viewModel: FeedViewModel(),
+        scrollPosition: .constant(""),
         pauseVideo: .constant(true),
         hideFeedOptions: true
     )
@@ -488,13 +438,13 @@ extension UIImage {
         UIGraphicsBeginImageContextWithOptions(CGSize(width: radius * 2, height: radius * 2), false, 0.0)
         defer { UIGraphicsEndImageContext() }
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        
+
         context.setLineWidth(lineWidth)
         context.setStrokeColor(color.cgColor)
         let rectangle = CGRect(x: lineWidth / 2, y: lineWidth / 2, width: radius * 2 - lineWidth, height: radius * 2 - lineWidth)
         context.addEllipse(in: rectangle)
         context.strokePath()
-        
+
         return UIGraphicsGetImageFromCurrentImageContext()?.withRenderingMode(.alwaysOriginal)
     }
 }

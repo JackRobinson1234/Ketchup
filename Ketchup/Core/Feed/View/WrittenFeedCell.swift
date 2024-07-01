@@ -34,7 +34,13 @@ struct WrittenFeedCell: View {
         self._post = post
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
-        self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
+        if post.wrappedValue.mediaType == .video {
+            let coordinator = VideoPrefetcher.shared.getPlayerItem(for: post.wrappedValue)
+            self._videoCoordinator = StateObject(wrappedValue: coordinator)
+        } else {
+            // Initialize with a dummy coordinator for non-video posts
+            self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
+        }
         self._selectedPost = selectedPost
     }
     
@@ -245,8 +251,8 @@ struct WrittenFeedCell: View {
                 Task {
                     if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
                         if !configured{
-                            videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                            configured = true
+                            //videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
+                            //configured = true
                         }
                     }
                     if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {

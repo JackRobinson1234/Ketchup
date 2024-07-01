@@ -8,14 +8,20 @@
 import SwiftUI
 import Kingfisher
 import FirebaseFirestoreInternal
+import AVFoundation
+import CachingPlayerItem
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
 }
 
+enum FeedTab {
+        case discover
+        case following
+    }
 @MainActor
 class FeedViewModel: ObservableObject {
-    @Published var feedViewOption: FeedViewOption = .grid
+    @State private var selectedTab: FeedTab = .discover
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -38,7 +44,11 @@ class FeedViewModel: ObservableObject {
     @Published var showRepostAlert: Bool = false
     @Published var startingImageIndex = 0
     @Published var isMuted: Bool = false
+    private var prefetching = false
     let videoCoordinator = VideoPlayerCoordinator()
+    var preloadedPlayerItems = NSCache<NSString, AVQueuePlayer>()
+    private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
+    
     
     
     
@@ -122,7 +132,7 @@ class FeedViewModel: ObservableObject {
         }
         
         // Ensure the range is valid
-        let startIndex = currentIndex + 2
+        let startIndex = currentIndex + 1
         let endIndex = min(currentIndex + 6, posts.count)
         
         guard startIndex < endIndex else {
@@ -131,8 +141,7 @@ class FeedViewModel: ObservableObject {
         }
         
         let posts = self.posts
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
+        DispatchQueue.global().async {
             let nextIndexes = Array(startIndex ..< endIndex)
             for index in nextIndexes {
                 if index >= posts.count {
@@ -142,22 +151,19 @@ class FeedViewModel: ObservableObject {
                 Task {
                     if post.mediaType == .video {
                         if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
-                            if index == currentIndex + 1 {
-                                // await self.videoCoordinator.configurePlayer(url: url, postId: post.id)
-                            }
-                            print("running prefetch")
-                            self.videoCoordinator.prefetch(url: url, postId: post.id)
+                            print("Running prefetch for video")
+                            VideoPrefetcher.shared.prefetchPosts([post])
                         }
                     } else if post.mediaType == .photo {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
                         prefetcher.start()
                     }
-
+                    
                     if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
                         let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
                         prefetcher.start()
                     }
-
+                    
                     if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
                         let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
                         prefetcher.start()
@@ -222,23 +228,37 @@ extension FeedViewModel {
     /// Fetches more content when the scroll positon reaches the threshold posoton
     /// - Parameter currentPost: Current scroll position postID
     func loadMoreContentIfNeeded(currentPost: String?) async {
-        guard let currentPost = currentPost, !isFetching else {
-            print("error with currentPost")
-            print("Either no current post, currently fetching, or no more posts to fetch.")
-                    return }
+        guard let currentPost = currentPost else {
+            print("Error: No current post provided")
+            return
+        }
         
-        let thresholdIndex = posts.index(posts.endIndex, offsetBy: fetchingThreshold)
-        let postPosition = posts.firstIndex(where: { $0.id == currentPost })
+        guard !isFetching else {
+            print("Already fetching more content")
+            return
+        }
         
+        guard hasMorePosts else {
+            print("No more posts to fetch")
+            return
+        }
         
-        if let postPosition, postPosition >= thresholdIndex && lastFetched <= postPosition {
+        guard let currentIndex = posts.firstIndex(where: { $0.id == currentPost }) else {
+            print("Error: Current post not found in the posts array")
+            return
+        }
+        
+        let thresholdIndex = posts.count + fetchingThreshold
+        
+        if currentIndex >= thresholdIndex && currentIndex > lastFetched {
             print("Fetching more posts")
-            self.lastFetched = postPosition
-            await fetchMorePosts()
+            lastFetched = currentIndex
             
-            
-        } else if let postPosition, lastFetched > postPosition {
-            print("posts already been fetched from this index")
+            Task {
+                await fetchMorePosts()
+            }
+        } else {
+            print("Not yet reached the threshold for fetching more posts")
         }
     }
     

@@ -48,7 +48,7 @@ struct FeedGridView: View {
                             .clipped()
                             .onTapGesture {
                                viewModel.startingPostId = post.id
-                               viewModel.feedViewOption = .feed
+                               
                             }
                             .id(post.id)
                             

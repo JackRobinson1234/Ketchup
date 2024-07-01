@@ -167,18 +167,18 @@ struct SecondaryFeedView: View {
             }
         }
         .onChange(of: scrollPosition) { oldPostId, newPostId in
-            // Get the indices of the old and new post IDs
             if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
                let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                
-                // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
                 if newIndex > oldIndex {
-                    if !hideFeedOptions {
+                    viewModel.updateCache(scrollPosition: newPostId)
+                    
+                    if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 { // Load when 5 items from the end
                         Task {
-                            await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                            
+                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                            
                         }
                     }
-                    viewModel.updateCache(scrollPosition: newPostId)
                 }
             }
         }

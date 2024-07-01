@@ -168,12 +168,6 @@
 		F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
-		F8B699552C28F95B00EE5C19 /* MuseoSansRounded1000.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B6994F2C28F95A00EE5C19 /* MuseoSansRounded1000.otf */; };
-		F8B699562C28F95B00EE5C19 /* MuseoSansRounded100.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699502C28F95A00EE5C19 /* MuseoSansRounded100.otf */; };
-		F8B699572C28F95B00EE5C19 /* MuseoSansRounded300.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699512C28F95A00EE5C19 /* MuseoSansRounded300.otf */; };
-		F8B699582C28F95B00EE5C19 /* MuseoSansRounded500.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699522C28F95A00EE5C19 /* MuseoSansRounded500.otf */; };
-		F8B699592C28F95B00EE5C19 /* MuseoSansRounded900.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699532C28F95B00EE5C19 /* MuseoSansRounded900.otf */; };
-		F8B6995A2C28F95B00EE5C19 /* MuseoSansRounded700.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8B699542C28F95B00EE5C19 /* MuseoSansRounded700.otf */; };
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
 		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
@@ -192,11 +186,17 @@
 		F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A42BD58A9C00B4B329 /* CameraView.swift */; };
 		F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */; };
 		F8CC21A92BD58B1D00B4B329 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC21A82BD58B1C00B4B329 /* TabBarController.swift */; };
+		F8D0A5782C3316220074F519 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A5772C3316220074F519 /* GoogleService-Info.plist */; };
+		F8D0A57F2C33168D0074F519 /* MuseoSansRounded1000.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A5792C33168D0074F519 /* MuseoSansRounded1000.otf */; };
+		F8D0A5802C33168D0074F519 /* MuseoSansRounded300.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A57A2C33168D0074F519 /* MuseoSansRounded300.otf */; };
+		F8D0A5812C33168D0074F519 /* MuseoSansRounded500.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A57B2C33168D0074F519 /* MuseoSansRounded500.otf */; };
+		F8D0A5822C33168D0074F519 /* MuseoSansRounded100.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A57C2C33168D0074F519 /* MuseoSansRounded100.otf */; };
+		F8D0A5832C33168D0074F519 /* MuseoSansRounded700.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A57D2C33168D0074F519 /* MuseoSansRounded700.otf */; };
+		F8D0A5842C33168D0074F519 /* MuseoSansRounded900.otf in Resources */ = {isa = PBXBuildFile; fileRef = F8D0A57E2C33168D0074F519 /* MuseoSansRounded900.otf */; };
 		F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */; };
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
-		F8D69FE02C1247C300560904 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8F494F82BBF98950043B515 /* DietaryCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F72BBF98950043B515 /* DietaryCategories.swift */; };
@@ -404,12 +404,6 @@
 		F8A24B662BE849A000AB7FDD /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
-		F8B6994F2C28F95A00EE5C19 /* MuseoSansRounded1000.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded1000.otf; path = "../../museo-sans-rounded/MuseoSansRounded1000.otf"; sourceTree = "<group>"; };
-		F8B699502C28F95A00EE5C19 /* MuseoSansRounded100.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded100.otf; path = "../../museo-sans-rounded/MuseoSansRounded100.otf"; sourceTree = "<group>"; };
-		F8B699512C28F95A00EE5C19 /* MuseoSansRounded300.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded300.otf; path = "../../museo-sans-rounded/MuseoSansRounded300.otf"; sourceTree = "<group>"; };
-		F8B699522C28F95A00EE5C19 /* MuseoSansRounded500.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded500.otf; path = "../../museo-sans-rounded/MuseoSansRounded500.otf"; sourceTree = "<group>"; };
-		F8B699532C28F95B00EE5C19 /* MuseoSansRounded900.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded900.otf; path = "../../museo-sans-rounded/MuseoSansRounded900.otf"; sourceTree = "<group>"; };
-		F8B699542C28F95B00EE5C19 /* MuseoSansRounded700.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MuseoSansRounded700.otf; path = "../../museo-sans-rounded/MuseoSansRounded700.otf"; sourceTree = "<group>"; };
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
 		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
@@ -424,11 +418,17 @@
 		F8CC21A42BD58A9C00B4B329 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
 		F8CC21A82BD58B1C00B4B329 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		F8D0A5772C3316220074F519 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F8D0A5792C33168D0074F519 /* MuseoSansRounded1000.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded1000.otf; sourceTree = "<group>"; };
+		F8D0A57A2C33168D0074F519 /* MuseoSansRounded300.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded300.otf; sourceTree = "<group>"; };
+		F8D0A57B2C33168D0074F519 /* MuseoSansRounded500.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded500.otf; sourceTree = "<group>"; };
+		F8D0A57C2C33168D0074F519 /* MuseoSansRounded100.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded100.otf; sourceTree = "<group>"; };
+		F8D0A57D2C33168D0074F519 /* MuseoSansRounded700.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded700.otf; sourceTree = "<group>"; };
+		F8D0A57E2C33168D0074F519 /* MuseoSansRounded900.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuseoSansRounded900.otf; sourceTree = "<group>"; };
 		F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
-		F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8F494F72BBF98950043B515 /* DietaryCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietaryCategories.swift; sourceTree = "<group>"; };
@@ -601,7 +601,7 @@
 		F84FE24A2B6A531200144F01 /* Ketchup */ = {
 			isa = PBXGroup;
 			children = (
-				F8D69FDF2C1247C300560904 /* GoogleService-Info.plist */,
+				F8D0A5772C3316220074F519 /* GoogleService-Info.plist */,
 				F871B0112B919B7200E4EB5F /* Info.plist */,
 				F84FE27B2B6A542D00144F01 /* App */,
 				F84FE27A2B6A541900144F01 /* Core */,
@@ -610,12 +610,12 @@
 				F84FE2772B6A53DA00144F01 /* Services */,
 				F84FE2762B6A53CF00144F01 /* Utils */,
 				F84FE24F2B6A531300144F01 /* Assets.xcassets */,
-				F8B699502C28F95A00EE5C19 /* MuseoSansRounded100.otf */,
-				F8B699512C28F95A00EE5C19 /* MuseoSansRounded300.otf */,
-				F8B699522C28F95A00EE5C19 /* MuseoSansRounded500.otf */,
-				F8B699542C28F95B00EE5C19 /* MuseoSansRounded700.otf */,
-				F8B699532C28F95B00EE5C19 /* MuseoSansRounded900.otf */,
-				F8B6994F2C28F95A00EE5C19 /* MuseoSansRounded1000.otf */,
+				F8D0A57C2C33168D0074F519 /* MuseoSansRounded100.otf */,
+				F8D0A57A2C33168D0074F519 /* MuseoSansRounded300.otf */,
+				F8D0A57B2C33168D0074F519 /* MuseoSansRounded500.otf */,
+				F8D0A57D2C33168D0074F519 /* MuseoSansRounded700.otf */,
+				F8D0A57E2C33168D0074F519 /* MuseoSansRounded900.otf */,
+				F8D0A5792C33168D0074F519 /* MuseoSansRounded1000.otf */,
 				F84FE2512B6A531300144F01 /* Ketchup.entitlements */,
 				F84FE2522B6A531300144F01 /* Preview Content */,
 			);
@@ -1108,6 +1108,7 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
 				F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */,
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
@@ -1355,7 +1356,6 @@
 		F8AE367F2C2B233E00577F28 /* WrittenFeed */ = {
 			isa = PBXGroup;
 			children = (
-				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
 			);
 			path = WrittenFeed;
 			sourceTree = "<group>";
@@ -1590,15 +1590,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8B699572C28F95B00EE5C19 /* MuseoSansRounded300.otf in Resources */,
-				F8B699562C28F95B00EE5C19 /* MuseoSansRounded100.otf in Resources */,
-				F8B699582C28F95B00EE5C19 /* MuseoSansRounded500.otf in Resources */,
+				F8D0A5802C33168D0074F519 /* MuseoSansRounded300.otf in Resources */,
+				F8D0A5782C3316220074F519 /* GoogleService-Info.plist in Resources */,
 				F84FE2542B6A531300144F01 /* Preview Assets.xcassets in Resources */,
-				F8B6995A2C28F95B00EE5C19 /* MuseoSansRounded700.otf in Resources */,
+				F8D0A5822C33168D0074F519 /* MuseoSansRounded100.otf in Resources */,
+				F8D0A5832C33168D0074F519 /* MuseoSansRounded700.otf in Resources */,
 				F84FE2502B6A531300144F01 /* Assets.xcassets in Resources */,
-				F8D69FE02C1247C300560904 /* GoogleService-Info.plist in Resources */,
-				F8B699592C28F95B00EE5C19 /* MuseoSansRounded900.otf in Resources */,
-				F8B699552C28F95B00EE5C19 /* MuseoSansRounded1000.otf in Resources */,
+				F8D0A5812C33168D0074F519 /* MuseoSansRounded500.otf in Resources */,
+				F8D0A5842C33168D0074F519 /* MuseoSansRounded900.otf in Resources */,
+				F8D0A57F2C33168D0074F519 /* MuseoSansRounded1000.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

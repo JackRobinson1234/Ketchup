@@ -69,7 +69,7 @@ struct PrimaryFeedView: View {
                             .scrollTargetLayout()
                         }
                         .transition(.slide)
-                        .conditionalSafeAreaPadding(!hideFeedOptions, padding: 115)
+                        .conditionalSafeAreaPadding(!hideFeedOptions, padding: 75)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
@@ -128,16 +128,18 @@ struct PrimaryFeedView: View {
                         }
                     }
                 
-                .animation(.easeInOut(duration: 0.5), value: viewModel.feedViewOption)
+                
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     if viewModel.showPostAlert {
+                        
                         SuccessMessageOverlay(text: "Post Uploaded!")
                             .transition(.opacity)
                             .onAppear {
+                                viewModel.showEmptyView = false
                                 Debouncer(delay: 2.0).schedule {
                                     viewModel.showPostAlert = false
                                 }

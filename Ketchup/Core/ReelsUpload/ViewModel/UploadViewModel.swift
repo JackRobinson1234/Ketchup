@@ -135,7 +135,6 @@ class UploadViewModel: ObservableObject {
             uploadFailure = true
         }
         if let post {
-            feedViewModel.feedViewOption = .grid
             feedViewModel.showPostAlert = true
             feedViewModel.posts.insert(post, at: 0)
         }
