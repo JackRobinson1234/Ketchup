@@ -19,6 +19,8 @@ struct ProfileView: View {
     @State private var showingOptionsSheet = false
     @State var isDragging = false
     @State var dragDirection = "left"
+    @State private var scrollPosition: String?
+    @State private var scrollTarget: String?
     private let uid: String
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
@@ -69,20 +71,29 @@ struct ProfileView: View {
                     }
                 }
         } else{
-            ScrollView {
-                VStack(spacing: 2) {
-                    ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection)
-                    if !profileViewModel.user.privateMode {
-                        ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection)
-                    } else {
-                        VStack {
-                            Image(systemName: "lock.fill")
-                                .font(.largeTitle)
-                                .padding()
-                            Text("Account is private")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
+            ScrollViewReader{ scrollProxy in
+                ScrollView {
+                    VStack(spacing: 2) {
+                        ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection)
+                        if !profileViewModel.user.privateMode {
+                            ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection,
+                                            scrollPosition: $scrollPosition,
+                                            scrollTarget: $scrollTarget)
+                        } else {
+                            VStack {
+                                Image(systemName: "lock.fill")
+                                    .font(.largeTitle)
+                                    .padding()
+                                Text("Account is private")
+                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                            }
                         }
                     }
+                }
+                .scrollPosition(id: $scrollPosition)
+                .onChange(of: scrollTarget) {
+                    scrollPosition = scrollTarget
+                    scrollProxy.scrollTo(scrollTarget, anchor: .center)
                 }
             }
             .gesture(drag)

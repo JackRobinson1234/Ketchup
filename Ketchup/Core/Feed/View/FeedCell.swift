@@ -69,6 +69,7 @@ struct FeedCell: View {
                     if self.currentImageIndex > 0 {
                         self.currentImageIndex -= 1
                     } else {
+                        viewModel.initialPrimaryScrollPosition = scrollPosition
                         dismiss()
                     }
                 } else {
@@ -92,10 +93,14 @@ struct FeedCell: View {
                 ZStack(alignment: .top) {
                     KFImage(URL(string: post.mediaUrls[currentImageIndex]))
                         .resizable()
-                        .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                        .cornerRadius(20)
-                        .containerRelativeFrame([.horizontal, .vertical])
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: UIScreen.main.bounds.width)
+                            .clipped()
+//                        .resizable()
+//                        .scaledToFill()
+//                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+//                        .cornerRadius(20)
+//                        .containerRelativeFrame([.horizontal, .vertical])
 
                     VStack {
                         HStack(spacing: 6) {

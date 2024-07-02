@@ -10,8 +10,6 @@ import SwiftUI
 
 @MainActor
 class ProfileViewModel: ObservableObject {
-    @Published var feedViewModel = FeedViewModel()
-    @Published var likesFeedViewModel = FeedViewModel()
     @Published var posts = [Post]()
     @Published var likedPosts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
@@ -87,7 +85,7 @@ extension ProfileViewModel {
     func fetchUserPosts() async throws {
             do {
                 self.posts = try await PostService.shared.fetchUserPosts(user: user)
-                feedViewModel.posts = posts
+//                feedViewModel.posts = posts
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }
@@ -97,7 +95,7 @@ extension ProfileViewModel {
     func fetchUserLikedPosts() async throws {
             do {
                 self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
-                feedViewModel.posts = likedPosts
+//                feedViewModel.posts = likedPosts
             } catch {
                 print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
             }

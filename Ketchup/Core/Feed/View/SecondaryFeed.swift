@@ -52,13 +52,9 @@ struct SecondaryFeedView: View {
                     }
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     .onAppear {
-                        if hideFeedOptions {
-                            Debouncer(delay: 0.5).schedule {
-                                viewModel.combineEarlyPosts()
-                            }
-                        } else {
+                       
                             scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
-                        }
+                        
                     }
                 }
                 .transition(.slide)
@@ -113,6 +109,7 @@ struct SecondaryFeedView: View {
             } else {
                 HStack {
                     Button {
+                        viewModel.initialPrimaryScrollPosition = scrollPosition
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
@@ -212,10 +209,6 @@ struct SecondaryFeedView: View {
                 }
             }
         }
-        
     }
 }
 
-//#Preview {
-//    SecondaryFeed()
-//}

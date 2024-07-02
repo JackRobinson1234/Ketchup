@@ -10,6 +10,7 @@ import SwiftUI
 struct LikedPostsView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @State var isLoading = true
+    @ObservedObject var feedViewModel: FeedViewModel
     
     
     var body: some View {
@@ -19,11 +20,12 @@ struct LikedPostsView: View {
                 .onAppear {
                     Task {
                         try await viewModel.fetchUserLikedPosts()
+                        feedViewModel.posts = viewModel.likedPosts
                         isLoading = false
                     }
                 }
         } else {
-            PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts Liked by @\(viewModel.user.username)", viewModel: viewModel.feedViewModel)
+            PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts Liked by @\(viewModel.user.username)", viewModel: feedViewModel)
         }
     }
 }

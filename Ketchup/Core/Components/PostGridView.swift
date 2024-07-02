@@ -10,8 +10,6 @@ import Kingfisher
 import AVKit
 
 struct PostGridView: View {
-    //var viewModel: any PostGridViewModelProtocol
-    //@State private var player = AVPlayer()
     @ObservedObject var viewModel: FeedViewModel
     @State private var selectedPost: Post?
     @Environment(\.dismiss) var dismiss

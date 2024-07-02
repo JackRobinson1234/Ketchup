@@ -125,7 +125,7 @@ struct PrimaryFeedView: View {
                             .padding(.horizontal, 20)
                             .foregroundStyle(.primary)
                             .padding(.bottom, 10)
-                            HStack(spacing: 30) {
+                            HStack(spacing: 20) {
                                 Button {
                                     viewModel.selectedTab = .following
                                     // Implement logic to switch to following feed
@@ -233,6 +233,7 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .navigationDestination(for: PostUser.self) { user in
+                    
                     ProfileView(uid: user.id)
                 }
                 .navigationDestination(for: PostRestaurant.self) { restaurant in

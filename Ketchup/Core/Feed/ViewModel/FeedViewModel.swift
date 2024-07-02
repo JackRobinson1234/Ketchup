@@ -78,10 +78,6 @@ class FeedViewModel: ObservableObject {
         isLoading = false
     }
     
-    func combineEarlyPosts() {
-        posts.insert(contentsOf: earlyPosts, at: 0)
-        earlyPosts = []
-    }
     func fetchMorePosts() async {
         guard !isFetching else { return }
         isFetching = true
@@ -93,8 +89,8 @@ class FeedViewModel: ObservableObject {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         do {
     
-            let followersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("following")
-            let snapshot = try await followersRef.getDocuments()
+            let followingRef = FirestoreConstants.UserCollection.document(currentUserId).collection("following")
+            let snapshot = try await followingRef.getDocuments()
             self.followingUsers = snapshot.documents.compactMap { $0.documentID }
         } catch {
             print("Error fetching following users: \(error)")
@@ -109,13 +105,21 @@ class FeedViewModel: ObservableObject {
         
         do {
             var updatedFilters = filters ?? [:]
-            if selectedTab == .discover {
-                updatedFilters["user.privateMode"] = [false]
-            }
+            updatedFilters["user.privateMode"] = [false]
             
             if isInitialLoad {
                 posts.removeAll()
                 lastDocument = nil
+                if selectedTab == .following {
+                    await fetchFollowingUsers()
+                }
+            }
+            
+            if selectedTab == .following && followingUsers.isEmpty {
+                self.posts = []
+                self.showEmptyView = true
+                self.hasMorePosts = false
+                return
             }
             
             let db = Firestore.firestore()
@@ -126,33 +130,73 @@ class FeedViewModel: ObservableObject {
                 query = query.whereField(key, in: value)
             }
             
-            // Apply following filter if in following tab
-            if selectedTab == .following && !followingUsers.isEmpty{
-                query = query.whereField("user.id", in: followingUsers)
-            } else if selectedTab == .following && followingUsers.isEmpty {
-                showEmptyView = true
-                return
-            }
-            
-            query = query.order(by: "timestamp", descending: true)
-                .limit(to: pageSize)
-            
-            if let lastDocument = lastDocument {
-                query = query.start(afterDocument: lastDocument)
-            }
-            
-            let snapshot = try await query.getDocuments()
-            let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-            
-            if newPosts.isEmpty || newPosts.count < self.pageSize {
-                print("no more posts after this fetch")
-                self.posts.append(contentsOf: newPosts)
-                self.lastDocument = snapshot.documents.last
-                self.hasMorePosts = false // No more posts are available.
+            // Handle following users in batches
+            if selectedTab == .following {
+                let batchSize = 30
+                var allNewPosts: [Post] = []
+                
+                for i in stride(from: 0, to: followingUsers.count, by: batchSize) {
+                    let end = min(i + batchSize, followingUsers.count)
+                    let batch = Array(followingUsers[i..<end])
+                    
+                    var batchQuery = query.whereField("userId", in: batch)
+                        .limit(to: pageSize)
+                    
+                    if let lastDocument = lastDocument {
+                        batchQuery = batchQuery.start(afterDocument: lastDocument)
+                    }
+                    
+                    let snapshot = try await batchQuery.getDocuments()
+                    let batchPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+                    allNewPosts.append(contentsOf: batchPosts)
+                    
+                    if batchPosts.count < pageSize {
+                        continue
+                    } else {
+                        lastDocument = snapshot.documents.last
+                        break
+                    }
+                }
+                
+                // Sort all fetched posts by timestamp (if available) or fallback to id
+                allNewPosts.sort {
+                    if let timestamp1 = $0.timestamp, let timestamp2 = $1.timestamp {
+                        return timestamp1 > timestamp2
+                    } else {
+                        return $0.id > $1.id  // Fallback to sorting by id if timestamp is not available
+                    }
+                }
+                
+                let newPosts = Array(allNewPosts.prefix(pageSize))
+                
+                if newPosts.isEmpty || newPosts.count < self.pageSize {
+                    self.posts.append(contentsOf: newPosts)
+                    self.hasMorePosts = false
+                } else {
+                    self.posts.append(contentsOf: newPosts)
+                }
             } else {
-                self.posts.append(contentsOf: newPosts)
-                self.lastDocument = snapshot.documents.last
+                // Handle discover posts
+                query = query.order(by: "timestamp", descending: true)  // Fallback to sorting by id
+                    .limit(to: pageSize)
+                
+                if let lastDocument = lastDocument {
+                    query = query.start(afterDocument: lastDocument)
+                }
+                
+                let snapshot = try await query.getDocuments()
+                let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+                
+                if newPosts.isEmpty || newPosts.count < self.pageSize {
+                    self.posts.append(contentsOf: newPosts)
+                    self.lastDocument = snapshot.documents.last
+                    self.hasMorePosts = false
+                } else {
+                    self.posts.append(contentsOf: newPosts)
+                    self.lastDocument = snapshot.documents.last
+                }
             }
+            
             self.showEmptyView = self.posts.isEmpty
             await checkIfUserLikedPosts()
         } catch {

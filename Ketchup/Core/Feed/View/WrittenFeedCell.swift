@@ -158,6 +158,7 @@ struct WrittenFeedCell: View {
                         Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
                             .font(.custom("MuseoSansRounded-300", size: 14))
                     }
+                    .multilineTextAlignment(.leading)
                     Spacer()
                 }
             }
@@ -335,6 +336,9 @@ struct WrittenFeedCell: View {
                 }
             }
         )
+        .onDisappear{
+            videoCoordinator.pause()
+        }
         .onChange(of: pauseVideo){
             if pauseVideo {
                 videoCoordinator.pause()

@@ -14,6 +14,8 @@ struct CurrentUserProfileView: View {
     @State var showSettings = false
     @State var isDragging = false
     @State var dragDirection = "left"
+    @State private var scrollPosition: String?
+    @State private var scrollTarget: String?
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -62,16 +64,26 @@ struct CurrentUserProfileView: View {
                 }
         } else{
             NavigationStack {
-                ScrollView {
-                    VStack(spacing: 2) {
-                        //MARK: Profile Header
-                        ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection)
-                            .padding(.top)
+                ScrollViewReader{ scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 2) {
+                            //MARK: Profile Header
+                            
+                            ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection)
+                                .padding(.top)
                             //MARK: Slide bar
-                        ProfileSlideBar(viewModel: profileViewModel, profileSection: $currentProfileSection)
-                        
-                        
+                            ProfileSlideBar(viewModel: profileViewModel, profileSection: $currentProfileSection,
+                                            scrollPosition: $scrollPosition,
+                                            scrollTarget: $scrollTarget)
+                            
+                            
+                        }
                     }
+                    .onChange(of: scrollTarget) {
+                        scrollPosition = scrollTarget
+                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                    }
+                    .scrollPosition(id: $scrollPosition)
                 }
                 .gesture(drag)
                 .toolbar {
