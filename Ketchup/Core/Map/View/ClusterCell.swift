@@ -25,9 +25,9 @@ struct ClusterCell: View {
         }
     }
 }
-#Preview {
-    ClusterCell(cluster: ExampleClusterAnnotation(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: 0))
-}
+//#Preview {
+//    ClusterCell(cluster: ExampleClusterAnnotation(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: 0))
+//}
 
 
 struct Cluster: Identifiable, Hashable, Equatable {

@@ -15,7 +15,8 @@ struct RestaurantProfileView: View {
     private let restaurant: Restaurant?
     @State var dragDirection = "left"
     @State var isDragging = false
-    
+    @State private var scrollPosition: String?
+    @State private var scrollTarget: String?
     
     init(restaurantId: String, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
@@ -31,25 +32,17 @@ struct RestaurantProfileView: View {
                     self.dragDirection = "left"
                     if viewModel.currentSection == .posts {
                         dismiss()
-                    } else if viewModel.currentSection == .reviews{
-                        viewModel.currentSection = .posts
-                    } else if viewModel.currentSection == .menu{
-                        viewModel.currentSection = .reviews
                     } else if viewModel.currentSection == .collections{
-                        viewModel.currentSection = .menu
+                        viewModel.currentSection = .posts
                     }
                 } else {
-                        self.dragDirection = "right"
-                        if viewModel.currentSection == .posts {
-                            viewModel.currentSection = .reviews
-                        } else if viewModel.currentSection == .reviews{
-                            viewModel.currentSection = .menu
-                        } else if viewModel.currentSection == .menu{
-                            viewModel.currentSection = .collections
-                        }
-                        self.isDragging = false
+                    self.dragDirection = "right"
+                    if viewModel.currentSection == .posts {
+                        viewModel.currentSection = .collections
+                        
                     }
-                
+                    self.isDragging = false
+                }
             }
     }
     
@@ -90,15 +83,23 @@ struct RestaurantProfileView: View {
             
         } else {
             if viewModel.restaurant != nil {
-                ScrollView{
-                    VStack{
-                        if viewModel.restaurant != nil {
-                            RestaurantProfileHeaderView(viewModel: viewModel)
-                        } else {
-                            
+                ScrollViewReader{ scrollProxy in
+                    ScrollView{
+                        VStack{
+                            if viewModel.restaurant != nil {
+                                RestaurantProfileHeaderView(viewModel: viewModel, scrollPosition: $scrollPosition,
+                                                            scrollTarget: $scrollTarget)
+                            } else {
+                                
+                            }
                         }
+                        
                     }
-                    
+                    .scrollPosition(id: $scrollPosition)
+                    .onChange(of: scrollTarget) {
+                        scrollPosition = scrollTarget
+                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                    }
                 }
                 .gesture(drag)
                 .ignoresSafeArea(edges: .top)
@@ -114,8 +115,8 @@ struct RestaurantProfileView: View {
                         .modifier(BackButtonModifier())
                         .navigationBarBackButtonHidden()
                 }
-                .gesture(drag) 
-                    
+                .gesture(drag)
+                
             }
         }
     }

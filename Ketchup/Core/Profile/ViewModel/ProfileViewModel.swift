@@ -88,22 +88,22 @@ extension ProfileViewModel {
 
 extension ProfileViewModel {
     func fetchUserPosts() async throws {
-            do {
-                self.posts = try await PostService.shared.fetchUserPosts(user: user)
-//                feedViewModel.posts = posts
-            } catch {
-                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            }
+        do {
+            self.posts = try await PostService.shared.fetchUserPosts(user: user)
+            //                feedViewModel.posts = posts
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
+    }
     
     
     func fetchUserLikedPosts() async throws {
-            do {
-                self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
-//                feedViewModel.posts = likedPosts
-            } catch {
-                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            }
+        do {
+            self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
+            //                feedViewModel.posts = likedPosts
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        }
         
     }
     
@@ -112,44 +112,10 @@ extension ProfileViewModel {
             user.notificationAlert = 0
             AuthService.shared.userSession?.notificationAlert = 0
             try await UserService.shared.clearNotificationAlert()
-           
+            
         } catch {
             print("error clearing notification alert")
         }
-    }
-    @MainActor
-    private func applyChanges(_ difference: ClusterManager<RestaurantMapAnnotation>.Difference) {
-        for removal in difference.removals {
-            switch removal {
-            case .annotation(let annotation):
-                annotations.removeAll { $0 == annotation }
-            case .cluster(let clusterAnnotation):
-                clusters.removeAll { $0.id == clusterAnnotation.id }
-            }
-        }
-        for insertion in difference.insertions {
-            switch insertion {
-            case .annotation(let newItem):
-                annotations.append(newItem)
-            case .cluster(let newItem):
-                clusters.append(ExampleClusterAnnotation(
-                    id: newItem.id,
-                    coordinate: newItem.coordinate,
-                    count: newItem.memberAnnotations.count
-                ))
-            }
-        }
-    }
-    
-    
-    func removeAnnotations() async {
-        await clusterManager.removeAll()
-        await reloadAnnotations()
-    }
-    
-    func reloadAnnotations() async {
-        async let changes = clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
-        await applyChanges(changes)
     }
 }
 

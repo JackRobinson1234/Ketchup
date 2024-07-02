@@ -12,9 +12,6 @@ struct ProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State private var isLoading = true
     @Environment(\.dismiss) var dismiss
-    /*private var user: User {
-        return profileViewModel.user
-    }*/
     @State var profileSection: ProfileSectionEnum
     @State private var showingOptionsSheet = false
     @State var isDragging = false

@@ -10,18 +10,27 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, reviews, menu, map, collections
+    case posts, collections
 }
-
+enum RestaurantPostDisplayMode: String, CaseIterable {
+    case all = "All"
+    case media = "Media"
+}
 struct RestaurantProfileSlideBarView: View {
-        @ObservedObject var viewModel: RestaurantViewModel
-        @StateObject var reviewsViewModel: ReviewsViewModel
-        @StateObject var feedViewModel: FeedViewModel
-        init(viewModel: RestaurantViewModel) {
-            self.viewModel = viewModel
-            self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
-            self._feedViewModel = StateObject(wrappedValue: FeedViewModel())
-        }
+    @ObservedObject var viewModel: RestaurantViewModel
+       @StateObject var reviewsViewModel: ReviewsViewModel
+       @StateObject var feedViewModel: FeedViewModel
+       @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
+       @Binding var scrollPosition: String?
+       @Binding var scrollTarget: String?
+
+       init(viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+           self.viewModel = viewModel
+           self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
+           self._feedViewModel = StateObject(wrappedValue: FeedViewModel())
+           self._scrollPosition = scrollPosition
+           self._scrollTarget = scrollTarget
+       }
     var body: some View {
         //MARK: Selecting Images
         VStack{
@@ -41,33 +50,33 @@ struct RestaurantProfileSlideBarView: View {
                     .frame(maxWidth: .infinity)
                 
                 
-                Image(systemName: currentSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 14)
-                    .font(currentSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
-                    .onTapGesture {
-                        withAnimation {
-                            viewModel.currentSection = .reviews
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
-                    .frame(maxWidth: .infinity)
+//                Image(systemName: currentSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fit)
+//                    .frame(width: 50, height: 14)
+//                    .font(currentSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
+//                    .onTapGesture {
+//                        withAnimation {
+//                            viewModel.currentSection = .reviews
+//                        }
+//                    }
+//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
+//                    .frame(maxWidth: .infinity)
                 
                 
-                Image(systemName: currentSection == .menu ? "menucard.fill" : "menucard")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 25)
-                
-                    .onTapGesture {
-                        withAnimation {
-                            viewModel.currentSection = .menu
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .menu))
-                    .frame(maxWidth: .infinity)
+//                Image(systemName: currentSection == .menu ? "menucard.fill" : "menucard")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fit)
+//                    .frame(width: 50, height: 25)
 //                
+//                    .onTapGesture {
+//                        withAnimation {
+//                            viewModel.currentSection = .menu
+//                        }
+//                    }
+//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .menu))
+//                    .frame(maxWidth: .infinity)
+////                
 //                Image(systemName: currentSection == .map ? "location.fill" : "location")
 //                    .resizable()
 //                    .aspectRatio(contentMode: .fit)
@@ -102,16 +111,33 @@ struct RestaurantProfileSlideBarView: View {
         
         // MARK: Section Logic
         if viewModel.currentSection == .posts {
-            if let name = viewModel.restaurant?.name{
-                PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)")
+            VStack {
+                Picker("Post Display Mode", selection: $restaurantPostDisplayMode) {
+                    ForEach(RestaurantPostDisplayMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding([.bottom, .horizontal])
+                
+                
+                switch restaurantPostDisplayMode {
+                case .all:
+                    ProfileFeedView(
+                        viewModel: feedViewModel,
+                        scrollPosition: $scrollPosition,
+                        scrollTarget: $scrollTarget
+                    )
+                case .media:
+                    if let name = viewModel.restaurant?.name {
+                        PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)")
+                    }
+                }
+            }
+            .onAppear {
+                feedViewModel.posts = viewModel.posts
             }
         }
-        if viewModel.currentSection == .reviews{
-            ReviewListView(viewModel: reviewsViewModel)
-        }
-//        if currentSection == .map {
-//            MapRestaurantProfileView(viewModel: viewModel)
-//        }
         if viewModel.currentSection == .collections {
             RestaurantCollectionListView(viewModel: viewModel)
         }

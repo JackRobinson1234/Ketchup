@@ -23,63 +23,64 @@ struct ProfileMapView: View {
     }
     
     var body: some View {
-        Map(initialPosition: .automatic) {
-            ForEach(Array(groupedPosts.keys), id: \.self) { coordinate in
-                let postsAtLocation = groupedPosts[coordinate] ?? []
-                Annotation(postsAtLocation.first?.restaurant.name ?? "", coordinate: coordinate) {
-                    Button {
-                        if postsAtLocation.count > 1 {
-                            feedViewModel.posts = postsAtLocation
-                            selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
+        if !posts.isEmpty {
+            Map(initialPosition: .automatic) {
+                ForEach(Array(groupedPosts.keys), id: \.self) { coordinate in
+                    let postsAtLocation = groupedPosts[coordinate] ?? []
+                    Annotation(postsAtLocation.first?.restaurant.name ?? "", coordinate: coordinate) {
+                        Button {
+                            if postsAtLocation.count > 1 {
+                                feedViewModel.posts = postsAtLocation
+                                selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
                                 
-                        } else if let singlePost = postsAtLocation.first {
-                            if singlePost.mediaType == .written {
-                                selectedWrittenPost = singlePost
-                            } else {
-                                feedViewModel.posts = [singlePost]
-                                selectedPost = singlePost
+                            } else if let singlePost = postsAtLocation.first {
+                                if singlePost.mediaType == .written {
+                                    selectedWrittenPost = singlePost
+                                } else {
+                                    feedViewModel.posts = [singlePost]
+                                    selectedPost = singlePost
+                                }
                             }
-                        }
-                    } label: {
-                        if postsAtLocation.count > 1 {
-                            MultiPostAnnotationView(count: postsAtLocation.count)
-                        } else if let singlePost = postsAtLocation.first {
-                            SinglePostAnnotationView(post: singlePost)
+                        } label: {
+                            if postsAtLocation.count > 1 {
+                                MultiPostAnnotationView(count: postsAtLocation.count)
+                            } else if let singlePost = postsAtLocation.first {
+                                SinglePostAnnotationView(post: singlePost)
+                            }
                         }
                     }
                 }
             }
-        }
-        .mapStyle(.standard(pointsOfInterest: .excludingAll))
-        .frame(height: UIScreen.main.bounds.height * 0.7)
-        .cornerRadius(10)
-        .sheet(item: $selectedLocation) { locationWithPosts in
-            NavigationStack{
-                ScrollView{
-                    ProfileFeedView(viewModel: feedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
+            .mapStyle(.standard(pointsOfInterest: .excludingAll))
+            .frame(height: UIScreen.main.bounds.height * 0.7)
+            .cornerRadius(10)
+            .sheet(item: $selectedLocation) { locationWithPosts in
+                NavigationStack{
+                    ScrollView{
+                        ProfileFeedView(viewModel: feedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
+                    }
+                    .modifier(BackButtonModifier())
                 }
-                .modifier(BackButtonModifier())
             }
-        }
-        .fullScreenCover(item: $selectedPost) { post in
-            NavigationStack {
-                SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, titleText: "Posts")
-            }
-        }
-        .sheet(item: $selectedWrittenPost) { post in
-            NavigationStack {
-                ScrollView {
-                    WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil))
+            .fullScreenCover(item: $selectedPost) { post in
+                NavigationStack {
+                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, titleText: "Posts")
                 }
-                .modifier(BackButtonModifier())
-                .navigationDestination(for: PostRestaurant.self) { restaurant in
-                    RestaurantProfileView(restaurantId: restaurant.id)
+            }
+            .sheet(item: $selectedWrittenPost) { post in
+                NavigationStack {
+                    ScrollView {
+                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil))
+                    }
+                    .modifier(BackButtonModifier())
+                    .navigationDestination(for: PostRestaurant.self) { restaurant in
+                        RestaurantProfileView(restaurantId: restaurant.id)
+                    }
                 }
             }
         }
     }
 }
-
 struct MultiPostAnnotationView: View {
     let count: Int
     

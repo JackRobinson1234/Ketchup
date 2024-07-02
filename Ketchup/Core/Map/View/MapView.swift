@@ -32,7 +32,8 @@ struct MapView: View {
     @State private var mapSize: CGSize = .zero
     @State private var noNearbyRestaurants = false
     @State private var showAlert = false
-    
+    @State private var selectedCluster: ExampleClusterAnnotation?
+    @State private var showClusterList = false
     
     
     init() {
@@ -56,6 +57,7 @@ struct MapView: View {
                                 Annotation(item.restaurant.name, coordinate: item.coordinate){
                                     RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
                                         .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
+                                        
                                 }
                                 //.annotationTitles(.hidden)
                             }
@@ -63,6 +65,10 @@ struct MapView: View {
                                 Annotation("", coordinate: cluster.coordinate){
                                     ClusterCell(cluster: cluster)
                                         .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
+                                        .onTapGesture {
+                                            selectedCluster = cluster
+                                            showClusterList = true
+                                        }
                                 }
                             }
                         }
@@ -283,10 +289,15 @@ struct MapView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showClusterList) {
+                if let cluster = selectedCluster {
+                    ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
+                }
+            }
             .onAppear{
                 Task{
                     LocationManager.shared.requestLocation()
-                   
+                    
                     if let userLocation = LocationManager.shared.userLocation {
                         center = userLocation.coordinate
                     } else {

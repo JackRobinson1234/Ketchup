@@ -115,17 +115,18 @@ class MapViewModel: ObservableObject {
             }
         }
         for insertion in difference.insertions {
-            switch insertion {
-            case .annotation(let newItem):
-                annotations.append(newItem)
-            case .cluster(let newItem):
-                clusters.append(ExampleClusterAnnotation(
-                    id: newItem.id,
-                    coordinate: newItem.coordinate,
-                    count: newItem.memberAnnotations.count
-                ))
+                switch insertion {
+                case .annotation(let newItem):
+                    annotations.append(newItem)
+                case .cluster(let newItem):
+                    clusters.append(ExampleClusterAnnotation(
+                        id: newItem.id,
+                        coordinate: newItem.coordinate,
+                        count: newItem.memberAnnotations.count,
+                        memberAnnotations: newItem.memberAnnotations
+                    ))
+                }
             }
-        }
     }
     
     
@@ -152,4 +153,6 @@ struct ExampleClusterAnnotation: Identifiable {
     var id = UUID()
     var coordinate: CLLocationCoordinate2D
     var count: Int
+    var memberAnnotations: [RestaurantMapAnnotation]
+
 }

@@ -16,6 +16,8 @@ struct RestaurantProfileHeaderView: View {
     @State var showMapView: Bool = false
     @State var route: MKRoute?
     @State private var travelInterval: TimeInterval?
+    @Binding var scrollPosition: String?
+    @Binding var scrollTarget: String?
     var travelTime: String? {
         guard let travelInterval else { return nil}
         let formatter = DateComponentsFormatter()
@@ -145,7 +147,8 @@ struct RestaurantProfileHeaderView: View {
                 
                 
                 
-                RestaurantProfileSlideBarView(viewModel: viewModel)
+                RestaurantProfileSlideBarView(viewModel: viewModel, scrollPosition: $scrollPosition,
+                                              scrollTarget: $scrollTarget)
             }
             
             .onReceive(LocationManager.shared.$userLocation.dropFirst().prefix(1)) { userLocation in
@@ -174,6 +177,6 @@ struct RestaurantProfileHeaderView: View {
         }
     }
 }
-#Preview {
-    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))
-}
+//#Preview {
+//    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))
+//}
