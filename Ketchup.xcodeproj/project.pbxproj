@@ -715,7 +715,6 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				F8AE367F2C2B233E00577F28 /* WrittenFeed */,
 				F846F4542BFBDB43009D1303 /* Review */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
@@ -1354,13 +1353,6 @@
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
 			);
 			path = Activity;
-			sourceTree = "<group>";
-		};
-		F8AE367F2C2B233E00577F28 /* WrittenFeed */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = WrittenFeed;
 			sourceTree = "<group>";
 		};
 		F8BD81552BC5B101007C2CFC /* Map */ = {

@@ -10,7 +10,7 @@ import Kingfisher
 import AVKit
 
 struct PostGridView: View {
-    @ObservedObject var viewModel: FeedViewModel
+    @StateObject var viewModel = FeedViewModel()
     @State private var selectedPost: Post?
     @Environment(\.dismiss) var dismiss
     private let posts: [Post]?
@@ -29,10 +29,9 @@ struct PostGridView: View {
             GridItem(.flexible(), spacing:  2),
         ]
     }
-    init(posts: [Post]?, feedTitleText: String?, viewModel: FeedViewModel) {
+    init(posts: [Post]?, feedTitleText: String?) {
         self.posts = posts
         self.feedTitleText = feedTitleText
-        self.viewModel = viewModel
     }
     
     var body: some View {

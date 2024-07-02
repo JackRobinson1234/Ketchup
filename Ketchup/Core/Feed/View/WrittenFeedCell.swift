@@ -193,25 +193,25 @@ struct WrittenFeedCell: View {
                 } label: {
                     InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                 }
-                
-                Button {
-                    videoCoordinator.pause()
-                    showingRepostSheet.toggle()
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "arrow.2.squarepath")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(.gray)
-                            .rotationEffect(.degrees(90))
-                        Text("\(post.repostCount)")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundStyle(.gray)
+                if post.user.id != AuthService.shared.userSession?.id {
+                    Button {
+                        videoCoordinator.pause()
+                        showingRepostSheet.toggle()
+                    } label: {
+                        HStack(spacing: 3) {
+                            Image(systemName: "arrow.2.squarepath")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(.gray)
+                                .rotationEffect(.degrees(90))
+                            Text("\(post.repostCount)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundStyle(.gray)
+                        }
+                        .padding(.trailing, 10)
                     }
-                    .padding(.trailing, 10)
                 }
-                
                 Button {
                     videoCoordinator.pause()
                     showCollections.toggle()

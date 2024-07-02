@@ -103,7 +103,7 @@ struct RestaurantProfileSlideBarView: View {
         // MARK: Section Logic
         if viewModel.currentSection == .posts {
             if let name = viewModel.restaurant?.name{
-                PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)", viewModel: feedViewModel)
+                PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)")
             }
         }
         if viewModel.currentSection == .reviews{

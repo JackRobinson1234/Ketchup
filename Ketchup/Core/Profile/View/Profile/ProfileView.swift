@@ -30,21 +30,18 @@ struct ProfileView: View {
                     self.dragDirection = "left"
                     if profileSection == .posts {
                         dismiss()
-                    } else if profileSection == .reviews{
-                        profileSection = .posts
+                   
                     } else if profileSection == .likes{
-                        profileSection = .reviews
+                        profileSection = .collections
                     } else if profileSection == .collections{
-                        profileSection = .likes
+                        profileSection = .posts
                     }
                 } else {
                         self.dragDirection = "right"
                         if profileSection == .posts {
-                            profileSection = .reviews
-                        } else if profileSection == .reviews{
-                            profileSection = .likes
-                        } else if profileSection == .likes{
                             profileSection = .collections
+                        } else if profileSection == .collections{
+                            profileSection = .likes
                         }
                         self.isDragging = false
                     }

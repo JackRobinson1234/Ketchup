@@ -35,6 +35,7 @@ struct CollectionMapView: View {
                     }
                 }
             }
+        .mapStyle(.standard(pointsOfInterest: .excludingAll))
         .frame(height: 500)
         .cornerRadius(10)
 

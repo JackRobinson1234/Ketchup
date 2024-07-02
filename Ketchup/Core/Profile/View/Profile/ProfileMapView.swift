@@ -10,49 +10,150 @@ import _MapKit_SwiftUI
 import Kingfisher
 
 struct ProfileMapView: View {
-    @ObservedObject var viewModel: ProfileViewModel
+    var posts: [Post]
     @StateObject var feedViewModel = FeedViewModel()
     @State var selectedPost: Post?
+    @State var selectedWrittenPost: Post?
+    @State var selectedLocation: LocationWithPosts?
+    @Environment(\.dismiss) var dismiss
+    var groupedPosts: [CLLocationCoordinate2D: [Post]] {
+        Dictionary(grouping: posts) { post in
+            post.restaurant.geoPoint.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) } ?? CLLocationCoordinate2D()
+        }
+    }
+    
     var body: some View {
         Map(initialPosition: .automatic) {
-            ForEach(viewModel.posts, id: \.self) { post in
-                if let geoPoint = post.restaurant.geoPoint {
-                    let lat = geoPoint.latitude
-                    let long = geoPoint.longitude
-                    if post.mediaType != .written {
-                        Annotation(post.restaurant.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: long)) {
-                            Button{
-                                feedViewModel.posts = [post]
-                                selectedPost = post
-                            } label:
-                            { 
-                                PostAnnotationView(post: post)
+            ForEach(Array(groupedPosts.keys), id: \.self) { coordinate in
+                let postsAtLocation = groupedPosts[coordinate] ?? []
+                Annotation(postsAtLocation.first?.restaurant.name ?? "", coordinate: coordinate) {
+                    Button {
+                        if postsAtLocation.count > 1 {
+                            feedViewModel.posts = postsAtLocation
+                            selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
+                                
+                        } else if let singlePost = postsAtLocation.first {
+                            if singlePost.mediaType == .written {
+                                selectedWrittenPost = singlePost
+                            } else {
+                                feedViewModel.posts = [singlePost]
+                                selectedPost = singlePost
                             }
                         }
-                    } else{
-                        Annotation(post.restaurant.name, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: long)) {
-                            NavigationLink(destination: RestaurantProfileView(restaurantId: post.id)) {
-                                Circle()
-                                    .foregroundStyle(.blue)
-                            }
+                    } label: {
+                        if postsAtLocation.count > 1 {
+                            MultiPostAnnotationView(count: postsAtLocation.count)
+                        } else if let singlePost = postsAtLocation.first {
+                            SinglePostAnnotationView(post: singlePost)
                         }
                     }
                 }
             }
         }
-        .frame(height: UIScreen.main.bounds.height * 0.7) // Adjust the multiplier as needed
+        .mapStyle(.standard(pointsOfInterest: .excludingAll))
+        .frame(height: UIScreen.main.bounds.height * 0.7)
         .cornerRadius(10)
+        .sheet(item: $selectedLocation) { locationWithPosts in
+            NavigationStack{
+                ScrollView{
+                    ProfileFeedView(viewModel: feedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
+                }
+                .modifier(BackButtonModifier())
+            }
+        }
         .fullScreenCover(item: $selectedPost) { post in
             NavigationStack {
                 SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, titleText: "Posts")
             }
         }
+        .sheet(item: $selectedWrittenPost) { post in
+            NavigationStack {
+                ScrollView {
+                    WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil))
+                }
+                .modifier(BackButtonModifier())
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
+                }
+            }
+        }
     }
 }
 
-//#Preview {
-//    ProfileMapView()
-//}
+struct MultiPostAnnotationView: View {
+    let count: Int
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 40, height: 40)
+                .shadow(radius: 2)
+            
+            Text("\(count)")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.black)
+        }
+    }
+}
+
+struct SinglePostAnnotationView: View {
+    let post: Post
+    
+    var body: some View {
+        if post.mediaType == .written {
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(.white)
+                    .frame(width: 38, height: 38)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                Image(systemName: "line.3.horizontal")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(Color("Colors/AccentColor"))
+                    .frame(width: 20, height: 20)
+            }
+        } else {
+            PostAnnotationView(post: post)
+        }
+    }
+}
+
+
+struct PostListItem: View {
+    let post: Post
+    
+    var body: some View {
+        HStack {
+            if let url = URL(string: post.thumbnailUrl) {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            } else {
+                Image(systemName: post.mediaType == .written ? "doc.text" : "photo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(.gray)
+            }
+            
+            VStack(alignment: .leading) {
+                Text(post.restaurant.name)
+                    .font(.headline)
+                Text(post.caption)
+                    .font(.subheadline)
+                    .lineLimit(1)
+            }
+        }
+    }
+}
+struct LocationWithPosts: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+    let posts: [Post]
+}
 struct PostAnnotationView: View {
     let post: Post
     
@@ -81,46 +182,5 @@ struct PostAnnotationView: View {
             }
             
         }
-    }
-}
-
-struct SquareWithPoint: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        let width = rect.width
-        let height = rect.height
-        let cornerRadius: CGFloat = 6
-        let pointHeight: CGFloat = 8
-        
-        // Top left corner
-        path.move(to: CGPoint(x: 0, y: cornerRadius))
-        path.addQuadCurve(to: CGPoint(x: cornerRadius, y: 0), control: CGPoint(x: 0, y: 0))
-        
-        // Top edge
-        path.addLine(to: CGPoint(x: width - cornerRadius, y: 0))
-        
-        // Top right corner
-        path.addQuadCurve(to: CGPoint(x: width, y: cornerRadius), control: CGPoint(x: width, y: 0))
-        
-        // Right edge
-        path.addLine(to: CGPoint(x: width, y: height - cornerRadius - pointHeight))
-        
-        // Bottom right corner
-        path.addQuadCurve(to: CGPoint(x: width - cornerRadius, y: height - pointHeight), control: CGPoint(x: width, y: height - pointHeight))
-        
-        // Bottom edge with point
-        path.addLine(to: CGPoint(x: (width / 2) + 5, y: height - pointHeight))
-        path.addLine(to: CGPoint(x: width / 2, y: height))
-        path.addLine(to: CGPoint(x: (width / 2) - 5, y: height - pointHeight))
-        path.addLine(to: CGPoint(x: cornerRadius, y: height - pointHeight))
-        
-        // Bottom left corner
-        path.addQuadCurve(to: CGPoint(x: 0, y: height - cornerRadius - pointHeight), control: CGPoint(x: 0, y: height - pointHeight))
-        
-        // Left edge
-        path.addLine(to: CGPoint(x: 0, y: cornerRadius))
-        
-        return path
     }
 }

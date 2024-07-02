@@ -8,9 +8,13 @@
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, reviews, likes, collections
+    case posts, likes, collections
 }
-
+enum PostDisplayMode: String, CaseIterable {
+        case all = "All"
+        case media = "Media"
+        case map = "Map"
+    }
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
@@ -21,11 +25,7 @@ struct ProfileSlideBar: View {
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
     
-    enum PostDisplayMode: String, CaseIterable {
-            case all = "All"
-            case media = "Media"
-            case map = "Map"
-        }
+   
     
     init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._profileSection = profileSection
@@ -52,21 +52,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
                     .frame(maxWidth: .infinity)
-                //.task { await viewModel.fetchUserPosts() }
-                
-//                Image(systemName: profileSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(width: 50, height: 14)
-//                    .font(profileSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
-//                    .onTapGesture {
-//                        feedViewModel.posts = viewModel.posts
-//                        withAnimation {
-//                            self.profileSection = .reviews
-//                        }
-//                    }
-//                    .modifier(UnderlineImageModifier(isSelected: profileSection == .reviews))
-//                    .frame(maxWidth: .infinity)
+
                 
                 
                 Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
@@ -110,7 +96,7 @@ struct ProfileSlideBar: View {
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding()
+                .padding([.bottom, .horizontal])
                 
                 
                 switch postDisplayMode {
@@ -121,9 +107,9 @@ struct ProfileSlideBar: View {
                         scrollTarget: $scrollTarget
                     )
                 case .media:
-                    PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", viewModel: feedViewModel)
+                    PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)")
                 case .map:
-                    ProfileMapView(viewModel: viewModel)
+                    ProfileMapView(posts: viewModel.posts)
                 }
             }
             .onAppear {
@@ -131,16 +117,10 @@ struct ProfileSlideBar: View {
             }
         }
         
-        if profileSection == .reviews {
-            ProfileFeedView(
-                viewModel: feedViewModel,
-                scrollPosition: $scrollPosition,
-                scrollTarget: $scrollTarget
-            )
-        }
         
         if profileSection == .likes {
-            LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel)
+            LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
+                           scrollTarget: $scrollTarget)
         }
         
         if profileSection == .collections {

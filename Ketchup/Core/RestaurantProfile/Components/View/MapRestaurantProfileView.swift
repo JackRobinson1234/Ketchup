@@ -40,7 +40,7 @@ struct MapRestaurantProfileView: View {
                                     .stroke(.blue, lineWidth: 6)
                             }
                         }
-                        .mapStyle(.standard(elevation: .realistic))
+                        .mapStyle(.standard(pointsOfInterest: .excludingAll))
                         .frame(maxHeight: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         

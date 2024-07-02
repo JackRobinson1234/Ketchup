@@ -22,18 +22,14 @@ struct CurrentUserProfileView: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    if currentProfileSection == .reviews{
+                    if currentProfileSection == .collections{
                         currentProfileSection = .posts
-                    } else if currentProfileSection == .collections{
-                        currentProfileSection = .reviews
                     } else if currentProfileSection == .likes{
                         currentProfileSection = .collections
                     }
                 } else {
                         self.dragDirection = "right"
                         if currentProfileSection == .posts {
-                            currentProfileSection = .reviews
-                        } else if currentProfileSection == .reviews{
                             currentProfileSection = .collections
                         } else if currentProfileSection == .collections{
                             currentProfileSection = .likes
