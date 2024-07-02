@@ -82,9 +82,9 @@ struct PrimaryFeedView: View {
                     if !hideFeedOptions {
                         
                             Color.white
-                                .frame(height: 100)
+                                .frame(height: 140)
                                 .edgesIgnoringSafeArea(.top)
-                            
+                        VStack(spacing: 2){
                             HStack(spacing: 0) {
                                 Button {
                                     showSearchView.toggle()
@@ -125,8 +125,43 @@ struct PrimaryFeedView: View {
                             .padding(.horizontal, 20)
                             .foregroundStyle(.primary)
                             .padding(.bottom, 10)
+                            HStack(spacing: 30) {
+                                Button {
+                                    viewModel.selectedTab = .following
+                                    // Implement logic to switch to following feed
+                                } label: {
+                                    Text("Following")
+                                        .font(.custom("MuseoSansRounded-300", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
+                                }
+                                Button {
+                                    viewModel.selectedTab = .discover
+                                    // Implement logic to switch to discover feed
+                                } label: {
+                                    Text("Discover")
+                                        .font(.custom("MuseoSansRounded-300", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
+                                }
+                                
+                                
+                            }
                         }
                     }
+                }
                 
                 
                 .overlay {

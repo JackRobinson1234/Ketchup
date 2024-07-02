@@ -298,6 +298,11 @@ struct WrittenFeedCell: View {
                     }
             }
         }
+        .onChange(of: viewModel.selectedTab) {
+            if post.mediaType == .video {
+                videoCoordinator.pause()
+            }
+        }
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])

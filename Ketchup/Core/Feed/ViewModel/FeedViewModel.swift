@@ -10,6 +10,7 @@ import Kingfisher
 import FirebaseFirestoreInternal
 import AVFoundation
 import CachingPlayerItem
+import FirebaseAuth
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -21,7 +22,13 @@ enum FeedTab {
     }
 @MainActor
 class FeedViewModel: ObservableObject {
-    @State private var selectedTab: FeedTab = .discover
+    @Published var selectedTab: FeedTab = .discover {
+        didSet {
+            Task {
+                await fetchInitialPosts(withFilters: self.filters)
+            }
+        }
+    }
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -48,7 +55,7 @@ class FeedViewModel: ObservableObject {
     let videoCoordinator = VideoPlayerCoordinator()
     var preloadedPlayerItems = NSCache<NSString, AVQueuePlayer>()
     private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
-    
+    private var followingUsers: [String] = []
     
     
     
@@ -58,11 +65,15 @@ class FeedViewModel: ObservableObject {
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
     }
-    
+  
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
+        self.posts = []
         hasMorePosts = true
         self.filters = filters
         isLoading = true
+        if selectedTab == .following {
+            await fetchFollowingUsers()
+        }
         await fetchPosts(withFilters: filters, isInitialLoad: true)
         isLoading = false
     }
@@ -78,31 +89,69 @@ class FeedViewModel: ObservableObject {
         isFetching = false
     }
     
+    private func fetchFollowingUsers() async {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        do {
+    
+            let followersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("following")
+            let snapshot = try await followersRef.getDocuments()
+            self.followingUsers = snapshot.documents.compactMap { $0.documentID }
+        } catch {
+            print("Error fetching following users: \(error)")
+        }
+    }
     /// fetches all posts from firebase and preloads the next 3 posts in the cache
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
-        if !hasMorePosts{
+        if !hasMorePosts {
             print("Doesn't have any more posts")
             return
         }
+        
         do {
             var updatedFilters = filters ?? [:]
-            updatedFilters["user.privateMode"] = [false]
+            if selectedTab == .discover {
+                updatedFilters["user.privateMode"] = [false]
+            }
             
             if isInitialLoad {
                 posts.removeAll()
                 lastDocument = nil
             }
             
-            let (newPosts, lastDoc) = try await PostService.shared.fetchPosts(lastDocument: lastDocument, pageSize: pageSize, withFilters: updatedFilters)
-            print("postsfetched")
+            let db = Firestore.firestore()
+            var query: Query = db.collection("posts")
+            
+            // Apply filters
+            for (key, value) in updatedFilters {
+                query = query.whereField(key, in: value)
+            }
+            
+            // Apply following filter if in following tab
+            if selectedTab == .following && !followingUsers.isEmpty{
+                query = query.whereField("user.id", in: followingUsers)
+            } else if selectedTab == .following && followingUsers.isEmpty {
+                showEmptyView = true
+                return
+            }
+            
+            query = query.order(by: "timestamp", descending: true)
+                .limit(to: pageSize)
+            
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+            
+            let snapshot = try await query.getDocuments()
+            let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            
             if newPosts.isEmpty || newPosts.count < self.pageSize {
                 print("no more posts after this fetch")
                 self.posts.append(contentsOf: newPosts)
-                self.lastDocument = lastDoc
+                self.lastDocument = snapshot.documents.last
                 self.hasMorePosts = false // No more posts are available.
             } else {
                 self.posts.append(contentsOf: newPosts)
-                self.lastDocument = lastDoc
+                self.lastDocument = snapshot.documents.last
             }
             self.showEmptyView = self.posts.isEmpty
             await checkIfUserLikedPosts()

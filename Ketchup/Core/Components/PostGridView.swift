@@ -12,6 +12,7 @@ import AVKit
 struct PostGridView: View {
     //var viewModel: any PostGridViewModelProtocol
     //@State private var player = AVPlayer()
+    @ObservedObject var viewModel: FeedViewModel
     @State private var selectedPost: Post?
     @Environment(\.dismiss) var dismiss
     private let posts: [Post]?
@@ -30,9 +31,10 @@ struct PostGridView: View {
             GridItem(.flexible(), spacing:  2),
         ]
     }
-    init(posts: [Post]?, feedTitleText: String?) {
+    init(posts: [Post]?, feedTitleText: String?, viewModel: FeedViewModel) {
         self.posts = posts
         self.feedTitleText = feedTitleText
+        self.viewModel = viewModel
     }
     
     var body: some View {
@@ -46,7 +48,12 @@ struct PostGridView: View {
                             .frame(width: width, height: 160)
                             .cornerRadius(cornerRadius)
                             .clipped()
-                            .onTapGesture { selectedPost = post}
+                            .onTapGesture {
+                                if let posts {
+                                    viewModel.posts = posts
+                                    selectedPost = post
+                                }
+                            }
                             .overlay(
                                 VStack(alignment: .leading){
                                     HStack {
@@ -83,15 +90,9 @@ struct PostGridView: View {
                 }
                 .padding(spacing/2)
                 .fullScreenCover(item: $selectedPost) { post in
-                    if let posts = posts{
-                        if let index = posts.firstIndex(where: { $0.id == post.id }) {
-                            let earlyPosts = Array(posts[..<index])
-                            let laterPosts = Array(posts[index...])
-                            let feedViewModel = FeedViewModel(posts: laterPosts, startingPostId: post.id, earlyPosts: earlyPosts)
-                            NavigationStack{
-                                SecondaryFeedView( viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: (feedTitleText ?? ""))
-                            }
-                        }
+                    NavigationStack {
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        
                     }
                 }
             }
@@ -108,7 +109,7 @@ struct PostGridView: View {
         }
     }
 }
-
-#Preview {
-    PostGridView(posts: DeveloperPreview.posts, feedTitleText: nil)
-}
+//
+//#Preview {
+//    PostGridView(posts: DeveloperPreview.posts, feedTitleText: nil)
+//}
