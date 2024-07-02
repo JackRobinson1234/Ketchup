@@ -39,17 +39,21 @@ struct FeedCell: View {
     var hideFeedOptions: Bool
     @Environment(\.dismiss) var dismiss
     @State var showHeartOverlay = false
-
+    var checkLikes: Bool
+    
     init(post: Binding<Post>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
          pauseVideo: Binding<Bool>,
-         hideFeedOptions: Bool) {
+         hideFeedOptions: Bool,
+         checkLikes: Bool = false) {
+        
         self._post = post
         self.viewModel = viewModel
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
         self.hideFeedOptions = hideFeedOptions
+        self.checkLikes = checkLikes
         
         if post.wrappedValue.mediaType == .video {
             let coordinator = VideoPrefetcher.shared.getPlayerItem(for: post.wrappedValue)
@@ -59,7 +63,7 @@ struct FeedCell: View {
             self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
         }
     }
-
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -390,6 +394,11 @@ struct FeedCell: View {
     }
     
     private func handleOnAppear() {
+        if checkLikes{
+            Task{
+                post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+            }
+        }
         if post.mediaType == .video {
             if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
                 videoCoordinator.replay()

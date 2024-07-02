@@ -14,7 +14,6 @@ struct WrittenFeedCell: View {
     @State private var showComments = false
     @State private var showShareView = false
     @State private var showCollections = false
-    @State private var expandCaption = false
     @State private var showingOptionsSheet = false
     @State private var showingRepostSheet = false
     @State private var currentImageIndex = 0
@@ -29,7 +28,8 @@ struct WrittenFeedCell: View {
     @State var configured = false
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
-    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>) {
+    var checkLikes: Bool
+    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
         self._scrollPosition = scrollPosition
@@ -42,6 +42,7 @@ struct WrittenFeedCell: View {
             self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
         }
         self._selectedPost = selectedPost
+        self.checkLikes = checkLikes
     }
     
     var body: some View {
@@ -193,24 +194,25 @@ struct WrittenFeedCell: View {
                 } label: {
                     InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                 }
-                if post.user.id != AuthService.shared.userSession?.id {
-                    Button {
-                        videoCoordinator.pause()
-                        showingRepostSheet.toggle()
-                    } label: {
-                        HStack(spacing: 3) {
-                            Image(systemName: "arrow.2.squarepath")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 18, height: 18)
-                                .foregroundStyle(.gray)
-                                .rotationEffect(.degrees(90))
-                            Text("\(post.repostCount)")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                .foregroundStyle(.gray)
-                        }
-                        .padding(.trailing, 10)
+                
+                Button {
+                    videoCoordinator.pause()
+                    showingRepostSheet.toggle()
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.2.squarepath")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(.gray)
+                            .rotationEffect(.degrees(90))
+                        Text("\(post.repostCount)")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundStyle(.gray)
                     }
+                    .padding(.trailing, 10)
+                    .disabled(post.user.id == AuthService.shared.userSession?.id)
+                    
                 }
                 Button {
                     videoCoordinator.pause()
@@ -245,8 +247,14 @@ struct WrittenFeedCell: View {
             }
             Divider()
         }
+        
         .padding()
         .onAppear {
+            if checkLikes{
+                Task{
+                    post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                }
+            }
             if post.mediaType == .video {
                 videoCoordinator.player.isMuted = viewModel.isMuted
                 Task {

@@ -43,7 +43,7 @@ struct PostListView: View {
             }
             .sheet(item: $selectedPost) { post in
                 let feedViewModel = FeedViewModel(posts: [post])
-                PrimaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
+                PrimaryFeedView(viewModel: feedViewModel)
                     .onDisappear {
                         //player.replaceCurrentItem(with: nil)
                     }

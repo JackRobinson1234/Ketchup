@@ -36,7 +36,7 @@ struct RestaurantProfileSlideBarView: View {
         VStack{
             HStack(spacing: 0) {
                 let currentSection = viewModel.currentSection
-                Image(systemName: currentSection == .posts ? "square.grid.2x2.fill" : "square.grid.2x2")
+                Image(systemName: currentSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 50, height: 20)

@@ -130,71 +130,29 @@ class FeedViewModel: ObservableObject {
                 query = query.whereField(key, in: value)
             }
             
-            // Handle following users in batches
             if selectedTab == .following {
-                let batchSize = 30
-                var allNewPosts: [Post] = []
-                
-                for i in stride(from: 0, to: followingUsers.count, by: batchSize) {
-                    let end = min(i + batchSize, followingUsers.count)
-                    let batch = Array(followingUsers[i..<end])
-                    
-                    var batchQuery = query.whereField("userId", in: batch)
-                        .limit(to: pageSize)
-                    
-                    if let lastDocument = lastDocument {
-                        batchQuery = batchQuery.start(afterDocument: lastDocument)
-                    }
-                    
-                    let snapshot = try await batchQuery.getDocuments()
-                    let batchPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-                    allNewPosts.append(contentsOf: batchPosts)
-                    
-                    if batchPosts.count < pageSize {
-                        continue
-                    } else {
-                        lastDocument = snapshot.documents.last
-                        break
-                    }
-                }
-                
-                // Sort all fetched posts by timestamp (if available) or fallback to id
-                allNewPosts.sort {
-                    if let timestamp1 = $0.timestamp, let timestamp2 = $1.timestamp {
-                        return timestamp1 > timestamp2
-                    } else {
-                        return $0.id > $1.id  // Fallback to sorting by id if timestamp is not available
-                    }
-                }
-                
-                let newPosts = Array(allNewPosts.prefix(pageSize))
-                
-                if newPosts.isEmpty || newPosts.count < self.pageSize {
-                    self.posts.append(contentsOf: newPosts)
-                    self.hasMorePosts = false
-                } else {
-                    self.posts.append(contentsOf: newPosts)
-                }
+                // Use only the first 30 following users
+                let followingBatch = Array(followingUsers.prefix(30))
+                query = query.whereField("user.id", in: followingBatch)
+            }
+            
+            query = query.order(by: "timestamp", descending: true)
+                .limit(to: pageSize)
+            
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+            
+            let snapshot = try await query.getDocuments()
+            let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            
+            if newPosts.isEmpty || newPosts.count < self.pageSize {
+                self.posts.append(contentsOf: newPosts)
+                self.lastDocument = snapshot.documents.last
+                self.hasMorePosts = false
             } else {
-                // Handle discover posts
-                query = query.order(by: "timestamp", descending: true)  // Fallback to sorting by id
-                    .limit(to: pageSize)
-                
-                if let lastDocument = lastDocument {
-                    query = query.start(afterDocument: lastDocument)
-                }
-                
-                let snapshot = try await query.getDocuments()
-                let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-                
-                if newPosts.isEmpty || newPosts.count < self.pageSize {
-                    self.posts.append(contentsOf: newPosts)
-                    self.lastDocument = snapshot.documents.last
-                    self.hasMorePosts = false
-                } else {
-                    self.posts.append(contentsOf: newPosts)
-                    self.lastDocument = snapshot.documents.last
-                }
+                self.posts.append(contentsOf: newPosts)
+                self.lastDocument = snapshot.documents.last
             }
             
             self.showEmptyView = self.posts.isEmpty

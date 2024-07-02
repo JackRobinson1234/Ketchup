@@ -35,38 +35,39 @@ struct PostGridView: View {
     }
     
     var body: some View {
-        if let unwrappedPosts = posts {
+        if let unwrappedPosts = posts?.filter({ $0.mediaType != .written }) {
             if !unwrappedPosts.isEmpty{
                 LazyVGrid(columns: items, spacing: spacing/2) {
                     ForEach(unwrappedPosts) { post in
-                        KFImage(URL(string: post.thumbnailUrl))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: width, height: 160)
-                            .cornerRadius(cornerRadius)
-                            .clipped()
-                            .onTapGesture {
-                                if let posts {
-                                    viewModel.posts = posts
-                                    selectedPost = post
-                                }
+                        Button{
+                            if let posts {
+                                viewModel.startingPostId = post.id
+                                viewModel.posts = posts
+                                selectedPost = post
                             }
-                            .overlay(
-                                VStack(alignment: .leading){
-                                    HStack {
-                                        Spacer()
-                                        if post.repost{
-                                            Image(systemName: "arrow.2.squarepath")
-                                                .foregroundStyle(.white)
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }  label: {
+                            KFImage(URL(string: post.thumbnailUrl))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: width, height: 160)
+                                .cornerRadius(cornerRadius)
+                                .clipped()
+                            
+                                .overlay(
+                                    VStack(alignment: .leading){
+                                        HStack {
+                                            Spacer()
+                                            if post.repost{
+                                                Image(systemName: "arrow.2.squarepath")
+                                                    .foregroundStyle(.white)
+                                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                            }
                                         }
-                                    }
-                                    
-                                    Spacer()
-                                    HStack{
-                                        VStack (alignment: .leading) {
-                                            
-                                            Text("\(post.restaurant.name)")
+                                        
+                                        Spacer()
+                                        HStack{
+                                            VStack (alignment: .leading) {
+                                                Text("\(post.restaurant.name)")
                                                     .lineLimit(2)
                                                     .truncationMode(.tail)
                                                     .foregroundColor(.white)
@@ -74,26 +75,32 @@ struct PostGridView: View {
                                                     .bold()
                                                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             }
+                                            
+                                            
+                                            Spacer()
+                                        }
                                         
-                                        
-                                        Spacer()
                                     }
                                     
-                                }
-                                    .padding(4)
-                                    .onTapGesture { selectedPost = post }
-                            )
+                                        .padding(4)
+                                    
+                                )
+                                
+                            
+                        }
+                        
+                            
+                        
                     }
                 }
                 .padding(spacing/2)
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
-                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"), checkLikes: true)
                         
                     }
                 }
-            }
-            else {
+            } else {
                 HStack{
                     Spacer()
                     Text("No Posts to Show")
@@ -106,7 +113,7 @@ struct PostGridView: View {
         }
     }
 }
-//
-//#Preview {
+        //
+        //#Preview {
 //    PostGridView(posts: DeveloperPreview.posts, feedTitleText: nil)
 //}

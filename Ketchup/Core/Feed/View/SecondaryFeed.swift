@@ -21,14 +21,16 @@ struct SecondaryFeedView: View {
     @State var startingPostId: String?
     private var titleText: String
     @State private var showSuccessMessage = false
-    
-    init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
+    var checkLikes: Bool
+    init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "",checkLikes: Bool = false) {
         self.viewModel = viewModel
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
         self.hideFeedOptions = hideFeedOptions
         self._scrollPosition = State(initialValue: initialScrollPosition)
         self.titleText = titleText
+        self.checkLikes = checkLikes
         self.startingPostId = viewModel.startingPostId
+        
     }
     var body: some View {
         ZStack(alignment: .top) {
@@ -43,7 +45,7 @@ struct SecondaryFeedView: View {
                                         .ignoresSafeArea(.all)
                                         .containerRelativeFrame([.horizontal, .vertical])
                                         
-                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions)
+                                    FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
                                 }
                                 .ignoresSafeArea(.all)
                                 .id(post.id)

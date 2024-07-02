@@ -15,7 +15,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             
-                PrimaryFeedView(viewModel: feedViewModel, hideFeedOptions: false)
+                PrimaryFeedView(viewModel: feedViewModel)
                     
             
                 .tabItem {

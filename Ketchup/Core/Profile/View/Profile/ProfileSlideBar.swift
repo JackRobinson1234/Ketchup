@@ -44,7 +44,6 @@ struct ProfileSlideBar: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 15)
-                
                     .onTapGesture {
                         withAnimation {
                             self.profileSection = .posts
@@ -140,8 +139,10 @@ struct ProfileFeedView: View {
     var body: some View {
         LazyVStack {
             ForEach($viewModel.posts) { post in
-                WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost, checkLikes: true)
                     .id(post.id)
+                
+                    
                     
             }
         }
