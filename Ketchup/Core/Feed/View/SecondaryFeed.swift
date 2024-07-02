@@ -38,7 +38,7 @@ struct SecondaryFeedView: View {
                         ForEach($viewModel.posts) { post in
                             if !post.mediaUrls.isEmpty {
                                 ZStack{
-                                    Color.clear
+                                    Color("Colors/HingeGray")
                                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                                         .ignoresSafeArea(.all)
                                         .containerRelativeFrame([.horizontal, .vertical])

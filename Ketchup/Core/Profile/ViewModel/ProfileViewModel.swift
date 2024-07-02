@@ -7,16 +7,21 @@
 
 import AVFoundation
 import SwiftUI
-
+import ClusterMap
+import MapKit
 @MainActor
 class ProfileViewModel: ObservableObject {
+    let clusterManager = ClusterManager<RestaurantMapAnnotation>()
+    var annotations: [RestaurantMapAnnotation] = []
+    var clusters: [ExampleClusterAnnotation] = []
     @Published var posts = [Post]()
     @Published var likedPosts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
     private var didCompleteFollowCheck = false
     private var didCompleteStatsFetch = false
-    
+    var mapSize: CGSize = .zero
+    @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
     init(uid: String) {
         self.uid = uid
 
@@ -112,5 +117,44 @@ extension ProfileViewModel {
             print("error clearing notification alert")
         }
     }
+    @MainActor
+    private func applyChanges(_ difference: ClusterManager<RestaurantMapAnnotation>.Difference) {
+        for removal in difference.removals {
+            switch removal {
+            case .annotation(let annotation):
+                annotations.removeAll { $0 == annotation }
+            case .cluster(let clusterAnnotation):
+                clusters.removeAll { $0.id == clusterAnnotation.id }
+            }
+        }
+        for insertion in difference.insertions {
+            switch insertion {
+            case .annotation(let newItem):
+                annotations.append(newItem)
+            case .cluster(let newItem):
+                clusters.append(ExampleClusterAnnotation(
+                    id: newItem.id,
+                    coordinate: newItem.coordinate,
+                    count: newItem.memberAnnotations.count
+                ))
+            }
+        }
+    }
+    
+    
+    func removeAnnotations() async {
+        await clusterManager.removeAll()
+        await reloadAnnotations()
+    }
+    
+    func reloadAnnotations() async {
+        async let changes = clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
+        await applyChanges(changes)
+    }
 }
 
+struct PostRestaurantMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
+    let id = UUID()
+    var coordinate: CLLocationCoordinate2D
+    var restaurant: Restaurant
+}

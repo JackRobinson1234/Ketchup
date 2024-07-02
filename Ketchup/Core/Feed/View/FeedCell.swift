@@ -85,6 +85,9 @@ struct FeedCell: View {
     var body: some View {
         ZStack {
             // Video and Photo handling
+            Color("Colors/HingeGray")
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                .containerRelativeFrame([.horizontal, .vertical])
             if post.mediaType == .video {
                 VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)

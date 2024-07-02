@@ -26,6 +26,7 @@ class RestaurantViewModel: ObservableObject {
         
     }
     func fetchRestaurant(id: String) async throws {
+        print("ATTEMPTED ID", id)
         if self.restaurant == nil {
             do {
                 self.restaurant = try await RestaurantService.shared.fetchRestaurant(withId: id)

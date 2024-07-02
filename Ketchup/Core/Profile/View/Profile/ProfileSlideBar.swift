@@ -13,27 +13,34 @@ enum ProfileSectionEnum {
 
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
-        @ObservedObject var viewModel: ProfileViewModel
-        @StateObject var collectionsViewModel: CollectionsViewModel
-        @StateObject var reviewsViewModel: ReviewsViewModel
-        @StateObject var feedViewModel = FeedViewModel()
-        @Binding var scrollPosition: String?
-        @Binding var scrollTarget: String?
-        
-        init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
-            self._profileSection = profileSection
-            self.viewModel = viewModel
-            self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
-            self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(user: viewModel.user))
-            self._scrollPosition = scrollPosition
-            self._scrollTarget = scrollTarget
+    @ObservedObject var viewModel: ProfileViewModel
+    @StateObject var collectionsViewModel: CollectionsViewModel
+    @StateObject var reviewsViewModel: ReviewsViewModel
+    @StateObject var feedViewModel = FeedViewModel()
+    @Binding var scrollPosition: String?
+    @Binding var scrollTarget: String?
+    @State private var postDisplayMode: PostDisplayMode = .media
+    
+    enum PostDisplayMode: String, CaseIterable {
+            case all = "All"
+            case media = "Media"
+            case map = "Map"
         }
+    
+    init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+        self._profileSection = profileSection
+        self.viewModel = viewModel
+        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
+        self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(user: viewModel.user))
+        self._scrollPosition = scrollPosition
+        self._scrollTarget = scrollTarget
+    }
     
     var body: some View {
         //MARK: Images
         VStack{
             HStack(spacing: 0) {
-                Image(systemName: profileSection == .posts ? "camera.fill" : "camera")
+                Image(systemName: profileSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 15)
@@ -47,19 +54,19 @@ struct ProfileSlideBar: View {
                     .frame(maxWidth: .infinity)
                 //.task { await viewModel.fetchUserPosts() }
                 
-                Image(systemName: profileSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 14)
-                    .font(profileSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
-                    .onTapGesture {
-                        withAnimation {
-                            feedViewModel.posts = Array(viewModel.posts.prefix(15))
-                            self.profileSection = .reviews
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .reviews))
-                    .frame(maxWidth: .infinity)
+//                Image(systemName: profileSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fit)
+//                    .frame(width: 50, height: 14)
+//                    .font(profileSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
+//                    .onTapGesture {
+//                        feedViewModel.posts = viewModel.posts
+//                        withAnimation {
+//                            self.profileSection = .reviews
+//                        }
+//                    }
+//                    .modifier(UnderlineImageModifier(isSelected: profileSection == .reviews))
+//                    .frame(maxWidth: .infinity)
                 
                 
                 Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
@@ -96,28 +103,52 @@ struct ProfileSlideBar: View {
         // MARK: Section Logic
         
         if profileSection == .posts {
-            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", viewModel: feedViewModel)
+            VStack {
+                Picker("Post Display Mode", selection: $postDisplayMode) {
+                    ForEach(PostDisplayMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding()
+                
+                
+                switch postDisplayMode {
+                case .all:
+                    ProfileFeedView(
+                        viewModel: feedViewModel,
+                        scrollPosition: $scrollPosition,
+                        scrollTarget: $scrollTarget
+                    )
+                case .media:
+                    PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", viewModel: feedViewModel)
+                case .map:
+                    ProfileMapView(viewModel: viewModel)
+                }
+            }
+            .onAppear {
+                feedViewModel.posts = viewModel.posts
+            }
         }
         
         if profileSection == .reviews {
             ProfileFeedView(
-                                            viewModel: feedViewModel,
-                                            scrollPosition: $scrollPosition,
-                                            scrollTarget: $scrollTarget
-                                        )
+                viewModel: feedViewModel,
+                scrollPosition: $scrollPosition,
+                scrollTarget: $scrollTarget
+            )
         }
         
         if profileSection == .likes {
             LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel)
-            
         }
+        
         if profileSection == .collections {
             CollectionsListView(viewModel: collectionsViewModel)
         }
-        
     }
-    
 }
+
 
 struct ProfileFeedView: View {
     @ObservedObject var viewModel: FeedViewModel
@@ -131,27 +162,21 @@ struct ProfileFeedView: View {
             ForEach($viewModel.posts) { post in
                 WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                     .id(post.id)
+                    
             }
         }
         .scrollTargetLayout()
         .overlay {
-            if viewModel.showEmptyView {
+            if viewModel.posts.isEmpty {
                 ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
         }
         .onChange(of: viewModel.initialPrimaryScrollPosition) {
-            print("SHOULD BE SCROLLING")
-            //scrollPosition = viewModel.initialPrimaryScrollPosition
             scrollTarget = viewModel.initialPrimaryScrollPosition
         }
-        .onChange(of: scrollPosition) { oldPostId, newPostId in
-            if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-               let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-            }
-        }
         .fullScreenCover(item: $selectedPost) { post in
-            NavigationStack{
+            NavigationStack {
                 SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
             }
         }

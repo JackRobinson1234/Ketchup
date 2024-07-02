@@ -10,7 +10,7 @@ import Firebase
 import SwiftUI
 import AVKit
 import FirebaseFirestore
-
+import MapKit
 struct Post: Identifiable, Codable {
     let id: String
     let mediaType: MediaType
@@ -33,7 +33,13 @@ struct Post: Identifiable, Codable {
     var atmosphereRating: Rating
     var valueRating: Rating
     var foodRating: Rating
-
+    var coordinates: CLLocationCoordinate2D? {
+        if let point = self.restaurant.geoPoint {
+            return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)}
+        else{
+            return nil
+        }
+    }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
