@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		041BA6C0E504284D9EDD2B88 /* Pods_KetchupTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */; };
+		6F43B7CE2C35BB61009AD68C /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6F43B7CD2C35BB61009AD68C /* AlgoliaSearchClient */; };
 		BF4ECAA5861844FCBF9545D7 /* Pods_Ketchup_KetchupUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD47335C88E6D58B651BE686 /* Pods_Ketchup_KetchupUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
@@ -452,6 +453,7 @@
 				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
 				F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
+				6F43B7CE2C35BB61009AD68C /* AlgoliaSearchClient in Frameworks */,
 				F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
@@ -1474,6 +1476,7 @@
 				F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */,
 				F846F46A2BFF8AE1009D1303 /* ClusterMap */,
 				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
+				6F43B7CD2C35BB61009AD68C /* AlgoliaSearchClient */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1554,6 +1557,7 @@
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
 				F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 				F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */,
+				6F43B7CC2C35BB60009AD68C /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2055,7 +2059,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Ketchup/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
@@ -2080,7 +2084,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2101,7 +2105,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Ketchup/Preview Content\"";
-				DEVELOPMENT_TEAM = 265SP7QQT7;
+				DEVELOPMENT_TEAM = 5AS263VAPB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
@@ -2126,7 +2130,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
+				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2272,6 +2276,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6F43B7CC2C35BB60009AD68C /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 8.19.0;
+			};
+		};
 		F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sukov/CachingPlayerItem";
@@ -2299,6 +2311,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6F43B7CD2C35BB61009AD68C /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6F43B7CC2C35BB60009AD68C /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
+		};
 		F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;

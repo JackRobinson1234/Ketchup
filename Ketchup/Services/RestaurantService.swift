@@ -29,21 +29,70 @@ class RestaurantService {
     /// - Returns: array of restaurants
     func fetchRestaurants(withFilters filters: [String: [Any]]? = nil, limit: Int = 0) async throws -> [Restaurant] {
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
-            if let filters = filters, !filters.isEmpty {
-                if let locationFilters = filters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D, let radiusInM = locationFilters[1] as? Double {
-                    let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM, limit: limit)
-                    return restaurants
-                }
-                
-                query = applyFilters(toQuery: query, filters: filters)
+        print("DEBUG: Initial query created with descending order by id")
+        
+        // Fetch a sample of restaurants to see if any exist in the collection
+        let sampleSnapshot = try await query.limit(to: 1).getDocuments()
+        let sampleRestaurants = sampleSnapshot.documents.compactMap { document -> Restaurant? in
+            do {
+                return try document.data(as: Restaurant.self)
+            } catch {
+                print("DEBUG: Error decoding sample restaurant document:", document.documentID, error)
+                return nil
             }
-            if limit > 0 {
-                    query = query.limit(to: limit)
-                }
-            let restaurants = try await query.getDocuments(as: Restaurant.self)
-            print("DEBUG: restaurants fetched", restaurants.count)
-            return restaurants
         }
+        print("DEBUG: Sample restaurants fetched to check existence:", sampleRestaurants.count)
+
+        if let filters = filters, !filters.isEmpty {
+            print("DEBUG: Filters are provided:", filters)
+            
+            if let locationFilters = filters["location"],
+               let coordinates = locationFilters.first as? CLLocationCoordinate2D,
+               let radiusInM = locationFilters[1] as? Double {
+                print("DEBUG: Location filters found - Coordinates:", coordinates, "Radius (m):", radiusInM)
+                let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM, limit: limit)
+                print("DEBUG: Restaurants fetched with location filters:", restaurants.count)
+                if restaurants.isEmpty {
+                    print("DEBUG: No restaurants found within the location filters")
+                } else {
+                    print("DEBUG: Restaurants within location filters: not gonna print")
+                }
+                return restaurants
+            } else {
+                print("DEBUG: No valid location filters found in filters")
+            }
+            
+            query = applyFilters(toQuery: query, filters: filters)
+            print("DEBUG: Query after applying filters:", query)
+        } else {
+            print("DEBUG: No filters provided or filters are empty")
+        }
+
+        if limit > 0 {
+            query = query.limit(to: limit)
+            print("DEBUG: Query limit applied:", limit)
+        } else {
+            print("DEBUG: No limit applied to query")
+        }
+
+        let snapshot = try await query.getDocuments()
+        let restaurants = snapshot.documents.compactMap { document -> Restaurant? in
+            do {
+                return try document.data(as: Restaurant.self)
+            } catch {
+                print("DEBUG: Error decoding restaurant document:", document.documentID, error)
+                return nil
+            }
+        }
+        print("DEBUG: Restaurants fetched:", restaurants.count)
+        if restaurants.isEmpty {
+            print("DEBUG: No restaurants found in the collection")
+        } else {
+            print("DEBUG: Fetched restaurants:", restaurants)
+        }
+        return restaurants
+    }
+
     
     
     //MARK: applyFilters
