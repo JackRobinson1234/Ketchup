@@ -38,43 +38,40 @@ class ProfileUserListViewModel: ObservableObject {
     /// fetches which users liked a certain post
     /// - Parameter postId: <#postId description#>
     private func fetchPostLikesUsers(forPostId postId: String) async throws {
-        guard let snapshot = try? await FirestoreConstants.PostsCollection.document(postId).collection("post-likes").getDocuments() else { return }
+        let snapshot = try await FirestoreConstants.PostsCollection.document(postId).collection("post-likes").getDocuments()
         try await fetchUsers(snapshot)
     }
-    //MARK: fetchFollowerUsers
-    /// Fetches the list of followers for a certain user
-    /// - Parameter uid: fetches all followers for this user
+
     private func fetchFollowerUsers(forUid uid: String) async throws {
-        guard let snapshot = try? await FirestoreConstants.FollowersCollection.document(uid).collection("user-followers").getDocuments() else { return }
+        let snapshot = try await FirestoreConstants.FollowersCollection.document(uid).collection("user-followers").getDocuments()
         try await fetchUsers(snapshot)
     }
-    //MARK: fetchFollowingUsers
-    /// fetches the list users that the user is following
-    /// - Parameter uid: fetches all followingfor this user
+
     private func fetchFollowingUsers(forUid uid: String) async throws {
-        guard let snapshot = try? await FirestoreConstants.FollowingCollection.document(uid).collection("user-following").getDocuments() else { return }
+        let snapshot = try await FirestoreConstants.FollowingCollection.document(uid).collection("user-following").getDocuments()
         try await fetchUsers(snapshot)
     }
-    //MARK: fetchUsers
-    /// fetches the user objects that are fetched from the list
-    private func fetchUsers(_ snapshot: QuerySnapshot?) async throws {
-        guard let documents = snapshot?.documents else { return }
-        for doc in documents {
-            let user = try await UserService.shared.fetchUser(withUid: doc.documentID)
-            users.append(user)
+
+    private func fetchUsers(_ snapshot: QuerySnapshot) async throws {
+        try await withThrowingTaskGroup(of: User.self) { group in
+            for document in snapshot.documents {
+                group.addTask {
+                    try await UserService.shared.fetchUser(withUid: document.documentID)
+                }
+            }
+            
+            for try await user in group {
+                users.append(user)
+            }
         }
     }
-    
-    //MARK: filteredUsers
-    /// filters users by username
-    /// - Parameter query: <#query description#>
-    /// - Returns: <#description#>
+
     func filteredUsers(_ query: String) -> [User] {
         let lowercasedQuery = query.lowercased()
-        return users.filter({
-            $0.fullname.lowercased().contains(lowercasedQuery) ||
-            $0.username.lowercased().contains(lowercasedQuery)
-        })
+        return users.filter { user in
+            user.fullname.lowercased().contains(lowercasedQuery) ||
+            user.username.lowercased().contains(lowercasedQuery)
+        }
     }
 }
 

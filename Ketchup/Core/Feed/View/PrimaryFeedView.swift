@@ -121,7 +121,6 @@ struct PrimaryFeedView: View {
                         HStack(spacing: 20) {
                             Button {
                                 viewModel.selectedTab = .following
-                                // Implement logic to switch to following feed
                             } label: {
                                 Text("Following")
                                     .font(.custom("MuseoSansRounded-300", size: 18))
@@ -138,7 +137,6 @@ struct PrimaryFeedView: View {
 
                             Button {
                                 viewModel.selectedTab = .discover
-                                // Implement logic to switch to discover feed
                             } label: {
                                 Text("Discover")
                                     .font(.custom("MuseoSansRounded-300", size: 18))

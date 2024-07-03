@@ -88,10 +88,10 @@ class FeedViewModel: ObservableObject {
     private func fetchFollowingUsers() async {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         do {
-    
-            let followingRef = FirestoreConstants.UserCollection.document(currentUserId).collection("following")
-            let snapshot = try await followingRef.getDocuments()
-            self.followingUsers = snapshot.documents.compactMap { $0.documentID }
+            let users = try await UserService.shared.fetchFollowingUsers()
+            if users.isEmpty { return }
+            self.followingUsers = users.map { $0.id }
+            print("Following", followingUsers)
         } catch {
             print("Error fetching following users: \(error)")
         }
