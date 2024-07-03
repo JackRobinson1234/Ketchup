@@ -134,6 +134,8 @@ struct PrimaryFeedView: View {
                                             .offset(y: 12)
                                     )
                             }
+                            .disabled(viewModel.selectedTab == .following)
+
                             Button {
                                 viewModel.selectedTab = .discover
                                 // Implement logic to switch to discover feed
@@ -149,6 +151,7 @@ struct PrimaryFeedView: View {
                                             .offset(y: 12)
                                     )
                             }
+                            .disabled(viewModel.selectedTab == .discover)
                             
                             
                         }

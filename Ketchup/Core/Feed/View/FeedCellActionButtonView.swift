@@ -22,14 +22,14 @@ struct FeedCellActionButtonView: View {
                 .frame(width: width, height: height)
                 .foregroundStyle(tintColor ?? .white)
             
-            if let value{
+            if let value {
                 Text("\(value)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .fontWeight(.bold)
             }
-            
         }
         .foregroundStyle(.white)
+        .shadow(color: .gray, radius: 2, x: 0, y: 0) // Add shadow here
     }
 }
 

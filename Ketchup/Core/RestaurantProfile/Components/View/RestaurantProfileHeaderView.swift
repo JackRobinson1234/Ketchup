@@ -52,21 +52,7 @@ struct RestaurantProfileHeaderView: View {
                                 .fontWeight(.semibold)
                                 .multilineTextAlignment(.leading)
                                 .foregroundStyle(.white)
-                            if let cuisine = restaurant.cuisine, let price = restaurant.price {
-                                Text("\(cuisine), \(price)")
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.white)
-                                
-                            } else if let cuisine = restaurant.cuisine {
-                                Text(cuisine)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.white)
-                                
-                            } else if let price = restaurant.price {
-                                Text(price)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.white)
-                            }
+                            
                             if let city = restaurant.city, !city.isEmpty, let state = restaurant.state, !state.isEmpty {
                                 Text("\(city), \(state)")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
@@ -86,6 +72,9 @@ struct RestaurantProfileHeaderView: View {
                                     .multilineTextAlignment(.leading)
                                     .foregroundStyle(.white)
                             }
+                            Text(combineRestaurantDetails(restaurant: restaurant))
+                                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                                .foregroundStyle(.white)
                         }
                         .padding([.horizontal, .bottom])
                         
@@ -176,6 +165,19 @@ struct RestaurantProfileHeaderView: View {
             }
         }
     }
+    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
+            var details = [String]()
+            
+            if let cuisine = restaurant.cuisine {
+                details.append(cuisine)
+            }
+            if let price = restaurant.price {
+                details.append(price)
+            }
+            details.append("Hour placeholder")
+
+            return details.joined(separator: " | ")
+        }
 }
 //#Preview {
 //    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))

@@ -267,6 +267,7 @@ struct FeedCell: View {
                         .frame(width: 6, height: 6)
                         .foregroundStyle(.white)
                 }
+                .shadow(color: .gray, radius: 1, x: 0, y: 0)
             }
             if let user = Auth.auth().currentUser?.uid, post.user.id != user {
                 Button {
@@ -283,6 +284,7 @@ struct FeedCell: View {
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .fontWeight(.bold)
                     }
+                    .shadow(color: .gray, radius: 1, x: 0, y: 0)
                     .foregroundStyle(.white)
                 }
             }
@@ -314,6 +316,7 @@ struct FeedCell: View {
                     .scaledToFill()
                     .frame(width: 28, height: 28)
                     .foregroundStyle(.white)
+                    .shadow(color: .gray, radius: 1, x: 0, y: 0)
             }
         }
         .padding(.horizontal)

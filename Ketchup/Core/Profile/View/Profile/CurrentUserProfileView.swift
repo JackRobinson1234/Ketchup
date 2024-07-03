@@ -61,7 +61,7 @@ struct CurrentUserProfileView: View {
         } else{
             NavigationStack {
                 ScrollViewReader{ scrollProxy in
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
                         VStack(spacing: 2) {
                             //MARK: Profile Header
                             
@@ -77,7 +77,9 @@ struct CurrentUserProfileView: View {
                     }
                     .onChange(of: scrollTarget) {
                         scrollPosition = scrollTarget
-                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                        withAnimation {
+                            scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                        }
                     }
                     .scrollPosition(id: $scrollPosition)
                 }
@@ -140,6 +142,9 @@ struct CurrentUserProfileView: View {
                     if AuthService.shared.userSession != nil {
                         Task {try await profileViewModel.refreshCurrentUser() }
                     }
+                }
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
                 }
             }
         }

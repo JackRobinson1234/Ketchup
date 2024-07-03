@@ -52,7 +52,7 @@ struct ProfileMapView: View {
                 }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
-            .frame(height: UIScreen.main.bounds.height * 0.7)
+            .frame(height: UIScreen.main.bounds.height * 0.5)
             .cornerRadius(10)
             .sheet(item: $selectedLocation) { locationWithPosts in
                 NavigationStack{

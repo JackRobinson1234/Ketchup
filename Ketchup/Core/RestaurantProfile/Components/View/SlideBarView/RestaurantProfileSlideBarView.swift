@@ -39,7 +39,7 @@ struct RestaurantProfileSlideBarView: View {
                 Image(systemName: currentSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 20)
+                    .frame(width: 45, height: 15)
                 
                     .onTapGesture {
                         withAnimation {

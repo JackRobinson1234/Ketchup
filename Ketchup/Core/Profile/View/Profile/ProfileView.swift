@@ -65,7 +65,7 @@ struct ProfileView: View {
                 }
         } else{
             ScrollViewReader{ scrollProxy in
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 2) {
                         ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection)
                         if !profileViewModel.user.privateMode {
@@ -86,7 +86,9 @@ struct ProfileView: View {
                 .scrollPosition(id: $scrollPosition)
                 .onChange(of: scrollTarget) {
                     scrollPosition = scrollTarget
-                    scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                    withAnimation {
+                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                    }
                 }
             }
             .gesture(drag)
@@ -127,6 +129,12 @@ struct ProfileView: View {
             }
             .navigationBarBackButtonHidden()
             .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
+                RestaurantProfileView(restaurantId: restaurant.id)
+            }
+            .navigationDestination(for: PostUser.self) { user in
+                ProfileView(uid: user.id)
+            }
+            .navigationDestination(for: PostRestaurant.self) { restaurant in
                 RestaurantProfileView(restaurantId: restaurant.id)
             }
         }
