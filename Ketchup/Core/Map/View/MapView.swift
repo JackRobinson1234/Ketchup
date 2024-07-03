@@ -18,48 +18,45 @@ struct MapView: View {
     @State private var inSearchView: Bool = false /// Changes the camera to be fixed on the selected restaurant(s)
     @State private var isSearchPresented: Bool = false /// Search View sheet
     @State private var isFiltersPresented: Bool = false /// Filters View Sheet
-    //@ObservedObject var locationManager = LocationManager.shared /// Asks for user map permission
     @State var isLoading = true /// Waiting for the viewModel to fetchRestaurants
     @Namespace var mapScope
     @State var cameraZoomedEnough = false
-    @State var isZoomedEnoughForPhotos: Bool = false/// Is  zoomed in enough to view dots
+    @State var isZoomedEnoughForPhotos: Bool = false /// Is  zoomed in enough to view dots
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
     private var isZoomedEnoughLongitudeSpan: Double = 0.02
     private var photosLongitudeSpan: Double = 0.005
     private var kmChangeToUpdateFetch: Double = 1.0
-    private var kmToShowPhoto: Double = 0.3//EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
+    private var kmToShowPhoto: Double = 0.3 //EDIT THIS TO CHANGE HOW FAR UNTIL THE RESTAURANTS ARE UPDATED, to update the radius fetched go to restaurantViewModel and update on restaurantService fetchRestaurantsWithLocation radiusinM
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     @State private var mapSize: CGSize = .zero
     @State private var noNearbyRestaurants = false
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
-    @State private var showClusterList = false
-    
-    
+    @State private var hasAppeared = false /// Track if the view has already appeared
+
     init() {
         self._viewModel = StateObject(wrappedValue: MapViewModel())
         self._position = State(initialValue: .userLocation(fallback: .automatic))
     }
-    
-    
+
     var body: some View {
         //MARK: Map
         NavigationStack{
             ZStack(alignment: .bottom) {
                 GeometryReader(content: { geometryProxy in
-                    Map(position: $position, selection: $selectedRestaurant, scope: mapScope) {
+                    Map(position: $position, scope: mapScope) {
                         /// No specific Restaurant has been selected from the search view
                         
                         if cameraZoomedEnough {
                             //MARK: Restaurant Annotations
                             /// If the restaurants are within showable distance (cameraZoomedEnough), then use blue dots. If they are inside of  minDistanceKm, then show the photos.
                             ForEach(viewModel.annotations, id: \.self) { item in
-                                Annotation(item.restaurant.name, coordinate: item.coordinate){
-                                    RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
-                                        .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
-                                        
+                                Annotation(item.restaurant.name, coordinate: item.coordinate) {
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
+                                        RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+                                    }
+                                    .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
                                 }
-                                //.annotationTitles(.hidden)
                             }
                             ForEach(viewModel.clusters) { cluster in
                                 Annotation("", coordinate: cluster.coordinate){
@@ -67,7 +64,6 @@ struct MapView: View {
                                         .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
                                         .onTapGesture {
                                             selectedCluster = cluster
-                                            showClusterList = true
                                         }
                                 }
                             }
@@ -86,7 +82,9 @@ struct MapView: View {
                     .onMapCameraChange(frequency: .onEnd) { context in
                         Task.detached { await viewModel.reloadAnnotations() }
                     }
-                    
+                    .onChange(of: isFiltersPresented){
+                        Task.detached { await viewModel.reloadAnnotations() }
+                    }
                     
                     
                     //MARK: Zoom Message
@@ -249,17 +247,28 @@ struct MapView: View {
                     )
                 }
                 /// triggers restaurant preview if the user clicks on empty space
-                .onChange(of: selectedRestaurant, { oldValue, newValue in
-                    if newValue != nil {
-                        showRestaurantPreview = true
-                    } else {
-                        showRestaurantPreview = false
-                    }
-                })
+//                .onChange(of: selectedRestaurant, { oldValue, newValue in
+//                    if newValue != nil {
+//                        showRestaurantPreview = true
+//                    } else {
+//                        showRestaurantPreview = false
+//                    }
+//                })
                 
                 //MARK: Filters
                 .fullScreenCover(isPresented: $isFiltersPresented) {
                     MapFiltersView(mapViewModel: viewModel)
+//                        .onDisappear{
+//                            Task {
+//                                if cameraZoomedEnough {
+//                                    center = viewModel.currentRegion.center
+//                                    Task {
+//                                        await fetchRestaurantsInView(center: center)
+//                                        try await viewModel.reloadAnnotations()
+//                                    }
+//                                }
+//                            }
+//                        }
                 }
                 .mapStyle(.standard(elevation: .realistic))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -289,21 +298,23 @@ struct MapView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showClusterList) {
-                if let cluster = selectedCluster {
-                    ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
-                }
+            .sheet(item: $selectedCluster) { cluster in
+                ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
+                    
             }
             .onAppear{
-                Task{
-                    LocationManager.shared.requestLocation()
-                    
-                    if let userLocation = LocationManager.shared.userLocation {
-                        center = userLocation.coordinate
-                    } else {
-                        center = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426) // Los Angeles
+                if !hasAppeared {
+                    Task {
+                        LocationManager.shared.requestLocation()
+                        
+                        if let userLocation = LocationManager.shared.userLocation {
+                            center = userLocation.coordinate
+                        } else {
+                            center = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426) // Los Angeles
+                        }
+                        await fetchRestaurantsInView(center: center)
+                        hasAppeared = true
                     }
-                    await fetchRestaurantsInView(center: center)
                 }
             }
             /// Asks for location permission
