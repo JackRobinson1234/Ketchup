@@ -18,23 +18,32 @@ class ActivityService {
         userIDs = users.map { $0.id }
     }
     
-    func fetchFollowingActivities() async throws -> [Activity] {
+    func fetchFollowingActivities(lastDocumentSnapshot: DocumentSnapshot? = nil, pageSize: Int) async throws -> ([Activity], DocumentSnapshot?) {
         if !fetchedUsers {
             try await fetchUserIDs()
             fetchedUsers = true
         }
-        var allActivities = [Activity]()
-        var users = userIDs
-        while !users.isEmpty {
-            let batchSize = min(30, users.count)
-            let batchUserIDs = Array(users.prefix(batchSize))
-            users.removeFirst(batchSize)
-            
-            let activities = try await fetchActivitiesForUsers(userIds: batchUserIDs)
-            allActivities.append(contentsOf: activities)
+
+        var query = FirestoreConstants.ActivityCollection
+            .whereField("uid", in: Array(userIDs.prefix(30))) // Adjust the limit based on Firestore's constraints
+            .order(by: "timestamp", descending: true)
+            .limit(to: pageSize)
+
+        if let lastSnapshot = lastDocumentSnapshot {
+            query = query.start(afterDocument: lastSnapshot)
         }
-        allActivities.sort(by: { $0.timestamp > $1.timestamp })
-        return allActivities
+
+        let snapshot = try await query.getDocuments()
+
+        // Convert the documents to Activity objects
+        let activities = try snapshot.documents.compactMap { try $0.data(as: Activity.self) }
+
+        // Get the last document snapshot from this batch
+        let lastDocument = snapshot.documents.last
+
+        // Sort the activities by timestamp if needed
+
+        return (activities, lastDocument)
     }
     
     

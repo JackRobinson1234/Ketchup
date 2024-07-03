@@ -13,19 +13,16 @@ enum LetsKetchupOptions {
 struct ActivityView: View {
     @State var isLoading = true
     @StateObject var viewModel = ActivityViewModel()
-
+    
     var body: some View {
         NavigationStack {
             VStack {
-                // MARK: ProgressView
                 if isLoading {
                     ProgressView()
                         .onAppear {
                             Task {
                                 viewModel.user = AuthService.shared.userSession
-                                if viewModel.friendsActivity.isEmpty {
-                                    try await viewModel.fetchFriendsActivities()
-                                }
+                                try? await viewModel.fetchInitialActivities()
                                 isLoading = false
                             }
                         }
@@ -46,7 +43,7 @@ struct ActivityView: View {
                                     )
                                     .foregroundColor(viewModel.letsKetchupOption == .friends ? .white : Color("Colors/AccentColor"))
                             }
-
+                            
                             Button {
                                 viewModel.letsKetchupOption = .trending
                             } label: {
@@ -64,71 +61,53 @@ struct ActivityView: View {
                         .padding()
                         Divider()
                         // MARK: Friends
-                        if viewModel.letsKetchupOption == .friends {
-                            if !viewModel.friendsActivity.isEmpty {
-                                ScrollView {
-                                    LazyVStack {
-                                        ForEach(viewModel.friendsActivity.indices, id: \.self) { index in
-                                            ActivityCell(activity: viewModel.friendsActivity[index], viewModel: viewModel)
-                                        }
-                                    }
-                                }
-                            } else {
-                                Spacer()
-                                Text("Your friends don't have any recent activity!")
-                                Spacer()
-                            }
-                        }
-                        // MARK: Trending
-                        else if viewModel.letsKetchupOption == .trending {
-                            if !viewModel.trendingActivity.isEmpty {
-                                ScrollView {
-                                    LazyVStack {
-                                        ForEach(viewModel.trendingActivity.indices, id: \.self) { index in
-                                            let distanceFromEnd = viewModel.trendingActivity.count - index - 1
-                                            ActivityCell(activity: viewModel.trendingActivity[index], viewModel: viewModel)
-                                                .onAppear {
-                                                    Task {
-                                                        if !viewModel.outOfTrending {
-                                                            try await viewModel.fetchMoreTrendingActivities(distanceFromEnd: distanceFromEnd)
-                                                        }
-                                                    }
-                                                }
-                                        }
-                                    }
-                                }
-                            } else {
-                                Spacer()
-                                Text("There is no Global activity")
-                                Spacer()
-                            }
-                        }
+                        activityList
                     }
                 }
             }
             .onChange(of: viewModel.letsKetchupOption) {
                 Task {
-                    if viewModel.letsKetchupOption == .trending {
-                        try await viewModel.fetchInitialTrendingActivities()
-                    } else if viewModel.letsKetchupOption == .friends {
-                        // try await viewModel.fetchFriendsActivities()
-                    }
+                    try? await viewModel.fetchInitialActivities()
                 }
             }
-            
             .navigationTitle("Let's Ketchup!")
             .refreshable {
                 Task {
-                    if viewModel.letsKetchupOption == .trending {
-                        try await viewModel.fetchInitialTrendingActivities()
-                    } else if viewModel.letsKetchupOption == .friends {
-                        try await viewModel.fetchFriendsActivities()
-                    }
+                    try? await viewModel.fetchInitialActivities()
                 }
             }
         }
     }
+    @ViewBuilder
+    var activityList: some View {
+        let activities = viewModel.letsKetchupOption == .friends ? viewModel.friendsActivity : viewModel.trendingActivity
+        if !activities.isEmpty {
+            ScrollView (showsIndicators: false){
+                LazyVStack {
+                    ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
+                        ActivityCell(activity: activity, viewModel: viewModel)
+                            .onAppear {
+                                Task {
+                                    await viewModel.fetchMoreActivities(currentIndex: index)
+                                }
+                            }
+                    }
+                    if viewModel.isLoadingMore {
+                        ProgressView()
+                            .padding()
+                    }
+                }
+            }
+        } else {
+            if viewModel.isFetching {
+                ProgressView()
+            } else {
+                Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Global activity")
+            }
+        }
+    }
 }
+
 
 #Preview {
     ActivityView()
