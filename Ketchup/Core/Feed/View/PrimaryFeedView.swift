@@ -19,15 +19,13 @@ struct PrimaryFeedView: View {
     @State var pauseVideo = false
     @StateObject var filtersViewModel: FiltersViewModel
     @Environment(\.dismiss) var dismiss
-    private var hideFeedOptions: Bool
     @State var startingPostId: String?
     private var titleText: String
     @State private var showSuccessMessage = false
     @State var selectedPost: Post?
-    init(viewModel: FeedViewModel, hideFeedOptions: Bool = false, initialScrollPosition: String? = nil, titleText: String = "") {
+    init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
-        self.hideFeedOptions = hideFeedOptions
         self._scrollPosition = State(initialValue: initialScrollPosition)
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
@@ -59,17 +57,16 @@ struct PrimaryFeedView: View {
                                         print("CLEAR APPEARED")
                                         if let last = viewModel.posts.last {
                                             Task {
-                                                if !hideFeedOptions {
-                                                    await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
-                                                }
+                                                await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                                
                                             }
                                         }
                                     }
                             }
                             .scrollTargetLayout()
                         }
+                        .safeAreaPadding(.top, 70)
                         .transition(.slide)
-                        .conditionalSafeAreaPadding(!hideFeedOptions, padding: 75)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
@@ -77,90 +74,86 @@ struct PrimaryFeedView: View {
                         }
                     }
                     .background(Color("Colors/HingeGray"))
-                    
-                    
-                    if !hideFeedOptions {
-                        
-                            Color.white
-                                .frame(height: 140)
-                                .edgesIgnoringSafeArea(.top)
-                        VStack(spacing: 2){
-                            HStack(spacing: 0) {
-                                Button {
-                                    showSearchView.toggle()
-                                } label: {
-                                    Image(systemName: "magnifyingglass")
-                                        .font(.system(size: 27))
-                                        .frame(width: 60)
-                                }
-                                Spacer()
-                                Image("KetchupTextRed")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 60, height: 17)
-                                
-                                Spacer()
-                                Button {
-                                    showFilters.toggle()
-                                } label: {
-                                    ZStack {
-                                        Image(systemName: "slider.horizontal.3")
-                                            .imageScale(.large)
-                                            .shadow(radius: 4)
-                                            .font(.system(size: 23))
-                                        
-                                        if !filtersViewModel.filters.isEmpty {
-                                            Circle()
-                                                .fill(Color("Colors/AccentColor"))
-                                                .frame(width: 12, height: 12)
-                                                .offset(x: 12, y: 12)
-                                        }
-                                    }
+                    Color.white
+                        .frame(height: 140)
+                        .edgesIgnoringSafeArea(.top)
+                    VStack(spacing: 2){
+                        HStack(spacing: 0) {
+                            Button {
+                                showSearchView.toggle()
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 27))
                                     .frame(width: 60)
-                                }
                             }
-                            .frame(maxWidth: .infinity)
+                            Spacer()
+                            Image("KetchupTextRed")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 17)
                             
-                            //.padding(.top, 55)
-                            .padding(.horizontal, 20)
-                            .foregroundStyle(.primary)
-                            .padding(.bottom, 10)
-                            HStack(spacing: 20) {
-                                Button {
-                                    viewModel.selectedTab = .following
-                                    // Implement logic to switch to following feed
-                                } label: {
-                                    Text("Following")
-                                        .font(.custom("MuseoSansRounded-300", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
+                            Spacer()
+                            Button {
+                                showFilters.toggle()
+                            } label: {
+                                ZStack {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .imageScale(.large)
+                                        .shadow(radius: 4)
+                                        .font(.system(size: 23))
+                                    
+                                    if !filtersViewModel.filters.isEmpty {
+                                        Circle()
+                                            .fill(Color("Colors/AccentColor"))
+                                            .frame(width: 12, height: 12)
+                                            .offset(x: 12, y: 12)
+                                    }
                                 }
-                                Button {
-                                    viewModel.selectedTab = .discover
-                                    // Implement logic to switch to discover feed
-                                } label: {
-                                    Text("Discover")
-                                        .font(.custom("MuseoSansRounded-300", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
-                                }
-                                
-                                
+                                .frame(width: 60)
                             }
                         }
+                        .frame(maxWidth: .infinity)
+                        
+                        //.padding(.top, 55)
+                        .padding(.horizontal, 20)
+                        .foregroundStyle(.primary)
+                        .padding(.bottom, 10)
+                        HStack(spacing: 20) {
+                            Button {
+                                viewModel.selectedTab = .following
+                                // Implement logic to switch to following feed
+                            } label: {
+                                Text("Following")
+                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                    .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                    .padding(.bottom, 5)
+                                    .overlay(
+                                        Rectangle()
+                                            .frame(height: 2)
+                                            .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                            .offset(y: 12)
+                                    )
+                            }
+                            Button {
+                                viewModel.selectedTab = .discover
+                                // Implement logic to switch to discover feed
+                            } label: {
+                                Text("Discover")
+                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                    .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
+                                    .padding(.bottom, 5)
+                                    .overlay(
+                                        Rectangle()
+                                            .frame(height: 2)
+                                            .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
+                                            .offset(y: 12)
+                                    )
+                            }
+                            
+                            
+                        }
                     }
+                    
                 }
                 
                 
@@ -197,11 +190,11 @@ struct PrimaryFeedView: View {
                         
                         // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
                         if newIndex > oldIndex {
-                            if !hideFeedOptions {
-                                Task {
-                                    await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                                }
+                            
+                            Task {
+                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
                             }
+                            
                             viewModel.updateCache(scrollPosition: newPostId)
                         }
                     }

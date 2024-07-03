@@ -13,12 +13,10 @@ struct ReelsUploadView: View {
     // VIEW MODEL
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
-    
     // SHOW POP UPS AND SELECTION VIEWS
     @FocusState private var isCaptionEditorFocused: Bool
     @State private var isEditingCaption = false
     @State var isPickingRestaurant = false
-    @State var isAddingRecipe = false
     @State var titleText: String = ""
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
@@ -28,7 +26,6 @@ struct ReelsUploadView: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @EnvironmentObject var tabBarController: TabBarController
-    @State var pickingFavorites: Bool = false
     
     var body: some View {
         ZStack {
@@ -241,12 +238,6 @@ struct ReelsUploadView: View {
         .navigationDestination(isPresented: $isPickingRestaurant) {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
-        }
-        .sheet(isPresented: $pickingFavorites) {
-            NavigationView {
-                AddMenuItemsReview(favoriteMenuItems: $uploadViewModel.favoriteMenuItems)
-            }
-            .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
         }
     }
 }

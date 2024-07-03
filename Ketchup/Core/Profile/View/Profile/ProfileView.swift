@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ProfileView: View {
-    //@StateObject var likesViewModel: LikedVideosViewModel
     @StateObject var profileViewModel: ProfileViewModel
     @State private var isLoading = true
     @Environment(\.dismiss) var dismiss

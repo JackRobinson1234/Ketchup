@@ -16,8 +16,6 @@ struct UploadWrittenReviewView: View {
     @State var atmosphereRating: Rating = .three
     @State var valueRating: Rating = .three
     @State var foodRating: Rating = .three
-    @State private var favoriteMenuItem: String = ""
-    @State private var favoriteMenuItems: [String] = []
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var editedReview = false
@@ -144,37 +142,13 @@ struct UploadWrittenReviewView: View {
                         }
                         .padding(.vertical)
                         
-//                        Button {
-//                            pickingFavorites = true
-//                        } label: {
-//                            HStack {
-//                                Image(systemName: "fork.knife.circle")
-//                                    .foregroundStyle(.black)
-//                                    .font(.custom("MuseoSansRounded-300", size: 16))
-//                                VStack(alignment: .leading) {
-//                                    Text("Add Favorite Menu Items")
-//                                        .font(.custom("MuseoSansRounded-300", size: 16))
-//                                        .foregroundStyle(.black)
-//                                    if !favoriteMenuItems.isEmpty {
-//                                        Text("\(favoriteMenuItems.count) items selected")
-//                                            .font(.custom("MuseoSansRounded-300", size: 10))
-//                                            .foregroundStyle(.gray)
-//                                    }
-//                                }
-//                                Spacer()
-//                                Image(systemName: "chevron.right")
-//                                    .foregroundStyle(.black)
-//                            }
-//                            .padding()
-//                        }
-//                        Divider()
                         
                         Button {
                             if description.isEmpty {
                                 showDetailsAlert = true
                             } else {
                                 Task {
-                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating, favorites: favoriteMenuItems)
+                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
                                     showAlert = true
                                 }
                             }
@@ -232,12 +206,7 @@ struct UploadWrittenReviewView: View {
                     }
                 )
             }
-            .sheet(isPresented: $pickingFavorites) {
-                NavigationView {
-                    AddMenuItemsReview(favoriteMenuItems: $favoriteMenuItems)
-                }
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.33)])
-            }
+            
             .onChange(of: description) {
                 Debouncer(delay: 0.3).schedule {
                     editedReview = true

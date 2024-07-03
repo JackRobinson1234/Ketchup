@@ -31,7 +31,6 @@ class UploadViewModel: ObservableObject {
     @Published var atmosphereRating:  Rating = .three
     @Published var valueRating:  Rating = .three
     @Published var foodRating:  Rating = .three
-    @Published var favoriteMenuItems: [String] = []
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
@@ -54,7 +53,6 @@ class UploadViewModel: ObservableObject {
         atmosphereRating = .three
         valueRating = .three
         foodRating = .three
-        favoriteMenuItems = []
     }
     
     func uploadPost() async {
@@ -103,8 +101,8 @@ class UploadViewModel: ObservableObject {
                     serviceRating: serviceRating,
                     atmosphereRating: atmosphereRating,
                     valueRating: valueRating,
-                    foodRating: foodRating,
-                    favoriteItems: favoriteMenuItems
+                    foodRating: foodRating
+                    
                 )
             } else if mediaType == .photo {
                 guard let images = images else {
@@ -121,8 +119,7 @@ class UploadViewModel: ObservableObject {
                     serviceRating: serviceRating,
                     atmosphereRating: atmosphereRating,
                     valueRating: valueRating,
-                    foodRating: foodRating,
-                    favoriteItems: favoriteMenuItems
+                    foodRating: foodRating
                 )
             }
             } else {

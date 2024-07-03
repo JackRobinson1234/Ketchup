@@ -41,7 +41,6 @@ struct ProfileOptionsSheet: View {
                 .onDisappear{
                     dismiss()
                 }
-                
         }
         
     }
