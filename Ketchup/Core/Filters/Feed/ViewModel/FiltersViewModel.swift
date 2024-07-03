@@ -51,7 +51,7 @@ class FiltersViewModel: ObservableObject {
         if selectedLocation.isEmpty {
             filters.removeValue(forKey: "location")
         } else {
-            filters["location"] = selectedLocation
+            filters["restaurant.city"] = [selectedCity]
         }
         
         ///Price checking if there are any selected

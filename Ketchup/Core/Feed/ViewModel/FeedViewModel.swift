@@ -39,7 +39,7 @@ class FeedViewModel: ObservableObject {
     private var isFetching = false
     private let pageSize = 15
     private let fetchingThreshold = -5
-    private var filters: [String: [Any]]? = [:]
+    @Published var filters: [String: [Any]]? = [:]
     private var lastFetched: Int = 0
     @Published var duration: Double = 0.0
     @Published var currentTime: Double = 0.0

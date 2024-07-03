@@ -23,6 +23,7 @@ struct PrimaryFeedView: View {
     private var titleText: String
     @State private var showSuccessMessage = false
     @State var selectedPost: Post?
+    @State var showLocationFilter: Bool = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -77,7 +78,7 @@ struct PrimaryFeedView: View {
                     Color.white
                         .frame(height: 140)
                         .edgesIgnoringSafeArea(.top)
-                    VStack(spacing: 2){
+                    VStack(spacing: 0){
                         HStack(spacing: 0) {
                             Button {
                                 showSearchView.toggle()
@@ -113,12 +114,10 @@ struct PrimaryFeedView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        
-                        //.padding(.top, 55)
                         .padding(.horizontal, 20)
                         .foregroundStyle(.primary)
                         .padding(.bottom, 10)
-                        HStack(spacing: 20) {
+                        HStack(spacing: 40) {
                             Button {
                                 viewModel.selectedTab = .following
                             } label: {
@@ -134,7 +133,7 @@ struct PrimaryFeedView: View {
                                     )
                             }
                             .disabled(viewModel.selectedTab == .following)
-
+                            
                             Button {
                                 viewModel.selectedTab = .discover
                             } label: {
@@ -153,8 +152,53 @@ struct PrimaryFeedView: View {
                             
                             
                         }
+                        .padding(.bottom, 4)
+                        
+                        
+                        Button {
+                            showLocationFilter.toggle()
+                        } label: {
+                            HStack {
+                                if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
+                                    if let cities = cityFilter.value as? [String], !cities.isEmpty {
+                                        if cities.count > 1 {
+                                            HStack {
+                                                Text("\(cities[0]) +\(cities.count - 1) more")
+                                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                                    .foregroundStyle(.primary)
+                                                Image(systemName: "chevron.down")
+                                            }
+                                        } else {
+                                            HStack {
+                                                Text(cities[0])
+                                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                                    .foregroundStyle(.primary)
+                                                Image(systemName: "chevron.down")
+                                                
+                                            }
+                                        }
+                                    } else {
+                                        HStack {
+                                            Text("Global")
+                                                .font(.custom("MuseoSansRounded-300", size: 18))
+                                                .foregroundStyle(.primary)
+                                            Image(systemName: "chevron.down")
+                                        }
+                                    }
+                                } else {
+                                    HStack {
+                                        Text("Global")
+                                            .font(.custom("MuseoSansRounded-300", size: 18))
+                                            .foregroundStyle(.primary)
+                                        
+                                        Image(systemName: "chevron.down")
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
-                    
+                    .background(Color.white)
                 }
                 
                 
