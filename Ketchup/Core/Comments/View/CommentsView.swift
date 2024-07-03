@@ -49,8 +49,10 @@ struct CommentsView: View {
         }
         .sheet(isPresented: $viewModel.showOptionsSheet) {
             if let comment = viewModel.selectedComment{
-                CommentOptionsSheet(comment: comment, viewModel: viewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+                ScrollView{
+                    CommentOptionsSheet(comment: comment, viewModel: viewModel)
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
+                }
             }
         }
         .overlay {

@@ -23,7 +23,7 @@ struct CommentCell: View {
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(.primary)
                     
-                    Text(" \(comment.timestamp.timestampString())")
+                    Text("\(comment.timestamp.timestampString())")
                         .foregroundColor(.gray)
                         .font(.custom("MuseoSansRounded-300", size: 10))
                 }

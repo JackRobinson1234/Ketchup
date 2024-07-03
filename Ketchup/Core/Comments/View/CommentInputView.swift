@@ -21,7 +21,7 @@ struct CommentInputView: View {
                     .padding(.trailing, 48)
                     .background(Color(.systemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .font(.custom("MuseoSansRounded-300", size: 10))
+                    .font(.custom("MuseoSansRounded-300", size: 14))
                     .focused($fieldIsActive)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
