@@ -26,11 +26,11 @@ class UploadViewModel: ObservableObject {
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
     @ObservedObject var feedViewModel: FeedViewModel
-    @Published var overallRating: Int = 3
-    @Published var serviceRating:  Int = 3
-    @Published var atmosphereRating:  Int = 3
-    @Published var valueRating:  Int = 3
-    @Published var foodRating:  Int = 3
+    @Published var overallRating: Double = 3.0
+    @Published var serviceRating: Double = 3.0
+    @Published var atmosphereRating: Double = 3.0
+    @Published var valueRating: Double = 3.0
+    @Published var foodRating: Double = 3.0
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
@@ -48,11 +48,11 @@ class UploadViewModel: ObservableObject {
         restaurant = nil
         navigateToUpload = false
         fromInAppCamera = true
-        overallRating = 3
-        serviceRating = 3
-        atmosphereRating = 3
-        valueRating = 3
-        foodRating = 3
+        overallRating = 3.0
+        serviceRating = 3.0
+        atmosphereRating = 3.0
+        valueRating = 3.0
+        foodRating = 3.0
     }
     
     func uploadPost() async {

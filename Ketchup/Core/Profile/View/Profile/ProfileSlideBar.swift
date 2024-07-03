@@ -19,7 +19,6 @@ struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
-    @StateObject var reviewsViewModel: ReviewsViewModel
     @StateObject var feedViewModel = FeedViewModel()
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
@@ -31,7 +30,6 @@ struct ProfileSlideBar: View {
         self._profileSection = profileSection
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
-        self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(user: viewModel.user))
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
     }

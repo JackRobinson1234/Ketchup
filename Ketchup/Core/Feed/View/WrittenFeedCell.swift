@@ -388,10 +388,19 @@ struct InteractionButtonView: View {
     }
 }
 struct RatingSlider: View {
-    let rating: Int
+    let rating: Double
     let label: String
     let isOverall: Bool
     let fontColor: Color
+    
+    var formattedRating: String {
+        if rating.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f/5", rating)
+        } else {
+            return String(format: "%.1f/5", rating)
+        }
+    }
+    
     var body: some View {
         HStack(alignment: .center, spacing: 5) {
             Text(label)
@@ -408,12 +417,17 @@ struct RatingSlider: View {
                     
                     Rectangle()
                         .fill(Color("Colors/AccentColor"))
-                        .frame(width: CGFloat(rating) / 5.0 * geometry.size.width, height: 2)
+                        .frame(width: (rating / 5.0) * geometry.size.width, height: 2)
                         .cornerRadius(1)
                 }
                 .frame(maxHeight: .infinity)
             }
             .frame(height: 20) // This sets a fixed height for the GeometryReader
+            
+            Text(formattedRating)
+                .font(.custom("MuseoSansRounded-300", size: 14))
+                .foregroundColor(fontColor)
+                .frame(width: 40, alignment: .trailing)
         }
     }
 }

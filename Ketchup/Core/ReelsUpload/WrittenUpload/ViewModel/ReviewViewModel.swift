@@ -6,20 +6,23 @@
 //
 
 import Foundation
+import SwiftUI
 @MainActor
 class ReviewsViewModel: ObservableObject {
+    @ObservedObject var feedViewModel: FeedViewModel
     @Published var reviews = [Review]()
     @Published var isLoading: Bool = true
     @Published var selectedRestaurant: Restaurant?
     @Published var selectedUser: User?
     @Published var restaurantRequest: RestaurantRequest?
-    init(restaurant: Restaurant? = nil, user: User? = nil) {
+    init(restaurant: Restaurant? = nil, user: User? = nil, feedViewModel: FeedViewModel) {
         self.selectedRestaurant = restaurant
         self.selectedUser = user
+        self.feedViewModel = feedViewModel
     }
     
     
-    func uploadReview(description: String, overallRating: Int, serviceRating: Int, atmosphereRating: Int, valueRating: Int, foodRating: Int) async throws {
+    func uploadReview(description: String, overallRating: Double, serviceRating: Double, atmosphereRating: Double, valueRating: Double, foodRating: Double) async throws {
         if let restaurant = restaurantRequest {
             do {
                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
@@ -44,10 +47,8 @@ class ReviewsViewModel: ObservableObject {
                     foodRating: foodRating
                 )
                 
-                // Insert the review at position 0
-//                if let review = review {
-//                    reviews.insert(review, at: 0)
-//                }
+                feedViewModel.showPostAlert = true
+                feedViewModel.posts.insert(review, at: 0)
             } catch {
                 print("error uploading post")
                 throw error

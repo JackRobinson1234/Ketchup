@@ -150,40 +150,11 @@ struct ReelsUploadView: View {
                 
                 
                 VStack(spacing: 20) {
-                                    HStack {
-                                        Text("Overall")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                        Spacer()
-                                        RatingSliderGroup(rating: $uploadViewModel.overallRating)
-                                    }
-                                    
-                                    HStack {
-                                        Text("Service")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                        Spacer()
-                                        RatingSliderGroup(rating: $uploadViewModel.serviceRating)
-                                    }
-                                    
-                                    HStack {
-                                        Text("Atmosphere")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                        Spacer()
-                                        RatingSliderGroup(rating: $uploadViewModel.atmosphereRating)
-                                    }
-                                    
-                                    HStack {
-                                        Text("Value")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                        Spacer()
-                                        RatingSliderGroup(rating: $uploadViewModel.valueRating)
-                                    }
-                                    
-                                    HStack {
-                                        Text("Food")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                        Spacer()
-                                        RatingSliderGroup(rating: $uploadViewModel.foodRating)
-                                    }
+                    RatingSliderGroup(label: "Overall", isOverall: true, rating: $uploadViewModel.overallRating)
+                    RatingSliderGroup(label: "Food", isOverall: false, rating: $uploadViewModel.foodRating)
+                    RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $uploadViewModel.atmosphereRating)
+                    RatingSliderGroup(label: "Value", isOverall: false, rating: $uploadViewModel.valueRating)
+                    RatingSliderGroup(label: "Service", isOverall: false, rating: $uploadViewModel.serviceRating)
                                 }
                 
                 Divider()
@@ -242,67 +213,45 @@ struct ReelsUploadView: View {
     }
 }
 
-//struct RatingButtonGroup: View {
-//    @Binding var rating: Rating
-//    
-//    var body: some View {
-//        HStack(spacing: 10) {
-//            ForEach(0..<5, id: \.self) { number in
-//                RatingButton(ratingValue: number, isActive: rating.rawValue == number) {
-//                    if let value = Rating(rawValue: number){
-//                        rating = value
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-//struct RatingButton: View {
-//    var ratingValue: Int
-//    var isActive: Bool
-//    var action: () -> Void
-//    
-//    var body: some View {
-//        Button(action: action) {
-//            Rating.image(forValue: ratingValue)
-//                .resizable()
-//                .aspectRatio(contentMode: .fit)
-//                .frame(width: 28, height: 28) // Adjust size as needed
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 5)
-//                        .stroke(isActive ? Color("Colors/AccentColor") : Color.clear, lineWidth: 1)
-//                )
-//        }
-//    }
-//}
 
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
 struct RatingSliderGroup: View {
-    @Binding var rating: Int
+    let label: String
+    let isOverall: Bool
+    @Binding var rating: Double
+    
+    var formattedRating: String {
+        if rating.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f/5", rating)
+        } else {
+            return String(format: "%.1f/5", rating)
+        }
+    }
+    
     var body: some View {
-        HStack(spacing: 20) {
-            Slider(value: Binding(
-                get: { Double(rating) },
-                set: { newValue in
-                    
-                        rating = Int(newValue.rounded())
-                    
+        HStack(spacing: 10) {
+            Text(label)
+                .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
+                .foregroundColor(.primary)
+                .frame(width: 90, alignment: .leading)
+            
+            Slider(value: $rating, in: 0...5, step: 0.5)
+                .frame(width: 180)
+                .onDisappear {
+                    let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
+                    UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
                 }
-            ), in: 0...5, step: 1)
-            .frame(width: 200)
-            .onDisappear {
-                let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
-                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
-            }
-            .onAppear {
-                // Reset the thumb image to the default
-                UISlider.appearance().setThumbImage(nil, for: .normal)
-            }
-//            Text(emojis[rating.rawValue])
-//                .font(.system(size: 30))
+                .onAppear {
+                    // Reset the thumb image to the default
+                    UISlider.appearance().setThumbImage(nil, for: .normal)
+                }
+            
+            Text(formattedRating)
+                .font(.custom("MuseoSansRounded-300", size: 14))
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity)
         }
     }
 }

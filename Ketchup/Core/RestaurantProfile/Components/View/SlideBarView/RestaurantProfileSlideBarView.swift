@@ -18,7 +18,6 @@ enum RestaurantPostDisplayMode: String, CaseIterable {
 }
 struct RestaurantProfileSlideBarView: View {
     @ObservedObject var viewModel: RestaurantViewModel
-       @StateObject var reviewsViewModel: ReviewsViewModel
        @StateObject var feedViewModel: FeedViewModel
        @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
        @Binding var scrollPosition: String?
@@ -26,7 +25,6 @@ struct RestaurantProfileSlideBarView: View {
 
        init(viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
            self.viewModel = viewModel
-           self._reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(restaurant: viewModel.restaurant))
            self._feedViewModel = StateObject(wrappedValue: FeedViewModel())
            self._scrollPosition = scrollPosition
            self._scrollTarget = scrollTarget

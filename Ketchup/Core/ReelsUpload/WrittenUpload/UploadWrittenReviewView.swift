@@ -11,11 +11,11 @@ struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var overallRating: Int = 3
-    @State var serviceRating: Int = 3
-    @State var atmosphereRating: Int = 3
-    @State var valueRating: Int = 3
-    @State var foodRating: Int = 3
+    @State var overallRating: Double = 3.0
+    @State var serviceRating: Double = 3.0
+    @State var atmosphereRating: Double = 3.0
+    @State var valueRating: Double = 3.0
+    @State var foodRating: Double = 3.0
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var editedReview = false
@@ -97,42 +97,13 @@ struct UploadWrittenReviewView: View {
                     }
                     
                     VStack(spacing: 20) {
-                        HStack {
-                            Text("Overall")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
-                            Spacer()
-                            RatingSliderGroup(rating: $overallRating)
-                        }
-                        
-                        HStack {
-                            Text("Service")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
-                            Spacer()
-                            RatingSliderGroup(rating: $serviceRating)
-                        }
-                        
-                        HStack {
-                            Text("Atmosphere")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
-                            Spacer()
-                            RatingSliderGroup(rating: $atmosphereRating)
-                        }
-                        
-                        HStack {
-                            Text("Value")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
-                            Spacer()
-                            RatingSliderGroup(rating: $valueRating)
-                        }
-                        
-                        HStack {
-                            Text("Food")
-                                .font(.custom("MuseoSansRounded-300", size: 18))
-                            Spacer()
-                            RatingSliderGroup(rating: $foodRating)
-                        }
+                        RatingSliderGroup(label: "Overall", isOverall: true, rating: $overallRating)
+                                    RatingSliderGroup(label: "Food", isOverall: false, rating: $foodRating)
+                                    RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $atmosphereRating)
+                                    RatingSliderGroup(label: "Value", isOverall: false, rating: $valueRating)
+                                    RatingSliderGroup(label: "Service", isOverall: false, rating: $serviceRating)
                     }
-                    .padding(20)
+                    
                     
                     VStack {
                         Button(action: {

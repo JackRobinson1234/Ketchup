@@ -553,7 +553,7 @@
 			path = CollectionView;
 			sourceTree = "<group>";
 		};
-		F846F4542BFBDB43009D1303 /* Review */ = {
+		F846F4542BFBDB43009D1303 /* WrittenUpload */ = {
 			isa = PBXGroup;
 			children = (
 				F8E3466E2C24C97800DE369C /* ViewModel */,
@@ -561,7 +561,7 @@
 				F8246CE22C223D8700C07BB1 /* ReviewCreateRestaurantView.swift */,
 				F89CFA8B2C21D9B40003D449 /* UploadWrittenReviewView.swift */,
 			);
-			path = Review;
+			path = WrittenUpload;
 			sourceTree = "<group>";
 		};
 		F84FE23F2B6A531200144F01 = {
@@ -700,7 +700,6 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				F846F4542BFBDB43009D1303 /* Review */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
@@ -1388,6 +1387,7 @@
 		F8CC21982BD5871E00B4B329 /* ReelsUpload */ = {
 			isa = PBXGroup;
 			children = (
+				F846F4542BFBDB43009D1303 /* WrittenUpload */,
 				F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */,
 				F8670A662BF40EEA00F527D9 /* Components */,
 				F8670A652BF40E9D00F527D9 /* View */,

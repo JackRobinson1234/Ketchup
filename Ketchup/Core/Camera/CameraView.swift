@@ -22,7 +22,7 @@ import UniformTypeIdentifiers
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
-    @StateObject var reviewsViewModel = ReviewsViewModel()
+    @StateObject var reviewsViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var feedViewModel: FeedViewModel
     @StateObject var uploadViewModel: UploadViewModel
@@ -35,6 +35,7 @@ struct CameraView: View {
     init(feedViewModel: FeedViewModel) {
         _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
+        _reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(feedViewModel: feedViewModel))
     }
 
     var drag: some Gesture {
