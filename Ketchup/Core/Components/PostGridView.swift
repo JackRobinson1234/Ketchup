@@ -96,7 +96,7 @@ struct PostGridView: View {
                 .padding(spacing/2)
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
-                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"), checkLikes: true)
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
                         
                     }
                 }

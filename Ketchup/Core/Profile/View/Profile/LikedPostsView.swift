@@ -50,7 +50,6 @@ struct LikedPostsView: View {
                     ProfileMapView(posts: viewModel.likedPosts)
                 }
             }
-            PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts Liked by @\(viewModel.user.username)")
         }
     }
 }

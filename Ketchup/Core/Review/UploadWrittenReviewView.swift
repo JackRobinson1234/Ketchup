@@ -101,35 +101,35 @@ struct UploadWrittenReviewView: View {
                             Text("Overall")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            RatingButtonGroup(rating: $overallRating)
+                            RatingSliderGroup(rating: $overallRating)
                         }
                         
                         HStack {
                             Text("Service")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            RatingButtonGroup(rating: $serviceRating)
+                            RatingSliderGroup(rating: $serviceRating)
                         }
                         
                         HStack {
                             Text("Atmosphere")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            RatingButtonGroup(rating: $atmosphereRating)
+                            RatingSliderGroup(rating: $atmosphereRating)
                         }
                         
                         HStack {
                             Text("Value")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            RatingButtonGroup(rating: $valueRating)
+                            RatingSliderGroup(rating: $valueRating)
                         }
                         
                         HStack {
                             Text("Food")
                                 .font(.custom("MuseoSansRounded-300", size: 18))
                             Spacer()
-                            RatingButtonGroup(rating: $foodRating)
+                            RatingSliderGroup(rating: $foodRating)
                         }
                     }
                     .padding(20)

@@ -163,25 +163,16 @@ struct WrittenFeedCell: View {
                     Spacer()
                 }
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    RatingView(rating: post.overallRating, label: "Overall")
-                    Divider().frame(height: 20)
-                    RatingView(rating: post.foodRating, label: "Food")
-                    Divider().frame(height: 20)
-                    RatingView(rating: post.atmosphereRating, label: "Atmosphere")
-                    Divider().frame(height: 20)
-                    RatingView(rating: post.valueRating, label: "Value")
-                    Divider().frame(height: 20)
-                    RatingView(rating: post.serviceRating, label: "Service")
-                }
-            }
+            VStack(spacing: 10) {
+                RatingsView(post: post)
+                    .padding(.vertical, 5)
+                        }
             HStack {
                 Text(post.caption)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                 Spacer()
             }
-            HStack {
+            HStack (spacing: 15){
                 Button {
                     videoCoordinator.pause()
                     showComments.toggle()
@@ -246,9 +237,10 @@ struct WrittenFeedCell: View {
                 Spacer()
             }
             Divider()
+                .padding(.top, 5)
         }
-        
-        .padding()
+        .padding(.horizontal)
+        .padding(5)
         .onAppear {
             if checkLikes{
                 Task{
@@ -409,7 +401,72 @@ struct InteractionButtonView: View {
         .padding(.trailing, 10)
     }
 }
-
-#Preview {
-    WrittenFeedCell(viewModel: FeedViewModel(), post: .constant(DeveloperPreview.posts[0]), scrollPosition: .constant(""), pauseVideo: .constant(false), selectedPost: .constant(nil))
+struct RatingSlider: View {
+    let rating: Rating
+    let label: String
+    let isOverall: Bool
+    let fontColor: Color
+    var body: some View {
+        HStack(alignment: .center, spacing: 5) {
+            Text(label)
+                .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
+                .foregroundColor(fontColor)
+                .frame(width: 90, alignment: .leading)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 2)
+                        .cornerRadius(1)
+                    
+                    Rectangle()
+                        .fill(Color("Colors/AccentColor"))
+                        .frame(width: CGFloat(rating.rawValue) / 5.0 * geometry.size.width, height: 2)
+                        .cornerRadius(1)
+                }
+                .frame(maxHeight: .infinity)
+            }
+            .frame(height: 20) // This sets a fixed height for the GeometryReader
+        }
+    }
+}
+struct RatingsView: View {
+    let post: Post
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isExpanded.toggle()
+                    }
+                }) {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.gray)
+                        .frame(width: 25)
+                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                }
+                
+                RatingSlider(rating: post.overallRating, label: "Overall", isOverall: true, fontColor: .primary)
+            }
+            
+            if isExpanded {
+                HStack(alignment: .center, spacing: 10){
+                    Color.clear
+                        .frame(width: 25)
+                    VStack(alignment: .leading, spacing: 10) {
+                        RatingSlider(rating: post.foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: post.atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: post.valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: post.serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                    }
+                }
+                .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))
+            }
+        }
+        
+    }
 }

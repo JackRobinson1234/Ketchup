@@ -65,7 +65,7 @@ struct PrimaryFeedView: View {
                             }
                             .scrollTargetLayout()
                         }
-                        .safeAreaPadding(.top, 70)
+                        .safeAreaPadding(.top, 90)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {

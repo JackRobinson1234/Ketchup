@@ -132,6 +132,7 @@ struct SecondaryFeedView: View {
                         .bold()
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
+                        .shadow(color: .gray, radius: 1, x: 0, y: 0)
                     Spacer()
                     Rectangle()
                         .frame(width: 40, height: 40)

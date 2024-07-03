@@ -218,14 +218,40 @@ struct FeedCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(Color("Colors/HingeGray"))
             }
+            
+            // Overall rating
+            
+            
             Text(post.caption)
                 .lineLimit(expandCaption ? 50 : 1)
                 .font(.custom("MuseoSansRounded-300", size: 16))
+            
+            RatingSlider(rating: post.overallRating, label: "Overall", isOverall: true, fontColor: .white)
+            
             if !expandCaption {
-                Text("See more...")
-                    .font(.custom("MuseoSansRounded-300", size: 10))
+                Button(action: {
+                    withAnimation(.snappy) { expandCaption.toggle() }
+                }) {
+                    Text("See more...")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(Color(.white))
+                }
             } else {
-                ratingsView
+                // Other ratings
+                VStack(alignment: .leading, spacing: 5) {
+                    RatingSlider(rating: post.foodRating, label: "Food", isOverall: false, fontColor: .white)
+                    RatingSlider(rating: post.atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .white)
+                    RatingSlider(rating: post.valueRating, label: "Value", isOverall: false, fontColor: .white)
+                    RatingSlider(rating: post.serviceRating, label: "Service", isOverall: false, fontColor: .white)
+                }
+                Button(action: {
+                    withAnimation(.snappy) { expandCaption.toggle() }
+                }) {
+                    Text("See less...")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(Color(.white))
+                }
+                .padding(.bottom)
                 NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
                     Text("View Restaurant")
                 }
@@ -234,21 +260,11 @@ struct FeedCell: View {
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.black.opacity(0.3)))
-        .onTapGesture { withAnimation(.snappy) { expandCaption.toggle() } }
         .font(.custom("MuseoSansRounded-300", size: 16))
         .foregroundStyle(.white)
         .padding(.horizontal)
     }
 
-    private var ratingsView: some View {
-        VStack {
-            RatingView(rating: post.overallRating, label: "Overall")
-            RatingView(rating: post.foodRating, label: "Food")
-            RatingView(rating: post.atmosphereRating, label: "Atmosphere")
-            RatingView(rating: post.valueRating, label: "Value")
-            RatingView(rating: post.serviceRating, label: "Service")
-        }
-    }
 
     private var actionButtons: some View {
         VStack(spacing: 28) {
