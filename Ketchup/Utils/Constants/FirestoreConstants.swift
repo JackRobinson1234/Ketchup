@@ -23,7 +23,7 @@ struct FirestoreConstants {
     
     static let ReportsCollection = Root.collection("reports")
     
-    static let RestaurantCollection = Root.collection("restaurants")
+    static let RestaurantCollection = Root.collection("newDataSample")
     
     static let RequestRestaurantCollection = Root.collection("requestRestaurants")
     
