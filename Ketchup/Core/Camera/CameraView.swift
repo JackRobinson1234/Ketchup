@@ -45,8 +45,6 @@ struct CameraView: View {
                     self.dragDirection = "left"
                     if selectedCamTab == 1 {
                         selectedCamTab = 0
-                    } else if selectedCamTab == 2 {
-                        selectedCamTab = 1
                     }
                 } else {
                     self.dragDirection = "right"

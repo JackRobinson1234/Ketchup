@@ -242,56 +242,56 @@ struct ReelsUploadView: View {
     }
 }
 
-struct RatingButtonGroup: View {
-    @Binding var rating: Rating
-    
-    var body: some View {
-        HStack(spacing: 10) {
-            ForEach(0..<5, id: \.self) { number in
-                RatingButton(ratingValue: number, isActive: rating.rawValue == number) {
-                    if let value = Rating(rawValue: number){
-                        rating = value
-                    }
-                }
-            }
-        }
-    }
-}
+//struct RatingButtonGroup: View {
+//    @Binding var rating: Rating
+//    
+//    var body: some View {
+//        HStack(spacing: 10) {
+//            ForEach(0..<5, id: \.self) { number in
+//                RatingButton(ratingValue: number, isActive: rating.rawValue == number) {
+//                    if let value = Rating(rawValue: number){
+//                        rating = value
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
-struct RatingButton: View {
-    var ratingValue: Int
-    var isActive: Bool
-    var action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Rating.image(forValue: ratingValue)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 28, height: 28) // Adjust size as needed
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(isActive ? Color("Colors/AccentColor") : Color.clear, lineWidth: 1)
-                )
-        }
-    }
-}
+//struct RatingButton: View {
+//    var ratingValue: Int
+//    var isActive: Bool
+//    var action: () -> Void
+//    
+//    var body: some View {
+//        Button(action: action) {
+//            Rating.image(forValue: ratingValue)
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//                .frame(width: 28, height: 28) // Adjust size as needed
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 5)
+//                        .stroke(isActive ? Color("Colors/AccentColor") : Color.clear, lineWidth: 1)
+//                )
+//        }
+//    }
+//}
 
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
 struct RatingSliderGroup: View {
-    @Binding var rating: Rating
+    @Binding var rating: Int
     var body: some View {
         HStack(spacing: 20) {
             Slider(value: Binding(
-                get: { Double(rating.rawValue) },
+                get: { Double(rating) },
                 set: { newValue in
-                    if let value = Rating(rawValue: Int(newValue.rounded())) {
-                        rating = value
-                    }
+                    
+                        rating = Int(newValue.rounded())
+                    
                 }
-            ), in: 1...5, step: 1)
+            ), in: 0...5, step: 1)
             .frame(width: 200)
             .onDisappear {
                 let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)

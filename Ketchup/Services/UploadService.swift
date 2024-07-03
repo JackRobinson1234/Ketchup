@@ -19,11 +19,11 @@ struct UploadService {
         caption: String,
         postRestaurant: PostRestaurant,
         fromInAppCamera: Bool,
-        overallRating: Rating,
-        serviceRating: Rating,
-        atmosphereRating: Rating,
-        valueRating: Rating,
-        foodRating: Rating
+        overallRating: Int,
+        serviceRating: Int,
+        atmosphereRating: Int,
+        valueRating: Int,
+        foodRating: Int
     ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference

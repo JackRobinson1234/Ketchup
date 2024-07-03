@@ -364,21 +364,7 @@ struct WrittenFeedCell: View {
         }
     }
 }
-struct RatingView: View {
-    var rating: Rating
-    var label: String
-    
-    var body: some View {
-        HStack(spacing: 2) {
-            rating.image
-                .resizable()
-                .frame(width: 20, height: 20)
-            Text(label)
-                .font(.custom("MuseoSansRounded-300", size: 14))
-                .foregroundColor(.primary)
-        }
-    }
-}
+
 
 struct InteractionButtonView: View {
     var icon: String
@@ -402,7 +388,7 @@ struct InteractionButtonView: View {
     }
 }
 struct RatingSlider: View {
-    let rating: Rating
+    let rating: Int
     let label: String
     let isOverall: Bool
     let fontColor: Color
@@ -422,7 +408,7 @@ struct RatingSlider: View {
                     
                     Rectangle()
                         .fill(Color("Colors/AccentColor"))
-                        .frame(width: CGFloat(rating.rawValue) / 5.0 * geometry.size.width, height: 2)
+                        .frame(width: CGFloat(rating) / 5.0 * geometry.size.width, height: 2)
                         .cornerRadius(1)
                 }
                 .frame(maxHeight: .infinity)

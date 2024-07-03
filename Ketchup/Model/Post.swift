@@ -28,11 +28,11 @@ struct Post: Identifiable, Codable {
     var fromInAppCamera: Bool
     var repost: Bool
     var didRepost: Bool
-    var overallRating: Rating
-    var serviceRating: Rating
-    var atmosphereRating: Rating
-    var valueRating: Rating
-    var foodRating: Rating
+    var overallRating: Int
+    var serviceRating: Int
+    var atmosphereRating: Int
+    var valueRating: Int
+    var foodRating: Int
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.restaurant.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)}
@@ -58,11 +58,11 @@ struct Post: Identifiable, Codable {
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
-        self.overallRating = try container.decode(Rating.self, forKey: .overallRating)
-        self.serviceRating = try container.decode(Rating.self, forKey: .serviceRating)
-        self.atmosphereRating = try container.decode(Rating.self, forKey: .atmosphereRating)
-        self.valueRating = try container.decode(Rating.self, forKey: .valueRating)
-        self.foodRating = try container.decode(Rating.self, forKey: .foodRating)
+        self.overallRating = try container.decode(Int.self, forKey: .overallRating)
+        self.serviceRating = try container.decode(Int.self, forKey: .serviceRating)
+        self.atmosphereRating = try container.decode(Int.self, forKey: .atmosphereRating)
+        self.valueRating = try container.decode(Int.self, forKey: .valueRating)
+        self.foodRating = try container.decode(Int.self, forKey: .foodRating)
         
     }
 
@@ -83,11 +83,11 @@ struct Post: Identifiable, Codable {
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false,
-        overallRating: Rating,
-        serviceRating: Rating,
-        atmosphereRating: Rating,
-        valueRating: Rating,
-        foodRating: Rating
+        overallRating: Int,
+        serviceRating: Int,
+        atmosphereRating: Int,
+        valueRating: Int,
+        foodRating: Int
     ) {
         self.id = id
         self.mediaType = mediaType
@@ -144,29 +144,31 @@ struct PostUser: Codable, Hashable, Identifiable {
 
 
 
-enum Rating: Int, Codable {
-    case one
-    case two
-    case three
-    case four
-    case five
-    
-    var image: Image {
-        switch self {
-        case .one: return SwiftUI.Image("Smile1")
-        case .two: return SwiftUI.Image("Smile2")
-        case .three: return SwiftUI.Image("Smile3")
-        case .four: return SwiftUI.Image("Smile4")
-        case .five: return SwiftUI.Image("Smile5")
-        }
-    }
-    static func image(forValue value: Int) -> Image {
-            guard let rating = Rating(rawValue: value) else {
-                return Image("") // return a default image if needed
-            }
-            return rating.image
-        }
-}
+//enum Rating: Int, Codable {
+//    case zero
+//    case one
+//    case two
+//    case three
+//    case four
+//    case five
+//    
+////    var image: Image {
+////        switch self {
+////        case .zero return
+////        case .one: return SwiftUI.Image("Smile1")
+////        case .two: return SwiftUI.Image("Smile2")
+////        case .three: return SwiftUI.Image("Smile3")
+////        case .four: return SwiftUI.Image("Smile4")
+////        case .five: return SwiftUI.Image("Smile5")
+////        }
+////    }
+////    static func image(forValue value: Int) -> Image {
+////            guard let rating = Int(rawValue: value) else {
+////                return Image("") // return a default image if needed
+////            }
+////            return rating.image
+////        }
+//}
 
 
 enum MediaType: Int, Codable {

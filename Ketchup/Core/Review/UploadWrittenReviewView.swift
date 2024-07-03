@@ -11,11 +11,11 @@ struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var overallRating: Rating = .three
-    @State var serviceRating: Rating = .three
-    @State var atmosphereRating: Rating = .three
-    @State var valueRating: Rating = .three
-    @State var foodRating: Rating = .three
+    @State var overallRating: Int = 3
+    @State var serviceRating: Int = 3
+    @State var atmosphereRating: Int = 3
+    @State var valueRating: Int = 3
+    @State var foodRating: Int = 3
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var editedReview = false
