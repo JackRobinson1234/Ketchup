@@ -29,11 +29,13 @@ class ActivityViewModel: ObservableObject {
     
     
     // Sheet state properties
+    @Published var showWrittenPost: Bool = false
     @Published var showPost: Bool = false
     @Published var showCollection: Bool = false
     @Published var showUserProfile: Bool = false
     @Published var showRestaurant = false
     @Published var post: Post?
+    @Published var writtenPost: Post?
     @Published var collection: Collection?
     @Published var selectedRestaurantId: String? = nil
     @Published var selectedUid: String? = nil

@@ -115,6 +115,7 @@ struct ActivityView: View {
                     }
                 }
             }
+            
             .navigationTitle("Let's Ketchup!")
             .refreshable {
                 Task {

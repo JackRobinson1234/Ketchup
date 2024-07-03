@@ -70,7 +70,7 @@ struct ProfileMapView: View {
             .sheet(item: $selectedWrittenPost) { post in
                 NavigationStack {
                     ScrollView {
-                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil))
+                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
                     }
                     .modifier(BackButtonModifier())
                     .navigationDestination(for: PostRestaurant.self) { restaurant in

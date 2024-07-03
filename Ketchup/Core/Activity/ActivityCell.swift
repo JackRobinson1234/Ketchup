@@ -18,7 +18,6 @@ struct ActivityCell: View {
         VStack {
             //MARK: newPost
             if activity.type == .newPost {
-                
                     HStack(alignment: .top){
                         Button {
                             viewModel.selectedUid = activity.uid
@@ -29,7 +28,7 @@ struct ActivityCell: View {
                         //MARK: Post: Restaurant
                        
                             VStack(alignment: .leading) {
-                                Text("@\(activity.username) created a new restaurant post for: ")
+                                Text("@\(activity.username) created a new post for: ")
                                     .foregroundStyle(.primary)
                                     .activityCellFontStyle() +
                                 Text(activity.name)
@@ -40,11 +39,9 @@ struct ActivityCell: View {
                                     .foregroundColor(.gray)
                             }
                             .multilineTextAlignment(.leading)
-                        //MARK: Post: AtHome
-                        
                         Spacer()
                         //MARK: Post Image
-                        if let image = activity.image {
+                        if let image = activity.image, !image.isEmpty {
                             Button {
                                 if let postId = activity.postId {
                                     Task {
@@ -63,6 +60,22 @@ struct ActivityCell: View {
                                     .aspectRatio(contentMode: .fit)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
+                        } else {
+                            Button{
+                                if let postId = activity.postId {
+                                    Task{
+                                        viewModel.writtenPost = try await PostService.shared.fetchPost(postId: postId)
+                                        viewModel.showWrittenPost.toggle()
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .frame(width: 40, height: 30)
+                            }
+                            .frame(width: 50)
                         }
                     }
                     .padding()
@@ -183,78 +196,18 @@ struct ActivityCell: View {
                     }
                 }
                 .padding()
-            //MARK: newReview
-            } else if activity.type == .newReview {
-                HStack (alignment: .top){
-                    Button { viewModel.showUserProfile = true
-                        viewModel.selectedUid = activity.uid
-                    } label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
-                    }
-                    if let text = activity.text {
-                        VStack(alignment: .leading) {
-                            if let recs = activity.recommendation, recs {
-                                HStack(spacing: 0) {
-                                    Image(systemName: "heart")
-                                        .foregroundColor(Color("Colors/AccentColor"))
-                                    Text("Recommends")
-                                        .foregroundStyle(.primary)
-                                }
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                            } else {
-                                HStack(spacing: 0) {
-                                    Image(systemName: "heart.slash")
-                                        .foregroundColor(.gray)
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                    Text("Does not recommend")
-                                        .foregroundColor(.gray)
-                                        .bold()
-                                }
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                            }
-                            Text("@\(activity.username) reviewed ")
-                                .activityCellFontStyle() +
-                            Text(activity.name)
-                                .activityCellFontStyle()
-                                .bold() +
-                            Text(": \(text)")
-                                .activityCellFontStyle()
-                            Text(getTimeElapsedString(from: activity.timestamp))
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
-                        }
-                        .multilineTextAlignment(.leading)
-                    }
-                    Spacer()
-                    if let image = activity.image {
-                        if let restaurantId = activity.restaurantId {
-                            Button {
-                                print("Setting selectedRestaurantId to \(restaurantId)")
-                                viewModel.selectedRestaurantId = restaurantId
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    viewModel.showRestaurant.toggle()
-                                }
-                            } label: {
-                                KFImage(URL(string: image))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                        }
-                    }
-                }
-                .padding()
             }
         }
         //MARK: Sheets
-        .sheet(isPresented: $viewModel.showPost){
-            if let post = viewModel.post {
-                let feedViewModel = FeedViewModel(posts: [post])
-                SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
+        .sheet(item: $viewModel.post){ post in
+            NavigationStack{
+                if let post = viewModel.post {
+                    let feedViewModel = FeedViewModel(posts: [post])
+                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                }
             }
         }
-        .sheet(isPresented: $viewModel.showCollection) {
+        .sheet(item: $viewModel.collection) { collection in
             if let collection = viewModel.collection, let user = viewModel.user {
                 CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
             }
@@ -272,6 +225,21 @@ struct ActivityCell: View {
                     ProfileView(uid: selectedUid)
                 }
             }
+        }
+        .sheet(item: $viewModel.writtenPost) { post in
+            NavigationStack {
+                ScrollView {
+                    if let post = viewModel.writtenPost {
+                        let feedViewModel = FeedViewModel(posts: [post])
+                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+                    }
+                }
+                .modifier(BackButtonModifier())
+                .navigationDestination(for: PostRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
+                }
+            }
+            .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
     }
 }
