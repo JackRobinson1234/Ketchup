@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		041BA6C0E504284D9EDD2B88 /* Pods_KetchupTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */; };
+		6FDB8A2A2C36380F00B75C4A /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */; };
+		6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */; };
 		BF4ECAA5861844FCBF9545D7 /* Pods_Ketchup_KetchupUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD47335C88E6D58B651BE686 /* Pods_Ketchup_KetchupUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
@@ -237,6 +239,7 @@
 		31329280271327784B737FE5 /* Pods-Ketchup.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.debug.xcconfig"; sourceTree = "<group>"; };
 		564626C80C85D5EDEA43E98E /* Pods-Ketchup.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.release.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.release.xcconfig"; sourceTree = "<group>"; };
 		637A013B4E0E22F9D1A33813 /* Pods-KetchupTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.release.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.release.xcconfig"; sourceTree = "<group>"; };
+		6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantStatsView.swift; sourceTree = "<group>"; };
 		8FA06695D014C3F41D31D087 /* Pods-Ketchup-KetchupUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup-KetchupUITests.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup-KetchupUITests/Pods-Ketchup-KetchupUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		A6029513531672DE69C99B19 /* Pods-KetchupTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.debug.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.debug.xcconfig"; sourceTree = "<group>"; };
 		AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KetchupTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -452,6 +455,7 @@
 				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
 				F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */,
 				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
+				6FDB8A2A2C36380F00B75C4A /* AlgoliaSearchClient in Frameworks */,
 				F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */,
 				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
 				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
@@ -1167,6 +1171,7 @@
 				F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */,
 				F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */,
 				F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */,
+				6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */,
 			);
 			name = View;
 			path = Components/View;
@@ -1474,6 +1479,7 @@
 				F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */,
 				F846F46A2BFF8AE1009D1303 /* ClusterMap */,
 				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
+				6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1554,6 +1560,7 @@
 				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
 				F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 				F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */,
+				6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1874,6 +1881,7 @@
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
+				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListView.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,
@@ -2272,6 +2280,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 8.19.0;
+			};
+		};
 		F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sukov/CachingPlayerItem";
@@ -2299,6 +2315,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
+		};
 		F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;

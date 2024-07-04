@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 enum Section {
-    case posts, collections
+    case posts, collections, stats
 }
 enum RestaurantPostDisplayMode: String, CaseIterable {
     case all = "All"
@@ -100,6 +100,18 @@ struct RestaurantProfileSlideBarView: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
                     .frame(maxWidth: .infinity)
+                
+                Image(systemName: currentSection == .stats ? "chart.bar.fill" : "chart.bar")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 22)
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.currentSection = .stats
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: currentSection == .stats))
+                    .frame(maxWidth: .infinity)
 
 
             }
@@ -138,6 +150,11 @@ struct RestaurantProfileSlideBarView: View {
         }
         if viewModel.currentSection == .collections {
             RestaurantCollectionListView(viewModel: viewModel)
+        }
+        
+        if viewModel.currentSection == .stats {
+            RestaurantStatsView(restaurant: viewModel.restaurant!)
+            // You'll replace this with your actual restaurant stats view once it's built
         }
     }
 }
