@@ -79,11 +79,15 @@ struct GeoFireScripts: View {
             }
         }
     func fetchAllRestaurants() async throws{
-        Task{
+        Task {
             print("Running Fetch Restaurants")
-            restaurants = try await RestaurantService.shared.fetchRestaurants()
-            print("Finished Running Fetch Restaurants")
-            print(restaurants.count)
+            do {
+                restaurants = try await RestaurantService.shared.fetchRestaurants()
+                print("Finished Running Fetch Restaurants")
+                print("Number of restaurants fetched: \(restaurants.count)")
+            } catch {
+                print("Error fetching restaurants: \(error)")
+            }
         }
     }
     func deleteOld() async {

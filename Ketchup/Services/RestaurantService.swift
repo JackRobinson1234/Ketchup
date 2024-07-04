@@ -28,6 +28,7 @@ class RestaurantService {
     /// - Parameter filters: dictionary of filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
     /// - Returns: array of restaurants
     func fetchRestaurants(withFilters filters: [String: [Any]]? = nil, limit: Int = 0) async throws -> [Restaurant] {
+        let _ = print("went in this fetch")
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
         print("DEBUG: Initial query created with descending order by id")
         
@@ -88,7 +89,7 @@ class RestaurantService {
         if restaurants.isEmpty {
             print("DEBUG: No restaurants found in the collection")
         } else {
-            print("DEBUG: Fetched restaurants:", restaurants)
+            print("DEBUG: Fetched restaurants: not gonna print all of this")
         }
         return restaurants
     }
