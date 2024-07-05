@@ -449,8 +449,9 @@ struct RatingsView: View {
                         .rotationEffect(.degrees(isExpanded ? 0 : -90))
                         .animation(.easeInOut(duration: 0.3), value: isExpanded)
                 }
-                
-                RatingSlider(rating: post.overallRating, label: "Overall", isOverall: true, fontColor: .primary)
+                if let overallRating = post.overallRating {
+                    RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .primary)
+                }
             }
             
             if isExpanded {
@@ -458,10 +459,18 @@ struct RatingsView: View {
                     Color.clear
                         .frame(width: 25)
                     VStack(alignment: .leading, spacing: 10) {
-                        RatingSlider(rating: post.foodRating, label: "Food", isOverall: false, fontColor: .primary)
-                        RatingSlider(rating: post.atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
-                        RatingSlider(rating: post.valueRating, label: "Value", isOverall: false, fontColor: .primary)
-                        RatingSlider(rating: post.serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                        if let foodRating = post.foodRating {
+                                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                                    }
+                                    if let atmosphereRating = post.atmosphereRating {
+                                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                                    }
+                                    if let valueRating = post.valueRating {
+                                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                                    }
+                                    if let serviceRating = post.serviceRating {
+                                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                                    }
                     }
                 }
                 .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))

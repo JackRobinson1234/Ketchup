@@ -135,10 +135,7 @@ struct CuisineFilter: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: filtersViewModel.selectedCuisines) {oldValue, newValue in
-            filteredCuisines = filteredCuisine(searchText)
-            filtersViewModel.disableFilters()
-        }
+       
         .onAppear{
             filteredCuisines = filteredCuisine(searchText)
         }

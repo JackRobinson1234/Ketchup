@@ -9,6 +9,7 @@ import CoreLocation
 import MapKit
 
 struct LocationFilter: View {
+    @Environment(\.dismiss) var dismiss
     @ObservedObject var filtersViewModel: FiltersViewModel
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
@@ -18,15 +19,21 @@ struct LocationFilter: View {
         // MARK: Title
         VStack{
             HStack{
-                Text("Filter by Location")
-                    .foregroundStyle(.gray)
-                    .font(.custom("MuseoSansRounded-300", size: 22))
-                    .fontWeight(.semibold)
+                VStack(alignment: .leading){
+                    Text("Select a Location")
+                        .foregroundStyle(.primary)
+                        .font(.custom("MuseoSansRounded-300", size: 22))
+                        .fontWeight(.semibold)
+                    Text("(Max 10)")
+                        .foregroundStyle(.gray)
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        
+                }
                 Spacer()
             }
             //MARK: Search
             /// if no filters are selected, search bar
-            if filtersViewModel.selectedLocation.isEmpty{
+            if filtersViewModel.selectedLocations.count < 10{
                 HStack{
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.gray)
@@ -66,35 +73,59 @@ struct LocationFilter: View {
                     }
                 }
             //MARK: Selected Restaurant
-            } else {
-                HStack{
+            }
+            if !filtersViewModel.selectedLocations.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
-                        Image(systemName: "xmark")
-                            .foregroundColor(Color("Colors/AccentColor"))
-                            .onTapGesture {
-                                withAnimation(.snappy) {
-                                    filtersViewModel.selectedLocation.removeAll()
-                                    filtersViewModel.selectedCity = ""
-                                    filtersViewModel.selectedState = ""
-                                }
+                        ForEach(filtersViewModel.selectedLocations, id: \.self) { location in
+                            HStack {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(Color("Colors/AccentColor"))
+                                    .onTapGesture {
+                                        withAnimation(.snappy) {
+                                            filtersViewModel.selectedLocations.removeAll { $0 == location }
+                                        }
+                                    }
+                                Text("\(location["city"] ?? ""), \(location["state"] ?? "")")
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                             }
-                        Text("\(filtersViewModel.selectedCity), \(filtersViewModel.selectedState)")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .padding()
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .shadow(radius: 2)
+                            .padding(.vertical, 5) // Add vertical padding
+                            Spacer()
+                        }
                     }
-                    .padding()
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .shadow(radius: 5)
-                    Spacer()
+                    .padding(.horizontal, 5) // Add horizontal padding
                 }
-                
+                .padding(.vertical) // Add padding to ScrollView
             }
                 
+            
+            
+             Spacer()
         }
-        .onChange(of: filtersViewModel.selectedLocation) {
-            filtersViewModel.disableFilters()
-        }
+        .padding(.horizontal)
+        .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                saveFilters()
+                                dismiss()
+                            } label: {
+                                Text("Save")
+                                    .foregroundColor(Color("Colors/AccentColor"))
+                                    .padding(6)
+                            }
+                        }
+                    }
         
+        
+    }
+    private func saveFilters() {
+        Task {
+            await filtersViewModel.fetchFilteredPosts()
+        }
     }
     //MARK: ReverseGeo
     
@@ -126,9 +157,16 @@ struct LocationFilter: View {
                     mapSearch.searchTerm = ""
                     mapSearch.locationResults = []
                     ///adds the selected location to the view model
-                    filtersViewModel.selectedLocation = [c]
-                    filtersViewModel.selectedCity = city
-                    filtersViewModel.selectedState = state
+                    //filtersViewModel.selectedLocation = [c]
+                    let newLocation = ["city": city, "state": state]
+                                    
+                                    if let index = filtersViewModel.selectedLocations.firstIndex(where: { $0["city"] == city && $0["state"] == state }) {
+                                        filtersViewModel.selectedLocations[index] = newLocation
+                                    } else {
+                                        filtersViewModel.selectedLocations.append(newLocation)
+                                    }
+                                    
+                    //filtersViewModel.selectedState = state
                     isFocused = false
                     
                 }

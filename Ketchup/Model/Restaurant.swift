@@ -45,13 +45,12 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let phone: String?
     let plusCode: String?
     let popularTimesHistogram: PopularTimesHistogram?
-    let postalCode: Int?
+    //let postalCode: Int?
     let reviewsTags: [ReviewTag]?
     let scrapedAt: String?
     let street: String?
     let subCategories: [String]?
     let temporarilyClosed: Bool?
-    let updatesFromCustomers: String?
     let url: String?
     let website: String?
     
@@ -90,23 +89,35 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.phone = try container.decodeIfPresent(String.self, forKey: .phone)
         self.plusCode = try container.decodeIfPresent(String.self, forKey: .plusCode)
         do {
-            self.popularTimesHistogram = try container.decodeIfPresent(PopularTimesHistogram.self, forKey: .popularTimesHistogram)
+            if let popularTimesContainer = try? container.nestedContainer(keyedBy: PopularTimesHistogram.CodingKeys.self, forKey: .popularTimesHistogram) {
+                // Check if the popularTimesContainer has all the required keys
+                let requiredKeys: [PopularTimesHistogram.CodingKeys] = [.mo, .tu, .we, .th, .fr, .sa, .su]
+                let hasAllKeys = requiredKeys.allSatisfy { popularTimesContainer.contains($0) }
+                
+                if hasAllKeys {
+                    self.popularTimesHistogram = try PopularTimesHistogram(from: container.superDecoder(forKey: .popularTimesHistogram))
+                } else {
+                    print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
+                    self.popularTimesHistogram = nil
+                }
+            } else {
+                self.popularTimesHistogram = nil
+            }
         } catch {
             print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
             self.popularTimesHistogram = nil
         }
-        self.postalCode = try container.decodeIfPresent(Int.self, forKey: .postalCode)
+        //self.postalCode = try container.decodeIfPresent(Int.self, forKey: .postalCode)
         self.reviewsTags = try container.decodeIfPresent([ReviewTag].self, forKey: .reviewsTags)
         self.scrapedAt = try container.decodeIfPresent(String.self, forKey: .scrapedAt)
         self.street = try container.decodeIfPresent(String.self, forKey: .street)
         self.subCategories = try container.decodeIfPresent([String].self, forKey: .subCategories)
         self.temporarilyClosed = try container.decodeIfPresent(Bool.self, forKey: .temporarilyClosed)
-        self.updatesFromCustomers = try container.decodeIfPresent(String.self, forKey: .updatesFromCustomers)
         self.url = try container.decodeIfPresent(String.self, forKey: .url)
         self.website = try container.decodeIfPresent(String.self, forKey: .website)
     }
     
-    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, postalCode: Int? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, updatesFromCustomers: String? = nil, url: String? = nil, website: String? = nil) {
+    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil) {
         self.id = id
         self.cuisine = cuisine
         self.price = price
@@ -138,13 +149,12 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.phone = phone
         self.plusCode = plusCode
         self.popularTimesHistogram = popularTimesHistogram
-        self.postalCode = postalCode
+        //self.postalCode = postalCode
         self.reviewsTags = reviewsTags
         self.scrapedAt = scrapedAt
         self.street = street
         self.subCategories = subCategories
         self.temporarilyClosed = temporarilyClosed
-        self.updatesFromCustomers = updatesFromCustomers
         self.url = url
         self.website = website
     }
@@ -184,99 +194,112 @@ struct AdditionalInfo: Codable, Hashable {
 }
 
 struct AccessibilityItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct AmenityItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct AtmosphereItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct ChildrenItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct CrowdItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct DiningOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct HighlightItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct OfferingItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct PaymentItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct PlanningItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct PopularForItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct ServiceOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
+    let name: String
+    let value: Bool
 }
 
 struct OpeningHour: Codable, Hashable {
-    let day: String?
-    let hours: String?
+    let day: String
+    let hours: String
 }
 
 struct OrderBy: Codable, Hashable {
-    let name: String?
-    let orderUrl: String?
-    let url: String?
+    let name: String
+    let orderUrl: String
+    let url: String
 }
 
 struct PeopleAlsoSearch: Codable, Hashable {
-    let category: String?
-    let reviewsCount: Int?
-    let title: String?
-    let totalScore: Double?
+    let category: String
+    let reviewsCount: Int
+    let title: String
+    let totalScore: Double
 }
 
 struct PopularTimesHistogram: Codable, Hashable {
-    let mo: [PopularTimeItem]?
-    let tu: [PopularTimeItem]?
-    let we: [PopularTimeItem]?
-    let th: [PopularTimeItem]?
-    let fr: [PopularTimeItem]?
-    let sa: [PopularTimeItem]?
-    let su: [PopularTimeItem]?
-}
+    let mo, tu, we, th, fr, sa, su: [PopularTimeItem]
 
+    enum CodingKeys: String, CodingKey {
+        case mo, tu, we, th, fr, sa, su
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        func decodeDay(_ key: CodingKeys) -> [PopularTimeItem] {
+            (try? container.decode([PopularTimeItem].self, forKey: key)) ?? []
+        }
+        
+        mo = decodeDay(.mo)
+        tu = decodeDay(.tu)
+        we = decodeDay(.we)
+        th = decodeDay(.th)
+        fr = decodeDay(.fr)
+        sa = decodeDay(.sa)
+        su = decodeDay(.su)
+    }
+}
 struct PopularTimeItem: Codable, Hashable {
-    let hour: Int?
-    let occupancyPercent: Int?
+    let hour: Int
+    let occupancyPercent: Int
 }
 
 struct ReviewTag: Codable, Hashable {
-    let count: Int?
-    let title: String?
+    let count: Int
+    let title: String
 }

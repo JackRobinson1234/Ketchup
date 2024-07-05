@@ -24,6 +24,7 @@ struct PrimaryFeedView: View {
     @State private var showSuccessMessage = false
     @State var selectedPost: Post?
     @State var showLocationFilter: Bool = false
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -103,7 +104,7 @@ struct PrimaryFeedView: View {
                                         .shadow(radius: 4)
                                         .font(.system(size: 23))
                                     
-                                    if !filtersViewModel.filters.isEmpty {
+                                    if filtersViewModel.hasNonLocationFilters {
                                         Circle()
                                             .fill(Color("Colors/AccentColor"))
                                             .frame(width: 12, height: 12)
@@ -152,7 +153,7 @@ struct PrimaryFeedView: View {
                             
                             
                         }
-                        .padding(.bottom, 4)
+                        .padding(.bottom, 6)
                         
                         
                         Button {
@@ -162,36 +163,57 @@ struct PrimaryFeedView: View {
                                 if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
                                     if let cities = cityFilter.value as? [String], !cities.isEmpty {
                                         if cities.count > 1 {
-                                            HStack {
+                                            HStack (spacing: 1){
+                                                Image(systemName: "location")
+                                                    .foregroundStyle(.gray)
+                                                    .font(.caption)
                                                 Text("\(cities[0]) +\(cities.count - 1) more")
-                                                    .font(.custom("MuseoSansRounded-300", size: 18))
-                                                    .foregroundStyle(.primary)
+                                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                                    .foregroundStyle(.gray)
                                                 Image(systemName: "chevron.down")
+                                                    .foregroundStyle(.gray)
+                                                    .font(.caption)
                                             }
                                         } else {
-                                            HStack {
+                                            HStack(spacing: 1) {
+                                                Image(systemName: "location")
+                                                    .foregroundStyle(.gray)
+                                                    .font(.caption)
                                                 Text(cities[0])
-                                                    .font(.custom("MuseoSansRounded-300", size: 18))
-                                                    .foregroundStyle(.primary)
+                                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                                    .foregroundStyle(.gray)
                                                 Image(systemName: "chevron.down")
+                                                    .foregroundStyle(.gray)
+                                                    .font(.caption)
                                                 
                                             }
                                         }
                                     } else {
-                                        HStack {
+                                        HStack(spacing: 1) {
+                                            Image(systemName: "location")
+                                                .foregroundStyle(.gray)
+                                                .font(.caption)
                                             Text("Global")
-                                                .font(.custom("MuseoSansRounded-300", size: 18))
-                                                .foregroundStyle(.primary)
+                                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                                .foregroundStyle(.gray)
                                             Image(systemName: "chevron.down")
+                                                .foregroundStyle(.gray)
+                                                .font(.caption)
                                         }
                                     }
                                 } else {
-                                    HStack {
+                                    
+                                    HStack(spacing: 1) {
+                                        Image(systemName: "location")
+                                            .foregroundStyle(.gray)
+                                            .font(.caption)
                                         Text("Global")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                            .foregroundStyle(.primary)
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundStyle(.gray)
                                         
                                         Image(systemName: "chevron.down")
+                                            .foregroundStyle(.gray)
+                                            .font(.caption)
                                     }
                                 }
                             }
@@ -269,6 +291,14 @@ struct PrimaryFeedView: View {
                     NavigationStack {
                         SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
                     }
+                }
+                .sheet(isPresented: $showLocationFilter) {
+                    NavigationStack{
+                        LocationFilter(filtersViewModel: filtersViewModel)
+                            .modifier(BackButtonModifier())
+                            
+                    }
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                 }
                 .navigationDestination(for: PostUser.self) { user in
                     

@@ -197,6 +197,7 @@
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
+		F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8F494F82BBF98950043B515 /* DietaryCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F72BBF98950043B515 /* DietaryCategories.swift */; };
 		F8F8D9DC2C2C7EF200982400 /* VideoPlayerPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F8D9DB2C2C7EF200982400 /* VideoPlayerPool.swift */; };
@@ -428,6 +429,7 @@
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
+		F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLocationFilter.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8F494F72BBF98950043B515 /* DietaryCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietaryCategories.swift; sourceTree = "<group>"; };
 		F8F8D9DB2C2C7EF200982400 /* VideoPlayerPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerPool.swift; sourceTree = "<group>"; };
@@ -1105,6 +1107,7 @@
 				F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */,
 				F86E15B02C039FA40059D15C /* RepostView.swift */,
 				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
+				F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1745,6 +1748,7 @@
 				F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */,
 				F871CE012BCDBD8F003C9BE8 /* CollectionsViewModel.swift in Sources */,
 				F8A24B592BE7F2BD00AB7FDD /* UploadError.swift in Sources */,
+				F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */,
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
