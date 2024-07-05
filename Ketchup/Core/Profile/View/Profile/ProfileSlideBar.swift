@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, likes, collections
+    case posts, likes, collections 
 }
 enum PostDisplayMode: String, CaseIterable {
         case all = "All"
@@ -78,6 +78,7 @@ struct ProfileSlideBar: View {
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
                     .frame(maxWidth: .infinity)
                 
+                
             }
         }
         .padding()
@@ -129,6 +130,7 @@ struct ProfileSlideBar: View {
         if profileSection == .collections {
             CollectionsListView(viewModel: collectionsViewModel)
         }
+        
     }
 }
 
