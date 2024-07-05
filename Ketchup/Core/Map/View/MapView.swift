@@ -109,6 +109,7 @@ struct MapView: View {
                                         if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
                                             let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
                                             position = .region(region)
+                                            Task.detached { await viewModel.reloadAnnotations() } 
                                         } else {
                                             noNearbyRestaurants = true
                                         }

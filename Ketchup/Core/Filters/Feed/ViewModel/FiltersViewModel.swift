@@ -19,12 +19,12 @@ class FiltersViewModel: ObservableObject {
     @Published var selectedDietary: [String] = []
     @Published var selectedCookingTime: [Int] = []
     
-    
+    var hasNonLocationFilters: Bool {
+            // Check if there are any filters excluding the "location" key
+            return filters.filter { $0.key != "restaurant.city" }.isEmpty == false
+        }
     /// variables for the location filter
-    @Published var selectedLocation: [CLLocationCoordinate2D] = []
-    @Published var selectedCity: String = ""
-    @Published var selectedState: String = ""
-    
+    @Published var selectedLocations: [[String: String]] = []
     
     /// variables for the postType filter
     @Published var restaurantChecked: Bool = true
@@ -48,11 +48,12 @@ class FiltersViewModel: ObservableObject {
         }
         /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
         
-        if selectedLocation.isEmpty {
-            filters.removeValue(forKey: "location")
-        } else {
-            filters["restaurant.city"] = [selectedCity]
-        }
+        if selectedLocations.isEmpty {
+                filters.removeValue(forKey: "restaurant.city")
+            } else {
+                let selectedCities = selectedLocations.compactMap { $0["city"] }
+                filters["restaurant.city"] = selectedCities
+            }
         
         ///Price checking if there are any selected
         if selectedPrice.isEmpty {
@@ -74,28 +75,28 @@ class FiltersViewModel: ObservableObject {
         selectedPrice = []
         selectedDietary = []
         selectedCookingTime = []
-        selectedLocation = []
-        selectedCity = ""
-        selectedState = ""
+//        selectedLocations = []
+//        selectedCity = []
+//        selectedState = []
         restaurantChecked = true
         atHomeChecked = true
         filters = [:]
     }
     
-    func disableFilters() {
-        if !selectedLocation.isEmpty || !selectedPrice.isEmpty || atHomeChecked == false {
-            disableAtHomeFilters = true
-            restaurantChecked = true
-            atHomeChecked = false
-        } else {
-            disableAtHomeFilters = false
-        }
-        if !selectedDietary.isEmpty || !selectedCookingTime.isEmpty || restaurantChecked == false {
-            disableRestaurantFilters = true
-            restaurantChecked = false
-            atHomeChecked = true
-        } else {
-            disableRestaurantFilters = false
-        }
-    }
+//    func disableFilters() {
+//        if !selectedLocation.isEmpty || !selectedPrice.isEmpty || atHomeChecked == false {
+//            disableAtHomeFilters = true
+//            restaurantChecked = true
+//            atHomeChecked = false
+//        } else {
+//            disableAtHomeFilters = false
+//        }
+//        if !selectedDietary.isEmpty || !selectedCookingTime.isEmpty || restaurantChecked == false {
+//            disableRestaurantFilters = true
+//            restaurantChecked = false
+//            atHomeChecked = true
+//        } else {
+//            disableRestaurantFilters = false
+//        }
+//    }
 }

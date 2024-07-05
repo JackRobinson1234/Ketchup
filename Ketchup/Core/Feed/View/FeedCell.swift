@@ -225,8 +225,9 @@ struct FeedCell: View {
             Text(post.caption)
                 .lineLimit(expandCaption ? 50 : 1)
                 .font(.custom("MuseoSansRounded-300", size: 16))
-            
-            RatingSlider(rating: post.overallRating, label: "Overall", isOverall: true, fontColor: .white)
+            if let overallRating = post.overallRating {
+                RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .white)
+            }
             
             if !expandCaption {
                 Button(action: {
@@ -239,11 +240,19 @@ struct FeedCell: View {
             } else {
                 // Other ratings
                 VStack(alignment: .leading, spacing: 5) {
-                    RatingSlider(rating: post.foodRating, label: "Food", isOverall: false, fontColor: .white)
-                    RatingSlider(rating: post.atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .white)
-                    RatingSlider(rating: post.valueRating, label: "Value", isOverall: false, fontColor: .white)
-                    RatingSlider(rating: post.serviceRating, label: "Service", isOverall: false, fontColor: .white)
-                }
+                        if let foodRating = post.foodRating {
+                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .white)
+                        }
+                        if let atmosphereRating = post.atmosphereRating {
+                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .white)
+                        }
+                        if let valueRating = post.valueRating {
+                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .white)
+                        }
+                        if let serviceRating = post.serviceRating {
+                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .white)
+                        }
+                    }
                 Button(action: {
                     withAnimation(.snappy) { expandCaption.toggle() }
                 }) {

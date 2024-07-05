@@ -53,7 +53,7 @@ struct GeoFireScripts: View {
                     .order(by: "geoHash")
                     .start(at: [bound.startValue])
                     .end(at: [bound.endValue])
-                    .whereField("cuisine", in: ["Coffee & Tea"])
+//                    .whereField("cuisine", in: ["Coffee & Tea"])
             }
             
             do {
