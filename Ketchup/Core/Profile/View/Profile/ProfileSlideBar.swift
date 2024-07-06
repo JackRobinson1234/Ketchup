@@ -7,14 +7,24 @@
 
 import SwiftUI
 
+//  ProfileSlideBar.swift
+//  Foodi
+//
+//  Created by Jack Robinson on 2/19/24.
+//
+
+import SwiftUI
+
 enum ProfileSectionEnum {
-    case posts, likes, collections 
+    case posts, likes, collections
 }
+
 enum PostDisplayMode: String, CaseIterable {
-        case all = "All"
-        case media = "Media"
-        case map = "Map"
-    }
+    case all = "All"
+    case media = "Media"
+    case map = "Map"
+}
+
 struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
@@ -24,7 +34,9 @@ struct ProfileSlideBar: View {
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
     
-   
+    private var isKetchupMediaUser: Bool {
+        return viewModel.user.username == "ketchup_media"
+    }
     
     init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._profileSection = profileSection
@@ -35,8 +47,8 @@ struct ProfileSlideBar: View {
     }
     
     var body: some View {
-        //MARK: Images
-        VStack{
+        VStack {
+            //MARK: Images
             HStack(spacing: 0) {
                 Image(systemName: profileSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
@@ -49,14 +61,11 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
                     .frame(maxWidth: .infinity)
-
-                
                 
                 Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
-                
                     .onTapGesture {
                         withAnimation {
                             self.profileSection = .collections
@@ -69,7 +78,6 @@ struct ProfileSlideBar: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
-                
                     .onTapGesture {
                         withAnimation {
                             self.profileSection = .likes
@@ -77,62 +85,60 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
                     .frame(maxWidth: .infinity)
-                
-                
             }
-        }
-        .padding()
-        .padding(.bottom, 22)
-        
-        // MARK: Section Logic
-        
-        if profileSection == .posts {
-            VStack {
-                Picker("Post Display Mode", selection: $postDisplayMode) {
-                    ForEach(PostDisplayMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+            .padding()
+            .padding(.bottom, 22)
+            
+            // MARK: Section Logic
+            if profileSection == .posts {
+                VStack {
+                    Picker("Post Display Mode", selection: $postDisplayMode) {
+                        ForEach(PostDisplayMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding([.bottom, .horizontal])
+                    .onChange(of: postDisplayMode) {
+                        if postDisplayMode == .map {
+                            scrollTarget = "map"
+                        }
+                    }
+                    
+                    if isKetchupMediaUser && (postDisplayMode == .all || postDisplayMode == .media) {
+                        Text("This user has too many posts to view")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                            .padding()
+                    } else {
+                        switch postDisplayMode {
+                        case .all:
+                            ProfileFeedView(
+                                viewModel: feedViewModel,
+                                scrollPosition: $scrollPosition,
+                                scrollTarget: $scrollTarget
+                            )
+                        case .media:
+                            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)")
+                        case .map:
+                            ProfileMapView(posts: viewModel.posts)
+                                .id("map")
+                        }
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding([.bottom, .horizontal])
-                .onChange(of: postDisplayMode){
-                    if postDisplayMode == .map {
-                        scrollTarget = "map"
-                    }
-                }
-                
-                
-                switch postDisplayMode {
-                case .all:
-                    ProfileFeedView(
-                        viewModel: feedViewModel,
-                        scrollPosition: $scrollPosition,
-                        scrollTarget: $scrollTarget
-                    )
-                case .media:
-                    PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)")
-                case .map:
-                    ProfileMapView(posts: viewModel.posts)
-                        .id("map")
+                .onAppear {
+                    feedViewModel.posts = viewModel.posts
                 }
             }
-            .onAppear {
-                feedViewModel.posts = viewModel.posts
+            
+            if profileSection == .likes {
+                LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
+                               scrollTarget: $scrollTarget)
+            }
+            
+            if profileSection == .collections {
+                CollectionsListView(viewModel: collectionsViewModel)
             }
         }
-        
-        
-        if profileSection == .likes {
-            LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
-                           scrollTarget: $scrollTarget)
-        }
-        
-        if profileSection == .collections {
-            CollectionsListView(viewModel: collectionsViewModel)
-        }
-        
     }
 }
-
-
-
