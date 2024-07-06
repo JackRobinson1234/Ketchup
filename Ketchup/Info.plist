@@ -37,5 +37,11 @@
 		<string>MuseoSansRounded900.otf</string>
 		<string>MuseoSansRounded1000.otf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

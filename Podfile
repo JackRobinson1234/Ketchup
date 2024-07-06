@@ -13,6 +13,7 @@ pod 'Firebase/Firestore'
 pod 'Kingfisher', '~> 7.0'
 pod 'GoogleSignIn'
 pod 'GoogleSignInSwiftSupport'
+pod 'Firebase/Messaging'
 
   target 'KetchupTests' do
     inherit! :search_paths

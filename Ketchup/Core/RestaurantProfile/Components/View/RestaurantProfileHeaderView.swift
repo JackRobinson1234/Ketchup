@@ -19,25 +19,26 @@ struct RestaurantProfileHeaderView: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     var travelTime: String? {
-        guard let travelInterval else { return nil}
+        guard let travelInterval else { return nil }
         let formatter = DateComponentsFormatter()
-            formatter.unitsStyle = .full
-            formatter.allowedUnits = [.hour, .minute]
-            formatter.maximumUnitCount = 2 
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.maximumUnitCount = 2
         return formatter.string(from: travelInterval)
     }
     var body: some View {
         if let restaurant = viewModel.restaurant {
-            VStack (alignment: .leading, spacing: 6){
-                //ListingImageCarouselView(images: restaurant.imageURLs)
+            VStack(alignment: .leading, spacing: 6) {
+                // ListingImageCarouselView(images: restaurant.imageURLs)
                 ZStack(alignment: .bottomLeading) {
-                    if let imageURLs = restaurant.profileImageUrl{
+                    if let imageURLs = restaurant.profileImageUrl {
                         ListingImageCarouselView(images: [imageURLs])
                             .overlay(
                                 LinearGradient(
                                     gradient: Gradient(stops: [
-                                        .init(color: Color.clear, location: 0.6),
-                                        .init(color: Color.black.opacity(0.6), location: 1.0)
+                                        .init(color: Color.clear, location: 0.4),
+                                        .init(color: Color.black.opacity(0.7), location: 0.8),
+                                        .init(color: Color.black.opacity(0.9), location: 1.0)
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -45,7 +46,7 @@ struct RestaurantProfileHeaderView: View {
                             )
                     }
                     
-                    HStack{
+                    HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(restaurant.name)")
                                 .font(.custom("MuseoSansRounded-300", size: 20))
@@ -72,16 +73,23 @@ struct RestaurantProfileHeaderView: View {
                                     .multilineTextAlignment(.leading)
                                     .foregroundStyle(.white)
                             }
-                            Text(combineRestaurantDetails(restaurant: restaurant))
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                                .foregroundStyle(.white)
+                            
+                            HStack {
+                                Text(combineRestaurantDetails(restaurant: restaurant).details)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.white)
+                                
+                                Text(combineRestaurantDetails(restaurant: restaurant).status)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(combineRestaurantDetails(restaurant: restaurant).isOpen ? .green : .red)
+                            }
                         }
                         .padding([.horizontal, .bottom])
                         
                         Spacer()
                     }
-                    VStack{
-                        HStack{
+                    VStack {
+                        HStack {
                             Button {
                                 dismiss()
                             } label: {
@@ -101,27 +109,23 @@ struct RestaurantProfileHeaderView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                
-                
                 VStack(alignment: .leading) {
-                    Button{
+                    Button {
                         showMapView.toggle()
-                        
                     } label: {
                         if let street = restaurant.address, !street.isEmpty {
-                            VStack(alignment: .leading){
-                                    if let travelTime {
-                                        HStack(spacing: 0){
-                                            Image(systemName: "car")
-                                            Text(" \(travelTime)")
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                                .foregroundStyle(.primary)
-                                        }
+                            VStack(alignment: .leading) {
+                                if let travelTime {
+                                    HStack(spacing: 0) {
+                                        Image(systemName: "car")
+                                        Text(" \(travelTime)")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundStyle(.primary)
                                     }
+                                }
                                 
-                                    Text("(Click to view on map)")
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                
+                                Text("(Click to view on map)")
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
                             }
                         }
                     }
@@ -129,12 +133,8 @@ struct RestaurantProfileHeaderView: View {
                     Text("\(restaurant.bio ?? "")")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .multilineTextAlignment(.leading)
-
                 }
                 .padding()
-                
-                
-                
                 
                 RestaurantProfileSlideBarView(viewModel: viewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
@@ -161,60 +161,64 @@ struct RestaurantProfileHeaderView: View {
             .sheet(isPresented: $showMapView) {
                 MapRestaurantProfileView(viewModel: viewModel, route: $route, travelInterval: $travelInterval)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
-                
             }
         }
     }
-    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
-            var details = [String]()
-            
-            if let cuisine = restaurant.cuisine {
-                details.append(cuisine)
-            }
-            if let price = restaurant.price {
-                details.append(price)
-            }
-            details.append(isRestaurantOpen(restaurant: restaurant) ? "Open" : "Closed")
-
-            return details.joined(separator: " | ")
+    
+    private func combineRestaurantDetails(restaurant: Restaurant) -> (details: String, status: String, isOpen: Bool) {
+        var details = [String]()
+        
+        if let cuisine = restaurant.cuisine {
+            details.append(cuisine)
         }
-
-        private func isRestaurantOpen(restaurant: Restaurant) -> Bool {
-            guard let openingHours = restaurant.openingHours else {
-                return false
-            }
-
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEEE"
-            let currentDayOfWeek = dateFormatter.string(from: Date())
-
-            let currentHour = Calendar.current.component(.hour, from: Date())
-            let currentMinute = Calendar.current.component(.minute, from: Date())
-
-            for hour in openingHours {
-                if hour.day.lowercased() == currentDayOfWeek.lowercased() {
-                    let timeComponents = hour.hours.components(separatedBy: "–")
-                    if timeComponents.count == 2 {
-                        let openTime = timeComponents[0].trimmingCharacters(in: .whitespaces)
-                        let closeTime = timeComponents[1].trimmingCharacters(in: .whitespaces)
-
-                        let openHour = Int(openTime.components(separatedBy: ":")[0]) ?? 0
-                        let openMinute = Int(openTime.components(separatedBy: ":")[1]) ?? 0
-                        let closeHour = Int(closeTime.components(separatedBy: ":")[0]) ?? 0
-                        let closeMinute = Int(closeTime.components(separatedBy: ":")[1]) ?? 0
-
-                        let currentTimeInMinutes = currentHour * 60 + currentMinute
-                        let openTimeInMinutes = openHour * 60 + openMinute
-                        let closeTimeInMinutes = closeHour * 60 + closeMinute
-
-                        return currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes
-                    }
+        if let price = restaurant.price {
+            details.append(price)
+        }
+        
+        let (isOpen, hours) = getRestaurantStatus(restaurant: restaurant)
+        let statusText = isOpen ? "Open" : "Closed"
+        let statusAndHours = hours.map { "\(statusText) (\($0))" } ?? statusText
+        details.append(statusAndHours)
+        
+        return (details.joined(separator: " | "), statusText, isOpen)
+    }
+    
+    private func getRestaurantStatus(restaurant: Restaurant) -> (Bool, String?) {
+        guard let openingHours = restaurant.openingHours else {
+            return (false, nil)
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        let currentDayOfWeek = dateFormatter.string(from: Date())
+        
+        let currentHour = Calendar.current.component(.hour, from: Date())
+        let currentMinute = Calendar.current.component(.minute, from: Date())
+        
+        for hour in openingHours {
+            if hour.day.lowercased() == currentDayOfWeek.lowercased() {
+                let timeComponents = hour.hours.components(separatedBy: "–")
+                if timeComponents.count == 2 {
+                    let openTime = timeComponents[0].trimmingCharacters(in: .whitespaces)
+                    let closeTime = timeComponents[1].trimmingCharacters(in: .whitespaces)
+                    
+                    let openHour = Int(openTime.components(separatedBy: ":")[0]) ?? 0
+                    let openMinute = Int(openTime.components(separatedBy: ":")[1]) ?? 0
+                    let closeHour = Int(closeTime.components(separatedBy: ":")[0]) ?? 0
+                    let closeMinute = Int(closeTime.components(separatedBy: ":")[1]) ?? 0
+                    
+                    let currentTimeInMinutes = currentHour * 60 + currentMinute
+                    let openTimeInMinutes = openHour * 60 + openMinute
+                    let closeTimeInMinutes = closeHour * 60 + closeMinute
+                    
+                    let isOpen = currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes
+                    return (isOpen, hour.hours)
                 }
             }
-
-            return false
         }
-    
+        
+        return (false, nil)
+    }
 }
 //#Preview {
 //    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))

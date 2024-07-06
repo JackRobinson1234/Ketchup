@@ -15,29 +15,30 @@ struct RestaurantStatsView: View {
        @State private var showErrorAlert = false
        @State private var errorMessage = ""
        
-       var body: some View {
-           ScrollView {
-               VStack(alignment: .leading, spacing: 20) {
-                   generalInfoSection
-                   contactSection
-                   ratingSection
-                   popularTimesSection
-                   openingHoursSection
-                   orderBySection
-                   additionalInfoSection
-                   categoriesSection
-                   peopleAlsoSearchSection
-               }
-               .padding()
-           }
-           .background(Color(UIColor.systemBackground))
-           .sheet(item: $activeLink) { link in
-               SafariView(url: link.url)
-           }
-           .alert(isPresented: $showErrorAlert) {
-               Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
-           }
-       }
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                generalInfoSection
+                contactSection
+                websiteLinksSection  // Add this line
+                ratingSection
+                popularTimesSection
+                openingHoursSection
+                orderBySection
+                additionalInfoSection
+                categoriesSection
+                peopleAlsoSearchSection
+            }
+            .padding()
+        }
+        .background(Color(UIColor.systemBackground))
+        .sheet(item: $activeLink) { link in
+            SafariView(url: link.url)
+        }
+        .alert(isPresented: $showErrorAlert) {
+            Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+        }
+    }
     
     private var generalInfoSection: some View {
         SectionBox {
@@ -62,6 +63,13 @@ struct RestaurantStatsView: View {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "Contact Information", icon: "phone")
                 InfoRow(title: "Phone", value: restaurant.phone ?? "N/A", icon: "phone")
+            }
+        }
+    }
+    private var websiteLinksSection: some View {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Website Links", icon: "link")
                 linkRow(title: "Website", value: restaurant.website, placeholder: "Website link", icon: "globe")
                 linkRow(title: "Menu", value: restaurant.menuUrl, placeholder: "Menu link", icon: "list.bullet")
                 linkRow(title: "Google Food", value: restaurant.googleFoodUrl, placeholder: "Google Food link", icon: "g.circle")
@@ -152,7 +160,8 @@ struct RestaurantStatsView: View {
         }
     
     private var orderBySection: some View {
-            SectionBox {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "Order Options", icon: "bag")
                 if let orderBy = restaurant.orderBy {
                     ForEach(orderBy, id: \.name) { option in
@@ -164,6 +173,7 @@ struct RestaurantStatsView: View {
                 }
             }
         }
+    }
     
     private var additionalInfoSection: some View {
         SectionBox {
