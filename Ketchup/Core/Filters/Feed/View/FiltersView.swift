@@ -51,23 +51,7 @@ struct FiltersView: View {
                 //MARK: Location
                 
                 VStack {
-//                    if selectedOption == .location {
-//                        VStack{
-//                            LocationFilter(filtersViewModel: filtersViewModel)
-//                        }
-//                        .modifier(CollapsibleFilterViewModifier(frame: 250))
-//                        .onTapGesture(count:2){
-//                            withAnimation(.snappy){ selectedOption = .noneSelected}
-//                        }
-//                        
-//                    } else {
-//                        CollapsedPickerView(title: "Restaurant Location", emptyDescription: "Filter by Location", count: filtersViewModel.selectedLocation.count, singularDescription: "Location Selected")
-//                            .opacity(filtersViewModel.disableRestaurantFilters ? 0.5 : 1.0)
-//                            .allowsHitTesting(!filtersViewModel.disableRestaurantFilters)
-//                            .onTapGesture{
-//                                withAnimation(.snappy){ selectedOption = .location}
-//                            }
-//                    }
+
                     
                     
                     

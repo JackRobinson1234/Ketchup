@@ -6,7 +6,7 @@ import FirebaseFirestore
 
 struct Restaurant: Identifiable, Codable, Hashable {
     let id: String
-    let cuisine: String?
+    let categoryName: String?
     let price: String?
     let name: String
     var geoPoint: GeoPoint?
@@ -38,7 +38,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let phone: String?
     let plusCode: String?
     let popularTimesHistogram: PopularTimesHistogram?
-    //let postalCode: Int?
     let reviewsTags: [ReviewTag]?
     let scrapedAt: String?
     let street: String?
@@ -47,10 +46,13 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let url: String?
     let website: String?
     
+    // New mergedCategories field
+    var mergedCategories: [String]?
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.cuisine = try container.decodeIfPresent(String.self, forKey: .cuisine)
+        self.categoryName = try container.decodeIfPresent(String.self, forKey: .categoryName)
         self.price = try container.decodeIfPresent(String.self, forKey: .price)
         self.name = try container.decode(String.self, forKey: .name)
         self.geoPoint = try container.decodeIfPresent(GeoPoint.self, forKey: .geoPoint)
@@ -83,7 +85,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.plusCode = try container.decodeIfPresent(String.self, forKey: .plusCode)
         do {
             if let popularTimesContainer = try? container.nestedContainer(keyedBy: PopularTimesHistogram.CodingKeys.self, forKey: .popularTimesHistogram) {
-                // Check if the popularTimesContainer has all the required keys
                 let requiredKeys: [PopularTimesHistogram.CodingKeys] = [.mo, .tu, .we, .th, .fr, .sa, .su]
                 let hasAllKeys = requiredKeys.allSatisfy { popularTimesContainer.contains($0) }
                 
@@ -100,7 +101,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
             print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
             self.popularTimesHistogram = nil
         }
-        //self.postalCode = try container.decodeIfPresent(Int.self, forKey: .postalCode)
         self.reviewsTags = try container.decodeIfPresent([ReviewTag].self, forKey: .reviewsTags)
         self.scrapedAt = try container.decodeIfPresent(String.self, forKey: .scrapedAt)
         self.street = try container.decodeIfPresent(String.self, forKey: .street)
@@ -108,11 +108,14 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.temporarilyClosed = try container.decodeIfPresent(Bool.self, forKey: .temporarilyClosed)
         self.url = try container.decodeIfPresent(String.self, forKey: .url)
         self.website = try container.decodeIfPresent(String.self, forKey: .website)
+        
+        // Decoding the mergedCategories field
+        self.mergedCategories = try container.decodeIfPresent([String].self, forKey: .mergedCategories)
     }
     
-    init(id: String, cuisine: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil) {
+    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil) {
         self.id = id
-        self.cuisine = cuisine
+        self.categoryName = categoryName
         self.price = price
         self.name = name
         self.geoPoint = geoPoint
@@ -142,7 +145,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.phone = phone
         self.plusCode = plusCode
         self.popularTimesHistogram = popularTimesHistogram
-        //self.postalCode = postalCode
         self.reviewsTags = reviewsTags
         self.scrapedAt = scrapedAt
         self.street = street
@@ -150,6 +152,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.temporarilyClosed = temporarilyClosed
         self.url = url
         self.website = website
+        self.mergedCategories = mergedCategories
     }
     
     var coordinates: CLLocationCoordinate2D? {

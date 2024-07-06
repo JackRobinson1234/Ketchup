@@ -118,7 +118,7 @@ struct UploadService {
             city: restaurant.city,
             state: restaurant.state,
             profileImageUrl: restaurant.profileImageUrl,
-            cuisine: restaurant.cuisine,
+            cuisine: restaurant.categoryName,
             price: restaurant.price
         )
     }

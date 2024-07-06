@@ -78,6 +78,14 @@ struct ProfileMapView: View {
                     }
                 }
             }
+        } else {
+            HStack{
+                Spacer()
+                Text("No Posts to Show")
+                    .foregroundStyle(.gray)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                Spacer()
+            }
         }
     }
 }

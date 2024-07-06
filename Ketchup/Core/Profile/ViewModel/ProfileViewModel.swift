@@ -30,7 +30,9 @@ class ProfileViewModel: ObservableObject {
     func fetchUser() async {
         do {
             self.user = try await UserService.shared.fetchUser(withUid: uid)
-            try await fetchUserPosts()
+            if user.username != "ketchup_media"{
+                try await fetchUserPosts()
+            }
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }

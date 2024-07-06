@@ -40,9 +40,9 @@ class MapViewModel: ObservableObject {
             }
             /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
             if selectedCuisines.isEmpty {
-                filters.removeValue(forKey: "cuisine")
+                filters.removeValue(forKey: "categoryName")
             } else {
-                filters["cuisine"] = selectedCuisines
+                filters["categoryName"] = selectedCuisines
             }
             
             if selectedLocation.isEmpty {

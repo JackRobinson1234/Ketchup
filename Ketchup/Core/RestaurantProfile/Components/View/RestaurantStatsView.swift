@@ -45,7 +45,7 @@ struct RestaurantStatsView: View {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "General Information", icon: "info.circle")
                 InfoRow(title: "Name", value: restaurant.name, icon: "building")
-                InfoRow(title: "Cuisine", value: restaurant.cuisine ?? "N/A", icon: "fork.knife")
+                InfoRow(title: "Cuisine", value: restaurant.categoryName ?? "N/A", icon: "fork.knife")
                 InfoRow(title: "Price", value: restaurant.price ?? "N/A", icon: "dollarsign.circle")
                 InfoRow(title: "Address", value: restaurant.address ?? "N/A", icon: "mappin")
                 if let neighborhood = restaurant.neighborhood {
@@ -229,12 +229,12 @@ struct RestaurantStatsView: View {
                             Text(item.title)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .fontWeight(.medium)
-                            Text("Category: \(item.category)")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                            Text("Reviews: \(item.reviewsCount)")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                            Text("Score: \(String(format: "%.1f", item.totalScore))")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
+//                            Text("Category: \(item.category)")
+//                                .font(.custom("MuseoSansRounded-300", size: 14))
+//                            Text("Reviews: \(item.reviewsCount)")
+//                                .font(.custom("MuseoSansRounded-300", size: 14))
+//                            Text("Score: \(String(format: "%.1f", item.totalScore))")
+//                                .font(.custom("MuseoSansRounded-300", size: 14))
                         }
                         .padding(.bottom, 5)
                     }

@@ -16,17 +16,19 @@ struct RegistrationView: View {
     var maxRegistrationDebouncer = Debouncer(delay: 20.0)
     var maxRegistrationAttempts = 5
     
-//    init(service: AuthService) {
-//        self.service = service
-//        //self._viewModel = StateObject(wrappedValue: RegistrationViewModel(service: service))
-//    }
-//    
     var body: some View {
         VStack {
             Spacer()
             
             // logo image
-            Text("Foodi Sign Up")
+            Image("Skip")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
+            Image("KetchupTextRed")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200)
             
             // MARK: Email
             VStack {
@@ -217,7 +219,8 @@ struct RegistrationView: View {
                     Text("Sign in")
                         .fontWeight(.semibold)
                 }
-                .font(.custom("MuseoSansRounded-300", size: 10))
+                .foregroundStyle(Color("Colors/AccentColor"))
+                .font(.custom("MuseoSansRounded-300", size: 16))
             }
             .padding(.vertical, 16)
         }

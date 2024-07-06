@@ -13,7 +13,7 @@ enum LetsKetchupOptions {
 struct ActivityView: View {
     @State var isLoading = true
     @StateObject var viewModel = ActivityViewModel()
-    
+    @State var showSearchView: Bool = false
     var body: some View {
         NavigationStack {
             VStack {
@@ -59,6 +59,15 @@ struct ActivityView: View {
                             }
                         }
                         .padding()
+                        Button{
+                            showSearchView.toggle()
+                        } label:
+                        {
+                            Text("Find your friends!")
+                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                            
+                        }
                         Divider()
                         // MARK: Friends
                         activityList
@@ -75,6 +84,9 @@ struct ActivityView: View {
                 Task {
                     try? await viewModel.fetchInitialActivities()
                 }
+            }
+            .fullScreenCover(isPresented: $showSearchView) {
+                SearchView()
             }
         }
     }
@@ -102,7 +114,10 @@ struct ActivityView: View {
             if viewModel.isFetching {
                 ProgressView()
             } else {
-                Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Global activity")
+                VStack{
+                    Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Global activity")
+                    Spacer()
+                }
             }
         }
     }

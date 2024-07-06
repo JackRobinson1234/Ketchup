@@ -65,6 +65,7 @@ struct WrittenFeedCell: View {
                             .multilineTextAlignment(.leading)
                     }
                 }
+                .disabled(post.user.username == "ketchup_media")
                 Spacer()
                 if let timestamp = post.timestamp {
                     Text(getTimeElapsedString(from: timestamp))
@@ -163,10 +164,13 @@ struct WrittenFeedCell: View {
                     Spacer()
                 }
             }
-            VStack(spacing: 10) {
-                RatingsView(post: post)
-                    .padding(.vertical, 5)
-                        }
+            if post.overallRating != nil{
+                VStack(spacing: 10) {
+                    
+                    RatingsView(post: post)
+                        .padding(.vertical, 5)
+                }
+            }
             HStack {
                 Text(post.caption)
                     .font(.custom("MuseoSansRounded-300", size: 16))
@@ -437,22 +441,22 @@ struct RatingsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 10) {
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isExpanded.toggle()
+                HStack(alignment: .center, spacing: 10) {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isExpanded.toggle()
+                        }
+                    }) {
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                            .foregroundColor(.gray)
+                            .frame(width: 25)
+                            .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                            .animation(.easeInOut(duration: 0.3), value: isExpanded)
                     }
-                }) {
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.gray)
-                        .frame(width: 25)
-                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                    if let overallRating = post.overallRating {
+                        RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .primary)
+                    }
                 }
-                if let overallRating = post.overallRating {
-                    RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .primary)
-                }
-            }
             
             if isExpanded {
                 HStack(alignment: .center, spacing: 10){

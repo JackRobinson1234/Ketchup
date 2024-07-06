@@ -25,7 +25,7 @@ struct RestaurantCell: View {
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.primary)
                 
-                Text(restaurant.cuisine ?? "Unknown Cuisine")
+                Text(restaurant.categoryName ?? "Unknown Cuisine")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.primary)

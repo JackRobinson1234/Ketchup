@@ -35,7 +35,7 @@ struct RestaurantRowView: View {
             VStack(alignment: .leading) {
                 Text(restaurant.name)
                     .font(.headline)
-                Text(restaurant.cuisine ?? "")
+                Text(restaurant.categoryName ?? "")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }

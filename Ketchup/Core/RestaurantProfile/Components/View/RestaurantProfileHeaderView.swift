@@ -74,15 +74,9 @@ struct RestaurantProfileHeaderView: View {
                                     .foregroundStyle(.white)
                             }
                             
-                            HStack {
-                                Text(combineRestaurantDetails(restaurant: restaurant).details)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.white)
-                                
-                                Text(combineRestaurantDetails(restaurant: restaurant).status)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundColor(combineRestaurantDetails(restaurant: restaurant).isOpen ? .green : .red)
-                            }
+                            Text(combineRestaurantDetails(restaurant: restaurant))
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.white)
                         }
                         .padding([.horizontal, .bottom])
                         
@@ -165,59 +159,39 @@ struct RestaurantProfileHeaderView: View {
         }
     }
     
-    private func combineRestaurantDetails(restaurant: Restaurant) -> (details: String, status: String, isOpen: Bool) {
+    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
         var details = [String]()
         
-        if let cuisine = restaurant.cuisine {
+        if let cuisine = restaurant.categoryName {
             details.append(cuisine)
         }
         if let price = restaurant.price {
             details.append(price)
         }
         
-        let (isOpen, hours) = getRestaurantStatus(restaurant: restaurant)
-        let statusText = isOpen ? "Open" : "Closed"
-        let statusAndHours = hours.map { "\(statusText) (\($0))" } ?? statusText
-        details.append(statusAndHours)
+        if let todaysHours = getTodaysHours(restaurant: restaurant) {
+            details.append(todaysHours)
+        }
         
-        return (details.joined(separator: " | "), statusText, isOpen)
+        return details.joined(separator: " | ")
     }
     
-    private func getRestaurantStatus(restaurant: Restaurant) -> (Bool, String?) {
+    private func getTodaysHours(restaurant: Restaurant) -> String? {
         guard let openingHours = restaurant.openingHours else {
-            return (false, nil)
+            return nil
         }
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE"
         let currentDayOfWeek = dateFormatter.string(from: Date())
         
-        let currentHour = Calendar.current.component(.hour, from: Date())
-        let currentMinute = Calendar.current.component(.minute, from: Date())
-        
         for hour in openingHours {
             if hour.day.lowercased() == currentDayOfWeek.lowercased() {
-                let timeComponents = hour.hours.components(separatedBy: "–")
-                if timeComponents.count == 2 {
-                    let openTime = timeComponents[0].trimmingCharacters(in: .whitespaces)
-                    let closeTime = timeComponents[1].trimmingCharacters(in: .whitespaces)
-                    
-                    let openHour = Int(openTime.components(separatedBy: ":")[0]) ?? 0
-                    let openMinute = Int(openTime.components(separatedBy: ":")[1]) ?? 0
-                    let closeHour = Int(closeTime.components(separatedBy: ":")[0]) ?? 0
-                    let closeMinute = Int(closeTime.components(separatedBy: ":")[1]) ?? 0
-                    
-                    let currentTimeInMinutes = currentHour * 60 + currentMinute
-                    let openTimeInMinutes = openHour * 60 + openMinute
-                    let closeTimeInMinutes = closeHour * 60 + closeMinute
-                    
-                    let isOpen = currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes
-                    return (isOpen, hour.hours)
-                }
+                return hour.hours
             }
         }
         
-        return (false, nil)
+        return nil
     }
 }
 //#Preview {

@@ -53,6 +53,10 @@ struct PrimaryFeedView: View {
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
                                 }
+                                if viewModel.isLoadingMoreContent {
+                                        ProgressView()
+                                            .padding()
+                                    }
                                 Rectangle()
                                     .foregroundStyle(.clear)
                                     .onAppear {

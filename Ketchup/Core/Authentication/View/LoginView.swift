@@ -27,7 +27,15 @@ struct LoginView: View {
             VStack {
                 Spacer()
                 // logo image
-                Text("Ketchup")
+                Image("Skip")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150)
+                Image("KetchupTextRed")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200)
+                    
                 
                 //MARK: Enter Email
                 VStack {
@@ -62,11 +70,13 @@ struct LoginView: View {
                 //MARK: ForgotPassword
                 NavigationLink(destination: ForgotPasswordView(viewModel: viewModel)) {
                     Text("Forgot Password?")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
                         .fontWeight(.semibold)
                         .padding(.top)
                         .padding(.trailing, 28)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                    
                 }
                 //MARK: Login Button
                 Button {
@@ -158,7 +168,8 @@ struct LoginView: View {
                             Text("Sign Up")
                                 .fontWeight(.semibold)
                         }
-                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.custom("MuseoSansRounded-300", size: 16))
                     }
                     .padding(.vertical, 16)
                 }

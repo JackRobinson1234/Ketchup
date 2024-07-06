@@ -98,16 +98,20 @@ struct FeedCell: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             } else if post.mediaType == .photo {
                 ZStack(alignment: .top) {
-                    KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                        .resizable()
+                    if post.user.username == "ketchup_media"{
+                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                            .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: UIScreen.main.bounds.width)
                             .clipped()
-//                        .resizable()
-//                        .scaledToFill()
-//                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-//                        .cornerRadius(20)
-//                        .containerRelativeFrame([.horizontal, .vertical])
+                    } else {
+                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            .cornerRadius(20)
+                            .containerRelativeFrame([.horizontal, .vertical])
+                    }
 
                     VStack {
                         HStack(spacing: 6) {
@@ -211,6 +215,8 @@ struct FeedCell: View {
                             .bold()
                             .multilineTextAlignment(.leading)
                     }
+                    .disabled(post.user.username == "ketchup_media")
+                    
                 }
             }
             if let timestamp = post.timestamp {
@@ -280,6 +286,7 @@ struct FeedCell: View {
             NavigationLink(value: post.user) {
                 UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
             }
+            .disabled(post.user.username == "ketchup_media")
             Button {
                 videoCoordinator.pause()
                 showingOptionsSheet = true

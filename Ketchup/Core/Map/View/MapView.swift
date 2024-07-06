@@ -32,7 +32,8 @@ struct MapView: View {
     @State private var noNearbyRestaurants = false
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
-    @State private var hasAppeared = false /// Track if the view has already appeared
+    @State private var hasAppeared = false 
+    @State private var showMoveWarning = false/// Track if the view has already appeared
 
     init() {
         self._viewModel = StateObject(wrappedValue: MapViewModel())
@@ -77,6 +78,7 @@ struct MapView: View {
                         print("mapsize", viewModel.mapSize)
                     })
                     .onMapCameraChange { context in
+                        showMoveWarning = false
                         viewModel.currentRegion = context.region
                     }
                     .onMapCameraChange(frequency: .onEnd) { context in
@@ -86,30 +88,36 @@ struct MapView: View {
                         Task.detached { await viewModel.reloadAnnotations() }
                     }
                     
-                    
+                    .onAppear{
+                        showMoveWarning = true
+                        Debouncer(delay: 2.0).schedule{
+                            showMoveWarning = false
+                        }
+                    }
                     //MARK: Zoom Message
-                    .overlay{if !cameraZoomedEnough {
-                        Spacer()
-                        Text("Zoom In to Show Restaurants")
-                            .modifier(OverlayModifier())
-                        //MARK: No Restaurants Notice
-                    } else if viewModel.restaurants.isEmpty && viewModel.isLoading == false {
-                        Spacer()
-                        VStack{
+                    .overlay{
+                        if !cameraZoomedEnough {
                             Spacer()
-                            Text("No Restaurants Nearby")
+                            Text("Zoom In to Show Restaurants")
                                 .modifier(OverlayModifier())
+                            //MARK: No Restaurants Notice
+                        } else if viewModel.restaurants.isEmpty && viewModel.isLoading == false {
                             Spacer()
-                            // MARK: Fetch Nearby Restaurants
-                            if !noNearbyRestaurants{
-                                Button{
-                                    Task{
-                                        await viewModel.checkForNearbyRestaurants()
-                                        /// Resets the camera position to the closest restaurant
-                                        if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
-                                            let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
-                                            position = .region(region)
-                                            Task.detached { await viewModel.reloadAnnotations() } 
+                            VStack{
+                                Spacer()
+                                Text("No Restaurants Nearby")
+                                    .modifier(OverlayModifier())
+                                Spacer()
+                                // MARK: Fetch Nearby Restaurants
+                                if !noNearbyRestaurants{
+                                    Button{
+                                        Task{
+                                            await viewModel.checkForNearbyRestaurants()
+                                            /// Resets the camera position to the closest restaurant
+                                            if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
+                                                let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
+                                                position = .region(region)
+                                                Task.detached { await viewModel.reloadAnnotations() }
                                         } else {
                                             noNearbyRestaurants = true
                                         }
@@ -130,6 +138,7 @@ struct MapView: View {
                         
                     }
                     }
+                    
                     //MARK: Fetching Restaurants
                     ///Based on zoom level and the center of the camera
                     .onMapCameraChange { mapCameraUpdateContext in
@@ -178,7 +187,12 @@ struct MapView: View {
                     
                 }
                 )
-                
+                if showMoveWarning {
+                    Text("Move Map to see restaurants")
+                        .modifier(OverlayModifier())
+                    Spacer()
+                    
+                }
                 
                 VStack {
                     if !inSearchView{
@@ -299,6 +313,7 @@ struct MapView: View {
                     }
                 }
             }
+
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
                     

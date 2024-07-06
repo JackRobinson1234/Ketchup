@@ -24,7 +24,7 @@ struct DeveloperPreview {
         .init(
            
                 id: "123",
-                cuisine: "Italian",
+                
                 price: "$$$",
                 name: "Amir B's Pizzeria",
                 geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
@@ -93,7 +93,7 @@ struct DeveloperPreview {
         ),
         .init(
             id: NSUUID().uuidString,
-            cuisine: "American",
+            
             price: "$$$$",
             name: "Will Bond's Steakhouse",
             geoPoint: GeoPoint(latitude: 37.869308983815685, longitude: -122.25350152899239),
@@ -105,7 +105,7 @@ struct DeveloperPreview {
         ),
         .init(
             id: NSUUID().uuidString,
-            cuisine: "Chinese",
+            
             price: "$",
             name: "Greenbaum's Money Pit",
             geoPoint: GeoPoint(latitude: 37.868883834260735, longitude: -122.25118022568488),

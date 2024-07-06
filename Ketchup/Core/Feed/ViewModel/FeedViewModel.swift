@@ -29,6 +29,7 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
+    
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -56,7 +57,9 @@ class FeedViewModel: ObservableObject {
     var preloadedPlayerItems = NSCache<NSString, AVQueuePlayer>()
     private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
     private var followingUsers: [String] = []
-    
+    @Published var isLoadingMoreContent = false
+
+
     
     
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
@@ -306,7 +309,9 @@ extension FeedViewModel {
             lastFetched = currentIndex
             
             Task {
+                isLoadingMoreContent = true
                 await fetchMorePosts()
+                isLoadingMoreContent = false
             }
         } else {
             print("Not yet reached the threshold for fetching more posts")

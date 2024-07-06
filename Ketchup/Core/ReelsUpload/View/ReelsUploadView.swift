@@ -48,11 +48,11 @@ struct ReelsUploadView: View {
                                 RestaurantCircularProfileImageView(imageUrl: uploadViewModel.restaurant?.profileImageUrl, size: .xLarge)
                                 Text(restaurant.name)
                                     .font(.custom("MuseoSansRounded-300", size: 20))
-                                if let cuisine = restaurant.cuisine, let price = restaurant.price {
+                                if let cuisine = restaurant.categoryName, let price = restaurant.price {
                                     Text("\(cuisine), \(price)")
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundStyle(.primary)
-                                } else if let cuisine = restaurant.cuisine {
+                                } else if let cuisine = restaurant.categoryName {
                                     Text(cuisine)
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundStyle(.primary)
