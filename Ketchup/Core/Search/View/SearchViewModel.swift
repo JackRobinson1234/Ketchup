@@ -29,7 +29,7 @@ final class SearchViewModel: ObservableObject {
         
         self.restaurantItemsSearcher = HitsSearcher(appID: appID,
                                                     apiKey: apiKey,
-                                                    indexName: "testing")
+                                                    indexName: "restaurants")
         self.collectionsItemsSearcher = HitsSearcher(appID: appID,
                                                      apiKey: apiKey,
                                                      indexName: "collections")

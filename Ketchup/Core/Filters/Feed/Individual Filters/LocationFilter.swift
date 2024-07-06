@@ -13,7 +13,7 @@ struct LocationFilter: View {
     @ObservedObject var filtersViewModel: FiltersViewModel
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
-    var autoCompleteNumber: Int = 4 // # of autocomplete suggestions
+    var autoCompleteNumber: Int = 6 // # of autocomplete suggestions
     
     var body: some View {
         // MARK: Title
@@ -57,12 +57,11 @@ struct LocationFilter: View {
                     ForEach(mapSearch.locationResults.prefix(autoCompleteNumber), id: \.self) { location in
                         Button {
                             reverseGeo(location: location)
-                            print("test", location)
                         } label: {
                             HStack{
                                 VStack(alignment: .leading) {
                                     Text(location.title)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(.primary)
                                     Text(location.subtitle)
                                         .font(.system(.caption))
                                         .foregroundColor(.gray)

@@ -5,51 +5,90 @@
 //  Created by Joe Ciminelli on 7/3/24.
 //
 
+
 import SwiftUI
+import SafariServices
 
 struct RestaurantStatsView: View {
     let restaurant: Restaurant
+       @State private var activeLink: LinkItem?
+       @State private var showErrorAlert = false
+       @State private var errorMessage = ""
+       
+       var body: some View {
+           ScrollView {
+               VStack(alignment: .leading, spacing: 20) {
+                   generalInfoSection
+                   contactSection
+                   ratingSection
+                   popularTimesSection
+                   openingHoursSection
+                   orderBySection
+                   additionalInfoSection
+                   categoriesSection
+                   peopleAlsoSearchSection
+               }
+               .padding()
+           }
+           .background(Color(UIColor.systemBackground))
+           .sheet(item: $activeLink) { link in
+               SafariView(url: link.url)
+           }
+           .alert(isPresented: $showErrorAlert) {
+               Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+           }
+       }
     
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                generalInfoSection
-                ratingSection
-                popularTimesSection
-                additionalInfoSection
+    private var generalInfoSection: some View {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "General Information", icon: "info.circle")
+                InfoRow(title: "Name", value: restaurant.name, icon: "building")
+                InfoRow(title: "Cuisine", value: restaurant.cuisine ?? "N/A", icon: "fork.knife")
+                InfoRow(title: "Price", value: restaurant.price ?? "N/A", icon: "dollarsign.circle")
+                InfoRow(title: "Address", value: restaurant.address ?? "N/A", icon: "mappin")
+                if let neighborhood = restaurant.neighborhood {
+                    InfoRow(title: "Neighborhood", value: neighborhood, icon: "house")
+                }
+                if let locatedIn = restaurant.locatedIn {
+                    InfoRow(title: "Located In", value: locatedIn, icon: "building.2")
+                }
             }
-            .padding()
         }
     }
     
-    private var generalInfoSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "General Information")
-            InfoRow(title: "Cuisine", value: restaurant.cuisine ?? "N/A")
-            InfoRow(title: "Price", value: restaurant.price ?? "N/A")
-            InfoRow(title: "Address", value: restaurant.address ?? "N/A")
-            InfoRow(title: "Phone", value: restaurant.phone ?? "N/A")
-            if let website = restaurant.website {
-                Link("Website", destination: URL(string: website)!)
-                    .foregroundColor(.blue)
+    private var contactSection: some View {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Contact Information", icon: "phone")
+                InfoRow(title: "Phone", value: restaurant.phone ?? "N/A", icon: "phone")
+                linkRow(title: "Website", value: restaurant.website, placeholder: "Website link", icon: "globe")
+                linkRow(title: "Menu", value: restaurant.menuUrl, placeholder: "Menu link", icon: "list.bullet")
+                linkRow(title: "Google Food", value: restaurant.googleFoodUrl, placeholder: "Google Food link", icon: "g.circle")
             }
         }
     }
     
     private var ratingSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "Ratings & Reviews")
-            HStack {
-                Text("Posts: \(restaurant.stats.postCount)")
-                Spacer()
-                Text("Collections: \(restaurant.stats.collectionCount)")
-            }
-            if let reviewsTags = restaurant.reviewsTags {
-                ForEach(reviewsTags.prefix(5), id: \.title) { tag in
-                    HStack {
-                        Text(tag.title)
-                        Spacer()
-                        Text("\(tag.count)")
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Ratings & Reviews", icon: "star.fill")
+                HStack {
+                    AnimatedCounter(count: restaurant.stats.postCount, title: "Posts")
+                    Spacer()
+                    AnimatedCounter(count: restaurant.stats.collectionCount, title: "Collections")
+                }
+                if let reviewsTags = restaurant.reviewsTags {
+                    ForEach(reviewsTags.prefix(5), id: \.title) { tag in
+                        HStack {
+                            Text(tag.title)
+                            Spacer()
+                            Text("\(tag.count)")
+                                .fontWeight(.bold)
+                                .padding(5)
+                                .background(Color.blue.opacity(0.2))
+                                .clipShape(Capsule())
+                        }
                     }
                 }
             }
@@ -57,23 +96,254 @@ struct RestaurantStatsView: View {
     }
     
     private var popularTimesSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "Popular Times")
-            if let popularTimes = restaurant.popularTimesHistogram {
-                PopularTimesChart(popularTimes: popularTimes)
-            } else {
-                Text("No popular times data available")
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Popular Times", icon: "clock")
+                if let popularTimes = restaurant.popularTimesHistogram {
+                    PopularTimesChart(popularTimes: popularTimes)
+                } else {
+                    Text("No popular times data available")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
             }
         }
     }
     
+    private var openingHoursSection: some View {
+            SectionBox {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "Opening Hours", icon: "clock")
+                    if let openingHours = restaurant.openingHours {
+                        ForEach(openingHours, id: \.day) { hour in
+                            HStack {
+                                Text(hour.day)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .frame(width: 100, alignment: .leading)
+                                Text(formatOpeningHours(hour.hours))
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                            }
+                        }
+                    } else {
+                        Text("No opening hours data available")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    }
+                }
+            }
+        }
+    private func formatOpeningHours(_ hours: String) -> String {
+            let components = hours.components(separatedBy: "–")
+            if components.count == 2 {
+                let start = formatTimeString(components[0].trimmingCharacters(in: .whitespaces))
+                let end = formatTimeString(components[1].trimmingCharacters(in: .whitespaces))
+                return "\(start) - \(end)"
+            }
+            return hours
+        }
+    private func formatTimeString(_ time: String) -> String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            
+            if let date = formatter.date(from: time) {
+                formatter.dateFormat = "h:mm a"
+                return formatter.string(from: date)
+            }
+            
+            return time
+        }
+    
+    private var orderBySection: some View {
+            SectionBox {
+                SectionHeader(title: "Order Options", icon: "bag")
+                if let orderBy = restaurant.orderBy {
+                    ForEach(orderBy, id: \.name) { option in
+                        linkRow(title: option.name, value: option.orderUrl, placeholder: "Order now", icon: "cart")
+                    }
+                } else {
+                    Text("No order options available")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+            }
+        }
+    
     private var additionalInfoSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "Additional Information")
-            if let additionalInfo = restaurant.additionalInfo {
-                ForEach(additionalInfo.highlights ?? [], id: \.name) { highlight in
-                    if highlight.value {
-                        Text("✓ \(highlight.name)")
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Additional Information", icon: "list.bullet")
+                if let additionalInfo = restaurant.additionalInfo {
+                    Group {
+                        infoGroup(title: "Accessibility", items: additionalInfo.accessibility)
+                        infoGroup(title: "Amenities", items: additionalInfo.amenities)
+                        infoGroup(title: "Atmosphere", items: additionalInfo.atmosphere)
+                        infoGroup(title: "Children", items: additionalInfo.children)
+                        infoGroup(title: "Crowd", items: additionalInfo.crowd)
+                        infoGroup(title: "Dining Options", items: additionalInfo.diningOptions)
+                        infoGroup(title: "Highlights", items: additionalInfo.highlights)
+                        infoGroup(title: "Offerings", items: additionalInfo.offerings)
+                        infoGroup(title: "Payments", items: additionalInfo.payments)
+                        infoGroup(title: "Planning", items: additionalInfo.planning)
+                        infoGroup(title: "Popular For", items: additionalInfo.popularFor)
+                        infoGroup(title: "Service Options", items: additionalInfo.serviceOptions)
+                    }
+                } else {
+                    Text("No additional information available")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+            }
+        }
+    }
+    
+    private var categoriesSection: some View {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Categories", icon: "tag")
+                if let categories = restaurant.categories {
+                    ForEach(categories, id: \.self) { category in
+                        Text(category)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    }
+                } else {
+                    Text("No categories available")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+            }
+        }
+    }
+    
+    private var peopleAlsoSearchSection: some View {
+        SectionBox {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "People Also Search", icon: "magnifyingglass")
+                if let peopleAlsoSearch = restaurant.peopleAlsoSearch {
+                    ForEach(peopleAlsoSearch, id: \.title) { item in
+                        VStack(alignment: .leading) {
+                            Text(item.title)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .fontWeight(.medium)
+                            Text("Category: \(item.category)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                            Text("Reviews: \(item.reviewsCount)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                            Text("Score: \(String(format: "%.1f", item.totalScore))")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                        }
+                        .padding(.bottom, 5)
+                    }
+                } else {
+                    Text("No related searches available")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+            }
+        }
+    }
+    
+    private func linkRow(title: String, value: String?, placeholder: String, icon: String) -> some View {
+            HStack(alignment: .top) {
+                Image(systemName: icon)
+                    .frame(width: 20, alignment: .center)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .fontWeight(.medium)
+                    if let urlString = value {
+                        Button(action: {
+                            openURL(urlString, title: title)
+                        }) {
+                            Text(placeholder)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundColor(.blue)
+                                .underline()
+                        }
+                    } else {
+                        Text("N/A")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    }
+                }
+            }
+        }
+    private func openURL(_ urlString: String, title: String) {
+            guard let url = URL(string: urlString) else {
+                errorMessage = "Invalid URL"
+                showErrorAlert = true
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(url) {
+                activeLink = LinkItem(id: title, url: url)
+            } else {
+                errorMessage = "Unable to open URL"
+                showErrorAlert = true
+            }
+        }
+    private func infoGroup<T: Hashable>(title: String, items: [T]?) -> some View {
+        Group {
+            if let items = items, !items.isEmpty {
+                Text(title)
+                    .font(.custom("MuseoSansRounded-300", size: 18))
+                    .fontWeight(.medium)
+                ForEach(items, id: \.self) { item in
+                    switch item {
+                    case let accessibilityItem as AccessibilityItem:
+                        if accessibilityItem.value {
+                            Text("✓ \(accessibilityItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let amenityItem as AmenityItem:
+                        if amenityItem.value {
+                            Text("✓ \(amenityItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let atmosphereItem as AtmosphereItem:
+                        if atmosphereItem.value {
+                            Text("✓ \(atmosphereItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let childrenItem as ChildrenItem:
+                        if childrenItem.value {
+                            Text("✓ \(childrenItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let crowdItem as CrowdItem:
+                        if crowdItem.value {
+                            Text("✓ \(crowdItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let diningOptionItem as DiningOptionItem:
+                        if diningOptionItem.value {
+                            Text("✓ \(diningOptionItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let highlightItem as HighlightItem:
+                        if highlightItem.value {
+                            Text("✓ \(highlightItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let offeringItem as OfferingItem:
+                        if offeringItem.value {
+                            Text("✓ \(offeringItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let paymentItem as PaymentItem:
+                        if paymentItem.value {
+                            Text("✓ \(paymentItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let planningItem as PlanningItem:
+                        if planningItem.value {
+                            Text("✓ \(planningItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let popularForItem as PopularForItem:
+                        if popularForItem.value {
+                            Text("✓ \(popularForItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    case let serviceOptionItem as ServiceOptionItem:
+                        if serviceOptionItem.value {
+                            Text("✓ \(serviceOptionItem.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
+                    default:
+                        EmptyView()
                     }
                 }
             }
@@ -81,26 +351,76 @@ struct RestaurantStatsView: View {
     }
 }
 
-struct SectionHeader: View {
-    let title: String
+
+struct SectionBox<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
     
     var body: some View {
-        Text(title)
-            .font(.headline)
-            .padding(.vertical, 5)
+        content
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(10)
+            .shadow(radius: 5)
+    }
+}
+
+struct SectionHeader: View {
+    let title: String
+    let icon: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+            Text(title)
+                .font(.custom("MuseoSansRounded-300", size: 20))
+                .fontWeight(.bold)
+        }
+        .padding(.vertical, 5)
     }
 }
 
 struct InfoRow: View {
     let title: String
     let value: String
+    let icon: String
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
+            Image(systemName: icon)
+                .frame(width: 20, alignment: .center)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .fontWeight(.medium)
+                Text(value)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+            }
+        }
+    }
+}
+
+struct AnimatedCounter: View {
+    let count: Int
+    let title: String
+    @State private var animatedCount: Int = 0
+    
+    var body: some View {
+        VStack() {
+            Text("\(animatedCount)")
+                .font(.custom("MuseoSansRounded-300", size: 24))
+                .fontWeight(.bold)
+                .onAppear {
+                    withAnimation(.easeOut(duration: 1.0)) {
+                        animatedCount = count
+                    }
+                }
             Text(title)
-                .fontWeight(.medium)
-            Spacer()
-            Text(value)
+                .font(.custom("MuseoSansRounded-300", size: 14))
         }
     }
 }
@@ -109,10 +429,12 @@ struct PopularTimesChart: View {
     let popularTimes: PopularTimesHistogram
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 5) {
             ForEach(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], id: \.self) { day in
                 HStack {
-                    Text(day).frame(width: 100, alignment: .leading)
+                    Text(day)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .frame(width: 100, alignment: .leading)
                     BarChart(data: dataForDay(day))
                 }
             }
@@ -144,10 +466,29 @@ struct BarChart: View {
                         .fill(Color.blue)
                         .frame(width: 5, height: CGFloat(item.occupancyPercent))
                     Text("\(item.hour)")
-                        .font(.system(size: 8))
+                        .font(.custom("MuseoSansRounded-300", size: 8))
                         .rotationEffect(.degrees(-90))
                 }
             }
         }
     }
+}
+
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = false
+        return SFSafariViewController(url: url, configuration: config)
+    }
+    
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SafariView>) {}
+}
+struct LinkItem: Identifiable {
+    let id: String
+    let url: URL
+}
+#Preview {
+    RestaurantStatsView(restaurant: DeveloperPreview.restaurants[0])
 }

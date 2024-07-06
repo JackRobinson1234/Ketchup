@@ -174,10 +174,47 @@ struct RestaurantProfileHeaderView: View {
             if let price = restaurant.price {
                 details.append(price)
             }
-            details.append("Hour placeholder")
+            details.append(isRestaurantOpen(restaurant: restaurant) ? "Open" : "Closed")
 
             return details.joined(separator: " | ")
         }
+
+        private func isRestaurantOpen(restaurant: Restaurant) -> Bool {
+            guard let openingHours = restaurant.openingHours else {
+                return false
+            }
+
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEEE"
+            let currentDayOfWeek = dateFormatter.string(from: Date())
+
+            let currentHour = Calendar.current.component(.hour, from: Date())
+            let currentMinute = Calendar.current.component(.minute, from: Date())
+
+            for hour in openingHours {
+                if hour.day.lowercased() == currentDayOfWeek.lowercased() {
+                    let timeComponents = hour.hours.components(separatedBy: "–")
+                    if timeComponents.count == 2 {
+                        let openTime = timeComponents[0].trimmingCharacters(in: .whitespaces)
+                        let closeTime = timeComponents[1].trimmingCharacters(in: .whitespaces)
+
+                        let openHour = Int(openTime.components(separatedBy: ":")[0]) ?? 0
+                        let openMinute = Int(openTime.components(separatedBy: ":")[1]) ?? 0
+                        let closeHour = Int(closeTime.components(separatedBy: ":")[0]) ?? 0
+                        let closeMinute = Int(closeTime.components(separatedBy: ":")[1]) ?? 0
+
+                        let currentTimeInMinutes = currentHour * 60 + currentMinute
+                        let openTimeInMinutes = openHour * 60 + openMinute
+                        let closeTimeInMinutes = closeHour * 60 + closeMinute
+
+                        return currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes
+                    }
+                }
+            }
+
+            return false
+        }
+    
 }
 //#Preview {
 //    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))

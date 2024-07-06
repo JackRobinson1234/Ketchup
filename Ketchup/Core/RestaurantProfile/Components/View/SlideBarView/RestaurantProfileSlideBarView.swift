@@ -101,7 +101,7 @@ struct RestaurantProfileSlideBarView: View {
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
                     .frame(maxWidth: .infinity)
                 
-                Image(systemName: currentSection == .stats ? "chart.bar.fill" : "chart.bar")
+                Image(systemName: currentSection == .stats ? "info.circle.fill" : "info.circle")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 50, height: 22)

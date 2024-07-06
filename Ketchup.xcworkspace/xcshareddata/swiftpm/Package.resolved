@@ -1,5 +1,4 @@
 {
-  "originHash" : "3c3498ab686d17ea90a23cfca49f8b943813c650f84c2db3a0c707ee1e8a41b7",
   "pins" : [
     {
       "identity" : "algoliasearch-client-swift",
@@ -33,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/algolia/instantsearch-ios",
       "state" : {
-        "revision" : "f6cdd6da2d7def69d23fec4e73e6a2267a46e0f1",
-        "version" : "7.26.1"
+        "revision" : "b000a23b5016511e1df93f242ffdcd1456751010",
+        "version" : "7.26.2"
       }
     },
     {
@@ -49,10 +48,10 @@
     {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log.git",
+      "location" : "https://github.com/apple/swift-log",
       "state" : {
-        "revision" : "e97a6fcb1ab07462881ac165fdbb37f067e205d5",
-        "version" : "1.5.4"
+        "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
+        "version" : "1.6.1"
       }
     },
     {
@@ -65,5 +64,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

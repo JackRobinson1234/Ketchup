@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		041BA6C0E504284D9EDD2B88 /* Pods_KetchupTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */; };
-		6FDB8A2A2C36380F00B75C4A /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */; };
 		6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */; };
 		BF4ECAA5861844FCBF9545D7 /* Pods_Ketchup_KetchupUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD47335C88E6D58B651BE686 /* Pods_Ketchup_KetchupUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
@@ -21,14 +20,11 @@
 		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
 		F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */; };
 		F83ED9B72BEBF2A4000B2F30 /* FeedGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */; };
-		F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */ = {isa = PBXBuildFile; productRef = F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */; };
 		F846F4532BFBD534009D1303 /* Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4522BFBD534009D1303 /* Review.swift */; };
 		F846F45A2BFBF6EC009D1303 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */; };
 		F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45B2BFBF708009D1303 /* ReviewService.swift */; };
 		F846F4642BFD16F3009D1303 /* CommentOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */; };
 		F846F4662BFD91AC009D1303 /* RestaurantReviewSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4652BFD91AC009D1303 /* RestaurantReviewSelector.swift */; };
-		F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46A2BFF8AE1009D1303 /* ClusterMap */; };
-		F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */; };
 		F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4702BFF97A9009D1303 /* ClusterCell.swift */; };
 		F84A61E12C2D0A6200FBEC2F /* SecondaryFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */; };
 		F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE24B2B6A531200144F01 /* FoodiApp.swift */; };
@@ -71,6 +67,14 @@
 		F86978D22C1E8A370036F86A /* RestaurantRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86978D12C1E8A370036F86A /* RestaurantRequest.swift */; };
 		F86E15B12C039FA40059D15C /* RepostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86E15B02C039FA40059D15C /* RepostView.swift */; };
 		F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */; };
+		F86F50672C38D0440079EBA3 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50662C38D0440079EBA3 /* InstantSearch */; };
+		F86F50692C38D0440079EBA3 /* InstantSearchCore in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50682C38D0440079EBA3 /* InstantSearchCore */; };
+		F86F506B2C38D0440079EBA3 /* InstantSearchInsights in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506A2C38D0440079EBA3 /* InstantSearchInsights */; };
+		F86F506D2C38D0440079EBA3 /* InstantSearchSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */; };
+		F86F50702C38D0700079EBA3 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506F2C38D0700079EBA3 /* ClusterMap */; };
+		F86F50722C38D0700079EBA3 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */; };
+		F86F50752C38D0850079EBA3 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */; };
+		F86F50782C38D09D0079EBA3 /* CachingPlayerItem in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50772C38D09D0079EBA3 /* CachingPlayerItem */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
 		F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */; };
 		F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */; };
@@ -177,10 +181,6 @@
 		F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */; };
 		F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81632BC60F17007C2CFC /* MapModifiers.swift */; };
 		F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81652BC6E9BA007C2CFC /* Collection.swift */; };
-		F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21902BD5810E00B4B329 /* InstantSearch */; };
-		F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21922BD5810E00B4B329 /* InstantSearchCore */; };
-		F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21942BD5810E00B4B329 /* InstantSearchInsights */; };
-		F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */; };
 		F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219B2BD5876F00B4B329 /* ReelsUploadView.swift */; };
 		F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219D2BD5879900B4B329 /* UploadViewModel.swift */; };
 		F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219F2BD587EE00B4B329 /* Photo.swift */; };
@@ -454,14 +454,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8CC21972BD5810E00B4B329 /* InstantSearchSwiftUI in Frameworks */,
-				F83ED9BA2BEC54C2000B2F30 /* CachingPlayerItem in Frameworks */,
-				F8CC21932BD5810E00B4B329 /* InstantSearchCore in Frameworks */,
-				6FDB8A2A2C36380F00B75C4A /* AlgoliaSearchClient in Frameworks */,
-				F846F46D2BFF8AE1009D1303 /* ClusterMapSwiftUI in Frameworks */,
-				F8CC21952BD5810E00B4B329 /* InstantSearchInsights in Frameworks */,
-				F8CC21912BD5810E00B4B329 /* InstantSearch in Frameworks */,
-				F846F46B2BFF8AE1009D1303 /* ClusterMap in Frameworks */,
+				F86F506D2C38D0440079EBA3 /* InstantSearchSwiftUI in Frameworks */,
+				F86F50752C38D0850079EBA3 /* AlgoliaSearchClient in Frameworks */,
+				F86F50782C38D09D0079EBA3 /* CachingPlayerItem in Frameworks */,
+				F86F50692C38D0440079EBA3 /* InstantSearchCore in Frameworks */,
+				F86F50722C38D0700079EBA3 /* ClusterMapSwiftUI in Frameworks */,
+				F86F50702C38D0700079EBA3 /* ClusterMap in Frameworks */,
+				F86F506B2C38D0440079EBA3 /* InstantSearchInsights in Frameworks */,
+				F86F50672C38D0440079EBA3 /* InstantSearch in Frameworks */,
 				FE388A23A197A32E969C7799 /* Pods_Ketchup.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1475,14 +1475,14 @@
 			);
 			name = Ketchup;
 			packageProductDependencies = (
-				F8CC21902BD5810E00B4B329 /* InstantSearch */,
-				F8CC21922BD5810E00B4B329 /* InstantSearchCore */,
-				F8CC21942BD5810E00B4B329 /* InstantSearchInsights */,
-				F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */,
-				F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */,
-				F846F46A2BFF8AE1009D1303 /* ClusterMap */,
-				F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */,
-				6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */,
+				F86F50662C38D0440079EBA3 /* InstantSearch */,
+				F86F50682C38D0440079EBA3 /* InstantSearchCore */,
+				F86F506A2C38D0440079EBA3 /* InstantSearchInsights */,
+				F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */,
+				F86F506F2C38D0700079EBA3 /* ClusterMap */,
+				F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */,
+				F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */,
+				F86F50772C38D09D0079EBA3 /* CachingPlayerItem */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1560,10 +1560,10 @@
 			);
 			mainGroup = F84FE23F2B6A531200144F01;
 			packageReferences = (
-				F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
-				F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
-				F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */,
-				6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
+				F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */,
+				F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2284,23 +2284,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+		F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
-			requirement = {
-				kind = exactVersion;
-				version = 8.19.0;
-			};
-		};
-		F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sukov/CachingPlayerItem";
+			repositoryURL = "https://github.com/algolia/instantsearch-ios";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.8;
+				minimumVersion = 7.26.2;
 			};
 		};
-		F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
+		F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/vospennikov/ClusterMap.git";
 			requirement = {
@@ -2308,56 +2300,64 @@
 				minimumVersion = 2.1.1;
 			};
 		};
-		F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
+		F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/algolia/instantsearch-ios";
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 8.19.0;
+			};
+		};
+		F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sukov/CachingPlayerItem";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.26.1;
+				minimumVersion = 1.0.8;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6FDB8A292C36380F00B75C4A /* AlgoliaSearchClient */ = {
+		F86F50662C38D0440079EBA3 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6FDB8A282C36380F00B75C4A /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
-			productName = AlgoliaSearchClient;
-		};
-		F83ED9B92BEC54C2000B2F30 /* CachingPlayerItem */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F83ED9B82BEC54C2000B2F30 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
-			productName = CachingPlayerItem;
-		};
-		F846F46A2BFF8AE1009D1303 /* ClusterMap */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */;
-			productName = ClusterMap;
-		};
-		F846F46C2BFF8AE1009D1303 /* ClusterMapSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F846F4692BFF8AE1009D1303 /* XCRemoteSwiftPackageReference "ClusterMap" */;
-			productName = ClusterMapSwiftUI;
-		};
-		F8CC21902BD5810E00B4B329 /* InstantSearch */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
 			productName = InstantSearch;
 		};
-		F8CC21922BD5810E00B4B329 /* InstantSearchCore */ = {
+		F86F50682C38D0440079EBA3 /* InstantSearchCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
 			productName = InstantSearchCore;
 		};
-		F8CC21942BD5810E00B4B329 /* InstantSearchInsights */ = {
+		F86F506A2C38D0440079EBA3 /* InstantSearchInsights */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
 			productName = InstantSearchInsights;
 		};
-		F8CC21962BD5810E00B4B329 /* InstantSearchSwiftUI */ = {
+		F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F8CC218F2BD5810E00B4B329 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
 			productName = InstantSearchSwiftUI;
+		};
+		F86F506F2C38D0700079EBA3 /* ClusterMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			productName = ClusterMap;
+		};
+		F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			productName = ClusterMapSwiftUI;
+		};
+		F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
+		};
+		F86F50772C38D09D0079EBA3 /* CachingPlayerItem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
+			productName = CachingPlayerItem;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

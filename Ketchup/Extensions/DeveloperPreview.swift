@@ -22,17 +22,74 @@ struct DeveloperPreview {
     
     static var restaurants: [Restaurant] = [
         .init(
-            id: NSUUID().uuidString,
-            cuisine: "Italian",
-            price: "$$",
-            name: "Amir B's Pizzeria",
-            geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
-            address: "2425 Piedmont Ave",
-            city: "Berkeley",
-            state: "CA",
-            imageURLs: nil,
-            profileImageUrl: "https://picsum.photos/400/500",
-            stats: RestaurantStats(postCount: 0, collectionCount: 0)
+           
+                id: "123",
+                cuisine: "Italian",
+                price: "$$$",
+                name: "Amir B's Pizzeria",
+                geoPoint: GeoPoint(latitude: 37.86697712078698, longitude: -122.25134254232876),
+                geoHash: "9q8yy8jx4bxy",
+                address: "2425 Piedmont Ave",
+                city: "Berkeley",
+                state: "CA",
+                imageURLs: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+                profileImageUrl: "https://example.com/profileImage.jpg",
+                bio: "Authentic Italian pizzeria serving wood-fired pizzas and traditional Italian dishes.",
+                _geoloc: geoLoc(lat: 37.86697712078698, lng: -122.25134254232876),
+                stats: RestaurantStats(postCount: 150, collectionCount: 10),
+                additionalInfo: AdditionalInfo(
+                    accessibility: [AccessibilityItem(name: "Wheelchair Accessible", value: true)],
+                    amenities: [AmenityItem(name: "Free WiFi", value: true)],
+                    atmosphere: [AtmosphereItem(name: "Cozy", value: true)],
+                    children: [ChildrenItem(name: "High Chairs", value: true)],
+                    crowd: [CrowdItem(name: "Family", value: true)],
+                    diningOptions: [DiningOptionItem(name: "Takeout", value: true)],
+                    highlights: [HighlightItem(name: "Live Music", value: true)],
+                    offerings: [OfferingItem(name: "Vegetarian Options", value: true)],
+                    payments: [PaymentItem(name: "Credit Cards", value: true)],
+                    planning: [PlanningItem(name: "Reservations", value: true)],
+                    popularFor: [PopularForItem(name: "Lunch", value: true)],
+                    serviceOptions: [ServiceOptionItem(name: "Outdoor Seating", value: true)]
+                ),
+                categories: ["Italian", "Pizza"],
+                cid: 12345,
+                containsMenuImage: true,
+                countryCode: "US",
+                googleFoodUrl: "https://google.com/restaurant123",
+                locatedIn: "Food Court",
+                menuUrl: "https://example.com/menu",
+                neighborhood: "Downtown",
+                openingHours: [
+                    OpeningHour(day: "Monday", hours: "11:00 AM - 10:00 PM"),
+                    OpeningHour(day: "Tuesday", hours: "11:00 AM - 10:00 PM"),
+                    OpeningHour(day: "Wednesday", hours: "11:00 AM - 10:00 PM"),
+                    OpeningHour(day: "Thursday", hours: "11:00 AM - 10:00 PM"),
+                    OpeningHour(day: "Friday", hours: "11:00 AM - 11:00 PM"),
+                    OpeningHour(day: "Saturday", hours: "11:00 AM - 11:00 PM"),
+                    OpeningHour(day: "Sunday", hours: "12:00 PM - 9:00 PM")
+                ],
+                orderBy: [
+                    OrderBy(name: "GrubHub", orderUrl: "https://grubhub.com/order123", url: "https://grubhub.com")
+                ],
+                parentPlaceUrl: "https://example.com/parentPlace",
+                peopleAlsoSearch: [
+                    PeopleAlsoSearch(category: "Restaurant", reviewsCount: 100, title: "Nearby Italian Restaurant", totalScore: 4.5)
+                ],
+                permanentlyClosed: false,
+                phone: "+1-123-456-7890",
+                plusCode: "849VCWC8+R9",
+               
+                reviewsTags: [
+                    ReviewTag(count: 50, title: "Great Pizza"),
+                    ReviewTag(count: 30, title: "Friendly Staff")
+                ],
+                scrapedAt: "2024-07-05T12:00:00Z",
+                street: "Piedmont Ave",
+                subCategories: ["Pizzeria", "Family Style"],
+                temporarilyClosed: false,
+                url: "https://example.com",
+                website: "https://example.com/restaurant123"
+            
         ),
         .init(
             id: NSUUID().uuidString,
