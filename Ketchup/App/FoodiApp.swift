@@ -34,7 +34,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                         print("FCM registration token: \(token)")
                     }
                 }
-        
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+                if let error = error {
+                    print("Error setting badge count: \(error)")
+                }
+            }
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
@@ -122,7 +126,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
       Messaging.messaging().appDidReceiveMessage(userInfo)
 
       // Change this to your preferred presentation option
-      completionHandler([[.alert, .sound]])
+        if #available(iOS 14.0, *) {
+              completionHandler([.banner, .sound, .badge])
+          } else {
+              completionHandler([.alert, .sound, .badge])
+          }
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter,

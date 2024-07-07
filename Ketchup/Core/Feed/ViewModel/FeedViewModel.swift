@@ -66,12 +66,16 @@ class FeedViewModel: ObservableObject {
     }
 
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async throws {
-        self.posts.removeAll()
-        hasMorePosts = true
-        self.filters = filters
+        await MainActor.run {
+            self.posts.removeAll()
+            self.hasMorePosts = true
+            self.filters = filters
+        }
+        
         if selectedTab == .following {
             await fetchFollowingUsers()
         }
+        
         await fetchPosts(withFilters: filters, isInitialLoad: true)
     }
 
@@ -99,10 +103,20 @@ class FeedViewModel: ObservableObject {
 
     private func fetchFollowingUsers() async {
         do {
-            self.followingUsers = try await UserService.shared.fetchFollowingUserIds()
-            print("Following", followingUsers)
+            let userIds = try await UserService.shared.fetchFollowingUserIds()
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = userIds
+                print("Following users count: \(self.followingUsers.count)")
+            }
         } catch {
             print("Error fetching following users: \(error)")
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = []
+            }
         }
     }
 
@@ -136,7 +150,19 @@ class FeedViewModel: ObservableObject {
             }
 
             if selectedTab == .following {
+                if followingUsers.isEmpty {
+                    print("No following users, showing empty state")
+                    await MainActor.run {
+                        self.posts = []
+                        self.showEmptyView = true
+                        self.hasMorePosts = false
+                    }
+                    return
+                }
+                
+                // Use a safe subset of following users
                 let followingBatch = Array(followingUsers.prefix(30))
+                print("Using \(followingBatch.count) following users for query")
                 query = query.whereField("user.id", in: followingBatch)
             }
 
@@ -151,10 +177,15 @@ class FeedViewModel: ObservableObject {
             if Task.isCancelled { return }
             let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
 
+            print("Fetched \(newPosts.count) new posts")
+
             if newPosts.isEmpty {
                 self.hasMorePosts = false
             } else {
-                self.posts.append(contentsOf: newPosts)
+                // Use a temporary array to avoid direct mutation of published property
+                var updatedPosts = self.posts
+                updatedPosts.append(contentsOf: newPosts)
+                self.posts = updatedPosts
                 self.lastDocument = snapshot.documents.last
                 self.hasMorePosts = newPosts.count >= self.pageSize
             }
@@ -166,38 +197,32 @@ class FeedViewModel: ObservableObject {
     }
 
     func updateCache(scrollPosition: String?) {
-        guard !posts.isEmpty else {
-            print("Posts array is empty")
-            return
-        }
+        guard !posts.isEmpty, let scrollPosition = scrollPosition else {
+                print("Posts array is empty or scroll position is nil")
+                return
+            }
 
-        guard let scrollPosition = scrollPosition else {
-            print("Scroll position is nil")
-            return
-        }
+            guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+                print("Current index not found in posts array")
+                return
+            }
 
-        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            print("Current index not found in posts array")
-            print("scroll position = \(scrollPosition)")
-            return
-        }
+            print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
 
-        let startIndex = currentIndex + 1
-        let endIndex = min(currentIndex + 6, posts.count)
+            let startIndex = min(currentIndex + 1, posts.count - 1)
+            let endIndex = min(currentIndex + 6, posts.count)
 
-        guard startIndex < endIndex else {
-            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-            return
-        }
+            guard startIndex < endIndex else {
+                print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+                return
+            }
 
-        let posts = self.posts
+            let postsToPreload = Array(posts[startIndex..<endIndex])
+            
+            print("Preloading \(postsToPreload.count) posts")
+        
         DispatchQueue.global().async {
-            let nextIndexes = Array(startIndex..<endIndex)
-            for index in nextIndexes {
-                if index >= posts.count {
-                    break
-                }
-                let post = posts[index]
+            for post in postsToPreload {
                 Task {
                     if post.mediaType == .video {
                         if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
@@ -278,13 +303,8 @@ extension FeedViewModel {
             return
         }
 
-        guard !isFetching else {
-            print("Already fetching more content")
-            return
-        }
-
-        guard hasMorePosts else {
-            print("No more posts to fetch")
+        guard !isFetching && hasMorePosts else {
+            print("Already fetching or no more posts to fetch")
             return
         }
 
@@ -293,7 +313,9 @@ extension FeedViewModel {
             return
         }
 
-        let thresholdIndex = posts.count + fetchingThreshold
+        print("Current index: \(currentIndex), Posts count: \(posts.count)")
+
+        let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
 
         if currentIndex >= thresholdIndex && currentIndex > lastFetched {
             print("Fetching more posts")
