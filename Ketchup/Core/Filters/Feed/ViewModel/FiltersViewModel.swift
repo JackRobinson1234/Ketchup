@@ -63,7 +63,11 @@ class FiltersViewModel: ObservableObject {
         }
         ///Dietary checking if there are any selected
         print("Filters", filters)
-        await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+        do{
+            try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+        } catch {
+            print("Error")
+        }
     }
     
     //MARK: update selected posts

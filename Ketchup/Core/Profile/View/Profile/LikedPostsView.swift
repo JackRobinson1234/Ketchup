@@ -45,7 +45,7 @@ struct LikedPostsView: View {
                         scrollTarget: $scrollTarget
                     )
                 case .media:
-                    PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts liked by @\(viewModel.user.username)")
+                    PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts liked by @\(viewModel.user.username)", showNames: true)
                 case .map:
                     ProfileMapView(posts: viewModel.likedPosts)
                         .id("map")

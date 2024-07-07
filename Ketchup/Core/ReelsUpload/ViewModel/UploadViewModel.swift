@@ -21,7 +21,6 @@ class UploadViewModel: ObservableObject {
     @Published var images: [UIImage]?
     @Published var mediaType: MediaType = .video
     @Published var restaurant: Restaurant?
-    
     @Published var navigateToUpload = false
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
@@ -89,7 +88,6 @@ class UploadViewModel: ObservableObject {
                 guard let videoURL = videoURL else {
                     throw UploadError.invalidMediaData
                 }
-                
                 post = try await UploadService.shared.uploadPost(
                     videoURL: videoURL,
                     images: nil,
@@ -102,7 +100,6 @@ class UploadViewModel: ObservableObject {
                     atmosphereRating: atmosphereRating,
                     valueRating: valueRating,
                     foodRating: foodRating
-                    
                 )
             } else if mediaType == .photo {
                 guard let images = images else {

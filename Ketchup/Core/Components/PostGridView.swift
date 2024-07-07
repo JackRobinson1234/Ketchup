@@ -15,7 +15,7 @@ struct PostGridView: View {
     @Environment(\.dismiss) var dismiss
     private let posts: [Post]?
     private let feedTitleText: String?
-    
+    private let showNames: Bool
     private let spacing: CGFloat = 8
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (spacing * 2)) / 3
@@ -29,9 +29,10 @@ struct PostGridView: View {
             GridItem(.flexible(), spacing:  2),
         ]
     }
-    init(posts: [Post]?, feedTitleText: String?) {
+    init(posts: [Post]?, feedTitleText: String?, showNames: Bool) {
         self.posts = posts
         self.feedTitleText = feedTitleText
+        self.showNames = showNames
     }
     
     var body: some View {
@@ -67,13 +68,16 @@ struct PostGridView: View {
                                         Spacer()
                                         HStack{
                                             VStack (alignment: .leading) {
-                                                Text("\(post.restaurant.name)")
-                                                    .lineLimit(2)
-                                                    .truncationMode(.tail)
-                                                    .foregroundColor(.white)
-                                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                                    .bold()
-                                                    .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                if showNames {
+                                                    Text("\(post.restaurant.name)")
+                                                        .lineLimit(2)
+                                                        .truncationMode(.tail)
+                                                        .foregroundColor(.white)
+                                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                                        .bold()
+                                                        .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                        .multilineTextAlignment(.leading)
+                                                }
                                             }
                                             
                                             

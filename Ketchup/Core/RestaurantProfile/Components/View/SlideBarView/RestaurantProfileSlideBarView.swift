@@ -87,6 +87,17 @@ struct RestaurantProfileSlideBarView: View {
 //                    }
 //                    .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
 //                    .frame(maxWidth: .infinity)
+                Image(systemName: currentSection == .stats ? "info.circle.fill" : "info.circle")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 22)
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.currentSection = .stats
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: currentSection == .stats))
+                    .frame(maxWidth: .infinity)
                 
                 Image(systemName: currentSection == .collections ? "folder.fill" : "folder")
                     .resizable()
@@ -101,17 +112,7 @@ struct RestaurantProfileSlideBarView: View {
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
                     .frame(maxWidth: .infinity)
                 
-                Image(systemName: currentSection == .stats ? "info.circle.fill" : "info.circle")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 22)
-                    .onTapGesture {
-                        withAnimation {
-                            viewModel.currentSection = .stats
-                        }
-                    }
-                    .modifier(UnderlineImageModifier(isSelected: currentSection == .stats))
-                    .frame(maxWidth: .infinity)
+               
 
 
             }
@@ -140,7 +141,7 @@ struct RestaurantProfileSlideBarView: View {
                     )
                 case .media:
                     if let name = viewModel.restaurant?.name {
-                        PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)")
+                        PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)", showNames: false)
                     }
                 }
             }

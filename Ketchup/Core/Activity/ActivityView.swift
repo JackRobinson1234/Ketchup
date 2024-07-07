@@ -66,7 +66,6 @@ struct ActivityView: View {
                             Text("Find your friends!")
                                 .font(.custom("MuseoSansRounded-300", size: 12))
                                 .foregroundStyle(Color("Colors/AccentColor"))
-                            
                         }
                         Divider()
                         // MARK: Friends

@@ -23,7 +23,9 @@ class ActivityService {
             try await fetchUserIDs()
             fetchedUsers = true
         }
-
+        if userIDs.isEmpty {
+            return ([], nil)
+        }
         var query = FirestoreConstants.ActivityCollection
             .whereField("uid", in: Array(userIDs.prefix(30))) // Adjust the limit based on Firestore's constraints
             .order(by: "timestamp", descending: true)

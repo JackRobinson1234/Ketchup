@@ -104,11 +104,24 @@ struct ActivityCell: View {
                     .multilineTextAlignment(.leading)
                     Spacer()
                     if let image = activity.image {
-                        KFImage(URL(string: image))
-                            .resizable()
-                            .frame(width: 50, height: 70)
-                            .aspectRatio(contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        Button {
+                            Task {
+                                if let collectionId = activity.collectionId {
+                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                                    if let collection = viewModel.collection , viewModel.user != nil {
+                                        print("Fetched collection: \(String(describing: viewModel.collection))")
+                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
+                                        viewModel.showCollection.toggle()
+                                    }
+                                }
+                            }
+                        } label: {
+                            KFImage(URL(string: image))
+                                .resizable()
+                                .frame(width: 50, height: 70)
+                                .aspectRatio(contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
                     } else {
                         Button {
                             Task {
@@ -131,7 +144,7 @@ struct ActivityCell: View {
                     }
                 }
                 .padding()
-            //MARK: CollectionItem
+                //MARK: CollectionItem
             } else if activity.type == .newCollectionItem {
                 HStack (alignment: .top){
                     Button {

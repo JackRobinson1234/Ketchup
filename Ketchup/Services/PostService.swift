@@ -79,6 +79,7 @@ class PostService {
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
             .whereField("user.privateMode", isEqualTo: false)
+            .order(by: "timestamp", descending: true)
             .getDocuments(as: Post.self)
         return posts
     }

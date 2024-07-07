@@ -169,6 +169,7 @@ struct CollectionView: View {
                 }
                 
             }
+            .gesture(drag)
                     .sheet(isPresented: $showEditCollection) {
                         EditCollectionView(collectionsViewModel: collectionsViewModel)
                             .onDisappear {

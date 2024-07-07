@@ -74,36 +74,52 @@ struct WrittenFeedCell: View {
                 }
             }
             if post.mediaType == .photo {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack {
-                        ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
-                            VStack {
-                                Button {
-                                    viewModel.startingImageIndex = index
-                                    viewModel.startingPostId = post.id
-                                    selectedPost = post
-                                    
-                                    
-                                } label: {
-                                    KFImage(URL(string: url))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: pictureWidth, height: pictureHeight)
-                                        .clipped()
-                                        .cornerRadius(10)
+                if post.mediaUrls.count > 1 {
+                    // Use ScrollView for multiple photos
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack {
+                            ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        KFImage(URL(string: url))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: pictureWidth, height: pictureHeight)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                    }
+                                }
+                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                    content
+                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
                                 }
                             }
-                            .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.8)
-                            }
                         }
+                        .frame(height: pictureHeight)
+                        .scrollTargetLayout()
                     }
-                    .frame(height: pictureHeight)
-                    .scrollTargetLayout()
+                    .scrollTargetBehavior(.viewAligned)
+                    .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
+                } else {
+                    // Center a single photo
+                    Button {
+                        viewModel.startingImageIndex = 0
+                        viewModel.startingPostId = post.id
+                        selectedPost = post
+                    } label: {
+                        KFImage(URL(string: post.mediaUrls.first ?? ""))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: pictureWidth, height: pictureHeight)
+                            .clipped()
+                            .cornerRadius(10)
+                    }
+                    .frame(maxWidth: .infinity) // This will allow the Button to take full width
                 }
-                .scrollTargetBehavior(.viewAligned)
-                .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
             } else if post.mediaType == .video {
                 HStack (alignment: .bottom){
                     Rectangle()
@@ -301,11 +317,6 @@ struct WrittenFeedCell: View {
                     .onDisappear{
                         videoCoordinator.play()
                     }
-            }
-        }
-        .onChange(of: viewModel.selectedTab) {
-            if post.mediaType == .video {
-                videoCoordinator.pause()
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {

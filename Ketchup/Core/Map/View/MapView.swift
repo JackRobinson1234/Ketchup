@@ -198,16 +198,16 @@ struct MapView: View {
                     if !inSearchView{
                         HStack {
                             // MARK: Search Button
-                            Button(action: {
-                                inSearchView.toggle()
-                                isSearchPresented.toggle()
-                                position = .automatic
-                            }) {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 27))
-                                    .shadow(color: .gray, radius: 10)
-                            }
+//                            Button(action: {
+//                                inSearchView.toggle()
+//                                isSearchPresented.toggle()
+//                                position = .automatic
+//                            }) {
+//                                Image(systemName: "magnifyingglass")
+//                                    .foregroundStyle(.white)
+//                                    .font(.system(size: 27))
+//                                    .shadow(color: .gray, radius: 10)
+//                            }
                             
                             Spacer()
                             

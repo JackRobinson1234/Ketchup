@@ -36,7 +36,7 @@ struct RestaurantCollectionListView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 30)
-                                .foregroundStyle(.blue.opacity(1))
+                                .foregroundStyle(Color("Colors/AccentColor").opacity(1))
                                 .padding(.horizontal)
                             VStack(alignment: .leading){
                                 

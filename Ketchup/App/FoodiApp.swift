@@ -48,10 +48,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
             print("Oh no! Failed to register for remote notifications with error \(error)")
         }
+    
 }
 extension AppDelegate: MessagingDelegate {
     @objc func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("Firebase token: \(String(describing: fcmToken))")
+        if let token = fcmToken {
+                    saveTokenToFirestore(token: token)
+                }
     }
 }
 @main
@@ -137,4 +141,22 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
       Messaging.messaging().appDidReceiveMessage(userInfo)
       completionHandler(.noData)
     }
+    func saveTokenToFirestore(token: String) {
+            guard let userId = Auth.auth().currentUser?.uid else { return }
+            
+            let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
+            
+            let db = Firestore.firestore()
+            db.collection("users").document(userId).collection("devices").document(deviceId).setData([
+                "fcmToken": token,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ]) { error in
+                if let error = error {
+                    print("Error saving token: \(error)")
+                } else {
+                    print("Token saved successfully")
+                }
+            }
+        }
+    
 }

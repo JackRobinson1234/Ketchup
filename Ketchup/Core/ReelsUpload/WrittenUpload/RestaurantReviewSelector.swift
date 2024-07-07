@@ -7,6 +7,7 @@
 
 import SwiftUI
 import InstantSearchSwiftUI
+import FirebaseFirestoreInternal
 
 struct RestaurantReviewSelector: View {
     @StateObject var viewModel = RestaurantListViewModel()
@@ -39,6 +40,12 @@ struct RestaurantReviewSelector: View {
                     Button{
                         reviewsViewModel.restaurantRequest = nil
                         reviewsViewModel.selectedRestaurant = hit.object
+                        let restaurant = hit.object
+                            if let geopoint = restaurant.geoPoint{
+                                reviewsViewModel.selectedRestaurant?.geoPoint = geopoint
+                            } else if let geoLoc = restaurant._geoloc {
+                                reviewsViewModel.selectedRestaurant?.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+                            }
                         dismiss()
                     } label: {
                         RestaurantCell(restaurant: hit.object)

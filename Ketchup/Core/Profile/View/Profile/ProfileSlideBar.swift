@@ -119,7 +119,7 @@ struct ProfileSlideBar: View {
                                 scrollTarget: $scrollTarget
                             )
                         case .media:
-                            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)")
+                            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
                         case .map:
                             ProfileMapView(posts: viewModel.posts)
                                 .id("map")
