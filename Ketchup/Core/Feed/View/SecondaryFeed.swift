@@ -63,7 +63,7 @@ struct SecondaryFeedView: View {
                 .scrollTargetLayout()
                 .scrollPosition(id: $scrollPosition)
                 .scrollTargetBehavior(.paging)
-            }
+           }
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
