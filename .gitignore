@@ -23,6 +23,9 @@ xcuserdata/
 # Firebase cache
 .firebase/
 
+# User-specific files
+Ketchup.xcworkspace/xcuserdata/*.xcuserdatad/UserInterfaceState.xcuserstate
+
 # Firebase config
 
 # Uncomment this if you'd like others to create their own Firebase project.
