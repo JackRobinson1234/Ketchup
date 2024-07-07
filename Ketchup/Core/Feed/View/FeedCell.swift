@@ -71,7 +71,9 @@ struct FeedCell: View {
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
                     if self.currentImageIndex > 0 {
-                        self.currentImageIndex -= 1
+                        withAnimation(.easeInOut) {
+                            self.currentImageIndex -= 1
+                        }
                     } else {
                         viewModel.initialPrimaryScrollPosition = scrollPosition
                         dismiss()
@@ -79,7 +81,9 @@ struct FeedCell: View {
                 } else {
                     self.dragDirection = "right"
                     if self.currentImageIndex < post.mediaUrls.count - 1 {
-                        self.currentImageIndex += 1
+                        withAnimation(.easeInOut) {
+                            self.currentImageIndex += 1
+                        }
                     }
                 }
                 self.isDragging = false
@@ -97,35 +101,36 @@ struct FeedCell: View {
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                     .containerRelativeFrame([.horizontal, .vertical])
             } else if post.mediaType == .photo {
-                ZStack(alignment: .top) {
-                    if post.user.username == "ketchup_media"{
-                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: UIScreen.main.bounds.width)
-                            .clipped()
-                    } else {
-                        KFImage(URL(string: post.mediaUrls[currentImageIndex]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                            .cornerRadius(20)
-                            .containerRelativeFrame([.horizontal, .vertical])
+                TabView(selection: $currentImageIndex) {
+                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                            KFImage(URL(string: post.mediaUrls[index]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                .cornerRadius(20)
+                                .containerRelativeFrame([.horizontal, .vertical])
+                                .tag(index)
+                        }
                     }
-
-                    VStack {
-                        HStack(spacing: 6) {
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    .animation(.easeInOut, value: currentImageIndex)
+                    .overlay(
+                        Group {
                             if post.mediaUrls.count > 1 {
-                                ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                                    Circle()
-                                        .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.white)
-                                        .frame(width: 10, height: 10)
+                                VStack {
+                                    HStack(spacing: 6) {
+                                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                            Circle()
+                                                .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.white)
+                                                .frame(width: 10, height: 10)
+                                        }
+                                    }
+                                    .padding(.top, 130)
+                                    Spacer()
                                 }
                             }
                         }
-                        .padding(.top, 130)
-                    }
-                }
+                    )
             }
 
             ZStack(alignment: .bottom) {
