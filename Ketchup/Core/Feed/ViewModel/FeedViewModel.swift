@@ -54,7 +54,9 @@ class FeedViewModel: ObservableObject {
     private var fetchTask: Task<Void, Error>?
     @Published var selectedTab: FeedTab = .following {
         didSet {
-            cancelExistingFetchAndStartNew()
+            Task {
+                await handleTabChange()
+            }
         }
     }
 
@@ -64,15 +66,47 @@ class FeedViewModel: ObservableObject {
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
     }
-
+    private func handleTabChange() async {
+        await MainActor.run {
+            isLoading = true
+            posts.removeAll()
+            lastDocument = nil
+            hasMorePosts = true
+        }
+        
+        do {
+            if selectedTab == .following {
+                await fetchFollowingUsers()
+            }
+            
+            await fetchPosts(withFilters: self.filters, isInitialLoad: true)
+        } catch {
+            print("Error handling tab change: \(error)")
+        }
+        
+        await MainActor.run {
+            isLoading = false
+        }
+    }
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async throws {
-        self.posts.removeAll()
-        hasMorePosts = true
-        self.filters = filters
+        await MainActor.run {
+                self.isLoading = true
+                self.posts.removeAll()
+                self.hasMorePosts = true
+                self.filters = filters
+                self.lastDocument = nil
+                self.lastFetched = 0  // Reset the threshold
+            }
+        
         if selectedTab == .following {
             await fetchFollowingUsers()
         }
+        
+        
         await fetchPosts(withFilters: filters, isInitialLoad: true)
+        await MainActor.run {
+                self.isLoading = false
+            }
     }
 
     private func cancelExistingFetchAndStartNew() {
@@ -99,34 +133,40 @@ class FeedViewModel: ObservableObject {
 
     private func fetchFollowingUsers() async {
         do {
-            self.followingUsers = try await UserService.shared.fetchFollowingUserIds()
-            print("Following", followingUsers)
+            let userIds = try await UserService.shared.fetchFollowingUserIds()
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = userIds
+                print("Following users count: \(self.followingUsers.count)")
+            }
         } catch {
             print("Error fetching following users: \(error)")
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = []
+            }
         }
     }
 
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
         if Task.isCancelled { return }
-        if !hasMorePosts {
-            print("Doesn't have any more posts")
-            return
+        
+        await MainActor.run {
+            if !hasMorePosts {
+                print("Doesn't have any more posts")
+                return
+            }
+            
+            if isInitialLoad {
+                lastDocument = nil
+            }
         }
 
         do {
             var updatedFilters = filters ?? [:]
             updatedFilters["user.privateMode"] = [false]
-
-            if isInitialLoad {
-                lastDocument = nil
-            }
-
-            if selectedTab == .following && followingUsers.isEmpty {
-                self.posts = []
-                self.showEmptyView = true
-                self.hasMorePosts = false
-                return
-            }
 
             let db = Firestore.firestore()
             var query: Query = db.collection("posts")
@@ -137,6 +177,14 @@ class FeedViewModel: ObservableObject {
 
             if selectedTab == .following {
                 let followingBatch = Array(followingUsers.prefix(30))
+                if followingBatch.isEmpty {
+                    await MainActor.run {
+                        self.posts = []
+                        self.showEmptyView = true
+                        self.hasMorePosts = false
+                    }
+                    return
+                }
                 query = query.whereField("user.id", in: followingBatch)
             }
 
@@ -151,14 +199,17 @@ class FeedViewModel: ObservableObject {
             if Task.isCancelled { return }
             let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
 
-            if newPosts.isEmpty {
-                self.hasMorePosts = false
-            } else {
-                self.posts.append(contentsOf: newPosts)
-                self.lastDocument = snapshot.documents.last
-                self.hasMorePosts = newPosts.count >= self.pageSize
+            await MainActor.run {
+                if newPosts.isEmpty {
+                    self.hasMorePosts = false
+                } else {
+                    self.posts.append(contentsOf: newPosts)
+                    self.lastDocument = snapshot.documents.last
+                    self.hasMorePosts = newPosts.count >= self.pageSize
+                }
+                self.showEmptyView = self.posts.isEmpty
             }
-            self.showEmptyView = self.posts.isEmpty
+
             await checkIfUserLikedPosts()
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
@@ -166,38 +217,32 @@ class FeedViewModel: ObservableObject {
     }
 
     func updateCache(scrollPosition: String?) {
-        guard !posts.isEmpty else {
-            print("Posts array is empty")
-            return
-        }
+        guard !posts.isEmpty, let scrollPosition = scrollPosition else {
+                print("Posts array is empty or scroll position is nil")
+                return
+            }
 
-        guard let scrollPosition = scrollPosition else {
-            print("Scroll position is nil")
-            return
-        }
+            guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+                print("Current index not found in posts array")
+                return
+            }
 
-        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            print("Current index not found in posts array")
-            print("scroll position = \(scrollPosition)")
-            return
-        }
+            print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
 
-        let startIndex = currentIndex + 1
-        let endIndex = min(currentIndex + 6, posts.count)
+            let startIndex = min(currentIndex + 1, posts.count - 1)
+            let endIndex = min(currentIndex + 6, posts.count)
 
-        guard startIndex < endIndex else {
-            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-            return
-        }
+            guard startIndex < endIndex else {
+                print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+                return
+            }
 
-        let posts = self.posts
+            let postsToPreload = Array(posts[startIndex..<endIndex])
+            
+            print("Preloading \(postsToPreload.count) posts")
+        
         DispatchQueue.global().async {
-            let nextIndexes = Array(startIndex..<endIndex)
-            for index in nextIndexes {
-                if index >= posts.count {
-                    break
-                }
-                let post = posts[index]
+            for post in postsToPreload {
                 Task {
                     if post.mediaType == .video {
                         if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
@@ -273,18 +318,13 @@ extension FeedViewModel {
     }
 
     func loadMoreContentIfNeeded(currentPost: String?) async {
-        guard let currentPost = currentPost else {
-            print("Error: No current post provided")
+        guard let currentPost = currentPost, !posts.isEmpty else {
+            print("No current post or posts array is empty")
             return
         }
 
-        guard !isFetching else {
-            print("Already fetching more content")
-            return
-        }
-
-        guard hasMorePosts else {
-            print("No more posts to fetch")
+        guard !isFetching && hasMorePosts else {
+            print("Already fetching or no more posts to fetch")
             return
         }
 
@@ -293,10 +333,10 @@ extension FeedViewModel {
             return
         }
 
-        let thresholdIndex = posts.count + fetchingThreshold
+        let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
 
         if currentIndex >= thresholdIndex && currentIndex > lastFetched {
-            print("Fetching more posts")
+            print("Fetching more posts. Current index: \(currentIndex), Last fetched: \(lastFetched)")
             lastFetched = currentIndex
 
             Task {
@@ -305,7 +345,7 @@ extension FeedViewModel {
                 isLoadingMoreContent = false
             }
         } else {
-            print("Not yet reached the threshold for fetching more posts")
+            print("Not yet reached the threshold for fetching more posts. Current index: \(currentIndex), Threshold: \(thresholdIndex), Last fetched: \(lastFetched)")
         }
     }
 

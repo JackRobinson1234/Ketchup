@@ -25,6 +25,8 @@ struct PrimaryFeedView: View {
     @State var selectedPost: Post?
     @State var showLocationFilter: Bool = false
     @State private var isRefreshing = false
+    @State private var canSwitchTab = true
+
 
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -53,6 +55,7 @@ struct PrimaryFeedView: View {
                                 ForEach($viewModel.posts) { post in
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
+                                    
                                 }
                                 if viewModel.isLoadingMoreContent {
                                     ProgressView()
@@ -70,6 +73,9 @@ struct PrimaryFeedView: View {
                                     }
                             }
                             .scrollTargetLayout()
+                        }
+                        .refreshable {
+                            await refreshFeed()
                         }
                         .safeAreaPadding(.top, 90)
                         .transition(.slide)
@@ -122,7 +128,15 @@ struct PrimaryFeedView: View {
                         .padding(.bottom, 10)
                         HStack(spacing: 40) {
                             Button {
-                                viewModel.selectedTab = .following
+                                if canSwitchTab {
+                                    viewModel.selectedTab = .following
+                                    canSwitchTab = false
+                                    
+                                    // Re-enable switching after a delay
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        canSwitchTab = true
+                                    }
+                                }
                             } label: {
                                 Text("Following")
                                     .font(.custom("MuseoSansRounded-300", size: 18))
@@ -135,9 +149,18 @@ struct PrimaryFeedView: View {
                                             .offset(y: 12)
                                     )
                             }
-                            .disabled(viewModel.selectedTab == .following)
+                            .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+
                             Button {
-                                viewModel.selectedTab = .discover
+                                if canSwitchTab {
+                                    viewModel.selectedTab = .discover
+                                    canSwitchTab = false
+                                    
+                                    // Re-enable switching after a delay
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        canSwitchTab = true
+                                    }
+                                }
                             } label: {
                                 Text("Discover")
                                     .font(.custom("MuseoSansRounded-300", size: 18))
@@ -150,7 +173,7 @@ struct PrimaryFeedView: View {
                                             .offset(y: 12)
                                     )
                             }
-                            .disabled(viewModel.selectedTab == .discover)
+                            .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                         }
                         .padding(.bottom, 6)
                         Button {
@@ -294,7 +317,7 @@ struct PrimaryFeedView: View {
         }
     }
 
-    private func refresh() async {
+    private func refreshFeed() async {
         isRefreshing = true
         do {
             try await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
