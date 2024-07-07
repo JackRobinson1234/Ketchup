@@ -87,7 +87,6 @@ struct ShareView: View {
                 }
             }
             VStack{
-                
                 Button(action: {
                     let mediaURL: String?
                     if post.mediaType == .photo, let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
