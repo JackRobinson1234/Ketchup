@@ -145,10 +145,12 @@ struct CurrentUserProfileView: View {
             }
 
             if showZoomedProfileImage {
-                Color.black.opacity(0.5)
+                Color.black.opacity(0.7)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        showZoomedProfileImage = false
+                        withAnimation {
+                            showZoomedProfileImage = false
+                        }
                     }
                 VStack {
                     Spacer()
@@ -156,10 +158,13 @@ struct CurrentUserProfileView: View {
                         .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .onTapGesture {
-                            showZoomedProfileImage = false
+                            withAnimation {
+                                showZoomedProfileImage = false
+                            }
                         }
                     Spacer()
                 }
+                .transition(.scale)
             }
         }
     }

@@ -27,7 +27,7 @@ enum ProfileImageSize {
         case .large: return 64
         case .xLarge: return 80
         case .xxLarge: return 90
-        case .xxxLarge: return 150
+        case .xxxLarge: return UIScreen.main.bounds.width * 2 / 3
             
         }
     }

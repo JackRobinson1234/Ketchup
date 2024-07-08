@@ -136,7 +136,7 @@ struct ProfileView: View {
                 }
                 
                 if showZoomedProfileImage {
-                                Color.black.opacity(0.5)
+                                Color.black.opacity(0.7)
                                     .ignoresSafeArea()
                                     .onTapGesture {
                                         showZoomedProfileImage = false
@@ -160,4 +160,3 @@ struct ProfileView: View {
 #Preview {
     ProfileView(uid: DeveloperPreview.user.id)
 }
-
