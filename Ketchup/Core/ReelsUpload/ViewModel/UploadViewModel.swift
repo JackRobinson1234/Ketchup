@@ -133,5 +133,6 @@ class UploadViewModel: ObservableObject {
             feedViewModel.posts.insert(post, at: 0)
         }
         isLoading = false
+        reset()
     }
 }

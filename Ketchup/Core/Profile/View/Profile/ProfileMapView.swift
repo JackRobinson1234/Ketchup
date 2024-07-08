@@ -16,14 +16,20 @@ struct ProfileMapView: View {
     @State var selectedWrittenPost: Post?
     @State var selectedLocation: LocationWithPosts?
     @Environment(\.dismiss) var dismiss
+    
+    // Filter posts to exclude those with restaurant IDs starting with "construction"
+    var filteredPosts: [Post] {
+        posts.filter { !$0.restaurant.id.starts(with: "construction") }
+    }
+    
     var groupedPosts: [CLLocationCoordinate2D: [Post]] {
-        Dictionary(grouping: posts) { post in
+        Dictionary(grouping: filteredPosts) { post in
             post.restaurant.geoPoint.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) } ?? CLLocationCoordinate2D()
         }
     }
     
     var body: some View {
-        if !posts.isEmpty {
+        if !filteredPosts.isEmpty {
             Map(initialPosition: .automatic) {
                 ForEach(Array(groupedPosts.keys), id: \.self) { coordinate in
                     let postsAtLocation = groupedPosts[coordinate] ?? []
@@ -32,7 +38,6 @@ struct ProfileMapView: View {
                             if postsAtLocation.count > 1 {
                                 feedViewModel.posts = postsAtLocation
                                 selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
-                                
                             } else if let singlePost = postsAtLocation.first {
                                 if singlePost.mediaType == .written {
                                     selectedWrittenPost = singlePost
@@ -89,6 +94,7 @@ struct ProfileMapView: View {
         }
     }
 }
+
 struct MultiPostAnnotationView: View {
     let count: Int
     
@@ -128,7 +134,6 @@ struct SinglePostAnnotationView: View {
     }
 }
 
-
 struct PostListItem: View {
     let post: Post
     
@@ -158,11 +163,13 @@ struct PostListItem: View {
         }
     }
 }
+
 struct LocationWithPosts: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
     let posts: [Post]
 }
+
 struct PostAnnotationView: View {
     let post: Post
     

@@ -74,7 +74,7 @@ struct MainTabView: View {
             ActivityView()
                 .tabItem {
                     
-                        Image(systemName: tabBarController.selectedTab == 3 ? "bolt.fill" : "bolt")
+                        Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
                             .foregroundStyle(.primary)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                             

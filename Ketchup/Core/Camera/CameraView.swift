@@ -5,14 +5,6 @@
 //  Created by Jack Robinson on 4/21/24.
 //
 
-
-import Foundation
-import SwiftUI
-import AVKit
-import PhotosUI
-import UniformTypeIdentifiers
-
-
 import Foundation
 import SwiftUI
 import AVKit
@@ -239,6 +231,9 @@ struct CameraView: View {
             .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
+                    .onAppear {
+                            cameraViewModel.stopCameraSession()
+                        }
             }
             .navigationDestination(isPresented: $cameraViewModel.uploadFromLibray) {
                 LibrarySelectorView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
@@ -254,7 +249,7 @@ struct CameraView: View {
                     selectedCamTab = 0
                 }
             }
-            .onChange(of: selectedCamTab) { newValue in
+            .onChange(of: selectedCamTab) {oldValue, newValue in
                 if newValue == 2 {
                     cameraViewModel.stopCameraSession()
                 } else {
@@ -458,7 +453,14 @@ struct PhotoCameraControls: View {
                                 }
                             }
                         }
-                        
+                        VStack{
+                            if cameraViewModel.images.count > 0 {
+                                Text("Edit")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(.white)
+                                
+                            }
+                        }
                         Text("\(cameraViewModel.images.count)/5")
                             .font(.custom("MuseoSansRounded-300", size: 16))
                             .foregroundColor(.white)
@@ -480,11 +482,17 @@ struct PhotoCameraControls: View {
                     Button {
                         cameraViewModel.clearLatestPic()
                     } label: {
-                        Text("Delete Latest")
-                            .frame(width: 100, height: 50)
-                            .background(Color("Colors/AccentColor"))
-                            .cornerRadius(3.0)
-                            .foregroundColor(.white)
+                        VStack{
+                            Image(systemName: "delete.left")
+                                .resizable()
+                                .foregroundStyle(.white)
+                                .scaledToFit()
+                                .frame(width: 75)
+                            Text("Delete latest")
+                                
+                        }
+                        .frame(width: 100, height: 50)
+                        
                     }
                     .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
                     

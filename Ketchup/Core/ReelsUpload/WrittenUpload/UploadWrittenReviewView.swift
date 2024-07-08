@@ -98,10 +98,10 @@ struct UploadWrittenReviewView: View {
                     
                     VStack(spacing: 20) {
                         RatingSliderGroup(label: "Overall", isOverall: true, rating: $overallRating)
-                                    RatingSliderGroup(label: "Food", isOverall: false, rating: $foodRating)
-                                    RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $atmosphereRating)
-                                    RatingSliderGroup(label: "Value", isOverall: false, rating: $valueRating)
-                                    RatingSliderGroup(label: "Service", isOverall: false, rating: $serviceRating)
+                        RatingSliderGroup(label: "Food", isOverall: false, rating: $foodRating)
+                        RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $atmosphereRating)
+                        RatingSliderGroup(label: "Value", isOverall: false, rating: $valueRating)
+                        RatingSliderGroup(label: "Service", isOverall: false, rating: $serviceRating)
                     }
                     
                     

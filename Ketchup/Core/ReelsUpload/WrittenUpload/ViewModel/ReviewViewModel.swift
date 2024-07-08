@@ -49,6 +49,7 @@ class ReviewsViewModel: ObservableObject {
                 
                 feedViewModel.showPostAlert = true
                 feedViewModel.posts.insert(review, at: 0)
+                reset()
             } catch {
                 print("error uploading post")
                 throw error
@@ -93,6 +94,13 @@ class ReviewsViewModel: ObservableObject {
             throw error
         }
     }
+    private func reset() {
+            self.reviews = []
+            self.isLoading = false
+            self.selectedRestaurant = nil
+            self.selectedUser = nil
+            self.restaurantRequest = nil
+        }
 }
 
 

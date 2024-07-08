@@ -96,7 +96,7 @@ struct ActivityView: View {
                 viewModel.letsKetchupOption = option
             }
         } label: {
-            Text(option == .friends ? "Friends" : "Global")
+            Text(option == .friends ? "Friends" : "Ketchup")
                 .padding(8)
                 .background(
                     ZStack {
@@ -141,7 +141,7 @@ struct ActivityView: View {
                 ProgressView()
             } else {
                 VStack {
-                    Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Global activity")
+                    Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Ketchup activity")
                     Spacer()
                 }
             }

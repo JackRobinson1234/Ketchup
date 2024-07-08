@@ -51,7 +51,7 @@ struct SelectRestaurantListView: View {
         }, noResults: {
            Text("No Results Found")
         })
-        .navigationTitle("Explore")
+        .navigationTitle("Select Restaurant")
         .searchable(text: $viewModel.searchQuery,
                     prompt: "Search")
         .onChange(of: viewModel.searchQuery) {

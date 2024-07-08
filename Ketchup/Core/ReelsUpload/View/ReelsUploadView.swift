@@ -210,6 +210,9 @@ struct ReelsUploadView: View {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
         }
+        .onAppear {
+            UISlider.appearance().setThumbImage(nil, for: .normal)
+        }
     }
 }
 
@@ -239,10 +242,10 @@ struct RatingSliderGroup: View {
             
             Slider(value: $rating, in: 0...5, step: 0.5)
                 .frame(width: 180)
-                .onDisappear {
-                    let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
-                    UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
-                }
+//                .onDisappear {
+//                    let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
+//                    UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
+//                }
                 .onAppear {
                     // Reset the thumb image to the default
                     UISlider.appearance().setThumbImage(nil, for: .normal)
