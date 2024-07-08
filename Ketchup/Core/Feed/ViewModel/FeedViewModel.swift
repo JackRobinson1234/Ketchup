@@ -17,19 +17,12 @@ enum FeedType: String, CaseIterable {
 }
 
 enum FeedTab {
-        case discover
-        case following
-    }
+    case discover
+    case following
+}
+
 @MainActor
 class FeedViewModel: ObservableObject {
-    @Published var selectedTab: FeedTab = .discover {
-        didSet {
-            Task {
-                await fetchInitialPosts(withFilters: self.filters)
-            }
-        }
-    }
-    
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -58,150 +51,198 @@ class FeedViewModel: ObservableObject {
     private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
     private var followingUsers: [String] = []
     @Published var isLoadingMoreContent = false
+    private var fetchTask: Task<Void, Error>?
+    @Published var selectedTab: FeedTab = .following {
+        didSet {
+            Task {
+                await handleTabChange()
+            }
+        }
+    }
 
-
-    
-    
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
     }
-  
-    func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
-        self.posts = []
-        hasMorePosts = true
-        self.filters = filters
-        isLoading = true
+    private func handleTabChange() async {
+        await MainActor.run {
+            isLoading = true
+            posts.removeAll()
+            lastDocument = nil
+            hasMorePosts = true
+        }
+        
+        do {
+            if selectedTab == .following {
+                await fetchFollowingUsers()
+            }
+            
+            await fetchPosts(withFilters: self.filters, isInitialLoad: true)
+        } catch {
+            print("Error handling tab change: \(error)")
+        }
+        
+        await MainActor.run {
+            isLoading = false
+        }
+    }
+    func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async throws {
+        await MainActor.run {
+                self.isLoading = true
+                self.posts.removeAll()
+                self.hasMorePosts = true
+                self.filters = filters
+                self.lastDocument = nil
+                self.lastFetched = 0  // Reset the threshold
+            }
+        
         if selectedTab == .following {
             await fetchFollowingUsers()
         }
+        
+        
         await fetchPosts(withFilters: filters, isInitialLoad: true)
-        isLoading = false
+        await MainActor.run {
+                self.isLoading = false
+            }
     }
-    
+
+    private func cancelExistingFetchAndStartNew() {
+        fetchTask?.cancel()
+        fetchTask = Task {
+            do {
+                self.isLoading = true
+                self.posts.removeAll()
+                self.lastDocument = nil
+                try await fetchInitialPosts(withFilters: self.filters)
+            } catch {
+                print("Error fetching posts: \(error)")
+            }
+            self.isLoading = false
+        }
+    }
+
     func fetchMorePosts() async {
         guard !isFetching else { return }
         isFetching = true
         await fetchPosts(withFilters: self.filters, isInitialLoad: false)
         isFetching = false
     }
-    
+
     private func fetchFollowingUsers() async {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         do {
-            let users = try await UserService.shared.fetchFollowingUsers()
-            if users.isEmpty { return }
-            self.followingUsers = users.map { $0.id }
-            print("Following", followingUsers)
+            let userIds = try await UserService.shared.fetchFollowingUserIds()
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = userIds
+                print("Following users count: \(self.followingUsers.count)")
+            }
         } catch {
             print("Error fetching following users: \(error)")
+            
+            // Ensure we're on the main thread when updating published properties
+            await MainActor.run {
+                self.followingUsers = []
+            }
         }
     }
-    /// fetches all posts from firebase and preloads the next 3 posts in the cache
+
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
-        if !hasMorePosts {
-            print("Doesn't have any more posts")
-            return
-        }
+        if Task.isCancelled { return }
         
-        do {
-            var updatedFilters = filters ?? [:]
-            updatedFilters["user.privateMode"] = [false]
-            
-            if isInitialLoad {
-                posts.removeAll()
-                lastDocument = nil
-                if selectedTab == .following {
-                    await fetchFollowingUsers()
-                }
-            }
-            
-            if selectedTab == .following && followingUsers.isEmpty {
-                self.posts = []
-                self.showEmptyView = true
-                self.hasMorePosts = false
+        await MainActor.run {
+            if !hasMorePosts {
+                print("Doesn't have any more posts")
                 return
             }
             
+            if isInitialLoad {
+                lastDocument = nil
+            }
+        }
+
+        do {
+            var updatedFilters = filters ?? [:]
+            updatedFilters["user.privateMode"] = [false]
+
             let db = Firestore.firestore()
             var query: Query = db.collection("posts")
-            
-            // Apply filters
+
             for (key, value) in updatedFilters {
                 query = query.whereField(key, in: value)
             }
-            
+
             if selectedTab == .following {
-                // Use only the first 30 following users
                 let followingBatch = Array(followingUsers.prefix(30))
+                if followingBatch.isEmpty {
+                    await MainActor.run {
+                        self.posts = []
+                        self.showEmptyView = true
+                        self.hasMorePosts = false
+                    }
+                    return
+                }
                 query = query.whereField("user.id", in: followingBatch)
             }
-            
+
             query = query.order(by: "timestamp", descending: true)
                 .limit(to: pageSize)
-            
+
             if let lastDocument = lastDocument {
                 query = query.start(afterDocument: lastDocument)
             }
-            
+
             let snapshot = try await query.getDocuments()
+            if Task.isCancelled { return }
             let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-            
-            if newPosts.isEmpty || newPosts.count < self.pageSize {
-                self.posts.append(contentsOf: newPosts)
-                self.lastDocument = snapshot.documents.last
-                self.hasMorePosts = false
-            } else {
-                self.posts.append(contentsOf: newPosts)
-                self.lastDocument = snapshot.documents.last
+
+            await MainActor.run {
+                if newPosts.isEmpty {
+                    self.hasMorePosts = false
+                } else {
+                    self.posts.append(contentsOf: newPosts)
+                    self.lastDocument = snapshot.documents.last
+                    self.hasMorePosts = newPosts.count >= self.pageSize
+                }
+                self.showEmptyView = self.posts.isEmpty
             }
-            
-            self.showEmptyView = self.posts.isEmpty
+
             await checkIfUserLikedPosts()
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
     }
-    
-    // Add other methods as needed...
-    
-    /// updates the cache with the next 3 post videos saved
+
     func updateCache(scrollPosition: String?) {
-        guard !posts.isEmpty else {
-            print("Posts array is empty")
-            return
-        }
+        guard !posts.isEmpty, let scrollPosition = scrollPosition else {
+                print("Posts array is empty or scroll position is nil")
+                return
+            }
+
+            guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+                print("Current index not found in posts array")
+                return
+            }
+
+            print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
+
+            let startIndex = min(currentIndex + 1, posts.count - 1)
+            let endIndex = min(currentIndex + 6, posts.count)
+
+            guard startIndex < endIndex else {
+                print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+                return
+            }
+
+            let postsToPreload = Array(posts[startIndex..<endIndex])
+            
+            print("Preloading \(postsToPreload.count) posts")
         
-        guard let scrollPosition = scrollPosition else {
-            print("Scroll position is nil")
-            return
-        }
-        
-        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            print("Current index not found in posts array")
-            print("scroll position = \(scrollPosition)")
-            return
-        }
-        
-        // Ensure the range is valid
-        let startIndex = currentIndex + 1
-        let endIndex = min(currentIndex + 6, posts.count)
-        
-        guard startIndex < endIndex else {
-            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-            return
-        }
-        
-        let posts = self.posts
         DispatchQueue.global().async {
-            let nextIndexes = Array(startIndex ..< endIndex)
-            for index in nextIndexes {
-                if index >= posts.count {
-                    break
-                }
-                let post = posts[index]
+            for post in postsToPreload {
                 Task {
                     if post.mediaType == .video {
                         if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
@@ -212,12 +253,12 @@ class FeedViewModel: ObservableObject {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
                         prefetcher.start()
                     }
-                    
+
                     if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
                         let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
                         prefetcher.start()
                     }
-                    
+
                     if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
                         let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
                         prefetcher.start()
@@ -228,14 +269,12 @@ class FeedViewModel: ObservableObject {
     }
 }
 
-// MARK: - Likes
-
 extension FeedViewModel {
     func like(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = true
         posts[index].likes += 1
-        
+
         do {
             try await PostService.shared.likePost(post)
         } catch {
@@ -244,12 +283,12 @@ extension FeedViewModel {
             posts[index].likes -= 1
         }
     }
-    
+
     func unlike(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = false
         posts[index].likes -= 1
-        
+
         do {
             try await PostService.shared.unlikePost(post)
         } catch {
@@ -258,15 +297,15 @@ extension FeedViewModel {
             posts[index].likes += 1
         }
     }
-    
+
     func checkIfUserLikedPosts() async {
         guard !posts.isEmpty else { return }
         var copy = posts
-        for i in 0 ..< copy.count {
+        for i in 0..<copy.count {
             do {
                 let post = copy[i]
                 let didLike = try await PostService.shared.checkIfUserLikedPost(post)
-                
+
                 if didLike {
                     copy[i].didLike = didLike
                 }
@@ -274,51 +313,42 @@ extension FeedViewModel {
                 print("DEBUG: Failed to check if user liked post")
             }
         }
-        
+
         posts = copy
     }
-    
-    
-    /// Fetches more content when the scroll positon reaches the threshold posoton
-    /// - Parameter currentPost: Current scroll position postID
+
     func loadMoreContentIfNeeded(currentPost: String?) async {
-        guard let currentPost = currentPost else {
-            print("Error: No current post provided")
+        guard let currentPost = currentPost, !posts.isEmpty else {
+            print("No current post or posts array is empty")
             return
         }
-        
-        guard !isFetching else {
-            print("Already fetching more content")
+
+        guard !isFetching && hasMorePosts else {
+            print("Already fetching or no more posts to fetch")
             return
         }
-        
-        guard hasMorePosts else {
-            print("No more posts to fetch")
-            return
-        }
-        
+
         guard let currentIndex = posts.firstIndex(where: { $0.id == currentPost }) else {
             print("Error: Current post not found in the posts array")
             return
         }
-        
-        let thresholdIndex = posts.count + fetchingThreshold
-        
+
+        let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
+
         if currentIndex >= thresholdIndex && currentIndex > lastFetched {
-            print("Fetching more posts")
+            print("Fetching more posts. Current index: \(currentIndex), Last fetched: \(lastFetched)")
             lastFetched = currentIndex
-            
+
             Task {
                 isLoadingMoreContent = true
                 await fetchMorePosts()
                 isLoadingMoreContent = false
             }
         } else {
-            print("Not yet reached the threshold for fetching more posts")
+            print("Not yet reached the threshold for fetching more posts. Current index: \(currentIndex), Threshold: \(thresholdIndex), Last fetched: \(lastFetched)")
         }
     }
-    
-    
+
     func isLastItem(_ post: Post) -> Bool {
         guard let lastPost = posts.last else {
             return false
@@ -327,8 +357,6 @@ extension FeedViewModel {
     }
 }
 
-
-
 extension FeedViewModel {
     func updateCurrentlyPlayingPostID(_ postID: String?) {
         self.currentlyPlayingPostID = postID
@@ -336,16 +364,9 @@ extension FeedViewModel {
 }
 
 extension FeedViewModel {
-    // MARK: - Delete Post
-    /// Deletes a post using PostService and removes it from the posts array
-    /// - Parameter post: The post object to be deleted
     func deletePost(post: Post) async {
         do {
-            // Delete the post using PostService
             try await PostService.shared.deletePost(post)
-            
-            // Remove the post from the posts array
-            
             if let index = posts.firstIndex(where: { $0.id == post.id }) {
                 posts.remove(at: index)
             }
@@ -353,6 +374,7 @@ extension FeedViewModel {
             print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
         }
     }
+
     func repost(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didRepost = true
@@ -364,10 +386,10 @@ extension FeedViewModel {
             print("DEBUG: Failed to like post with error \(error.localizedDescription)")
             posts[index].didRepost = false
             posts[index].repostCount -= 1
-            AuthService.shared.userSession?.stats.posts += 1
+            AuthService.shared.userSession?.stats.posts -= 1
         }
     }
-    
+
     func removeRepost(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didRepost = false

@@ -98,6 +98,7 @@ struct CollectionGridView: View {
                 if let restaurant = selectedRestaurant {
                     NavigationStack{
                         RestaurantProfileView(restaurantId: restaurant)
+                        
                     }
                 }
             }

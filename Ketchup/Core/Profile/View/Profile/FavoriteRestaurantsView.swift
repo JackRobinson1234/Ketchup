@@ -12,26 +12,25 @@ struct FavoriteRestaurantsView: View {
     let favorites: [FavoriteRestaurant]?
     @State private var showRestaurantProfile: Bool = false
     @State private var restaurantProfileId: String = ""
-   
+    
     var body: some View {
         HStack(alignment: .top, spacing: 8){
             if let favorites {
                 ForEach(favorites) { favoriteRestaurant in
-                  
-                        //NavigationLink(destination: RestaurantProfileView(restaurantId: favoriteRestaurant.id)) {
-                        NavigationLink(value: favoriteRestaurant) {
-                            VStack {
-                                if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
-                                    RestaurantCircularProfileImageView(imageUrl: imageUrl, /*color: Color("Colors/AccentColor"),*/ size: .large)
-                                }
-                                Text(favoriteRestaurant.name)
-                                    .font(.custom("MuseoSansRounded-500", size: 10))
-                                    .multilineTextAlignment(.center)
-                                    .lineLimit(2)
-                                    .foregroundStyle(.primary)
-                                    
+                    //NavigationLink(destination: RestaurantProfileView(restaurantId: favoriteRestaurant.id)) {
+                    NavigationLink(value: favoriteRestaurant) {
+                        VStack {
+                            if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
+                                RestaurantCircularProfileImageView(imageUrl: imageUrl, /*color: Color("Colors/AccentColor"),*/ size: .large)
                             }
+                            Text(favoriteRestaurant.name)
+                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .foregroundStyle(.primary)
                             
+                        }
+                        
                         
                         
                         

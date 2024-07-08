@@ -26,7 +26,7 @@ struct PrimaryFeedView: View {
     @State var showLocationFilter: Bool = false
     @State private var isRefreshing = false
     @State private var canSwitchTab = true
-    
+
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -34,13 +34,13 @@ struct PrimaryFeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-    
+
     var body: some View {
         if isLoading && viewModel.posts.isEmpty {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
-                        await viewModel.fetchInitialPosts()
+                        try await viewModel.fetchInitialPosts()
                         isLoading = false
                     }
                 }
@@ -54,11 +54,12 @@ struct PrimaryFeedView: View {
                                 ForEach($viewModel.posts) { post in
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
+                                    
                                 }
                                 if viewModel.isLoadingMoreContent {
-                                        ProgressView()
-                                            .padding()
-                                    }
+                                    ProgressView()
+                                        .padding()
+                                }
                                 Rectangle()
                                     .foregroundStyle(.clear)
                                     .onAppear {
@@ -66,16 +67,15 @@ struct PrimaryFeedView: View {
                                         if let last = viewModel.posts.last {
                                             Task {
                                                 await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
-                                                
                                             }
                                         }
                                     }
                             }
                             .scrollTargetLayout()
                         }
-                        .refreshable {
-                            await refreshFeed()
-                        }
+//                        .refreshable {
+//                            await refreshFeed()
+//                        }
                         .safeAreaPadding(.top, 90)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
@@ -102,7 +102,6 @@ struct PrimaryFeedView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 60, height: 17)
-                            
                             Spacer()
                             Button {
                                 showFilters.toggle()
@@ -112,7 +111,6 @@ struct PrimaryFeedView: View {
                                         .imageScale(.large)
                                         .shadow(radius: 4)
                                         .font(.system(size: 23))
-                                    
                                     if filtersViewModel.hasNonLocationFilters {
                                         Circle()
                                             .fill(Color("Colors/AccentColor"))
@@ -130,7 +128,9 @@ struct PrimaryFeedView: View {
                         HStack(spacing: 40) {
                             Button {
                                 if canSwitchTab {
-                                    viewModel.selectedTab = .following
+                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                        viewModel.selectedTab = .following
+                                    }
                                     canSwitchTab = false
                                     
                                     // Re-enable switching after a delay
@@ -154,7 +154,9 @@ struct PrimaryFeedView: View {
 
                             Button {
                                 if canSwitchTab {
-                                    viewModel.selectedTab = .discover
+                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                        viewModel.selectedTab = .discover
+                                    }
                                     canSwitchTab = false
                                     
                                     // Re-enable switching after a delay
@@ -177,8 +179,6 @@ struct PrimaryFeedView: View {
                             .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                         }
                         .padding(.bottom, 6)
-                        
-                        
                         Button {
                             showLocationFilter.toggle()
                         } label: {
@@ -208,7 +208,6 @@ struct PrimaryFeedView: View {
                                                 Image(systemName: "chevron.down")
                                                     .foregroundStyle(.gray)
                                                     .font(.caption)
-                                                
                                             }
                                         }
                                     } else {
@@ -225,7 +224,6 @@ struct PrimaryFeedView: View {
                                         }
                                     }
                                 } else {
-                                    
                                     HStack(spacing: 1) {
                                         Image(systemName: "location")
                                             .foregroundStyle(.gray)
@@ -233,7 +231,6 @@ struct PrimaryFeedView: View {
                                         Text("Global")
                                             .font(.custom("MuseoSansRounded-300", size: 16))
                                             .foregroundStyle(.gray)
-                                        
                                         Image(systemName: "chevron.down")
                                             .foregroundStyle(.gray)
                                             .font(.caption)
@@ -241,19 +238,15 @@ struct PrimaryFeedView: View {
                                 }
                             }
                         }
-                        
                     }
                     .background(Color.white)
                 }
-                
-                
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     if viewModel.showPostAlert {
-                        
                         SuccessMessageOverlay(text: "Post Uploaded!")
                             .transition(.opacity)
                             .onAppear {
@@ -274,20 +267,13 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .onChange(of: scrollPosition) { oldPostId, newPostId in
-                    // Get the indices of the old and new post IDs
-                    if !isRefreshing{
-                        if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-                           let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                            
-                            // Ensure that we only proceed if the new post index is greater than the old post index (scrolling down)
-                            if newIndex > oldIndex {
-                                
-                                Task {
-                                    await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                                }
-                                
-                                viewModel.updateCache(scrollPosition: newPostId)
+                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
+                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+                        if newIndex > oldIndex {
+                            Task {
+                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
                             }
+                            viewModel.updateCache(scrollPosition: newPostId)
                         }
                     }
                 }
@@ -318,10 +304,9 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .sheet(isPresented: $showLocationFilter) {
-                    NavigationStack{
+                    NavigationStack {
                         LocationFilter(filtersViewModel: filtersViewModel)
                             .modifier(BackButtonModifier())
-                            
                     }
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                 }
@@ -334,15 +319,16 @@ struct PrimaryFeedView: View {
             }
         }
     }
+
     private func refreshFeed() async {
-            isRefreshing = true
-            do {
-                await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
-            } catch {
-                print("Error refreshing: \(error)")
-            }
-            isRefreshing = false
+        isRefreshing = true
+        do {
+            try await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
+        } catch {
+            print("Error refreshing: \(error)")
         }
+        isRefreshing = false
+    }
 }
 
 struct SuccessMessageOverlay: View {
@@ -392,7 +378,7 @@ extension Color {
 struct ConditionalSafeAreaPadding: ViewModifier {
     var condition: Bool
     var padding: CGFloat
-    
+
     func body(content: Content) -> some View {
         if condition {
             content.safeAreaPadding(.vertical, padding)

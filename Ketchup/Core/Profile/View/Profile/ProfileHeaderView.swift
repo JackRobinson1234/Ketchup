@@ -15,22 +15,26 @@ struct ProfileHeaderView: View {
     @State var showFollowersList: Bool = false
     @State var showFollowingList: Bool = false
     @Binding var profileSection: ProfileSectionEnum
-    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = [], profileSection: Binding<ProfileSectionEnum>) {
+    @Binding var showZoomedProfileImage: Bool
+    
+    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = [], profileSection: Binding<ProfileSectionEnum>, showZoomedProfileImage: Binding<Bool>) {
         self.viewModel = viewModel
         self._profileSection = profileSection
+        self._showZoomedProfileImage = showZoomedProfileImage
         self.userFavorites = viewModel.user.favorites
-      
     }
     
     var body: some View {
         let user = viewModel.user
-        //let user = DeveloperPreview.users[0]
         let frameWidth = UIScreen.main.bounds.width / 3 - 15
         VStack(spacing: 10) {
-            HStack (alignment: .bottom) {
+            HStack(alignment: .bottom) {
                 Spacer()
                 UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
                     .frame(width: frameWidth)
+                    .onTapGesture {
+                        showZoomedProfileImage.toggle()
+                    }
                 VStack(alignment: .leading) {
                     Text(user.fullname)
                         .font(.custom("MuseoSansRounded-300", size: 20))
@@ -39,7 +43,6 @@ struct ProfileHeaderView: View {
                     Text("@\(user.username)")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(.primary)
-                        //.frame(width: frameWidth)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     
@@ -53,13 +56,11 @@ struct ProfileHeaderView: View {
                                 .padding(.horizontal, 30)
                                 .padding(.vertical, 8)
                                 .foregroundColor(Color("Colors/AccentColor"))
-                                //.background(Color(.systemGray6))
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 6)
                                         .stroke(Color("Colors/AccentColor"), lineWidth: 1)
                                 }
-                                //.frame(width: frameWidth)
                         }
                     } else {
                         Button {
@@ -68,7 +69,6 @@ struct ProfileHeaderView: View {
                             Text(user.isFollowed ? "Following" : "Follow")
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .fontWeight(.semibold)
-//                                .padding(.horizontal, 30)
                                 .frame(width: 130)
                                 .padding(.vertical, 8)
                                 .foregroundColor(user.isFollowed ? Color("Colors/AccentColor") : .white)
@@ -78,36 +78,29 @@ struct ProfileHeaderView: View {
                                     RoundedRectangle(cornerRadius: 6)
                                         .stroke(Color("Colors/AccentColor"), lineWidth: user.isFollowed ? 1 : 0)
                                 }
-                                //.frame(width: frameWidth)
                         }
                     }
                 }
                 Spacer()
-                
             }
             
-          
-          
-            
-      
-            
             HStack(spacing: 4) {
-                Button{ 
+                Button {
                     showFollowersList.toggle()
-                }label: {
+                } label: {
                     UserStatView(value: user.stats.followers, title: "Followers")
                 }
-                Button{
+                Button {
                     showFollowingList.toggle()
                 } label: {
                     UserStatView(value: user.stats.following, title: "Following")
                 }
-                Button{
+                Button {
                     profileSection = .posts
                 } label: {
                     UserStatView(value: user.stats.posts, title: "Posts")
                 }
-                Button{
+                Button {
                     profileSection = .collections
                 } label: {
                     UserStatView(value: user.stats.collections, title: "Collections")
@@ -135,7 +128,6 @@ struct ProfileHeaderView: View {
         viewModel.user.isFollowed ? viewModel.unfollow() : viewModel.follow()
     }
 }
-
 struct UserStatView: View {
     let value: Int
     let title: String
@@ -150,14 +142,12 @@ struct UserStatView: View {
                 .foregroundStyle(.gray)
         }
         .opacity(value == 0 ? 0.5 : 1.0)
-        .frame(width:  UIScreen.main.bounds.width / 4 - 30, alignment: .center)
+        .frame(width: UIScreen.main.bounds.width / 4 - 30, alignment: .center)
         .padding(.vertical, 10)
         .foregroundColor(.primary)
     }
-        
 }
 
-#Preview {
-    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234"), profileSection: .constant(.posts)
-    )
-}
+//#Preview {
+//    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234"), profileSection: .constant(.posts))
+//}

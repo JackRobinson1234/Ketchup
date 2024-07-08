@@ -44,7 +44,7 @@ struct SecondaryFeedView: View {
                                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                                         .ignoresSafeArea(.all)
                                         .containerRelativeFrame([.horizontal, .vertical])
-                                        
+                                    
                                     FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
                                 }
                                 .ignoresSafeArea(.all)
@@ -54,8 +54,8 @@ struct SecondaryFeedView: View {
                     }
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     .onAppear {
-                       
-                            scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
+                        
+                        scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
                         
                     }
                 }
@@ -63,18 +63,18 @@ struct SecondaryFeedView: View {
                 .scrollTargetLayout()
                 .scrollPosition(id: $scrollPosition)
                 .scrollTargetBehavior(.paging)
-           }
+            }
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
                         
-                            if let scrollPosition = scrollPosition{
-                               
-                                viewModel.initialPrimaryScrollPosition = scrollPosition
-                                print("Assigning SCROLL", scrollPosition)
-                            }
-                            print("DISMISSING SCROLL")
-                            dismiss()
+                        if let scrollPosition = scrollPosition{
+                            
+                            viewModel.initialPrimaryScrollPosition = scrollPosition
+                            print("Assigning SCROLL", scrollPosition)
+                        }
+                        print("DISMISSING SCROLL")
+                        dismiss()
                         
                     } label: {
                         Image(systemName: "chevron.left")
@@ -99,11 +99,10 @@ struct SecondaryFeedView: View {
                     Spacer()
                     Color.clear
                         .frame(width: 60, height: 17)
-                           
-                           }
                     
+                }
+                
                 .frame(maxWidth: .infinity)
-                .ignoresSafeArea()
                 .padding(.top, 55)
                 .padding(.horizontal, 20)
                 .foregroundStyle(.primary)
@@ -176,7 +175,7 @@ struct SecondaryFeedView: View {
                     if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 { // Load when 5 items from the end
                         Task {
                             
-                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                            await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
                             
                         }
                     }

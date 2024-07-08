@@ -4,7 +4,6 @@
 //
 //  Created by Jack Robinson on 6/25/24.
 //
-
 import SwiftUI
 import Kingfisher
 struct WrittenFeedCell: View {

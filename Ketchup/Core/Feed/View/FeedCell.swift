@@ -249,6 +249,9 @@ struct FeedCell: View {
                         .foregroundColor(Color(.white))
                 }
             } else {
+                Button(action: {
+                    withAnimation(.snappy) { expandCaption.toggle() }
+                }) {
                 // Other ratings
                 VStack(alignment: .leading, spacing: 5) {
                         if let foodRating = post.foodRating {
@@ -264,9 +267,7 @@ struct FeedCell: View {
                             RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .white)
                         }
                     }
-                Button(action: {
-                    withAnimation(.snappy) { expandCaption.toggle() }
-                }) {
+                
                     Text("See less...")
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundColor(Color(.white))
