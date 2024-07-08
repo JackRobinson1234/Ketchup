@@ -52,7 +52,7 @@ class FeedViewModel: ObservableObject {
     private var followingUsers: [String] = []
     @Published var isLoadingMoreContent = false
     private var fetchTask: Task<Void, Error>?
-    @Published var selectedTab: FeedTab = .following {
+    @Published var selectedTab: FeedTab = .discover {
         didSet {
             Task {
                 await handleTabChange()
@@ -88,25 +88,21 @@ class FeedViewModel: ObservableObject {
             isLoading = false
         }
     }
+    @MainActor
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async throws {
-        await MainActor.run {
-                self.isLoading = true
-                self.posts.removeAll()
-                self.hasMorePosts = true
-                self.filters = filters
-                self.lastDocument = nil
-                self.lastFetched = 0  // Reset the threshold
-            }
-        
+        self.isLoading = true
+        //self.posts.removeAll()
+        self.hasMorePosts = true
+        self.filters = filters
+        self.lastDocument = nil
+        self.lastFetched = 0  // Reset the threshold
+
         if selectedTab == .following {
             await fetchFollowingUsers()
         }
-        
-        
+
         await fetchPosts(withFilters: filters, isInitialLoad: true)
-        await MainActor.run {
-                self.isLoading = false
-            }
+        self.isLoading = false
     }
 
     private func cancelExistingFetchAndStartNew() {
@@ -203,7 +199,11 @@ class FeedViewModel: ObservableObject {
                 if newPosts.isEmpty {
                     self.hasMorePosts = false
                 } else {
-                    self.posts.append(contentsOf: newPosts)
+                    if isInitialLoad != true  {
+                        self.posts.append(contentsOf: newPosts)
+                    } else {
+                        self.posts = newPosts
+                    }
                     self.lastDocument = snapshot.documents.last
                     self.hasMorePosts = newPosts.count >= self.pageSize
                 }

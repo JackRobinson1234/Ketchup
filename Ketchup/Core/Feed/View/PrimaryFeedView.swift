@@ -73,9 +73,9 @@ struct PrimaryFeedView: View {
                             }
                             .scrollTargetLayout()
                         }
-//                        .refreshable {
-//                            await refreshFeed()
-//                        }
+                        .refreshable {
+                            await refreshFeed()
+                        }
                         .safeAreaPadding(.top, 90)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
