@@ -162,6 +162,13 @@
 		F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */; };
 		F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B662BE849A000AB7FDD /* NotificationsView.swift */; };
 		F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */; };
+		F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */; };
+		F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */; };
+		F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */; };
+		F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F262C3C9612009E67A9 /* CameraPreview.swift */; };
+		F8A96F292C3C9638009E67A9 /* PermissionDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */; };
+		F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */; };
+		F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
@@ -402,6 +409,13 @@
 		F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		F8A24B662BE849A000AB7FDD /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCameraControls.swift; sourceTree = "<group>"; };
+		F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCameraControls.swift; sourceTree = "<group>"; };
+		F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTypeMenuView.swift; sourceTree = "<group>"; };
+		F8A96F262C3C9612009E67A9 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDeniedView.swift; sourceTree = "<group>"; };
+		F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoReorderView.swift; sourceTree = "<group>"; };
+		F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTabBarButton.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
@@ -1407,6 +1421,13 @@
 				F8CC21A42BD58A9C00B4B329 /* CameraView.swift */,
 				F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */,
 				F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */,
+				F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */,
+				F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */,
+				F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */,
+				F8A96F262C3C9612009E67A9 /* CameraPreview.swift */,
+				F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */,
+				F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */,
+				F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -1736,6 +1757,7 @@
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
+				F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
@@ -1758,11 +1780,13 @@
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */,
+				F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */,
 				F846F4662BFD91AC009D1303 /* RestaurantReviewSelector.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */,
+				F8A96F292C3C9638009E67A9 /* PermissionDeniedView.swift in Sources */,
 				F868686E2C34541400F6CE56 /* ProfileMapView.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
@@ -1786,6 +1810,7 @@
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
 				F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
+				F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
 				F88E0A922B6B023800EC159B /* PrimaryFeedView.swift in Sources */,
@@ -1821,6 +1846,7 @@
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
+				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
@@ -1873,6 +1899,7 @@
 				F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */,
 				F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */,
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
+				F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */,
 				F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */,
 				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
@@ -1881,6 +1908,7 @@
 				F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */,
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
+				F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,

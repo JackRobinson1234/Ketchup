@@ -81,6 +81,7 @@ struct CurrentUserProfileView: View {
                         .scrollPosition(id: $scrollPosition)
                     }
                     .gesture(drag)
+                    .toolbarBackground(Color.white, for: .navigationBar) // Set navigation bar background color
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {

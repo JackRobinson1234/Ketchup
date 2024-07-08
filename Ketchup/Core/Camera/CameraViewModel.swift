@@ -22,7 +22,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     @Published var videoOutput = AVCaptureMovieFileOutput()
     
     // this the preview
-    @Published var preview: AVCaptureVideoPreviewLayer!
+    //@Published var preview: AVCaptureVideoPreviewLayer!
     
     // PHOTO PROPERTIES
     // @Published var isPhotoSaved = false
