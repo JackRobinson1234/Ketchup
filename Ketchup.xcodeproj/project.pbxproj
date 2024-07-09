@@ -94,6 +94,7 @@
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
 		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
+		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -474,6 +475,7 @@
 				F8C6455C2C3B73770004F1B0 /* InstantSearchCore in Frameworks */,
 				F8C645572C3B736A0004F1B0 /* ClusterMapSwiftUI in Frameworks */,
 				FE388A23A197A32E969C7799 /* Pods_Ketchup.framework in Frameworks */,
+				F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */,
 				F8C6455E2C3B73770004F1B0 /* InstantSearchInsights in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1501,6 +1503,7 @@
 				F8C6455F2C3B73770004F1B0 /* InstantSearchSwiftUI */,
 				F8C645622C3B73850004F1B0 /* AlgoliaSearchClient */,
 				F8C645652C3B738E0004F1B0 /* CachingPlayerItem */,
+				F88322042C3DDD9E006744D2 /* SwiftyCrop */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1582,6 +1585,7 @@
 				F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
 				F8C645612C3B73850004F1B0 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
+				F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2312,6 +2316,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/benedom/SwiftyCrop";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/vospennikov/ClusterMap.git";
@@ -2347,6 +2359,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F88322042C3DDD9E006744D2 /* SwiftyCrop */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */;
+			productName = SwiftyCrop;
+		};
 		F8C645542C3B736A0004F1B0 /* ClusterMap */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */;

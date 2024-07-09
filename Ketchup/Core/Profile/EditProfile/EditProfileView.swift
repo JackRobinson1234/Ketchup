@@ -11,6 +11,7 @@ import PhotosUI
 
 import SwiftUI
 import PhotosUI
+import SwiftyCrop
 
 struct EditProfileView: View {
     @State private var username = ""
@@ -158,9 +159,20 @@ struct EditProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .fullScreenCover(isPresented: $viewModel.showingImageCropper) {
-            if let uiImage = viewModel.uiImage {
-                ImageCropper(image: uiImage) { croppedImage in
-                    viewModel.setCroppedImage(croppedImage)
+            let configuration = SwiftyCropConfiguration(
+                //maskRadius: 130,
+                //cropImageCircular: true,
+                rotateImage: false
+            )
+            if let selectedImage = viewModel.uiImage {
+                SwiftyCropView(
+                    imageToCrop: selectedImage,
+                    maskShape: .circle,
+                    configuration: configuration
+                ) { croppedImage in
+                    if let croppedImage{
+                        viewModel.setCroppedImage(croppedImage)
+                    }
                 }
             }
         }
