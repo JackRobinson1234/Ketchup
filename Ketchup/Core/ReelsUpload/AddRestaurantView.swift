@@ -22,7 +22,6 @@ struct AddRestaurantView: View {
         NavigationView {
             ScrollView {
                 VStack {
-                    
                     TextField("Restaurant Name", text: $name)
                         .padding()
                     Divider()

@@ -167,7 +167,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     
     func setUp() {
-        
         do {
             self.session.beginConfiguration()
             session.inputs.forEach { session.removeInput($0) }
@@ -202,6 +201,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             self.session.commitConfiguration()
+            self.startCameraSession()
             
         }
         catch {
@@ -455,20 +455,19 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         configureFlash()
     }
     func reset() {
-        // Reset the photo and video capture properties
-        images.removeAll()
-        recordedURLs.removeAll()
-        recordedCameraPositions.removeAll()
-        previewURL = nil
-        isPhotoTaken = false
-        isRecording = false
-        navigateToUpload = false
-        mediaType = .photo
-        recordedDuration = 0
-        isDragging = false
-        uploadFromLibray = false
-        //isDragEnabled = true
-        
+        DispatchQueue.main.async {
+            self.images.removeAll()
+            self.recordedURLs.removeAll()
+            self.recordedCameraPositions.removeAll()
+            self.previewURL = nil
+            self.isPhotoTaken = false
+            self.isRecording = false
+            self.navigateToUpload = false
+            self.mediaType = .photo
+            self.recordedDuration = 0
+            self.isDragging = false
+            self.uploadFromLibray = false
+        }
     }
     func stopCameraSession() {
             DispatchQueue.global(qos: .background).async {

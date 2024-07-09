@@ -230,7 +230,8 @@ struct SelectionButton: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color("Colors/AccentColor"), lineWidth: 1)
             )
+            .buttonStyle(PlainButtonStyle())
         }
-        .buttonStyle(PlainButtonStyle())
+        
     }
 }

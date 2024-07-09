@@ -73,8 +73,3 @@ struct SelectRestaurantListView: View {
         }
     }
 }
-
-
-//#Preview {
-//    RestaurantListView()
-//}

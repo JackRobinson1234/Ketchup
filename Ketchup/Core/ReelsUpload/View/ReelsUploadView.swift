@@ -9,7 +9,6 @@ import SwiftUI
 import AVKit
 import AVFoundation
 
-
 struct ReelsUploadView: View {
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
@@ -28,6 +27,8 @@ struct ReelsUploadView: View {
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (spacing * 2)) / 3
     }
+    
+    @Namespace private var animationNamespace
     
     var body: some View {
         ZStack {
@@ -94,13 +95,14 @@ struct ReelsUploadView: View {
                         
                         if uploadViewModel.mediaType == .video {
                             VideoPlayerTest(uploadViewModel: uploadViewModel)
-                                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width : width)
+                                .frame(width: width)
                                 .cornerRadius(10)
                                 .onTapGesture {
-                                    withAnimation {
+                                    withAnimation(.spring()) {
                                         isVideoExpanded.toggle()
                                     }
                                 }
+                                .matchedGeometryEffect(id: "video", in: animationNamespace)
                         } else if uploadViewModel.mediaType == .photo {
                             FinalPhotoPreview(uploadViewModel: uploadViewModel)
                                 .frame(width: width, height: 150)
@@ -203,23 +205,30 @@ struct ReelsUploadView: View {
             .opacity(isVideoExpanded ? 0 : 1)
             
             if isVideoExpanded {
-                VideoPlayerTest(uploadViewModel: uploadViewModel)
-                    .edgesIgnoringSafeArea(.all)
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
                     .transition(.opacity)
-                    .onTapGesture {
-                        withAnimation {
-                            isVideoExpanded.toggle()
-                        }
-                    }
+
+                VideoPlayerTest(uploadViewModel: uploadViewModel)
+                    .frame(width: UIScreen.main.bounds.width * 5/6)
+                    .cornerRadius(10)
+                    .transition(.opacity)
+                    .matchedGeometryEffect(id: "video", in: animationNamespace)
+            }
+        }
+        .onTapGesture {
+            if isVideoExpanded {
+                withAnimation(.spring()) {
+                    isVideoExpanded.toggle()
+                }
+            } else {
+                dismissKeyboard()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .preferredColorScheme(.light)
-        .onTapGesture {
-            dismissKeyboard()
-        }
         .gesture(
             DragGesture().onChanged { value in
                 if value.translation.height > 50 {
@@ -235,7 +244,6 @@ struct ReelsUploadView: View {
             UISlider.appearance().setThumbImage(nil, for: .normal)
         }
     }
-    
 }
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

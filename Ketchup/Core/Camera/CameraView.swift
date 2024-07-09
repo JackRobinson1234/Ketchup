@@ -19,17 +19,17 @@ struct CameraView: View {
     @ObservedObject var feedViewModel: FeedViewModel
     @StateObject var uploadViewModel: UploadViewModel
     @StateObject var keyboardObserver = KeyboardObserver() // Add this line
-
+    
     @State private var selectedCamTab = 0
     @State var dragDirection = "left"
     @State var isDragging = false
-
+    
     init(feedViewModel: FeedViewModel) {
         _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
         _reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(feedViewModel: feedViewModel))
     }
-
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
@@ -50,7 +50,7 @@ struct CameraView: View {
                 }
             }
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
@@ -61,7 +61,7 @@ struct CameraView: View {
                     Color.white
                         .ignoresSafeArea()
                 }
-
+                
                 if cameraViewModel.audioOrVideoPermissionsDenied {
                     PermissionDeniedView()
                 } else {
@@ -71,7 +71,7 @@ struct CameraView: View {
                             .environmentObject(cameraViewModel)
                             .onAppear {
                                 cameraViewModel.checkPermission()
-                                cameraViewModel.startCameraSession()
+                                cameraViewModel.setUp()
                             }
                             .onTapGesture(count: 2) {
                                 cameraViewModel.toggleCamera()
@@ -87,12 +87,12 @@ struct CameraView: View {
                             )
                     }
                 }
-
+                
                 if cameraViewModel.showFlashOverlay {
                     Color.white.opacity(0.5)
                         .cornerRadius(10)
                 }
-
+                
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     ZStack {
                         if selectedCamTab == 0 {
@@ -104,7 +104,7 @@ struct CameraView: View {
                         }
                     }
                 }
-
+                
                 VStack {
                     HStack {
                         Button {
@@ -116,19 +116,19 @@ struct CameraView: View {
                         }
                         .padding(.top, 35)
                         .padding(.leading)
-
+                        
                         Spacer()
                     }
-
+                    
                     Spacer()
-
+                    
                     if !cameraViewModel.audioOrVideoPermissionsDenied {
                         if cameraViewModel.isZooming && !(selectedCamTab == 2) {
                             ZStack {
                                 Circle()
                                     .fill(Color.white)
                                     .frame(width: 30, height: 30)
-
+                                
                                 Text(String(format: "%.1fx", cameraViewModel.zoomFactor))
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(.white)
@@ -136,7 +136,7 @@ struct CameraView: View {
                             }
                             .padding(.bottom, 20)
                         }
-
+                        
                         HStack {
                             Button {
                                 cameraViewModel.uploadFromLibray = true
@@ -148,12 +148,12 @@ struct CameraView: View {
                                     .frame(width: 50, height: 50)
                                     .padding(.leading, 60)
                             }
-
+                            
                             Spacer()
                         }
                         .padding(.bottom, 10)
                         .opacity(selectedCamTab == 2 ? 0 : 1)
-
+                        
                         if uploadViewModel.restaurant == nil {
                             HStack {
                                 CameraTabBarButton(text: "Video", isSelected: selectedCamTab == 0)
@@ -182,9 +182,9 @@ struct CameraView: View {
                     }
                 }
                 .padding(.bottom, keyboardObserver.keyboardHeight) // Add this line
-
+                
                 .opacity(cameraViewModel.isPhotoTaken || (cameraViewModel.previewURL != nil || !cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
-
+                
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     HStack {
                         Spacer()
@@ -198,7 +198,7 @@ struct CameraView: View {
                                     .frame(width: 35, height: 35)
                                     .foregroundColor(.white)
                             }
-
+                            
                             Button(action: {
                                 switch cameraViewModel.flashMode {
                                 case .off:
@@ -215,7 +215,7 @@ struct CameraView: View {
                                     .frame(width: 35, height: 35)
                                     .foregroundColor(.white)
                             }
-
+                            
                             Spacer()
                         }
                         .padding(.trailing)
@@ -249,12 +249,14 @@ struct CameraView: View {
                     selectedCamTab = 0
                 }
             }
-            .onChange(of: selectedCamTab) { newValue in
+            .onChange(of: selectedCamTab) {oldValue, newValue in
                 if newValue == 2 {
                     cameraViewModel.stopCameraSession()
-                } else {
-                    //cameraViewModel.startCameraSession()
-                }
+                    cameraViewModel.reset()
+                } 
+//                else {
+//                    cameraViewModel.startCameraSession()
+//                }
             }
         }
     }
