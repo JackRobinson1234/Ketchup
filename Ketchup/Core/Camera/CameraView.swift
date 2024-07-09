@@ -253,7 +253,7 @@ struct CameraView: View {
                 if newValue == 2 {
                     cameraViewModel.stopCameraSession()
                 } else {
-                    cameraViewModel.startCameraSession()
+                    //cameraViewModel.startCameraSession()
                 }
             }
         }
