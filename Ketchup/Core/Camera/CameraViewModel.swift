@@ -10,7 +10,7 @@ import AVFoundation
 
 
 class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
-        
+    @Published var selectedCamTab: Int = 0
     // SESSION
     @Published var session = AVCaptureSession()
     
@@ -92,6 +92,13 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     @Published var recordedURLs: [URL] = []
     @Published var recordedCameraPositions: [CameraPosition] = []
+    @Published var isPreviewActive = true
+
+        func togglePreview(_ active: Bool) {
+            DispatchQueue.main.async {
+                self.isPreviewActive = active
+            }
+        }
     
     func setZoomFactor(_ factor: CGFloat) {
         guard cameraPosition == .back, let device = AVCaptureDevice.default(for: .video) else {
@@ -294,7 +301,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         var instructions: [AVMutableVideoCompositionInstruction] = []
         
-        for index in recordedURLs.indices {
+        let urlsCopy = recordedURLs
+            for index in urlsCopy.indices {
             let recordedUrl = recordedURLs[index]
             let asset = AVURLAsset(url: recordedUrl)
             let duration = try await asset.load(.duration)

@@ -19,10 +19,10 @@ struct CameraView: View {
     @ObservedObject var feedViewModel: FeedViewModel
     @StateObject var uploadViewModel: UploadViewModel
     @StateObject var keyboardObserver = KeyboardObserver() // Add this line
-    
-    @State private var selectedCamTab = 0
     @State var dragDirection = "left"
     @State var isDragging = false
+    @State private var canSwitchTab = true
+    
     
     init(feedViewModel: FeedViewModel) {
         _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
@@ -34,27 +34,29 @@ struct CameraView: View {
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
+                guard canSwitchTab else { return }
+                
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    if selectedCamTab == 1 {
-                        selectedCamTab = 0
+                    if cameraViewModel.selectedCamTab == 1 {
+                        switchTab(to: 0)
                     }
                 } else {
                     self.dragDirection = "right"
-                    if selectedCamTab == 0 {
-                        selectedCamTab = 1
-                    } else if selectedCamTab == 1 {
-                        selectedCamTab = 2
+                    if cameraViewModel.selectedCamTab == 0 {
+                        switchTab(to: 1)
+                    } else if cameraViewModel.selectedCamTab == 1 {
+                        switchTab(to: 2)
                     }
-                    self.isDragging = false
                 }
+                self.isDragging = false
             }
     }
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                if selectedCamTab != 2 {
+                if cameraViewModel.selectedCamTab != 2 {
                     Color.black
                         .ignoresSafeArea()
                 } else {
@@ -65,13 +67,14 @@ struct CameraView: View {
                 if cameraViewModel.audioOrVideoPermissionsDenied {
                     PermissionDeniedView()
                 } else {
-                    if selectedCamTab != 2 {
+                    if cameraViewModel.selectedCamTab != 2 {
                         CameraPreview(cameraViewModel: cameraViewModel, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
                             .cornerRadius(10)
                             .environmentObject(cameraViewModel)
                             .onAppear {
                                 cameraViewModel.checkPermission()
                                 cameraViewModel.setUp()
+                                cameraViewModel.togglePreview(true)
                             }
                             .onTapGesture(count: 2) {
                                 cameraViewModel.toggleCamera()
@@ -95,11 +98,11 @@ struct CameraView: View {
                 
                 if !cameraViewModel.audioOrVideoPermissionsDenied {
                     ZStack {
-                        if selectedCamTab == 0 {
+                        if cameraViewModel.selectedCamTab == 0 {
                             VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
-                        } else if selectedCamTab == 1 {
+                        } else if cameraViewModel.selectedCamTab == 1 {
                             PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
-                        } else if selectedCamTab == 2 {
+                        } else if cameraViewModel.selectedCamTab == 2 {
                             UploadWrittenReviewView(reviewViewModel: reviewsViewModel, changeTab: true)
                         }
                     }
@@ -108,11 +111,15 @@ struct CameraView: View {
                 VStack {
                     HStack {
                         Button {
+                            cameraViewModel.stopCameraSession()
+                            cameraViewModel.reset()
+                            reviewsViewModel.reset()
+                            uploadViewModel.reset()
                             tabBarController.selectedTab = 0
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.custom("MuseoSansRounded-300", size: 28))
-                                .foregroundColor(selectedCamTab == 2 ? .gray : .white)
+                                .foregroundColor(cameraViewModel.selectedCamTab == 2 ? .gray : .white)
                         }
                         .padding(.top, 35)
                         .padding(.leading)
@@ -123,7 +130,7 @@ struct CameraView: View {
                     Spacer()
                     
                     if !cameraViewModel.audioOrVideoPermissionsDenied {
-                        if cameraViewModel.isZooming && !(selectedCamTab == 2) {
+                        if cameraViewModel.isZooming && !(cameraViewModel.selectedCamTab == 2) {
                             ZStack {
                                 Circle()
                                     .fill(Color.white)
@@ -152,30 +159,30 @@ struct CameraView: View {
                             Spacer()
                         }
                         .padding(.bottom, 10)
-                        .opacity(selectedCamTab == 2 ? 0 : 1)
+                        .opacity(cameraViewModel.selectedCamTab == 2 ? 0 : 1)
                         
                         if uploadViewModel.restaurant == nil {
-                            HStack {
-                                CameraTabBarButton(text: "Video", isSelected: selectedCamTab == 0)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            selectedCamTab = 0
+                            VStack(spacing: 0) {
+                                HStack {
+                                    CameraTabBarButton(text: "Video", isSelected: cameraViewModel.selectedCamTab == 0)
+                                        .onTapGesture {
+                                            switchTab(to: 0)
                                         }
-                                    }
-                                CameraTabBarButton(text: "Photo", isSelected: selectedCamTab == 1)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            selectedCamTab = 1
+                                    CameraTabBarButton(text: "Photo", isSelected: cameraViewModel.selectedCamTab == 1)
+                                        .onTapGesture {
+                                            switchTab(to: 1)
                                         }
-                                    }
-                                CameraTabBarButton(text: "Written", isSelected: selectedCamTab == 2)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            selectedCamTab = 2
+                                    CameraTabBarButton(text: "Written", isSelected: cameraViewModel.selectedCamTab == 2)
+                                        .onTapGesture {
+                                            switchTab(to: 2)
                                         }
-                                    }
+                                }
+                                .padding(.top, 10)
+                                .padding(.bottom, 5)
                             }
-                            .padding(.bottom, 5)
+                            .frame(maxWidth: .infinity)
+                            .background(cameraViewModel.selectedCamTab == 2 ? Color.white : Color.clear)
+                            .ignoresSafeArea(edges: .bottom)
                             .opacity(keyboardObserver.keyboardHeight > 0 ? 0 : 1)
                             .disabled(keyboardObserver.keyboardHeight > 0)
                         }
@@ -222,7 +229,7 @@ struct CameraView: View {
                         .padding(.top, 35)
                     }
                     .opacity(cameraViewModel.isRecording ? 0 : 1)
-                    .opacity(selectedCamTab == 2 ? 0 : 1)
+                    .opacity(cameraViewModel.selectedCamTab == 2 ? 0 : 1)
                 }
             }
             .gesture(
@@ -243,21 +250,35 @@ struct CameraView: View {
             .onChange(of: tabBarController.selectedTab) {
                 cameraViewModel.reset()
                 uploadViewModel.reset()
+                reviewsViewModel.reset()
             }
-            .onAppear {
-                if uploadViewModel.restaurant == nil {
-                    selectedCamTab = 0
+            .onChange(of: cameraViewModel.selectedCamTab) { oldValue, newValue in
+                if newValue == 2 {
+                    cameraViewModel.togglePreview(false)
+                    cameraViewModel.reset()
+                } else {
+                    cameraViewModel.togglePreview(true)
                 }
             }
-            .onChange(of: selectedCamTab) {oldValue, newValue in
-                if newValue == 2 {
-                    cameraViewModel.stopCameraSession()
-                    cameraViewModel.reset()
-                } 
-//                else {
-//                    cameraViewModel.startCameraSession()
-//                }
-            }
+            
+        }
+    }
+    func switchTab(to newTab: Int) {
+        guard canSwitchTab else { return }
+        
+        withAnimation {
+            cameraViewModel.selectedCamTab = newTab
+        }
+        
+        canSwitchTab = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            canSwitchTab = true
+        }
+        
+        if newTab == 2 {
+            cameraViewModel.togglePreview(false)
+        } else {
+            cameraViewModel.togglePreview(true)
         }
     }
 }

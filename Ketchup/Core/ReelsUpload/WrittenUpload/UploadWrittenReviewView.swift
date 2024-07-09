@@ -21,9 +21,6 @@ struct UploadWrittenReviewView: View {
     @State var editedReview = false
     @State var isPickingRestaurant = false
     @State var setRestaurant = false
-    private var canPostReview: Bool {
-        return !description.isEmpty
-    }
     @Environment(\.dismiss) var dismiss
     @State var changeTab: Bool = false
     @State var pickingFavorites: Bool = false
@@ -109,28 +106,38 @@ struct UploadWrittenReviewView: View {
                         Button(action: {
                             self.isEditingDescription = true
                         }) {
-                            TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...*", maxCharacters: characterLimit)
+                            TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...", maxCharacters: characterLimit)
                         }
                         .padding(.vertical)
                         
-                        
+                        if showDetailsAlert{
+                            Text("Please Select a Restaurant!")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .onAppear{
+                                    Debouncer(delay: 2.0).schedule{showDetailsAlert = false}
+                                }
+                        }
                         Button {
-                            if description.isEmpty {
+                            if reviewViewModel.selectedRestaurant == nil {
+                                print("SHOULD SHOW ALERT")
                                 showDetailsAlert = true
+                                
                             } else {
                                 Task {
                                     try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
                                     showAlert = true
+                                    reviewViewModel.reset()
                                 }
                             }
                         } label: {
                             Text("Post Review")
                                 .modifier(StandardButtonModifier())
                         }
-                        .opacity(canPostReview ? 1 : 0.6)
+                        .opacity(reviewViewModel.selectedRestaurant != nil ? 1 : 0.6)
                     }
                 }
-                
+                .padding(.bottom, 100)
                 .padding()
                 .padding(.top, 50)
                 
@@ -162,7 +169,7 @@ struct UploadWrittenReviewView: View {
                 }
             }
             .alert(isPresented: $showDetailsAlert) {
-                Alert(title: Text("Enter Details"), message: Text("Please type your review"), dismissButton: .default(Text("OK")))
+                Alert(title: Text("Enter Details"), message: Text("Please Select a Restaurant"), dismissButton: .default(Text("OK")))
             }
             .alert(isPresented: $showAlert) {
                 Alert(

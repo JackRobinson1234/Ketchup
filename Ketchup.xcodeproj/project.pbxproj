@@ -39,6 +39,7 @@
 		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
 		F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85288B22BC069BE00153126 /* CookingTimeCategories.swift */; };
 		F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85CDD4C2C078BDC00BD834F /* UISliderView.swift */; };
+		F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85E8B112C3DD37100B5F79E /* ImageCropper.swift */; };
 		F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050BE2BBC91EE00318080 /* CuisineCategories.swift */; };
 		F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050C02BBC95E200318080 /* CuisineFilter.swift */; };
 		F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */; };
@@ -283,6 +284,7 @@
 		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F85288B22BC069BE00153126 /* CookingTimeCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingTimeCategories.swift; sourceTree = "<group>"; };
 		F85CDD4C2C078BDC00BD834F /* UISliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISliderView.swift; sourceTree = "<group>"; };
+		F85E8B112C3DD37100B5F79E /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
 		F86050BE2BBC91EE00318080 /* CuisineCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineCategories.swift; sourceTree = "<group>"; };
 		F86050C02BBC95E200318080 /* CuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineFilter.swift; sourceTree = "<group>"; };
 		F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsSearchListView.swift; sourceTree = "<group>"; };
@@ -1163,6 +1165,7 @@
 			children = (
 				F88E0AB32B6B044C00EC159B /* EditProfileView.swift */,
 				F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */,
+				F85E8B112C3DD37100B5F79E /* ImageCropper.swift */,
 			);
 			path = EditProfile;
 			sourceTree = "<group>";
@@ -1758,6 +1761,7 @@
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
+				F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F846F4532BFBD534009D1303 /* Review.swift in Sources */,
 				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,

@@ -31,82 +31,82 @@ struct ReelsUploadView: View {
     @Namespace private var animationNamespace
     
     var body: some View {
-        ZStack {
+        VStack {
             ScrollView {
                 VStack {
                     HStack {
-                        Spacer()
-                        Button {
-                            isPickingRestaurant = true
-                        } label: {
-                            if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil {
-                                VStack {
-                                    Image(systemName: "plus")
-                                        .font(.largeTitle)
-                                        .foregroundColor(Color("Colors/AccentColor"))
-                                    Text("Add a restaurant")
-                                        .foregroundColor(.primary)
-                                }
-                            } else if let restaurant = uploadViewModel.restaurant {
-                                VStack {
-                                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
-                                    Text(restaurant.name)
-                                        .font(.custom("MuseoSansRounded-300", size: 20))
-                                    if let cuisine = restaurant.categoryName, let price = restaurant.price {
-                                        Text("\(cuisine), \(price)")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.primary)
-                                    } else if let cuisine = restaurant.categoryName {
-                                        Text(cuisine)
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.primary)
-                                    } else if let price = restaurant.price {
-                                        Text(price)
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.primary)
+                            Spacer()
+                        if !isVideoExpanded {
+                            Button {
+                                isPickingRestaurant = true
+                            } label: {
+                                if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil {
+                                    VStack {
+                                        Image(systemName: "plus")
+                                            .font(.largeTitle)
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Text("Add a restaurant")
+                                            .foregroundColor(.primary)
                                     }
-                                    if let address = restaurant.address {
-                                        Text(address)
+                                } else if let restaurant = uploadViewModel.restaurant {
+                                    VStack {
+                                        RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
+                                        Text(restaurant.name)
+                                            .font(.custom("MuseoSansRounded-300", size: 20))
+                                        if let cuisine = restaurant.categoryName, let price = restaurant.price {
+                                            Text("\(cuisine), \(price)")
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .foregroundStyle(.primary)
+                                        } else if let cuisine = restaurant.categoryName {
+                                            Text(cuisine)
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .foregroundStyle(.primary)
+                                        } else if let price = restaurant.price {
+                                            Text(price)
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .foregroundStyle(.primary)
+                                        }
+                                        if let address = restaurant.address {
+                                            Text(address)
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .foregroundStyle(.primary)
+                                        }
+                                        Text("Edit")
+                                            .foregroundStyle(Color("Colors/AccentColor"))
                                             .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.primary)
                                     }
-                                    Text("Edit")
-                                        .foregroundStyle(Color("Colors/AccentColor"))
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                }
-                            } else if let request = uploadViewModel.restaurantRequest {
-                                VStack {
-                                    RestaurantCircularProfileImageView(size: .xLarge)
-                                    Text(request.name)
-                                        .font(.custom("MuseoSansRounded-300", size: 20))
-                                    Text("\(request.city), \(request.state)")
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                    Text("(To be created)")
-                                        .foregroundStyle(.gray)
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                    Text("Edit")
-                                        .foregroundStyle(Color("Colors/AccentColor"))
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                } else if let request = uploadViewModel.restaurantRequest {
+                                    VStack {
+                                        RestaurantCircularProfileImageView(size: .xLarge)
+                                        Text(request.name)
+                                            .font(.custom("MuseoSansRounded-300", size: 20))
+                                        Text("\(request.city), \(request.state)")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                        Text("(To be created)")
+                                            .foregroundStyle(.gray)
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                        Text("Edit")
+                                            .foregroundStyle(Color("Colors/AccentColor"))
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                    }
                                 }
                             }
+                            
+                            Spacer()
                         }
-                        
-                        Spacer()
-                        
                         if uploadViewModel.mediaType == .video {
-                            VideoPlayerTest(uploadViewModel: uploadViewModel)
-                                .frame(width: width)
+                            VideoPlayerTest(uploadViewModel: uploadViewModel, isVideoExpanded: $isVideoExpanded)
+                                
+                            //.matchedGeometryEffect(id: "video", in: animationNamespace)
+                        } else if uploadViewModel.mediaType == .photo {
+                            FinalPhotoPreview(uploadViewModel: uploadViewModel)
+                                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width, height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
                                 .cornerRadius(10)
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         isVideoExpanded.toggle()
                                     }
                                 }
-                                .matchedGeometryEffect(id: "video", in: animationNamespace)
-                        } else if uploadViewModel.mediaType == .photo {
-                            FinalPhotoPreview(uploadViewModel: uploadViewModel)
-                                .frame(width: width, height: 150)
-                                .cornerRadius(5)
                         } else {
                             Rectangle()
                                 .frame(width: width, height: 150)
@@ -117,112 +117,102 @@ struct ReelsUploadView: View {
                         Spacer()
                     }
                     .padding(.vertical)
-                    
-                    Divider()
-                    
-                    VStack {
-                        ZStack(alignment: .topLeading) {
-                            TextEditor(text: $uploadViewModel.caption)
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .frame(height: 75)
-                                .padding(.horizontal, 20)
-                                .background(Color.white)
-                                .cornerRadius(5)
-                                .toolbar {
-                                    ToolbarItemGroup(placement: .keyboard) {
-                                        Spacer()
-                                        Button("Done") {
-                                            dismissKeyboard()
+                    if !isVideoExpanded{
+                        Divider()
+                        
+                        VStack {
+                            ZStack(alignment: .topLeading) {
+                                TextEditor(text: $uploadViewModel.caption)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .frame(height: 75)
+                                    .padding(.horizontal, 20)
+                                    .background(Color.white)
+                                    .cornerRadius(5)
+                                    .toolbar {
+                                        ToolbarItemGroup(placement: .keyboard) {
+                                            Spacer()
+                                            Button("Done") {
+                                                dismissKeyboard()
+                                            }
                                         }
                                     }
-                                }
-                            if uploadViewModel.caption.isEmpty {
-                                Text("Enter a caption...")
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundColor(Color.gray)
-                                    .padding(.horizontal, 25)
-                                    .padding(.top, 8)
-                            }
-                        }
-                        HStack {
-                            Spacer()
-                            Text("\(uploadViewModel.caption.count)/150")
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                                .foregroundColor(.gray)
-                                .padding(.horizontal, 10)
-                        }
-                    }
-                    .onChange(of: uploadViewModel.caption) {
-                        if uploadViewModel.caption.count >= 150 {
-                            uploadViewModel.caption = String(uploadViewModel.caption.prefix(150))
-                        }
-                    }
-                    
-                    Divider()
-                    
-                    VStack(spacing: 20) {
-                        RatingSliderGroup(label: "Overall", isOverall: true, rating: $uploadViewModel.overallRating)
-                        RatingSliderGroup(label: "Food", isOverall: false, rating: $uploadViewModel.foodRating)
-                        RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $uploadViewModel.atmosphereRating)
-                        RatingSliderGroup(label: "Value", isOverall: false, rating: $uploadViewModel.valueRating)
-                        RatingSliderGroup(label: "Service", isOverall: false, rating: $uploadViewModel.serviceRating)
-                    }
-                    
-                    Divider()
-                    
-                    Spacer()
-                    
-                    Button {
-                        if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
-                            alertMessage = "Please select a restaurant."
-                            showAlert = true
-                        } else {
-                            Task {
-                                await uploadViewModel.uploadPost()
-                                uploadViewModel.reset()
-                                cameraViewModel.reset()
-                                tabBarController.selectedTab = 0
-                            }
-                        }
-                    } label: {
-                        Text(uploadViewModel.isLoading ? "" : "Post")
-                            .modifier(StandardButtonModifier(width: 90))
-                            .overlay {
-                                if uploadViewModel.isLoading {
-                                    ProgressView()
-                                        .tint(.white)
+                                if uploadViewModel.caption.isEmpty {
+                                    Text("Enter a caption...")
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .foregroundColor(Color.gray)
+                                        .padding(.horizontal, 25)
+                                        .padding(.top, 8)
                                 }
                             }
-                    }
-                    .disabled(uploadViewModel.isLoading)
-                    .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
-                    .alert(isPresented: $showAlert) {
-                        Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            HStack {
+                                Spacer()
+                                Text("\(uploadViewModel.caption.count)/150")
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 10)
+                            }
+                        }
+                        .onChange(of: uploadViewModel.caption) {
+                            if uploadViewModel.caption.count >= 150 {
+                                uploadViewModel.caption = String(uploadViewModel.caption.prefix(150))
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        VStack(spacing: 20) {
+                            RatingSliderGroup(label: "Overall", isOverall: true, rating: $uploadViewModel.overallRating)
+                            RatingSliderGroup(label: "Food", isOverall: false, rating: $uploadViewModel.foodRating)
+                            RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $uploadViewModel.atmosphereRating)
+                            RatingSliderGroup(label: "Value", isOverall: false, rating: $uploadViewModel.valueRating)
+                            RatingSliderGroup(label: "Service", isOverall: false, rating: $uploadViewModel.serviceRating)
+                        }
+                        
+                        Divider()
+                        
+                        Spacer()
+                        
+                        Button {
+                            if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
+                                alertMessage = "Please select a restaurant."
+                                showAlert = true
+                            } else {
+                                Task {
+                                    await uploadViewModel.uploadPost()
+                                    uploadViewModel.reset()
+                                    cameraViewModel.reset()
+                                    tabBarController.selectedTab = 0
+                                }
+                            }
+                        } label: {
+                            Text(uploadViewModel.isLoading ? "" : "Post")
+                                .modifier(StandardButtonModifier(width: 90))
+                                .overlay {
+                                    if uploadViewModel.isLoading {
+                                        ProgressView()
+                                            .tint(.white)
+                                    }
+                                }
+                        }
+                        .disabled(uploadViewModel.isLoading)
+                        .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
+                        .alert(isPresented: $showAlert) {
+                            Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                        }
                     }
                 }
                 .padding()
+                
             }
-            .opacity(isVideoExpanded ? 0 : 1)
             
-            if isVideoExpanded {
-                Color.black.opacity(0.5)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-
-                VideoPlayerTest(uploadViewModel: uploadViewModel)
-                    .frame(width: UIScreen.main.bounds.width * 5/6)
-                    .cornerRadius(10)
-                    .transition(.opacity)
-                    .matchedGeometryEffect(id: "video", in: animationNamespace)
-            }
         }
+        
         .onTapGesture {
-            if isVideoExpanded {
+            dismissKeyboard()
+            if isVideoExpanded{
                 withAnimation(.spring()) {
-                    isVideoExpanded.toggle()
+                    isVideoExpanded = false
                 }
-            } else {
-                dismissKeyboard()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -243,6 +233,7 @@ struct ReelsUploadView: View {
         .onAppear {
             UISlider.appearance().setThumbImage(nil, for: .normal)
         }
+        
     }
 }
 func dismissKeyboard() {
@@ -252,25 +243,30 @@ struct VideoPlayerTest: View {
     @ObservedObject var uploadViewModel: UploadViewModel
     @State private var player: AVPlayer?
     @State private var isPlaying = false
-    @State private var isExpanded = false
     @State private var volume: Float = 0.5
+    @Binding var isVideoExpanded: Bool
+    
+    private var width: CGFloat {
+        (UIScreen.main.bounds.width - (20 * 2)) / 3
+    }
     
     var body: some View {
-        HStack (alignment: .bottom) {
+        HStack(alignment: .bottom) {
             if let player = player {
                 CustomVideoPlayer(player: player,
                                   videoGravity: .resizeAspectFill,
-                                  showsPlaybackControls: isExpanded)
+                                  showsPlaybackControls: false)
+                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
+                       height: isVideoExpanded ? UIScreen.main.bounds.width : width * (6/5))
                 .cornerRadius(10)
-                .aspectRatio(5/6, contentMode: .fit)
                 .onTapGesture {
-                    withAnimation {
-                        isExpanded.toggle()
+                    withAnimation(.spring()) {
+                        isVideoExpanded.toggle()
                     }
                 }
             }
             
-            if !isExpanded {
+            if !isVideoExpanded {
                 VStack(spacing: 20) {
                     Button(action: {
                         isPlaying.toggle()
@@ -296,14 +292,15 @@ struct VideoPlayerTest: View {
                             .background(Circle().fill(Color.gray))
                     }
                 }
-                
             }
         }
-        .frame(height: isExpanded ? UIScreen.main.bounds.height * 0.7 : 150)
         .onAppear {
             setupPlayer()
         }
-        .onChange(of: isExpanded) {oldValue, newValue in
+        .onDisappear {
+            deinitPlayer()
+        }
+        .onChange(of: isVideoExpanded) { oldValue, newValue in
             if !newValue {
                 player?.seek(to: .zero)
                 player?.play()
@@ -319,13 +316,21 @@ struct VideoPlayerTest: View {
         player?.actionAtItemEnd = .none
         player?.volume = volume
         
-        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { _ in
+        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime,
+                                               object: playerItem,
+                                               queue: .main) { _ in
             player?.seek(to: .zero)
             player?.play()
         }
         
         player?.play()
         isPlaying = true
+    }
+    
+    private func deinitPlayer() {
+        player?.pause()
+        player = nil
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -357,30 +362,31 @@ struct RatingSliderGroup: View {
     @Binding var rating: Double
     
     var formattedRating: String {
-        if rating.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0f/5", rating)
-        } else {
-            return String(format: "%.1f/5", rating)
-        }
+        String(format: "%.1f", rating)
     }
     
     var body: some View {
-        HStack(spacing: 10) {
-            Text(label)
-                .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
-                .foregroundColor(.primary)
-                .frame(width: 90, alignment: .leading)
-            
-            Slider(value: $rating, in: 0...5, step: 0.5)
-                .frame(width: 180)
-                .onAppear {
-                    UISlider.appearance().setThumbImage(nil, for: .normal)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(label)
+                    .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                HStack(spacing: 2) {
+                    Text(formattedRating)
+                        .frame(width: 40, alignment: .trailing)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .foregroundColor(.primary)
+                    
+                    Text("/ 10")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .foregroundColor(.primary)
                 }
+            }
             
-            Text(formattedRating)
-                .font(.custom("MuseoSansRounded-300", size: 14))
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity)
+            Slider(value: $rating, in: 0...10, step: 0.1)
         }
     }
 }
