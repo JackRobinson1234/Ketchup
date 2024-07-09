@@ -232,8 +232,8 @@ struct CameraView: View {
                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                     .toolbar(.hidden, for: .tabBar)
                     .onAppear {
-                            cameraViewModel.stopCameraSession()
-                        }
+                        cameraViewModel.stopCameraSession()
+                    }
             }
             .navigationDestination(isPresented: $cameraViewModel.uploadFromLibray) {
                 LibrarySelectorView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
@@ -249,7 +249,7 @@ struct CameraView: View {
                     selectedCamTab = 0
                 }
             }
-            .onChange(of: selectedCamTab) {oldValue, newValue in
+            .onChange(of: selectedCamTab) { newValue in
                 if newValue == 2 {
                     cameraViewModel.stopCameraSession()
                 } else {
