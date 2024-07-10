@@ -17,8 +17,10 @@ struct ProfileView: View {
     @State var dragDirection = "left"
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
+    @State private var showZoomedProfileImage = false
     private let uid: String
     var drag: some Gesture {
+        
         DragGesture(minimumDistance: 50)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
@@ -64,78 +66,92 @@ struct ProfileView: View {
                     }
                 }
         } else{
-            ScrollViewReader{ scrollProxy in
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 2) {
-                        ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection)
-                        if !profileViewModel.user.privateMode {
-                            ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection,
-                                            scrollPosition: $scrollPosition,
-                                            scrollTarget: $scrollTarget)
-                        } else {
-                            VStack {
-                                Image(systemName: "lock.fill")
-                                    .font(.largeTitle)
-                                    .padding()
-                                Text("Account is private")
-                                    .font(.custom("MuseoSansRounded-300", size: 18))
+            ZStack{
+                ScrollViewReader{ scrollProxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 2) {
+                            ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection, showZoomedProfileImage: $showZoomedProfileImage)
+                            if !profileViewModel.user.privateMode {
+                                ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection,
+                                                scrollPosition: $scrollPosition,
+                                                scrollTarget: $scrollTarget)
+                            } else {
+                                VStack {
+                                    Image(systemName: "lock.fill")
+                                        .font(.largeTitle)
+                                        .padding()
+                                    Text("Account is private")
+                                        .font(.custom("MuseoSansRounded-300", size: 18))
+                                }
                             }
                         }
                     }
-                }
-                .scrollPosition(id: $scrollPosition)
-                .onChange(of: scrollTarget) {
-                    scrollPosition = scrollTarget
-                    withAnimation {
-                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                    .scrollPosition(id: $scrollPosition)
+                    .onChange(of: scrollTarget) {
+                        scrollPosition = scrollTarget
+                        withAnimation {
+                            scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                        }
                     }
                 }
-            }
-            .gesture(drag)
-            .sheet(isPresented: $showingOptionsSheet) {
-                ProfileOptionsSheet(user: profileViewModel.user)
+                .gesture(drag)
+                .sheet(isPresented: $showingOptionsSheet) {
+                    ProfileOptionsSheet(user: profileViewModel.user)
                         .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
-            }
-            .task { await profileViewModel.checkIfUserIsFollowed() }
-            .toolbar(.hidden, for: .tabBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundStyle(.primary)
-                    }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !profileViewModel.user.isCurrentUser {
+                .task { await profileViewModel.checkIfUserIsFollowed() }
+                .toolbar(.hidden, for: .tabBar)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            showingOptionsSheet = true
+                            dismiss()
                         } label: {
-                            ZStack{
-                                Rectangle()
-                                    .fill(.clear)
-                                    .frame(width: 18, height: 14)
-                                Image(systemName: "ellipsis")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 5, height: 5)
-                                    .foregroundStyle(.primary)
-                                
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        if !profileViewModel.user.isCurrentUser {
+                            Button {
+                                showingOptionsSheet = true
+                            } label: {
+                                ZStack{
+                                    Rectangle()
+                                        .fill(.clear)
+                                        .frame(width: 18, height: 14)
+                                    Image(systemName: "ellipsis")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 5, height: 5)
+                                        .foregroundStyle(.primary)
+                                    
+                                }
                             }
                         }
                     }
                 }
-            }
-            .navigationBarBackButtonHidden()
-            .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
-                RestaurantProfileView(restaurantId: restaurant.id)
-            }
-            .navigationDestination(for: PostUser.self) { user in
-                ProfileView(uid: user.id)
-            }
-            .navigationDestination(for: PostRestaurant.self) { restaurant in
-                RestaurantProfileView(restaurantId: restaurant.id)
+                .navigationBarBackButtonHidden()
+                .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id)
+                }
+                
+                if showZoomedProfileImage {
+                                Color.black.opacity(0.7)
+                                    .ignoresSafeArea()
+                                    .onTapGesture {
+                                        showZoomedProfileImage = false
+                                    }
+                                VStack {
+                                    Spacer()
+                                    UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
+                                        .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                        .onTapGesture {
+                                            showZoomedProfileImage = false
+                                        }
+                                    Spacer()
+                                }
+                            }
             }
         }
     }
@@ -144,4 +160,3 @@ struct ProfileView: View {
 #Preview {
     ProfileView(uid: DeveloperPreview.user.id)
 }
-

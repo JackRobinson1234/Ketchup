@@ -8,9 +8,9 @@
 import SwiftUI
 import AVFoundation
 
-@MainActor
+
 class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
-        
+    @Published var selectedCamTab: Int = 0
     // SESSION
     @Published var session = AVCaptureSession()
     
@@ -92,6 +92,13 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     @Published var recordedURLs: [URL] = []
     @Published var recordedCameraPositions: [CameraPosition] = []
+    @Published var isPreviewActive = true
+
+        func togglePreview(_ active: Bool) {
+            DispatchQueue.main.async {
+                self.isPreviewActive = active
+            }
+        }
     
     func setZoomFactor(_ factor: CGFloat) {
         guard cameraPosition == .back, let device = AVCaptureDevice.default(for: .video) else {
@@ -167,7 +174,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     
     func setUp() {
-        
         do {
             self.session.beginConfiguration()
             session.inputs.forEach { session.removeInput($0) }
@@ -202,6 +208,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             }
             
             self.session.commitConfiguration()
+            self.startCameraSession()
             
         }
         catch {
@@ -237,8 +244,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
-            print(error.localizedDescription)
+            print("Error recording video: \(error.localizedDescription)")
+            return
         }
+        
         recordedURLs.append(outputFileURL)
 
         // CONVERTING URLs TO ASSETS
@@ -246,48 +255,64 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         // MERGING VIDEOS
         if !isRecording {
-            mergeVideos(assets: assets) { exporter in
-                exporter.exportAsynchronously {
-                    if exporter.status == .failed {
-                        // HANDLE ERROR
-                        print(exporter.error!)
-                    } else {
+            Task {
+                do {
+                    guard let exporter = try await mergeVideos(assets: assets) else {
+                        print("Failed to create exporter")
+                        return
+                    }
+                    
+                    await exporter.export()
+                    
+                    switch exporter.status {
+                    case .completed:
                         if let finalURL = exporter.outputURL {
-                            DispatchQueue.main.async {
+                            await MainActor.run {
                                 self.previewURL = finalURL
                                 self.isLoading = false
                             }
                         }
+                    case .failed:
+                        if let error = exporter.error {
+                            print("Export failed: \(error.localizedDescription)")
+                        }
+                    case .cancelled:
+                        print("Export cancelled")
+                    default:
+                        print("Export ended with status: \(exporter.status.rawValue)")
                     }
+                } catch {
+                    print("Error merging videos: \(error.localizedDescription)")
                 }
             }
         }
-        
     }
     
     
-    func mergeVideos(assets: [AVURLAsset], completion: @escaping (_ exporter: AVAssetExportSession)->()) {
+    func mergeVideos(assets: [AVURLAsset]) async throws -> AVAssetExportSession? {
         let composition = AVMutableComposition()
         var lastTime: CMTime = .zero
         
         guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
               let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
             print("Failed to add tracks to the composition")
-            return
+            return nil
         }
         
         var instructions: [AVMutableVideoCompositionInstruction] = []
         
-        for index in recordedURLs.indices {
+        let urlsCopy = recordedURLs
+            for index in urlsCopy.indices {
             let recordedUrl = recordedURLs[index]
             let asset = AVURLAsset(url: recordedUrl)
-            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+            let duration = try await asset.load(.duration)
+            let timeRange = CMTimeRange(start: .zero, duration: duration)
             
             do {
-                let videoAssetTrack = asset.tracks(withMediaType: .video)[0]
+                let videoAssetTrack = try await asset.loadTracks(withMediaType: .video)[0]
                 try videoTrack.insertTimeRange(timeRange, of: videoAssetTrack, at: lastTime)
                 
-                if let audioAssetTrack = asset.tracks(withMediaType: .audio).first {
+                if let audioAssetTrack = try await asset.loadTracks(withMediaType: .audio).first {
                     try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: lastTime)
                 }
             } catch {
@@ -306,11 +331,11 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             layerInstructions.setTransform(transform, at: lastTime)
             
             let instruction = AVMutableVideoCompositionInstruction()
-            instruction.timeRange = CMTimeRange(start: lastTime, duration: asset.duration)
+            instruction.timeRange = CMTimeRange(start: lastTime, duration: duration)
             instruction.layerInstructions = [layerInstructions]
             instructions.append(instruction)
             
-            lastTime = CMTimeAdd(lastTime, asset.duration)
+            lastTime = CMTimeAdd(lastTime, duration)
         }
         
         let videoComposition = AVMutableVideoComposition()
@@ -321,13 +346,13 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
         guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
             print("Failed to create export session")
-            return
+            return nil
         }
         
         exporter.outputFileType = .mp4
         exporter.outputURL = tempURL
         exporter.videoComposition = videoComposition
-        completion(exporter)
+        return exporter
     }
     
     
@@ -438,20 +463,19 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         configureFlash()
     }
     func reset() {
-        // Reset the photo and video capture properties
-        images.removeAll()
-        recordedURLs.removeAll()
-        recordedCameraPositions.removeAll()
-        previewURL = nil
-        isPhotoTaken = false
-        isRecording = false
-        navigateToUpload = false
-        mediaType = .photo
-        recordedDuration = 0
-        isDragging = false
-        uploadFromLibray = false
-        //isDragEnabled = true
-        
+        DispatchQueue.main.async {
+            self.images.removeAll()
+            self.recordedURLs.removeAll()
+            self.recordedCameraPositions.removeAll()
+            self.previewURL = nil
+            self.isPhotoTaken = false
+            self.isRecording = false
+            self.navigateToUpload = false
+            self.mediaType = .photo
+            self.recordedDuration = 0
+            self.isDragging = false
+            self.uploadFromLibray = false
+        }
     }
     func stopCameraSession() {
             DispatchQueue.global(qos: .background).async {

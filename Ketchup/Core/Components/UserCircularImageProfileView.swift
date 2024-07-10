@@ -16,6 +16,7 @@ enum ProfileImageSize {
     case large
     case xLarge
     case xxLarge
+    case xxxLarge
     
     var dimension: CGFloat {
         switch self {
@@ -26,6 +27,8 @@ enum ProfileImageSize {
         case .large: return 64
         case .xLarge: return 80
         case .xxLarge: return 90
+        case .xxxLarge: return UIScreen.main.bounds.width * 5 / 6
+            
         }
     }
 }
@@ -36,27 +39,32 @@ struct UserCircularProfileImageView: View {
     var color: Color? = nil
     
     var body: some View {
-        if let imageUrl = profileImageUrl {
-            ZStack{
-                if let color = color{
-                    Circle()
-                        .fill(color)
-                    .frame(width: size.dimension + 4, height: size.dimension + 4)}
+        ZStack {
+            if let color = color {
+                Circle()
+                    .fill(color)
+                    .frame(width: size.dimension + 4, height: size.dimension + 4)
+            }
+            
+            if let imageUrl = profileImageUrl {
                 KFImage(URL(string: imageUrl))
                     .resizable()
-                    .scaledToFill()
-                    .frame(width: size.dimension, height: size.dimension)
-                    .clipShape(Circle())
+                    .circularProfileStyle(size: size)
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .circularProfileStyle(size: size)
+                    .foregroundColor(Color(.systemGray5))
             }
-        } else {
-            Image(systemName: "person.circle.fill")
-                .resizable()
-                .frame(width: size.dimension, height: size.dimension)
-                .foregroundColor(Color(.systemGray5))
         }
     }
 }
 
-#Preview {
-    UserCircularProfileImageView(size: .medium)
+extension View {
+    func circularProfileStyle(size: ProfileImageSize) -> some View {
+        self
+            .scaledToFill()
+            .frame(width: size.dimension, height: size.dimension)
+            .clipShape(Circle())
+    }
 }

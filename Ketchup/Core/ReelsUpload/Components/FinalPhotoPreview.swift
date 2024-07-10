@@ -21,19 +21,20 @@ struct FinalPhotoPreview: View {
                         if uploadViewModel.fromInAppCamera {
                             Image(uiImage: uploadViewModel.images![index])
                                 .resizable()
-                                .scaledToFill()
+                                .aspectRatio(contentMode: .fill)
+                                .clipped()
                                 .tag(index)
                         } else {
                             Image(uiImage: uploadViewModel.images![index])
                                 .resizable()
-                                .scaledToFit()
+                                .aspectRatio(contentMode: .fill)
+                                .clipped()
                                 .tag(index)
                         }
                     }
                 }
                 .background(.primary)
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
     }

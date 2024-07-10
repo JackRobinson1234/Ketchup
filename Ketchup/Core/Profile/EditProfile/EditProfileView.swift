@@ -9,13 +9,16 @@ import SwiftUI
 import Kingfisher
 import PhotosUI
 
+import SwiftUI
+import PhotosUI
+import SwiftyCrop
+
 struct EditProfileView: View {
     @State private var username = ""
     @StateObject private var viewModel: EditProfileViewModel
     @Binding var user: User
     @Environment(\.dismiss) var dismiss
     var usernameDebouncer = Debouncer(delay: 2.0)
-    
     
     init(user: Binding<User>) {
         self._user = user
@@ -29,24 +32,25 @@ struct EditProfileView: View {
                 VStack(spacing: 8) {
                     Divider()
                     //MARK: profile image
-                    PhotosPicker(selection: $viewModel.selectedImage) {
-                            VStack {
-                                if let image = viewModel.profileImage {
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 72, height: 72)
-                                        .clipShape(Circle())
-                                        .foregroundColor(Color(.systemGray4))
-                                } else {
-                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .large)
-                                }
-                                Text("Edit profile picture")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .fontWeight(.semibold)
+                    PhotosPicker(selection: $viewModel.selectedImage, matching: .images,
+                                 photoLibrary: .shared()) {
+                        VStack {
+                            if let image = viewModel.profileImage {
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 72, height: 72)
+                                    .clipShape(Circle())
+                                    .foregroundColor(Color(.systemGray4))
+                            } else {
+                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .large)
                             }
+                            Text("Edit profile picture")
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .fontWeight(.semibold)
                         }
-                        .padding(.vertical, 8)
+                    }
+                    .padding(.vertical, 8)
                     
                     Divider()
                 }
@@ -54,7 +58,7 @@ struct EditProfileView: View {
                 //MARK: Edit username
                 VStack {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
-                        .onChange(of: viewModel.username) {oldValue, newValue in
+                        .onChange(of: viewModel.username) { oldValue, newValue in
                             //lowercase and no space
                             viewModel.username = viewModel.username.trimmingCharacters(in: .whitespaces).lowercased()
                             //limits characters
@@ -63,9 +67,9 @@ struct EditProfileView: View {
                             }
                             //for the debouncer to wait
                             viewModel.validUsername = nil
-                            if !viewModel.username.isEmpty{
-                                usernameDebouncer.schedule{
-                                    Task{
+                            if !viewModel.username.isEmpty {
+                                usernameDebouncer.schedule {
+                                    Task {
                                         try await viewModel.checkIfUsernameAvailable()
                                     }
                                 }
@@ -84,11 +88,11 @@ struct EditProfileView: View {
                             .foregroundStyle(.primary)
                     }
                     //MARK: Available Username
-                    else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty && viewModel.username != user.username{
+                    else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Username Available!")
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundStyle(.green)
-                        //MARK: Taken Uername
+                    //MARK: Taken Username
                     } else if let validUsername = viewModel.validUsername, !validUsername && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Username is already taken. Please try a different username")
                             .font(.custom("MuseoSansRounded-300", size: 10))
@@ -96,14 +100,14 @@ struct EditProfileView: View {
                     }
                     //MARK: emptyUsername
                     if viewModel.username.count == 0 {
-                        Text("Full name can not be empty")
+                        Text("Username cannot be empty")
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
 
                     //MARK: Fullname
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
-                        .onChange(of: viewModel.fullname) {oldValue, newValue in
+                        .onChange(of: viewModel.fullname) { oldValue, newValue in
                             if newValue.count > 64 {
                                 viewModel.fullname = String(newValue.prefix(64))
                             }
@@ -116,7 +120,7 @@ struct EditProfileView: View {
                     }
                     //MARK: fullname empty
                     if viewModel.fullname.count == 0 {
-                        Text("Full name can not be empty")
+                        Text("Full name cannot be empty")
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
@@ -154,28 +158,43 @@ struct EditProfileView: View {
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.inline)
         }
-
+        .fullScreenCover(isPresented: $viewModel.showingImageCropper) {
+            let configuration = SwiftyCropConfiguration(
+                //maskRadius: 130,
+                //cropImageCircular: true,
+                rotateImage: false
+            )
+            if let selectedImage = viewModel.uiImage {
+                SwiftyCropView(
+                    imageToCrop: selectedImage,
+                    maskShape: .circle,
+                    configuration: configuration
+                ) { croppedImage in
+                    if let croppedImage{
+                        viewModel.setCroppedImage(croppedImage)
+                    }
+                }
+            }
+        }
     }
 }
 
 extension EditProfileView: AuthenticationFormProtocol {
     var formIsValid: Bool {
-        if let validUsername = viewModel.validUsername{
+        if let validUsername = viewModel.validUsername {
             return !viewModel.fullname.isEmpty && validUsername
-        }
-        else{
+        } else {
             return false
         }
     }
 }
-//MARK: EditProfileRowView
+
 struct EditProfileRowView: View {
     let title: String
     let placeholder: String
     @Binding var text: String
     
     var body: some View {
-        
         HStack {
             Text(title)
                 .padding(.leading, 8)
@@ -194,30 +213,27 @@ struct EditProfileRowView: View {
     }
 }
 
-#Preview {
-    EditProfileView(user: .constant(DeveloperPreview.user))
-}
-//MARK: editFavoritesView
 struct editFavoritesView: View {
     let user: User
     @State private var fetchedRestaurant: Restaurant?
     @State private var isEditFavoritesShowing = false
     @State var oldSelection: FavoriteRestaurant = FavoriteRestaurant(name: "", id: "", restaurantProfileImageUrl: nil)
     @ObservedObject var editProfileViewModel: EditProfileViewModel
+    
     var body: some View {
-        HStack(alignment: .top, spacing: 8){
+        HStack(alignment: .top, spacing: 8) {
             Spacer()
             ForEach(editProfileViewModel.favoritesPreview) { favoriteRestaurant in
-                VStack (spacing:10){
-                    Button{
+                VStack(spacing: 10) {
+                    Button {
                         oldSelection = favoriteRestaurant
                         isEditFavoritesShowing.toggle()
                     } label: {
-                        VStack{
+                        VStack {
                             Text("Edit")
                                 .font(.custom("MuseoSansRounded-300", size: 10))
                                 .foregroundStyle(.blue)
-                            HStack{
+                            HStack {
                                 VStack {
                                     ZStack(alignment: .bottom) {
                                         if let imageUrl = favoriteRestaurant.restaurantProfileImageUrl {
@@ -228,21 +244,20 @@ struct editFavoritesView: View {
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                         .multilineTextAlignment(.center)
                                         .lineLimit(2)
-                                        .frame(maxWidth: .infinity, alignment: .center) // Limit the width
+                                        .frame(maxWidth: .infinity, alignment: .center)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
-                                
                             }
                         }
                     }
-                    if !favoriteRestaurant.name.isEmpty{
-                        Button{
+                    if !favoriteRestaurant.name.isEmpty {
+                        Button {
                             oldSelection = favoriteRestaurant
                             if let index = editProfileViewModel.favoritesPreview.firstIndex(of: oldSelection) {
                                 editProfileViewModel.favoritesPreview[index] = FavoriteRestaurant(name: "", id: NSUUID().uuidString, restaurantProfileImageUrl: "")
                             }
                         } label: {
-                            VStack{
+                            VStack {
                                 Text("Clear")
                                     .foregroundStyle(Color("Colors/AccentColor"))
                                     .font(.custom("MuseoSansRounded-300", size: 10))
@@ -250,13 +265,11 @@ struct editFavoritesView: View {
                         }
                     }
                 }
-
                 Spacer()
-                    
-                }
             }
-        .sheet(isPresented: $isEditFavoritesShowing) { FavoriteRestaurantSearchView(oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)}
+        }
+        .sheet(isPresented: $isEditFavoritesShowing) {
+            FavoriteRestaurantSearchView(oldSelection: $oldSelection, editProfileViewModel: editProfileViewModel)
+        }
     }
 }
-
-

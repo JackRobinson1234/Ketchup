@@ -49,6 +49,7 @@ class ReviewsViewModel: ObservableObject {
                 
                 feedViewModel.showPostAlert = true
                 feedViewModel.posts.insert(review, at: 0)
+                reset()
             } catch {
                 print("error uploading post")
                 throw error
@@ -85,13 +86,20 @@ class ReviewsViewModel: ObservableObject {
         do{
             try await ReviewService.shared.deleteReview(reviewId: reviewId)
             if let index = reviews.firstIndex(where: { $0.id == reviewId }) {
-                         
-                           reviews.remove(at: index)
-                       }
+                
+                reviews.remove(at: index)
+            }
         } catch {
             print("error deleting review")
             throw error
         }
+    }
+    func reset() {
+        self.reviews = []
+        self.isLoading = false
+        self.selectedRestaurant = nil
+        self.selectedUser = nil
+        self.restaurantRequest = nil
     }
 }
 

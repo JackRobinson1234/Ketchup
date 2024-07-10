@@ -236,6 +236,12 @@ struct ActivityCell: View {
             if let selectedUid = viewModel.selectedUid {
                 NavigationStack{
                     ProfileView(uid: selectedUid)
+                        .navigationDestination(for: PostUser.self) { user in
+                            ProfileView(uid: user.id)
+                        }
+                        .navigationDestination(for: PostRestaurant.self) { restaurant in
+                            RestaurantProfileView(restaurantId: restaurant.id)
+                        }
                 }
             }
         }

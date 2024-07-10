@@ -19,7 +19,6 @@
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
 		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
 		F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */; };
-		F83ED9B72BEBF2A4000B2F30 /* FeedGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */; };
 		F846F4532BFBD534009D1303 /* Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4522BFBD534009D1303 /* Review.swift */; };
 		F846F45A2BFBF6EC009D1303 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */; };
 		F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45B2BFBF708009D1303 /* ReviewService.swift */; };
@@ -40,6 +39,7 @@
 		F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84FE29B2B6A58ED00144F01 /* AuthService.swift */; };
 		F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85288B22BC069BE00153126 /* CookingTimeCategories.swift */; };
 		F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85CDD4C2C078BDC00BD834F /* UISliderView.swift */; };
+		F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85E8B112C3DD37100B5F79E /* ImageCropper.swift */; };
 		F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050BE2BBC91EE00318080 /* CuisineCategories.swift */; };
 		F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050C02BBC95E200318080 /* CuisineFilter.swift */; };
 		F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */; };
@@ -67,14 +67,6 @@
 		F86978D22C1E8A370036F86A /* RestaurantRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86978D12C1E8A370036F86A /* RestaurantRequest.swift */; };
 		F86E15B12C039FA40059D15C /* RepostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86E15B02C039FA40059D15C /* RepostView.swift */; };
 		F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */; };
-		F86F50672C38D0440079EBA3 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50662C38D0440079EBA3 /* InstantSearch */; };
-		F86F50692C38D0440079EBA3 /* InstantSearchCore in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50682C38D0440079EBA3 /* InstantSearchCore */; };
-		F86F506B2C38D0440079EBA3 /* InstantSearchInsights in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506A2C38D0440079EBA3 /* InstantSearchInsights */; };
-		F86F506D2C38D0440079EBA3 /* InstantSearchSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */; };
-		F86F50702C38D0700079EBA3 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F86F506F2C38D0700079EBA3 /* ClusterMap */; };
-		F86F50722C38D0700079EBA3 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */; };
-		F86F50752C38D0850079EBA3 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */; };
-		F86F50782C38D09D0079EBA3 /* CachingPlayerItem in Frameworks */ = {isa = PBXBuildFile; productRef = F86F50772C38D09D0079EBA3 /* CachingPlayerItem */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
 		F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */; };
 		F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */; };
@@ -102,6 +94,9 @@
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
 		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
+		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
+		F88322072C3DE8B0006744D2 /* ReviewSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322062C3DE8B0006744D2 /* ReviewSlideBar.swift */; };
+		F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322082C3DE8EA006744D2 /* OverallRatingView.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -171,6 +166,13 @@
 		F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */; };
 		F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B662BE849A000AB7FDD /* NotificationsView.swift */; };
 		F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */; };
+		F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */; };
+		F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */; };
+		F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */; };
+		F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F262C3C9612009E67A9 /* CameraPreview.swift */; };
+		F8A96F292C3C9638009E67A9 /* PermissionDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */; };
+		F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */; };
+		F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
@@ -181,6 +183,14 @@
 		F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */; };
 		F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81632BC60F17007C2CFC /* MapModifiers.swift */; };
 		F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81652BC6E9BA007C2CFC /* Collection.swift */; };
+		F8C645552C3B736A0004F1B0 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645542C3B736A0004F1B0 /* ClusterMap */; };
+		F8C645572C3B736A0004F1B0 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645562C3B736A0004F1B0 /* ClusterMapSwiftUI */; };
+		F8C6455A2C3B73770004F1B0 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645592C3B73770004F1B0 /* InstantSearch */; };
+		F8C6455C2C3B73770004F1B0 /* InstantSearchCore in Frameworks */ = {isa = PBXBuildFile; productRef = F8C6455B2C3B73770004F1B0 /* InstantSearchCore */; };
+		F8C6455E2C3B73770004F1B0 /* InstantSearchInsights in Frameworks */ = {isa = PBXBuildFile; productRef = F8C6455D2C3B73770004F1B0 /* InstantSearchInsights */; };
+		F8C645602C3B73770004F1B0 /* InstantSearchSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F8C6455F2C3B73770004F1B0 /* InstantSearchSwiftUI */; };
+		F8C645632C3B73850004F1B0 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645622C3B73850004F1B0 /* AlgoliaSearchClient */; };
+		F8C645662C3B738E0004F1B0 /* CachingPlayerItem in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645652C3B738E0004F1B0 /* CachingPlayerItem */; };
 		F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219B2BD5876F00B4B329 /* ReelsUploadView.swift */; };
 		F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219D2BD5879900B4B329 /* UploadViewModel.swift */; };
 		F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC219F2BD587EE00B4B329 /* Photo.swift */; };
@@ -202,7 +212,6 @@
 		F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8F494F82BBF98950043B515 /* DietaryCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F72BBF98950043B515 /* DietaryCategories.swift */; };
-		F8F8D9DC2C2C7EF200982400 /* VideoPlayerPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F8D9DB2C2C7EF200982400 /* VideoPlayerPool.swift */; };
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 		F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */; };
 		F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */; };
@@ -254,7 +263,6 @@
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
 		F83380F32C28B31E0056C973 /* CustomFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
 		F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCollectionListView.swift; sourceTree = "<group>"; };
-		F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedGridView.swift; sourceTree = "<group>"; };
 		F846F4522BFBD534009D1303 /* Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Review.swift; sourceTree = "<group>"; };
 		F846F4592BFBF6EC009D1303 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
 		F846F45B2BFBF708009D1303 /* ReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewService.swift; sourceTree = "<group>"; };
@@ -279,6 +287,7 @@
 		F84FE29B2B6A58ED00144F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F85288B22BC069BE00153126 /* CookingTimeCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingTimeCategories.swift; sourceTree = "<group>"; };
 		F85CDD4C2C078BDC00BD834F /* UISliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISliderView.swift; sourceTree = "<group>"; };
+		F85E8B112C3DD37100B5F79E /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
 		F86050BE2BBC91EE00318080 /* CuisineCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineCategories.swift; sourceTree = "<group>"; };
 		F86050C02BBC95E200318080 /* CuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineFilter.swift; sourceTree = "<group>"; };
 		F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsSearchListView.swift; sourceTree = "<group>"; };
@@ -335,6 +344,8 @@
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerVibe.swift; sourceTree = "<group>"; };
 		F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityMetaData.swift; sourceTree = "<group>"; };
 		F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		F88322062C3DE8B0006744D2 /* ReviewSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSlideBar.swift; sourceTree = "<group>"; };
+		F88322082C3DE8EA006744D2 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -404,6 +415,13 @@
 		F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		F8A24B662BE849A000AB7FDD /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCameraControls.swift; sourceTree = "<group>"; };
+		F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCameraControls.swift; sourceTree = "<group>"; };
+		F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTypeMenuView.swift; sourceTree = "<group>"; };
+		F8A96F262C3C9612009E67A9 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDeniedView.swift; sourceTree = "<group>"; };
+		F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoReorderView.swift; sourceTree = "<group>"; };
+		F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTabBarButton.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
@@ -435,7 +453,6 @@
 		F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLocationFilter.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8F494F72BBF98950043B515 /* DietaryCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietaryCategories.swift; sourceTree = "<group>"; };
-		F8F8D9DB2C2C7EF200982400 /* VideoPlayerPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerPool.swift; sourceTree = "<group>"; };
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySelectorView.swift; sourceTree = "<group>"; };
 		F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -454,15 +471,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F86F506D2C38D0440079EBA3 /* InstantSearchSwiftUI in Frameworks */,
-				F86F50752C38D0850079EBA3 /* AlgoliaSearchClient in Frameworks */,
-				F86F50782C38D09D0079EBA3 /* CachingPlayerItem in Frameworks */,
-				F86F50692C38D0440079EBA3 /* InstantSearchCore in Frameworks */,
-				F86F50722C38D0700079EBA3 /* ClusterMapSwiftUI in Frameworks */,
-				F86F50702C38D0700079EBA3 /* ClusterMap in Frameworks */,
-				F86F506B2C38D0440079EBA3 /* InstantSearchInsights in Frameworks */,
-				F86F50672C38D0440079EBA3 /* InstantSearch in Frameworks */,
+				F8C6455A2C3B73770004F1B0 /* InstantSearch in Frameworks */,
+				F8C645632C3B73850004F1B0 /* AlgoliaSearchClient in Frameworks */,
+				F8C645662C3B738E0004F1B0 /* CachingPlayerItem in Frameworks */,
+				F8C645602C3B73770004F1B0 /* InstantSearchSwiftUI in Frameworks */,
+				F8C645552C3B736A0004F1B0 /* ClusterMap in Frameworks */,
+				F8C6455C2C3B73770004F1B0 /* InstantSearchCore in Frameworks */,
+				F8C645572C3B736A0004F1B0 /* ClusterMapSwiftUI in Frameworks */,
 				FE388A23A197A32E969C7799 /* Pods_Ketchup.framework in Frameworks */,
+				F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */,
+				F8C6455E2C3B73770004F1B0 /* InstantSearchInsights in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1108,7 +1126,6 @@
 				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
 				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
 				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,
-				F83ED9B62BEBF2A4000B2F30 /* FeedGridView.swift */,
 				F86E15B02C039FA40059D15C /* RepostView.swift */,
 				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
 				F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */,
@@ -1154,6 +1171,7 @@
 			children = (
 				F88E0AB32B6B044C00EC159B /* EditProfileView.swift */,
 				F88E0AB52B6B046C00EC159B /* EditProfileViewModel.swift */,
+				F85E8B112C3DD37100B5F79E /* ImageCropper.swift */,
 			);
 			path = EditProfile;
 			sourceTree = "<group>";
@@ -1324,7 +1342,6 @@
 			isa = PBXGroup;
 			children = (
 				F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */,
-				F8F8D9DB2C2C7EF200982400 /* VideoPlayerPool.swift */,
 			);
 			path = VideoPlayer;
 			sourceTree = "<group>";
@@ -1400,6 +1417,8 @@
 				F8670A662BF40EEA00F527D9 /* Components */,
 				F8670A652BF40E9D00F527D9 /* View */,
 				F8670A642BF40E8B00F527D9 /* ViewModel */,
+				F88322062C3DE8B0006744D2 /* ReviewSlideBar.swift */,
+				F88322082C3DE8EA006744D2 /* OverallRatingView.swift */,
 			);
 			path = ReelsUpload;
 			sourceTree = "<group>";
@@ -1410,6 +1429,13 @@
 				F8CC21A42BD58A9C00B4B329 /* CameraView.swift */,
 				F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */,
 				F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */,
+				F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */,
+				F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */,
+				F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */,
+				F8A96F262C3C9612009E67A9 /* CameraPreview.swift */,
+				F8A96F282C3C9638009E67A9 /* PermissionDeniedView.swift */,
+				F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */,
+				F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -1475,14 +1501,15 @@
 			);
 			name = Ketchup;
 			packageProductDependencies = (
-				F86F50662C38D0440079EBA3 /* InstantSearch */,
-				F86F50682C38D0440079EBA3 /* InstantSearchCore */,
-				F86F506A2C38D0440079EBA3 /* InstantSearchInsights */,
-				F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */,
-				F86F506F2C38D0700079EBA3 /* ClusterMap */,
-				F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */,
-				F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */,
-				F86F50772C38D09D0079EBA3 /* CachingPlayerItem */,
+				F8C645542C3B736A0004F1B0 /* ClusterMap */,
+				F8C645562C3B736A0004F1B0 /* ClusterMapSwiftUI */,
+				F8C645592C3B73770004F1B0 /* InstantSearch */,
+				F8C6455B2C3B73770004F1B0 /* InstantSearchCore */,
+				F8C6455D2C3B73770004F1B0 /* InstantSearchInsights */,
+				F8C6455F2C3B73770004F1B0 /* InstantSearchSwiftUI */,
+				F8C645622C3B73850004F1B0 /* AlgoliaSearchClient */,
+				F8C645652C3B738E0004F1B0 /* CachingPlayerItem */,
+				F88322042C3DDD9E006744D2 /* SwiftyCrop */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1560,10 +1587,11 @@
 			);
 			mainGroup = F84FE23F2B6A531200144F01;
 			packageReferences = (
-				F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
-				F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */,
-				F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
-				F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
+				F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */,
+				F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */,
+				F8C645612C3B73850004F1B0 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
+				F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1725,6 +1753,7 @@
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
 				F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */,
 				F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */,
+				F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */,
 				F85288B32BC069BE00153126 /* CookingTimeCategories.swift in Sources */,
 				F871B0062B8AA16400E4EB5F /* NavigationLazyView.swift in Sources */,
 				F8246CE32C223D8700C07BB1 /* ReviewCreateRestaurantView.swift in Sources */,
@@ -1739,9 +1768,11 @@
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
+				F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
+				F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F846F4532BFBD534009D1303 /* Review.swift in Sources */,
 				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,
@@ -1761,11 +1792,13 @@
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */,
+				F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */,
 				F846F4662BFD91AC009D1303 /* RestaurantReviewSelector.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */,
+				F8A96F292C3C9638009E67A9 /* PermissionDeniedView.swift in Sources */,
 				F868686E2C34541400F6CE56 /* ProfileMapView.swift in Sources */,
 				F88E0ABC2B6B04D000EC159B /* PostGridView.swift in Sources */,
 				F871AFF62B82F8EB00E4EB5F /* FavoriteRestaurantsView.swift in Sources */,
@@ -1789,6 +1822,7 @@
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
 				F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
+				F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */,
 				F88E0A3E2B6A5E7700EC159B /* CommentInputView.swift in Sources */,
 				F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */,
 				F88E0A922B6B023800EC159B /* PrimaryFeedView.swift in Sources */,
@@ -1815,6 +1849,7 @@
 				F88E0B132B6B0AA700EC159B /* FIrestore + Query.swift in Sources */,
 				F871B00B2B912CA500E4EB5F /* LocationRequest.swift in Sources */,
 				F8670A502BF1996900F527D9 /* CollectionItemNotesView.swift in Sources */,
+				F88322072C3DE8B0006744D2 /* ReviewSlideBar.swift in Sources */,
 				F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */,
 				F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */,
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
@@ -1824,6 +1859,7 @@
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
+				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
@@ -1842,7 +1878,6 @@
 				F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
 				F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */,
-				F8F8D9DC2C2C7EF200982400 /* VideoPlayerPool.swift in Sources */,
 				F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */,
 				F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */,
 				F86E15B12C039FA40059D15C /* RepostView.swift in Sources */,
@@ -1876,6 +1911,7 @@
 				F8631E382BD70C5200A48565 /* ProfileUserLists.swift in Sources */,
 				F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */,
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
+				F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */,
 				F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */,
 				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
@@ -1884,6 +1920,7 @@
 				F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */,
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
+				F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
@@ -1900,7 +1937,6 @@
 				F88E0B212B6B0B8E00EC159B /* RestaurantService.swift in Sources */,
 				F871CE102BCE00B1003C9BE8 /* AddItemCollectionButton.swift in Sources */,
 				F8631E352BD6E49E00A48565 /* PostListCell.swift in Sources */,
-				F83ED9B72BEBF2A4000B2F30 /* FeedGridView.swift in Sources */,
 				F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2288,15 +2324,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
+		F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/algolia/instantsearch-ios";
+			repositoryURL = "https://github.com/benedom/SwiftyCrop";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.26.2;
+				branch = master;
+				kind = branch;
 			};
 		};
-		F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
+		F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/vospennikov/ClusterMap.git";
 			requirement = {
@@ -2304,15 +2340,23 @@
 				minimumVersion = 2.1.1;
 			};
 		};
-		F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+		F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/instantsearch-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.26.2;
+			};
+		};
+		F8C645612C3B73850004F1B0 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
 			requirement = {
-				kind = exactVersion;
-				version = 8.19.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.20.1;
 			};
 		};
-		F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
+		F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sukov/CachingPlayerItem";
 			requirement = {
@@ -2323,44 +2367,49 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F86F50662C38D0440079EBA3 /* InstantSearch */ = {
+		F88322042C3DDD9E006744D2 /* SwiftyCrop */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
-			productName = InstantSearch;
+			package = F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */;
+			productName = SwiftyCrop;
 		};
-		F86F50682C38D0440079EBA3 /* InstantSearchCore */ = {
+		F8C645542C3B736A0004F1B0 /* ClusterMap */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
-			productName = InstantSearchCore;
-		};
-		F86F506A2C38D0440079EBA3 /* InstantSearchInsights */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
-			productName = InstantSearchInsights;
-		};
-		F86F506C2C38D0440079EBA3 /* InstantSearchSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F86F50652C38D0440079EBA3 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
-			productName = InstantSearchSwiftUI;
-		};
-		F86F506F2C38D0700079EBA3 /* ClusterMap */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			package = F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */;
 			productName = ClusterMap;
 		};
-		F86F50712C38D0700079EBA3 /* ClusterMapSwiftUI */ = {
+		F8C645562C3B736A0004F1B0 /* ClusterMapSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F86F506E2C38D0700079EBA3 /* XCRemoteSwiftPackageReference "ClusterMap" */;
+			package = F8C645532C3B736A0004F1B0 /* XCRemoteSwiftPackageReference "ClusterMap" */;
 			productName = ClusterMapSwiftUI;
 		};
-		F86F50742C38D0850079EBA3 /* AlgoliaSearchClient */ = {
+		F8C645592C3B73770004F1B0 /* InstantSearch */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F86F50732C38D0850079EBA3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			package = F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearch;
+		};
+		F8C6455B2C3B73770004F1B0 /* InstantSearchCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchCore;
+		};
+		F8C6455D2C3B73770004F1B0 /* InstantSearchInsights */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchInsights;
+		};
+		F8C6455F2C3B73770004F1B0 /* InstantSearchSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8C645582C3B73770004F1B0 /* XCRemoteSwiftPackageReference "instantsearch-ios" */;
+			productName = InstantSearchSwiftUI;
+		};
+		F8C645622C3B73850004F1B0 /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8C645612C3B73850004F1B0 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
 			productName = AlgoliaSearchClient;
 		};
-		F86F50772C38D09D0079EBA3 /* CachingPlayerItem */ = {
+		F8C645652C3B738E0004F1B0 /* CachingPlayerItem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F86F50762C38D09D0079EBA3 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
+			package = F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
 			productName = CachingPlayerItem;
 		};
 /* End XCSwiftPackageProductDependency section */

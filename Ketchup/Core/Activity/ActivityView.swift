@@ -12,8 +12,11 @@ enum LetsKetchupOptions {
 
 struct ActivityView: View {
     @State var isLoading = true
+    @State var isTransitioning = false
     @StateObject var viewModel = ActivityViewModel()
     @State var showSearchView: Bool = false
+    @Namespace private var animation
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -26,56 +29,52 @@ struct ActivityView: View {
                                 isLoading = false
                             }
                         }
+                   
                 } else {
                     VStack {
                         // MARK: Buttons
                         HStack(spacing: 20) {
-                            Button {
-                                viewModel.letsKetchupOption = .friends
-                            } label: {
-                                Text("Friends")
-                                    .padding(8)
-                                    .background(viewModel.letsKetchupOption == .friends ? Color("Colors/AccentColor") : Color.clear)
-                                    .cornerRadius(8)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color("Colors/AccentColor"), lineWidth: viewModel.letsKetchupOption == .friends ? 0 : 2)
-                                    )
-                                    .foregroundColor(viewModel.letsKetchupOption == .friends ? .white : Color("Colors/AccentColor"))
-                            }
-                            
-                            Button {
-                                viewModel.letsKetchupOption = .trending
-                            } label: {
-                                Text("Global")
-                                    .padding(8)
-                                    .background(viewModel.letsKetchupOption == .trending ? Color("Colors/AccentColor") : Color.clear)
-                                    .cornerRadius(8)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color("Colors/AccentColor"), lineWidth: viewModel.letsKetchupOption == .trending ? 0 : 2)
-                                    )
-                                    .foregroundColor(viewModel.letsKetchupOption == .trending ? .white : Color("Colors/AccentColor"))
-                            }
+                            ketchupButton(for: .friends)
+                            ketchupButton(for: .trending)
                         }
                         .padding()
-                        Button{
+                        
+                        Button {
                             showSearchView.toggle()
-                        } label:
-                        {
+                        } label: {
                             Text("Find your friends!")
                                 .font(.custom("MuseoSansRounded-300", size: 12))
                                 .foregroundStyle(Color("Colors/AccentColor"))
                         }
+                        
                         Divider()
-                        // MARK: Friends
-                        activityList
+                        
+                        // MARK: Activity List
+                        ZStack {
+                            if isTransitioning {
+                                ProgressView()
+                                    .transition(.opacity)
+                            } else {
+                                activityList
+                                    .transition(.asymmetric(insertion: .opacity, removal: .opacity))
+                            }
+                        }
+                        .animation(.easeInOut(duration: 0.3), value: isTransitioning)
+                        Spacer()
                     }
                 }
             }
-            .onChange(of: viewModel.letsKetchupOption) {
+            .onChange(of: viewModel.letsKetchupOption) { _ in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isTransitioning = true
+                }
                 Task {
+                    // Delay to allow for smooth animation
+                    try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
                     try? await viewModel.fetchInitialActivities()
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isTransitioning = false
+                    }
                 }
             }
             .navigationTitle("Let's Ketchup!")
@@ -89,11 +88,39 @@ struct ActivityView: View {
             }
         }
     }
+    
+    @ViewBuilder
+    func ketchupButton(for option: LetsKetchupOptions) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                viewModel.letsKetchupOption = option
+            }
+        } label: {
+            Text(option == .friends ? "Friends" : "Ketchup")
+                .padding(8)
+                .background(
+                    ZStack {
+                        if viewModel.letsKetchupOption == option {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color("Colors/AccentColor"))
+                                .matchedGeometryEffect(id: "background", in: animation)
+                        }
+                    }
+                )
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color("Colors/AccentColor"), lineWidth: viewModel.letsKetchupOption == option ? 0 : 2)
+                )
+                .foregroundColor(viewModel.letsKetchupOption == option ? .white : Color("Colors/AccentColor"))
+        }
+    }
+    
     @ViewBuilder
     var activityList: some View {
         let activities = viewModel.letsKetchupOption == .friends ? viewModel.friendsActivity : viewModel.trendingActivity
         if !activities.isEmpty {
-            ScrollView (showsIndicators: false){
+            ScrollView(showsIndicators: false) {
                 LazyVStack {
                     ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
                         ActivityCell(activity: activity, viewModel: viewModel)
@@ -113,16 +140,11 @@ struct ActivityView: View {
             if viewModel.isFetching {
                 ProgressView()
             } else {
-                VStack{
-                    Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Global activity")
+                VStack {
+                    Text(viewModel.letsKetchupOption == .friends ? "Your friends don't have any recent activity!" : "There is no Ketchup activity")
                     Spacer()
                 }
             }
         }
     }
-}
-
-
-#Preview {
-    ActivityView()
 }

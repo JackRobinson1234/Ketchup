@@ -18,8 +18,6 @@ struct RestaurantReviewSelector: View {
     @State var dismissSearchView: Bool = false
    
     
-
-    
     var body: some View {
         NavigationStack{
             VStack{
@@ -89,16 +87,6 @@ struct RestaurantReviewSelector: View {
             }
            
         }
-//        .onAppear{
-//            if collectionsViewModel.dismissListView {
-//                collectionsViewModel.dismissListView = false
-//                dismiss()
-//                
-//            }
-//        }
     }
 }
 
-//#Preview {
-//    RestaurantReviewSelector()
-//}

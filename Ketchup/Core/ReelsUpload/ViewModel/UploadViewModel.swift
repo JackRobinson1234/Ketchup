@@ -25,11 +25,11 @@ class UploadViewModel: ObservableObject {
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
     @ObservedObject var feedViewModel: FeedViewModel
-    @Published var overallRating: Double = 3.0
-    @Published var serviceRating: Double = 3.0
-    @Published var atmosphereRating: Double = 3.0
-    @Published var valueRating: Double = 3.0
-    @Published var foodRating: Double = 3.0
+    @Published var overallRating: Double = 5
+    @Published var serviceRating: Double = 5
+    @Published var atmosphereRating: Double = 5
+    @Published var valueRating: Double = 5
+    @Published var foodRating: Double = 5
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
@@ -133,5 +133,6 @@ class UploadViewModel: ObservableObject {
             feedViewModel.posts.insert(post, at: 0)
         }
         isLoading = false
+        reset()
     }
 }

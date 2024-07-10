@@ -27,7 +27,6 @@ struct PrimaryFeedView: View {
     @State private var isRefreshing = false
     @State private var canSwitchTab = true
 
-
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -129,7 +128,9 @@ struct PrimaryFeedView: View {
                         HStack(spacing: 40) {
                             Button {
                                 if canSwitchTab {
-                                    viewModel.selectedTab = .following
+                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                        viewModel.selectedTab = .following
+                                    }
                                     canSwitchTab = false
                                     
                                     // Re-enable switching after a delay
@@ -153,7 +154,9 @@ struct PrimaryFeedView: View {
 
                             Button {
                                 if canSwitchTab {
-                                    viewModel.selectedTab = .discover
+                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                        viewModel.selectedTab = .discover
+                                    }
                                     canSwitchTab = false
                                     
                                     // Re-enable switching after a delay
@@ -212,7 +215,7 @@ struct PrimaryFeedView: View {
                                             Image(systemName: "location")
                                                 .foregroundStyle(.gray)
                                                 .font(.caption)
-                                            Text("Global")
+                                            Text("Any Location")
                                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                                 .foregroundStyle(.gray)
                                             Image(systemName: "chevron.down")
@@ -225,7 +228,7 @@ struct PrimaryFeedView: View {
                                         Image(systemName: "location")
                                             .foregroundStyle(.gray)
                                             .font(.caption)
-                                        Text("Global")
+                                        Text("Any Location")
                                             .font(.custom("MuseoSansRounded-300", size: 16))
                                             .foregroundStyle(.gray)
                                         Image(systemName: "chevron.down")

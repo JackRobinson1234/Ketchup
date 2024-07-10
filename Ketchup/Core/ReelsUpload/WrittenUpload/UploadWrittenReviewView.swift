@@ -7,23 +7,21 @@
 
 import SwiftUI
 
+
+
 struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var overallRating: Double = 3.0
-    @State var serviceRating: Double = 3.0
-    @State var atmosphereRating: Double = 3.0
-    @State var valueRating: Double = 3.0
-    @State var foodRating: Double = 3.0
+    @State var serviceRating: Double = 5
+    @State var atmosphereRating: Double = 5
+    @State var valueRating: Double = 5
+    @State var foodRating: Double = 5
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var editedReview = false
     @State var isPickingRestaurant = false
     @State var setRestaurant = false
-    private var canPostReview: Bool {
-        return !description.isEmpty
-    }
     @Environment(\.dismiss) var dismiss
     @State var changeTab: Bool = false
     @State var pickingFavorites: Bool = false
@@ -32,6 +30,10 @@ struct UploadWrittenReviewView: View {
     @State private var isEditingDescription = false
     @FocusState private var isDescriptionFocused: Bool
     @State var showDetailsAlert = false
+    
+    var overallRatingPercentage: Double {
+        ((serviceRating + atmosphereRating + valueRating + foodRating) / 4) * 10
+    }
     
     var body: some View {
         ScrollView {
@@ -96,41 +98,50 @@ struct UploadWrittenReviewView: View {
                         .padding(.bottom)
                     }
                     
-                    VStack(spacing: 20) {
-                        RatingSliderGroup(label: "Overall", isOverall: true, rating: $overallRating)
-                                    RatingSliderGroup(label: "Food", isOverall: false, rating: $foodRating)
-                                    RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $atmosphereRating)
-                                    RatingSliderGroup(label: "Value", isOverall: false, rating: $valueRating)
-                                    RatingSliderGroup(label: "Service", isOverall: false, rating: $serviceRating)
+                    VStack(spacing: 10) {
+                        OverallRatingView(rating: overallRatingPercentage)
+                        RatingSliderGroup(label: "Food", rating: $foodRating)
+                        RatingSliderGroup(label: "Atmosphere", rating: $atmosphereRating)
+                        RatingSliderGroup(label: "Value", rating: $valueRating)
+                        RatingSliderGroup(label: "Service", rating: $serviceRating)
                     }
-                    
                     
                     VStack {
                         Button(action: {
                             self.isEditingDescription = true
                         }) {
-                            TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...*", maxCharacters: characterLimit)
+                            TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...", maxCharacters: characterLimit)
                         }
                         .padding(.vertical)
                         
-                        
+                        if showDetailsAlert {
+                            Text("Please Select a Restaurant!")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .onAppear {
+                                    Debouncer(delay: 2.0).schedule { showDetailsAlert = false }
+                                }
+                        }
                         Button {
-                            if description.isEmpty {
+                            if reviewViewModel.selectedRestaurant == nil {
+                                print("SHOULD SHOW ALERT")
                                 showDetailsAlert = true
+                                
                             } else {
                                 Task {
-                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
+                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRatingPercentage, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
                                     showAlert = true
+                                    reviewViewModel.reset()
                                 }
                             }
                         } label: {
                             Text("Post Review")
                                 .modifier(StandardButtonModifier())
                         }
-                        .opacity(canPostReview ? 1 : 0.6)
+                        .opacity(reviewViewModel.selectedRestaurant != nil ? 1 : 0.6)
                     }
                 }
-                
+                .padding(.bottom, 100)
                 .padding()
                 .padding(.top, 50)
                 
@@ -162,7 +173,7 @@ struct UploadWrittenReviewView: View {
                 }
             }
             .alert(isPresented: $showDetailsAlert) {
-                Alert(title: Text("Enter Details"), message: Text("Please type your review"), dismissButton: .default(Text("OK")))
+                Alert(title: Text("Enter Details"), message: Text("Please Select a Restaurant"), dismissButton: .default(Text("OK")))
             }
             .alert(isPresented: $showAlert) {
                 Alert(

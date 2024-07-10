@@ -87,6 +87,7 @@ struct AddNotesView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.primary.opacity(0.8))
     }
+    
 }
 #Preview {
     AddNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel(user: DeveloperPreview.user))
