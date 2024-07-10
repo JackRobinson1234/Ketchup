@@ -40,7 +40,11 @@ struct FeedCell: View {
     @Environment(\.dismiss) var dismiss
     @State var showHeartOverlay = false
     var checkLikes: Bool
-    
+    var overallRating: Double {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return 0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
     init(post: Binding<Post>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
@@ -93,7 +97,7 @@ struct FeedCell: View {
     var body: some View {
         ZStack {
             // Video and Photo handling
-            Color(.black)
+           Color("Colors/LightRed")
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                 .containerRelativeFrame([.horizontal, .vertical])
             if post.mediaType == .video {
@@ -250,9 +254,9 @@ struct FeedCell: View {
                         .lineLimit(expandCaption ? 50 : 1)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .multilineTextAlignment(.leading)
-                    if let overallRating = post.overallRating {
-                        RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .white)
-                    }
+                    
+                    FeedOverallRatingView(rating: overallRating, font: .white)
+                    
                     
                     if !expandCaption {
                         

@@ -498,7 +498,7 @@ struct RatingsView: View {
 }
 struct FeedOverallRatingView: View {
     let rating: Double
-    
+    var font: Color? = .primary
     var body: some View {
         VStack(spacing: 4) { // Add spacing to create space between circle and "Overall" text
             ZStack {
@@ -515,7 +515,7 @@ struct FeedOverallRatingView: View {
                 
                 Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
                     .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
-                    .foregroundColor(.primary)
+                    
                 
             }
             .frame(width: 40, height: 40) // Smaller frame size
