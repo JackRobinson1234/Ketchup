@@ -15,12 +15,35 @@ class ReviewsViewModel: ObservableObject {
     @Published var selectedRestaurant: Restaurant?
     @Published var selectedUser: User?
     @Published var restaurantRequest: RestaurantRequest?
+    
+    // Add properties for storing the state from the view
+    @Published var description: String = ""
+    @Published var serviceRating: Double = 5
+    @Published var atmosphereRating: Double = 5
+    @Published var valueRating: Double = 5
+    @Published var foodRating: Double = 5
+    @Published var isEditingCaption = false
+    @Published var isCaptionEditorFocused: Bool = false
+    @Published var editedReview = false
+    @Published var isPickingRestaurant = false
+    @Published var setRestaurant = false
+    @Published var changeTab: Bool = false
+    @Published var pickingFavorites: Bool = false
+    @Published var showAlert = false
+    @Published var showDetailsAlert = false
+    
+    private let characterLimit = 300
+    @Published var isEditingDescription = false
+    
     init(restaurant: Restaurant? = nil, user: User? = nil, feedViewModel: FeedViewModel) {
         self.selectedRestaurant = restaurant
         self.selectedUser = user
         self.feedViewModel = feedViewModel
     }
     
+    var overallRatingPercentage: Double {
+        ((serviceRating + atmosphereRating + valueRating + foodRating) / 4) * 10
+    }
     
     func uploadReview(description: String, overallRating: Double, serviceRating: Double, atmosphereRating: Double, valueRating: Double, foodRating: Double) async throws {
         if let restaurant = restaurantRequest {
@@ -81,12 +104,10 @@ class ReviewsViewModel: ObservableObject {
         self.isLoading = false
     }
     
-    
     func deleteReview(reviewId: String) async throws {
         do{
             try await ReviewService.shared.deleteReview(reviewId: reviewId)
             if let index = reviews.firstIndex(where: { $0.id == reviewId }) {
-                
                 reviews.remove(at: index)
             }
         } catch {
@@ -94,15 +115,32 @@ class ReviewsViewModel: ObservableObject {
             throw error
         }
     }
+    
     func reset() {
         self.reviews = []
         self.isLoading = false
         self.selectedRestaurant = nil
         self.selectedUser = nil
         self.restaurantRequest = nil
+        
+        // Reset the state properties
+        self.description = ""
+        self.serviceRating = 5
+        self.atmosphereRating = 5
+        self.valueRating = 5
+        self.foodRating = 5
+        self.isEditingCaption = false
+        self.isCaptionEditorFocused = false
+        self.editedReview = false
+        self.isPickingRestaurant = false
+        self.setRestaurant = false
+        self.changeTab = false
+        self.pickingFavorites = false
+        self.showAlert = false
+        self.showDetailsAlert = false
+        self.isEditingDescription = false
     }
 }
-
 
 extension ReviewsViewModel {
     func like(_ review: Review) async {

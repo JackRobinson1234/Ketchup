@@ -475,6 +475,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.recordedDuration = 0
             self.isDragging = false
             self.uploadFromLibray = false
+            self.selectedCamTab = 0
         }
     }
     func stopCameraSession() {

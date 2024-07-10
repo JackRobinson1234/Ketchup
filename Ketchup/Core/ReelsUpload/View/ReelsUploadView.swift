@@ -355,38 +355,3 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
         uiViewController.showsPlaybackControls = showsPlaybackControls
     }
 }
-
-//struct RatingSliderGroup: View {
-//    let label: String
-//    let isOverall: Bool
-//    @Binding var rating: Double
-//    
-//    var formattedRating: String {
-//        String(format: "%.0f", rating)
-//    }
-//    
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 10) {
-//            HStack {
-//                Text(label)
-//                    .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
-//                    .foregroundColor(.primary)
-//                
-//                Spacer()
-//                
-//                HStack(spacing: 2) {
-//                    Text(formattedRating)
-//                        .frame(width: 40, alignment: .trailing)
-//                        .font(.custom("MuseoSansRounded-300", size: 16))
-//                        .foregroundColor(.primary)
-//                    
-//                    Text("%")
-//                        .font(.custom("MuseoSansRounded-300", size: 16))
-//                        .foregroundColor(.primary)
-//                }
-//            }
-//            
-//            Slider(value: $rating, in: 0...100, step: 1)
-//        }
-//    }
-//}
