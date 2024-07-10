@@ -24,14 +24,16 @@ struct OverallRatingView: View {
                     .rotationEffect(Angle(degrees: 270.0))
                     .animation(.linear, value: rating)
                 
-                Text(String(format: "%.0f%%", rating))
-                    .font(.custom("MuseoSansRounded-300", size: 18)) // Slightly smaller font size
+                Text(String(format: "%.1f", rating / 10)) // Display as a number with one decimal place
+                    .font(.custom("MuseoSansRounded-500", size: 18)) // Slightly smaller font size
                     .foregroundColor(.primary)
+                
+                // Fun lines coming out of the circle if rating is 10
             }
-            .frame(width: 80, height: 80) // Smaller frame size
+            .frame(width: 50, height: 50) // Smaller frame size
 
             Text("Overall")
-                .font(.custom("MuseoSansRounded-300", size: 14)) // Slightly smaller font size
+                .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
                 .foregroundColor(.primary)
         }
     }

@@ -12,27 +12,11 @@ import SwiftUI
 struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
-    @State var description: String = ""
-    @State var serviceRating: Double = 5
-    @State var atmosphereRating: Double = 5
-    @State var valueRating: Double = 5
-    @State var foodRating: Double = 5
-    @State private var isEditingCaption = false
-    @FocusState private var isCaptionEditorFocused: Bool
-    @State var editedReview = false
-    @State var isPickingRestaurant = false
-    @State var setRestaurant = false
     @Environment(\.dismiss) var dismiss
-    @State var changeTab: Bool = false
-    @State var pickingFavorites: Bool = false
-    @State private var showAlert = false
     private let characterLimit = 300
-    @State private var isEditingDescription = false
-    @FocusState private var isDescriptionFocused: Bool
-    @State var showDetailsAlert = false
-    
+    @FocusState var isDescriptionFocused
     var overallRatingPercentage: Double {
-        ((serviceRating + atmosphereRating + valueRating + foodRating) / 4) * 10
+        ((reviewViewModel.serviceRating + reviewViewModel.atmosphereRating + reviewViewModel.valueRating + reviewViewModel.foodRating) / 4) * 10
     }
     
     var body: some View {
@@ -41,7 +25,7 @@ struct UploadWrittenReviewView: View {
                 VStack {
                     if let restaurant = reviewViewModel.selectedRestaurant {
                         Button {
-                            isPickingRestaurant = true
+                            reviewViewModel.isPickingRestaurant = true
                         } label: {
                             VStack {
                                 RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
@@ -72,7 +56,7 @@ struct UploadWrittenReviewView: View {
                                         .foregroundStyle(.primary)
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                 }
-                                if !setRestaurant {
+                                if !reviewViewModel.setRestaurant {
                                     Text("Edit")
                                         .foregroundStyle(Color("Colors/AccentColor"))
                                         .font(.custom("MuseoSansRounded-300", size: 10))
@@ -80,10 +64,10 @@ struct UploadWrittenReviewView: View {
                             }
                         }
                         .padding(.bottom)
-                        .disabled(setRestaurant)
+                        .disabled(reviewViewModel.setRestaurant)
                     } else {
                         Button {
-                            isPickingRestaurant = true
+                            reviewViewModel.isPickingRestaurant = true
                         } label: {
                             VStack {
                                 Image(systemName: "plus")
@@ -100,37 +84,37 @@ struct UploadWrittenReviewView: View {
                     
                     VStack(spacing: 10) {
                         OverallRatingView(rating: overallRatingPercentage)
-                        RatingSliderGroup(label: "Food", rating: $foodRating)
-                        RatingSliderGroup(label: "Atmosphere", rating: $atmosphereRating)
-                        RatingSliderGroup(label: "Value", rating: $valueRating)
-                        RatingSliderGroup(label: "Service", rating: $serviceRating)
+                        RatingSliderGroup(label: "Food", rating: $reviewViewModel.foodRating)
+                        RatingSliderGroup(label: "Atmosphere", rating: $reviewViewModel.atmosphereRating)
+                        RatingSliderGroup(label: "Value", rating: $reviewViewModel.valueRating)
+                        RatingSliderGroup(label: "Service", rating: $reviewViewModel.serviceRating)
                     }
                     
                     VStack {
                         Button(action: {
-                            self.isEditingDescription = true
+                            reviewViewModel.isEditingDescription = true
                         }) {
-                            TextBox(text: $description, isEditing: $isEditingDescription, placeholder: "Enter your Review...", maxCharacters: characterLimit)
+                            TextBox(text: $reviewViewModel.description, isEditing: $reviewViewModel.isEditingDescription, placeholder: "Enter your Review...", maxCharacters: characterLimit)
                         }
                         .padding(.vertical)
                         
-                        if showDetailsAlert {
+                        if reviewViewModel.showDetailsAlert {
                             Text("Please Select a Restaurant!")
                                 .foregroundStyle(Color("Colors/AccentColor"))
                                 .font(.custom("MuseoSansRounded-300", size: 10))
                                 .onAppear {
-                                    Debouncer(delay: 2.0).schedule { showDetailsAlert = false }
+                                    Debouncer(delay: 2.0).schedule { reviewViewModel.showDetailsAlert = false }
                                 }
                         }
                         Button {
                             if reviewViewModel.selectedRestaurant == nil {
                                 print("SHOULD SHOW ALERT")
-                                showDetailsAlert = true
+                                reviewViewModel.showDetailsAlert = true
                                 
                             } else {
                                 Task {
-                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRatingPercentage, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
-                                    showAlert = true
+                                    try await reviewViewModel.uploadReview(description: reviewViewModel.description, overallRating: overallRatingPercentage, serviceRating: reviewViewModel.serviceRating, atmosphereRating: reviewViewModel.atmosphereRating, valueRating: reviewViewModel.valueRating, foodRating: reviewViewModel.foodRating)
+                                    reviewViewModel.showAlert = true
                                     reviewViewModel.reset()
                                 }
                             }
@@ -145,15 +129,15 @@ struct UploadWrittenReviewView: View {
                 .padding()
                 .padding(.top, 50)
                 
-                if isEditingDescription {
-                    EditorView(text: $description, isEditing: $isEditingDescription, placeholder: "Enter a Review...", maxCharacters: characterLimit, title: "Review")
+                if reviewViewModel.isEditingDescription {
+                    EditorView(text: $reviewViewModel.description, isEditing: $reviewViewModel.isEditingDescription, placeholder: "Enter a Review...", maxCharacters: characterLimit, title: "Review")
                         .focused($isDescriptionFocused)
                         .onAppear {
                             isDescriptionFocused = true
                         }
                 }
                 
-                if !changeTab {
+                if !reviewViewModel.changeTab {
                     VStack {
                         HStack {
                             Button(action: {
@@ -172,15 +156,15 @@ struct UploadWrittenReviewView: View {
                     .padding()
                 }
             }
-            .alert(isPresented: $showDetailsAlert) {
+            .alert(isPresented: $reviewViewModel.showDetailsAlert) {
                 Alert(title: Text("Enter Details"), message: Text("Please Select a Restaurant"), dismissButton: .default(Text("OK")))
             }
-            .alert(isPresented: $showAlert) {
+            .alert(isPresented: $reviewViewModel.showAlert) {
                 Alert(
                     title: Text("Review Successful"),
                     message: Text("Your review has been posted."),
                     dismissButton: .default(Text("OK")) {
-                        if changeTab {
+                        if reviewViewModel.changeTab {
                             tabBarController.selectedTab = 0
                         } else {
                             dismiss()
@@ -188,13 +172,12 @@ struct UploadWrittenReviewView: View {
                     }
                 )
             }
-            
-            .onChange(of: description) {
+            .onChange(of: reviewViewModel.description) {
                 Debouncer(delay: 0.3).schedule {
-                    editedReview = true
+                    reviewViewModel.editedReview = true
                 }
             }
-            .sheet(isPresented: $isPickingRestaurant) {
+            .sheet(isPresented: $reviewViewModel.isPickingRestaurant) {
                 RestaurantReviewSelector(reviewsViewModel: reviewViewModel)
                     .navigationTitle("Select Restaurant")
             }

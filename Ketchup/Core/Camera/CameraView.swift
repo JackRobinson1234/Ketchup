@@ -103,7 +103,7 @@ struct CameraView: View {
                         } else if cameraViewModel.selectedCamTab == 1 {
                             PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                         } else if cameraViewModel.selectedCamTab == 2 {
-                            UploadWrittenReviewView(reviewViewModel: reviewsViewModel, changeTab: true)
+                            UploadWrittenReviewView(reviewViewModel: reviewsViewModel)
                         }
                     }
                 }
@@ -255,7 +255,6 @@ struct CameraView: View {
             .onChange(of: cameraViewModel.selectedCamTab) { oldValue, newValue in
                 if newValue == 2 {
                     cameraViewModel.togglePreview(false)
-                    cameraViewModel.reset()
                 } else {
                     cameraViewModel.togglePreview(true)
                 }
