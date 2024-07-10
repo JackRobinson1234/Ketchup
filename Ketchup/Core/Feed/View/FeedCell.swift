@@ -93,7 +93,7 @@ struct FeedCell: View {
     var body: some View {
         ZStack {
             // Video and Photo handling
-            Color("Colors/HingeGray")
+            Color(.black)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                 .containerRelativeFrame([.horizontal, .vertical])
             if post.mediaType == .video {
@@ -103,13 +103,23 @@ struct FeedCell: View {
             } else if post.mediaType == .photo {
                 TabView(selection: $currentImageIndex) {
                         ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                            KFImage(URL(string: post.mediaUrls[index]))
+                            if post.fromInAppCamera{
+                                KFImage(URL(string: post.mediaUrls[index]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                    .cornerRadius(20)
+                                    .containerRelativeFrame([.horizontal, .vertical])
+                                    .tag(index)
+                            } else {
+                                KFImage(URL(string: post.mediaUrls[index]))
                                 .resizable()
-                                .scaledToFill()
+                                .scaledToFit()
                                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                                 .cornerRadius(20)
                                 .containerRelativeFrame([.horizontal, .vertical])
                                 .tag(index)
+                            }
                         }
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
@@ -150,7 +160,7 @@ struct FeedCell: View {
                     videoSlider
                 }
             }
-            .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
+            .padding(.bottom, viewModel.isContainedInTabBar ? 75 : 30)
         }
         .overlay(heartOverlay)
         .onTapGesture(count: 2) {
@@ -275,13 +285,11 @@ struct FeedCell: View {
                 }
             }
                 .padding(.bottom)
-                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
-                    Text("View Restaurant")
-                }
-                .modifier(StandardButtonModifier(width: 175))
+                
+                
             }
         
-        .padding(10)
+        .padding(.horizontal)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.black.opacity(0.3)))
         .font(.custom("MuseoSansRounded-300", size: 16))
         .foregroundStyle(.white)

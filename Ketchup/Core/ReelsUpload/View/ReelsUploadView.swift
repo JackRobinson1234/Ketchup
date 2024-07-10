@@ -31,7 +31,7 @@ struct ReelsUploadView: View {
     @Namespace private var animationNamespace
     
     var overallRatingPercentage: Double {
-        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4) * 10
+        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
     }
     
     var body: some View {
@@ -231,9 +231,7 @@ struct ReelsUploadView: View {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
         }
-        .onAppear {
-            UISlider.appearance().setThumbImage(nil, for: .normal)
-        }
+        
     }
 }
 func dismissKeyboard() {

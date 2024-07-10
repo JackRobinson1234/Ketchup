@@ -27,6 +27,7 @@ struct WrittenFeedCell: View {
     @State var configured = false
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
+    @State var isExpanded = false
     var checkLikes: Bool
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
         self._viewModel = ObservedObject(initialValue: viewModel)
@@ -42,6 +43,12 @@ struct WrittenFeedCell: View {
         }
         self._selectedPost = selectedPost
         self.checkLikes = checkLikes
+    }
+    
+    var overallRating: Double {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return 0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
     }
     
     var body: some View {
@@ -167,7 +174,7 @@ struct WrittenFeedCell: View {
                 }
             }
             NavigationLink(value: post.restaurant) {
-                HStack {
+                HStack (alignment: .top) {
                     VStack(alignment: .leading) {
                         Text(post.restaurant.name)
                             .font(.custom("MuseoSansRounded-300", size: 16))
@@ -177,10 +184,25 @@ struct WrittenFeedCell: View {
                     }
                     .multilineTextAlignment(.leading)
                     Spacer()
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            HStack(alignment: .center, spacing: 4) {
+                                FeedOverallRatingView(rating: overallRating)
+                                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                    .foregroundColor(.gray)
+                                    .frame(width: 25)
+                                    .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                                    .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                            }
+                        }
+                    
                 }
             }
-            VStack(spacing: 10) {
-                RatingsView(post: post)
+            if isExpanded {
+                RatingsView(post: post, isExpanded: $isExpanded)
                     .padding(.vertical, 5)
             }
             HStack {
@@ -188,6 +210,7 @@ struct WrittenFeedCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 16))
                 Spacer()
             }
+            .padding(.top, 3)
             HStack (spacing: 15) {
                 Button {
                     videoCoordinator.pause()
@@ -443,7 +466,7 @@ struct RatingSlider: View {
 
 struct RatingsView: View {
     let post: Post
-    @State private var isExpanded = false
+    @Binding var isExpanded: Bool
     
     var overallRating: Double {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
@@ -452,23 +475,7 @@ struct RatingsView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 10) {
-                Spacer()
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isExpanded.toggle()
-                    }
-                }) {
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.gray)
-                        .frame(width: 25)
-                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
-                }
-                FeedOverallRatingView(rating: overallRating)
-            }
-            
+        VStack {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 10) {
                     if let foodRating = post.foodRating {
@@ -489,19 +496,30 @@ struct RatingsView: View {
         }
     }
 }
-
 struct FeedOverallRatingView: View {
     let rating: Double
     
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 25, height: 25)
-            
-            Text(String(format: "%.1f", rating))
-                .font(.custom("MuseoSansRounded-300", size: 12))
-                .foregroundColor(.primary)
+        VStack(spacing: 4) { // Add spacing to create space between circle and "Overall" text
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: 3) // Thinner line
+                    .opacity(0.3)
+                    .foregroundColor(Color.gray)
+                
+                Circle()
+                    .trim(from: 0.0, to: CGFloat(min(rating / 10, 1.0)))
+                    .stroke(Color("Colors/AccentColor"), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round)) // Thinner line
+                    .rotationEffect(Angle(degrees: 270.0))
+                    .animation(.linear, value: rating)
+                
+                Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
+                    .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
+                    .foregroundColor(.primary)
+                
+            }
+            .frame(width: 40, height: 40) // Smaller frame size
+
         }
     }
 }

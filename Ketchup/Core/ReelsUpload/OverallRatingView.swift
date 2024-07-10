@@ -19,12 +19,12 @@ struct OverallRatingView: View {
                     .foregroundColor(Color.gray)
                 
                 Circle()
-                    .trim(from: 0.0, to: CGFloat(min(rating / 100, 1.0)))
+                    .trim(from: 0.0, to: CGFloat(min(rating / 10, 1.0)))
                     .stroke(Color("Colors/AccentColor"), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round)) // Thinner line
                     .rotationEffect(Angle(degrees: 270.0))
                     .animation(.linear, value: rating)
                 
-                Text(String(format: "%.1f", rating / 10)) // Display as a number with one decimal place
+                Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
                     .font(.custom("MuseoSansRounded-500", size: 18)) // Slightly smaller font size
                     .foregroundColor(.primary)
                 

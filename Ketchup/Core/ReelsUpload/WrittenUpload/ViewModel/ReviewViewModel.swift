@@ -27,7 +27,6 @@ class ReviewsViewModel: ObservableObject {
     @Published var editedReview = false
     @Published var isPickingRestaurant = false
     @Published var setRestaurant = false
-    @Published var changeTab: Bool = false
     @Published var pickingFavorites: Bool = false
     @Published var showAlert = false
     @Published var showDetailsAlert = false
@@ -134,7 +133,6 @@ class ReviewsViewModel: ObservableObject {
         self.editedReview = false
         self.isPickingRestaurant = false
         self.setRestaurant = false
-        self.changeTab = false
         self.pickingFavorites = false
         self.showAlert = false
         self.showDetailsAlert = false
