@@ -30,12 +30,16 @@ struct ReelsUploadView: View {
     
     @Namespace private var animationNamespace
     
+    var overallRatingPercentage: Double {
+        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4) * 10
+    }
+    
     var body: some View {
         VStack {
             ScrollView {
                 VStack {
                     HStack {
-                            Spacer()
+                        Spacer()
                         if !isVideoExpanded {
                             Button {
                                 isPickingRestaurant = true
@@ -96,8 +100,6 @@ struct ReelsUploadView: View {
                         }
                         if uploadViewModel.mediaType == .video {
                             VideoPlayerTest(uploadViewModel: uploadViewModel, isVideoExpanded: $isVideoExpanded)
-                                
-                            //.matchedGeometryEffect(id: "video", in: animationNamespace)
                         } else if uploadViewModel.mediaType == .photo {
                             FinalPhotoPreview(uploadViewModel: uploadViewModel)
                                 .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width, height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
@@ -117,7 +119,8 @@ struct ReelsUploadView: View {
                         Spacer()
                     }
                     .padding(.vertical)
-                    if !isVideoExpanded{
+                    
+                    if !isVideoExpanded {
                         Divider()
                         
                         VStack {
@@ -160,12 +163,12 @@ struct ReelsUploadView: View {
                         
                         Divider()
                         
-                        VStack(spacing: 20) {
-                            RatingSliderGroup(label: "Overall", isOverall: true, rating: $uploadViewModel.overallRating)
-                            RatingSliderGroup(label: "Food", isOverall: false, rating: $uploadViewModel.foodRating)
-                            RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $uploadViewModel.atmosphereRating)
-                            RatingSliderGroup(label: "Value", isOverall: false, rating: $uploadViewModel.valueRating)
-                            RatingSliderGroup(label: "Service", isOverall: false, rating: $uploadViewModel.serviceRating)
+                        VStack(spacing: 10) {
+                            OverallRatingView(rating: overallRatingPercentage)
+                            RatingSliderGroup(label: "Food", rating: $uploadViewModel.foodRating)
+                            RatingSliderGroup(label: "Atmosphere", rating: $uploadViewModel.atmosphereRating)
+                            RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating)
+                            RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating)
                         }
                         
                         Divider()
@@ -202,14 +205,12 @@ struct ReelsUploadView: View {
                     }
                 }
                 .padding()
-                
             }
-            
         }
         
         .onTapGesture {
             dismissKeyboard()
-            if isVideoExpanded{
+            if isVideoExpanded {
                 withAnimation(.spring()) {
                     isVideoExpanded = false
                 }
@@ -233,7 +234,6 @@ struct ReelsUploadView: View {
         .onAppear {
             UISlider.appearance().setThumbImage(nil, for: .normal)
         }
-        
     }
 }
 func dismissKeyboard() {
@@ -356,37 +356,37 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
     }
 }
 
-struct RatingSliderGroup: View {
-    let label: String
-    let isOverall: Bool
-    @Binding var rating: Double
-    
-    var formattedRating: String {
-        String(format: "%.1f", rating)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(label)
-                    .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                HStack(spacing: 2) {
-                    Text(formattedRating)
-                        .frame(width: 40, alignment: .trailing)
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
-                    
-                    Text("/ 10")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
-                }
-            }
-            
-            Slider(value: $rating, in: 0...10, step: 0.1)
-        }
-    }
-}
+//struct RatingSliderGroup: View {
+//    let label: String
+//    let isOverall: Bool
+//    @Binding var rating: Double
+//    
+//    var formattedRating: String {
+//        String(format: "%.0f", rating)
+//    }
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 10) {
+//            HStack {
+//                Text(label)
+//                    .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
+//                    .foregroundColor(.primary)
+//                
+//                Spacer()
+//                
+//                HStack(spacing: 2) {
+//                    Text(formattedRating)
+//                        .frame(width: 40, alignment: .trailing)
+//                        .font(.custom("MuseoSansRounded-300", size: 16))
+//                        .foregroundColor(.primary)
+//                    
+//                    Text("%")
+//                        .font(.custom("MuseoSansRounded-300", size: 16))
+//                        .foregroundColor(.primary)
+//                }
+//            }
+//            
+//            Slider(value: $rating, in: 0...100, step: 1)
+//        }
+//    }
+//}

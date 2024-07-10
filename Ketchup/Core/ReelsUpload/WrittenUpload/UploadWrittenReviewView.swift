@@ -7,15 +7,16 @@
 
 import SwiftUI
 
+
+
 struct UploadWrittenReviewView: View {
     @ObservedObject var reviewViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @State var description: String = ""
-    @State var overallRating: Double = 3.0
-    @State var serviceRating: Double = 3.0
-    @State var atmosphereRating: Double = 3.0
-    @State var valueRating: Double = 3.0
-    @State var foodRating: Double = 3.0
+    @State var serviceRating: Double = 5
+    @State var atmosphereRating: Double = 5
+    @State var valueRating: Double = 5
+    @State var foodRating: Double = 5
     @State private var isEditingCaption = false
     @FocusState private var isCaptionEditorFocused: Bool
     @State var editedReview = false
@@ -29,6 +30,10 @@ struct UploadWrittenReviewView: View {
     @State private var isEditingDescription = false
     @FocusState private var isDescriptionFocused: Bool
     @State var showDetailsAlert = false
+    
+    var overallRatingPercentage: Double {
+        ((serviceRating + atmosphereRating + valueRating + foodRating) / 4) * 10
+    }
     
     var body: some View {
         ScrollView {
@@ -93,14 +98,13 @@ struct UploadWrittenReviewView: View {
                         .padding(.bottom)
                     }
                     
-                    VStack(spacing: 20) {
-                        RatingSliderGroup(label: "Overall", isOverall: true, rating: $overallRating)
-                        RatingSliderGroup(label: "Food", isOverall: false, rating: $foodRating)
-                        RatingSliderGroup(label: "Atmosphere", isOverall: false, rating: $atmosphereRating)
-                        RatingSliderGroup(label: "Value", isOverall: false, rating: $valueRating)
-                        RatingSliderGroup(label: "Service", isOverall: false, rating: $serviceRating)
+                    VStack(spacing: 10) {
+                        OverallRatingView(rating: overallRatingPercentage)
+                        RatingSliderGroup(label: "Food", rating: $foodRating)
+                        RatingSliderGroup(label: "Atmosphere", rating: $atmosphereRating)
+                        RatingSliderGroup(label: "Value", rating: $valueRating)
+                        RatingSliderGroup(label: "Service", rating: $serviceRating)
                     }
-                    
                     
                     VStack {
                         Button(action: {
@@ -110,12 +114,12 @@ struct UploadWrittenReviewView: View {
                         }
                         .padding(.vertical)
                         
-                        if showDetailsAlert{
+                        if showDetailsAlert {
                             Text("Please Select a Restaurant!")
                                 .foregroundStyle(Color("Colors/AccentColor"))
                                 .font(.custom("MuseoSansRounded-300", size: 10))
-                                .onAppear{
-                                    Debouncer(delay: 2.0).schedule{showDetailsAlert = false}
+                                .onAppear {
+                                    Debouncer(delay: 2.0).schedule { showDetailsAlert = false }
                                 }
                         }
                         Button {
@@ -125,7 +129,7 @@ struct UploadWrittenReviewView: View {
                                 
                             } else {
                                 Task {
-                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRating, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
+                                    try await reviewViewModel.uploadReview(description: description, overallRating: overallRatingPercentage, serviceRating: serviceRating, atmosphereRating: atmosphereRating, valueRating: valueRating, foodRating: foodRating)
                                     showAlert = true
                                     reviewViewModel.reset()
                                 }

@@ -179,19 +179,16 @@ struct WrittenFeedCell: View {
                     Spacer()
                 }
             }
-            if post.overallRating != nil{
-                VStack(spacing: 10) {
-                    
-                    RatingsView(post: post)
-                        .padding(.vertical, 5)
-                }
+            VStack(spacing: 10) {
+                RatingsView(post: post)
+                    .padding(.vertical, 5)
             }
             HStack {
                 Text(post.caption)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                 Spacer()
             }
-            HStack (spacing: 15){
+            HStack (spacing: 15) {
                 Button {
                     videoCoordinator.pause()
                     showComments.toggle()
@@ -261,8 +258,8 @@ struct WrittenFeedCell: View {
         .padding(.horizontal)
         .padding(5)
         .onAppear {
-            if checkLikes{
-                Task{
+            if checkLikes {
+                Task {
                     post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
                 }
             }
@@ -270,7 +267,7 @@ struct WrittenFeedCell: View {
                 videoCoordinator.player.isMuted = viewModel.isMuted
                 Task {
                     if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                        if !configured{
+                        if !configured {
                             //videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
                             //configured = true
                         }
@@ -282,9 +279,9 @@ struct WrittenFeedCell: View {
             }
         }
         .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
-                if post.mediaType == .video && newTab !=  0 {
-                    videoCoordinator.pause()
-                }
+            if post.mediaType == .video && newTab !=  0 {
+                videoCoordinator.pause()
+            }
         }
         .onChange(of: scrollPosition) { oldValue, newValue in
             videoCoordinator.player.isMuted = viewModel.isMuted
@@ -299,21 +296,21 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                .onDisappear{
+                .onDisappear {
                     videoCoordinator.play()
                 }
         }
         .sheet(isPresented: $showShareView) {
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                .onDisappear{
+                .onDisappear {
                     videoCoordinator.play()
                 }
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(user: currentUser, post: post)
-                    .onDisappear{
+                    .onDisappear {
                         videoCoordinator.play()
                     }
             }
@@ -321,14 +318,14 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                .onDisappear{
+                .onDisappear {
                     videoCoordinator.play()
                 }
         }
         .sheet(isPresented: $showingRepostSheet) {
             RepostView(viewModel: viewModel, post: post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
-                .onDisappear{
+                .onDisappear {
                     videoCoordinator.play()
                 }
         }
@@ -350,10 +347,10 @@ struct WrittenFeedCell: View {
                 }
             }
         )
-        .onDisappear{
+        .onDisappear {
             videoCoordinator.pause()
         }
-        .onChange(of: pauseVideo){
+        .onChange(of: pauseVideo) {
             if pauseVideo {
                 videoCoordinator.pause()
             } else {
@@ -379,7 +376,6 @@ struct WrittenFeedCell: View {
     }
 }
 
-
 struct InteractionButtonView: View {
     var icon: String
     var count: Int?
@@ -401,6 +397,7 @@ struct InteractionButtonView: View {
         .padding(.trailing, 10)
     }
 }
+
 struct RatingSlider: View {
     let rating: Double
     let label: String
@@ -408,11 +405,7 @@ struct RatingSlider: View {
     let fontColor: Color
     
     var formattedRating: String {
-        if rating.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0f/5", rating)
-        } else {
-            return String(format: "%.1f/5", rating)
-        }
+        return String(format: "%.1f", rating)
     }
     
     var body: some View {
@@ -431,7 +424,7 @@ struct RatingSlider: View {
                     
                     Rectangle()
                         .fill(Color("Colors/AccentColor"))
-                        .frame(width: (rating / 5.0) * geometry.size.width, height: 2)
+                        .frame(width: (rating / 10.0) * geometry.size.width, height: 2)
                         .cornerRadius(1)
                 }
                 .frame(maxHeight: .infinity)
@@ -445,51 +438,70 @@ struct RatingSlider: View {
         }
     }
 }
+
+
+
 struct RatingsView: View {
     let post: Post
     @State private var isExpanded = false
     
+    var overallRating: Double {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return 0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .center, spacing: 10) {
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isExpanded.toggle()
-                        }
-                    }) {
-                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                            .foregroundColor(.gray)
-                            .frame(width: 25)
-                            .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                            .animation(.easeInOut(duration: 0.3), value: isExpanded)
+            HStack(alignment: .center, spacing: 10) {
+                Spacer()
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isExpanded.toggle()
                     }
-                    if let overallRating = post.overallRating {
-                        RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .primary)
-                    }
+                }) {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.gray)
+                        .frame(width: 25)
+                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
                 }
+                FeedOverallRatingView(rating: overallRating)
+            }
             
             if isExpanded {
-                HStack(alignment: .center, spacing: 10){
-                    Color.clear
-                        .frame(width: 25)
-                    VStack(alignment: .leading, spacing: 10) {
-                        if let foodRating = post.foodRating {
-                                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
-                                    }
-                                    if let atmosphereRating = post.atmosphereRating {
-                                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
-                                    }
-                                    if let valueRating = post.valueRating {
-                                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
-                                    }
-                                    if let serviceRating = post.serviceRating {
-                                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
-                                    }
+                VStack(alignment: .leading, spacing: 10) {
+                    if let foodRating = post.foodRating {
+                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                    }
+                    if let atmosphereRating = post.atmosphereRating {
+                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                    }
+                    if let valueRating = post.valueRating {
+                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                    }
+                    if let serviceRating = post.serviceRating {
+                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
                     }
                 }
                 .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))
             }
         }
-        
+    }
+}
+
+struct FeedOverallRatingView: View {
+    let rating: Double
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 25, height: 25)
+            
+            Text(String(format: "%.1f", rating))
+                .font(.custom("MuseoSansRounded-300", size: 12))
+                .foregroundColor(.primary)
+        }
     }
 }
