@@ -31,7 +31,7 @@ struct CameraView: View {
     }
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 10)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 guard canSwitchTab else { return }

@@ -39,6 +39,8 @@ struct FeedCell: View {
     var hideFeedOptions: Bool
     @Environment(\.dismiss) var dismiss
     @State var showHeartOverlay = false
+    @State private var offset: CGFloat = 0
+    @GestureState private var dragOffset: CGFloat = 0
     var checkLikes: Bool
     var overallRating: Double {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
@@ -69,7 +71,7 @@ struct FeedCell: View {
     }
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 0)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -105,46 +107,39 @@ struct FeedCell: View {
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                     .containerRelativeFrame([.horizontal, .vertical])
             } else if post.mediaType == .photo {
-                TabView(selection: $currentImageIndex) {
-                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                            if post.fromInAppCamera{
-                                KFImage(URL(string: post.mediaUrls[index]))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                                    .cornerRadius(20)
-                                    .containerRelativeFrame([.horizontal, .vertical])
-                                    .tag(index)
-                            } else {
-                                KFImage(URL(string: post.mediaUrls[index]))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                                .cornerRadius(20)
-                                .containerRelativeFrame([.horizontal, .vertical])
-                                .tag(index)
-                            }
-                        }
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                    .animation(.easeInOut, value: currentImageIndex)
-                    .overlay(
-                        Group {
-                            if post.mediaUrls.count > 1 {
-                                VStack {
-                                    HStack(spacing: 6) {
-                                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                                            Circle()
-                                                .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
-                                                .frame(width: 10, height: 10)
-                                        }
-                                    }
-                                    .padding(.top, 130)
-                                    Spacer()
-                                }
-                            }
-                        }
-                    )
+                GeometryReader { geometry in
+                                   HStack(spacing: 0) {
+                                       ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                           KFImage(URL(string: post.mediaUrls[index]))
+                                               .resizable()
+                                               .scaledToFit()
+                                               .frame(width: geometry.size.width, height: geometry.size.height)
+                                               .cornerRadius(20)
+                                       }
+                                   }
+                                   .offset(x: -CGFloat(currentImageIndex) * geometry.size.width + offset + dragOffset)
+                                   .animation(.spring(), value: offset)
+//                                   .gesture(
+//                                       drag
+//                                   )
+                               }
+                               .overlay(
+                                   Group {
+                                       if post.mediaUrls.count > 1 {
+                                           VStack {
+                                               HStack(spacing: 6) {
+                                                   ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                                       Circle()
+                                                           .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
+                                                           .frame(width: 10, height: 10)
+                                                   }
+                                               }
+                                               .padding(.top, 130)
+                                               Spacer()
+                                           }
+                                       }
+                                   }
+                               )           
             }
 
             ZStack(alignment: .bottom) {

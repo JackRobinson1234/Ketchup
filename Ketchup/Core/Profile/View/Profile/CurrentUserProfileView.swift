@@ -19,7 +19,7 @@ struct CurrentUserProfileView: View {
     @State private var showZoomedProfileImage = false
     @StateObject var feedViewModel = FeedViewModel()
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 0)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
