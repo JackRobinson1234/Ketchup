@@ -36,10 +36,8 @@ class RestaurantViewModel: ObservableObject {
             }
         }
         if let unwrappedRestaurant = self.restaurant{
-            await withThrowingTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    try await self.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
-            }
+            Task{
+                try await self.feedViewModel.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
         }
     }
     func fetchRestaurantCollections() async throws{
@@ -50,15 +48,4 @@ class RestaurantViewModel: ObservableObject {
 }
 // MARK: - Posts
 
-extension RestaurantViewModel {
-    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
-        if let unwrappedRestaurant = self.restaurant{
-            do {
-                self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: unwrappedRestaurant)
-            } catch {
-                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-                
-            }
-        }
-    }
-}
+

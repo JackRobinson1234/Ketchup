@@ -15,7 +15,7 @@ struct Post: Identifiable, Codable {
     let id: String
     let mediaType: MediaType
     var mediaUrls: [String]
-    let caption: String
+    var caption: String
     var likes: Int
     var commentCount: Int
     var repostCount: Int

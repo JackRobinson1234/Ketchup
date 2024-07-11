@@ -119,15 +119,17 @@ struct ProfileSlideBar: View {
                                 scrollTarget: $scrollTarget
                             )
                         case .media:
-                            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
+                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
                         case .map:
-                            ProfileMapView(posts: viewModel.posts)
+                            ProfileMapView(feedViewModel: feedViewModel)
                                 .id("map")
                         }
                     }
                 }
                 .onAppear {
-                    feedViewModel.posts = viewModel.posts
+                    Task{
+                        try await feedViewModel.fetchUserPosts(user: viewModel.user)
+                    }
                 }
             }
             

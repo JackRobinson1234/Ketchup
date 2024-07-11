@@ -14,7 +14,6 @@ class ProfileViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
     var annotations: [RestaurantMapAnnotation] = []
     var clusters: [ExampleClusterAnnotation] = []
-    @Published var posts = [Post]()
     @Published var likedPosts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
     private let uid: String
@@ -30,9 +29,7 @@ class ProfileViewModel: ObservableObject {
     func fetchUser() async {
         do {
             self.user = try await UserService.shared.fetchUser(withUid: uid)
-            if user.username != "ketchup_media"{
-                try await fetchUserPosts()
-            }
+           
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
@@ -42,7 +39,6 @@ class ProfileViewModel: ObservableObject {
             if let currentUser = AuthService.shared.userSession {
                 self.user = currentUser
             }
-            try await fetchUserPosts()
         }
         catch {
             print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
@@ -51,8 +47,7 @@ class ProfileViewModel: ObservableObject {
     func refreshCurrentUser() async throws {
         do {
             self.user = try await UserService.shared.fetchCurrentUser()
-            try await fetchUserPosts()
-            try await fetchUserLikedPosts()
+            //try await fetchUserLikedPosts()
             AuthService.shared.userSession = self.user
         } catch {
             print("Failed to refresh the current user")
@@ -89,14 +84,6 @@ extension ProfileViewModel {
 // MARK: - Posts
 
 extension ProfileViewModel {
-    func fetchUserPosts() async throws {
-        do {
-            self.posts = try await PostService.shared.fetchUserPosts(user: user)
-            //                feedViewModel.posts = posts
-        } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-        }
-    }
     
     
     func fetchUserLikedPosts() async throws {

@@ -24,10 +24,6 @@ struct ProfileFeedView: View {
                     
                 }
             }
-            .navigationDestination(for: PostUser.self) { user in
-                
-                ProfileView(uid: user.id)
-            }
             .scrollTargetLayout()
             
             .onChange(of: viewModel.initialPrimaryScrollPosition) {

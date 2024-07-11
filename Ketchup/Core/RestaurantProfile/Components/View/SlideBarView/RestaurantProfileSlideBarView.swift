@@ -18,14 +18,12 @@ enum RestaurantPostDisplayMode: String, CaseIterable {
 }
 struct RestaurantProfileSlideBarView: View {
     @ObservedObject var viewModel: RestaurantViewModel
-       @StateObject var feedViewModel: FeedViewModel
-       @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
-       @Binding var scrollPosition: String?
-       @Binding var scrollTarget: String?
+    @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
+    @Binding var scrollPosition: String?
+    @Binding var scrollTarget: String?
 
        init(viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
            self.viewModel = viewModel
-           self._feedViewModel = StateObject(wrappedValue: FeedViewModel())
            self._scrollPosition = scrollPosition
            self._scrollTarget = scrollTarget
        }
@@ -48,45 +46,6 @@ struct RestaurantProfileSlideBarView: View {
                     .frame(maxWidth: .infinity)
                 
                 
-//                Image(systemName: currentSection == .reviews ? "line.3.horizontal" : "line.3.horizontal")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(width: 50, height: 14)
-//                    .font(currentSection == .reviews ? .system(size: 10, weight: .bold) : .system(size: 10, weight: .regular))
-//                    .onTapGesture {
-//                        withAnimation {
-//                            viewModel.currentSection = .reviews
-//                        }
-//                    }
-//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .reviews))
-//                    .frame(maxWidth: .infinity)
-                
-                
-//                Image(systemName: currentSection == .menu ? "menucard.fill" : "menucard")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(width: 50, height: 25)
-//                
-//                    .onTapGesture {
-//                        withAnimation {
-//                            viewModel.currentSection = .menu
-//                        }
-//                    }
-//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .menu))
-//                    .frame(maxWidth: .infinity)
-////                
-//                Image(systemName: currentSection == .map ? "location.fill" : "location")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(width: 50, height: 22)
-//                
-//                    .onTapGesture {
-//                        withAnimation {
-//                            self.currentSection = .map
-//                        }
-//                    }
-//                    .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
-//                    .frame(maxWidth: .infinity)
                 Image(systemName: currentSection == .stats ? "info.circle.fill" : "info.circle")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -135,18 +94,18 @@ struct RestaurantProfileSlideBarView: View {
                 switch restaurantPostDisplayMode {
                 case .all:
                     ProfileFeedView(
-                        viewModel: feedViewModel,
+                        viewModel: viewModel.feedViewModel,
                         scrollPosition: $scrollPosition,
                         scrollTarget: $scrollTarget
                     )
                 case .media:
                     if let name = viewModel.restaurant?.name {
-                        PostGridView(posts: viewModel.posts, feedTitleText: "User Posts of \(name)", showNames: false)
+                        PostGridView(feedViewModel: viewModel.feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false)
                     }
                 }
             }
             .onAppear {
-                feedViewModel.posts = viewModel.posts
+                viewModel.feedViewModel.posts = viewModel.posts
             }
         }
         if viewModel.currentSection == .collections {

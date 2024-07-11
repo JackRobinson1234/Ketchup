@@ -286,16 +286,26 @@ struct WrittenFeedCell: View {
                     post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
                 }
             }
+            
             if post.mediaType == .video {
                 videoCoordinator.player.isMuted = viewModel.isMuted
+                
                 Task {
-                    if let firstMediaUrl = post.mediaUrls.first, let videoURL = URL(string: firstMediaUrl) {
-                        if !configured {
-                            //videoCoordinator.configurePlayer(url: videoURL, postId: post.id)
-                            //configured = true
-                        }
+                    // Safely access the first media URL
+                    guard let firstMediaUrl = post.mediaUrls.first,
+                          let videoURL = URL(string: firstMediaUrl) else {
+                        print("Invalid or missing video URL")
+                        return
                     }
-                    if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                    
+                    if !configured {
+                        // Handle configuration if needed
+                    }
+                    
+                    // Safely check if this is the first post and should auto-play
+                    if scrollPosition == nil,
+                       let firstPost = viewModel.posts.first,
+                       firstPost.id == post.id {
                         videoCoordinator.replay()
                     }
                 }
@@ -339,7 +349,7 @@ struct WrittenFeedCell: View {
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
-            PostOptionsSheet(post: post, viewModel: viewModel)
+            PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear {
                     videoCoordinator.play()

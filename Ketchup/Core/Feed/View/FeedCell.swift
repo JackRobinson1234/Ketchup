@@ -97,7 +97,7 @@ struct FeedCell: View {
     var body: some View {
         ZStack {
             // Video and Photo handling
-           Color("Colors/LightRed")
+           Color("Colors/HingeGray")
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                 .containerRelativeFrame([.horizontal, .vertical])
             if post.mediaType == .video {
@@ -135,7 +135,7 @@ struct FeedCell: View {
                                     HStack(spacing: 6) {
                                         ForEach(0..<post.mediaUrls.count, id: \.self) { index in
                                             Circle()
-                                                .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.white)
+                                                .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
                                                 .frame(width: 10, height: 10)
                                         }
                                     }
@@ -196,7 +196,7 @@ struct FeedCell: View {
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
-            PostOptionsSheet(post: post, viewModel: viewModel)
+            PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
         }
         .sheet(isPresented: $showingRepostSheet) {

@@ -166,6 +166,8 @@
 		F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */; };
 		F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B662BE849A000AB7FDD /* NotificationsView.swift */; };
 		F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */; };
+		F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A50A912C3F46C200B9A7C9 /* ReelsEditView.swift */; };
+		F8A50A942C3F472D00B9A7C9 /* EditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A50A932C3F472D00B9A7C9 /* EditViewModel.swift */; };
 		F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */; };
 		F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */; };
 		F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */; };
@@ -218,7 +220,7 @@
 		F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35612BEFD97B0079DE6D /* Report.swift */; };
 		F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35632BEFDC0E0079DE6D /* ReportService.swift */; };
 		F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB35662BF03AB20079DE6D /* Reporting View.swift */; };
-		F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */; };
+		F8FB356B2BF05EA20079DE6D /* PostOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */; };
 		F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */; };
 		F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
@@ -415,6 +417,8 @@
 		F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		F8A24B652BE8499D00AB7FDD /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		F8A24B662BE849A000AB7FDD /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		F8A50A912C3F46C200B9A7C9 /* ReelsEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelsEditView.swift; sourceTree = "<group>"; };
+		F8A50A932C3F472D00B9A7C9 /* EditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewModel.swift; sourceTree = "<group>"; };
 		F8A96F202C3C958A009E67A9 /* VideoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCameraControls.swift; sourceTree = "<group>"; };
 		F8A96F222C3C95B3009E67A9 /* PhotoCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCameraControls.swift; sourceTree = "<group>"; };
 		F8A96F242C3C95DA009E67A9 /* LibraryTypeMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTypeMenuView.swift; sourceTree = "<group>"; };
@@ -459,7 +463,7 @@
 		F8FB35612BEFD97B0079DE6D /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		F8FB35632BEFDC0E0079DE6D /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		F8FB35662BF03AB20079DE6D /* Reporting View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reporting View.swift"; sourceTree = "<group>"; };
-		F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDeleteReport.swift; sourceTree = "<group>"; };
+		F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOptionsSheet.swift; sourceTree = "<group>"; };
 		F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReportOption.swift; sourceTree = "<group>"; };
 		F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileReportView.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
@@ -1120,7 +1124,7 @@
 			isa = PBXGroup;
 			children = (
 				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
-				F8FB356A2BF05EA20079DE6D /* PostDeleteReport.swift */,
+				F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */,
 				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
 				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
@@ -1355,6 +1359,15 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		F8A50A902C3F46AE00B9A7C9 /* ReelsEdit */ = {
+			isa = PBXGroup;
+			children = (
+				F8A50A912C3F46C200B9A7C9 /* ReelsEditView.swift */,
+				F8A50A932C3F472D00B9A7C9 /* EditViewModel.swift */,
+			);
+			path = ReelsEdit;
+			sourceTree = "<group>";
+		};
 		F8A98C262B9A668D00D399AB /* Activity */ = {
 			isa = PBXGroup;
 			children = (
@@ -1412,6 +1425,7 @@
 		F8CC21982BD5871E00B4B329 /* ReelsUpload */ = {
 			isa = PBXGroup;
 			children = (
+				F8A50A902C3F46AE00B9A7C9 /* ReelsEdit */,
 				F846F4542BFBDB43009D1303 /* WrittenUpload */,
 				F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */,
 				F8670A662BF40EEA00F527D9 /* Components */,
@@ -1765,6 +1779,7 @@
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
+				F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */,
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
@@ -1924,12 +1939,13 @@
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
+				F8A50A942C3F472D00B9A7C9 /* EditViewModel.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListView.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,
 				F88E0AFA2B6B08FB00EC159B /* RestaurantListViewModel.swift in Sources */,
 				F84A61E12C2D0A6200FBEC2F /* SecondaryFeed.swift in Sources */,
 				F88E0B232B6B0B9F00EC159B /* UserService.swift in Sources */,
-				F8FB356B2BF05EA20079DE6D /* PostDeleteReport.swift in Sources */,
+				F8FB356B2BF05EA20079DE6D /* PostOptionsSheet.swift in Sources */,
 				F8631E3A2BD70C6200A48565 /* ProfileUserListsViewModel.swift in Sources */,
 				F88E0AA42B6B034500EC159B /* Notification.swift in Sources */,
 				F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */,
