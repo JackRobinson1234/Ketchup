@@ -71,7 +71,7 @@ struct FeedCell: View {
     }
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {

@@ -16,56 +16,67 @@ struct CommentsView: View {
     }
     
     var body: some View {
-        VStack {
-            if !viewModel.comments.isEmpty {
-                Text(viewModel.commentCountText)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .fontWeight(.semibold)
-                    .padding(.top, 24)
+        NavigationStack{
+            VStack {
+                if !viewModel.comments.isEmpty {
+                    Text(viewModel.commentCountText)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .fontWeight(.semibold)
+                        .padding(.top, 24)
+                }
+                ScrollView{
+                    Divider()
+                    VStack(spacing: 24) {
+                        ForEach(viewModel.comments) { comment in
+                            CommentCell(comment: comment, viewModel: viewModel)
+                        }
+                    }
+                    
+                }
+                Divider()
+                    .padding(.bottom)
+                
+                HStack(spacing: 12) {
+                    UserCircularProfileImageView(profileImageUrl: AuthService.shared.userSession?.profileImageUrl, size: .xSmall)
+                    
+                    CommentInputView(viewModel: viewModel)
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
             }
-            
-            Divider()
-            
-            List {
-                VStack(spacing: 24) {
-                    ForEach(viewModel.comments) { comment in
-                        CommentCell(comment: comment, viewModel: viewModel)
+            .sheet(isPresented: $viewModel.showOptionsSheet) {
+                if let comment = viewModel.selectedComment{
+                    ScrollView{
+                        CommentOptionsSheet(comment: comment, viewModel: viewModel)
+                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
                     }
                 }
-                .listRowSeparator(.hidden)
             }
-            .listStyle(PlainListStyle())
-            
-            Divider()
-                .padding(.bottom)
-            
-            HStack(spacing: 12) {
-                UserCircularProfileImageView(profileImageUrl: AuthService.shared.userSession?.profileImageUrl, size: .xSmall)
-                
-                CommentInputView(viewModel: viewModel)
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-        }
-        .sheet(isPresented: $viewModel.showOptionsSheet) {
-            if let comment = viewModel.selectedComment{
-                ScrollView{
-                    CommentOptionsSheet(comment: comment, viewModel: viewModel)
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
+            .overlay {
+                if viewModel.showEmptyView {
+                    ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
+                        .foregroundStyle(.gray)
                 }
             }
-        }
-        .overlay {
-            if viewModel.showEmptyView {
-                ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
-                    .foregroundStyle(.gray)
+            .onChange(of: viewModel.comments.count) {
+                viewModel.showEmptyView = viewModel.comments.isEmpty
             }
-        }
-        .onChange(of: viewModel.comments.count) {
-            viewModel.showEmptyView = viewModel.comments.isEmpty
-        }
-        .onAppear{
-            Task {try await viewModel.fetchComments() }
+            .onAppear{
+                Task {try await viewModel.fetchComments() }
+            }
+            .navigationDestination(for: Comment.self) { comment in
+                ProfileView(uid: comment.commentOwnerUid)
+            }
+            .fullScreenCover(item: $viewModel.selectedUserComment) { comment in
+                NavigationStack{
+                    if let user = viewModel.selectedUserComment?.commentOwnerUid{
+                        ProfileView(uid: user)
+                            .navigationDestination(for: PostRestaurant.self) { restaurant in
+                                RestaurantProfileView(restaurantId: restaurant.id)
+                            }
+                    }
+                }
+            }
         }
     }
 }

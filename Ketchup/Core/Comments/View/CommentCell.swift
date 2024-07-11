@@ -13,26 +13,33 @@ struct CommentCell: View {
     var previewMode: Bool = false
     
     var body: some View {
-        HStack (alignment: .top){
-            UserCircularProfileImageView(profileImageUrl: comment.user?.profileImageUrl, size: .medium )
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 2) {
-                    Text("@\(comment.user?.username ?? "")")
-                        .fontWeight(.semibold)
+        HStack (alignment: .top) {
+            Button{
+                viewModel.selectedUserComment = comment
+            } label: {
+                UserCircularProfileImageView(profileImageUrl: comment.user?.profileImageUrl, size: .medium )
+                
+            }
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 2) {
+                        Button{
+                            viewModel.selectedUserComment = comment
+                        } label: {
+                            Text("@\(comment.user?.username ?? "")")
+                                .fontWeight(.semibold)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.primary)
+                        }
+                        Text("\(comment.timestamp.timestampString())")
+                            .foregroundColor(.gray)
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                    }
+                    
+                    Text(comment.commentText)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundStyle(.primary)
-                    
-                    Text("\(comment.timestamp.timestampString())")
-                        .foregroundColor(.gray)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
-                
-                Text(comment.commentText)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .foregroundStyle(.primary)
-            }
-            .font(.custom("MuseoSansRounded-300", size: 10))
+                .font(.custom("MuseoSansRounded-300", size: 10))
             
             Spacer()
             if !previewMode {
@@ -53,6 +60,7 @@ struct CommentCell: View {
  
             }
         }
+        .padding(.horizontal)
     }
 }
 
