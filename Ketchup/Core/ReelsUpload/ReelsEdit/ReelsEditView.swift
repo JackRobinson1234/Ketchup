@@ -141,14 +141,7 @@ struct ReelsEditView: View {
             .onChange(of: tempCaption) {oldValue, newValue in
                 tempCaption = String(newValue.prefix(300))
             }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") {
-                        dismissKeyboard()
-                    }
-                }
-            }
+           
         }
     
     private var ratingsView: some View {

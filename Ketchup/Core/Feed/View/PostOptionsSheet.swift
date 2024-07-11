@@ -20,19 +20,20 @@ struct PostOptionsSheet: View {
     var body: some View {
         VStack(spacing: 20) {
             if post.user.id == Auth.auth().currentUser?.uid {
-                VStack(spacing: 10){
+                VStack(spacing: 15){
                     Button {
                         showingEditPost = true
                     } label : {
                         Text("Edit Post Details")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 16))
                             .foregroundStyle(.black)
                     }
+                    Divider()
                     Button {
                         showingDeleteAlert = true
                     } label: {
                         Text("Delete Post")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 16))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
                     .alert(isPresented: $showingDeleteAlert) {
