@@ -81,21 +81,27 @@ struct RestaurantStatsView: View {
         SectionBox {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "Ratings & Reviews", icon: "star.fill")
-                HStack {
-                    AnimatedCounter(count: restaurant.stats.postCount, title: "Posts")
-                    Spacer()
-                    AnimatedCounter(count: restaurant.stats.collectionCount, title: "Collections")
+                if let stats = restaurant.stats{
+                    HStack {
+                        AnimatedCounter(count: stats.postCount, title: "Posts")
+                        Spacer()
+                        AnimatedCounter(count: stats.collectionCount, title: "Collections")
+                    }
                 }
                 if let reviewsTags = restaurant.reviewsTags {
                     ForEach(reviewsTags.prefix(5), id: \.title) { tag in
                         HStack {
-                            Text(tag.title)
+                            if let title = tag.title{
+                                Text(title)
+                            }
                             Spacer()
-                            Text("\(tag.count)")
-                                .fontWeight(.bold)
-                                .padding(5)
-                                .background(Color.blue.opacity(0.2))
-                                .clipShape(Capsule())
+                            if let count = tag.count{
+                                Text("\(count)")
+                                    .fontWeight(.bold)
+                                    .padding(5)
+                                    .background(Color.blue.opacity(0.2))
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
                 }
@@ -124,11 +130,15 @@ struct RestaurantStatsView: View {
                     if let openingHours = restaurant.openingHours {
                         ForEach(openingHours, id: \.day) { hour in
                             HStack {
-                                Text(hour.day)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .frame(width: 100, alignment: .leading)
-                                Text(formatOpeningHours(hour.hours))
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                if let day = hour.day{
+                                    Text(day)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .frame(width: 100, alignment: .leading)
+                                }
+                                if let hours = hour.hours{
+                                    Text(formatOpeningHours(hours))
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                }
                             }
                         }
                     } else {
@@ -165,7 +175,9 @@ struct RestaurantStatsView: View {
                 SectionHeader(title: "Order Options", icon: "bag")
                 if let orderBy = restaurant.orderBy {
                     ForEach(orderBy, id: \.name) { option in
-                        linkRow(title: option.name, value: option.orderUrl, placeholder: "Order now", icon: "cart")
+                        if let name = option.name, let orderUrl = option.orderUrl{
+                            linkRow(title: name, value: orderUrl, placeholder: "Order now", icon: "cart")
+                        }
                     }
                 } else {
                     Text("No order options available")
@@ -226,9 +238,11 @@ struct RestaurantStatsView: View {
                 if let peopleAlsoSearch = restaurant.peopleAlsoSearch {
                     ForEach(peopleAlsoSearch, id: \.title) { item in
                         VStack(alignment: .leading) {
-                            Text(item.title)
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .fontWeight(.medium)
+                            if let title = item.title{
+                                Text(title)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .fontWeight(.medium)
+                            }
 //                            Text("Category: \(item.category)")
 //                                .font(.custom("MuseoSansRounded-300", size: 14))
 //                            Text("Reviews: \(item.reviewsCount)")
@@ -291,69 +305,9 @@ struct RestaurantStatsView: View {
                     .font(.custom("MuseoSansRounded-300", size: 18))
                     .fontWeight(.medium)
                 ForEach(items, id: \.self) { item in
-                    switch item {
-                    case let accessibilityItem as AccessibilityItem:
-                        if accessibilityItem.value {
-                            Text("✓ \(accessibilityItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let amenityItem as AmenityItem:
-                        if amenityItem.value {
-                            Text("✓ \(amenityItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let atmosphereItem as AtmosphereItem:
-                        if atmosphereItem.value {
-                            Text("✓ \(atmosphereItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let childrenItem as ChildrenItem:
-                        if childrenItem.value {
-                            Text("✓ \(childrenItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let crowdItem as CrowdItem:
-                        if crowdItem.value {
-                            Text("✓ \(crowdItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let diningOptionItem as DiningOptionItem:
-                        if diningOptionItem.value {
-                            Text("✓ \(diningOptionItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let highlightItem as HighlightItem:
-                        if highlightItem.value {
-                            Text("✓ \(highlightItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let offeringItem as OfferingItem:
-                        if offeringItem.value {
-                            Text("✓ \(offeringItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let paymentItem as PaymentItem:
-                        if paymentItem.value {
-                            Text("✓ \(paymentItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let planningItem as PlanningItem:
-                        if planningItem.value {
-                            Text("✓ \(planningItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let popularForItem as PopularForItem:
-                        if popularForItem.value {
-                            Text("✓ \(popularForItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    case let serviceOptionItem as ServiceOptionItem:
-                        if serviceOptionItem.value {
-                            Text("✓ \(serviceOptionItem.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                        }
-                    default:
-                        EmptyView()
+                    if let infoItem = item as? InfoItem, let name = infoItem.name, infoItem.value == true {
+                        Text("✓ \(name)")
+                            .font(.custom("Mu seoSansRounded-300", size: 16))
                     }
                 }
             }
@@ -452,14 +406,15 @@ struct PopularTimesChart: View {
     }
     
     private func dataForDay(_ day: String) -> [PopularTimeItem] {
+        
         switch day {
-        case "Monday": return popularTimes.mo
-        case "Tuesday": return popularTimes.tu
-        case "Wednesday": return popularTimes.we
-        case "Thursday": return popularTimes.th
-        case "Friday": return popularTimes.fr
-        case "Saturday": return popularTimes.sa
-        case "Sunday": return popularTimes.su
+        case "Monday": return popularTimes.mo ?? []
+        case "Tuesday": return popularTimes.tu ?? []
+        case "Wednesday": return popularTimes.we ?? []
+        case "Thursday": return popularTimes.th ?? []
+        case "Friday": return popularTimes.fr ?? []
+        case "Saturday": return popularTimes.sa ?? []
+        case "Sunday": return popularTimes.su ?? []
         default: return []
         }
     }
@@ -472,12 +427,16 @@ struct BarChart: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(data, id: \.hour) { item in
                 VStack {
-                    Rectangle()
-                        .fill(Color.blue)
-                        .frame(width: 5, height: CGFloat(item.occupancyPercent))
-                    Text("\(item.hour)")
-                        .font(.custom("MuseoSansRounded-300", size: 8))
-                        .rotationEffect(.degrees(-90))
+                    if let occupancyPercent = item.occupancyPercent{
+                        Rectangle()
+                            .fill(Color.blue)
+                            .frame(width: 5, height: CGFloat(occupancyPercent))
+                    }
+                    if let hour = item.hour {
+                        Text("\(hour)")
+                            .font(.custom("MuseoSansRounded-300", size: 8))
+                            .rotationEffect(.degrees(-90))
+                    }
                 }
             }
         }

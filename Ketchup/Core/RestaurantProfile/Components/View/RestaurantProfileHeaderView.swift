@@ -10,6 +10,7 @@ import Kingfisher
 import MapKit
 struct RestaurantProfileHeaderView: View {
     @Environment(\.dismiss) var dismiss
+    @ObservedObject var feedViewModel: FeedViewModel
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showAddToCollection = false
     @State var user: User? = nil
@@ -18,6 +19,8 @@ struct RestaurantProfileHeaderView: View {
     @State private var travelInterval: TimeInterval?
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
+    
+
     var travelTime: String? {
         guard let travelInterval else { return nil }
         let formatter = DateComponentsFormatter()
@@ -130,7 +133,7 @@ struct RestaurantProfileHeaderView: View {
                 }
                 .padding()
                 
-                RestaurantProfileSlideBarView(viewModel: viewModel, scrollPosition: $scrollPosition,
+                RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
             }
             
@@ -186,8 +189,10 @@ struct RestaurantProfileHeaderView: View {
         let currentDayOfWeek = dateFormatter.string(from: Date())
         
         for hour in openingHours {
-            if hour.day.lowercased() == currentDayOfWeek.lowercased() {
-                return hour.hours
+            if let day = hour.day{
+                if day.lowercased() == currentDayOfWeek.lowercased() {
+                    return hour.hours
+                }
             }
         }
         

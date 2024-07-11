@@ -331,37 +331,3 @@ extension PostService {
         return snapshot.exists
     }
 }
-//TODO: MAKE THIS WORK IN BATCHES OF 30
-//MARK: fetchfollowingPosts
-/// Fetches posts of users that the user is following
-/// - Parameter filters: dictionary of f filters with the field and an array of matching conditions ex. ["cuisine" : ["japanese", chinese], "price": ["$"]
-/// - Returns: array of posts (that match filters)
-//        func fetchFollowingPosts(withFilters filters: [String: [Any]]? = nil) async throws -> [Post] {
-//            guard Auth.auth().currentUser != nil else {
-//                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-//            }
-//
-//            // Fetch the list of users that the current user is following
-//            let followingUsers = try await UserService.shared.fetchFollowingUsers()
-//            if followingUsers.isEmpty { return [] }
-//            let followingUserIDs = followingUsers.map { $0.id }
-//
-//            // Append userId to filters if filters exist
-//            var updatedFilters = filters ?? [:]
-//            updatedFilters["user.id"] = followingUserIDs
-//
-//            // Fetch posts from followingUsers using 'in' operator
-//            var query = FirestoreConstants.PostsCollection.order(by: "timestamp", descending: true).whereField("user.id", in: followingUserIDs)
-//
-//            // Apply additional filters if they exist
-//            if let locationFilters = updatedFilters["location"], let coordinates = locationFilters.first as? CLLocationCoordinate2D {
-//                let locationPosts = try await fetchPostsWithLocation(filters: updatedFilters, center: coordinates)
-//                return locationPosts
-//            }
-//
-//            query = applyFilters(toQuery: query, filters: updatedFilters)
-//            let posts = try await query.getDocuments(as: Post.self)
-//
-//            print("DEBUG: posts fetched", posts.count)
-//            return posts
-//        }

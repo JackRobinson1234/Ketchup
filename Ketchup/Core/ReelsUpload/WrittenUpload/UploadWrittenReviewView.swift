@@ -16,7 +16,7 @@ struct UploadWrittenReviewView: View {
     private let characterLimit = 300
     @FocusState var isDescriptionFocused
     var overallRatingPercentage: Double {
-        ((reviewViewModel.serviceRating + reviewViewModel.atmosphereRating + reviewViewModel.valueRating + reviewViewModel.foodRating) / 4) * 10
+        ((reviewViewModel.serviceRating + reviewViewModel.atmosphereRating + reviewViewModel.valueRating + reviewViewModel.foodRating) / 4)
     }
     
     var body: some View {
@@ -137,24 +137,6 @@ struct UploadWrittenReviewView: View {
                         }
                 }
                 
-                if !reviewViewModel.changeTab {
-                    VStack {
-                        HStack {
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                Image(systemName: "chevron.left")
-                                    .foregroundColor(.white)
-                                    .padding(6)
-                                    .background(Color.primary.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                    .padding()
-                }
             }
             .alert(isPresented: $reviewViewModel.showDetailsAlert) {
                 Alert(title: Text("Enter Details"), message: Text("Please Select a Restaurant"), dismissButton: .default(Text("OK")))
@@ -164,11 +146,7 @@ struct UploadWrittenReviewView: View {
                     title: Text("Review Successful"),
                     message: Text("Your review has been posted."),
                     dismissButton: .default(Text("OK")) {
-                        if reviewViewModel.changeTab {
                             tabBarController.selectedTab = 0
-                        } else {
-                            dismiss()
-                        }
                     }
                 )
             }

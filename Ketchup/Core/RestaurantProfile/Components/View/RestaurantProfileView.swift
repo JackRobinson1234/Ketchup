@@ -17,7 +17,7 @@ struct RestaurantProfileView: View {
     @State var isDragging = false
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
-    
+    @StateObject var feedViewModel = FeedViewModel()
     init(restaurantId: String, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
         let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId)
@@ -25,7 +25,7 @@ struct RestaurantProfileView: View {
         self.restaurant = restaurant
     }
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -61,6 +61,9 @@ struct RestaurantProfileView: View {
                         do {
                             viewModel.restaurant = restaurant
                             try await viewModel.fetchRestaurant(id: restaurantId)
+                            if let restaurant = viewModel.restaurant{
+                                try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant)
+                            }
                         } catch {
                             print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
                         }
@@ -72,13 +75,12 @@ struct RestaurantProfileView: View {
                 .modifier(BackButtonModifier())
             
         } else {
-            if viewModel.restaurant != nil {
+            if let restaurant = viewModel.restaurant {
                 ScrollViewReader{ scrollProxy in
-                    ScrollView{
+                    ScrollView(showsIndicators: false){
                         VStack{
                             if viewModel.restaurant != nil {
-                                RestaurantProfileHeaderView(viewModel: viewModel, scrollPosition: $scrollPosition,
-                                                            scrollTarget: $scrollTarget)
+                                RestaurantProfileHeaderView(feedViewModel: feedViewModel, viewModel: viewModel, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
                             } else {
                                 
                             }
@@ -100,13 +102,26 @@ struct RestaurantProfileView: View {
                     LocationManager.shared.requestLocation()
                 }
             } else {
-                VStack{
-                    Text("Profile Under Construction")
-                        .modifier(BackButtonModifier())
-                        .navigationBarBackButtonHidden()
+                ZStack {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .gesture(drag)
+                        .ignoresSafeArea()
+                    
+                    VStack(spacing: 10) {
+                        Image("Skip")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 150, height: 150)
+                            
+                        Text("Profile Under Construction")
+                            .modifier(BackButtonModifier())
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundStyle(.black)
+                        
+                    }
                 }
-                .gesture(drag)
-                
+                .navigationBarBackButtonHidden()
             }
         }
     }

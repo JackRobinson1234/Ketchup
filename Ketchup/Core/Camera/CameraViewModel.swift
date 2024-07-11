@@ -11,94 +11,49 @@ import AVFoundation
 
 class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
     @Published var selectedCamTab: Int = 0
-    // SESSION
     @Published var session = AVCaptureSession()
-    
-    // ERROR CATCHING
     @Published var alert = false
-    
-    // PHOTO AND VID OUTPUT
     @Published var photoOutput = AVCapturePhotoOutput()
     @Published var videoOutput = AVCaptureMovieFileOutput()
-    
-    // this the preview
     @Published var preview: AVCaptureVideoPreviewLayer!
-    
-    // PHOTO PROPERTIES
-    // @Published var isPhotoSaved = false
     @Published var images: [UIImage] = []
     @Published var isPhotoTaken = false
-    
-    // VIDEO PROPERTIES
     @Published var isRecording: Bool = false
-    //@Published var recordedURLs: [URL] = []
     @Published var previewURL: URL?
-    
-    // EDIT/PREVIEW VIEW PROPERTIES
     @Published var navigateToUpload: Bool = false
     @Published var mediaType: MediaType = .photo
-    
-    // NAVIGATES TO LIBRARY SELECTION
     @Published var uploadFromLibray = false
-    
-    // TOP PROGRESS BAR
     @Published var recordedDuration: CGFloat = 0
     @Published var maxDuration: CGFloat = 20
-    
-    // DRAGGING TO SWITCH CAMERA MODE
     @Published var isDragging = false
     @Published var dragDirection = "left"
-    
-    //LOADING STUFF
     @Published var isLoading = false
-    
-    // PERMISSIONS
     @Published var audioOrVideoPermissionsDenied = false
-
-    // USER CAMERA SETTINGS
     @Published var cameraPosition: CameraPosition = .back
     @Published var flashMode: AVCaptureDevice.FlashMode = .off
     @Published var showFlashOverlay = false
     @Published var originalBrightness: CGFloat? = nil
     @Published var zoomFactor: CGFloat = 1.0 {
-            didSet {
-                let clampedZoomFactor = max(1.0, min(zoomFactor, 3.0)) // Cap the zoom factor at 5x
-                if zoomFactor != clampedZoomFactor {
-                    zoomFactor = clampedZoomFactor
-                } else {
-                    setZoomFactor(zoomFactor)
-                }
+        didSet {
+            let clampedZoomFactor = max(1.0, min(zoomFactor, 3.0))
+            if zoomFactor != clampedZoomFactor {
+                zoomFactor = clampedZoomFactor
+            } else {
+                setZoomFactor(zoomFactor)
             }
         }
-
+    }
     @Published var isZooming: Bool = false
-    
     private var initialZoomFactor: CGFloat = 1.0
-//    @Published var isDragEnabled: Bool = true
-//    var drag: some Gesture {
-//        DragGesture(minimumDistance: 85)
-//            .onChanged { _ in self.isDragging = true }
-//            .onEnded { endedGesture in
-//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-//                    self.dragDirection = "left"
-//                    self.isDragging = false
-//                } else {
-//                    self.dragDirection = "right"
-//                    self.isDragging = false
-//                }
-//            }
-//    }
-
-    
     @Published var recordedURLs: [URL] = []
     @Published var recordedCameraPositions: [CameraPosition] = []
     @Published var isPreviewActive = true
 
-        func togglePreview(_ active: Bool) {
-            DispatchQueue.main.async {
-                self.isPreviewActive = active
-            }
+    func togglePreview(_ active: Bool) {
+        DispatchQueue.main.async {
+            self.isPreviewActive = active
         }
+    }
     
     func setZoomFactor(_ factor: CGFloat) {
         guard cameraPosition == .back, let device = AVCaptureDevice.default(for: .video) else {
@@ -170,8 +125,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             return
         }
     }
-
-    
     
     func setUp() {
         do {
@@ -185,20 +138,17 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                     cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
                 case .back:
                     cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
-                }
-
-            let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
+            }
             
+            let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
             
-            // check for input
             if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
                 self.session.addInput(videoInput)
                 self.session.addInput(audioInput)
             }
             
-            //check for output
             if self.session.canAddOutput(self.videoOutput) {
                 self.session.addOutput(self.videoOutput)
             }
@@ -210,24 +160,22 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.session.commitConfiguration()
             self.startCameraSession()
             
-        }
-        catch {
+        } catch {
             print(error.localizedDescription)
         }
-        
     }
     
     func startRecording() {
         isRecording = true
         let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
-        configureFlash()  // Only configure flash if using the back camera
+        configureFlash()
         videoOutput.startRecording(to: URL(fileURLWithPath: tempURL), recordingDelegate: self)
         recordedCameraPositions.append(cameraPosition)
     }
 
     func stopRecording() {
         isRecording = false
-        configureFlash()  // Turn off the torch if it was on and we're using the back camera
+        configureFlash()
         isLoading = true
         videoOutput.stopRecording()
     }
@@ -250,10 +198,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         recordedURLs.append(outputFileURL)
 
-        // CONVERTING URLs TO ASSETS
         let assets = recordedURLs.map { AVURLAsset(url: $0) }
         
-        // MERGING VIDEOS
         if !isRecording {
             Task {
                 do {
@@ -288,7 +234,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
     
-    
     func mergeVideos(assets: [AVURLAsset]) async throws -> AVAssetExportSession? {
         let composition = AVMutableComposition()
         var lastTime: CMTime = .zero
@@ -302,7 +247,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         var instructions: [AVMutableVideoCompositionInstruction] = []
         
         let urlsCopy = recordedURLs
-            for index in urlsCopy.indices {
+        for index in urlsCopy.indices {
             let recordedUrl = recordedURLs[index]
             let asset = AVURLAsset(url: recordedUrl)
             let duration = try await asset.load(.duration)
@@ -317,7 +262,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                 }
             } catch {
                 print("Error during composition: \(error)")
-                continue // Optionally continue to the next iteration
+                continue
             }
             
             let layerInstructions = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
@@ -339,7 +284,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
         
         let videoComposition = AVMutableVideoComposition()
-        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width) // Adjust for the rotated aspect
+        videoComposition.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
         videoComposition.instructions = instructions
         videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
         
@@ -354,7 +299,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         exporter.videoComposition = videoComposition
         return exporter
     }
-    
     
     func takePic() {
         if images.count < 5 {
@@ -374,7 +318,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.isLoading = true
             self.photoOutput.capturePhoto(with: photoSettings, delegate: self)
         } else {
-            // Additional logic
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.session.stopRunning()
                 self.isPhotoTaken = false
@@ -382,25 +325,20 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
     
-
     func clearPics() {
         self.images.removeAll()
         self.isPhotoTaken.toggle()
     }
     
     func clearLatestPic() {
-        
-        let _ = self.images.popLast()
+        _ = self.images.popLast()
         
         if self.images.isEmpty {
             self.isPhotoTaken.toggle()
         }
     }
     
-
-    
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        
         if let error = error {
             print("Error capturing photo: \(error.localizedDescription)")
             return
@@ -411,10 +349,8 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             return
         }
         
-        // Adjusting the image based on the camera used
         var adjustedImage = image
         if cameraPosition == .front {
-            // Ensure the image is mirrored horizontally
             if let cgImage = image.cgImage {
                 let mirroredImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .leftMirrored)
                 adjustedImage = fixOrientation(of: mirroredImage)
@@ -429,7 +365,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
 
     func fixOrientation(of image: UIImage) -> UIImage {
-        // Check if the image orientation is already correct
         if image.imageOrientation == .up {
             return image
         }
@@ -443,15 +378,11 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func toggleCamera() {
         guard isRecording else {
-            // If not currently recording, just switch the camera
             switchCameraInput()
             return
         }
 
-        // Stop recording with the current camera
-      
         stopRecordingForNewCam()
-        
         switchCameraInput()
         startRecordingForNewCam()
     }
@@ -459,9 +390,10 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     func switchCameraInput() {
         cameraPosition = (cameraPosition == .back) ? .front : .back
         zoomFactor = 1.0
-        setUp() // Reconfigure the session with the new camera
+        setUp()
         configureFlash()
     }
+    
     func reset() {
         DispatchQueue.main.async {
             self.images.removeAll()
@@ -478,17 +410,18 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.selectedCamTab = 0
         }
     }
+
     func stopCameraSession() {
-            DispatchQueue.global(qos: .background).async {
-                self.session.stopRunning()
-            }
+        DispatchQueue.global(qos: .background).async {
+            self.session.stopRunning()
         }
+    }
 
     func startCameraSession() {
-            DispatchQueue.global(qos: .background).async {
-                self.session.startRunning()
-            }
+        DispatchQueue.global(qos: .background).async {
+            self.session.startRunning()
         }
+    }
     
     func configureFlash() {
         guard let device = AVCaptureDevice.default(for: .video) else { return }
@@ -496,32 +429,29 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         do {
             try device.lockForConfiguration()
 
-            // Only manage the torch if using the back camera
             if cameraPosition == .back {
                 if isRecording && flashMode == .on {
                     device.torchMode = .on
                 } else {
                     device.torchMode = .off
                 }
-                // Restore original brightness when using back camera
                 if let originalBrightness = originalBrightness {
                     UIScreen.main.brightness = originalBrightness
-                    self.originalBrightness = nil // Reset the stored original brightness
+                    self.originalBrightness = nil
                 }
                 showFlashOverlay = false
             } else {
-                // Manage front camera settings
-                device.torchMode = .off  // Ensure torch is off for the front camera
+                device.torchMode = .off
                 if isRecording && flashMode == .on {
-                    if originalBrightness == nil { // Store the current brightness if not already stored
+                    if originalBrightness == nil {
                         originalBrightness = UIScreen.main.brightness
                     }
-                    UIScreen.main.brightness = CGFloat(1.0)  // Maximize brightness
+                    UIScreen.main.brightness = CGFloat(1.0)
                     showFlashOverlay = true
                 } else {
                     if let originalBrightness = originalBrightness {
-                        UIScreen.main.brightness = originalBrightness // Restore original brightness
-                        self.originalBrightness = nil // Reset the stored original brightness
+                        UIScreen.main.brightness = originalBrightness
+                        self.originalBrightness = nil
                     }
                     showFlashOverlay = false
                 }
@@ -540,13 +470,13 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             return true
         }
     }
-        
 }
 
 enum CameraPosition {
     case front
     case back
 }
+
 extension CameraPosition {
     func toAVCaptureDevicePosition() -> AVCaptureDevice.Position {
         switch self {

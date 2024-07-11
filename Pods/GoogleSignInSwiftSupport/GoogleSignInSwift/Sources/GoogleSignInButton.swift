@@ -108,7 +108,7 @@ public struct GoogleSignInButton: View {
     .buttonStyle(viewModel.buttonStyle)
     .disabled(viewModel.state == .disabled)
     .simultaneousGesture(
-      DragGesture(minimumDistance: 0)
+      DragGesture(minimumDistance: 5)
         .onChanged { _ in
           guard viewModel.state != .disabled,
                   viewModel.state != .pressed else { return }

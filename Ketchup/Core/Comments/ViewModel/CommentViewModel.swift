@@ -27,6 +27,7 @@ class CommentViewModel: ObservableObject {
     @Binding var post: Post
     @Published var showOptionsSheet: Bool = false
     @Published var selectedComment: Comment?
+    @Published var selectedUserComment: Comment?
     var commentCountText: String {
         return "\(comments.count) comments"
     }

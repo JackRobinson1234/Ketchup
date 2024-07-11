@@ -29,7 +29,7 @@ struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
-    @StateObject var feedViewModel = FeedViewModel()
+    @ObservedObject var feedViewModel = FeedViewModel()
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
@@ -38,8 +38,9 @@ struct ProfileSlideBar: View {
         return viewModel.user.username == "ketchup_media"
     }
     
-    init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._profileSection = profileSection
+        self.feedViewModel = feedViewModel
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
         self._scrollPosition = scrollPosition
@@ -119,20 +120,18 @@ struct ProfileSlideBar: View {
                                 scrollTarget: $scrollTarget
                             )
                         case .media:
-                            PostGridView(posts: viewModel.posts, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
+                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
                         case .map:
-                            ProfileMapView(posts: viewModel.posts)
+                            ProfileMapView(feedViewModel: feedViewModel)
                                 .id("map")
                         }
                     }
                 }
-                .onAppear {
-                    feedViewModel.posts = viewModel.posts
-                }
+               
             }
             
             if profileSection == .likes {
-                LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
+                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
                                scrollTarget: $scrollTarget)
             }
             

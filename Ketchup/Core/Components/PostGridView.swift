@@ -10,10 +10,9 @@ import Kingfisher
 import AVKit
 
 struct PostGridView: View {
-    @StateObject var viewModel = FeedViewModel()
+    @ObservedObject var feedViewModel: FeedViewModel
     @State private var selectedPost: Post?
     @Environment(\.dismiss) var dismiss
-    private let posts: [Post]?
     private let feedTitleText: String?
     private let showNames: Bool
     private let spacing: CGFloat = 8
@@ -29,23 +28,21 @@ struct PostGridView: View {
             GridItem(.flexible(), spacing:  2),
         ]
     }
-    init(posts: [Post]?, feedTitleText: String?, showNames: Bool) {
-        self.posts = posts
+    init(feedViewModel: FeedViewModel, feedTitleText: String?, showNames: Bool) {
+        self.feedViewModel = feedViewModel
         self.feedTitleText = feedTitleText
         self.showNames = showNames
     }
     
     var body: some View {
-        if let unwrappedPosts = posts?.filter({ $0.mediaType != .written }) {
+        let unwrappedPosts = feedViewModel.posts.filter({ $0.mediaType != .written })
             if !unwrappedPosts.isEmpty{
                 LazyVGrid(columns: items, spacing: spacing/2) {
                     ForEach(unwrappedPosts) { post in
                         Button{
-                            if let posts {
-                                viewModel.startingPostId = post.id
-                                viewModel.posts = posts
-                                selectedPost = post
-                            }
+                            feedViewModel.startingPostId = post.id
+                            selectedPost = post
+                            
                         }  label: {
                             KFImage(URL(string: post.thumbnailUrl))
                                 .resizable()
@@ -100,7 +97,7 @@ struct PostGridView: View {
                 .padding(spacing/2)
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
-                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
                         
                     }
                 }
@@ -114,7 +111,7 @@ struct PostGridView: View {
                 }
                 .padding()
             }
-        }
+        
     }
 }
         //

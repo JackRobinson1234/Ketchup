@@ -48,6 +48,14 @@ struct LoginView: View {
                                 viewModel.isValidLoginEmail()
                             }
                         }
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    dismissKeyboard()
+                                }
+                            }
+                        }
                     if let validEmail = viewModel.validLoginEmail, !viewModel.email.isEmpty && !validEmail {
                         Text("Please enter a valid email address")
                             .foregroundStyle(Color("Colors/AccentColor"))

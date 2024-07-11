@@ -145,7 +145,26 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-
+    func fetchUserPosts(user: User) async throws {
+        do {
+            if user.username != "ketchup_media"{
+                
+                self.posts = try await PostService.shared.fetchUserPosts(user: user)
+                //                feedViewModel.posts = posts
+            }
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        }
+    }
+    func fetchUserLikedPosts(user: User) async throws {
+        do {
+            self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
+            //                feedViewModel.posts = likedPosts
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+        }
+        
+    }
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
         if Task.isCancelled { return }
         
@@ -215,7 +234,14 @@ class FeedViewModel: ObservableObject {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
     }
-
+    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
+            do {
+                self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
+            } catch {
+                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+                
+            }
+    }
     func updateCache(scrollPosition: String?) {
         guard !posts.isEmpty, let scrollPosition = scrollPosition else {
                 print("Posts array is empty or scroll position is nil")
@@ -402,6 +428,17 @@ extension FeedViewModel {
             posts[index].didRepost = true
             posts[index].repostCount += 1
             AuthService.shared.userSession?.stats.posts += 1
+        }
+    }
+}
+extension FeedViewModel {
+    func updatePost(_ updatedPost: Post) {
+        if let index = posts.firstIndex(where: { $0.id == updatedPost.id }) {
+            print("FOUND INDEX")
+            posts[index] = updatedPost
+            print(updatedPost.overallRating)
+        } else {
+            print("Couldn't find Index")
         }
     }
 }

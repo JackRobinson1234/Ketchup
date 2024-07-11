@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
+    @StateObject var feedViewModel = FeedViewModel()
     @State private var isLoading = true
     @Environment(\.dismiss) var dismiss
     @State var profileSection: ProfileSectionEnum
@@ -21,7 +22,7 @@ struct ProfileView: View {
     private let uid: String
     var drag: some Gesture {
         
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -62,6 +63,7 @@ struct ProfileView: View {
                 .onAppear {
                     Task {
                         await profileViewModel.fetchUser()
+                        try await feedViewModel.fetchUserPosts(user: profileViewModel.user)
                         isLoading = false
                     }
                 }
@@ -72,7 +74,7 @@ struct ProfileView: View {
                         VStack(spacing: 2) {
                             ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection, showZoomedProfileImage: $showZoomedProfileImage)
                             if !profileViewModel.user.privateMode {
-                                ProfileSlideBar(viewModel: profileViewModel, profileSection: $profileSection,
+                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel, profileSection: $profileSection,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             } else {

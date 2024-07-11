@@ -31,7 +31,7 @@ struct CameraView: View {
     }
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 10)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 guard canSwitchTab else { return }
@@ -148,17 +148,23 @@ struct CameraView: View {
                             Button {
                                 cameraViewModel.uploadFromLibray = true
                             } label: {
-                                Image(systemName: "photo.on.rectangle")
-                                    .resizable()
-                                    .foregroundColor(.white)
-                                    .scaledToFit()
-                                    .frame(width: 50, height: 50)
-                                    .padding(.leading, 60)
+                                VStack(spacing: 0){
+                                    Image(systemName: "photo.on.rectangle")
+                                        .resizable()
+                                        .foregroundColor(.white)
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 50)
+                                        
+                                    Text("Upload")
+                                        .font(.custom("MuseoSansRounded-700", size: 14))
+                                        .foregroundStyle(.white)
+                                        
+                                }
+                                .padding(.leading, 60)
                             }
                             
                             Spacer()
                         }
-                        .padding(.bottom, 10)
                         .opacity(cameraViewModel.selectedCamTab == 2 ? 0 : 1)
                         
                         if uploadViewModel.restaurant == nil {
@@ -228,8 +234,8 @@ struct CameraView: View {
                         .padding(.trailing)
                         .padding(.top, 35)
                     }
+                    .disabled(cameraViewModel.isRecording)
                     .opacity(cameraViewModel.isRecording ? 0 : 1)
-                    .opacity(cameraViewModel.selectedCamTab == 2 ? 0 : 1)
                 }
             }
             .gesture(

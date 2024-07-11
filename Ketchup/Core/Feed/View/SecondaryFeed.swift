@@ -90,7 +90,7 @@ struct SecondaryFeedView: View {
                     
                     Spacer()
                     
-                    Image("KetchupTextWhite")
+                    Image("KetchupTextRed")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 60, height: 17)

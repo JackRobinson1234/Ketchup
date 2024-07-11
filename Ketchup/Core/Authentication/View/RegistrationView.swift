@@ -43,6 +43,14 @@ struct RegistrationView: View {
                             viewModel.isValidEmail()
                         }
                     }
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                dismissKeyboard()
+                            }
+                        }
+                    }
                 //MARK: Email Checkmark
                     .overlay(alignment: .trailing){
                         if let validEmail = viewModel.validRegistrationEmail, validEmail == true {
@@ -65,6 +73,7 @@ struct RegistrationView: View {
                             viewModel.isValidPassword()
                         }
                     }
+                
                 //MARK: Password checkmark
                     .overlay(alignment: .trailing){
                         if let validPassword = viewModel.validPassword, validPassword == true {

@@ -10,8 +10,7 @@ import _MapKit_SwiftUI
 import Kingfisher
 
 struct ProfileMapView: View {
-    var posts: [Post]
-    @StateObject var feedViewModel = FeedViewModel()
+    @ObservedObject var feedViewModel: FeedViewModel
     @State var selectedPost: Post?
     @State var selectedWrittenPost: Post?
     @State var selectedLocation: LocationWithPosts?
@@ -19,7 +18,7 @@ struct ProfileMapView: View {
     
     // Filter posts to exclude those with restaurant IDs starting with "construction"
     var filteredPosts: [Post] {
-        posts.filter { !$0.restaurant.id.starts(with: "construction") }
+        feedViewModel.posts.filter { !$0.restaurant.id.starts(with: "construction") }
     }
     
     var groupedPosts: [CLLocationCoordinate2D: [Post]] {

@@ -17,9 +17,9 @@ struct CurrentUserProfileView: View {
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
-
+    @StateObject var feedViewModel = FeedViewModel()
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -55,6 +55,7 @@ struct CurrentUserProfileView: View {
                     .onAppear {
                         Task {
                             await profileViewModel.fetchCurrentUser()
+                            try await feedViewModel.fetchUserPosts(user: profileViewModel.user)
                             isLoading = false
                         }
                     }
@@ -67,7 +68,7 @@ struct CurrentUserProfileView: View {
                                 ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection, showZoomedProfileImage: $showZoomedProfileImage)
                                     .padding(.top)
                                 //MARK: Slide bar
-                                ProfileSlideBar(viewModel: profileViewModel, profileSection: $currentProfileSection,
+                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel, profileSection: $currentProfileSection,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             }
@@ -167,6 +168,9 @@ struct CurrentUserProfileView: View {
                 }
                 .transition(.scale)
             }
+        }
+        .navigationDestination(for: PostUser.self) { user in
+            ProfileView(uid: user.id)
         }
     }
 }

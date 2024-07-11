@@ -37,5 +37,8 @@ struct RatingSliderGroup: View {
             
             Slider(value: $rating, in: 0...10, step: 0.5)
         }
+        .onAppear {
+            UISlider.appearance().setThumbImage(nil, for: .normal)
+        }
     }
 }

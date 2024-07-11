@@ -16,10 +16,6 @@ class EditProfileViewModel: ObservableObject {
             if let item = selectedImage {
                 Task {
                     await loadImage(fromItem: item)
-                    // Reset selectedItem to nil after loading
-                    DispatchQueue.main.async {
-                        self.selectedImage = nil
-                    }
                 }
             }
         }

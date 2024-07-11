@@ -31,7 +31,7 @@ struct ReelsUploadView: View {
     @Namespace private var animationNamespace
     
     var overallRatingPercentage: Double {
-        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4) * 10
+        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
     }
     
     var body: some View {
@@ -56,7 +56,7 @@ struct ReelsUploadView: View {
                                     VStack {
                                         RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
                                         Text(restaurant.name)
-                                            .font(.custom("MuseoSansRounded-300", size: 20))
+                                            .font(.custom("MuseoSansRounded-500", size: 20))
                                         if let cuisine = restaurant.categoryName, let price = restaurant.price {
                                             Text("\(cuisine), \(price)")
                                                 .font(.custom("MuseoSansRounded-300", size: 10))
@@ -83,7 +83,7 @@ struct ReelsUploadView: View {
                                     VStack {
                                         RestaurantCircularProfileImageView(size: .xLarge)
                                         Text(request.name)
-                                            .font(.custom("MuseoSansRounded-300", size: 20))
+                                            .font(.custom("MuseoSansRounded-500", size: 20))
                                         Text("\(request.city), \(request.state)")
                                             .font(.custom("MuseoSansRounded-300", size: 10))
                                         Text("(To be created)")
@@ -149,15 +149,15 @@ struct ReelsUploadView: View {
                             }
                             HStack {
                                 Spacer()
-                                Text("\(uploadViewModel.caption.count)/150")
+                                Text("\(uploadViewModel.caption.count)/300")
                                     .font(.custom("MuseoSansRounded-300", size: 10))
                                     .foregroundColor(.gray)
                                     .padding(.horizontal, 10)
                             }
                         }
                         .onChange(of: uploadViewModel.caption) {
-                            if uploadViewModel.caption.count >= 150 {
-                                uploadViewModel.caption = String(uploadViewModel.caption.prefix(150))
+                            if uploadViewModel.caption.count >= 300 {
+                                uploadViewModel.caption = String(uploadViewModel.caption.prefix(300))
                             }
                         }
                         
@@ -231,9 +231,7 @@ struct ReelsUploadView: View {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
         }
-        .onAppear {
-            UISlider.appearance().setThumbImage(nil, for: .normal)
-        }
+        
     }
 }
 func dismissKeyboard() {

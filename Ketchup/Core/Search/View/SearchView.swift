@@ -16,7 +16,7 @@ struct SearchView: View {
     @State var dragDirection = "left"
     @State var isDragging = false
     var drag: some Gesture {
-        DragGesture(minimumDistance: 30)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true
                 print("DRAGGING ")}
             .onEnded { endedGesture in

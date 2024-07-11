@@ -39,8 +39,14 @@ struct FeedCell: View {
     var hideFeedOptions: Bool
     @Environment(\.dismiss) var dismiss
     @State var showHeartOverlay = false
+    @State private var offset: CGFloat = 0
+    @GestureState private var dragOffset: CGFloat = 0
     var checkLikes: Bool
-    
+    var overallRating: Double {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return 0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
     init(post: Binding<Post>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
@@ -65,7 +71,7 @@ struct FeedCell: View {
     }
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 50)
+        DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -93,7 +99,7 @@ struct FeedCell: View {
     var body: some View {
         ZStack {
             // Video and Photo handling
-            Color("Colors/HingeGray")
+           Color("Colors/HingeGray")
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                 .containerRelativeFrame([.horizontal, .vertical])
             if post.mediaType == .video {
@@ -101,36 +107,39 @@ struct FeedCell: View {
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                     .containerRelativeFrame([.horizontal, .vertical])
             } else if post.mediaType == .photo {
-                TabView(selection: $currentImageIndex) {
-                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                            KFImage(URL(string: post.mediaUrls[index]))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                                .cornerRadius(20)
-                                .containerRelativeFrame([.horizontal, .vertical])
-                                .tag(index)
-                        }
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                    .animation(.easeInOut, value: currentImageIndex)
-                    .overlay(
-                        Group {
-                            if post.mediaUrls.count > 1 {
-                                VStack {
-                                    HStack(spacing: 6) {
-                                        ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                                            Circle()
-                                                .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.white)
-                                                .frame(width: 10, height: 10)
-                                        }
-                                    }
-                                    .padding(.top, 130)
-                                    Spacer()
-                                }
-                            }
-                        }
-                    )
+                GeometryReader { geometry in
+                                   HStack(spacing: 0) {
+                                       ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                           KFImage(URL(string: post.mediaUrls[index]))
+                                               .resizable()
+                                               .scaledToFit()
+                                               .frame(width: geometry.size.width, height: geometry.size.height)
+                                               .cornerRadius(20)
+                                       }
+                                   }
+                                   .offset(x: -CGFloat(currentImageIndex) * geometry.size.width + offset + dragOffset)
+                                   .animation(.spring(), value: offset)
+//                                   .gesture(
+//                                       drag
+//                                   )
+                               }
+                               .overlay(
+                                   Group {
+                                       if post.mediaUrls.count > 1 {
+                                           VStack {
+                                               HStack(spacing: 6) {
+                                                   ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                                       Circle()
+                                                           .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
+                                                           .frame(width: 10, height: 10)
+                                                   }
+                                               }
+                                               .padding(.top, 130)
+                                               Spacer()
+                                           }
+                                       }
+                                   }
+                               )           
             }
 
             ZStack(alignment: .bottom) {
@@ -150,7 +159,7 @@ struct FeedCell: View {
                     videoSlider
                 }
             }
-            .padding(.bottom, viewModel.isContainedInTabBar ? 115 : 70)
+            .padding(.bottom, viewModel.isContainedInTabBar ? 75 : 30)
         }
         .overlay(heartOverlay)
         .onTapGesture(count: 2) {
@@ -182,7 +191,7 @@ struct FeedCell: View {
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
-            PostOptionsSheet(post: post, viewModel: viewModel)
+            PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
         }
         .sheet(isPresented: $showingRepostSheet) {
@@ -240,9 +249,9 @@ struct FeedCell: View {
                         .lineLimit(expandCaption ? 50 : 1)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .multilineTextAlignment(.leading)
-                    if let overallRating = post.overallRating {
-                        RatingSlider(rating: overallRating, label: "Overall", isOverall: true, fontColor: .white)
-                    }
+                    
+                    FeedOverallRatingView(rating: overallRating, font: .white)
+                    
                     
                     if !expandCaption {
                         
@@ -275,13 +284,11 @@ struct FeedCell: View {
                 }
             }
                 .padding(.bottom)
-                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
-                    Text("View Restaurant")
-                }
-                .modifier(StandardButtonModifier(width: 175))
+                
+                
             }
         
-        .padding(10)
+        .padding(.horizontal)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.black.opacity(0.3)))
         .font(.custom("MuseoSansRounded-300", size: 16))
         .foregroundStyle(.white)

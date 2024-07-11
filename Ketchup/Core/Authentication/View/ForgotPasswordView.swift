@@ -28,6 +28,14 @@ struct ForgotPasswordView: View {
                         viewModel.isValidResetEmail()
                     }
                 }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            dismissKeyboard()
+                        }
+                    }
+                }
             //MARK: Email format warning
             if let validEmail = viewModel.validResetEmail, !viewModel.resetEmailText.isEmpty && !validEmail {
                 Text("Please Enter a Valid Email Address")

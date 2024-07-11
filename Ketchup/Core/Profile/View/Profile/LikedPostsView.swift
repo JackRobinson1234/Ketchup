@@ -10,7 +10,7 @@ import SwiftUI
 struct LikedPostsView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @State var isLoading = true
-    @ObservedObject var feedViewModel: FeedViewModel
+    @StateObject var feedViewModel = FeedViewModel()
     @State private var postDisplayMode: PostDisplayMode = .media
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
@@ -21,7 +21,7 @@ struct LikedPostsView: View {
             ProgressView("Loading...")
                 .onAppear {
                     Task {
-                        try await viewModel.fetchUserLikedPosts()
+                        try await feedViewModel.fetchUserLikedPosts(user: viewModel.user)
                         feedViewModel.posts = viewModel.likedPosts
                         isLoading = false
                     }
@@ -45,9 +45,9 @@ struct LikedPostsView: View {
                         scrollTarget: $scrollTarget
                     )
                 case .media:
-                    PostGridView(posts: viewModel.likedPosts, feedTitleText: "Posts liked by @\(viewModel.user.username)", showNames: true)
+                    PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts liked by @\(viewModel.user.username)", showNames: true)
                 case .map:
-                    ProfileMapView(posts: viewModel.likedPosts)
+                    ProfileMapView(feedViewModel: feedViewModel)
                         .id("map")
                 }
             }

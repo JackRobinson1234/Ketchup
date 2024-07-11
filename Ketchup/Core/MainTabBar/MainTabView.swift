@@ -11,21 +11,17 @@ struct MainTabView: View {
     @State private var playbackObserver: NSObjectProtocol?
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var feedViewModel = FeedViewModel()
-
+    
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            
-                PrimaryFeedView(viewModel: feedViewModel)
-                    
-            
+            PrimaryFeedView(viewModel: feedViewModel)
                 .tabItem {
-                    
-                        Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
+                    Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
                         .resizable()
-                            .foregroundStyle(.primary)
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
-                        
-                    .padding()
+                        .foregroundStyle(.primary)
+                        .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
+                    
+                        .padding()
                 }
                 .onAppear { 
                     tabBarController.selectedTab = 0
@@ -33,18 +29,18 @@ struct MainTabView: View {
                 }
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
-               
+            
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             MapView()
                 .tabItem {
                     
-                        Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                            .foregroundStyle(.primary)
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                        
+                    Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                        .foregroundStyle(.primary)
+                        .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                     
-                    .padding()
+                    
+                        .padding()
                 }
                 .onAppear {
                     tabBarController.selectedTab = 1
@@ -52,9 +48,9 @@ struct MainTabView: View {
                 }
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
-                
+            
                 .toolbar(tabBarController.visibility, for: .tabBar)
-      
+            
             CameraView(feedViewModel: feedViewModel)
                 .tabItem {
                     Image(systemName: "plus.app")
@@ -68,19 +64,19 @@ struct MainTabView: View {
                 }
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
-                
+            
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             ActivityView()
                 .tabItem {
                     
-                        Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
-                            .foregroundStyle(.primary)
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
-                            
-                        
+                    Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
+                        .foregroundStyle(.primary)
+                        .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                     
-                    .padding()
+                    
+                    
+                        .padding()
                 }
                 .onAppear {
                     tabBarController.selectedTab = 3
@@ -88,14 +84,14 @@ struct MainTabView: View {
                 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
-               
+            
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
             CurrentUserProfileView()
                 .tabItem {
                     VStack(){
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
-                    
+                        
                     }
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.primary)
@@ -112,9 +108,10 @@ struct MainTabView: View {
         .foregroundStyle(.primary)
         .tint(Color("Colors/AccentColor"))
         
+        
     }
 }
-    
+
 #Preview {
     MainTabView()
 }

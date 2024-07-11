@@ -26,7 +26,8 @@ struct PrimaryFeedView: View {
     @State var showLocationFilter: Bool = false
     @State private var isRefreshing = false
     @State private var canSwitchTab = true
-
+    @EnvironmentObject var tabBarController: TabBarController
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -34,7 +35,7 @@ struct PrimaryFeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-
+    
     var body: some View {
         if isLoading && viewModel.posts.isEmpty {
             ProgressView("Loading...")
@@ -81,7 +82,18 @@ struct PrimaryFeedView: View {
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
+                            
                             scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
+                            
+                        }
+                        .onChange(of: tabBarController.scrollToTop){
+                            print("SCROLLING")
+                            if let post = viewModel.posts.first {
+                                print("Moving to first")
+                                withAnimation(.smooth) {
+                                    scrollProxy.scrollTo(post.id, anchor: .center)
+                                }
+                            }
                         }
                     }
                     .background(Color("Colors/HingeGray"))
@@ -98,10 +110,16 @@ struct PrimaryFeedView: View {
                                     .frame(width: 60)
                             }
                             Spacer()
-                            Image("KetchupTextRed")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 17)
+                            Button{
+                                
+                                    
+                                tabBarController.scrollToTop.toggle()
+                            } label: {
+                                Image("KetchupTextRed")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
+                            }
                             Spacer()
                             Button {
                                 showFilters.toggle()
@@ -151,7 +169,7 @@ struct PrimaryFeedView: View {
                                     )
                             }
                             .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-
+                            
                             Button {
                                 if canSwitchTab {
                                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -319,7 +337,7 @@ struct PrimaryFeedView: View {
             }
         }
     }
-
+    
     private func refreshFeed() async {
         isRefreshing = true
         do {
@@ -339,10 +357,9 @@ struct SuccessMessageOverlay: View {
             HStack {
                 Spacer()
                 VStack {
-                    Image(systemName: "checkmark")
+                    Image(systemName: "Skip")
                         .resizable()
                         .frame(width: 40, height: 40)
-                        .foregroundColor(.green)
                     Text(text)
                         .foregroundColor(.white)
                         .font(.custom("MuseoSansRounded-300", size: 16))
@@ -378,7 +395,7 @@ extension Color {
 struct ConditionalSafeAreaPadding: ViewModifier {
     var condition: Bool
     var padding: CGFloat
-
+    
     func body(content: Content) -> some View {
         if condition {
             content.safeAreaPadding(.vertical, padding)
