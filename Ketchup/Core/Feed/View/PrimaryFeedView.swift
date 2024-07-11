@@ -35,7 +35,7 @@ struct PrimaryFeedView: View {
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
     }
-
+    
     var body: some View {
         if isLoading && viewModel.posts.isEmpty {
             ProgressView("Loading...")
@@ -83,22 +83,18 @@ struct PrimaryFeedView: View {
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
                             
-                                scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
+                            scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
                             
                         }
-                    }
-                    .onChange(of: tabBarController.scrollToTop){
-                        print("SCROLLING")
-                        if let post = viewModel.posts.first {
-                            print("Moving to first")
-                            withAnimation(.smooth) {
-                                viewModel.initialPrimaryScrollPosition = post.id
-                            }
-                            Debouncer(delay: 1.0).schedule {
-                                viewModel.initialPrimaryScrollPosition = nil
+                        .onChange(of: tabBarController.scrollToTop){
+                            print("SCROLLING")
+                            if let post = viewModel.posts.first {
+                                print("Moving to first")
+                                withAnimation(.smooth) {
+                                    scrollProxy.scrollTo(post.id, anchor: .center)
+                                }
                             }
                         }
-                        
                     }
                     .background(Color("Colors/HingeGray"))
                     Color.white
@@ -115,12 +111,9 @@ struct PrimaryFeedView: View {
                             }
                             Spacer()
                             Button{
-                                if let id = viewModel.posts.first?.id {
-                                    viewModel.initialPrimaryScrollPosition = id
-                                    Debouncer(delay: 1.0).schedule{
-                                        viewModel.initialPrimaryScrollPosition = nil
-                                    }
-                                }
+                                
+                                    
+                                tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
                                     .resizable()
@@ -176,7 +169,7 @@ struct PrimaryFeedView: View {
                                     )
                             }
                             .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-
+                            
                             Button {
                                 if canSwitchTab {
                                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -344,7 +337,7 @@ struct PrimaryFeedView: View {
             }
         }
     }
-
+    
     private func refreshFeed() async {
         isRefreshing = true
         do {
@@ -402,7 +395,7 @@ extension Color {
 struct ConditionalSafeAreaPadding: ViewModifier {
     var condition: Bool
     var padding: CGFloat
-
+    
     func body(content: Content) -> some View {
         if condition {
             content.safeAreaPadding(.vertical, padding)
