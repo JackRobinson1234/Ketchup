@@ -98,10 +98,19 @@ struct PrimaryFeedView: View {
                                     .frame(width: 60)
                             }
                             Spacer()
-                            Image("KetchupTextRed")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 17)
+                            Button{
+                                if let id = viewModel.posts.first?.id {
+                                    viewModel.initialPrimaryScrollPosition = id
+                                    Debouncer(delay: 1.0).schedule{
+                                        viewModel.initialPrimaryScrollPosition = nil
+                                    }
+                                }
+                            } label: {
+                                Image("KetchupTextRed")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
+                            }
                             Spacer()
                             Button {
                                 showFilters.toggle()
@@ -339,10 +348,9 @@ struct SuccessMessageOverlay: View {
             HStack {
                 Spacer()
                 VStack {
-                    Image(systemName: "checkmark")
+                    Image(systemName: "Skip")
                         .resizable()
                         .frame(width: 40, height: 40)
-                        .foregroundColor(.green)
                     Text(text)
                         .foregroundColor(.white)
                         .font(.custom("MuseoSansRounded-300", size: 16))

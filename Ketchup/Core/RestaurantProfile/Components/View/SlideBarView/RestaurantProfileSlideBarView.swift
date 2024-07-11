@@ -18,12 +18,14 @@ enum RestaurantPostDisplayMode: String, CaseIterable {
 }
 struct RestaurantProfileSlideBarView: View {
     @ObservedObject var viewModel: RestaurantViewModel
+    @ObservedObject var feedViewModel: FeedViewModel
     @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
 
-       init(viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    init(viewModel: RestaurantViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
            self.viewModel = viewModel
+        self.feedViewModel = feedViewModel
            self._scrollPosition = scrollPosition
            self._scrollTarget = scrollTarget
        }
@@ -94,18 +96,15 @@ struct RestaurantProfileSlideBarView: View {
                 switch restaurantPostDisplayMode {
                 case .all:
                     ProfileFeedView(
-                        viewModel: viewModel.feedViewModel,
+                        viewModel: feedViewModel,
                         scrollPosition: $scrollPosition,
                         scrollTarget: $scrollTarget
                     )
                 case .media:
                     if let name = viewModel.restaurant?.name {
-                        PostGridView(feedViewModel: viewModel.feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false)
+                        PostGridView(feedViewModel: feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false)
                     }
                 }
-            }
-            .onAppear {
-                viewModel.feedViewModel.posts = viewModel.posts
             }
         }
         if viewModel.currentSection == .collections {

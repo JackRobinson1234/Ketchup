@@ -10,7 +10,6 @@ import SwiftUI
 
 @MainActor
 class RestaurantViewModel: ObservableObject {
-    @Published var posts: [Post] = []
     @Published var collections = [Collection]()
     @Published var restaurant: Restaurant?
     @Published var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
@@ -18,12 +17,11 @@ class RestaurantViewModel: ObservableObject {
     @Published var isDragging = false
     @Published var currentSection: Section = .posts
     @Environment(\.dismiss) var dismiss
-    @Published var feedViewModel = FeedViewModel()
+    
     
     init(restaurantId: String) {
         self.restaurantId = restaurantId
         // DEBUG: see if you can delete this
-        
     }
     func fetchRestaurant(id: String) async throws {
         print("ATTEMPTED ID", id)
@@ -35,10 +33,7 @@ class RestaurantViewModel: ObservableObject {
                 
             }
         }
-        if let unwrappedRestaurant = self.restaurant{
-            Task{
-                try await self.feedViewModel.fetchRestaurantPosts(restaurant: unwrappedRestaurant) }
-        }
+        
     }
     func fetchRestaurantCollections() async throws{
         if let restaurant = restaurant{
