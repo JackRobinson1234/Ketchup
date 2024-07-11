@@ -84,6 +84,9 @@ struct PostOptionsSheet: View {
             NavigationStack{
                 ReelsEditView(post: $post, feedViewModel: viewModel)
             }
+            .onDisappear{
+                dismiss()
+            }
         }
         
     }

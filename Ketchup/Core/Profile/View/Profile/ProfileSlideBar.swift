@@ -29,7 +29,7 @@ struct ProfileSlideBar: View {
     @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
-    @StateObject var feedViewModel = FeedViewModel()
+    @ObservedObject var feedViewModel = FeedViewModel()
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
@@ -38,8 +38,9 @@ struct ProfileSlideBar: View {
         return viewModel.user.username == "ketchup_media"
     }
     
-    init(viewModel: ProfileViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._profileSection = profileSection
+        self.feedViewModel = feedViewModel
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
         self._scrollPosition = scrollPosition
@@ -126,15 +127,11 @@ struct ProfileSlideBar: View {
                         }
                     }
                 }
-                .onAppear {
-                    Task{
-                        try await feedViewModel.fetchUserPosts(user: viewModel.user)
-                    }
-                }
+               
             }
             
             if profileSection == .likes {
-                LikedPostsView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
+                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
                                scrollTarget: $scrollTarget)
             }
             

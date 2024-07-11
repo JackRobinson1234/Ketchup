@@ -26,7 +26,8 @@ struct PrimaryFeedView: View {
     @State var showLocationFilter: Bool = false
     @State private var isRefreshing = false
     @State private var canSwitchTab = true
-
+    @EnvironmentObject var tabBarController: TabBarController
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -81,8 +82,23 @@ struct PrimaryFeedView: View {
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
-                            scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
+                            
+                                scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
+                            
                         }
+                    }
+                    .onChange(of: tabBarController.scrollToTop){
+                        print("SCROLLING")
+                        if let post = viewModel.posts.first {
+                            print("Moving to first")
+                            withAnimation(.smooth) {
+                                viewModel.initialPrimaryScrollPosition = post.id
+                            }
+                            Debouncer(delay: 1.0).schedule {
+                                viewModel.initialPrimaryScrollPosition = nil
+                            }
+                        }
+                        
                     }
                     .background(Color("Colors/HingeGray"))
                     Color.white

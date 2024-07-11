@@ -61,6 +61,9 @@ struct RestaurantProfileView: View {
                         do {
                             viewModel.restaurant = restaurant
                             try await viewModel.fetchRestaurant(id: restaurantId)
+                            if let restaurant = viewModel.restaurant{
+                                try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant)
+                            }
                         } catch {
                             print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
                         }
@@ -88,11 +91,6 @@ struct RestaurantProfileView: View {
                     .onChange(of: scrollTarget) {
                         scrollPosition = scrollTarget
                         scrollProxy.scrollTo(scrollTarget, anchor: .center)
-                    }
-                }
-                .onAppear{
-                    Task{
-                        try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant)
                     }
                 }
                 .gesture(drag)

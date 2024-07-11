@@ -10,7 +10,7 @@ import SwiftUI
 struct LikedPostsView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @State var isLoading = true
-    @ObservedObject var feedViewModel: FeedViewModel
+    @StateObject var feedViewModel = FeedViewModel()
     @State private var postDisplayMode: PostDisplayMode = .media
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
