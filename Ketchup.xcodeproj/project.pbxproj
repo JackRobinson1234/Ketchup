@@ -2368,8 +2368,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.20.1;
+				kind = exactVersion;
+				version = 8.19.0;
 			};
 		};
 		F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */ = {
