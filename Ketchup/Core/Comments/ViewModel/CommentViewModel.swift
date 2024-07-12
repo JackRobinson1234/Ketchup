@@ -26,9 +26,6 @@ class CommentViewModel: ObservableObject {
     @Published var isTagging: Bool = false
 
     @Binding var post: Post
-    
-    @Published var taggedUserRanges: [NSRange: String] = [:]
-    
     var commentCountText: String {
         return "\(comments.count) comments"
     }
@@ -58,7 +55,7 @@ class CommentViewModel: ObservableObject {
         $post.wrappedValue.commentCount -= 1
     }
     
-    // Fetch the users the current user is following
+    // Fetch the users the current user is following (used for suggestion)
     private func fetchFollowingUsers() {
         Task {
             do {
@@ -72,53 +69,68 @@ class CommentViewModel: ObservableObject {
         }
     }
     
-   
     func checkForTagging() {
         let words = commentText.split(separator: " ")
+
+        if commentText.last == " " {
+            isTagging = false
+            filteredTaggedUsers = []
+            return
+        }
+
         guard let lastWord = words.last, lastWord.hasPrefix("@") else {
             isTagging = false
             filteredTaggedUsers = []
-            updateTaggedUserRanges()
             return
         }
-        
+
         let searchQuery = String(lastWord.dropFirst()).lowercased()
         if searchQuery.isEmpty {
             filteredTaggedUsers = taggedUsers
         } else {
             filteredTaggedUsers = taggedUsers.filter { $0.username.lowercased().contains(searchQuery) }
         }
-        
+
         isTagging = !filteredTaggedUsers.isEmpty
-    }
-
-    func updateTaggedUserRanges() {
-        let pattern = "@[A-Za-z0-9_]+"
-        let regex = try! NSRegularExpression(pattern: pattern, options: [])
-        let matches = regex.matches(in: commentText, options: [], range: NSRange(location: 0, length: commentText.utf16.count))
-
-        taggedUserRanges.removeAll()
-
-        for match in matches {
-            let usernameRange = match.range(at: 0)
-            let username = (commentText as NSString).substring(with: usernameRange)
-            taggedUserRanges[usernameRange] = username
-        }
     }
 
     func uploadComment() async {
         guard !commentText.isEmpty else { return }
+        
+        // Extract usernames from comment text and create the taggedUsers dictionary
+        var taggedUsersDict: [String: String] = [:]
+        let words = commentText.split(separator: " ")
+        for word in words {
+            if word.hasPrefix("@") {
+                let username = String(word.dropFirst())
+                if let user = taggedUsers.first(where: { $0.username == username }) {
+                    taggedUsersDict[user.username] = user.id
+                } else {
+                    // Fetch user by username if not found in suggestions
+                    if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                        taggedUsersDict[fetchedUser.username] = fetchedUser.id
+                    } else {
+                        // Mark as invalid if user is not found
+                        taggedUsersDict[username] = "invalid"
+                    }
+                }
+            }
+        }
+        
         do {
-            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post) else { return }
+            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, taggedUsers: taggedUsersDict) else { return }
             commentText = ""
             comments.insert(comment, at: 0)
             $post.wrappedValue.commentCount += 1
             if showEmptyView { showEmptyView.toggle() }
-            updateTaggedUserRanges()
         } catch {
             print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
     }
 }
+
+
+
+
 
 

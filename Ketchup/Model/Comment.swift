@@ -17,5 +17,4 @@ struct Comment: Identifiable, Codable, Equatable, Hashable {
     let commentOwnerUid: String
     var user: User?
     var taggedUsers: [String: String]?
-    var taggedUserRanges: [NSRange: String]?
 }

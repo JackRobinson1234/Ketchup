@@ -21,7 +21,6 @@ struct CommentInputView: View {
                     )
                     .onChange(of: viewModel.commentText) { newValue in
                         viewModel.checkForTagging()
-                        viewModel.updateTaggedUserRanges()
                     }
                 
                 Button {

@@ -94,6 +94,17 @@ class UserService {
            let userRef = FirestoreConstants.UserCollection.document(currentUid)
            try await userRef.updateData(["notificationAlert": 0])
        }
+    
+    func fetchUser(byUsername username: String) async throws -> User? {
+            // Implement your method to fetch user by username
+            let usersCollection = Firestore.firestore().collection("users")
+            let querySnapshot = try await usersCollection.whereField("username", isEqualTo: username).getDocuments()
+            guard let document = querySnapshot.documents.first else {
+                return nil
+            }
+            return try document.data(as: User.self)
+        }
+    
 }
 
 // MARK: - Following

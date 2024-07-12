@@ -4,17 +4,15 @@
 //
 //  Created by Jack Robinson on 1/31/24.
 //
-
 import Foundation
 import Firebase
-
 
 class CommentService {
     static let shared = CommentService() // Singleton instance
     private init() {}
     
     func fetchComments(post: Post) async throws -> [Comment] {
-        do{
+        do {
             let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
             let comments = try await commentsCollection
                 .order(by: "timestamp", descending: true)
@@ -25,8 +23,7 @@ class CommentService {
             print("error fetching comments")
         }
         return []
-        }
-        
+    }
     
     func fetchCommentUserData(comments: [Comment]) async throws -> [Comment] {
         var updatedComments = [Comment]()
@@ -46,7 +43,7 @@ class CommentService {
         return updatedComments
     }
     
-    func uploadComment(commentText: String, post: Post) async throws -> Comment? {
+    func uploadComment(commentText: String, post: Post, taggedUsers: [String: String]) async throws -> Comment? {
         let ref = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document()
         guard let currentUid = Auth.auth().currentUser?.uid else { return nil }
         
@@ -56,7 +53,8 @@ class CommentService {
             commentText: commentText,
             postId: post.id,
             timestamp: Timestamp(),
-            commentOwnerUid: currentUid
+            commentOwnerUid: currentUid,
+            taggedUsers: taggedUsers
         )
         
         guard let commentData = try? Firestore.Encoder().encode(comment) else {
@@ -71,8 +69,6 @@ class CommentService {
         return comment
     }
     
-}
-extension CommentService {
     func deleteComment(comment: Comment, post: Post) async throws {
         let commentRef = FirestoreConstants.PostsCollection.document(post.id)
             .collection("post-comments").document(comment.id)
