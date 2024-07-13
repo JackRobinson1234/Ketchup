@@ -135,11 +135,17 @@ struct ActivityCell: View {
                                 }
                             }
                         } label: {
-                            Image(systemName: "folder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .foregroundStyle(.primary)
+                            ZStack {
+                                Color.gray.opacity(0.3) // Light gray background
+                                Image(systemName: "building.2.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.red)
+                                    .frame(width: 60 * 0.5, height: 60 * 0.5)
+                            }
+                            .frame(width: 60, height: 60)
+                            .clipShape(Rectangle())
+                            .cornerRadius(10)
                         }
                     }
                 }
@@ -200,11 +206,17 @@ struct ActivityCell: View {
                                 }
                             }
                         } label: {
-                            Image(systemName: "folder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .foregroundStyle(.primary)
+                            ZStack {
+                                Color.gray.opacity(0.3) // Light gray background
+                                Image(systemName: "building.2.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.red)
+                                    .frame(width: 60 * 0.5, height: 60 * 0.5)
+                            }
+                            .frame(width: 60, height: 60)
+                            .clipShape(Rectangle())
+                            .cornerRadius(10)
                         }
                     }
                 }

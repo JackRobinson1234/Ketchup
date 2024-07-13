@@ -34,16 +34,21 @@ struct CollectionListView: View {
                             showAddItem.toggle()
                         }) {
                             HStack {
-                                Image(systemName: "plus.circle.fill")
+                                Spacer()
+                                Image(systemName: "plus")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .scaledToFit()
+                                    .frame(width: 25, height: 25)
+                                
                                 Text("Add Item")
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                Spacer()
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
-                            .background(Color.secondary.opacity(0.1))
-                            .cornerRadius(10)
                         }
-                        .padding(.horizontal)
-                        .padding(.top)
+                        
                     }
 
                     // List of Items

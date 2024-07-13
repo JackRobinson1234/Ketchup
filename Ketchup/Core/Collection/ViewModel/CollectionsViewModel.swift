@@ -4,7 +4,7 @@
 //
 //  Created by Jack Robinson on 4/15/24.
 //
-
+import Kingfisher
 import Foundation
 import SwiftUI
 import PhotosUI
@@ -12,7 +12,15 @@ import FirebaseFirestore
 @MainActor
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
-    @Published var selectedCollection: Collection?
+    @Published var selectedCollection: Collection? {
+           didSet {
+               if let collection = selectedCollection {
+                   editTitle = collection.name
+                   editDescription = collection.description ?? ""
+                   editImageUrl = collection.coverImageUrl ?? ""
+               }
+           }
+       }
     @Published var user: User
     @Published var uploadComplete = false
     @Published var selectedImage: PhotosPickerItem? {
@@ -67,29 +75,29 @@ class CollectionsViewModel: ObservableObject {
     /// Adds an item to selectedCollection and on firebase. Updates the selectedCollection variable as well, which is what is actually displayed for the user to reduce networking, Also updates the collections array to reduce networking.
     /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(collectionItem: CollectionItem) async throws {
-        var item = collectionItem
-         if let restaurant = restaurantRequest {
-             do{
-                 try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
-             } catch {
-                 print("error uploading restaurant request")
-             }
-        }
-        if let selectedCollection = self.selectedCollection {
+            guard var selectedCollection = self.selectedCollection else { return }
+            
+            var item = collectionItem
             item.collectionId = selectedCollection.id
             item.notes = notes
             self.notes = ""
+            
             try await CollectionService.shared.addItemToCollection(collectionItem: item)
-            if !self.items.contains(item){
+            
+            if !self.items.contains(item) {
                 self.items.append(item)
+                selectedCollection.restaurantCount += 1
+                selectedCollection.updatetempImageUrls(with: item)
+                
+                // Update the collections array
                 if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                    
-                        collections[index].restaurantCount += 1
-                    
+                    collections[index] = selectedCollection
                 }
+                
+                // Update the published selectedCollection
+                self.selectedCollection = selectedCollection
             }
         }
-    }
     //MARK: addPostToCollection
     /// adds self.post as a CollectionItem to selectedCollection on Firebase
     func addPostToCollection() async throws{
@@ -152,7 +160,87 @@ class CollectionsViewModel: ObservableObject {
             print("No restaurant found")
         }
     }
-    //MARK: convertRestaurantToCollectionItem
+    //MARK: crateCollageImage
+
+    func createCollageImage(from collection: Collection?, width: CGFloat) -> some View {
+        let size = CGSize(width: width, height: width) // Keep it square
+        let outerSpacing: CGFloat = 2 // Space around the edges
+        let innerSpacing: CGFloat = 1 // Reduced space between images
+
+        return GeometryReader { geometry in
+            if let collection = collection {
+                if let coverImageUrl = collection.coverImageUrl {
+                    // Prioritize the cover image if it exists
+                    KFImage(URL(string: coverImageUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.width, height: size.height)
+                        .clipShape(Rectangle())
+                        .cornerRadius(10)
+                } else if let tempUrls = collection.tempImageUrls, !tempUrls.isEmpty {
+                    if tempUrls.count < 4 {
+                        KFImage(URL(string: tempUrls[0]))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: size.width, height: size.height)
+                            .clipShape(Rectangle())
+                            .cornerRadius(10)
+                    } else {
+                        VStack(spacing: innerSpacing) {
+                            HStack(spacing: innerSpacing) {
+                                KFImage(URL(string: tempUrls[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: (size.width - outerSpacing * 2 - innerSpacing) / 2, height: (size.height - outerSpacing * 2 - innerSpacing) / 2)
+                                    .clipped()
+                                KFImage(URL(string: tempUrls[1]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: (size.width - outerSpacing * 2 - innerSpacing) / 2, height: (size.height - outerSpacing * 2 - innerSpacing) / 2)
+                                    .clipped()
+                            }
+                            HStack(spacing: innerSpacing) {
+                                KFImage(URL(string: tempUrls[2]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: (size.width - outerSpacing * 2 - innerSpacing) / 2, height: (size.height - outerSpacing * 2 - innerSpacing) / 2)
+                                    .clipped()
+                                KFImage(URL(string: tempUrls[3]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: (size.width - outerSpacing * 2 - innerSpacing) / 2, height: (size.height - outerSpacing * 2 - innerSpacing) / 2)
+                                    .clipped()
+                            }
+                        }
+                        .padding(outerSpacing)
+                        .frame(width: size.width, height: size.height)
+                        .clipShape(Rectangle())
+                        .cornerRadius(10)
+                    }
+                } else {
+                    // Default view when no images are available
+                    ZStack {
+                        Color.gray.opacity(0.3) // Light gray background
+                        Image(systemName: "building.2.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.red)
+                            .frame(width: size.width * 0.5, height: size.height * 0.5)
+                    }
+                    .frame(width: size.width, height: size.height)
+                    .clipShape(Rectangle())
+                    .cornerRadius(10)
+                }
+            } else {
+                // Placeholder when collection is nil
+                Color.gray.opacity(0.3)
+                    .frame(width: size.width, height: size.height)
+                    .clipShape(Rectangle())
+                    .cornerRadius(10)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+    }        //MARK: convertRestaurantToCollectionItem
     
     /// converts a Restaurant Object to a CollectionItem object
     /// - Returns: CollectionItemObject
@@ -235,14 +323,16 @@ class CollectionsViewModel: ObservableObject {
     //MARK: updateSelectedCollection
     /// updates the selectedCollection when the user selects a collection to view
     /// - Parameter collection: Collection that is selected
+    
     func updateSelectedCollection(collection: Collection){
         self.selectedCollection = collection
         self.editTitle = collection.name
         self.editDescription = collection.description ?? ""
         self.editImageUrl = collection.coverImageUrl ?? ""
         self.deleteItems = []
-        
     }
+    
+    
     //MARK: resetViewModel
     /// clears every variable
     func resetViewModel() {
@@ -277,85 +367,82 @@ class CollectionsViewModel: ObservableObject {
     //MARK: saveEditedCollection
     /// if there are any differencs from the original selectedCollection variables, this function puts them into the data array then  updates the firebase selectedCollection with the new variables.Then clears the edits after completing
     func saveEditedCollection() async throws {
-        var changed = false
-        if let collection = self.selectedCollection {
-            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
-                var data: [String: Any] = [:]
-                //handles updating the image
-                if coverImage != nil, let uiImage = self.uiImage {
-                    let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
-                    data["coverImageUrl"] = imageUrl
-                    //updates selectedCollection with the new image
-                    self.selectedCollection?.coverImageUrl = imageUrl
-                    // updates the collections array with the updated image
-                    collections[index].coverImageUrl = imageUrl
-                    changed = true
-                }
-                
-                if self.editDescription != collection.description {
-                    self.selectedCollection?.description = self.editDescription
-                    data["description"] = self.editDescription
-                    collections[index].description = self.editDescription
-                    changed = true
-                }
-                
-                if self.editTitle != collection.name {
-                    self.selectedCollection?.name = self.editTitle
-                    data["name"] = self.editTitle
-                    collections[index].name = self.editTitle
-                    changed = true
-                }
-                
-                if  !self.deleteItems.isEmpty {
-                    for item in self.deleteItems {
-                        try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
-                            collections[index].restaurantCount -= 1
-                        
-                    }
-                    self.items = self.items.filter { !self.deleteItems.contains($0) }
-                }
-                
-                if  !self.editItems.isEmpty {
-                    for item in self.editItems {
-                        try await CollectionService.shared.addItemToCollection(collectionItem: item)
-                    }
-                    let editItemsDict = Dictionary(uniqueKeysWithValues: self.editItems.map { ($0.id, $0) })
-
-                        // Replace items in self.items with items from editItems if they have the same ID
-                        self.items = self.items.map { item in
-                            if let updatedItem = editItemsDict[item.id] {
-                                return updatedItem
-                            } else {
-                                return item
-                            }
-                        }
-                }
-                if changed{
-                    try await FirestoreConstants.CollectionsCollection.document(collection.id).updateData(data)
-                    print("ran collections update")
-                }
-                print("no updates")
-                clearEdits()
+            guard var selectedCollection = self.selectedCollection else { return }
+            var changed = false
+            var data: [String: Any] = [:]
+            
+            if coverImage != nil, let uiImage = self.uiImage {
+                let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
+                data["coverImageUrl"] = imageUrl
+                selectedCollection.coverImageUrl = imageUrl
+                changed = true
             }
+            
+            if self.editDescription != selectedCollection.description {
+                selectedCollection.description = self.editDescription
+                data["description"] = self.editDescription
+                changed = true
+            }
+            
+            if self.editTitle != selectedCollection.name {
+                selectedCollection.name = self.editTitle
+                data["name"] = self.editTitle
+                changed = true
+            }
+            
+            if !self.deleteItems.isEmpty {
+                for item in self.deleteItems {
+                    try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
+                    selectedCollection.restaurantCount -= 1
+                    selectedCollection.removeCoverImageUrl(for: item)
+                }
+                self.items = self.items.filter { !self.deleteItems.contains($0) }
+                changed = true
+            }
+            
+            if !self.editItems.isEmpty {
+                for item in self.editItems {
+                    try await CollectionService.shared.addItemToCollection(collectionItem: item)
+                    selectedCollection.updatetempImageUrls(with: item)
+                }
+                let editItemsDict = Dictionary(uniqueKeysWithValues: self.editItems.map { ($0.id, $0) })
+                self.items = self.items.map { editItemsDict[$0.id] ?? $0 }
+                changed = true
+            }
+            
+            if changed {
+                if let tempImageUrls = selectedCollection.tempImageUrls {
+                    data["tempImageUrls"] = tempImageUrls
+                }
+                try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).updateData(data)
+                
+                // Update the collections array
+                if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                    collections[index] = selectedCollection
+                }
+                
+                // Update the published selectedCollection
+                self.selectedCollection = selectedCollection
+            }
+            
+            clearEdits()
         }
-    }
     //MARK: deleteCollection
     /// deletes a collection from firebase and from the collections array.
     func deleteCollection() async throws {
-        if let collection = self.selectedCollection {
-            dismissCollectionView = true
-            guard let index = collections.firstIndex(where: { $0.id == collection.id }) else {
-                print("Collection with ID \(collection) not found.")
-                return
-            }
-            AuthService.shared.userSession?.stats.collections -= 1
-            let collection = collections[index]
-            try await CollectionService.shared.deleteCollection(selectedCollection: collection)
-            // Update the collections array and selectedCollection
-            collections.remove(at: index)
-            selectedCollection = nil
-            resetViewModel()
-        }
-    }
+           guard let collection = self.selectedCollection else { return }
+           
+           dismissCollectionView = true
+           AuthService.shared.userSession?.stats.collections -= 1
+           
+           try await CollectionService.shared.deleteCollection(selectedCollection: collection)
+           
+           // Update the collections array
+           collections.removeAll { $0.id == collection.id }
+           
+           // Clear the selectedCollection
+           selectedCollection = nil
+           resetViewModel()
+       }
 }
 

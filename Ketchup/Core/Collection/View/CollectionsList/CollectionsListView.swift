@@ -61,7 +61,7 @@ struct CollectionsListView: View {
                                         }
                                     }
                                 } label: {
-                                    CollectionListCell(collection: collection)
+                                    CollectionListCell(collection: collection, collectionsViewModel: viewModel)
                                 }
                                 Divider()
                             }

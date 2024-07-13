@@ -42,19 +42,7 @@ struct CollectionView: View {
                     if let collection = collectionsViewModel.selectedCollection {
                         VStack{
                             //MARK: Cover Image
-                            if let imageUrl = collection.coverImageUrl  {
-                                KFImage(URL(string: imageUrl))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 200, height: 200)
-                                    .clipShape(Rectangle())
-                                    .cornerRadius(10)
-                            } else {
-                                Image(systemName: "folder")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                            }
+                            collectionsViewModel.createCollageImage(from: collection, width: 200)
                             //MARK: Title
                             Text(collection.name)
                                 .font(.custom("MuseoSansRounded-300", size: 20))
@@ -109,7 +97,7 @@ struct CollectionView: View {
                                 
                             }
                             if currentSection == .grid {
-                                CollectionGridView(collectionsViewModel: collectionsViewModel)
+                                CollectionListView(collectionsViewModel: collectionsViewModel)
                             }
                         }
                         .toolbar {

@@ -22,7 +22,7 @@ struct CollectionsSearchListView: View {
                     collectionsViewModel.selectedCollection = hit.object
                     showCollection = true
                 } label: {
-                    CollectionListCell(collection: hit.object)
+                    CollectionListCell(collection: hit.object, collectionsViewModel: collectionsViewModel)
                         .padding()
                 }
                     

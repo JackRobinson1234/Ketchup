@@ -82,7 +82,6 @@ struct PrimaryFeedView: View {
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
-                            
                             scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
                             
                         }
@@ -111,8 +110,6 @@ struct PrimaryFeedView: View {
                             }
                             Spacer()
                             Button{
-                                
-                                    
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")

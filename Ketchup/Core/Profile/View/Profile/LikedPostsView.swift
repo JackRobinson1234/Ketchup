@@ -22,7 +22,6 @@ struct LikedPostsView: View {
                 .onAppear {
                     Task {
                         try await feedViewModel.fetchUserLikedPosts(user: viewModel.user)
-                        feedViewModel.posts = viewModel.likedPosts
                         isLoading = false
                     }
                 }

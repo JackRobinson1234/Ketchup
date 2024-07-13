@@ -71,7 +71,6 @@ struct EditNotesView: View {
                             viewModel.editItems.append(updatedItem)
                         }
                     }
-                    
                     // Dismiss the view
                     item = nil
                 } label: {

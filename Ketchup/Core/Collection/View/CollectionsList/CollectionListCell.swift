@@ -11,22 +11,10 @@ struct CollectionListCell: View {
     var collection: Collection
     var searchCollection: CollectionSearchModel?
     var size: CGFloat = 60
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         HStack{
-            if let imageUrl = collection.coverImageUrl  {
-                KFImage(URL(string: imageUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: size, height: size)
-                    .clipShape(Rectangle())
-                    .cornerRadius(10)
-                
-            } else {
-                Image(systemName: "folder")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size, height:size)
-            }
+            collectionsViewModel.createCollageImage(from: collection, width: size)
             VStack(alignment: .leading){
                 Text(collection.name)
                     .font(.custom("MuseoSansRounded-300", size: 18))
@@ -75,6 +63,4 @@ private func pluralText(for count: Int, singular: String, plural: String) -> Str
 }
 }
 
-#Preview {
-    CollectionListCell(collection: DeveloperPreview.collections[0])
-}
+

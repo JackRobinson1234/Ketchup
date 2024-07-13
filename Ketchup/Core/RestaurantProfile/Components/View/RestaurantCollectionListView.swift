@@ -12,6 +12,7 @@ struct RestaurantCollectionListView: View {
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showCollection: Bool = false
     @State var showAddToCollection = false
+    @StateObject var collectionsViewModel = CollectionsViewModel(user: User(id: "", username: "", fullname: "", profileImageUrl: "", privateMode: false, notificationAlert: 0))
     var body: some View {
         
         VStack{
@@ -63,7 +64,7 @@ struct RestaurantCollectionListView: View {
                                 viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
                                 showCollection.toggle()
                             } label: {
-                                CollectionListCell(collection: collection)
+                                CollectionListCell(collection: collection, collectionsViewModel: collectionsViewModel)
                             }
                             Divider()
                         }
