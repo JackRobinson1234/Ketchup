@@ -14,7 +14,7 @@ struct CollectionListCell: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         HStack{
-            collectionsViewModel.createCollageImage(from: collection, width: size)
+            CollageImage(collection: collection, width: size)
             VStack(alignment: .leading){
                 Text(collection.name)
                     .font(.custom("MuseoSansRounded-300", size: 18))

@@ -35,7 +35,7 @@ struct ActivityView: View {
                         // MARK: Buttons
                         HStack(spacing: 20) {
                             ketchupButton(for: .friends)
-                            ketchupButton(for: .trending)
+                            //ketchupButton(for: .trending)
                         }
                         .padding()
                         
@@ -48,6 +48,7 @@ struct ActivityView: View {
                         }
                         
                         Divider()
+                        HorizontalCollectionScrollView()
                         
                         // MARK: Activity List
                         ZStack {
@@ -148,3 +149,4 @@ struct ActivityView: View {
         }
     }
 }
+

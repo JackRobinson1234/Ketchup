@@ -30,10 +30,14 @@ struct MainTabView: View {
                         .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         .padding()
                 }
+                .onAppear {
+                    tabBarController.selectedTab = 0
+                    tabBarController.visibility = .visible
+                }
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-
+            
             MapView()
                 .tabItem {
                     Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
@@ -41,10 +45,14 @@ struct MainTabView: View {
                         .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         .padding()
                 }
+                .onAppear {
+                    tabBarController.selectedTab = 1
+                    tabBarController.visibility = .visible
+                }
                 .tag(1)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-
+            
             CameraView(feedViewModel: feedViewModel)
                 .tabItem {
                     Image(systemName: "plus.app")
@@ -69,6 +77,10 @@ struct MainTabView: View {
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
+                .onAppear {
+                    tabBarController.selectedTab = 3
+                    tabBarController.visibility = .visible
+                }
 
             CurrentUserProfileView()
                 .tabItem {
@@ -77,6 +89,10 @@ struct MainTabView: View {
                     }
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.primary)
+                }
+                .onAppear {
+                    tabBarController.selectedTab = 4
+                    tabBarController.visibility = .visible
                 }
                 .badge(AuthService.shared.userSession?.notificationAlert ?? 0)
                 .tag(4)

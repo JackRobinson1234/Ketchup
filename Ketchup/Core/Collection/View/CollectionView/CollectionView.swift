@@ -42,7 +42,7 @@ struct CollectionView: View {
                     if let collection = collectionsViewModel.selectedCollection {
                         VStack{
                             //MARK: Cover Image
-                            collectionsViewModel.createCollageImage(from: collection, width: 200)
+                           CollageImage(collection: collection, width: 200)
                             //MARK: Title
                             Text(collection.name)
                                 .font(.custom("MuseoSansRounded-300", size: 20))

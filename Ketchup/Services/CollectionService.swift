@@ -157,4 +157,17 @@ class CollectionService {
         print("fetchedCollections", fetchedCollections)
         return fetchedCollections
     }
+    func fetchPaginatedCollections(lastDocument: QueryDocumentSnapshot?, limit: Int) async throws -> (collections: [Collection], lastDocument: QueryDocumentSnapshot?) {
+            var query = FirestoreConstants.CollectionsCollection
+                .order(by: "timestamp", descending: true)
+                .limit(to: limit)
+            
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+            
+            let snapshot = try await query.getDocuments()
+            let collections = try snapshot.documents.compactMap { try $0.data(as: Collection.self) }
+            return (collections, snapshot.documents.last)
+        }
 }
