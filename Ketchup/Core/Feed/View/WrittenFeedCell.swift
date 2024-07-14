@@ -342,7 +342,7 @@ struct WrittenFeedCell: View {
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
-                AddItemCollectionList(user: currentUser, post: post)
+                AddItemCollectionList(post: post)
                     .onDisappear {
                         videoCoordinator.play()
                     }

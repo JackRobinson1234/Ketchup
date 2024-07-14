@@ -24,7 +24,7 @@ struct CollageImage: View {
                         .scaledToFill()
                         .frame(width: width, height: width)
                         .clipShape(Rectangle())
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                 } else if let tempUrls = collection.tempImageUrls, !tempUrls.isEmpty {
                     if tempUrls.count < 4 {
                         KFImage(URL(string: tempUrls[0]))
@@ -32,7 +32,7 @@ struct CollageImage: View {
                             .scaledToFill()
                             .frame(width: width, height: width)
                             .clipShape(Rectangle())
-                            .cornerRadius(10)
+                            .cornerRadius(12)
                     } else {
                         VStack(spacing: innerSpacing) {
                             HStack(spacing: innerSpacing) {
@@ -63,7 +63,7 @@ struct CollageImage: View {
                         .padding(outerSpacing)
                         .frame(width: width, height: width)
                         .clipShape(Rectangle())
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                     }
                 } else {
                     // Default view when no images are available
@@ -77,14 +77,14 @@ struct CollageImage: View {
                     }
                     .frame(width: width, height: width)
                     .clipShape(Rectangle())
-                    .cornerRadius(10)
+                    .cornerRadius(12)
                 }
             } else {
                 // Placeholder when collection is nil
                 Color.gray.opacity(0.3)
                     .frame(width: width, height: width)
                     .clipShape(Rectangle())
-                    .cornerRadius(10)
+                    .cornerRadius(12)
             }
         }
         .frame(width: width, height: width)

@@ -13,7 +13,7 @@ struct CollectionsSearchListView: View {
     var debouncer = Debouncer(delay: 1.0)
     @State var showCollection = false
     @State var selectedCollection: Collection? = nil
-    @StateObject var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
+    @StateObject var collectionsViewModel = CollectionsViewModel()
 
    
     var body: some View {

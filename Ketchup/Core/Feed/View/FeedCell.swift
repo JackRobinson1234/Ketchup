@@ -187,7 +187,7 @@ struct FeedCell: View {
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
-                AddItemCollectionList(user: currentUser, post: post)
+                AddItemCollectionList(post: post)
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {

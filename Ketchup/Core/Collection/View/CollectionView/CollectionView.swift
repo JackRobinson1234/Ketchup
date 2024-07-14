@@ -149,7 +149,7 @@ struct CollectionView: View {
                 }
                 //MARK: Notes View
                 if let item = collectionsViewModel.notesPreview {
-                    ItemNotesView(item: item, username: collectionsViewModel.user.username, viewModel: collectionsViewModel )
+                    ItemNotesView(item: item, viewModel: collectionsViewModel )
                         .focused($isNotesFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isNotesFocused = true // Automatically focuses the TextEditor when it appears
@@ -180,5 +180,5 @@ struct CollectionView: View {
     }
 }
 #Preview {
-    CollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionView(collectionsViewModel: CollectionsViewModel())
 }

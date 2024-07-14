@@ -42,7 +42,7 @@ struct ProfileSlideBar: View {
         self._profileSection = profileSection
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
+        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
     }
@@ -136,7 +136,7 @@ struct ProfileSlideBar: View {
             }
             
             if profileSection == .collections {
-                CollectionsListView(viewModel: collectionsViewModel)
+                CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }
         }
     }

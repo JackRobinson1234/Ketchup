@@ -21,7 +21,6 @@ class CollectionsViewModel: ObservableObject {
                }
            }
        }
-    @Published var user: User
     @Published var uploadComplete = false
     @Published var selectedImage: PhotosPickerItem? {
         didSet { Task { await loadImage(fromItem: selectedImage) } }
@@ -42,9 +41,11 @@ class CollectionsViewModel: ObservableObject {
     @Published var notesPreview: CollectionItem?
     @Published var editItems: [CollectionItem] = []
     @Published var restaurantRequest: RestaurantRequest?
-    
-    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
-        self.user = user
+    private var lastDocument: QueryDocumentSnapshot?
+    private let limit = 10
+    private var hasMoreCollections = true
+    private var currentTask: Task<Void, Never>?
+    init(post: Post? = nil, restaurant: Restaurant? = nil, selectedCollection: Collection? = nil) {
         self.post = post
         self.restaurant = restaurant
         self.selectedCollection = selectedCollection
@@ -54,6 +55,37 @@ class CollectionsViewModel: ObservableObject {
     
     /// fetches all collections for a user
     /// - Parameter user: user to fetch collections for
+    ///  @Published var collections: [Collection] = []
+    
+    func loadInitialCollections() {
+        guard collections.isEmpty else { return }
+        loadMore()
+    }
+    
+    func loadMore() {
+        guard !isLoading, hasMoreCollections else { return }
+        
+        currentTask?.cancel()
+        currentTask = Task { @MainActor in
+            do {
+                isLoading = true
+                print("Starting to fetch collections")
+                
+                let (newCollections, lastDoc) = try await CollectionService.shared.fetchPaginatedCollections(
+                    lastDocument: lastDocument,
+                    limit: limit
+                )
+                
+                collections.append(contentsOf: newCollections)
+                lastDocument = lastDoc
+                hasMoreCollections = newCollections.count == limit
+                print("Fetched \(newCollections.count) collections. Total: \(collections.count)")
+            } catch {
+                print("Error loading collections: \(error)")
+            }
+            isLoading = false
+        }
+    }
     func fetchCollections(user: String) async {
         isLoading = true
         print("fetching Collections")
@@ -114,36 +146,38 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: A CollectionItem
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
-           
-                let collectionItem = CollectionItem(
-                    collectionId: "",
-                    id: post.id,
-                    name: post.restaurant.name,
-                    image: post.restaurant.profileImageUrl,
-                    city: post.restaurant.city,
-                    state: post.restaurant.state,
-                    geoPoint: post.restaurant.geoPoint,
-                    privateMode: user.privateMode
-                )
-                return collectionItem
+            if let user = AuthService.shared.userSession{
+            let collectionItem = CollectionItem(
+                collectionId: "",
+                id: post.id,
+                name: post.restaurant.name,
+                image: post.restaurant.profileImageUrl,
+                city: post.restaurant.city,
+                state: post.restaurant.state,
+                geoPoint: post.restaurant.geoPoint,
+                privateMode: user.privateMode
+            )
+            return collectionItem
             
         }
-        
+    }
         return nil
     }
     
     func convertRequestToCollectionItem(name: String, city: String, state: String) -> CollectionItem {
-        let collectionItem = CollectionItem(
-            collectionId: "",
-            id: "construction" + NSUUID().uuidString,
-            name: name,
-            image: nil,
-            city: city,
-            state: state,
-            geoPoint: nil,
-            privateMode: user.privateMode
-        )
-        return collectionItem
+        let user = AuthService.shared.userSession!
+            let collectionItem = CollectionItem(
+                collectionId: "",
+                id: "construction" + NSUUID().uuidString,
+                name: name,
+                image: nil,
+                city: city,
+                state: state,
+                geoPoint: nil,
+                privateMode: user.privateMode
+            )
+            return collectionItem
+        
     }
     
     //MARK: addRestaurantToCollection
@@ -167,26 +201,29 @@ class CollectionsViewModel: ObservableObject {
     /// - Returns: CollectionItemObject
     func convertRestaurantToCollectionItem() -> CollectionItem? {
         if let restaurant = self.restaurant {
-            var collectionItem = CollectionItem(
-                collectionId: "",
-                id: restaurant.id,
-                name: restaurant.name,
-                image: restaurant.profileImageUrl,
-                city: restaurant.city,
-                state: restaurant.state,
-                geoPoint: restaurant.geoPoint,
-                privateMode: user.privateMode
-            )
-            if let geopoint = restaurant.geoPoint{
-                collectionItem.geoPoint = geopoint
-            } else if let geoLoc = restaurant._geoloc {
-                collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+            if let user = AuthService.shared.userSession{
+                var collectionItem = CollectionItem(
+                    collectionId: "",
+                    id: restaurant.id,
+                    name: restaurant.name,
+                    image: restaurant.profileImageUrl,
+                    city: restaurant.city,
+                    state: restaurant.state,
+                    geoPoint: restaurant.geoPoint,
+                    privateMode: user.privateMode
+                )
+                if let geopoint = restaurant.geoPoint{
+                    collectionItem.geoPoint = geopoint
+                } else if let geoLoc = restaurant._geoloc {
+                    collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+                }
+                return collectionItem
             }
-            return collectionItem
         }
         return nil
     }
     func convertRestaurantToCollectionItem(restaurant: Restaurant) -> CollectionItem {
+       let user = AuthService.shared.userSession!
             var collectionItem = CollectionItem(
                 collectionId: "",
                 id: restaurant.id,
@@ -203,6 +240,7 @@ class CollectionsViewModel: ObservableObject {
                 collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
             }
             return collectionItem
+        
     }
     //MARK: loadImage
     
@@ -221,25 +259,27 @@ class CollectionsViewModel: ObservableObject {
     
     /// uploads selectedCollection to Firebase. Makes the description nil if there isnt any.  Otherwise takes from the self variables assigned throughout the edit/ upload process
     func uploadCollection() async throws {
-        isLoading = true
-        let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
-        let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
-        if let collection{
-            print(collection)
-            self.collections.insert(collection, at: 0)
+        if let user = AuthService.shared.userSession{
+            isLoading = true
+            let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
+            let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
+            if let collection{
+                print(collection)
+                self.collections.insert(collection, at: 0)
+            }
+            // Adds post if there is one selected
+            if self.post != nil, let collection = collection{
+                updateSelectedCollection(collection: collection)
+                try await addPostToCollection()
+            }
+            
+            if self.restaurant != nil, let collection = collection {
+                updateSelectedCollection(collection: collection)
+                try await addRestaurantToCollection()
+            }
+            resetViewModel()
+            isLoading = false
         }
-        // Adds post if there is one selected
-        if self.post != nil, let collection = collection{
-            updateSelectedCollection(collection: collection)
-            try await addPostToCollection()
-        }
-        
-        if self.restaurant != nil, let collection = collection {
-            updateSelectedCollection(collection: collection)
-            try await addRestaurantToCollection()
-        }
-        resetViewModel()
-        isLoading = false
     }
     //MARK: updateSelectedCollection
     /// updates the selectedCollection when the user selects a collection to view

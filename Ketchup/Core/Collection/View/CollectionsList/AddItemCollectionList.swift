@@ -12,15 +12,13 @@ struct AddItemCollectionList: View {
     @StateObject var viewModel: CollectionsViewModel
     @FocusState private var isCaptionEditorFocused: Bool
     @State private var isEditingCaption = false
-    let user: User
     var post: Post?
     var restaurant: Restaurant?
     
-    init(user: User, post: Post? = nil, restaurant: Restaurant? = nil) {
-        self.user = user
+    init(post: Post? = nil, restaurant: Restaurant? = nil) {
         self.post = post
         self.restaurant = restaurant
-        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(user: user, post: post, restaurant: restaurant))
+        self._viewModel = StateObject(wrappedValue: CollectionsViewModel(post: post, restaurant: restaurant))
     }
     var body: some View {
         NavigationStack{
@@ -47,7 +45,7 @@ struct AddItemCollectionList: View {
                             CaptionBox(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Add some notes...")
                         }
                         
-                        CollectionsListView(viewModel: viewModel)
+                        CollectionsListView(viewModel: viewModel, user: AuthService.shared.userSession!)
                         Spacer()
                     }
                 }
@@ -86,6 +84,4 @@ struct AddItemCollectionList: View {
         }
     }
 }
-#Preview {
-    AddItemCollectionList(user: DeveloperPreview.user, post: DeveloperPreview.posts[0])
-}
+

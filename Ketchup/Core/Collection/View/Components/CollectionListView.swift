@@ -82,5 +82,5 @@ struct CollectionListView: View {
 }
 
 #Preview {
-    CollectionListView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionListView(collectionsViewModel: CollectionsViewModel())
 }

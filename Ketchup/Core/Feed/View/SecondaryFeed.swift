@@ -10,7 +10,6 @@ import SwiftUI
 struct SecondaryFeedView: View {
     @ObservedObject var viewModel: FeedViewModel
     @State var scrollPosition: String?
-    @State private var showSearchView = false
     @State private var showFilters = false
     @State private var isLoading = true
     @State private var selectedFeed: FeedType = .discover
@@ -190,12 +189,6 @@ struct SecondaryFeedView: View {
         }
         .navigationDestination(for: PostRestaurant.self) { restaurant in
             RestaurantProfileView(restaurantId: restaurant.id)
-        }
-        .onChange(of: showSearchView) { oldValue, newValue in
-            pauseVideo = newValue
-        }
-        .fullScreenCover(isPresented: $showSearchView) {
-            SearchView()
         }
         .onChange(of: showFilters) { oldValue, newValue in
             pauseVideo = newValue

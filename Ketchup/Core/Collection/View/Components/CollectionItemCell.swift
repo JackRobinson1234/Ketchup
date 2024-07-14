@@ -87,7 +87,7 @@ struct CollectionItemCell: View {
 
 
 #Preview {
-    CollectionItemCell(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionItemCell(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel())
 }
 
 

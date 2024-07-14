@@ -91,5 +91,5 @@ struct AddNotesView: View {
     
 }
 #Preview {
-    AddNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    AddNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel())
 }

@@ -159,6 +159,7 @@ class CollectionService {
     }
     func fetchPaginatedCollections(lastDocument: QueryDocumentSnapshot?, limit: Int) async throws -> (collections: [Collection], lastDocument: QueryDocumentSnapshot?) {
             var query = FirestoreConstants.CollectionsCollection
+            .whereField("restaurantCount", isGreaterThan: 0)
                 .order(by: "timestamp", descending: true)
                 .limit(to: limit)
             

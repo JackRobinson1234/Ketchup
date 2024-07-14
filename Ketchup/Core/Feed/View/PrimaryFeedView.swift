@@ -296,7 +296,7 @@ struct PrimaryFeedView: View {
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showSearchView) {
-                    SearchView()
+                    SearchView(initialSearchConfig: .restaurants)
                 }
                 .onChange(of: showFilters) { oldValue, newValue in
                     pauseVideo = newValue

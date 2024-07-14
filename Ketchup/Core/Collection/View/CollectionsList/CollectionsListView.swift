@@ -14,6 +14,7 @@ struct CollectionsListView: View {
     @State var showAddCollection: Bool = false
     @State var showCollection: Bool = false
     @State var dismissCollectionsList: Bool = false
+    let user: User
     
     var body: some View {
         //MARK: isLoading
@@ -27,7 +28,7 @@ struct CollectionsListView: View {
                 //MARK: Add Collection Button
                 //ScrollView{
                     LazyVStack{
-                        if viewModel.user.isCurrentUser {
+                        if user.isCurrentUser {
                             Divider()
                             Button{
                                 showAddCollection.toggle()
@@ -68,12 +69,12 @@ struct CollectionsListView: View {
                         }
                         //MARK: No Collections Message
                         else {
-                            if viewModel.user.isCurrentUser{
+                            if user.isCurrentUser{
                                 Text("You don't have any collections yet!")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                     .padding()
                             } else {
-                                Text("\(viewModel.user.fullname) doesn't have any collections yet!")
+                                Text("\(user.fullname) doesn't have any collections yet!")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                     .padding()
                             }
@@ -84,7 +85,7 @@ struct CollectionsListView: View {
                 //.navigationDestination(for: Collection.self) {collection in
                 //CollectionView(collectionsViewModel: viewModel, collection: collection)}
                 .sheet(isPresented: $showAddCollection) {
-                    CreateCollectionDetails(user: viewModel.user, collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)
+                    CreateCollectionDetails(collectionsViewModel: viewModel, dismissCollectionsList: $dismissCollectionsList)
                 }
                 // Dismisses this view if a new collection is made
                 
@@ -94,7 +95,7 @@ struct CollectionsListView: View {
         .onAppear {
             if !viewModel.dismissListView {
                 Task {
-                    await viewModel.fetchCollections(user: viewModel.user.id)
+                    await viewModel.fetchCollections(user: user.id)
                 }
             }
         }
@@ -107,9 +108,7 @@ struct CollectionsListView: View {
     }
 }
 
-#Preview {
-    CollectionsListView(viewModel: CollectionsViewModel(user: DeveloperPreview.user))
-}
+
 struct CreateCollectionButton: View {
     var body: some View {
         HStack{
