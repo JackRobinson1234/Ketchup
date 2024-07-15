@@ -10,7 +10,7 @@ struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
-    @State var showNotifications = false
+    @Binding var showNotifications: Bool
     @State var showSettings = false
     @State var isDragging = false
     @State var dragDirection = "left"
@@ -41,10 +41,11 @@ struct CurrentUserProfileView: View {
             }
     }
 
-    init(currentProfileSection: ProfileSectionEnum = .posts) {
+    init(currentProfileSection: ProfileSectionEnum = .posts, showNotifications: Binding<Bool>) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
+        self._showNotifications = showNotifications
     }
     
     var body: some View {
@@ -179,6 +180,3 @@ struct CurrentUserProfileView: View {
 
 
 
-#Preview {
-    CurrentUserProfileView()
-}

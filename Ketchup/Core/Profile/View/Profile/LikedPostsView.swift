@@ -45,14 +45,6 @@ struct LikedPostsView: View {
                     )
                 case .media:
                     PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts liked by @\(viewModel.user.username)", showNames: true)
-                case .map:
-                    ProfileMapView(feedViewModel: feedViewModel)
-                        .id("map")
-                }
-            }
-            .onChange(of: postDisplayMode){
-                if postDisplayMode == .map {
-                    scrollTarget = "map"
                 }
             }
         }

@@ -10,11 +10,11 @@ import FirebaseAuth
 struct ContentView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
-
+    @State var showNotifications = false
     var body: some View {
         Group {
             if Auth.auth().currentUser != nil {
-                MainTabView()
+                MainTabView(showNotifications: $showNotifications)
                     .environmentObject(viewModel)
                     .environmentObject(tabBarController)
                     .customFont()
@@ -25,6 +25,7 @@ struct ContentView: View {
                         print("Received navigate to profile notification")
                         DispatchQueue.main.async {
                             self.tabBarController.selectedTab = 4
+                            showNotifications = true
                             print("Tab set to: \(self.tabBarController.selectedTab)")
                         }
                     }
@@ -41,6 +42,7 @@ struct ContentView: View {
             DispatchQueue.main.async {
                 self.tabBarController.selectedTab = initialTab
                 print("Tab set to: \(self.tabBarController.selectedTab)")
+                showNotifications = true
                 UserDefaults.standard.removeObject(forKey: "initialTab")
             }
         }

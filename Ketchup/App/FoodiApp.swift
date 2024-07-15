@@ -63,8 +63,10 @@ extension AppDelegate: MessagingDelegate {
     }
 }
 @main
-struct ketchupApp: App {
+struct KetchupApp: App {
     @StateObject private var tabBarController = TabBarController()
+    @State private var showNotifications = false
+    
     init() {
         let appear = UINavigationBarAppearance()
         
@@ -87,6 +89,7 @@ struct ketchupApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(tabBarController)
+            
         }
     }
 }

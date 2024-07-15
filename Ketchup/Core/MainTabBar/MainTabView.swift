@@ -17,9 +17,10 @@ struct MainTabView: View {
     @State private var sessionStartTime: Date = Date()
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
-    
     @Environment(\.scenePhase) private var scenePhase
-
+    @Binding var showNotifications: Bool
+    
+    
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)
@@ -82,7 +83,7 @@ struct MainTabView: View {
                     tabBarController.visibility = .visible
                 }
 
-            CurrentUserProfileView()
+            CurrentUserProfileView(showNotifications: $showNotifications)
                 .tabItem {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
