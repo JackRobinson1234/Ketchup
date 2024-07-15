@@ -331,3 +331,105 @@ extension PostService {
         return snapshot.exists
     }
 }
+
+extension PostService {
+    // MARK: - bookmarkPost
+    /// Bookmarks a post for the current user
+    /// - Parameter post: post object to be bookmarked
+    func bookmarkPost(_ post: Post) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let bookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(post.restaurant.id)
+        
+        let bookmark = Bookmark(
+            id: post.restaurant.id,
+            restaurantId: post.restaurant.id,
+            restaurantName: post.restaurant.name,
+            restaurantCity: post.restaurant.city,
+            retaurantState: post.restaurant.state,
+            geoPoint: post.restaurant.geoPoint,
+            postIds: [post.id],
+            timestamp: Timestamp(date: Date()),
+            image: post.restaurant.profileImageUrl
+        )
+        
+        do {
+            let snapshot = try await bookmarkRef.getDocument()
+            if snapshot.exists {
+                // Update existing bookmark
+                try await bookmarkRef.updateData([
+                    "postIds": FieldValue.arrayUnion([post.id]),
+                    "timestamp": Timestamp(date: Date())
+                ])
+            } else {
+                // Create new bookmark
+                try await bookmarkRef.setData(from: bookmark)
+            }
+        } catch {
+            print("Error bookmarking post: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // MARK: - unbookmarkPost
+    /// Removes a post from the user's bookmarks
+    /// - Parameter post: post object to be unbookmarked
+    func unbookmarkPost(_ post: Post) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let bookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(post.restaurant.id)
+        
+        do {
+            let snapshot = try await bookmarkRef.getDocument()
+            if snapshot.exists {
+                // Remove post ID from the bookmark
+                try await bookmarkRef.updateData([
+                    "postIds": FieldValue.arrayRemove([post.id])
+                ])
+                
+                // Check if there are any posts left for this restaurant
+                let updatedSnapshot = try await bookmarkRef.getDocument()
+                let updatedBookmark = try updatedSnapshot.data(as: Bookmark.self)
+                
+                if updatedBookmark.postIds?.isEmpty ?? true {
+                    // If no posts left, delete the entire bookmark
+                    try await bookmarkRef.delete()
+                }
+            }
+        } catch {
+            print("Error unbookmarking post: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // MARK: - checkIfUserBookmarkedPost
+    /// Checks if the current user has bookmarked a specific post
+    /// - Parameter post: post to check for bookmark
+    /// - Returns: Boolean indicating if the post is bookmarked
+    func checkIfUserBookmarkedPost(_ post: Post) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        
+        let bookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(post.restaurant.id)
+        
+        do {
+            let snapshot = try await bookmarkRef.getDocument()
+            if snapshot.exists {
+                let bookmark = try snapshot.data(as: Bookmark.self)
+                return bookmark.postIds?.contains(post.id) ?? false
+            }
+            return false
+        } catch {
+            print("Error checking bookmark status: \(error.localizedDescription)")
+            throw error
+        }
+    }
+}
