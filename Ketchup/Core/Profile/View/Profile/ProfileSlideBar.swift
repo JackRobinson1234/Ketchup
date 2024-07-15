@@ -86,16 +86,16 @@ struct ProfileSlideBar: View {
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
                     .frame(maxWidth: .infinity)
 
-                Image(systemName: profileSection == .bookmarks ? "heart.fill" : "heart")
+                Image(systemName: profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .likes
+                            self.profileSection = .bookmarks
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .bookmarks))
                     .frame(maxWidth: .infinity)
             }
             .padding()
@@ -132,9 +132,10 @@ struct ProfileSlideBar: View {
                         scrollTarget = "map"
                     }
             }
-            if profileSection == .likes {
-                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
-                               scrollTarget: $scrollTarget)
+            if profileSection == .bookmarks {
+                Text("Building")
+//                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
+//                               scrollTarget: $scrollTarget)
             }
 
             if profileSection == .collections {

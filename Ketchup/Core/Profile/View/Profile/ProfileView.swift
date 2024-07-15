@@ -30,7 +30,7 @@ struct ProfileView: View {
                     if profileSection == .posts {
                         dismiss()
                    
-                    } else if profileSection == .likes{
+                    } else if profileSection == .bookmarks{
                         profileSection = .collections
                     } else if profileSection == .collections{
                         profileSection = .posts
@@ -40,7 +40,7 @@ struct ProfileView: View {
                         if profileSection == .posts {
                             profileSection = .collections
                         } else if profileSection == .collections{
-                            profileSection = .likes
+                            profileSection = .bookmarks
                         }
                         self.isDragging = false
                     }

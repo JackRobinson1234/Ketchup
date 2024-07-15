@@ -26,7 +26,7 @@ struct CurrentUserProfileView: View {
                     self.dragDirection = "left"
                     if currentProfileSection == .collections {
                         currentProfileSection = .posts
-                    } else if currentProfileSection == .likes {
+                    } else if currentProfileSection == .bookmarks {
                         currentProfileSection = .collections
                     }
                 } else {
@@ -34,7 +34,7 @@ struct CurrentUserProfileView: View {
                     if currentProfileSection == .posts {
                         currentProfileSection = .collections
                     } else if currentProfileSection == .collections {
-                        currentProfileSection = .likes
+                        currentProfileSection = .bookmarks
                     }
                     self.isDragging = false
                 }

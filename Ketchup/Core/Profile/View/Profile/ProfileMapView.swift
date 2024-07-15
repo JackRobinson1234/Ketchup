@@ -15,6 +15,7 @@ struct ProfileMapView: View {
     @State var selectedWrittenPost: Post?
     @State var selectedLocation: LocationWithPosts?
     @Environment(\.dismiss) var dismiss
+    @StateObject var newFeedViewModel = FeedViewModel()
     
     // Filter posts to exclude those with restaurant IDs starting with "construction"
     var filteredPosts: [Post] {
@@ -35,13 +36,13 @@ struct ProfileMapView: View {
                     Annotation(postsAtLocation.first?.restaurant.name ?? "", coordinate: coordinate) {
                         Button {
                             if postsAtLocation.count > 1 {
-                                feedViewModel.posts = postsAtLocation
+                                newFeedViewModel.posts = postsAtLocation
                                 selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
                             } else if let singlePost = postsAtLocation.first {
                                 if singlePost.mediaType == .written {
                                     selectedWrittenPost = singlePost
                                 } else {
-                                    feedViewModel.posts = [singlePost]
+                                    newFeedViewModel.posts = [singlePost]
                                     selectedPost = singlePost
                                 }
                             }
@@ -61,25 +62,36 @@ struct ProfileMapView: View {
             .sheet(item: $selectedLocation) { locationWithPosts in
                 NavigationStack{
                     ScrollView{
-                        ProfileFeedView(viewModel: feedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
+                        ProfileFeedView(viewModel: newFeedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
                     }
                     .modifier(BackButtonModifier())
+                    
+                }
+                .onDisappear {
+                    updateOriginalFeedViewModel()
                 }
             }
             .fullScreenCover(item: $selectedPost) { post in
                 NavigationStack {
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, titleText: "Posts")
+                    SecondaryFeedView(viewModel: newFeedViewModel, hideFeedOptions: true, titleText: "Posts")
+                }
+                .onDisappear {
+                    updateOriginalFeedViewModel()
                 }
             }
             .sheet(item: $selectedWrittenPost) { post in
                 NavigationStack {
                     ScrollView {
-                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+                        WrittenFeedCell(viewModel: newFeedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
                     }
                     .modifier(BackButtonModifier())
                     .navigationDestination(for: PostRestaurant.self) { restaurant in
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
+                    
+                }
+                .onDisappear {
+                    updateOriginalFeedViewModel()
                 }
             }
         } else {
@@ -89,6 +101,13 @@ struct ProfileMapView: View {
                     .foregroundStyle(.gray)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                 Spacer()
+            }
+        }
+    }
+    private func updateOriginalFeedViewModel() {
+        for (index, post) in feedViewModel.posts.enumerated() {
+            if let updatedPost = newFeedViewModel.posts.first(where: { $0.id == post.id }) {
+                feedViewModel.posts[index] = updatedPost
             }
         }
     }
