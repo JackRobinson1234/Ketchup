@@ -60,9 +60,9 @@ struct MainTabView: View {
                         .padding()
                 }
                 .onAppear {
-                                    tabBarController.selectedTab = 2
-                                    tabBarController.visibility = .hidden
-                                }
+                    tabBarController.selectedTab = 2
+                    tabBarController.visibility = .hidden
+                }
                 .tag(2)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
@@ -104,16 +104,24 @@ struct MainTabView: View {
         .onAppear {
             sessionStartTime = Date()
             startTracking(tab: tabBarController.selectedTab)
+
+            // Check for initial tab navigation
+            if let initialTab = UserDefaults.standard.object(forKey: "initialTab") as? Int {
+                DispatchQueue.main.async {
+                    self.tabBarController.selectedTab = initialTab
+                    UserDefaults.standard.removeObject(forKey: "initialTab")
+                }
+            }
         }
         .onDisappear {
             stopTracking(tab: tabBarController.selectedTab)
             sendSessionAnalytics()
         }
-        .onChange(of: tabBarController.selectedTab) {oldPhase,  newTab in
-            stopTracking(tab: tabBarController.selectedTab)
+        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
+            stopTracking(tab: oldTab)
             startTracking(tab: newTab)
         }
-        .onChange(of: scenePhase) {oldPhase, newPhase in
+        .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background {
                 stopTracking(tab: tabBarController.selectedTab)
                 sendSessionAnalytics()
@@ -123,36 +131,36 @@ struct MainTabView: View {
             }
         }
     }
-    
+
     private func startTracking(tab: Int) {
-        print("Starting Tracking")
         tabStartTime = Date()
     }
 
     private func stopTracking(tab: Int) {
-        print("Stopping Tracking")
         guard let startTime = tabStartTime else { return }
         let timeSpent = Date().timeIntervalSince(startTime)
         sessionTimeSpent[tab, default: 0] += timeSpent
     }
 
     private func sendSessionAnalytics() {
-        if Auth.auth().currentUser?.uid != "yO2MWjMCZ1MsBsuVE9h8M5BTlpj2" || AuthService.shared.userSession?.username != "joe"{
-            let totalSessionTime = Date().timeIntervalSince(sessionStartTime)
-            
-            Analytics.logEvent("session_time", parameters: [
-                "total_time": totalSessionTime as NSObject
+        let totalSessionTime = Date().timeIntervalSince(sessionStartTime)
+
+        Analytics.logEvent("session_time", parameters: [
+            "total_time": totalSessionTime as NSObject
+        ])
+
+        for (tab, time) in sessionTimeSpent {
+            Analytics.logEvent("tab_time_in_session", parameters: [
+                "tab": tab as NSObject,
+                "time": time as NSObject
             ])
-            
-            for (tab, time) in sessionTimeSpent {
-                print("tab: \(tab), time: \(time)")
-                Analytics.logEvent("tab_time_in_session", parameters: [
-                    "tab": tab as NSObject,
-                    "time": time as NSObject
-                ])
-            }
         }
-        // Reset session data
+
         sessionTimeSpent.removeAll()
     }
+}
+
+
+extension Foundation.Notification.Name {
+    static let navigateToProfile = Foundation.Notification.Name("navigateToProfile")
 }

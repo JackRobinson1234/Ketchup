@@ -28,17 +28,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         )
         application.registerForRemoteNotifications()
         Messaging.messaging().token { token, error in
-                    if let error {
-                        print("Error fetching FCM registration token: \(error)")
-                    } else if let token {
-                        print("FCM registration token: \(token)")
-                    }
-                }
-        UNUserNotificationCenter.current().setBadgeCount(0) { error in
-                if let error = error {
-                    print("Error setting badge count: \(error)")
-                }
+            if let error {
+                print("Error fetching FCM registration token: \(error)")
+            } else if let token {
+                print("FCM registration token: \(token)")
             }
+        }
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("Error setting badge count: \(error)")
+            }
+        }
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
@@ -50,42 +50,43 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
     func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-            print("Oh no! Failed to register for remote notifications with error \(error)")
-        }
+        print("Oh no! Failed to register for remote notifications with error \(error)")
+    }
     
 }
 extension AppDelegate: MessagingDelegate {
     @objc func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("Firebase token: \(String(describing: fcmToken))")
         if let token = fcmToken {
-                    saveTokenToFirestore(token: token)
-                }
+            saveTokenToFirestore(token: token)
+        }
     }
 }
 @main
-struct foodiApp: App {
-    
+struct ketchupApp: App {
+    @StateObject private var tabBarController = TabBarController()
     init() {
         let appear = UINavigationBarAppearance()
-
+        
         let atters: [NSAttributedString.Key: Any] = [
             .font: UIFont(name: "MuseoSansRounded-1000", size: 30)!
         ]
         let inlineTitleAttributes: [NSAttributedString.Key: Any] = [
-                   .font: UIFont(name: "MuseoSansRounded-1000", size: 20)! // Smaller size for inline title
-               ]
-
+            .font: UIFont(name: "MuseoSansRounded-1000", size: 20)! // Smaller size for inline title
+        ]
+        
         appear.largeTitleTextAttributes = atters
         appear.titleTextAttributes = inlineTitleAttributes
         appear.configureWithTransparentBackground()
         UINavigationBar.appearance().standardAppearance = appear
         UINavigationBar.appearance().compactAppearance = appear
         UINavigationBar.appearance().scrollEdgeAppearance = appear
-     }
+    }
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(tabBarController)
         }
     }
 }
@@ -112,59 +113,71 @@ func configureKingfisherCache() {
 // Call this function early in your app lifecycle, such as in AppDelegate or SceneDelegate
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-  // Receive displayed notifications for iOS 10 devices.
- 
+    // Receive displayed notifications for iOS 10 devices.
+    
     func application(_ application: UIApplication,
-        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-      Messaging.messaging().apnsToken = deviceToken;
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken;
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
-      withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-      let userInfo = notification.request.content.userInfo
-
-      Messaging.messaging().appDidReceiveMessage(userInfo)
-
-      // Change this to your preferred presentation option
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Change this to your preferred presentation option
         if #available(iOS 14.0, *) {
-              completionHandler([.banner, .sound, .badge])
-          } else {
-              completionHandler([.alert, .sound, .badge])
-          }
+            completionHandler([.banner, .sound, .badge])
+        } else {
+            completionHandler([.alert, .sound, .badge])
+        }
     }
-
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-      let userInfo = response.notification.request.content.userInfo
-
-      Messaging.messaging().appDidReceiveMessage(userInfo)
-
-      completionHandler()
+        let userInfo = response.notification.request.content.userInfo
+        
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Handle the notification action
+        handleNotificationAction(userInfo: userInfo)
+        
+        completionHandler()
     }
+    
+    func handleNotificationAction(userInfo: [AnyHashable: Any]) {
+            // Store the navigation info in UserDefaults
+            UserDefaults.standard.set(4, forKey: "initialTab")
+            UserDefaults.standard.synchronize()
 
+            // Post a notification to navigate to the profile tab
+            NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])
+        }
     func application(_ application: UIApplication,
-    didReceiveRemoteNotification userInfo: [AnyHashable : Any],
-       fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-      Messaging.messaging().appDidReceiveMessage(userInfo)
-      completionHandler(.noData)
-    }
+                        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+           Messaging.messaging().appDidReceiveMessage(userInfo)
+           handleNotificationAction(userInfo: userInfo)
+           completionHandler(.noData)
+       }
     func saveTokenToFirestore(token: String) {
-            guard let userId = Auth.auth().currentUser?.uid else { return }
-            
-            let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
-            
-            let db = Firestore.firestore()
-            db.collection("users").document(userId).collection("devices").document(deviceId).setData([
-                "fcmToken": token,
-                "lastUpdated": FieldValue.serverTimestamp()
-            ]) { error in
-                if let error = error {
-                    print("Error saving token: \(error)")
-                } else {
-                    print("Token saved successfully")
-                }
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(userId).collection("devices").document(deviceId).setData([
+            "fcmToken": token,
+            "lastUpdated": FieldValue.serverTimestamp()
+        ]) { error in
+            if let error = error {
+                print("Error saving token: \(error)")
+            } else {
+                print("Token saved successfully")
             }
         }
+    }
     
 }

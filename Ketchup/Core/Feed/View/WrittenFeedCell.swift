@@ -52,138 +52,139 @@ struct WrittenFeedCell: View {
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                NavigationLink(value: post.user) {
-                    UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
-                }
-                NavigationLink(value: post.user) {
-                    VStack(alignment: .leading) {
-                        Text("@\(post.user.username)")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundStyle(.primary)
-                            .multilineTextAlignment(.leading)
-                        Text("\(post.user.fullname)")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                            .bold()
-                            .multilineTextAlignment(.leading)
+        VStack{
+            VStack {
+                HStack {
+                    NavigationLink(value: post.user) {
+                        UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                    }
+                    NavigationLink(value: post.user) {
+                        VStack(alignment: .leading) {
+                            Text("@\(post.user.username)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundStyle(.primary)
+                                .multilineTextAlignment(.leading)
+                            Text("\(post.user.fullname)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                                .bold()
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                    .disabled(post.user.username == "ketchup_media")
+                    Spacer()
+                    if let timestamp = post.timestamp {
+                        Text(getTimeElapsedString(from: timestamp))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
                     }
                 }
-                .disabled(post.user.username == "ketchup_media")
-                Spacer()
-                if let timestamp = post.timestamp {
-                    Text(getTimeElapsedString(from: timestamp))
-                        .font(.custom("MuseoSansRounded-300", size: 12))
-                        .foregroundColor(.gray)
-                }
-            }
-            if post.mediaType == .photo {
-                if post.mediaUrls.count > 1 {
-                    // Use ScrollView for multiple photos
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack {
-                            ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
-                                VStack {
-                                    Button {
-                                        viewModel.startingImageIndex = index
-                                        viewModel.startingPostId = post.id
-                                        selectedPost = post
-                                    } label: {
-                                        KFImage(URL(string: url))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: pictureWidth, height: pictureHeight)
-                                            .clipped()
-                                            .cornerRadius(10)
+                if post.mediaType == .photo {
+                    if post.mediaUrls.count > 1 {
+                        // Use ScrollView for multiple photos
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack {
+                                ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
+                                    VStack {
+                                        Button {
+                                            viewModel.startingImageIndex = index
+                                            viewModel.startingPostId = post.id
+                                            selectedPost = post
+                                        } label: {
+                                            KFImage(URL(string: url))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: pictureWidth, height: pictureHeight)
+                                                .clipped()
+                                                .cornerRadius(10)
+                                        }
+                                    }
+                                    .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                        content
+                                            .opacity(phase.isIdentity ? 1.0 : 0.8)
                                     }
                                 }
-                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                    content
-                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
+                            }
+                            .frame(height: pictureHeight)
+                            .scrollTargetLayout()
+                        }
+                        .scrollTargetBehavior(.viewAligned)
+                        .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
+                    } else {
+                        // Center a single photo
+                        Button {
+                            viewModel.startingImageIndex = 0
+                            viewModel.startingPostId = post.id
+                            selectedPost = post
+                        } label: {
+                            KFImage(URL(string: post.mediaUrls.first ?? ""))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: pictureWidth, height: pictureHeight)
+                                .clipped()
+                                .cornerRadius(10)
+                        }
+                        .frame(maxWidth: .infinity) // This will allow the Button to take full width
+                    }
+                } else if post.mediaType == .video {
+                    HStack (alignment: .bottom){
+                        Rectangle()
+                            .frame(width: 40, height: 40)
+                            .foregroundStyle(.clear)
+                        Button {
+                            viewModel.startingPostId = post.id
+                            selectedPost = post
+                        } label: {
+                            VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                                .frame(width: pictureWidth, height: pictureHeight)
+                                .cornerRadius(10)
+                        }
+                        VStack {
+                            Button(action: {
+                                let player = videoCoordinator.player
+                                switch player.timeControlStatus {
+                                case .paused:
+                                    videoCoordinator.play()
+                                case .waitingToPlayAtSpecifiedRate:
+                                    print("WAITING TO PERFORM AT A SPECIFIED RATE")
+                                case .playing:
+                                    videoCoordinator.pause()
+                                @unknown default:
+                                    print("UNKNOWN PLAYING STATUS")
                                 }
+                            }) {
+                                Image(systemName: videoCoordinator.player.timeControlStatus == .playing ? "pause" : "play")
+                                    .foregroundColor(.white)
+                                    .frame(width: 24, height: 24)
+                                    .background(Circle().fill(Color.gray))
                             }
-                        }
-                        .frame(height: pictureHeight)
-                        .scrollTargetLayout()
-                    }
-                    .scrollTargetBehavior(.viewAligned)
-                    .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
-                } else {
-                    // Center a single photo
-                    Button {
-                        viewModel.startingImageIndex = 0
-                        viewModel.startingPostId = post.id
-                        selectedPost = post
-                    } label: {
-                        KFImage(URL(string: post.mediaUrls.first ?? ""))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: pictureWidth, height: pictureHeight)
-                            .clipped()
-                            .cornerRadius(10)
-                    }
-                    .frame(maxWidth: .infinity) // This will allow the Button to take full width
-                }
-            } else if post.mediaType == .video {
-                HStack (alignment: .bottom){
-                    Rectangle()
-                        .frame(width: 40, height: 40)
-                        .foregroundStyle(.clear)
-                    Button {
-                        viewModel.startingPostId = post.id
-                        selectedPost = post
-                    } label: {
-                        VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                            .frame(width: pictureWidth, height: pictureHeight)
-                            .cornerRadius(10)
-                    }
-                    VStack {
-                        Button(action: {
-                            let player = videoCoordinator.player
-                            switch player.timeControlStatus {
-                            case .paused:
-                                videoCoordinator.play()
-                            case .waitingToPlayAtSpecifiedRate:
-                                print("WAITING TO PERFORM AT A SPECIFIED RATE")
-                            case .playing:
-                                videoCoordinator.pause()
-                            @unknown default:
-                                print("UNKNOWN PLAYING STATUS")
+                            .frame(width: 40, height: 30)
+                            
+                            Button(action: {
+                                viewModel.isMuted.toggle()
+                                videoCoordinator.player.isMuted = viewModel.isMuted
+                            }) {
+                                Image(systemName: viewModel.isMuted ? "speaker.slash" : "speaker.wave.2")
+                                    .foregroundColor(.white)
+                                    .frame(width: 24, height: 24)
+                                    .background(Circle().fill(Color.gray))
                             }
-                        }) {
-                            Image(systemName: videoCoordinator.player.timeControlStatus == .playing ? "pause" : "play")
-                                .foregroundColor(.white)
-                                .frame(width: 24, height: 24)
-                                .background(Circle().fill(Color.gray))
+                            .frame(width: 40, height: 30)
                         }
-                        .frame(width: 40, height: 30)
-                        
-                        Button(action: {
-                            viewModel.isMuted.toggle()
-                            videoCoordinator.player.isMuted = viewModel.isMuted
-                        }) {
-                            Image(systemName: viewModel.isMuted ? "speaker.slash" : "speaker.wave.2")
-                                .foregroundColor(.white)
-                                .frame(width: 24, height: 24)
-                                .background(Circle().fill(Color.gray))
-                        }
-                        .frame(width: 40, height: 30)
                     }
                 }
-            }
-            NavigationLink(value: post.restaurant) {
-                HStack (alignment: .top) {
-                    VStack(alignment: .leading) {
-                        Text(post.restaurant.name)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .bold()
-                        Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                    }
-                    .multilineTextAlignment(.leading)
-                    Spacer()
+                NavigationLink(value: post.restaurant) {
+                    HStack (alignment: .top) {
+                        VStack(alignment: .leading) {
+                            Text(post.restaurant.name)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .bold()
+                            Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                        }
+                        .multilineTextAlignment(.leading)
+                        Spacer()
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 isExpanded.toggle()
@@ -198,20 +199,33 @@ struct WrittenFeedCell: View {
                                     .animation(.easeInOut(duration: 0.3), value: isExpanded)
                             }
                         }
-                    
+                        
+                    }
                 }
+                if isExpanded {
+                    RatingsView(post: post, isExpanded: $isExpanded)
+                        .padding(.vertical, 5)
+                }
+                HStack {
+                    Text(post.caption)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                    Spacer()
+                }
+                .padding(.top, 3)
             }
-            if isExpanded {
-                RatingsView(post: post, isExpanded: $isExpanded)
-                    .padding(.vertical, 5)
-            }
-            HStack {
-                Text(post.caption)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                Spacer()
-            }
-            .padding(.top, 3)
+            .gesture(
+                TapGesture(count: 2)
+                    .onEnded { _ in
+                        handleDoubleTap()
+                    }
+            )
             HStack (spacing: 15) {
+                Button {
+                    handleLikeTapped()
+                } label: {
+                    InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
+                }
+                
                 Button {
                     videoCoordinator.pause()
                     showComments.toggle()
@@ -219,11 +233,7 @@ struct WrittenFeedCell: View {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                 }
                 
-                Button {
-                    handleLikeTapped()
-                } label: {
-                    InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
-                }
+               
                 
                 Button {
                     videoCoordinator.pause()
@@ -407,6 +417,21 @@ struct WrittenFeedCell: View {
             }
         }
     }
+    private func handleDoubleTap() {
+        if !didLike {
+            Task {
+                await viewModel.like(post)
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
+                    withAnimation {
+                        showHeartOverlay = false
+                    }
+                }
+            }
+        }
+    }
 }
 
 struct InteractionButtonView: View {
@@ -525,11 +550,11 @@ struct FeedOverallRatingView: View {
                 
                 Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
                     .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
-                    
+                
                 
             }
             .frame(width: 40, height: 40) // Smaller frame size
-
+            
         }
     }
 }
