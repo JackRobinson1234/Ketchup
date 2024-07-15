@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Kingfisher 
+import Kingfisher
 import FirebaseAuth
 enum collectionSection {
     case grid, map
@@ -24,7 +24,7 @@ struct CollectionView: View {
     @State var dragDirection = "left"
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 5 )
+        DragGesture(minimumDistance: 14 )
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {

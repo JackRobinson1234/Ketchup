@@ -47,9 +47,9 @@ struct ActivityView: View {
                             
                             Divider()
                             HorizontalCollectionScrollView()
-                            
+                                .padding(.bottom)
                             // MARK: Activity List
-                            HStack{
+                            HStack(alignment: .top){
                                 Text("Following Activity")
                                     .font(.custom("MuseoSansRounded-700", size: 25))
                                 Spacer()
@@ -62,9 +62,9 @@ struct ActivityView: View {
                                             .scaledToFit()
                                             
                                         Text("Find Friends")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .font(.custom("MuseoSansRounded-300", size: 12))
                                     }
-                                    .frame(height: 30)
+                                    .frame(height: 40)
                                     .foregroundStyle(.gray)
                                 }
                             

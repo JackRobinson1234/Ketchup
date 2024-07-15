@@ -14,7 +14,7 @@ struct HorizontalCollectionScrollView: View {
     @State var showSearchView: Bool = false
     var body: some View {
         VStack{
-            HStack(spacing: 1){
+            HStack(alignment: .top){
                 
                 Text("Explore Collections")
                     .font(.custom("MuseoSansRounded-700", size: 25))
@@ -28,15 +28,16 @@ struct HorizontalCollectionScrollView: View {
                             .scaledToFit()
                             
                         Text("Search")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
                     }
-                    .frame(height: 30)
+                    .frame(height: 40)
                     .foregroundStyle(.gray)
                 }
             }
             .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 20) {
+                    
                     ForEach(viewModel.collections) { collection in
                         VStack {
                             Button{
