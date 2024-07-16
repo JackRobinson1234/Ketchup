@@ -13,14 +13,14 @@ import FirebaseFirestore
 class CollectionsViewModel: ObservableObject {
     @Published var collections = [Collection]()
     @Published var selectedCollection: Collection? {
-           didSet {
-               if let collection = selectedCollection {
-                   editTitle = collection.name
-                   editDescription = collection.description ?? ""
-                   editImageUrl = collection.coverImageUrl ?? ""
-               }
-           }
-       }
+        didSet {
+            if let collection = selectedCollection {
+                editTitle = collection.name
+                editDescription = collection.description ?? ""
+                editImageUrl = collection.coverImageUrl ?? ""
+            }
+        }
+    }
     @Published var uploadComplete = false
     @Published var selectedImage: PhotosPickerItem? {
         didSet { Task { await loadImage(fromItem: selectedImage) } }
@@ -107,29 +107,29 @@ class CollectionsViewModel: ObservableObject {
     /// Adds an item to selectedCollection and on firebase. Updates the selectedCollection variable as well, which is what is actually displayed for the user to reduce networking, Also updates the collections array to reduce networking.
     /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(collectionItem: CollectionItem) async throws {
-            guard var selectedCollection = self.selectedCollection else { return }
+        guard var selectedCollection = self.selectedCollection else { return }
+        
+        var item = collectionItem
+        item.collectionId = selectedCollection.id
+        item.notes = notes
+        self.notes = ""
+        
+        try await CollectionService.shared.addItemToCollection(collectionItem: item)
+        
+        if !self.items.contains(item) {
+            self.items.append(item)
+            selectedCollection.restaurantCount += 1
+            selectedCollection.updatetempImageUrls(with: item)
             
-            var item = collectionItem
-            item.collectionId = selectedCollection.id
-            item.notes = notes
-            self.notes = ""
-            
-            try await CollectionService.shared.addItemToCollection(collectionItem: item)
-            
-            if !self.items.contains(item) {
-                self.items.append(item)
-                selectedCollection.restaurantCount += 1
-                selectedCollection.updatetempImageUrls(with: item)
-                
-                // Update the collections array
-                if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                    collections[index] = selectedCollection
-                }
-                
-                // Update the published selectedCollection
-                self.selectedCollection = selectedCollection
+            // Update the collections array
+            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                collections[index] = selectedCollection
             }
+            
+            // Update the published selectedCollection
+            self.selectedCollection = selectedCollection
         }
+    }
     //MARK: addPostToCollection
     /// adds self.post as a CollectionItem to selectedCollection on Firebase
     func addPostToCollection() async throws{
@@ -147,36 +147,36 @@ class CollectionsViewModel: ObservableObject {
     func convertPostToCollectionItem() -> CollectionItem? {
         if let post = self.post {
             if let user = AuthService.shared.userSession{
-            let collectionItem = CollectionItem(
-                collectionId: "",
-                id: post.id,
-                name: post.restaurant.name,
-                image: post.restaurant.profileImageUrl,
-                city: post.restaurant.city,
-                state: post.restaurant.state,
-                geoPoint: post.restaurant.geoPoint,
-                privateMode: user.privateMode
-            )
-            return collectionItem
-            
+                let collectionItem = CollectionItem(
+                    collectionId: "",
+                    id: post.id,
+                    name: post.restaurant.name,
+                    image: post.restaurant.profileImageUrl,
+                    city: post.restaurant.city,
+                    state: post.restaurant.state,
+                    geoPoint: post.restaurant.geoPoint,
+                    privateMode: user.privateMode
+                )
+                return collectionItem
+                
+            }
         }
-    }
         return nil
     }
     
     func convertRequestToCollectionItem(name: String, city: String, state: String) -> CollectionItem {
         let user = AuthService.shared.userSession!
-            let collectionItem = CollectionItem(
-                collectionId: "",
-                id: "construction" + NSUUID().uuidString,
-                name: name,
-                image: nil,
-                city: city,
-                state: state,
-                geoPoint: nil,
-                privateMode: user.privateMode
-            )
-            return collectionItem
+        let collectionItem = CollectionItem(
+            collectionId: "",
+            id: "construction" + NSUUID().uuidString,
+            name: name,
+            image: nil,
+            city: city,
+            state: state,
+            geoPoint: nil,
+            privateMode: user.privateMode
+        )
+        return collectionItem
         
     }
     
@@ -195,7 +195,7 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     //MARK: crateCollageImage
-
+    
     
     /// converts a Restaurant Object to a CollectionItem object
     /// - Returns: CollectionItemObject
@@ -223,23 +223,23 @@ class CollectionsViewModel: ObservableObject {
         return nil
     }
     func convertRestaurantToCollectionItem(restaurant: Restaurant) -> CollectionItem {
-       let user = AuthService.shared.userSession!
-            var collectionItem = CollectionItem(
-                collectionId: "",
-                id: restaurant.id,
-                name: restaurant.name,
-                image: restaurant.profileImageUrl,
-                city: restaurant.city,
-                state: restaurant.state,
-                geoPoint: restaurant.geoPoint,
-                privateMode: user.privateMode
-            )
-            if let geopoint = restaurant.geoPoint{
-                collectionItem.geoPoint = geopoint
-            } else if let geoLoc = restaurant._geoloc {
-                collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
-            }
-            return collectionItem
+        let user = AuthService.shared.userSession!
+        var collectionItem = CollectionItem(
+            collectionId: "",
+            id: restaurant.id,
+            name: restaurant.name,
+            image: restaurant.profileImageUrl,
+            city: restaurant.city,
+            state: restaurant.state,
+            geoPoint: restaurant.geoPoint,
+            privateMode: user.privateMode
+        )
+        if let geopoint = restaurant.geoPoint{
+            collectionItem.geoPoint = geopoint
+        } else if let geoLoc = restaurant._geoloc {
+            collectionItem.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+        }
+        return collectionItem
         
     }
     //MARK: loadImage
@@ -309,6 +309,8 @@ class CollectionsViewModel: ObservableObject {
         self.post = nil
         self.notes = ""
         self.editItems = []
+        self.restaurantRequest = nil
+
     }
     //MARK: clearEdits
     /// resets the variables to the original selectedCollection that hasn't been updated
@@ -323,87 +325,88 @@ class CollectionsViewModel: ObservableObject {
             self.deleteItems = []
             self.notes = ""
             self.editItems = []
+            self.restaurantRequest = nil
         }
     }
     //MARK: saveEditedCollection
     /// if there are any differencs from the original selectedCollection variables, this function puts them into the data array then  updates the firebase selectedCollection with the new variables.Then clears the edits after completing
     func saveEditedCollection() async throws {
-            guard var selectedCollection = self.selectedCollection else { return }
-            var changed = false
-            var data: [String: Any] = [:]
-            
-            if coverImage != nil, let uiImage = self.uiImage {
-                let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
-                data["coverImageUrl"] = imageUrl
-                selectedCollection.coverImageUrl = imageUrl
-                changed = true
-            }
-            
-            if self.editDescription != selectedCollection.description {
-                selectedCollection.description = self.editDescription
-                data["description"] = self.editDescription
-                changed = true
-            }
-            
-            if self.editTitle != selectedCollection.name {
-                selectedCollection.name = self.editTitle
-                data["name"] = self.editTitle
-                changed = true
-            }
-            
-            if !self.deleteItems.isEmpty {
-                for item in self.deleteItems {
-                    try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
-                    selectedCollection.restaurantCount -= 1
-                    selectedCollection.removeCoverImageUrl(for: item)
-                }
-                self.items = self.items.filter { !self.deleteItems.contains($0) }
-                changed = true
-            }
-            
-            if !self.editItems.isEmpty {
-                for item in self.editItems {
-                    try await CollectionService.shared.addItemToCollection(collectionItem: item)
-                    selectedCollection.updatetempImageUrls(with: item)
-                }
-                let editItemsDict = Dictionary(uniqueKeysWithValues: self.editItems.map { ($0.id, $0) })
-                self.items = self.items.map { editItemsDict[$0.id] ?? $0 }
-                changed = true
-            }
-            
-            if changed {
-                if let tempImageUrls = selectedCollection.tempImageUrls {
-                    data["tempImageUrls"] = tempImageUrls
-                }
-                try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).updateData(data)
-                
-                // Update the collections array
-                if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                    collections[index] = selectedCollection
-                }
-                
-                // Update the published selectedCollection
-                self.selectedCollection = selectedCollection
-            }
-            
-            clearEdits()
+        guard var selectedCollection = self.selectedCollection else { return }
+        var changed = false
+        var data: [String: Any] = [:]
+        
+        if coverImage != nil, let uiImage = self.uiImage {
+            let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
+            data["coverImageUrl"] = imageUrl
+            selectedCollection.coverImageUrl = imageUrl
+            changed = true
         }
+        
+        if self.editDescription != selectedCollection.description {
+            selectedCollection.description = self.editDescription
+            data["description"] = self.editDescription
+            changed = true
+        }
+        
+        if self.editTitle != selectedCollection.name {
+            selectedCollection.name = self.editTitle
+            data["name"] = self.editTitle
+            changed = true
+        }
+        
+        if !self.deleteItems.isEmpty {
+            for item in self.deleteItems {
+                try await CollectionService.shared.removeItemFromCollection(collectionItem: item)
+                selectedCollection.restaurantCount -= 1
+                selectedCollection.removeCoverImageUrl(for: item)
+            }
+            self.items = self.items.filter { !self.deleteItems.contains($0) }
+            changed = true
+        }
+        
+        if !self.editItems.isEmpty {
+            for item in self.editItems {
+                try await CollectionService.shared.addItemToCollection(collectionItem: item)
+                selectedCollection.updatetempImageUrls(with: item)
+            }
+            let editItemsDict = Dictionary(uniqueKeysWithValues: self.editItems.map { ($0.id, $0) })
+            self.items = self.items.map { editItemsDict[$0.id] ?? $0 }
+            changed = true
+        }
+        
+        if changed {
+            if let tempImageUrls = selectedCollection.tempImageUrls {
+                data["tempImageUrls"] = tempImageUrls
+            }
+            try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).updateData(data)
+            
+            // Update the collections array
+            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                collections[index] = selectedCollection
+            }
+            
+            // Update the published selectedCollection
+            self.selectedCollection = selectedCollection
+        }
+        
+        clearEdits()
+    }
     //MARK: deleteCollection
     /// deletes a collection from firebase and from the collections array.
     func deleteCollection() async throws {
-           guard let collection = self.selectedCollection else { return }
-           
-           dismissCollectionView = true
-           AuthService.shared.userSession?.stats.collections -= 1
-           
-           try await CollectionService.shared.deleteCollection(selectedCollection: collection)
-           
-           // Update the collections array
-           collections.removeAll { $0.id == collection.id }
-           
-           // Clear the selectedCollection
-           selectedCollection = nil
-           resetViewModel()
-       }
+        guard let collection = self.selectedCollection else { return }
+        
+        dismissCollectionView = true
+        AuthService.shared.userSession?.stats.collections -= 1
+        
+        try await CollectionService.shared.deleteCollection(selectedCollection: collection)
+        
+        // Update the collections array
+        collections.removeAll { $0.id == collection.id }
+        
+        // Clear the selectedCollection
+        selectedCollection = nil
+        resetViewModel()
+    }
 }
 

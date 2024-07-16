@@ -25,11 +25,11 @@ class UploadViewModel: ObservableObject {
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
     @ObservedObject var feedViewModel: FeedViewModel
-    @Published var overallRating: Double = 5
-    @Published var serviceRating: Double = 5
-    @Published var atmosphereRating: Double = 5
-    @Published var valueRating: Double = 5
-    @Published var foodRating: Double = 5
+    @Published var overallRating: Double = 5.0
+    @Published var serviceRating: Double = 5.0
+    @Published var atmosphereRating: Double = 5.0
+    @Published var valueRating: Double = 5.0
+    @Published var foodRating: Double = 5.0
     @Published var taggedUsers: [PostUser] = []
     
     @Published var filteredMentionedUsers: [User] = []
@@ -54,11 +54,11 @@ class UploadViewModel: ObservableObject {
         restaurant = nil
         navigateToUpload = false
         fromInAppCamera = true
-        overallRating = 3.0
-        serviceRating = 3.0
-        atmosphereRating = 3.0
-        valueRating = 3.0
-        foodRating = 3.0
+        overallRating = 5.0
+        serviceRating = 5.0
+        atmosphereRating = 5.0
+        valueRating = 5.0
+        foodRating = 5.0
         taggedUsers = []
         filteredMentionedUsers = []
         isMentioning = false

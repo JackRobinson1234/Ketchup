@@ -14,7 +14,6 @@ import UniformTypeIdentifiers
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
-    @StateObject var reviewsViewModel: ReviewsViewModel
     @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var feedViewModel: FeedViewModel
     @StateObject var uploadViewModel: UploadViewModel
@@ -27,7 +26,6 @@ struct CameraView: View {
     init(feedViewModel: FeedViewModel) {
         _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
-        _reviewsViewModel = StateObject(wrappedValue: ReviewsViewModel(feedViewModel: feedViewModel))
     }
     
     var drag: some Gesture {
@@ -103,7 +101,7 @@ struct CameraView: View {
                         } else if cameraViewModel.selectedCamTab == 1 {
                             PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                         } else if cameraViewModel.selectedCamTab == 2 {
-                            UploadWrittenReviewView(reviewViewModel: reviewsViewModel)
+                            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
                         }
                     }
                 }
@@ -113,7 +111,6 @@ struct CameraView: View {
                         Button {
                             cameraViewModel.stopCameraSession()
                             cameraViewModel.reset()
-                            reviewsViewModel.reset()
                             uploadViewModel.reset()
                             tabBarController.selectedTab = 0
                         } label: {
@@ -167,7 +164,7 @@ struct CameraView: View {
                         }
                         .opacity(cameraViewModel.selectedCamTab == 2 ? 0 : 1)
                         
-                        if uploadViewModel.restaurant == nil {
+                        
                             VStack(spacing: 0) {
                                 HStack {
                                     CameraTabBarButton(text: "Video", isSelected: cameraViewModel.selectedCamTab == 0)
@@ -185,7 +182,7 @@ struct CameraView: View {
                                 }
                                 .padding(.top, 10)
                                 .padding(.bottom, 5)
-                            }
+                            
                             .frame(maxWidth: .infinity)
                             .background(cameraViewModel.selectedCamTab == 2 ? Color.white : Color.clear)
                             .ignoresSafeArea(edges: .bottom)
@@ -255,8 +252,6 @@ struct CameraView: View {
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
             .onChange(of: tabBarController.selectedTab) {
                 cameraViewModel.reset()
-                uploadViewModel.reset()
-                reviewsViewModel.reset()
             }
             .onChange(of: cameraViewModel.selectedCamTab) { oldValue, newValue in
                 if newValue == 2 {
