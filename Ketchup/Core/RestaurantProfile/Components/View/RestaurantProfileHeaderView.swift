@@ -19,7 +19,6 @@ struct RestaurantProfileHeaderView: View {
     @State private var travelInterval: TimeInterval?
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
-    
 
     var travelTime: String? {
         guard let travelInterval else { return nil }
@@ -29,10 +28,10 @@ struct RestaurantProfileHeaderView: View {
         formatter.maximumUnitCount = 2
         return formatter.string(from: travelInterval)
     }
+
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
-                // ListingImageCarouselView(images: restaurant.imageURLs)
                 ZStack(alignment: .bottomLeading) {
                     if let imageURLs = restaurant.profileImageUrl {
                         ListingImageCarouselView(images: [imageURLs])
@@ -84,7 +83,21 @@ struct RestaurantProfileHeaderView: View {
                         .padding([.horizontal, .bottom])
                         
                         Spacer()
+
+                        // Add bookmark button
+                        Button(action: {
+                            Task {
+                                await viewModel.toggleBookmark()
+                            }
+                        }) {
+                            Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
+                                .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
+                                .font(.system(size: 24))
+                        }
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 16)
                     }
+                    
                     VStack {
                         HStack {
                             Button {
@@ -94,8 +107,8 @@ struct RestaurantProfileHeaderView: View {
                                     .foregroundStyle(.white)
                                     .background(
                                         Circle()
-                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                            .frame(width: 30, height: 30) // Adjust the size as needed
+                                            .fill(Color.gray.opacity(0.5))
+                                            .frame(width: 30, height: 30)
                                     )
                             }
                             Spacer()
@@ -107,36 +120,41 @@ struct RestaurantProfileHeaderView: View {
                 .frame(maxWidth: .infinity)
                 
                 VStack(alignment: .leading) {
-                    Button {
-                        showMapView.toggle()
-                    } label: {
-                        if let street = restaurant.address, !street.isEmpty {
-                            VStack(alignment: .leading) {
-                                if let travelTime {
-                                    HStack(spacing: 0) {
-                                        Image(systemName: "car")
-                                        Text(" \(travelTime)")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .foregroundStyle(.primary)
+                    HStack{
+                        Button {
+                            showMapView.toggle()
+                        } label: {
+                            if let street = restaurant.address, !street.isEmpty {
+                                VStack(alignment: .leading) {
+                                    if let travelTime {
+                                        HStack(spacing: 0) {
+                                            Image(systemName: "car")
+                                            Text(" \(travelTime)")
+                                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                                .foregroundStyle(.primary)
+                                        }
                                     }
+                                    
+                                    Text("(Click to view on map)")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
                                 }
-                                
-                                Text("(Click to view on map)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
                             }
                         }
+                        Spacer()
+                        
                     }
                     
-                    Text("\(restaurant.bio ?? "")")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .multilineTextAlignment(.leading)
                 }
                 .padding()
                 
                 RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
             }
-            
+            .onAppear {
+                Task {
+                    await viewModel.checkBookmarkStatus()
+                }
+            }
             .onReceive(LocationManager.shared.$userLocation.dropFirst().prefix(1)) { userLocation in
                 guard userLocation != nil else {
                     return

@@ -14,7 +14,6 @@ struct WrittenFeedCell: View {
     @State private var showShareView = false
     @State private var showCollections = false
     @State private var showingOptionsSheet = false
-    @State private var showingRepostSheet = false
     @State private var currentImageIndex = 0
     @Binding var scrollPosition: String?
     @StateObject private var videoCoordinator: VideoPlayerCoordinator
@@ -237,26 +236,7 @@ struct WrittenFeedCell: View {
                 }
                 
                 
-                
-//                Button {
-//                    videoCoordinator.pause()
-//                    showingRepostSheet.toggle()
-//                } label: {
-//                    HStack(spacing: 3) {
-//                        Image(systemName: "arrow.2.squarepath")
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 18, height: 18)
-//                            .foregroundStyle(.gray)
-//                            .rotationEffect(.degrees(90))
-//                        Text("\(post.repostCount)")
-//                            .font(.custom("MuseoSansRounded-300", size: 14))
-//                            .foregroundStyle(.gray)
-//                    }
-//                    .padding(.trailing, 10)
-//                    .disabled(post.user.id == AuthService.shared.userSession?.id)
-//                    
-//                }
+
                 Button {
                     handleBookmarkTapped()
                 } label: {
@@ -370,13 +350,6 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                .onDisappear {
-                    videoCoordinator.play()
-                }
-        }
-        .sheet(isPresented: $showingRepostSheet) {
-            RepostView(viewModel: viewModel, post: post)
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
                 .onDisappear {
                     videoCoordinator.play()
                 }

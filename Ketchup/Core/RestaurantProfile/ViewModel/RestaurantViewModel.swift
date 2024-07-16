@@ -17,7 +17,7 @@ class RestaurantViewModel: ObservableObject {
     @Published var isDragging = false
     @Published var currentSection: Section = .posts
     @Environment(\.dismiss) var dismiss
-    
+    @Published var isBookmarked: Bool = false
     
     init(restaurantId: String) {
         self.restaurantId = restaurantId
@@ -40,7 +40,29 @@ class RestaurantViewModel: ObservableObject {
             self.collections = try await CollectionService.shared.fetchRestaurantCollections(restaurantId: restaurant.id)
         }
     }
+
+        func checkBookmarkStatus() async {
+            guard let restaurant = restaurant else { return }
+            do {
+                isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
+            } catch {
+                print("Error checking bookmark status: \(error.localizedDescription)")
+            }
+        }
+
+        func toggleBookmark() async {
+            guard let restaurant = restaurant else { return }
+            do {
+                if isBookmarked {
+                    try await RestaurantService.shared.removeBookmark(for: restaurant.id)
+                } else {
+                    try await RestaurantService.shared.createBookmark(for: restaurant)
+                }
+                isBookmarked.toggle()
+            } catch {
+                print("Error toggling bookmark: \(error.localizedDescription)")
+            }
+        }
 }
-// MARK: - Posts
 
 
