@@ -50,7 +50,6 @@ struct CollectionRestaurantSearch: View {
                         .toolbar(.hidden)
                     
                 }
-                
             }
             
             

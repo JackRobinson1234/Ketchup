@@ -20,7 +20,7 @@ struct RestaurantProfileHeaderView: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     
-
+    
     var travelTime: String? {
         guard let travelInterval else { return nil }
         let formatter = DateComponentsFormatter()
@@ -49,7 +49,7 @@ struct RestaurantProfileHeaderView: View {
                             )
                     }
                     
-                    HStack {
+                    HStack(alignment: .bottom){
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(restaurant.name)")
                                 .font(.custom("MuseoSansRounded-300", size: 20))
@@ -84,6 +84,17 @@ struct RestaurantProfileHeaderView: View {
                         .padding([.horizontal, .bottom])
                         
                         Spacer()
+                        Button(action: {
+                            Task {
+                                await viewModel.toggleBookmark()
+                            }
+                        }) {
+                            Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
+                                .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
+                                .font(.system(size: 24))
+                        }
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 16)
                     }
                     VStack {
                         HStack {
@@ -147,6 +158,11 @@ struct RestaurantProfileHeaderView: View {
                         route = result.0
                         travelInterval = result.1
                     }
+                }
+            }
+            .onAppear {
+                Task {
+                    await viewModel.checkBookmarkStatus()
                 }
             }
             .ignoresSafeArea()

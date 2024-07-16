@@ -17,6 +17,7 @@ struct PostOptionsSheet: View {
     @State var showReportDetails = false
     @State var optionsSheetDismissed: Bool = false
     @State var showingEditPost: Bool = false
+    @State private var showingRepostSheet = false
     var body: some View {
         VStack(spacing: 20) {
             if post.user.id == Auth.auth().currentUser?.uid {
@@ -53,10 +54,29 @@ struct PostOptionsSheet: View {
                 }
             } else {
                 Button {
+                    showingRepostSheet.toggle()
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.2.squarepath")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 20, height: 20)
+                            .foregroundColor(.primary)
+                            .rotationEffect(.degrees(90))
+                        Text("Repost")
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.trailing, 10)
+                    .disabled(post.user.id == AuthService.shared.userSession?.id)
+                    
+                }
+                Divider()
+                Button {
                     showReportDetails = true
                 } label: {
                     Text("Report Post")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
                         .foregroundColor(.primary)
                 }
             }
@@ -80,6 +100,13 @@ struct PostOptionsSheet: View {
                 }
                 
         }
+        .sheet(isPresented: $showingRepostSheet) {
+                    RepostView(viewModel: viewModel, post: post)
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
+                        .onDisappear{
+                            dismiss()
+                        }
+                }
         .fullScreenCover(isPresented: $showingEditPost){
             NavigationStack{
                 ReelsEditView(post: $post, feedViewModel: viewModel)

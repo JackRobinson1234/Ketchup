@@ -29,7 +29,6 @@ struct SecondaryFeedView: View {
         self.titleText = titleText
         self.checkLikes = checkLikes
         self.startingPostId = viewModel.startingPostId
-        
     }
     var body: some View {
         ZStack(alignment: .top) {

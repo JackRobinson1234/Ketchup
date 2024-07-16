@@ -15,7 +15,6 @@ struct WrittenFeedCell: View {
     @State private var showShareView = false
     @State private var showCollections = false
     @State private var showingOptionsSheet = false
-    @State private var showingRepostSheet = false
     @State private var currentImageIndex = 0
     @Binding var scrollPosition: String?
     @StateObject private var videoCoordinator: VideoPlayerCoordinator
@@ -280,39 +279,20 @@ struct WrittenFeedCell: View {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                 }
                 
-                // Uncomment if needed in the future
-                /*
-                Button {
-                    videoCoordinator.pause()
-                    showingRepostSheet.toggle()
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "arrow.2.squarepath")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(.gray)
-                            .rotationEffect(.degrees(90))
-                        Text("\(post.repostCount)")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundStyle(.gray)
+                if viewModel.showBookmarks{
+                    Button {
+                        handleBookmarkTapped()
+                    } label: {
+                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
-                    .padding(.trailing, 10)
-                    .disabled(post.user.id == AuthService.shared.userSession?.id)
                 }
-                */
-                
-                Button {
-                    handleBookmarkTapped()
-                } label: {
-                    InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 22, height: 22)
-                }
-                
-                Button {
-                    videoCoordinator.pause()
-                    showCollections.toggle()
-                } label: {
-                    InteractionButtonView(icon: "folder.badge.plus", width: 22, height: 22)
+                if viewModel.showBookmarks{
+                    Button {
+                        videoCoordinator.pause()
+                        showCollections.toggle()
+                    } label: {
+                        InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
+                    }
                 }
                 
                 Button {
@@ -437,13 +417,6 @@ struct WrittenFeedCell: View {
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                .onDisappear {
-                    videoCoordinator.play()
-                }
-        }
-        .sheet(isPresented: $showingRepostSheet) {
-            RepostView(viewModel: viewModel, post: post)
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
                 .onDisappear {
                     videoCoordinator.play()
                 }

@@ -59,7 +59,6 @@
 		F8670A542BF3D1C500F527D9 /* EditNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A532BF3D1C500F527D9 /* EditNotesView.swift */; };
 		F8670A562BF3EDBC00F527D9 /* CaptionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A552BF3EDBC00F527D9 /* CaptionEditorView.swift */; };
 		F8670A582BF3EDF500F527D9 /* SelectRestaurantListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A572BF3EDF500F527D9 /* SelectRestaurantListView.swift */; };
-		F8670A5C2BF3FAD900F527D9 /* PostOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A5B2BF3FAD900F527D9 /* PostOptions.swift */; };
 		F8670A5E2BF3FBC800F527D9 /* FinalPhotoPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A5D2BF3FBC800F527D9 /* FinalPhotoPreview.swift */; };
 		F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A5F2BF3FC9600F527D9 /* FinalVideoPreview.swift */; };
 		F8670A622BF3FCE400F527D9 /* CaptionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A612BF3FCE400F527D9 /* CaptionBox.swift */; };
@@ -316,7 +315,6 @@
 		F8670A532BF3D1C500F527D9 /* EditNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNotesView.swift; sourceTree = "<group>"; };
 		F8670A552BF3EDBC00F527D9 /* CaptionEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionEditorView.swift; sourceTree = "<group>"; };
 		F8670A572BF3EDF500F527D9 /* SelectRestaurantListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectRestaurantListView.swift; sourceTree = "<group>"; };
-		F8670A5B2BF3FAD900F527D9 /* PostOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOptions.swift; sourceTree = "<group>"; };
 		F8670A5D2BF3FBC800F527D9 /* FinalPhotoPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalPhotoPreview.swift; sourceTree = "<group>"; };
 		F8670A5F2BF3FC9600F527D9 /* FinalVideoPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalVideoPreview.swift; sourceTree = "<group>"; };
 		F8670A612BF3FCE400F527D9 /* CaptionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionBox.swift; sourceTree = "<group>"; };
@@ -991,7 +989,6 @@
 				F8670A5F2BF3FC9600F527D9 /* FinalVideoPreview.swift */,
 				F8670A612BF3FCE400F527D9 /* CaptionBox.swift */,
 				F8670A5D2BF3FBC800F527D9 /* FinalPhotoPreview.swift */,
-				F8670A5B2BF3FAD900F527D9 /* PostOptions.swift */,
 				F8670A572BF3EDF500F527D9 /* SelectRestaurantListView.swift */,
 				F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */,
 				F8670A552BF3EDBC00F527D9 /* CaptionEditorView.swift */,
@@ -1874,7 +1871,6 @@
 				F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */,
 				F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
-				F8670A5C2BF3FAD900F527D9 /* PostOptions.swift in Sources */,
 				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
 				F86868702C34811000F6CE56 /* ClusterRestaurantListView.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,

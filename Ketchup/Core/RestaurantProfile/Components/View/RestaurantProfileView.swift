@@ -17,7 +17,7 @@ struct RestaurantProfileView: View {
     @State var isDragging = false
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
-    @StateObject var feedViewModel = FeedViewModel()
+    @StateObject var feedViewModel = FeedViewModel(showBookmarks: false)
     init(restaurantId: String, restaurant: Restaurant? = nil) {
         self.restaurantId = restaurantId
         let restaurantViewModel = RestaurantViewModel(restaurantId: restaurantId)

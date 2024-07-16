@@ -13,8 +13,8 @@ enum Section {
     case posts, collections, stats
 }
 enum RestaurantPostDisplayMode: String, CaseIterable {
-    case all = "All"
-    case media = "Media"
+    case all = "All Posts"
+    case media = "Media Only"
 }
 struct RestaurantProfileSlideBarView: View {
     @ObservedObject var viewModel: RestaurantViewModel
@@ -84,14 +84,20 @@ struct RestaurantProfileSlideBarView: View {
         // MARK: Section Logic
         if viewModel.currentSection == .posts {
             VStack {
-                Picker("Post Display Mode", selection: $restaurantPostDisplayMode) {
-                    ForEach(RestaurantPostDisplayMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+                Menu {
+                    Picker("Post Display Mode", selection: $restaurantPostDisplayMode) {
+                        ForEach(RestaurantPostDisplayMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
                     }
+                } label: {
+                    HStack {
+                        Text(restaurantPostDisplayMode.rawValue)
+                        Image(systemName: "chevron.down")
+                    }
+                    .cornerRadius(8)
                 }
-                .pickerStyle(SegmentedPickerStyle())
                 .padding([.bottom, .horizontal])
-                
                 
                 switch restaurantPostDisplayMode {
                 case .all:

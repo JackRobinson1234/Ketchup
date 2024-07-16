@@ -60,12 +60,13 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-
-    init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = []) {
+@Published var showBookmarks = true
+    init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         self.startingPostId = startingPostId
         self.earlyPosts = earlyPosts
+        self.showBookmarks = showBookmarks
     }
     private func handleTabChange() async {
         await MainActor.run {

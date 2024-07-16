@@ -47,6 +47,9 @@ struct FeedCell: View {
         guard !ratings.isEmpty else { return 0 }
         return ratings.reduce(0, +) / Double(ratings.count)
     }
+    private var didBookmark: Bool {
+        return post.didBookmark
+    }
     init(post: Binding<Post>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
@@ -316,31 +319,22 @@ struct FeedCell: View {
                 }
                 .shadow(color: .gray, radius: 1, x: 0, y: 0)
             }
-            if let user = Auth.auth().currentUser?.uid, post.user.id != user {
+            if viewModel.showBookmarks{
                 Button {
-                    showingRepostSheet.toggle()
+                    handleBookmarkTapped()
                 } label: {
-                    VStack {
-                        Image(systemName: "arrow.2.squarepath")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 28, height: 28)
-                            .foregroundStyle(.white)
-                            .rotationEffect(.degrees(90))
-                        Text("\(post.repostCount)")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                            .fontWeight(.bold)
-                    }
-                    .shadow(color: .gray, radius: 1, x: 0, y: 0)
-                    .foregroundStyle(.white)
+                    FeedCellActionButtonView(imageName: didBookmark ? "bookmark.fill" : "bookmark", tintColor: didBookmark ? Color("Colors/AccentColor") : .white)
                 }
             }
-            Button {
-                videoCoordinator.pause()
-                showCollections.toggle()
-            } label: {
-                FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
+            if viewModel.showBookmarks {
+                Button {
+                    videoCoordinator.pause()
+                    showCollections.toggle()
+                } label: {
+                    FeedCellActionButtonView(imageName: "folder.fill.badge.plus")
+                }
             }
+        
             Button {
                 handleLikeTapped()
             } label: {
@@ -472,6 +466,16 @@ struct FeedCell: View {
             videoCoordinator.play()
         }
     }
+    private func handleBookmarkTapped() {
+        Task {
+            if post.didBookmark {
+                await viewModel.unbookmark(post)
+            } else {
+                await viewModel.bookmark(post)
+            }
+        }
+    }
+
 }
 
 //MARK: Photo Library Access

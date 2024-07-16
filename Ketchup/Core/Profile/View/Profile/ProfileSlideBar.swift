@@ -104,7 +104,19 @@ struct ProfileSlideBar: View {
             // MARK: Section Logic
             if profileSection == .posts {
                 VStack {
-                    DropdownMenuView(selection: $postDisplayMode, options: PostDisplayMode.allCases)
+                    Menu {
+                        Picker("Post Display Mode", selection: $postDisplayMode) {
+                            ForEach(PostDisplayMode.allCases, id: \.self) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(postDisplayMode.rawValue)
+                            Image(systemName: "chevron.down")
+                        }
+                        .cornerRadius(8)
+                    }
                     if isKetchupMediaUser && (postDisplayMode == .all || postDisplayMode == .media) {
                         Text("This user has too many posts to view")
                             .font(.headline)
@@ -137,48 +149,6 @@ struct ProfileSlideBar: View {
 
             if profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
-            }
-        }
-    }
-}
-struct DropdownMenuView: View {
-    @Binding var selection: PostDisplayMode
-    @State private var isExpanded = false
-    
-    var options: [PostDisplayMode]
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) { // Faster animation
-                    isExpanded.toggle()
-                }
-            }) {
-                HStack(spacing: 1) {
-                    Text(selection.rawValue)
-                        .foregroundColor(.primary)
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.primary)
-                }
-            }
-            .padding(.bottom)
-            if isExpanded {
-                VStack(spacing: 0) {
-                    ForEach(options, id: \.self) { option in
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.2)) { // Faster animation
-                                isExpanded = false
-                            }
-                            selection = option
-                        }) {
-                            Text(option.rawValue)
-                                .foregroundColor(.primary)
-                                .padding()
-                        }
-                    }
-                }
-                .background(Color(UIColor.systemGray6))
-                .cornerRadius(8)
             }
         }
     }
