@@ -29,25 +29,25 @@ struct ProfileView: View {
                     self.dragDirection = "left"
                     if profileSection == .posts {
                         dismiss()
-                   
+                        
                     } else if profileSection == .bookmarks{
                         profileSection = .collections
                     } else if profileSection == .collections{
                         profileSection = .posts
                     }
                 } else {
-                        self.dragDirection = "right"
-                        if profileSection == .posts {
-                            profileSection = .collections
-                        } else if profileSection == .collections{
-                            profileSection = .bookmarks
-                        }
-                        self.isDragging = false
+                    self.dragDirection = "right"
+                    if profileSection == .posts {
+                        profileSection = .collections
+                    } else if profileSection == .collections{
+                        profileSection = .bookmarks
                     }
+                    self.isDragging = false
+                }
                 
             }
     }
-
+    
     init(uid: String, profileSection: ProfileSectionEnum = .posts) {
         self.uid = uid
         let profileViewModel = ProfileViewModel(uid: uid)
@@ -92,6 +92,7 @@ struct ProfileView: View {
                     .onChange(of: scrollTarget) {
                         scrollPosition = scrollTarget
                         withAnimation {
+                            print("SCROLLING")
                             scrollProxy.scrollTo(scrollTarget, anchor: .center)
                         }
                     }
@@ -103,6 +104,7 @@ struct ProfileView: View {
                 }
                 .task { await profileViewModel.checkIfUserIsFollowed() }
                 .toolbar(.hidden, for: .tabBar)
+                .toolbarBackground(Color.white, for: .navigationBar)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -138,22 +140,22 @@ struct ProfileView: View {
                 }
                 
                 if showZoomedProfileImage {
-                                Color.black.opacity(0.7)
-                                    .ignoresSafeArea()
-                                    .onTapGesture {
-                                        showZoomedProfileImage = false
-                                    }
-                                VStack {
-                                    Spacer()
-                                    UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
-                                        .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
-                                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                                        .onTapGesture {
-                                            showZoomedProfileImage = false
-                                        }
-                                    Spacer()
-                                }
+                    Color.black.opacity(0.7)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showZoomedProfileImage = false
+                        }
+                    VStack {
+                        Spacer()
+                        UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
+                            .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .onTapGesture {
+                                showZoomedProfileImage = false
                             }
+                        Spacer()
+                    }
+                }
             }
         }
     }

@@ -11,20 +11,29 @@ import InstantSearchSwiftUI
 struct UserListView: View {
     @ObservedObject var viewModel: SearchViewModel
     var debouncer = Debouncer(delay: 1.0)
+    @State var selectedUser: User? = nil
     
     
     var body: some View {
         
             InfiniteList(viewModel.userHits, itemView: { hit in
-                NavigationLink(value: hit.object) {
+                Button{
+                selectedUser = hit.object
+                } label: {
+                    
                     UserCell(user: hit.object)
                         .padding()
                 }
+                
                 Divider()
             }, noResults: {
                 Text("No results found")
                     .foregroundStyle(.primary)
             })
-        
+            .fullScreenCover(item: $selectedUser){user in
+                NavigationStack{
+                    ProfileView(uid: user.id)
+                }
+            }
     }
 }

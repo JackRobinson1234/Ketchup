@@ -24,6 +24,9 @@ struct WrittenFeedCell: View {
     private var didLike: Bool {
         return post.didLike
     }
+    private var didBookmark: Bool {
+        return post.didBookmark
+    }
     @State var configured = false
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
@@ -233,39 +236,44 @@ struct WrittenFeedCell: View {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                 }
                 
-               
                 
+                
+//                Button {
+//                    videoCoordinator.pause()
+//                    showingRepostSheet.toggle()
+//                } label: {
+//                    HStack(spacing: 3) {
+//                        Image(systemName: "arrow.2.squarepath")
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 18, height: 18)
+//                            .foregroundStyle(.gray)
+//                            .rotationEffect(.degrees(90))
+//                        Text("\(post.repostCount)")
+//                            .font(.custom("MuseoSansRounded-300", size: 14))
+//                            .foregroundStyle(.gray)
+//                    }
+//                    .padding(.trailing, 10)
+//                    .disabled(post.user.id == AuthService.shared.userSession?.id)
+//                    
+//                }
                 Button {
-                    videoCoordinator.pause()
-                    showingRepostSheet.toggle()
+                    handleBookmarkTapped()
                 } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "arrow.2.squarepath")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(.gray)
-                            .rotationEffect(.degrees(90))
-                        Text("\(post.repostCount)")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundStyle(.gray)
-                    }
-                    .padding(.trailing, 10)
-                    .disabled(post.user.id == AuthService.shared.userSession?.id)
-                    
+                    InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 22, height: 22)
                 }
                 Button {
                     videoCoordinator.pause()
                     showCollections.toggle()
                 } label: {
-                    InteractionButtonView(icon: "folder.badge.plus")
+                    InteractionButtonView(icon: "folder.badge.plus", width: 22, height: 22)
                 }
                 
                 Button {
                     videoCoordinator.pause()
                     showShareView.toggle()
                 } label: {
-                    InteractionButtonView(icon: "arrowshape.turn.up.right")
+                    InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
                 }
                 
                 Button {
@@ -293,7 +301,8 @@ struct WrittenFeedCell: View {
         .onAppear {
             if checkLikes {
                 Task {
-                    post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                    await viewModel.checkIfUserLikedPosts()
+                    await viewModel.checkIfUserBookmarkedRestaurants()
                 }
             }
             
@@ -401,7 +410,15 @@ struct WrittenFeedCell: View {
             }
         }
     }
-    
+    private func handleBookmarkTapped() {
+        Task {
+            if post.didBookmark {
+                await viewModel.unbookmark(post)
+            } else {
+                await viewModel.bookmark(post)
+            }
+        }
+    }
     private func handleLikeTapped() {
         Task {
             didLike ? await viewModel.unlike(post) : await viewModel.like(post)
@@ -438,13 +455,15 @@ struct InteractionButtonView: View {
     var icon: String
     var count: Int?
     var color: Color = .gray
+    var width: CGFloat?
+    var height: CGFloat?
     
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: icon)
                 .resizable()
-                .scaledToFill()
-                .frame(width: 18, height: 18)
+                .scaledToFit()
+                .frame(width: width ?? 18, height: height ?? 18)
                 .foregroundColor(color)
             if let count {
                 Text("\(count)")

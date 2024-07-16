@@ -24,7 +24,7 @@ struct Post: Identifiable, Codable {
     var user: PostUser
     var restaurant: PostRestaurant
     var didLike: Bool
-    var didSave: Bool
+    var didBookmark: Bool
     var fromInAppCamera: Bool
     var repost: Bool
     var didRepost: Bool
@@ -55,7 +55,7 @@ struct Post: Identifiable, Codable {
         self.user = try container.decode(PostUser.self, forKey: .user)
         self.restaurant = try container.decode(PostRestaurant.self, forKey: .restaurant)
         self.didLike = try container.decodeIfPresent(Bool.self, forKey: .didLike) ?? false
-        self.didSave = try container.decodeIfPresent(Bool.self, forKey: .didSave) ?? false
+        self.didBookmark = try container.decodeIfPresent(Bool.self, forKey: .didBookmark) ?? false
         self.fromInAppCamera = try container.decode(Bool.self, forKey: .fromInAppCamera)
         self.repost = try container.decodeIfPresent(Bool.self, forKey: .repost) ?? false
         self.didRepost = try container.decodeIfPresent(Bool.self, forKey: .didRepost) ?? false
@@ -79,7 +79,7 @@ struct Post: Identifiable, Codable {
         user: PostUser,
         restaurant: PostRestaurant,
         didLike: Bool = false,
-        didSave: Bool = false,
+        didBookmark: Bool = false,
         fromInAppCamera: Bool,
         repost: Bool = false,
         didRepost: Bool = false,
@@ -101,7 +101,7 @@ struct Post: Identifiable, Codable {
         self.user = user
         self.restaurant = restaurant
         self.didLike = didLike
-        self.didSave = didSave
+        self.didBookmark = didBookmark
         self.fromInAppCamera = fromInAppCamera
         self.repost = repost
         self.didRepost = didRepost

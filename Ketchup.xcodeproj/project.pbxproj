@@ -92,6 +92,7 @@
 		F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */; };
 		F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8726DC72BC214CE0091AD77 /* LocationFilter.swift */; };
 		F875AA352C458F2700CB14E6 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA342C458F2700CB14E6 /* Bookmark.swift */; };
+		F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */; };
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
 		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
@@ -348,6 +349,7 @@
 		F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRestaurantSearch.swift; sourceTree = "<group>"; };
 		F8726DC72BC214CE0091AD77 /* LocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationFilter.swift; sourceTree = "<group>"; };
 		F875AA342C458F2700CB14E6 /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
+		F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksListView.swift; sourceTree = "<group>"; };
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerVibe.swift; sourceTree = "<group>"; };
 		F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityMetaData.swift; sourceTree = "<group>"; };
 		F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
@@ -550,6 +552,7 @@
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 				F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */,
 				F868686D2C34541400F6CE56 /* ProfileMapView.swift */,
+				F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -1789,6 +1792,7 @@
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
 				F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */,
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
+				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
 				F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */,

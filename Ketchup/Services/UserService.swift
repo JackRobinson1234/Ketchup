@@ -148,6 +148,33 @@ extension UserService {
         
         return snapshot.exists
     }
+    func fetchCurrentUserBookmarks() async throws -> [Bookmark] {
+        guard let uid = Auth.auth().currentUser?.uid else { return [] }
+        do {
+            let snapshot = try await FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .getDocuments(as: Bookmark.self)
+            
+            return snapshot
+        } catch {
+            print("Error fetching user bookmarks: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    func fetchUserBookmarks(uid: String) async throws -> [Bookmark] {
+        do {
+            let snapshot = try await FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .order(by: "timestamp", descending: true)
+                .getDocuments(as: Bookmark.self)
+            return snapshot
+        } catch {
+            print("Error fetching user bookmarks: \(error.localizedDescription)")
+            throw error
+        }
+    }
 }
 
 

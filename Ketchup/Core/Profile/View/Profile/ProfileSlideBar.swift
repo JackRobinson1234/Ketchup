@@ -105,7 +105,6 @@ struct ProfileSlideBar: View {
             if profileSection == .posts {
                 VStack {
                     DropdownMenuView(selection: $postDisplayMode, options: PostDisplayMode.allCases)
-                    
                     if isKetchupMediaUser && (postDisplayMode == .all || postDisplayMode == .media) {
                         Text("This user has too many posts to view")
                             .font(.headline)
@@ -133,9 +132,7 @@ struct ProfileSlideBar: View {
                     }
             }
             if profileSection == .bookmarks {
-                Text("Building")
-//                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
-//                               scrollTarget: $scrollTarget)
+                BookmarksListView(profileViewModel: viewModel)
             }
 
             if profileSection == .collections {
