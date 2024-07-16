@@ -64,6 +64,11 @@ struct RegistrationView: View {
                         .foregroundStyle(Color("Colors/AccentColor"))
                         .font(.custom("MuseoSansRounded-300", size: 10))
                 }
+                if viewModel.showAlert {
+                    Text("An account with that email already exists, please try another email")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                }
                 // MARK: Password
                 
                 SecureField("Enter your password", text: $viewModel.password)
@@ -196,11 +201,6 @@ struct RegistrationView: View {
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
-            if viewModel.showAlert {
-                Text("An account with that email already exists, please try another email")
-                    .font(.custom("MuseoSansRounded-300", size: 10))
-                    .foregroundStyle(Color("Colors/AccentColor"))
-            }
             Divider()
             Text("Or")
                 .font(.custom("MuseoSansRounded-300", size: 10))
@@ -245,6 +245,11 @@ struct RegistrationView: View {
                 }
             }
         }
+        .alert("Error", isPresented: $viewModel.showAlert) {
+                   Button("OK", role: .cancel) { }
+               } message: {
+                   Text("An account with that email already exists, please try another email.")
+               }
     }
 }
 

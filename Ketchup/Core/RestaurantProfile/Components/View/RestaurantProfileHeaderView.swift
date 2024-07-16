@@ -152,7 +152,7 @@ struct RestaurantProfileHeaderView: View {
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {
                 if let user {
-                    AddItemCollectionList(user: user, restaurant: restaurant)
+                    AddItemCollectionList(restaurant: restaurant)
                 }
             }
             .sheet(isPresented: $showMapView) {

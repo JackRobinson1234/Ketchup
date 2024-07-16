@@ -10,7 +10,6 @@ import PhotosUI
 import Kingfisher
 
 struct CreateCollectionDetails: View {
-    var user: User
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @Environment(\.dismiss) var dismiss
     @State private var isEditingCaption = false
@@ -139,7 +138,7 @@ struct CreateCollectionDetails: View {
         }
     }
 #Preview {
-    CreateCollectionDetails(user: DeveloperPreview.user, collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user), dismissCollectionsList: .constant(false))
+    CreateCollectionDetails(collectionsViewModel: CollectionsViewModel(), dismissCollectionsList: .constant(false))
 }
 
 

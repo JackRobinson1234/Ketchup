@@ -669,6 +669,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    limitations under the License.
 
 
+## FirebaseAnalytics
+
+Copyright 2022 Google
+
 ## FirebaseAppCheckInterop
 
 
@@ -4614,6 +4618,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+
+## GoogleAppMeasurement
+
+Copyright 2022 Google
 
 ## GoogleDataTransport
 

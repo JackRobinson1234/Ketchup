@@ -9,6 +9,7 @@ import AVFoundation
 import SwiftUI
 import ClusterMap
 import MapKit
+import FirebaseAuth
 @MainActor
 class ProfileViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
@@ -36,8 +37,8 @@ class ProfileViewModel: ObservableObject {
     }
     func fetchCurrentUser() async {
         do{
-            if let currentUser = AuthService.shared.userSession {
-                self.user = currentUser
+            if let currentUser = Auth.auth().currentUser?.uid {
+                self.user = try await UserService.shared.fetchUser(withUid: currentUser)
             }
         }
         catch {

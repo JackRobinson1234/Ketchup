@@ -71,7 +71,6 @@ struct EditNotesView: View {
                             viewModel.editItems.append(updatedItem)
                         }
                     }
-                    
                     // Dismiss the view
                     item = nil
                 } label: {
@@ -98,5 +97,5 @@ struct EditNotesView: View {
 }
 
 #Preview {
-    EditNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel(user: DeveloperPreview.user), itemsPreview: .constant([]))
+    EditNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel(), itemsPreview: .constant([]))
 }

@@ -331,3 +331,76 @@ extension PostService {
         return snapshot.exists
     }
 }
+
+extension PostService {
+    // MARK: - bookmarkRestaurant
+    /// Bookmarks a restaurant for the current user
+    /// - Parameter post: post object containing the restaurant to be bookmarked
+    func bookmarkRestaurant(from post: Post) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let bookmark = Bookmark(
+            id: post.restaurant.id,
+            restaurantName: post.restaurant.name,
+            restaurantCity: post.restaurant.city,
+            restaurantState: post.restaurant.state,
+            geoPoint: post.restaurant.geoPoint,
+            timestamp: Timestamp(date: Date()),
+            image: post.restaurant.profileImageUrl
+        )
+        
+        do {
+            try FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .document(post.restaurant.id)
+                .setData(from: bookmark)
+        } catch {
+            print("Error bookmarking restaurant: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // MARK: - unbookmarkRestaurant
+    /// Removes a restaurant from the user's bookmarks
+    /// - Parameter restaurantId: ID of the restaurant to be unbookmarked
+    func unbookmarkRestaurant(restaurantId: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        do {
+            try await FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .document(restaurantId)
+                .delete()
+        } catch {
+            print("Error unbookmarking restaurant: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // MARK: - checkIfUserBookmarkedRestaurant
+    /// Checks if the current user has bookmarked a specific restaurant
+    /// - Parameter restaurantId: ID of the restaurant to check for bookmark
+    /// - Returns: Boolean indicating if the restaurant is bookmarked
+    func checkIfUserBookmarkedRestaurant(restaurantId: String) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        
+        do {
+            let snapshot = try await FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .document(restaurantId)
+                .getDocument()
+            
+            return snapshot.exists
+        } catch {
+            print("Error checking bookmark status: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // MARK: - fetchUserBookmarks
+    /// Fetches all bookmarked restaurants for the current user
+    /// - Returns: Array of Bookmark objects
+}

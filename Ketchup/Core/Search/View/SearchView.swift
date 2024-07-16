@@ -10,11 +10,15 @@ import SwiftUI
 
 struct SearchView: View {
     var debouncer = Debouncer(delay: 1.0)
-    @Environment(\.dismiss) var dismiss
-    @State var searchText: String = ""
-    @StateObject var viewModel = SearchViewModel()
-    @State var dragDirection = "left"
-    @State var isDragging = false
+        @Environment(\.dismiss) var dismiss
+        @State var searchText: String = ""
+        @StateObject var viewModel: SearchViewModel
+        @State var dragDirection = "left"
+        @State var isDragging = false
+        
+        init(initialSearchConfig: SearchModelConfig) {
+            _viewModel = StateObject(wrappedValue: SearchViewModel(initialSearchConfig: initialSearchConfig))
+        }
     var drag: some Gesture {
         DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true

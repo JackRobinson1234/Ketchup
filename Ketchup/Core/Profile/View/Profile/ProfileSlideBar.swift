@@ -16,13 +16,12 @@ import SwiftUI
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, likes, collections
+    case posts, bookmarks, collections, map
 }
 
 enum PostDisplayMode: String, CaseIterable {
-    case all = "All"
-    case media = "Media"
-    case map = "Map"
+    case all = "All Posts"
+    case media = "Only Media"
 }
 
 struct ProfileSlideBar: View {
@@ -33,23 +32,23 @@ struct ProfileSlideBar: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
-    
+
     private var isKetchupMediaUser: Bool {
         return viewModel.user.username == "ketchup_media"
     }
-    
+
     init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._profileSection = profileSection
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel(user: viewModel.user))
+        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
     }
-    
+
     var body: some View {
         VStack {
-            //MARK: Images
+            // MARK: Images
             HStack(spacing: 0) {
                 Image(systemName: profileSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
@@ -62,7 +61,19 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
                     .frame(maxWidth: .infinity)
-                
+
+                Image(systemName: profileSection == .map ? "location.fill" : "location")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 45, height: 20)
+                    .onTapGesture {
+                        withAnimation {
+                            self.profileSection = .map
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .map))
+                    .frame(maxWidth: .infinity)
+
                 Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -74,38 +85,26 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
                     .frame(maxWidth: .infinity)
-                
-                Image(systemName: profileSection == .likes ? "heart.fill" : "heart")
+
+                Image(systemName: profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .likes
+                            self.profileSection = .bookmarks
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .likes))
+                    .modifier(UnderlineImageModifier(isSelected: profileSection == .bookmarks))
                     .frame(maxWidth: .infinity)
             }
             .padding()
             .padding(.bottom, 22)
-            
+
             // MARK: Section Logic
             if profileSection == .posts {
                 VStack {
-                    Picker("Post Display Mode", selection: $postDisplayMode) {
-                        ForEach(PostDisplayMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding([.bottom, .horizontal])
-                    .onChange(of: postDisplayMode) {
-                        if postDisplayMode == .map {
-                            scrollTarget = "map"
-                        }
-                    }
-                    
+                    DropdownMenuView(selection: $postDisplayMode, options: PostDisplayMode.allCases)
                     if isKetchupMediaUser && (postDisplayMode == .all || postDisplayMode == .media) {
                         Text("This user has too many posts to view")
                             .font(.headline)
@@ -121,22 +120,65 @@ struct ProfileSlideBar: View {
                             )
                         case .media:
                             PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
-                        case .map:
-                            ProfileMapView(feedViewModel: feedViewModel)
-                                .id("map")
                         }
                     }
                 }
-               
             }
-            
-            if profileSection == .likes {
-                LikedPostsView(viewModel: viewModel, scrollPosition: $scrollPosition,
-                               scrollTarget: $scrollTarget)
+            if profileSection == .map {
+                ProfileMapView(feedViewModel: feedViewModel)
+                    .id("map")
+                    .onAppear {
+                        scrollTarget = "map"
+                    }
             }
-            
+            if profileSection == .bookmarks {
+                BookmarksListView(profileViewModel: viewModel)
+            }
+
             if profileSection == .collections {
-                CollectionsListView(viewModel: collectionsViewModel)
+                CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
+            }
+        }
+    }
+}
+struct DropdownMenuView: View {
+    @Binding var selection: PostDisplayMode
+    @State private var isExpanded = false
+    
+    var options: [PostDisplayMode]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) { // Faster animation
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack(spacing: 1) {
+                    Text(selection.rawValue)
+                        .foregroundColor(.primary)
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.primary)
+                }
+            }
+            .padding(.bottom)
+            if isExpanded {
+                VStack(spacing: 0) {
+                    ForEach(options, id: \.self) { option in
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) { // Faster animation
+                                isExpanded = false
+                            }
+                            selection = option
+                        }) {
+                            Text(option.rawValue)
+                                .foregroundColor(.primary)
+                                .padding()
+                        }
+                    }
+                }
+                .background(Color(UIColor.systemGray6))
+                .cornerRadius(8)
             }
         }
     }

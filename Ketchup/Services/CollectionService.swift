@@ -53,31 +53,53 @@ class CollectionService {
     //MARK: addItemToCollection
     /// Adds item to the collection Id that is already attached
     /// - Parameter collectionItem: item to be added to the item.collectionID colecton
-    func addItemToCollection(collectionItem: CollectionItem) async throws{
-        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
-        let subCollectionRef = collectionRef.collection("items")
-        guard let itemData = try? Firestore.Encoder().encode(collectionItem) else {
-            print("not encoding collection right")
-            return
+        // ... existing code ...
+
+        func addItemToCollection(collectionItem: CollectionItem) async throws {
+            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
+            let subCollectionRef = collectionRef.collection("items")
+            
+            guard let itemData = try? Firestore.Encoder().encode(collectionItem) else {
+                print("not encoding collection item right")
+                return
+            }
+            
+            let query = subCollectionRef.whereField("id", isEqualTo: collectionItem.id)
+            let querySnapshot = try await query.getDocuments()
+            
+            if querySnapshot.documents.isEmpty {
+                try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(1))])
+                
+                // Update tempImageUrls
+                var collection = try await collectionRef.getDocument(as: Collection.self)
+                collection.updatetempImageUrls(with: collectionItem)
+                if let urls = collection.tempImageUrls {
+                    try await collectionRef.updateData(["tempImageUrls": urls])
+                }
+            }
+            
+            try await subCollectionRef.document(collectionItem.id).setData(itemData)
         }
-        let query = subCollectionRef.whereField("id", isEqualTo: collectionItem.id)
-        let querySnapshot = try await query.getDocuments()
-        if querySnapshot.documents.isEmpty {
-            try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(1))])
-        }
-        try await subCollectionRef.document(collectionItem.id).setData(itemData)
-    }
     
     // MARK: removeItemFromCollection
     /// - Parameter collectionItem: item to be deleted
     func removeItemFromCollection(collectionItem: CollectionItem) async throws {
-        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
-        let subCollectionRef = collectionRef.collection("items").document(collectionItem.id)
-        // Delete the item document from the subcollection
-        try await subCollectionRef.delete()
-        try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
-        
-    }
+            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
+            let subCollectionRef = collectionRef.collection("items").document(collectionItem.id)
+            
+            // Delete the item document from the subcollection
+            try await subCollectionRef.delete()
+            try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
+            
+            // Update tempImageUrls
+            var collection = try await collectionRef.getDocument(as: Collection.self)
+            collection.removeCoverImageUrl(for: collectionItem)
+            if let urls = collection.tempImageUrls {
+                try await collectionRef.updateData(["tempImageUrls": urls])
+            } else {
+                try await collectionRef.updateData(["tempImageUrls": FieldValue.delete()])
+            }
+        }
     //MARK: uploadCollection
     /// Uploads a new Collection to firebase
     /// - Parameters:
@@ -135,4 +157,18 @@ class CollectionService {
         print("fetchedCollections", fetchedCollections)
         return fetchedCollections
     }
+    func fetchPaginatedCollections(lastDocument: QueryDocumentSnapshot?, limit: Int) async throws -> (collections: [Collection], lastDocument: QueryDocumentSnapshot?) {
+            var query = FirestoreConstants.CollectionsCollection
+            .whereField("restaurantCount", isGreaterThan: 0)
+                .order(by: "timestamp", descending: true)
+                .limit(to: limit)
+            
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+            
+            let snapshot = try await query.getDocuments()
+            let collections = try snapshot.documents.compactMap { try $0.data(as: Collection.self) }
+            return (collections, snapshot.documents.last)
+        }
 }

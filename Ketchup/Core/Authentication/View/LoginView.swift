@@ -27,15 +27,20 @@ struct LoginView: View {
             VStack {
                 Spacer()
                 // logo image
-                Image("Skip")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 150)
-                Image("KetchupTextRed")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200)
-                    
+                if let reAuthDelete, reAuthDelete{
+                    Text("Please log in again to confirm account deletion")
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.custom("MuseoSansRounded-300", size: 30))
+                } else {
+                    Image("Skip")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150, height: 150)
+                    Image("KetchupTextRed")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200)
+                }
                 
                 //MARK: Enter Email
                 VStack {

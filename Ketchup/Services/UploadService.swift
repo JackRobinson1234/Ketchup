@@ -72,7 +72,7 @@ struct UploadService {
             user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
             restaurant: postRestaurant,
             didLike: false,
-            didSave: false,
+            didBookmark: false,
             fromInAppCamera: fromInAppCamera,
             repost: false,
             didRepost: false,
