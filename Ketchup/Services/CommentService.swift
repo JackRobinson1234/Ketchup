@@ -43,7 +43,7 @@ class CommentService {
         return updatedComments
     }
     
-    func uploadComment(commentText: String, post: Post, taggedUsers: [String: String]) async throws -> Comment? {
+    func uploadComment(commentText: String, post: Post, mentionedUsers: [PostUser]) async throws -> Comment? {
         let ref = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document()
         guard let currentUid = Auth.auth().currentUser?.uid else { return nil }
         
@@ -54,7 +54,7 @@ class CommentService {
             postId: post.id,
             timestamp: Timestamp(),
             commentOwnerUid: currentUid,
-            taggedUsers: taggedUsers
+            mentionedUsers: mentionedUsers
         )
         
         guard let commentData = try? Firestore.Encoder().encode(comment) else {

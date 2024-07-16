@@ -55,7 +55,6 @@ class CommentViewModel: ObservableObject {
         $post.wrappedValue.commentCount -= 1
     }
     
-    // Fetch the users the current user is following (used for suggestion)
     private func fetchFollowingUsers() {
         Task {
             do {
@@ -98,27 +97,38 @@ class CommentViewModel: ObservableObject {
         guard !commentText.isEmpty else { return }
         
         // Extract usernames from comment text and create the taggedUsers dictionary
-        var taggedUsersDict: [String: String] = [:]
+        var mentionedUserArray: [PostUser] = []
         let words = commentText.split(separator: " ")
         for word in words {
             if word.hasPrefix("@") {
                 let username = String(word.dropFirst())
                 if let user = taggedUsers.first(where: { $0.username == username }) {
-                    taggedUsersDict[user.username] = user.id
+                    mentionedUserArray.append(PostUser(id: user.id,
+                                                       fullname: user.fullname,
+                                                       profileImageUrl: user.profileImageUrl, 
+                                                       privateMode: user.privateMode,
+                                                       username: user.username))
                 } else {
                     // Fetch user by username if not found in suggestions
                     if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
-                        taggedUsersDict[fetchedUser.username] = fetchedUser.id
+                        mentionedUserArray.append(PostUser(id: fetchedUser.id,
+                                                           fullname: fetchedUser.fullname,
+                                                           profileImageUrl: fetchedUser.profileImageUrl,
+                                                           privateMode: fetchedUser.privateMode,
+                                                           username: fetchedUser.username))
                     } else {
-                        // Mark as invalid if user is not found
-                        taggedUsersDict[username] = "invalid"
+                        mentionedUserArray.append(PostUser(id: "invalid",
+                                                           fullname: "invalid",
+                                                           profileImageUrl: nil,
+                                                           privateMode: false,
+                                                           username: username))
                     }
                 }
             }
         }
         
         do {
-            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, taggedUsers: taggedUsersDict) else { return }
+            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, mentionedUsers: mentionedUserArray) else { return }
             commentText = ""
             comments.insert(comment, at: 0)
             $post.wrappedValue.commentCount += 1

@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		041BA6C0E504284D9EDD2B88 /* Pods_KetchupTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD5687658523308EB98F82F /* Pods_KetchupTests.framework */; };
+		6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCD8EBA2C41A476000ACE3F /* SelectFollowingView.swift */; };
+		6FCD8EBD2C41EB93000ACE3F /* RedMentionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCD8EBC2C41EB93000ACE3F /* RedMentionsView.swift */; };
+		6FCD8EC12C4338B2000ACE3F /* TaggedUsersSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCD8EC02C4338B2000ACE3F /* TaggedUsersSheet.swift */; };
+		6FCD8EC32C4435F8000ACE3F /* Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCD8EC22C4435F8000ACE3F /* Testing.swift */; };
 		6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */; };
 		BF4ECAA5861844FCBF9545D7 /* Pods_Ketchup_KetchupUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD47335C88E6D58B651BE686 /* Pods_Ketchup_KetchupUITests.framework */; };
 		F800296E2BC25BF900818A4A /* GeoFireManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F800296D2BC25BF900818A4A /* GeoFireManager.swift */; };
@@ -251,6 +255,10 @@
 		31329280271327784B737FE5 /* Pods-Ketchup.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.debug.xcconfig"; sourceTree = "<group>"; };
 		564626C80C85D5EDEA43E98E /* Pods-Ketchup.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup.release.xcconfig"; path = "Target Support Files/Pods-Ketchup/Pods-Ketchup.release.xcconfig"; sourceTree = "<group>"; };
 		637A013B4E0E22F9D1A33813 /* Pods-KetchupTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.release.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.release.xcconfig"; sourceTree = "<group>"; };
+		6FCD8EBA2C41A476000ACE3F /* SelectFollowingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectFollowingView.swift; sourceTree = "<group>"; };
+		6FCD8EBC2C41EB93000ACE3F /* RedMentionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedMentionsView.swift; sourceTree = "<group>"; };
+		6FCD8EC02C4338B2000ACE3F /* TaggedUsersSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaggedUsersSheet.swift; sourceTree = "<group>"; };
+		6FCD8EC22C4435F8000ACE3F /* Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Testing.swift; sourceTree = "<group>"; };
 		6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantStatsView.swift; sourceTree = "<group>"; };
 		8FA06695D014C3F41D31D087 /* Pods-Ketchup-KetchupUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ketchup-KetchupUITests.debug.xcconfig"; path = "Target Support Files/Pods-Ketchup-KetchupUITests/Pods-Ketchup-KetchupUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		A6029513531672DE69C99B19 /* Pods-KetchupTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KetchupTests.debug.xcconfig"; path = "Target Support Files/Pods-KetchupTests/Pods-KetchupTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -674,6 +682,8 @@
 				F871B00A2B912CA500E4EB5F /* LocationRequest.swift */,
 				F871B00F2B914B6900E4EB5F /* photosRequest.swift */,
 				F83380F32C28B31E0056C973 /* CustomFont.swift */,
+				6FCD8EBC2C41EB93000ACE3F /* RedMentionsView.swift */,
+				6FCD8EC22C4435F8000ACE3F /* Testing.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -979,6 +989,7 @@
 				F8670A572BF3EDF500F527D9 /* SelectRestaurantListView.swift */,
 				F8A24B582BE7F2BD00AB7FDD /* UploadError.swift */,
 				F8670A552BF3EDBC00F527D9 /* CaptionEditorView.swift */,
+				6FCD8EBA2C41A476000ACE3F /* SelectFollowingView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1133,6 +1144,7 @@
 				F86E15B02C039FA40059D15C /* RepostView.swift */,
 				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
 				F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */,
+				6FCD8EC02C4338B2000ACE3F /* TaggedUsersSheet.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1875,6 +1887,7 @@
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
+				6FCD8EC32C4435F8000ACE3F /* Testing.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
@@ -1919,6 +1932,7 @@
 				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
 				F89CFA8C2C21D9B40003D449 /* UploadWrittenReviewView.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
+				6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
@@ -1931,6 +1945,7 @@
 				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
+				6FCD8EBD2C41EB93000ACE3F /* RedMentionsView.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* FoodiApp.swift in Sources */,
 				F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */,
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
@@ -1939,6 +1954,7 @@
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
+				6FCD8EC12C4338B2000ACE3F /* TaggedUsersSheet.swift in Sources */,
 				F8A50A942C3F472D00B9A7C9 /* EditViewModel.swift in Sources */,
 				F88E0AEC2B6B082300EC159B /* UserListView.swift in Sources */,
 				F88E0AD62B6B072700EC159B /* SearchModelConfig.swift in Sources */,

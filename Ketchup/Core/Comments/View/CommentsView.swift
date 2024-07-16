@@ -73,7 +73,7 @@ struct CommentsView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            .onChange(of: viewModel.comments.count) { _ in
+            .onChange(of: viewModel.comments.count) {
                 viewModel.showEmptyView = viewModel.comments.isEmpty
             }
             .onAppear {

@@ -12,6 +12,10 @@ struct CommentCell: View {
     @ObservedObject var viewModel: CommentViewModel
     var previewMode: Bool = false
     
+    @State private var parsedComment: AttributedString?
+    @State private var selectedUser: PostUser?
+    @State private var isShowingProfileSheet = false
+    
     var body: some View {
         HStack(alignment: .top) {
             Button {
@@ -34,11 +38,16 @@ struct CommentCell: View {
                         .font(.custom("MuseoSansRounded-300", size: 10))
                 }
                 
-                Text(makeAttributedString(from: comment.commentText))
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .onTapGesture {
-                        handleTagTap(for: comment)
-                    }
+                if let parsed = parsedComment {
+                    Text(parsed)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                } else {
+                    Text(comment.commentText)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .onAppear {
+                            parsedComment = parseComment(comment.commentText)
+                        }
+                }
             }
             .font(.custom("MuseoSansRounded-300", size: 10))
             
@@ -51,7 +60,7 @@ struct CommentCell: View {
                     ZStack {
                         Color.clear
                             .frame(width: 28, height: 28)
-                            .cornerRadius(14) // Optional: Adds a rounded corner
+                            .cornerRadius(14)
                         
                         Image(systemName: "ellipsis")
                             .foregroundColor(.gray)
@@ -61,27 +70,56 @@ struct CommentCell: View {
             }
         }
         .padding(.horizontal)
+        .environment(\.openURL, OpenURLAction { url in
+            if url.scheme == "user",
+               let userId = url.host,
+               let user = comment.mentionedUsers.first(where: { $0.id == userId }) {
+                selectedUser = user
+                return .handled
+            }
+            return .systemAction
+        })
+        .onChange(of: selectedUser) {
+            isShowingProfileSheet = selectedUser != nil
+        }
+        .sheet(isPresented: $isShowingProfileSheet) {
+            if let user = selectedUser {
+                NavigationStack {
+                    if user.id == "invalid" {
+                        Text("User does not exist")
+                    } else {
+                        ProfileView(uid: user.id)
+                    }
+                }
+            }
+        }
     }
     
-    private func makeAttributedString(from text: String) -> AttributedString {
-        var attributedString = AttributedString(text)
+    private func parseComment(_ input: String) -> AttributedString {
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
         
-        let pattern = "@[A-Za-z0-9_]+"
-        let regex = try! NSRegularExpression(pattern: pattern, options: [])
-        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return result
+        }
         
-        for match in matches {
-            let range = match.range(at: 0)
-            if let swiftRange = Range(range, in: attributedString) {
-                attributedString[swiftRange].foregroundColor = Color("Colors/AccentColor")
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst()) // Remove @ from username
+            
+            if let user = comment.mentionedUsers.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
             }
         }
         
-        return attributedString
-    }
-    
-    private func handleTagTap(for comment: Comment) {
-            print("nav to prof")
+        return result
     }
 }
 

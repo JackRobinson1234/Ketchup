@@ -33,6 +33,8 @@ struct Post: Identifiable, Codable {
     var atmosphereRating: Double?
     var valueRating: Double?
     var foodRating: Double?
+    var taggedUsers: [PostUser]
+    var captionMentions: [PostUser]
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.restaurant.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
@@ -64,6 +66,8 @@ struct Post: Identifiable, Codable {
         self.atmosphereRating = try container.decodeIfPresent(Double.self, forKey: .atmosphereRating)
         self.valueRating = try container.decodeIfPresent(Double.self, forKey: .valueRating)
         self.foodRating = try container.decodeIfPresent(Double.self, forKey: .foodRating)
+        self.taggedUsers = try container.decodeIfPresent([PostUser].self, forKey: .taggedUsers) ?? []
+        self.captionMentions = try container.decodeIfPresent([PostUser].self, forKey: .captionMentions) ?? []
     }
 
     init(
@@ -87,7 +91,9 @@ struct Post: Identifiable, Codable {
         serviceRating: Double? = nil,
         atmosphereRating: Double? = nil,
         valueRating: Double? = nil,
-        foodRating: Double? = nil
+        foodRating: Double? = nil,
+        taggedUsers: [PostUser] = [],
+        captionMentions: [PostUser] = []
     ) {
         self.id = id
         self.mediaType = mediaType
@@ -110,6 +116,8 @@ struct Post: Identifiable, Codable {
         self.atmosphereRating = atmosphereRating
         self.valueRating = valueRating
         self.foodRating = foodRating
+        self.taggedUsers = taggedUsers
+        self.captionMentions = captionMentions
     }
 }
 

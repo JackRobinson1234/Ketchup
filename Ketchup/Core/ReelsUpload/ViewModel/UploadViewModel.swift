@@ -30,9 +30,16 @@ class UploadViewModel: ObservableObject {
     @Published var atmosphereRating: Double = 5
     @Published var valueRating: Double = 5
     @Published var foodRating: Double = 5
+    @Published var taggedUsers: [PostUser] = []
+    
+    @Published var filteredMentionedUsers: [User] = []
+    @Published var isMentioning: Bool = false
+
+    var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
+        fetchFollowingUsers()
     }
     
     func reset() {
@@ -52,6 +59,9 @@ class UploadViewModel: ObservableObject {
         atmosphereRating = 3.0
         valueRating = 3.0
         foodRating = 3.0
+        taggedUsers = []
+        filteredMentionedUsers = []
+        isMentioning = false
     }
     
     func uploadPost() async {
@@ -84,41 +94,76 @@ class UploadViewModel: ObservableObject {
         var post: Post? = nil
         do {
             if let postRestaurant {
-            if mediaType == .video {
-                guard let videoURL = videoURL else {
-                    throw UploadError.invalidMediaData
+                // Extract mentioned users from caption
+                var mentionedUsers: [PostUser] = []
+                let words = caption.split(separator: " ")
+                for word in words {
+                    if word.hasPrefix("@") {
+                        let username = String(word.dropFirst())
+                        if let user = mentionableUsers.first(where: { $0.username == username }) {
+                            mentionedUsers.append(PostUser(id: user.id, 
+                                                           fullname: user.fullname,
+                                                           profileImageUrl: user.profileImageUrl,
+                                                           privateMode: user.privateMode,
+                                                           username: user.username))
+                        } else {
+                            // fetching user by username if not found in suggestions
+                            if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                                mentionedUsers.append(PostUser(id: fetchedUser.id,
+                                                               fullname: fetchedUser.fullname,
+                                                               profileImageUrl: fetchedUser.profileImageUrl,
+                                                               privateMode: fetchedUser.privateMode,
+                                                               username: fetchedUser.username))
+                            } else {
+                                mentionedUsers.append(PostUser(id: "invalid",
+                                                               fullname: "invalid",
+                                                               profileImageUrl: nil,
+                                                               privateMode: false,
+                                                               username: username))
+                            }
+                        }
+                    }
                 }
-                post = try await UploadService.shared.uploadPost(
-                    videoURL: videoURL,
-                    images: nil,
-                    mediaType: mediaType,
-                    caption: caption,
-                    postRestaurant: postRestaurant,
-                    fromInAppCamera: fromInAppCamera,
-                    overallRating: overallRating,
-                    serviceRating: serviceRating,
-                    atmosphereRating: atmosphereRating,
-                    valueRating: valueRating,
-                    foodRating: foodRating
-                )
-            } else if mediaType == .photo {
-                guard let images = images else {
-                    throw UploadError.invalidMediaData
+                
+                if mediaType == .video {
+                    guard let videoURL = videoURL else {
+                        throw UploadError.invalidMediaData
+                    }
+                    post = try await UploadService.shared.uploadPost(
+                        videoURL: videoURL,
+                        images: nil,
+                        mediaType: mediaType,
+                        caption: caption,
+                        postRestaurant: postRestaurant,
+                        fromInAppCamera: fromInAppCamera,
+                        overallRating: overallRating,
+                        serviceRating: serviceRating,
+                        atmosphereRating: atmosphereRating,
+                        valueRating: valueRating,
+                        foodRating: foodRating,
+                        taggedUsers: taggedUsers,
+                        captionMentions: mentionedUsers
+                    )
+                } else if mediaType == .photo {
+                    guard let images = images else {
+                        throw UploadError.invalidMediaData
+                    }
+                    post = try await UploadService.shared.uploadPost(
+                        videoURL: nil,
+                        images: images,
+                        mediaType: mediaType,
+                        caption: caption,
+                        postRestaurant: postRestaurant,
+                        fromInAppCamera: fromInAppCamera,
+                        overallRating: overallRating,
+                        serviceRating: serviceRating,
+                        atmosphereRating: atmosphereRating,
+                        valueRating: valueRating,
+                        foodRating: foodRating,
+                        taggedUsers: taggedUsers,
+                        captionMentions: mentionedUsers
+                    )
                 }
-                post = try await UploadService.shared.uploadPost(
-                    videoURL: nil,
-                    images: images,
-                    mediaType: mediaType,
-                    caption: caption,
-                    postRestaurant: postRestaurant,
-                    fromInAppCamera: fromInAppCamera,
-                    overallRating: overallRating,
-                    serviceRating: serviceRating,
-                    atmosphereRating: atmosphereRating,
-                    valueRating: valueRating,
-                    foodRating: foodRating
-                )
-            }
             } else {
                 throw UploadError.invalidMediaType
             }
@@ -135,4 +180,51 @@ class UploadViewModel: ObservableObject {
         isLoading = false
         reset()
     }
+    
+    func checkForMentioning() {
+        let words = caption.split(separator: " ")
+        
+        if caption.last == " " {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return
+        }
+
+        guard let lastWord = words.last, lastWord.hasPrefix("@") else {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return
+        }
+
+        let searchQuery = String(lastWord.dropFirst()).lowercased()
+        if searchQuery.isEmpty {
+            filteredMentionedUsers = mentionableUsers
+        } else {
+            filteredMentionedUsers = mentionableUsers.filter { $0.username.lowercased().contains(searchQuery) }
+        }
+
+        isMentioning = !filteredMentionedUsers.isEmpty
+    }
+    
+    func addMention(user: User) {
+        // Add the mention to the caption and reset mentioning state
+        guard let lastWordRange = caption.range(of: "@\(caption.split(separator: " ").last ?? "")") else { return }
+        caption.replaceSubrange(lastWordRange, with: "@\(user.username)")
+        isMentioning = false
+        filteredMentionedUsers = []
+    }
+    
+    private func fetchFollowingUsers() {
+        Task {
+            do {
+                let users = try await UserService.shared.fetchFollowingUsers()
+                DispatchQueue.main.async {
+                    self.mentionableUsers = users
+                }
+            } catch {
+                print("Error fetching following users: \(error)")
+            }
+        }
+    }
 }
+

@@ -33,7 +33,6 @@ class PostService {
     /// - Parameter user: user object that you want matching posts for
     /// - Returns: array of post objects
     func fetchUserPosts(user: User) async throws -> [Post] {
-        //print("DEBUG: Ran fetchUserPost")
         let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("user.id", isEqualTo: user.id)
@@ -253,7 +252,6 @@ extension PostService {
     /// - Parameter user: user to be checked
     /// - Returns: array of post objects that the user has liked
     func fetchUserLikedPosts(user: User) async throws -> [Post] {
-        print("DEBUG: Ran fetchUserLikedPost")
         // Gets a snapshot of liked postIds
         let querySnapshot = try await FirestoreConstants
             .UserCollection

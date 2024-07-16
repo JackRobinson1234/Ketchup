@@ -29,7 +29,6 @@ class UserService {
     }
     
     func fetchUser(withUid uid: String) async throws -> User {
-        print("DEBUG: Ran fetchUser()")
         return try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
     }
     //MARK: fetchFollowingUsers

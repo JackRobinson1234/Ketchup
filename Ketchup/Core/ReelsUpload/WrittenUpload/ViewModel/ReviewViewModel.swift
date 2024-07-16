@@ -31,6 +31,12 @@ class ReviewsViewModel: ObservableObject {
     @Published var showAlert = false
     @Published var showDetailsAlert = false
     
+    @Published var taggedUsers: [PostUser] = []
+    
+    @Published var filteredMentionedUsers: [User] = []
+    @Published var isMentioning: Bool = false
+    var mentionableUsers: [User] = []
+    
     private let characterLimit = 300
     @Published var isEditingDescription = false
     
@@ -66,7 +72,9 @@ class ReviewsViewModel: ObservableObject {
                     serviceRating: serviceRating,
                     atmosphereRating: atmosphereRating,
                     valueRating: valueRating,
-                    foodRating: foodRating
+                    foodRating: foodRating,
+                    taggedUsers: taggedUsers,
+                    captionMentions: []
                 )
                 
                 feedViewModel.showPostAlert = true
@@ -113,6 +121,31 @@ class ReviewsViewModel: ObservableObject {
             print("error deleting review")
             throw error
         }
+    }
+    
+    func checkForMentioning() {
+        let words = description.split(separator: " ")
+        
+        if description.last == " " {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return
+        }
+
+        guard let lastWord = words.last, lastWord.hasPrefix("@") else {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return
+        }
+
+        let searchQuery = String(lastWord.dropFirst()).lowercased()
+        if searchQuery.isEmpty {
+            filteredMentionedUsers = mentionableUsers
+        } else {
+            filteredMentionedUsers = mentionableUsers.filter { $0.username.lowercased().contains(searchQuery) }
+        }
+
+        isMentioning = !filteredMentionedUsers.isEmpty
     }
     
     func reset() {

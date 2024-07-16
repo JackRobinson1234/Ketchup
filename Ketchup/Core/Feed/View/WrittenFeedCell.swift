@@ -28,6 +28,14 @@ struct WrittenFeedCell: View {
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
+    
+    @State private var isTaggedSheetPresented = false
+    
+    @State private var selectedUser: PostUser?
+    @State private var parsedCaption: AttributedString?
+    
+    @State private var selectedUserId: String?
+    
     var checkLikes: Bool
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
         self._viewModel = ObservedObject(initialValue: viewModel)
@@ -200,17 +208,69 @@ struct WrittenFeedCell: View {
                         }
                     
                 }
+                
             }
+            
             if isExpanded {
                 RatingsView(post: post, isExpanded: $isExpanded)
                     .padding(.vertical, 5)
+                
             }
+            
             HStack {
-                Text(post.caption)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                if let parsed = parsedCaption {
+                    Text(parsed)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                } else {
+                    Text(post.caption)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .onAppear {
+                            parsedCaption = parseCaption(post.caption)
+                        }
+                }
                 Spacer()
             }
-            .padding(.top, 3)
+            
+            
+            
+            if !post.taggedUsers.isEmpty {
+                Button(action: {
+                    isTaggedSheetPresented.toggle()
+                }) {
+                    HStack() {
+                        Text("Went with:")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .bold()
+                        
+                        // Display profile images of the first three tagged users
+                        ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
+                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                        }
+                        
+                        // If there are more than three users, display the count of additional users
+                        if post.taggedUsers.count > 3 {
+                            
+                            
+                            
+                            VStack {
+                                Spacer()
+                                Text("and \(post.taggedUsers.count - 3) others")
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                            }
+                            
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                .sheet(isPresented: $isTaggedSheetPresented) {
+                    TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                }
+            }
+            
+            
+            
+            
             HStack (spacing: 15) {
                 Button {
                     videoCoordinator.pause()
@@ -311,6 +371,28 @@ struct WrittenFeedCell: View {
                 }
             }
         }
+        .environment(\.openURL, OpenURLAction { url in
+            if url.scheme == "user",
+               let userId = url.host,
+               let user = post.captionMentions.first(where: { $0.id == userId }) {
+                selectedUserId = user.id
+                viewModel.isShowingProfileSheet = true
+                return .handled
+            }
+            return .systemAction
+        })
+        .sheet(isPresented: $viewModel.isShowingProfileSheet) {
+            if let userId = selectedUserId {
+                NavigationStack {
+                    if userId == "invalid" {
+                        Text("User does not exist")
+                    } else {
+                        ProfileView(uid: userId)
+                    }
+                }
+            }
+        }
+        
         .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
             if post.mediaType == .video && newTab !=  0 {
                 videoCoordinator.pause()
@@ -391,6 +473,34 @@ struct WrittenFeedCell: View {
             }
         }
     }
+    private func parseCaption(_ input: String) -> AttributedString {
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return result
+        }
+        
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst()) // Remove @ from username
+            
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
+            }
+        }
+        
+        return result
+    }
+    
+
     
     private func handleLikeTapped() {
         Task {

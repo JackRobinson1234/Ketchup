@@ -4,7 +4,6 @@
 //
 //  Created by Jack Robinson on 4/21/24.
 //
-
 import SwiftUI
 import AVKit
 import AVFoundation
@@ -21,6 +20,8 @@ struct ReelsUploadView: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @State private var isVideoExpanded = false
+    
+    @State private var isTaggingUsers = false
     
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
@@ -139,6 +140,9 @@ struct ReelsUploadView: View {
                                             }
                                         }
                                     }
+                                    .onChange(of: uploadViewModel.caption) { 
+                                        uploadViewModel.checkForMentioning()
+                                    }
                                 if uploadViewModel.caption.isEmpty {
                                     Text("Enter a caption...")
                                         .font(.custom("MuseoSansRounded-300", size: 16))
@@ -161,6 +165,28 @@ struct ReelsUploadView: View {
                             }
                         }
                         
+                        if uploadViewModel.isMentioning {
+                            ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
+                                Button(action: {
+                                    let username = user.username
+                                    var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                                    words.removeLast()
+                                    words.append("@" + username)
+                                    uploadViewModel.caption = words.joined(separator: " ") + " "
+                                    uploadViewModel.isMentioning = false
+                                }) {
+                                    HStack {
+                                        UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
+                                        Text(user.username)
+                                            .font(.custom("MuseoSansRounded-300", size: 14))
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                        }
+                        
                         Divider()
                         
                         VStack(spacing: 10) {
@@ -173,7 +199,37 @@ struct ReelsUploadView: View {
                         
                         Divider()
                         
-                        Spacer()
+                        Button {
+                            isTaggingUsers = true
+                        } label: {
+                            HStack {
+                                Text("Went with anyone?")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(.black)
+                                    .frame(alignment: .trailing)
+                                
+                                Spacer()
+                                if uploadViewModel.taggedUsers.isEmpty {
+                                    Image(systemName: "chevron.right")
+                                        .frame(width: 25, height: 25)
+                                        .foregroundColor(Color("Colors/AccentColor"))
+                                        .padding(.trailing, 10)
+                                } else {
+                                    HStack {
+                                        Text("\(uploadViewModel.taggedUsers.count) people")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundColor(.black)
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .frame(width: 25, height: 25)
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                    }
+                                    .padding(.trailing, 10)
+                                }
+                            }
+                        }
+
+                        Divider()
                         
                         Button {
                             if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
@@ -231,9 +287,16 @@ struct ReelsUploadView: View {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
         }
+        .navigationDestination(isPresented: $isTaggingUsers) {
+            SelectFollowingView(uploadViewModel: uploadViewModel)
+                .navigationTitle("Tag Users")
+        }
         
     }
 }
+
+
+
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }

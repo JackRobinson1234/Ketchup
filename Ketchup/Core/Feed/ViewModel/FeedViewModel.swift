@@ -51,7 +51,8 @@ class FeedViewModel: ObservableObject {
     private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
     private var followingUsers: [String] = []
     @Published var isLoadingMoreContent = false
-    private var fetchTask: Task<Void, Error>?
+    private var fetchTask: Task<Void, Error>?    
+    @Published var isShowingProfileSheet: Bool = false
     @Published var selectedTab: FeedTab = .discover {
         didSet {
             Task {
