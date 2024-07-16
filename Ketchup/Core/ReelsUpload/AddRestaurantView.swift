@@ -28,7 +28,8 @@ struct AddRestaurantView: View {
                     TextField("City", text: $city)
                         .padding()
                     Divider()
-                    TextField("State", text: $state)                            .padding()
+                    TextField("State", text: $state)                            
+                        .padding()
                     Divider()
                     
                     

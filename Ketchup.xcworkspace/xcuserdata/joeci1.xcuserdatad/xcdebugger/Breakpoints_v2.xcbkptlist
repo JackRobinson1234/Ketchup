@@ -7,22 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "D82608AB-1A5B-4E76-A832-A8DEF334FB9C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Ketchup/Core/ReelsUpload/View/ReelsUploadView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "C7551F6A-808B-4E18-B988-E4F47139E39D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -110,9 +94,9 @@
             filePath = "Ketchup/Core/Feed/ViewModel/FeedViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "73"
-            endingLineNumber = "73"
-            landmarkName = "fetchInitialPosts(withFilters:)"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
+            landmarkName = "handleTabChange()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -130,6 +114,22 @@
             endingLineNumber = "32"
             landmarkName = "fetchRestaurants(withFilters:limit:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DB4F596C-77DD-4B4B-AF52-0836767519CB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Ketchup/Core/Camera/CameraViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "16"
+            endingLineNumber = "16"
+            landmarkName = "CameraViewModel"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

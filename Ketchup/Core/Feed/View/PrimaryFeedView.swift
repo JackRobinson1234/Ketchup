@@ -86,9 +86,7 @@ struct PrimaryFeedView: View {
                             
                         }
                         .onChange(of: tabBarController.scrollToTop){
-                            print("SCROLLING")
                             if let post = viewModel.posts.first {
-                                print("Moving to first")
                                 withAnimation(.smooth) {
                                     scrollProxy.scrollTo(post.id, anchor: .center)
                                 }

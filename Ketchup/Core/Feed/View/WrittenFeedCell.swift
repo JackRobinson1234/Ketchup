@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Kingfisher
+
 struct WrittenFeedCell: View {
     @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var viewModel: FeedViewModel
@@ -31,7 +32,16 @@ struct WrittenFeedCell: View {
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
+    
+    @State private var isTaggedSheetPresented = false
+    
+    @State private var selectedUser: PostUser?
+    @State private var parsedCaption: AttributedString?
+    
+    @State private var selectedUserId: String?
+    
     var checkLikes: Bool
+    
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
@@ -55,7 +65,7 @@ struct WrittenFeedCell: View {
     }
     
     var body: some View {
-        VStack{
+        VStack {
             VStack {
                 HStack {
                     NavigationLink(value: post.user) {
@@ -131,7 +141,7 @@ struct WrittenFeedCell: View {
                         .frame(maxWidth: .infinity) // This will allow the Button to take full width
                     }
                 } else if post.mediaType == .video {
-                    HStack (alignment: .bottom){
+                    HStack(alignment: .bottom) {
                         Rectangle()
                             .frame(width: 40, height: 40)
                             .foregroundStyle(.clear)
@@ -178,7 +188,7 @@ struct WrittenFeedCell: View {
                     }
                 }
                 NavigationLink(value: post.restaurant) {
-                    HStack (alignment: .top) {
+                    HStack(alignment: .top) {
                         VStack(alignment: .leading) {
                             Text(post.restaurant.name)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
@@ -202,27 +212,61 @@ struct WrittenFeedCell: View {
                                     .animation(.easeInOut(duration: 0.3), value: isExpanded)
                             }
                         }
-                        
                     }
                 }
-                if isExpanded {
-                    RatingsView(post: post, isExpanded: $isExpanded)
-                        .padding(.vertical, 5)
-                }
-                HStack {
+            }
+            
+            if isExpanded {
+                RatingsView(post: post, isExpanded: $isExpanded)
+                    .padding(.vertical, 5)
+            }
+            
+            HStack {
+                if let parsed = parsedCaption {
+                    Text(parsed)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                } else {
                     Text(post.caption)
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                    Spacer()
+                        .onAppear {
+                            parsedCaption = parseCaption(post.caption)
+                        }
                 }
-                .padding(.top, 3)
+                Spacer()
             }
-            .gesture(
-                TapGesture(count: 2)
-                    .onEnded { _ in
-                        handleDoubleTap()
+            
+            if !post.taggedUsers.isEmpty {
+                Button(action: {
+                    isTaggedSheetPresented.toggle()
+                }) {
+                    HStack() {
+                        Text("Went with:")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .bold()
+                        
+                        // Display profile images of the first three tagged users
+                        ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
+                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                        }
+                        
+                        // If there are more than three users, display the count of additional users
+                        if post.taggedUsers.count > 3 {
+                            VStack {
+                                Spacer()
+                                Text("and \(post.taggedUsers.count - 3) others")
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                            }
+                        }
+                        
+                        Spacer()
                     }
-            )
-            HStack (spacing: 15) {
+                }
+                .sheet(isPresented: $isTaggedSheetPresented) {
+                    TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                }
+            }
+            
+            HStack(spacing: 15) {
                 Button {
                     handleLikeTapped()
                 } label: {
@@ -236,32 +280,34 @@ struct WrittenFeedCell: View {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                 }
                 
+                // Uncomment if needed in the future
+                /*
+                Button {
+                    videoCoordinator.pause()
+                    showingRepostSheet.toggle()
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.2.squarepath")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(.gray)
+                            .rotationEffect(.degrees(90))
+                        Text("\(post.repostCount)")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundStyle(.gray)
+                    }
+                    .padding(.trailing, 10)
+                    .disabled(post.user.id == AuthService.shared.userSession?.id)
+                }
+                */
                 
-                
-//                Button {
-//                    videoCoordinator.pause()
-//                    showingRepostSheet.toggle()
-//                } label: {
-//                    HStack(spacing: 3) {
-//                        Image(systemName: "arrow.2.squarepath")
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 18, height: 18)
-//                            .foregroundStyle(.gray)
-//                            .rotationEffect(.degrees(90))
-//                        Text("\(post.repostCount)")
-//                            .font(.custom("MuseoSansRounded-300", size: 14))
-//                            .foregroundStyle(.gray)
-//                    }
-//                    .padding(.trailing, 10)
-//                    .disabled(post.user.id == AuthService.shared.userSession?.id)
-//                    
-//                }
                 Button {
                     handleBookmarkTapped()
                 } label: {
                     InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 22, height: 22)
                 }
+                
                 Button {
                     videoCoordinator.pause()
                     showCollections.toggle()
@@ -326,6 +372,27 @@ struct WrittenFeedCell: View {
                        let firstPost = viewModel.posts.first,
                        firstPost.id == post.id {
                         videoCoordinator.replay()
+                    }
+                }
+            }
+        }
+        .environment(\.openURL, OpenURLAction { url in
+            if url.scheme == "user",
+               let userId = url.host,
+               let user = post.captionMentions.first(where: { $0.id == userId }) {
+                selectedUserId = user.id
+                viewModel.isShowingProfileSheet = true
+                return .handled
+            }
+            return .systemAction
+        })
+        .sheet(isPresented: $viewModel.isShowingProfileSheet) {
+            if let userId = selectedUserId {
+                NavigationStack {
+                    if userId == "invalid" {
+                        Text("User does not exist")
+                    } else {
+                        ProfileView(uid: userId)
                     }
                 }
             }
@@ -395,7 +462,6 @@ struct WrittenFeedCell: View {
                         .frame(width: 100, height: 100)
                         .foregroundStyle(Color("Colors/AccentColor"))
                         .transition(.opacity)
-                    
                 }
             }
         )
@@ -410,6 +476,34 @@ struct WrittenFeedCell: View {
             }
         }
     }
+    
+    private func parseCaption(_ input: String) -> AttributedString {
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return result
+        }
+        
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst()) // Remove @ from username
+            
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
+            }
+        }
+        
+        return result
+    }
+    
     private func handleBookmarkTapped() {
         Task {
             if post.didBookmark {
@@ -419,6 +513,7 @@ struct WrittenFeedCell: View {
             }
         }
     }
+    
     private func handleLikeTapped() {
         Task {
             didLike ? await viewModel.unlike(post) : await viewModel.like(post)
@@ -434,6 +529,7 @@ struct WrittenFeedCell: View {
             }
         }
     }
+    
     private func handleDoubleTap() {
         if !didLike {
             Task {
@@ -516,8 +612,6 @@ struct RatingSlider: View {
     }
 }
 
-
-
 struct RatingsView: View {
     let post: Post
     @Binding var isExpanded: Bool
@@ -550,6 +644,7 @@ struct RatingsView: View {
         }
     }
 }
+
 struct FeedOverallRatingView: View {
     let rating: Double
     var font: Color? = .primary
@@ -569,11 +664,8 @@ struct FeedOverallRatingView: View {
                 
                 Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
                     .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
-                
-                
             }
             .frame(width: 40, height: 40) // Smaller frame size
-            
         }
     }
 }

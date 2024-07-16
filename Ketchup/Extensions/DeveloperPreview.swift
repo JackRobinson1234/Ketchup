@@ -182,7 +182,8 @@ struct DeveloperPreview {
         postId: "",
         timestamp: Timestamp(),
         commentOwnerUid: "",
-        user: user
+        user: user,
+        mentionedUsers: []
     )
     
     static var comments: [Comment] = [
@@ -193,7 +194,8 @@ struct DeveloperPreview {
             postId: "",
             timestamp: Timestamp(),
             commentOwnerUid: "",
-            user: user
+            user: user,
+            mentionedUsers: []
         ),
         .init(
             id: NSUUID().uuidString,
@@ -202,7 +204,8 @@ struct DeveloperPreview {
             postId: "",
             timestamp: Timestamp(),
             commentOwnerUid: "",
-            user: users[1]
+            user: users[1],
+            mentionedUsers: []
         ),
         .init(
             id: NSUUID().uuidString,
@@ -211,7 +214,8 @@ struct DeveloperPreview {
             postId: "",
             timestamp: Timestamp(),
             commentOwnerUid: "",
-            user: users[2]
+            user: users[2],
+            mentionedUsers: []
         )]
         /*
     static var notifications: [Notification] = [

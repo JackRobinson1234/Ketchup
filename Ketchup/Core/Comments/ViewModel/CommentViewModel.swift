@@ -1,57 +1,134 @@
-//
-//  CommentViewModel.swift
-//  Foodi
-//
-//  Created by Jack Robinson on 1/31/24.
-//
-
 import Foundation
 import Combine
 import SwiftUI
+
 @MainActor
 class CommentViewModel: ObservableObject {
     @Published var comments = [Comment]()
     @Published var commentText: String = "" {
-           didSet {
-               if commentText.count > 300 {
-                   commentText = String(commentText.prefix(300))
-                   charLimitReached = true
-               } else {
-                   charLimitReached = false
-               }
-           }
-       }
+        didSet {
+            if commentText.count > 300 {
+                commentText = String(commentText.prefix(300))
+                charLimitReached = true
+            } else {
+                charLimitReached = false
+            }
+            checkForTagging()
+        }
+    }
     @Published var charLimitReached: Bool = false
     @Published var showEmptyView = false
-    
-    @Binding var post: Post
     @Published var showOptionsSheet: Bool = false
     @Published var selectedComment: Comment?
     @Published var selectedUserComment: Comment?
+    @Published var taggedUsers: [User] = []
+    @Published var filteredTaggedUsers: [User] = []
+    @Published var isTagging: Bool = false
+
+    @Binding var post: Post
     var commentCountText: String {
         return "\(comments.count) comments"
     }
+
     init(post: Binding<Post>) {
         self._post = post
+        fetchFollowingUsers()
     }
     
-    //MARK: fetchComments
-    /// fetches comments for the current post
+    // Fetch comments for the current post
     func fetchComments() async throws {
         do {
             self.comments = try await CommentService.shared.fetchComments(post: post)
             showEmptyView = comments.isEmpty
-        }
-        catch {
+        } catch {
             print("DEBUG: Failed to fetch comments with error: \(error.localizedDescription)")
         }
     }
-    //MARK: uploadComment
-    /// uploads the text as a comment to the corresponding post
+    
+    // Delete the comment from firebase
+    func deleteComment(comment: Comment) async throws {
+        guard let index = comments.firstIndex(of: comment) else {
+            return // Comment not found in the array
+        }
+        try await CommentService.shared.deleteComment(comment: comment, post: self.post)
+        comments.remove(at: index)
+        $post.wrappedValue.commentCount -= 1
+    }
+    
+    private func fetchFollowingUsers() {
+        Task {
+            do {
+                let users = try await UserService.shared.fetchFollowingUsers()
+                DispatchQueue.main.async {
+                    self.taggedUsers = users
+                }
+            } catch {
+                print("Error fetching following users: \(error)")
+            }
+        }
+    }
+    
+    func checkForTagging() {
+        let words = commentText.split(separator: " ")
+
+        if commentText.last == " " {
+            isTagging = false
+            filteredTaggedUsers = []
+            return
+        }
+
+        guard let lastWord = words.last, lastWord.hasPrefix("@") else {
+            isTagging = false
+            filteredTaggedUsers = []
+            return
+        }
+
+        let searchQuery = String(lastWord.dropFirst()).lowercased()
+        if searchQuery.isEmpty {
+            filteredTaggedUsers = taggedUsers
+        } else {
+            filteredTaggedUsers = taggedUsers.filter { $0.username.lowercased().contains(searchQuery) }
+        }
+
+        isTagging = !filteredTaggedUsers.isEmpty
+    }
+
     func uploadComment() async {
         guard !commentText.isEmpty else { return }
+        
+        // Extract usernames from comment text and create the taggedUsers dictionary
+        var mentionedUserArray: [PostUser] = []
+        let words = commentText.split(separator: " ")
+        for word in words {
+            if word.hasPrefix("@") {
+                let username = String(word.dropFirst())
+                if let user = taggedUsers.first(where: { $0.username == username }) {
+                    mentionedUserArray.append(PostUser(id: user.id,
+                                                       fullname: user.fullname,
+                                                       profileImageUrl: user.profileImageUrl, 
+                                                       privateMode: user.privateMode,
+                                                       username: user.username))
+                } else {
+                    // Fetch user by username if not found in suggestions
+                    if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                        mentionedUserArray.append(PostUser(id: fetchedUser.id,
+                                                           fullname: fetchedUser.fullname,
+                                                           profileImageUrl: fetchedUser.profileImageUrl,
+                                                           privateMode: fetchedUser.privateMode,
+                                                           username: fetchedUser.username))
+                    } else {
+                        mentionedUserArray.append(PostUser(id: "invalid",
+                                                           fullname: "invalid",
+                                                           profileImageUrl: nil,
+                                                           privateMode: false,
+                                                           username: username))
+                    }
+                }
+            }
+        }
+        
         do {
-            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post) else { return }
+            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, mentionedUsers: mentionedUserArray) else { return }
             commentText = ""
             comments.insert(comment, at: 0)
             $post.wrappedValue.commentCount += 1
@@ -60,18 +137,10 @@ class CommentViewModel: ObservableObject {
             print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
     }
-    //MARK: deleteComment
-    /// deletes the comment from firebase, decrements the current post in views comment count (cloud function does the firebase decrement), and removes from the comment array
-    /// - Parameter comment: Comment to be deleted
-    func deleteComment(comment: Comment) async throws {
-        guard let index = comments.firstIndex(of: comment) else {
-            return // Comment not found in the array
-        }
-        // Delete the comment from Firestore
-        try await CommentService.shared.deleteComment(comment: comment, post: self.post)
-        
-        // Update the local comments array and post comment count
-        comments.remove(at: index)
-        $post.wrappedValue.commentCount -= 1
-    }
 }
+
+
+
+
+
+

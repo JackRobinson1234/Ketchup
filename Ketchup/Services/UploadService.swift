@@ -23,7 +23,9 @@ struct UploadService {
         serviceRating: Double,
         atmosphereRating: Double,
         valueRating: Double,
-        foodRating: Double
+        foodRating: Double,
+        taggedUsers: [PostUser],
+        captionMentions: [PostUser]
     ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
@@ -80,8 +82,9 @@ struct UploadService {
             serviceRating: serviceRating,
             atmosphereRating: atmosphereRating,
             valueRating: valueRating,
-            foodRating: foodRating
-            
+            foodRating: foodRating,
+            taggedUsers: taggedUsers,
+            captionMentions: captionMentions
         )
         
         // Encode the post data

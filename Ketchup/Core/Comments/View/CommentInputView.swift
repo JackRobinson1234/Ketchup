@@ -1,11 +1,3 @@
-//
-//  CommentInputView.swift
-//  Foodi
-//
-//  Created by Jack Robinson on 1/31/24.
-//
-
-import Foundation
 import SwiftUI
 
 struct CommentInputView: View {
@@ -27,6 +19,9 @@ struct CommentInputView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.systemGray5), lineWidth: 1)
                     )
+                    .onChange(of: viewModel.commentText) { newValue in
+                        viewModel.checkForTagging()
+                    }
                 
                 Button {
                     Task {
@@ -52,3 +47,6 @@ struct CommentInputView: View {
         }
     }
 }
+
+
+
