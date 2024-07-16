@@ -10,7 +10,7 @@ struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
-    @State var showNotifications = false
+    @Binding var showNotifications: Bool
     @State var showSettings = false
     @State var isDragging = false
     @State var dragDirection = "left"
@@ -18,33 +18,34 @@ struct CurrentUserProfileView: View {
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
     @StateObject var feedViewModel = FeedViewModel()
-    var drag: some Gesture {
-        DragGesture(minimumDistance: 5)
-            .onChanged { _ in self.isDragging = true }
-            .onEnded { endedGesture in
-                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-                    self.dragDirection = "left"
-                    if currentProfileSection == .collections {
-                        currentProfileSection = .posts
-                    } else if currentProfileSection == .likes {
-                        currentProfileSection = .collections
-                    }
-                } else {
-                    self.dragDirection = "right"
-                    if currentProfileSection == .posts {
-                        currentProfileSection = .collections
-                    } else if currentProfileSection == .collections {
-                        currentProfileSection = .likes
-                    }
-                    self.isDragging = false
-                }
-            }
-    }
+//    var drag: some Gesture {
+//        DragGesture(minimumDistance: 5)
+//            .onChanged { _ in self.isDragging = true }
+//            .onEnded { endedGesture in
+//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+//                    self.dragDirection = "left"
+//                    if currentProfileSection == .collections {
+//                        currentProfileSection = .posts
+//                    } else if currentProfileSection == .bookmarks {
+//                        currentProfileSection = .collections
+//                    }
+//                } else {
+//                    self.dragDirection = "right"
+//                    if currentProfileSection == .posts {
+//                        currentProfileSection = .collections
+//                    } else if currentProfileSection == .collections {
+//                        currentProfileSection = .bookmarks
+//                    }
+//                    self.isDragging = false
+//                }
+//            }
+//    }
 
-    init(currentProfileSection: ProfileSectionEnum = .posts) {
+    init(currentProfileSection: ProfileSectionEnum = .posts, showNotifications: Binding<Bool>) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
+        self._showNotifications = showNotifications
     }
     
     var body: some View {
@@ -81,7 +82,7 @@ struct CurrentUserProfileView: View {
                         }
                         .scrollPosition(id: $scrollPosition)
                     }
-                    .gesture(drag)
+                    //.gesture(drag)
                     .toolbarBackground(Color.white, for: .navigationBar) // Set navigation bar background color
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
@@ -179,6 +180,3 @@ struct CurrentUserProfileView: View {
 
 
 
-#Preview {
-    CurrentUserProfileView()
-}

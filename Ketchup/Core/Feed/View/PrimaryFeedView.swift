@@ -82,7 +82,6 @@ struct PrimaryFeedView: View {
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
                             scrollPosition = viewModel.initialPrimaryScrollPosition
-                            
                             scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
                             
                         }
@@ -109,8 +108,6 @@ struct PrimaryFeedView: View {
                             }
                             Spacer()
                             Button{
-                                
-                                    
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
@@ -297,7 +294,7 @@ struct PrimaryFeedView: View {
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showSearchView) {
-                    SearchView()
+                    SearchView(initialSearchConfig: .restaurants)
                 }
                 .onChange(of: showFilters) { oldValue, newValue in
                     pauseVideo = newValue

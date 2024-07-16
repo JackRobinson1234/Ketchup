@@ -45,5 +45,5 @@ struct CollectionMapView: View {
     }
 }
 #Preview {
-    CollectionMapView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionMapView(collectionsViewModel: CollectionsViewModel())
 }

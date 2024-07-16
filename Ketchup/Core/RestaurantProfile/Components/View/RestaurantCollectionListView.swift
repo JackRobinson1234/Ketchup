@@ -12,6 +12,7 @@ struct RestaurantCollectionListView: View {
     @ObservedObject var viewModel: RestaurantViewModel
     @State var showCollection: Bool = false
     @State var showAddToCollection = false
+    @StateObject var collectionsViewModel = CollectionsViewModel()
     var body: some View {
         
         VStack{
@@ -63,7 +64,7 @@ struct RestaurantCollectionListView: View {
                                 viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
                                 showCollection.toggle()
                             } label: {
-                                CollectionListCell(collection: collection)
+                                CollectionListCell(collection: collection, collectionsViewModel: collectionsViewModel)
                             }
                             Divider()
                         }
@@ -81,7 +82,7 @@ struct RestaurantCollectionListView: View {
                 
                 .sheet(isPresented: $showAddToCollection) {
                     if let user = AuthService.shared.userSession{
-                        AddItemCollectionList(user: user, restaurant: viewModel.restaurant)
+                        AddItemCollectionList(restaurant: viewModel.restaurant)
                             .onDisappear {
                                 Task {
                                     try await viewModel.fetchRestaurantCollections()

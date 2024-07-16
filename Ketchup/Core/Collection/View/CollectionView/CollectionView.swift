@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Kingfisher 
+import Kingfisher
 import FirebaseAuth
 enum collectionSection {
     case grid, map
@@ -24,7 +24,7 @@ struct CollectionView: View {
     @State var dragDirection = "left"
     
     var drag: some Gesture {
-        DragGesture(minimumDistance: 5 )
+        DragGesture(minimumDistance: 14 )
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
@@ -42,19 +42,7 @@ struct CollectionView: View {
                     if let collection = collectionsViewModel.selectedCollection {
                         VStack{
                             //MARK: Cover Image
-                            if let imageUrl = collection.coverImageUrl  {
-                                KFImage(URL(string: imageUrl))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 200, height: 200)
-                                    .clipShape(Rectangle())
-                                    .cornerRadius(10)
-                            } else {
-                                Image(systemName: "folder")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                            }
+                           CollageImage(collection: collection, width: 200)
                             //MARK: Title
                             Text(collection.name)
                                 .font(.custom("MuseoSansRounded-300", size: 20))
@@ -109,7 +97,7 @@ struct CollectionView: View {
                                 
                             }
                             if currentSection == .grid {
-                                CollectionGridView(collectionsViewModel: collectionsViewModel)
+                                CollectionListView(collectionsViewModel: collectionsViewModel)
                             }
                         }
                         .toolbar {
@@ -161,7 +149,7 @@ struct CollectionView: View {
                 }
                 //MARK: Notes View
                 if let item = collectionsViewModel.notesPreview {
-                    ItemNotesView(item: item, username: collectionsViewModel.user.username, viewModel: collectionsViewModel )
+                    ItemNotesView(item: item, viewModel: collectionsViewModel )
                         .focused($isNotesFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isNotesFocused = true // Automatically focuses the TextEditor when it appears
@@ -192,5 +180,5 @@ struct CollectionView: View {
     }
 }
 #Preview {
-    CollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionView(collectionsViewModel: CollectionsViewModel())
 }

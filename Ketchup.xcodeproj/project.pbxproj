@@ -81,7 +81,7 @@
 		F871B0102B914B6900E4EB5F /* photosRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B00F2B914B6900E4EB5F /* photosRequest.swift */; };
 		F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B0122B91CB9C00E4EB5F /* ShareView.swift */; };
 		F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871B01D2B93ECB100E4EB5F /* MessagesComposeView.swift */; };
-		F871CDED2BC6F643003C9BE8 /* CollectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CDEC2BC6F643003C9BE8 /* CollectionGridView.swift */; };
+		F871CDED2BC6F643003C9BE8 /* CollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CDEC2BC6F643003C9BE8 /* CollectionListView.swift */; };
 		F871CDEF2BC6F9BC003C9BE8 /* CollectionItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CDEE2BC6F9BC003C9BE8 /* CollectionItemCell.swift */; };
 		F871CDF12BC74E1B003C9BE8 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */; };
 		F871CDFD2BC75426003C9BE8 /* CollectionMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CDFC2BC75426003C9BE8 /* CollectionMapView.swift */; };
@@ -93,6 +93,8 @@
 		F871CE102BCE00B1003C9BE8 /* AddItemCollectionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CE0F2BCE00B1003C9BE8 /* AddItemCollectionButton.swift */; };
 		F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */; };
 		F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8726DC72BC214CE0091AD77 /* LocationFilter.swift */; };
+		F875AA352C458F2700CB14E6 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA342C458F2700CB14E6 /* Bookmark.swift */; };
+		F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */; };
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
 		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
@@ -212,6 +214,9 @@
 		F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */; };
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
+		F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */; };
+		F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */; };
+		F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B052C43304900D6DF6D /* CollageImage.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
 		F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
@@ -335,7 +340,7 @@
 		F871B0122B91CB9C00E4EB5F /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		F871B0182B93E71700E4EB5F /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.2.sdk/System/Library/Frameworks/MessageUI.framework; sourceTree = DEVELOPER_DIR; };
 		F871B01D2B93ECB100E4EB5F /* MessagesComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesComposeView.swift; sourceTree = "<group>"; };
-		F871CDEC2BC6F643003C9BE8 /* CollectionGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionGridView.swift; sourceTree = "<group>"; };
+		F871CDEC2BC6F643003C9BE8 /* CollectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListView.swift; sourceTree = "<group>"; };
 		F871CDEE2BC6F9BC003C9BE8 /* CollectionItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItemCell.swift; sourceTree = "<group>"; };
 		F871CDF02BC74E1B003C9BE8 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 		F871CDFC2BC75426003C9BE8 /* CollectionMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionMapView.swift; sourceTree = "<group>"; };
@@ -347,6 +352,8 @@
 		F871CE0F2BCE00B1003C9BE8 /* AddItemCollectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionButton.swift; sourceTree = "<group>"; };
 		F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRestaurantSearch.swift; sourceTree = "<group>"; };
 		F8726DC72BC214CE0091AD77 /* LocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationFilter.swift; sourceTree = "<group>"; };
+		F875AA342C458F2700CB14E6 /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
+		F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksListView.swift; sourceTree = "<group>"; };
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerVibe.swift; sourceTree = "<group>"; };
 		F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityMetaData.swift; sourceTree = "<group>"; };
 		F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
@@ -457,6 +464,9 @@
 		F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
+		F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionView.swift; sourceTree = "<group>"; };
+		F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionViewModel.swift; sourceTree = "<group>"; };
+		F8D60B052C43304900D6DF6D /* CollageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageImage.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
 		F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLocationFilter.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
@@ -546,6 +556,7 @@
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 				F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */,
 				F868686D2C34541400F6CE56 /* ProfileMapView.swift */,
+				F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -714,6 +725,7 @@
 				F8FB35612BEFD97B0079DE6D /* Report.swift */,
 				F846F4522BFBD534009D1303 /* Review.swift */,
 				F86978D12C1E8A370036F86A /* RestaurantRequest.swift */,
+				F875AA342C458F2700CB14E6 /* Bookmark.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1054,6 +1066,7 @@
 				F871CE072BCDF8C5003C9BE8 /* CollectionsList */,
 				F871CE0C2BCDFCEC003C9BE8 /* Create */,
 				F871CDFA2BC753CC003C9BE8 /* Components */,
+				F8D60B052C43304900D6DF6D /* CollageImage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1062,7 +1075,7 @@
 			isa = PBXGroup;
 			children = (
 				F871CDFC2BC75426003C9BE8 /* CollectionMapView.swift */,
-				F871CDEC2BC6F643003C9BE8 /* CollectionGridView.swift */,
+				F871CDEC2BC6F643003C9BE8 /* CollectionListView.swift */,
 				F871CDEE2BC6F9BC003C9BE8 /* CollectionItemCell.swift */,
 				F8670A4F2BF1996900F527D9 /* CollectionItemNotesView.swift */,
 			);
@@ -1380,6 +1393,8 @@
 				F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */,
 				F89F28732BE3F4F300E670E0 /* ActivityCell.swift */,
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
+				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
+				F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */,
 			);
 			path = Activity;
 			sourceTree = "<group>";
@@ -1783,6 +1798,7 @@
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
 				F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */,
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
+				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
 				F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */,
@@ -1828,7 +1844,7 @@
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
 				F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */,
-				F871CDED2BC6F643003C9BE8 /* CollectionGridView.swift in Sources */,
+				F871CDED2BC6F643003C9BE8 /* CollectionListView.swift in Sources */,
 				F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */,
 				F8670A582BF3EDF500F527D9 /* SelectRestaurantListView.swift in Sources */,
 				F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */,
@@ -1903,6 +1919,7 @@
 				F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */,
 				F86E15B12C039FA40059D15C /* RepostView.swift in Sources */,
 				F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */,
+				F875AA352C458F2700CB14E6 /* Bookmark.swift in Sources */,
 				F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */,
 				F88E0AB42B6B044C00EC159B /* EditProfileView.swift in Sources */,
 				F88E0B282B6CA00800EC159B /* Mediahelpers.swift in Sources */,
@@ -1923,10 +1940,13 @@
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
 				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
 				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
+				F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */,
 				F89CFA8C2C21D9B40003D449 /* UploadWrittenReviewView.swift in Sources */,
+				F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
+				F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
 				F88E0AD42B6B070300EC159B /* ContentViewModel.swift in Sources */,

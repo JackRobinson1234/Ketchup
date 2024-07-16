@@ -30,5 +30,4 @@ enum ActivityType: Int, Codable {
     case newPost
     case newCollection
     case newCollectionItem
-    case newReview
 }

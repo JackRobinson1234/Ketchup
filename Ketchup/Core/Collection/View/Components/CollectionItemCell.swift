@@ -11,82 +11,83 @@ import _MapKit_SwiftUI
 
 struct CollectionItemCell: View {
     var item: CollectionItem
-    var width: CGFloat = 190
-    var previewMode: Bool = false ///hides notes icon
+    var previewMode: Bool = false
     @ObservedObject var viewModel: CollectionsViewModel
+    
     var body: some View {
-        ZStack {
-            VStack(spacing: -50) {
-                if let image = item.image{
-                    ZStack{
-                        KFImage(URL(string: image))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: width, height: width)
-                            .offset(y: -25)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                        
+        HStack(spacing: 12) {
+            // Item image
+            if let image = item.image {
+                KFImage(URL(string: image))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            } else {
+                Image(systemName: "music.note")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .foregroundColor(.gray)
+                    .frame(width: 56, height: 56)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            
+            // Item details
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.name)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                HStack {
+                    if let city = item.city, let state = item.state {
+                        Text("\(city), \(state)")
+                    } else if let name = item.postUserFullname {
+                        Text("by @\(name)")
+                    } else if let city = item.city {
+                        Text(city)
+                    } else if let state = item.state {
+                        Text(state)
                     }
-                } else {
-                    Image(systemName: "building.2.crop.circle.fill")
-                        .resizable()
-                        .frame(width: width, height: width)
-                        .scaledToFill()
-                        .offset(y: -25)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
                 }
-                ZStack(alignment: .bottom){
-                    Rectangle()
-                        .frame(width: width, height: 70) // Height of the caption background
-                        .foregroundColor(Color(.white)) // Light yellow background with opacity
-                        .offset(y: 25)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    Rectangle()
-                        .frame(width: width, height: 70) // Height of the caption background
-                        .foregroundColor(.gray.opacity(0.1)) // Light yellow background with opacity
-                        .offset(y: 25)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            // Notes icon (if applicable and not in preview mode)
+            Button{
+                viewModel.notesPreview = item
+            } label: {
+                if let notes = item.notes, !notes.isEmpty, !previewMode {
                     VStack{
-                        Text(item.name)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .bold()
-                            .foregroundStyle(.black)
-                            .lineLimit(1)
-                        HStack{
-                            if let city = item.city, let state = item.state {
-                                Text("\(city), \(state)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .lineLimit(1)
-                                    .foregroundStyle(.black)
-                            } else if let name = item.postUserFullname {
-                                Text("by @\(name)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .lineLimit(1)
-                                    .foregroundStyle(.black)
-                            } else if let city = item.city {
-                                Text("\(city)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .lineLimit(1)
-                                    .foregroundStyle(.black)
-                            } else if let state = item.state {
-                                Text("\(state)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .lineLimit(1)
-                                    .foregroundStyle(.black)
-                            }
-                        }
+                        Image(systemName: "square.and.pencil")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                        Text("notes")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            
                     }
-                    .padding(7)
                 }
             }
-            .frame(width: width, height: width + 25)          
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .frame(height: 72)
     }
 }
 
+
+
 #Preview {
-    CollectionItemCell(item: DeveloperPreview.items[0], width: 200, viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    CollectionItemCell(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel())
 }
 
 

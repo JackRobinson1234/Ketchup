@@ -213,24 +213,32 @@ class FeedViewModel: ObservableObject {
 
             let snapshot = try await query.getDocuments()
             if Task.isCancelled { return }
-            let newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            var newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+
+            // Check if user liked and bookmarked the new posts
+            for i in 0..<newPosts.count {
+                do {
+                    newPosts[i].didLike = try await PostService.shared.checkIfUserLikedPost(newPosts[i])
+                    newPosts[i].didBookmark = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: newPosts[i].restaurant.id)
+                } catch {
+                    print("DEBUG: Failed to check if user liked or bookmarked post")
+                }
+            }
 
             await MainActor.run {
                 if newPosts.isEmpty {
                     self.hasMorePosts = false
                 } else {
-                    if isInitialLoad != true  {
-                        self.posts.append(contentsOf: newPosts)
-                    } else {
+                    if isInitialLoad {
                         self.posts = newPosts
+                    } else {
+                        self.posts.append(contentsOf: newPosts)
                     }
                     self.lastDocument = snapshot.documents.last
                     self.hasMorePosts = newPosts.count >= self.pageSize
                 }
                 self.showEmptyView = self.posts.isEmpty
             }
-
-            await checkIfUserLikedPosts()
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
         }
@@ -442,4 +450,51 @@ extension FeedViewModel {
             print("Couldn't find Index")
         }
     }
+}
+extension FeedViewModel {
+    func bookmark(_ post: Post) async {
+            do {
+                try await PostService.shared.bookmarkRestaurant(from: post)
+                
+                // Update all posts with the same restaurant.id
+                updateBookmarkStatus(for: post.restaurant.id, isBookmarked: true)
+            } catch {
+                print("DEBUG: Failed to bookmark restaurant with error \(error.localizedDescription)")
+            }
+        }
+
+        func unbookmark(_ post: Post) async {
+            do {
+                try await PostService.shared.unbookmarkRestaurant(restaurantId: post.restaurant.id)
+                
+                // Update all posts with the same restaurant.id
+                updateBookmarkStatus(for: post.restaurant.id, isBookmarked: false)
+            } catch {
+                print("DEBUG: Failed to unbookmark restaurant with error \(error.localizedDescription)")
+            }
+        }
+
+        private func updateBookmarkStatus(for restaurantId: String, isBookmarked: Bool) {
+            for index in posts.indices {
+                if posts[index].restaurant.id == restaurantId {
+                    posts[index].didBookmark = isBookmarked
+                }
+            }
+        }
+
+        func checkIfUserBookmarkedRestaurants() async {
+            guard !posts.isEmpty else { return }
+            var copy = posts
+            for i in 0..<copy.count {
+                do {
+                    let post = copy[i]
+                    let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
+                    copy[i].didBookmark = isBookmarked
+                } catch {
+                    print("DEBUG: Failed to check if user bookmarked restaurant")
+                }
+            }
+
+            posts = copy
+        }
 }

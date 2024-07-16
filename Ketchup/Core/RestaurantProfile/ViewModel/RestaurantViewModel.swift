@@ -12,7 +12,7 @@ import SwiftUI
 class RestaurantViewModel: ObservableObject {
     @Published var collections = [Collection]()
     @Published var restaurant: Restaurant?
-    @Published var collectionsViewModel = CollectionsViewModel(user: AuthService.shared.userSession!)
+    @Published var collectionsViewModel = CollectionsViewModel()
     private let restaurantId: String
     @Published var isDragging = false
     @Published var currentSection: Section = .posts

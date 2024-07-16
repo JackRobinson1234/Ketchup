@@ -14,141 +14,120 @@ struct EditCollectionView: View {
     @State private var isEditingTitle = false
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
-    @State private var itemsPreview: [CollectionItem] // Define itemsPreview state
+    @State private var itemsPreview: [CollectionItem]
     @State var selectedItem: CollectionItem?
-    let width = (UIScreen.main.bounds.width / 3) - 5
-    let spacing: CGFloat = 3
-        init(collectionsViewModel: CollectionsViewModel) {
-            self.collectionsViewModel = collectionsViewModel
-            _itemsPreview = State(initialValue: collectionsViewModel.items)
-        }
+
+    init(collectionsViewModel: CollectionsViewModel) {
+        self.collectionsViewModel = collectionsViewModel
+        _itemsPreview = State(initialValue: collectionsViewModel.items)
+    }
     
     var body: some View {
-        NavigationStack{
-                ZStack {
-                    ScrollView{
-                        VStack {
-                            Button{
-                                Task{
-                                    try await collectionsViewModel.deleteCollection()
-                                    dismiss()
-                                }
-                            } label: {
-                                Text("Delete Collection")
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(Color("Colors/AccentColor"))
-                            }
-                            //Image Selector
-                            CoverPhotoSelector(viewModel: collectionsViewModel)
-                            //MARK: Title Box
-                            Button(action: {
-                                self.isEditingTitle = true
-                            }) {
-                                TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
-                            }
-                            
-                            .padding(.vertical)
-                            //MARK: Caption Box
-                            Button(action: {
-                                self.isEditingCaption = true
-                            }) {
-                                TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
-                            }
-                            // MARK: Items
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing)], spacing: spacing) {
-                                //if collection.uid == Auth.auth().currentUser?.uid{
-                                ForEach(itemsPreview, id: \.id) { item in
-                                    VStack{
-                                        CollectionItemCell(item: item, width: width, previewMode: true, viewModel: collectionsViewModel)
-                                            .aspectRatio(1.0, contentMode: .fit)
-                                            .overlay(
-                                                Button{
-                                                    self.selectedItem = item
-                                                } label: {
-                                                    Image(systemName: "square.and.pencil")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 30)
-                                                        .foregroundColor(.white)
-                                                    
-                                                        .shadow(color: .black.opacity(1), radius: 4, x: 1, y: 1)
-                                                        .opacity(0.8)
-                                                
-                                                }
-                                                    .offset(x: width/2.8, y: -width/2.3 )
-                                            )
-                                        Button{
-                                            if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {
-                                                itemsPreview.remove(at: index)
-                                                collectionsViewModel.deleteItems.append(item)
-                                            }
-                                            print(collectionsViewModel.deleteItems)
-                                        } label: {
-                                            Text("Remove")
-                                                .foregroundStyle(Color("Colors/AccentColor"))
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                        }
-                                    }
-                                    .padding(7)
-                                }
-                                Spacer()
-                                    .padding(.vertical)
-                                
-                            }
-                        }
-                    }
-                    //MARK: Title Editor Overlay
-                    if isEditingTitle {
-                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title*...", maxCharacters: 100, title: "Title")
-                            .focused($isTitleEditorFocused) // Connects the focus state to the editor view
-                            .onAppear {
-                                isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
-                            }
-                    }
-                    //MARK: Caption Editor Overlay
-                    if isEditingCaption {
-                        EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
-                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                            .onAppear {
-                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
-                            }
-                    }
-                    if selectedItem != nil {
-                        EditNotesView(item: $selectedItem, viewModel: collectionsViewModel, itemsPreview: $itemsPreview)
-                    }
-                }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("Edit Collection")
-            .preferredColorScheme(.light)
-            //POSS Check if keyboard is active here
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    // Delete Collection Button
                     Button {
-                        collectionsViewModel.clearEdits()
-                        dismiss()
-                    } label: {
-                        Text("Cancel")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task{
-                            try await collectionsViewModel.saveEditedCollection()
+                        Task {
+                            try await collectionsViewModel.deleteCollection()
                             dismiss()
                         }
                     } label: {
-                        Text("Save")
-                            .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
+                        Text("Delete Collection")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.red)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(10)
+                    }
+                    .padding()
+
+                    // Cover Photo Selector
+                    CoverPhotoSelector(viewModel: collectionsViewModel)
+                        .padding()
+
+                    // Title Editor
+                    Button(action: { self.isEditingTitle = true }) {
+                        TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
+                    }
+                    .padding()
+
+                    // Description Editor
+                    Button(action: { self.isEditingCaption = true }) {
+                        TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                    }
+                    .padding()
+
+                    // Items List
+                    ForEach(itemsPreview, id: \.id) { item in
+                        HStack {
+                            CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
+                                .frame(height: 72)
+                            
+                            Spacer()
+                            
+                            Button {
+                                self.selectedItem = item
+                            } label: {
+                                Image(systemName: "square.and.pencil")
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            Button {
+                                if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {
+                                    itemsPreview.remove(at: index)
+                                    collectionsViewModel.deleteItems.append(item)
+                                }
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        Divider()
+                            .padding(.leading, 84)
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Edit Collection")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        collectionsViewModel.clearEdits()
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        Task {
+                            try await collectionsViewModel.saveEditedCollection()
+                            dismiss()
+                        }
                     }
                     .disabled(collectionsViewModel.editTitle.isEmpty)
                 }
             }
+            .overlay(Group {
+                if isEditingTitle {
+                    EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title*...", maxCharacters: 100, title: "Title")
+                        .focused($isTitleEditorFocused)
+                        .onAppear { isTitleEditorFocused = true }
+                }
+                if isEditingCaption {
+                    EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                        .focused($isCaptionEditorFocused)
+                        .onAppear { isCaptionEditorFocused = true }
+                }
+                if selectedItem != nil {
+                    EditNotesView(item: $selectedItem, viewModel: collectionsViewModel, itemsPreview: $itemsPreview)
+                }
+            })
         }
         .onDisappear {
             collectionsViewModel.clearEdits()
         }
     }
-}
-#Preview {
-    EditCollectionView(collectionsViewModel: CollectionsViewModel(user: DeveloperPreview.user))
 }

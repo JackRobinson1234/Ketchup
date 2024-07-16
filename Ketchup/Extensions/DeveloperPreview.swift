@@ -162,7 +162,7 @@ struct DeveloperPreview {
                     price: "$$"
                 ),
                 didLike: false,
-                didSave: false,
+                didBookmark: false,
                 fromInAppCamera: false,
                 repost: false,
                 didRepost: false,

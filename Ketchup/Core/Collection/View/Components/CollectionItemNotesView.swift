@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ItemNotesView: View {
     var item: CollectionItem
-    var username: String
     @ObservedObject var viewModel: CollectionsViewModel
     var body: some View {
         VStack {
@@ -40,7 +39,7 @@ struct ItemNotesView: View {
                     if let notes = item.notes {
                         HStack{
                             VStack{
-                                Text("@\(username)'s notes: ")
+                                Text("notes: ")
                                     .bold()
                                     .font(.custom("MuseoSansRounded-300", size: 16)) +
                                 Text(notes)
@@ -64,5 +63,5 @@ struct ItemNotesView: View {
 }
 
 #Preview {
-    ItemNotesView(item: DeveloperPreview.items[0], username: "test", viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    ItemNotesView(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel())
 }

@@ -10,259 +10,122 @@ import Kingfisher
 import FirebaseFirestoreInternal
 struct ActivityCell: View {
     var activity: Activity
-    @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: ActivityViewModel
-    @StateObject var collectionsViewModel: CollectionsViewModel = CollectionsViewModel(user: DeveloperPreview.user)
     
     var body: some View {
-        VStack {
-            //MARK: newPost
-            if activity.type == .newPost {
-                    HStack(alignment: .top){
-                        Button {
-                            viewModel.selectedUid = activity.uid
-                            viewModel.showUserProfile = true
-                        } label: {
-                            UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
-                        }
-                        //MARK: Post: Restaurant
-                       
-                            VStack(alignment: .leading) {
-                                Text("@\(activity.username) created a new post for: ")
-                                    .foregroundStyle(.primary)
-                                    .activityCellFontStyle() +
-                                Text(activity.name)
-                                    .bold()
-                                    .activityCellFontStyle()
-                                Text(getTimeElapsedString(from: activity.timestamp))
-                                    .font(.custom("MuseoSansRounded-300", size: 12))
-                                    .foregroundColor(.gray)
-                            }
-                            .multilineTextAlignment(.leading)
-                        Spacer()
-                        //MARK: Post Image
-                        if let image = activity.image, !image.isEmpty {
-                            Button {
-                                if let postId = activity.postId {
-                                    Task {
-                                        print("Fetching post with ID \(postId)")
-                                        viewModel.post = try await PostService.shared.fetchPost(postId: postId)
-                                        if viewModel.post != nil {
-                                            print("Fetched post: \(String(describing: viewModel.post))")
-                                            viewModel.showPost.toggle()
-                                        }
-                                    }
-                                }
-                            } label: {
-                                KFImage(URL(string: image))
-                                    .resizable()
-                                    .frame(width: 50, height: 70)
-                                    .aspectRatio(contentMode: .fit)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                        } else {
-                            Button{
-                                if let postId = activity.postId {
-                                    Task{
-                                        viewModel.writtenPost = try await PostService.shared.fetchPost(postId: postId)
-                                        viewModel.showWrittenPost.toggle()
-                                    }
-                                }
-                            } label: {
-                                Image(systemName: "line.3.horizontal")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(Color("Colors/AccentColor"))
-                                    .frame(width: 40, height: 30)
-                            }
-                            .frame(width: 50)
-                        }
-                    }
-                    .padding()
+        VStack(alignment: .leading, spacing: 8) {
+            // Square Restaurant/Collection Image
+            Button {
+                handleImageTap()
+            } label: {
+                activityImage
+                    .frame(width: 160, height: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            
+            // Activity Info
+            HStack(spacing: 8) {
+                Button {
+                    viewModel.selectedUid = activity.uid
+                    viewModel.showUserProfile = true
+                } label: {
+                    UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .small)
+                }
                 
-            //MARK: New Collection
-            } else if activity.type == .newCollection {
-                HStack(alignment: .top) {
-                    Button {
-                        viewModel.selectedUid = activity.uid
-                        viewModel.showUserProfile = true
-                    } label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
-                    }
-                    VStack(alignment: .leading) {
-                        Text("@\(activity.username) created a new collection: ")
-                            .activityCellFontStyle() +
-                        Text((activity.name))
-                            .bold()
-                            .activityCellFontStyle() +
-                        Text("!")
-                            .activityCellFontStyle()
-                        Text(getTimeElapsedString(from: activity.timestamp))
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-                    }
-                    .multilineTextAlignment(.leading)
-                    Spacer()
-                    if let image = activity.image {
-                        Button {
-                            Task {
-                                if let collectionId = activity.collectionId {
-                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = viewModel.collection , viewModel.user != nil {
-                                        print("Fetched collection: \(String(describing: viewModel.collection))")
-                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        viewModel.showCollection.toggle()
-                                    }
-                                }
-                            }
-                        } label: {
-                            KFImage(URL(string: image))
-                                .resizable()
-                                .frame(width: 50, height: 70)
-                                .aspectRatio(contentMode: .fit)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                        }
-                    } else {
-                        Button {
-                            Task {
-                                if let collectionId = activity.collectionId {
-                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = viewModel.collection , viewModel.user != nil {
-                                        print("Fetched collection: \(String(describing: viewModel.collection))")
-                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        viewModel.showCollection.toggle()
-                                    }
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "folder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                }
-                .padding()
-                //MARK: CollectionItem
-            } else if activity.type == .newCollectionItem {
-                HStack (alignment: .top){
-                    Button {
-                        viewModel.selectedUid = activity.uid
-                        viewModel.showUserProfile = true
-                    } label: {
-                        UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .large)
-                    }
-                    VStack(alignment: .leading) {
-                        Text("@\(activity.username) added ")
-                            .activityCellFontStyle() +
-                        Text(activity.name)
-                            .activityCellFontStyle()
-                            .bold() +
-                        Text(" to a collection")
-                            .activityCellFontStyle()
-                        Text(getTimeElapsedString(from: activity.timestamp))
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-                    }
-                    .multilineTextAlignment(.leading)
-                    Spacer()
-                    if let image = activity.image {
-                        Button {
-                            Task {
-                                if let collectionId = activity.collectionId {
-                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = viewModel.collection, viewModel.user != nil {
-                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        print("Fetched collection: \(String(describing: viewModel.collection))")
-                                        viewModel.showCollection.toggle()
-                                    }
-                                }
-                            }
-                        } label: {
-                            KFImage(URL(string: image))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 50, height: 50)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    } else {
-                        Button {
-                            Task {
-                                if let collectionId = activity.collectionId {
-                                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
-                                    if let collection = viewModel.collection, viewModel.user != nil {
-                                        print("Fetched collection: \(String(describing: viewModel.collection))")
-                                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
-                                        viewModel.showCollection.toggle()
-                                    }
-                                    
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "folder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                }
-                .padding()
+                Text("@\(activity.username)")
+                    .font(.custom("MuseoSansRounded-700", size: 14))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+            }
+            
+            activityDescription
+            
+            Text(getTimeElapsedString(from: activity.timestamp))
+                .font(.custom("MuseoSansRounded-300", size: 11))
+                .foregroundColor(.gray)
+        }
+        .frame(width: 160)
+        .background(Color(.systemBackground))
+    }
+    
+    var activityDescription: some View {
+        Group {
+            switch activity.type {
+            case .newPost:
+                textWithHighlight(prefix: "Created a new post for: ", highlight: activity.name)
+            case .newCollection:
+                textWithHighlight(prefix: "Created a new collection: ", highlight: activity.name)
+            case .newCollectionItem:
+                textWithHighlight(prefix: "Added ", highlight: activity.name, suffix: " to a collection")
             }
         }
-        //MARK: Sheets
-        .sheet(item: $viewModel.post){ post in
-            NavigationStack{
-                if let post = viewModel.post {
-                    let feedViewModel = FeedViewModel(posts: [post])
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+        .font(.custom("MuseoSansRounded-300", size: 13))
+        .foregroundColor(.primary)
+        .lineLimit(3)
+        .multilineTextAlignment(.leading)
+    }
+    
+    func textWithHighlight(prefix: String, highlight: String, suffix: String = "") -> some View {
+        (Text(prefix)
+         + Text(highlight).font(.custom("MuseoSansRounded-500", size: 13))
+         + Text(suffix))
+    }
+    
+    var activityImage: some View {
+        Group {
+            if let image = activity.image, !image.isEmpty {
+                KFImage(URL(string: image))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                // Fallback image or icon based on activity type
+                ZStack {
+                    Color.gray.opacity(0.2)
+                    Image(systemName: fallbackImageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundColor(.gray)
+                        .padding(40)
                 }
             }
         }
-        .sheet(item: $viewModel.collection) { collection in
-            if let collection = viewModel.collection, let user = viewModel.user {
-                CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
-            }
+    }
+    
+    var fallbackImageName: String {
+        switch activity.type {
+        case .newPost:
+            return "square.text.square"
+        case .newCollection:
+            return "square.grid.2x2"
+        case .newCollectionItem:
+            return "plus.square.on.square"
         }
-        .sheet(isPresented: $viewModel.showRestaurant){
-            if let selectedRestaurantId = viewModel.selectedRestaurantId {
-                NavigationStack{
-                    RestaurantProfileView(restaurantId: selectedRestaurantId)
-                }
-            }
-        }
-        .sheet(isPresented: $viewModel.showUserProfile) {
-            if let selectedUid = viewModel.selectedUid {
-                NavigationStack{
-                    ProfileView(uid: selectedUid)
-                        .navigationDestination(for: PostUser.self) { user in
-                            ProfileView(uid: user.id)
-                        }
-                        .navigationDestination(for: PostRestaurant.self) { restaurant in
-                            RestaurantProfileView(restaurantId: restaurant.id)
-                        }
-                }
-            }
-        }
-        .sheet(item: $viewModel.writtenPost) { post in
-            NavigationStack {
-                ScrollView {
-                    if let post = viewModel.writtenPost {
-                        let feedViewModel = FeedViewModel(posts: [post])
-                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+    }
+    
+    func handleImageTap() {
+        switch activity.type {
+        case .newPost:
+            if let postId = activity.postId {
+                Task {
+                    viewModel.post = try await PostService.shared.fetchPost(postId: postId)
+                    if viewModel.post != nil {
+                        viewModel.showPost.toggle()
                     }
                 }
-                .modifier(BackButtonModifier())
-                .navigationDestination(for: PostRestaurant.self) { restaurant in
-                    RestaurantProfileView(restaurantId: restaurant.id)
+            }
+        case .newCollection, .newCollectionItem:
+            if let collectionId = activity.collectionId {
+                Task {
+                    viewModel.collection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+                    if let collection = viewModel.collection, viewModel.user != nil {
+                        viewModel.collectionsViewModel.updateSelectedCollection(collection: collection)
+                        viewModel.showCollection.toggle()
+                    }
                 }
             }
-            .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
     }
 }
-
 extension Text {
     func activityCellFontStyle() -> Text {
         self.font(.custom("MuseoSansRounded-300", size: 14))

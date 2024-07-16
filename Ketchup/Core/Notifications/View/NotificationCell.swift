@@ -119,7 +119,7 @@ struct NotificationCell: View {
             }
         }
         .padding(.horizontal)
-        .sheet(isPresented: Binding(
+        .fullScreenCover (isPresented: Binding(
             get: { showRestaurant && selectedRestaurantId != nil },
             set: { showRestaurant = $0 }
         )) {
@@ -130,7 +130,7 @@ struct NotificationCell: View {
                 }
             }
         }
-        .sheet(isPresented: Binding(
+        .fullScreenCover(isPresented: Binding(
             get: { showPost && post != nil },
             set: { showPost = $0 }
         )) {

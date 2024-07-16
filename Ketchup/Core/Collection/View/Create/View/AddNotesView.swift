@@ -10,7 +10,7 @@ import SwiftUI
 struct AddNotesView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var item: CollectionItem?
-    var maxCharacters = 150
+    var maxCharacters = 300
     @State var notes = ""
     @ObservedObject var viewModel: CollectionsViewModel
     var body: some View {
@@ -76,8 +76,9 @@ struct AddNotesView: View {
                     dismiss()
                 } label: {
                     Text("Add Item")
+                        .modifier(StandardButtonModifier(width: 250))
                 }
-                .modifier(StandardButtonModifier(width: 250))
+                
             }
             .padding()
             .frame(width: 350)
@@ -90,5 +91,5 @@ struct AddNotesView: View {
     
 }
 #Preview {
-    AddNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel(user: DeveloperPreview.user))
+    AddNotesView(item: .constant(DeveloperPreview.items[0]), viewModel: CollectionsViewModel())
 }
