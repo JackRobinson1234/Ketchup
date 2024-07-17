@@ -20,7 +20,6 @@ struct ReelsUploadView: View {
     @State private var alertMessage: String = ""
     @State private var isVideoExpanded = false
     @State private var isTaggingUsers = false
-    
     let writtenReview: Bool
     
     private let maxCharacters = 25
@@ -283,6 +282,9 @@ struct ReelsUploadView: View {
     
     var postButton: some View {
         Button {
+            if writtenReview {
+                uploadViewModel.mediaType = .written
+            }
             if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
                 alertMessage = "Please select a restaurant."
                 showAlert = true

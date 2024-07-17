@@ -163,8 +163,24 @@ class UploadViewModel: ObservableObject {
                         taggedUsers: taggedUsers,
                         captionMentions: mentionedUsers
                     )
+                } else if mediaType == .written {
+                    post = try await UploadService.shared.uploadPost(
+                        videoURL: nil,
+                        images: nil,
+                        mediaType: mediaType,
+                        caption: caption,
+                        postRestaurant: postRestaurant,
+                        fromInAppCamera: false,
+                        overallRating: overallRating,
+                        serviceRating: serviceRating,
+                        atmosphereRating: atmosphereRating,
+                        valueRating: valueRating,
+                        foodRating: foodRating,
+                        taggedUsers: taggedUsers,
+                        captionMentions: mentionedUsers)
                 }
-            } else {
+            }
+            else {
                 throw UploadError.invalidMediaType
             }
             uploadSuccess = true
@@ -189,7 +205,7 @@ class UploadViewModel: ObservableObject {
             filteredMentionedUsers = []
             return
         }
-
+        
         guard let lastWord = words.last, lastWord.hasPrefix("@") else {
             isMentioning = false
             filteredMentionedUsers = []
