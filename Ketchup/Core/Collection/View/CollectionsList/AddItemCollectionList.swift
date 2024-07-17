@@ -54,7 +54,7 @@ struct AddItemCollectionList: View {
                                     }
                                 }
                             if viewModel.notes.isEmpty {
-                                Text("Enter a caption...")
+                                Text("Add some notes...")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                     .foregroundColor(Color.gray)
                                     .padding(.horizontal, 25)

@@ -25,19 +25,48 @@ struct CreateCollectionDetails: View {
                     VStack {
                         CoverPhotoSelector(viewModel: collectionsViewModel)
                         //MARK: Title Box
-                        Button(action: {
-                            self.isEditingTitle = true
-                        }) {
-                            TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $collectionsViewModel.editTitle)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .frame(height: 75)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                                .cornerRadius(5)
+                            if collectionsViewModel.editTitle.isEmpty {
+                                Text("Enter a Title...")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(Color.gray)
+                                    .padding(.horizontal, 25)
+                                    .padding(.top, 8)
+                            }
                         }
                         
                         .padding(.vertical)
                         //MARK: CaptionBox
-                        Button(action: {
-                            self.isEditingCaption = true
-                        }) {
-                            TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $collectionsViewModel.editDescription)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .frame(height: 75)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                                .cornerRadius(5)
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Spacer()
+                                        Button("Done") {
+                                            dismissKeyboard()
+                                        }
+                                    }
+                                }
+                            if collectionsViewModel.editDescription.isEmpty {
+                                Text("Enter a description...")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(Color.gray)
+                                    .padding(.horizontal, 25)
+                                    .padding(.top, 8)
+                            }
                         }
+                        
                         
                         //MARK: Item Preview if theres an item
                         if let item = collectionsViewModel.convertPostToCollectionItem() {
