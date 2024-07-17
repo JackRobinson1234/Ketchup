@@ -24,7 +24,7 @@ struct RestaurantProfileHeaderView: View {
     @Binding var scrollTarget: String?
     @State private var showRatingDetails = false
     @State private var showSafariView = false
-    
+    @State private var showCollections = false
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
@@ -100,14 +100,24 @@ struct RestaurantProfileHeaderView: View {
                         .padding([.horizontal, .bottom])
                         
                         Spacer()
-                        Button(action: {
-                            Task {
-                                await viewModel.toggleBookmark()
+                        VStack(spacing: 15){
+                            Button(action: {
+                                showCollections.toggle()
+                            }) {
+                                Image(systemName: "folder.badge.plus")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 24))
                             }
-                        }) {
-                            Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
-                                .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
-                                .font(.system(size: 24))
+                            Button(action: {
+                                Task {
+                                    await viewModel.toggleBookmark()
+                                }
+                            }) {
+                                Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
+                                    .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
+                                    .font(.system(size: 24))
+                            }
+                            
                         }
                         .padding(.trailing, 16)
                         .padding(.bottom, 16)
@@ -245,6 +255,12 @@ struct RestaurantProfileHeaderView: View {
             .sheet(isPresented: $showMapView) {
                 MapRestaurantProfileView(viewModel: viewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+            }
+            .sheet(isPresented: $showCollections) {
+                if let currentUser = AuthService.shared.userSession {
+                    AddItemCollectionList(restaurant: viewModel.restaurant)
+                        
+                }
             }
         }
     }

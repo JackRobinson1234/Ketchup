@@ -1121,8 +1121,8 @@
 			children = (
 				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
 				F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */,
-				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
+				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
 				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
 				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
 				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,

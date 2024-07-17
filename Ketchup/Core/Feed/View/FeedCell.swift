@@ -43,9 +43,9 @@ struct FeedCell: View {
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showRatingDetails = false
     var checkLikes: Bool
-    var overallRating: Double {
+    var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
-        guard !ratings.isEmpty else { return 0 }
+        guard !ratings.isEmpty else { return nil }
         return ratings.reduce(0, +) / Double(ratings.count)
     }
     private var didBookmark: Bool {
@@ -253,8 +253,9 @@ struct FeedCell: View {
                         .lineLimit(expandCaption ? 50 : 1)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .multilineTextAlignment(.leading)
-                    
-                    FeedOverallRatingView(rating: overallRating, font: .white)
+                    if let overallRating = overallRating {
+                        FeedOverallRatingView(rating: overallRating, font: .white)
+                    }
                     
                     
                     if !expandCaption {
