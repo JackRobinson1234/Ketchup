@@ -113,6 +113,7 @@ struct ProfileSlideBar: View {
                     } label: {
                         HStack {
                             Text(postDisplayMode.rawValue)
+                                .font(.custom("MuseoSansRounded-500", size: 16))
                             Image(systemName: "chevron.down")
                         }
                         .cornerRadius(8)

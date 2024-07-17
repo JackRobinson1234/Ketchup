@@ -38,11 +38,28 @@ struct AddItemCollectionList: View {
                                     .padding()
                             }
                         }
-                        
-                        Button(action: {
-                            self.isEditingCaption = true
-                        }) {
-                            CaptionBox(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Add some notes...")
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $viewModel.notes)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .frame(height: 75)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                                .cornerRadius(5)
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Spacer()
+                                        Button("Done") {
+                                            dismissKeyboard()
+                                        }
+                                    }
+                                }
+                            if viewModel.notes.isEmpty {
+                                Text("Enter a caption...")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundColor(Color.gray)
+                                    .padding(.horizontal, 25)
+                                    .padding(.top, 8)
+                            }
                         }
                         
                         CollectionsListView(viewModel: viewModel, user: AuthService.shared.userSession!)
@@ -50,14 +67,6 @@ struct AddItemCollectionList: View {
                     }
                 }
                 
-                if isEditingCaption {
-                    CaptionEditorView(caption: $viewModel.notes, isEditingCaption: $isEditingCaption, title: "Notes")
-                        .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                        .onAppear {
-                            isCaptionEditorFocused = true
-                            
-                        }
-                }
             }
             .onAppear{
                 print("initial viewModel post", viewModel.post)
