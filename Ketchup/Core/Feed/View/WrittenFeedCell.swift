@@ -57,9 +57,9 @@ struct WrittenFeedCell: View {
         self.checkLikes = checkLikes
     }
     
-    var overallRating: Double {
+    var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
-        guard !ratings.isEmpty else { return 0 }
+        guard !ratings.isEmpty else { return nil }
         return ratings.reduce(0, +) / Double(ratings.count)
     }
     
@@ -197,18 +197,20 @@ struct WrittenFeedCell: View {
                         }
                         .multilineTextAlignment(.leading)
                         Spacer()
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isExpanded.toggle()
-                            }
-                        }) {
-                            HStack(alignment: .center, spacing: 4) {
-                                FeedOverallRatingView(rating: overallRating)
-                                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                                    .foregroundColor(.gray)
-                                    .frame(width: 25)
-                                    .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                                    .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                        if let overallRating = overallRating {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isExpanded.toggle()
+                                }
+                            }) {
+                                HStack(alignment: .center, spacing: 4) {
+                                    FeedOverallRatingView(rating: overallRating)
+                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                        .foregroundColor(.gray)
+                                        .frame(width: 25)
+                                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                                }
                             }
                         }
                     }
@@ -619,26 +621,29 @@ struct RatingsView: View {
 }
 
 struct FeedOverallRatingView: View {
-    let rating: Double
+    let rating: Double?
     var font: Color? = .primary
+    
     var body: some View {
-        VStack(spacing: 4) { // Add spacing to create space between circle and "Overall" text
-            ZStack {
-                Circle()
-                    .stroke(lineWidth: 3) // Thinner line
-                    .opacity(0.3)
-                    .foregroundColor(Color.gray)
-                
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(min(rating / 10, 1.0)))
-                    .stroke(Color("Colors/AccentColor"), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round)) // Thinner line
-                    .rotationEffect(Angle(degrees: 270.0))
-                    .animation(.linear, value: rating)
-                
-                Text(String(format: "%.1f", rating)) // Display as a number with one decimal place
-                    .font(.custom("MuseoSansRounded-500", size: 16)) // Slightly smaller font size
+        if let rating = rating {
+            VStack(spacing: 4) {
+                ZStack {
+                    Circle()
+                        .stroke(lineWidth: 3)
+                        .opacity(0.3)
+                        .foregroundColor(Color.gray)
+                    
+                    Circle()
+                        .trim(from: 0.0, to: CGFloat(min(rating / 10, 1.0)))
+                        .stroke(Color("Colors/AccentColor"), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                        .rotationEffect(Angle(degrees: 270.0))
+                        .animation(.linear, value: rating)
+                    
+                    Text(String(format: "%.1f", rating))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                }
+                .frame(width: 40, height: 40)
             }
-            .frame(width: 40, height: 40) // Smaller frame size
         }
     }
 }

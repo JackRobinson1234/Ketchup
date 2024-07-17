@@ -41,6 +41,7 @@ struct FeedCell: View {
     @State var showHeartOverlay = false
     @State private var offset: CGFloat = 0
     @GestureState private var dragOffset: CGFloat = 0
+    @State private var showRatingDetails = false
     var checkLikes: Bool
     var overallRating: Double {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }

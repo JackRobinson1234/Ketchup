@@ -397,8 +397,4 @@ extension PostService {
             throw error
         }
     }
-    
-    // MARK: - fetchUserBookmarks
-    /// Fetches all bookmarked restaurants for the current user
-    /// - Returns: Array of Bookmark objects
 }

@@ -8,6 +8,9 @@
 import SwiftUI
 import Kingfisher
 import MapKit
+import SafariServices
+
+
 struct RestaurantProfileHeaderView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var feedViewModel: FeedViewModel
@@ -19,20 +22,13 @@ struct RestaurantProfileHeaderView: View {
     @State private var travelInterval: TimeInterval?
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
+    @State private var showRatingDetails = false
+    @State private var showSafariView = false
     
-    
-    var travelTime: String? {
-        guard let travelInterval else { return nil }
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.hour, .minute]
-        formatter.maximumUnitCount = 2
-        return formatter.string(from: travelInterval)
-    }
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
-                // ListingImageCarouselView(images: restaurant.imageURLs)
+                // Image and overlay
                 ZStack(alignment: .bottomLeading) {
                     if let imageURLs = restaurant.profileImageUrl {
                         ListingImageCarouselView(images: [imageURLs])
@@ -47,6 +43,26 @@ struct RestaurantProfileHeaderView: View {
                                     endPoint: .bottom
                                 )
                             )
+                    }
+                    
+                    VStack {
+                        HStack {
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(.white)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.5))
+                                            .frame(width: 30, height: 30)
+                                    )
+                            }
+                            Spacer()
+                        }
+                        .padding(40)
+                        .padding(.top, 15)
+                        Spacer()
                     }
                     
                     HStack(alignment: .bottom){
@@ -96,69 +112,124 @@ struct RestaurantProfileHeaderView: View {
                         .padding(.trailing, 16)
                         .padding(.bottom, 16)
                     }
-                    VStack {
-                        HStack {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(.white)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                            .frame(width: 30, height: 30) // Adjust the size as needed
-                                    )
-                            }
-                            Spacer()
-                        }
-                        .padding(50)
-                        Spacer()
-                    }
                 }
                 .frame(maxWidth: .infinity)
                 
-                VStack(alignment: .leading) {
-                    Button {
-                        showMapView.toggle()
-                    } label: {
-                        if let street = restaurant.address, !street.isEmpty {
-                            VStack(alignment: .leading) {
-                                if let travelTime {
-                                    HStack(spacing: 0) {
-                                        Image(systemName: "car")
-                                        Text(" \(travelTime)")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .foregroundStyle(.primary)
-                                    }
-                                }
-                                
-                                Text("(Click to view on map)")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                            }
+                // Buttons for menu, map, and overall rating
+                HStack(alignment: .bottom){
+                    if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
+                        Button {
+                            showSafariView = true
+                        } label: {
+                            Label("View Menu", systemImage: "menucard")
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.black)
+                        }
+                        .sheet(isPresented: $showSafariView) {
+                            SafariView(url: url)
+                        }
+                    } else if let website = restaurant.website, let url = URL(string: website){
+                        Button {
+                            showSafariView = true
+                        } label: {
+                            Label("Website", systemImage: "globe")
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.black)
+                        }
+                        .sheet(isPresented: $showSafariView) {
+                            SafariView(url: url)
                         }
                     }
                     
-                    Text("\(restaurant.bio ?? "")")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .multilineTextAlignment(.leading)
+                    Button {
+                        showMapView.toggle()
+                    } label: {
+                        Label("View Map", systemImage: "map")
+                            .padding(8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            )
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .foregroundStyle(.black)
+                    }
+                    
+                    
+                    Spacer()
+                    
+                    if let overallRating = viewModel.overallRating {
+                        Button {
+                            withAnimation {
+                                showRatingDetails.toggle()
+                            }
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2){
+                                Text("Average")
+                                    .font(.custom("MuseoSansRounded-500", size: 12))
+                                    .foregroundStyle(.gray)
+                                HStack(alignment: .center, spacing: 4) {
+                                    
+                                    FeedOverallRatingView(rating: overallRating, font: .primary)
+                                    
+                                    Image(systemName: showRatingDetails ? "chevron.down" : "chevron.right")
+                                        .foregroundColor(.gray)
+                                        .frame(width: 25)
+                                        .rotationEffect(.degrees(showRatingDetails  ? 0 : -90))
+                                        .animation(.easeInOut(duration: 0.3), value: showRatingDetails)
+                                    
+                                }
+                                
+                                
+                            }
+                        }
+                    }
                 }
-                .padding()
+                .padding(.horizontal)
+                
+                // Rating details dropdown
+                if showRatingDetails {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Average Ratings")
+                            .font(.custom("MuseoSansRounded-700", size: 14))
+                        if let foodRating = viewModel.foodRating {
+                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                        }
+                        if let atmosphereRating = viewModel.atmosphereRating {
+                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                        }
+                        if let valueRating = viewModel.valueRating {
+                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                        }
+                        if let serviceRating = viewModel.serviceRating {
+                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                        }
+                    }
+                    .padding()
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.1)))
+                    .padding(.horizontal)
+                }
+                
+                Divider()
+                    .padding(.top)
+                //                VStack(alignment: .leading) {
+                //                    Text("\(restaurant.bio ?? "")")
+                //                        .font(.custom("MuseoSansRounded-300", size: 16))
+                //                        .multilineTextAlignment(.leading)
+                //                }
+                //.padding()
                 
                 RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
-            }
-            
-            .onReceive(LocationManager.shared.$userLocation.dropFirst().prefix(1)) { userLocation in
-                guard userLocation != nil else {
-                    return
-                }
-                Task {
-                    if let restaurant = viewModel.restaurant, let coordinates = restaurant.coordinates {
-                        let result = await LocationManager.shared.fetchRoute(coordinates: coordinates)
-                        route = result.0
-                        travelInterval = result.1
-                    }
-                }
             }
             .onAppear {
                 Task {
@@ -172,7 +243,7 @@ struct RestaurantProfileHeaderView: View {
                 }
             }
             .sheet(isPresented: $showMapView) {
-                MapRestaurantProfileView(viewModel: viewModel, route: $route, travelInterval: $travelInterval)
+                MapRestaurantProfileView(viewModel: viewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
         }
@@ -205,7 +276,7 @@ struct RestaurantProfileHeaderView: View {
         let currentDayOfWeek = dateFormatter.string(from: Date())
         
         for hour in openingHours {
-            if let day = hour.day{
+            if let day = hour.day {
                 if day.lowercased() == currentDayOfWeek.lowercased() {
                     return hour.hours
                 }
@@ -215,6 +286,3 @@ struct RestaurantProfileHeaderView: View {
         return nil
     }
 }
-//#Preview {
-//    RestaurantProfileHeaderView(viewModel: RestaurantViewModel(restaurantId: ""))
-//}

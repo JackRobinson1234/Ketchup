@@ -48,7 +48,8 @@ struct Restaurant: Identifiable, Codable, Hashable {
     
     // New mergedCategories field
     var mergedCategories: [String]?
-    
+    var ratingStats: RatingStats?
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -112,9 +113,11 @@ struct Restaurant: Identifiable, Codable, Hashable {
         // Decoding the mergedCategories field
         self.mergedCategories = try container.decodeIfPresent([String].self, forKey: .mergedCategories)
         self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats)
+        self.ratingStats = try container.decodeIfPresent(RatingStats.self, forKey: .ratingStats)
+
     }
     
-    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil) {
+    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil) {
         self.id = id
         self.categoryName = categoryName
         self.price = price
@@ -155,6 +158,8 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.website = website
         self.stats = stats
         self.mergedCategories = mergedCategories
+        self.ratingStats = ratingStats
+
     }
     
     var coordinates: CLLocationCoordinate2D? {
@@ -305,4 +310,26 @@ struct ReviewTag: Codable, Hashable {
 protocol InfoItem {
     var name: String? { get }
     var value: Bool? { get }
+}
+
+struct RatingCounts: Codable, Hashable {
+    var overallRatings: [Double: Int] = [:]
+    var serviceRatings: [Double: Int] = [:]
+    var atmosphereRatings: [Double: Int] = [:]
+    var valueRatings: [Double: Int] = [:]
+    var foodRatings: [Double: Int] = [:]
+}
+
+struct RatingStats: Codable, Hashable {
+    var overall: RatingCategory?
+    var service: RatingCategory?
+    var atmosphere: RatingCategory?
+    var value: RatingCategory?
+    var food: RatingCategory?
+}
+
+struct RatingCategory: Codable, Hashable {
+    var ratings: [String: Int]?
+    var totalCount: Int?
+    var sum: Double?
 }

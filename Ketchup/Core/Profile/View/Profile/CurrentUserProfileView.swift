@@ -18,28 +18,6 @@ struct CurrentUserProfileView: View {
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
     @StateObject var feedViewModel = FeedViewModel()
-//    var drag: some Gesture {
-//        DragGesture(minimumDistance: 5)
-//            .onChanged { _ in self.isDragging = true }
-//            .onEnded { endedGesture in
-//                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
-//                    self.dragDirection = "left"
-//                    if currentProfileSection == .collections {
-//                        currentProfileSection = .posts
-//                    } else if currentProfileSection == .bookmarks {
-//                        currentProfileSection = .collections
-//                    }
-//                } else {
-//                    self.dragDirection = "right"
-//                    if currentProfileSection == .posts {
-//                        currentProfileSection = .collections
-//                    } else if currentProfileSection == .collections {
-//                        currentProfileSection = .bookmarks
-//                    }
-//                    self.isDragging = false
-//                }
-//            }
-//    }
 
     init(currentProfileSection: ProfileSectionEnum = .posts, showNotifications: Binding<Bool>) {
         let viewModel = ProfileViewModel(uid: "")
