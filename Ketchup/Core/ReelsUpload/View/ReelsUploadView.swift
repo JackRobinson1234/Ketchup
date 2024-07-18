@@ -225,15 +225,15 @@ struct ReelsUploadView: View {
             }
             HStack {
                 Spacer()
-                Text("\(uploadViewModel.caption.count)/300")
+                Text("\(uploadViewModel.caption.count)/500")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(.gray)
                     .padding(.horizontal, 10)
             }
         }
         .onChange(of: uploadViewModel.caption) {
-            if uploadViewModel.caption.count >= 300 {
-                uploadViewModel.caption = String(uploadViewModel.caption.prefix(300))
+            if uploadViewModel.caption.count >= 500 {
+                uploadViewModel.caption = String(uploadViewModel.caption.prefix(500))
             }
         }
     }
