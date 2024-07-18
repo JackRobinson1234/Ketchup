@@ -34,6 +34,10 @@ class UploadViewModel: ObservableObject {
     
     @Published var filteredMentionedUsers: [User] = []
     @Published var isMentioning: Bool = false
+    @Published var isServiceNA: Bool = false
+    @Published var isAtmosphereNA: Bool = false
+    @Published var isValueNA: Bool = false
+    @Published var isFoodNA: Bool = false
 
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
@@ -137,10 +141,10 @@ class UploadViewModel: ObservableObject {
                         postRestaurant: postRestaurant,
                         fromInAppCamera: fromInAppCamera,
                         overallRating: overallRating,
-                        serviceRating: serviceRating,
-                        atmosphereRating: atmosphereRating,
-                        valueRating: valueRating,
-                        foodRating: foodRating,
+                        serviceRating: isServiceNA ? nil : serviceRating,
+                        atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+                        valueRating: isValueNA ? nil : valueRating,
+                        foodRating: isFoodNA ? nil : foodRating,
                         taggedUsers: taggedUsers,
                         captionMentions: mentionedUsers
                     )
@@ -156,10 +160,10 @@ class UploadViewModel: ObservableObject {
                         postRestaurant: postRestaurant,
                         fromInAppCamera: fromInAppCamera,
                         overallRating: overallRating,
-                        serviceRating: serviceRating,
-                        atmosphereRating: atmosphereRating,
-                        valueRating: valueRating,
-                        foodRating: foodRating,
+                        serviceRating: isServiceNA ? nil : serviceRating,
+                                atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+                                valueRating: isValueNA ? nil : valueRating,
+                                foodRating: isFoodNA ? nil : foodRating,
                         taggedUsers: taggedUsers,
                         captionMentions: mentionedUsers
                     )
@@ -172,10 +176,10 @@ class UploadViewModel: ObservableObject {
                         postRestaurant: postRestaurant,
                         fromInAppCamera: false,
                         overallRating: overallRating,
-                        serviceRating: serviceRating,
-                        atmosphereRating: atmosphereRating,
-                        valueRating: valueRating,
-                        foodRating: foodRating,
+                        serviceRating: isServiceNA ? nil : serviceRating,
+                                atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+                                valueRating: isValueNA ? nil : valueRating,
+                                foodRating: isFoodNA ? nil : foodRating,
                         taggedUsers: taggedUsers,
                         captionMentions: mentionedUsers)
                 }

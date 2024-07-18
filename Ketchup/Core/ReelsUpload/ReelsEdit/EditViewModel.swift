@@ -10,7 +10,10 @@ import FirebaseFirestoreInternal
 
 class ReelsEditViewModel: ObservableObject {
     @Published private(set) var isLoading: Bool = false
-    
+    @Published var isFoodNA: Bool = false
+        @Published var isAtmosphereNA: Bool = false
+        @Published var isValueNA: Bool = false
+        @Published var isServiceNA: Bool = false
     private var originalPost: Post
     private var db: Firestore
     

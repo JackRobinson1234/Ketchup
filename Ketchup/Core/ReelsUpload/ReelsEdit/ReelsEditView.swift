@@ -146,13 +146,36 @@ struct ReelsEditView: View {
     
     private var ratingsView: some View {
             VStack(spacing: 10) {
-                OverallRatingView(rating: overallRating)
-                RatingSliderGroup(label: "Food", rating: $tempFoodRating)
-                RatingSliderGroup(label: "Atmosphere", rating: $tempAtmosphereRating)
-                RatingSliderGroup(label: "Value", rating: $tempValueRating)
-                RatingSliderGroup(label: "Service", rating: $tempServiceRating)
+                OverallRatingView(rating: calculateOverallRating())
+                        RatingSliderGroup(label: "Food", rating: $tempFoodRating, isNA: $editViewModel.isFoodNA)
+                        RatingSliderGroup(label: "Atmosphere", rating: $tempAtmosphereRating, isNA: $editViewModel.isAtmosphereNA)
+                        RatingSliderGroup(label: "Value", rating: $tempValueRating, isNA: $editViewModel.isValueNA)
+                        RatingSliderGroup(label: "Service", rating: $tempServiceRating, isNA: $editViewModel.isServiceNA)
             }
         }
+    func calculateOverallRating() -> Double {
+        var totalRating = 0.0
+        var count = 0
+        
+        if  !editViewModel.isFoodNA {
+            totalRating += tempFoodRating
+            count += 1
+        }
+        if !editViewModel.isAtmosphereNA {
+            totalRating += tempAtmosphereRating
+            count += 1
+        }
+        if !editViewModel.isValueNA {
+            totalRating += tempValueRating
+            count += 1
+        }
+        if  !editViewModel.isServiceNA {
+            totalRating += tempServiceRating
+            count += 1
+        }
+        
+        return count > 0 ? totalRating / Double(count) : 0
+    }
     private var overallRating: Double {
             let ratings = [tempFoodRating, tempAtmosphereRating, tempValueRating, tempServiceRating]
             let sum = ratings.reduce(0, +)

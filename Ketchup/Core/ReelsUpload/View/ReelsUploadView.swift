@@ -240,12 +240,35 @@ struct ReelsUploadView: View {
     
     var ratingsSection: some View {
         VStack(spacing: 10) {
-            OverallRatingView(rating: overallRatingPercentage)
-            RatingSliderGroup(label: "Food", rating: $uploadViewModel.foodRating)
-            RatingSliderGroup(label: "Atmosphere", rating: $uploadViewModel.atmosphereRating)
-            RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating)
-            RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating)
+            OverallRatingView(rating: calculateOverallRating())
+            RatingSliderGroup(label: "Food", rating: $uploadViewModel.foodRating, isNA: $uploadViewModel.isFoodNA)
+            RatingSliderGroup(label: "Atmosphere", rating: $uploadViewModel.atmosphereRating, isNA: $uploadViewModel.isAtmosphereNA)
+            RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating, isNA: $uploadViewModel.isValueNA)
+            RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating, isNA: $uploadViewModel.isServiceNA)
         }
+    }
+    func calculateOverallRating() -> Double {
+        var totalRating = 0.0
+        var count = 0
+        
+        if  !uploadViewModel.isFoodNA {
+            totalRating += uploadViewModel.foodRating
+            count += 1
+        }
+        if !uploadViewModel.isAtmosphereNA {
+            totalRating += uploadViewModel.atmosphereRating
+            count += 1
+        }
+        if !uploadViewModel.isValueNA {
+            totalRating += uploadViewModel.valueRating
+            count += 1
+        }
+        if  !uploadViewModel.isServiceNA {
+            totalRating += uploadViewModel.serviceRating
+            count += 1
+        }
+        
+        return count > 0 ? totalRating / Double(count) : 0
     }
     
     var tagUsersButton: some View {

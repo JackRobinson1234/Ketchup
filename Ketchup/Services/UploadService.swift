@@ -13,20 +13,20 @@ struct UploadService {
     static let shared = UploadService() // Singleton instance
     private init() {}
     func uploadPost(
-        videoURL: URL?,
-        images: [UIImage]?,
-        mediaType: MediaType,
-        caption: String,
-        postRestaurant: PostRestaurant,
-        fromInAppCamera: Bool,
-        overallRating: Double,
-        serviceRating: Double,
-        atmosphereRating: Double,
-        valueRating: Double,
-        foodRating: Double,
-        taggedUsers: [PostUser],
-        captionMentions: [PostUser]
-    ) async throws -> Post {
+           videoURL: URL?,
+           images: [UIImage]?,
+           mediaType: MediaType,
+           caption: String,
+           postRestaurant: PostRestaurant,
+           fromInAppCamera: Bool,
+           overallRating: Double?,
+           serviceRating: Double?,
+           atmosphereRating: Double?,
+           valueRating: Double?,
+           foodRating: Double?,
+           taggedUsers: [PostUser],
+           captionMentions: [PostUser]
+       ) async throws -> Post {
         let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
         let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
         
@@ -61,31 +61,31 @@ struct UploadService {
             }
         }
         // Create the post object
-        let post = Post(
-            id: ref.documentID,
-            mediaType: mediaType,
-            mediaUrls: mediaUrls,
-            caption: caption,
-            likes: 0,
-            commentCount: 0,
-            repostCount: 0,
-            thumbnailUrl: thumbnailUrl,
-            timestamp: Timestamp(),
-            user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
-            restaurant: postRestaurant,
-            didLike: false,
-            didBookmark: false,
-            fromInAppCamera: fromInAppCamera,
-            repost: false,
-            didRepost: false,
-            overallRating: overallRating,
-            serviceRating: serviceRating,
-            atmosphereRating: atmosphereRating,
-            valueRating: valueRating,
-            foodRating: foodRating,
-            taggedUsers: taggedUsers,
-            captionMentions: captionMentions
-        )
+           let post = Post(
+                       id: ref.documentID,
+                       mediaType: mediaType,
+                       mediaUrls: mediaUrls,
+                       caption: caption,
+                       likes: 0,
+                       commentCount: 0,
+                       repostCount: 0,
+                       thumbnailUrl: thumbnailUrl,
+                       timestamp: Timestamp(),
+                       user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
+                       restaurant: postRestaurant,
+                       didLike: false,
+                       didBookmark: false,
+                       fromInAppCamera: fromInAppCamera,
+                       repost: false,
+                       didRepost: false,
+                       overallRating: overallRating,
+                       serviceRating: serviceRating,
+                       atmosphereRating: atmosphereRating,
+                       valueRating: valueRating,
+                       foodRating: foodRating,
+                       taggedUsers: taggedUsers,
+                       captionMentions: captionMentions
+                   )
         
         // Encode the post data
         guard let postData = try? Firestore.Encoder().encode(post) else {
