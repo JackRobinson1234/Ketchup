@@ -32,10 +32,10 @@ struct ReelsEditView: View {
         self.feedViewModel = feedViewModel
         _editViewModel = StateObject(wrappedValue: ReelsEditViewModel(post: post.wrappedValue))
         _tempCaption = State(initialValue: post.wrappedValue.caption)
-        _tempFoodRating = State(initialValue: post.wrappedValue.foodRating ?? 0)
-        _tempAtmosphereRating = State(initialValue: post.wrappedValue.atmosphereRating ?? 0)
-        _tempValueRating = State(initialValue: post.wrappedValue.valueRating ?? 0)
-        _tempServiceRating = State(initialValue: post.wrappedValue.serviceRating ?? 0)
+        _tempFoodRating = State(initialValue: post.wrappedValue.foodRating ?? 5.0)
+        _tempAtmosphereRating = State(initialValue: post.wrappedValue.atmosphereRating ?? 5.0)
+        _tempValueRating = State(initialValue: post.wrappedValue.valueRating ?? 5.0)
+        _tempServiceRating = State(initialValue: post.wrappedValue.serviceRating ?? 5.0)
     }
     
     var body: some View {
@@ -114,75 +114,59 @@ struct ReelsEditView: View {
     }
     
     private var captionInputView: some View {
-            VStack {
-                ZStack(alignment: .topLeading) {
-                    TextEditor(text: $tempCaption)
+        VStack {
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $tempCaption)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .frame(height: 100)
+                    .padding(.horizontal, 20)
+                    .background(Color.white)
+                    .cornerRadius(5)
+                if tempCaption.isEmpty {
+                    Text("Enter a caption...")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .frame(height: 100)
-                        .padding(.horizontal, 20)
-                        .background(Color.white)
-                        .cornerRadius(5)
-                    if tempCaption.isEmpty {
-                        Text("Enter a caption...")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .foregroundColor(Color.gray)
-                            .padding(.horizontal, 25)
-                            .padding(.top, 8)
-                    }
-                }
-                HStack {
-                    Spacer()
-                    Text("\(tempCaption.count)/300")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
+                        .foregroundColor(Color.gray)
+                        .padding(.horizontal, 25)
+                        .padding(.top, 8)
                 }
             }
-            .onChange(of: tempCaption) {oldValue, newValue in
-                tempCaption = String(newValue.prefix(300))
+            HStack {
+                Spacer()
+                Text("\(tempCaption.count)/300")
+                    .font(.custom("MuseoSansRounded-300", size: 10))
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 10)
             }
-           
         }
+        .onChange(of: tempCaption) { oldValue, newValue in
+            tempCaption = String(newValue.prefix(300))
+        }
+    }
     
     private var ratingsView: some View {
-            VStack(spacing: 10) {
-                OverallRatingView(rating: calculateOverallRating())
-                        RatingSliderGroup(label: "Food", rating: $tempFoodRating, isNA: $editViewModel.isFoodNA)
-                        RatingSliderGroup(label: "Atmosphere", rating: $tempAtmosphereRating, isNA: $editViewModel.isAtmosphereNA)
-                        RatingSliderGroup(label: "Value", rating: $tempValueRating, isNA: $editViewModel.isValueNA)
-                        RatingSliderGroup(label: "Service", rating: $tempServiceRating, isNA: $editViewModel.isServiceNA)
-            }
+        VStack(spacing: 10) {
+            OverallRatingView(rating: calculateOverallRating())
+            RatingSliderGroup(label: "Food", rating: $tempFoodRating, isNA: $editViewModel.isFoodNA)
+            RatingSliderGroup(label: "Atmosphere", rating: $tempAtmosphereRating, isNA: $editViewModel.isAtmosphereNA)
+            RatingSliderGroup(label: "Value", rating: $tempValueRating, isNA: $editViewModel.isValueNA)
+            RatingSliderGroup(label: "Service", rating: $tempServiceRating, isNA: $editViewModel.isServiceNA)
         }
-    func calculateOverallRating() -> Double {
-        var totalRating = 0.0
-        var count = 0
-        
-        if  !editViewModel.isFoodNA {
-            totalRating += tempFoodRating
-            count += 1
-        }
-        if !editViewModel.isAtmosphereNA {
-            totalRating += tempAtmosphereRating
-            count += 1
-        }
-        if !editViewModel.isValueNA {
-            totalRating += tempValueRating
-            count += 1
-        }
-        if  !editViewModel.isServiceNA {
-            totalRating += tempServiceRating
-            count += 1
-        }
-        
-        return count > 0 ? totalRating / Double(count) : 0
     }
-    private var overallRating: Double {
-            let ratings = [tempFoodRating, tempAtmosphereRating, tempValueRating, tempServiceRating]
-            let sum = ratings.reduce(0, +)
-            let average = sum / Double(ratings.count)
-            return (average * 10).rounded() / 10 // Round to one decimal place
-        }
+    
+    func calculateOverallRating() -> String {
+        var ratings: [Double] = []
+        if !editViewModel.isFoodNA { ratings.append(tempFoodRating) }
+        if !editViewModel.isAtmosphereNA { ratings.append(tempAtmosphereRating) }
+        if !editViewModel.isValueNA { ratings.append(tempValueRating) }
+        if !editViewModel.isServiceNA { ratings.append(tempServiceRating) }
         
+        if ratings.isEmpty {
+            return "N/A"
+        } else {
+            let average = ratings.reduce(0, +) / Double(ratings.count)
+            return String(format: "%.1f", average)
+        }
+    }
     
     private var saveButton: some View {
         Button {
@@ -193,12 +177,9 @@ struct ReelsEditView: View {
                         foodRating: tempFoodRating,
                         atmosphereRating: tempAtmosphereRating,
                         valueRating: tempValueRating,
-                        serviceRating: tempServiceRating,
-                        overallRating: overallRating
+                        serviceRating: tempServiceRating
                     ) {
-                        // Update the post in the FeedViewModel
                         feedViewModel.updatePost(updatedPost)
-                        // Update the binding
                         post = updatedPost
                         dismiss()
                     } else {
@@ -230,13 +211,15 @@ struct ReelsEditView: View {
             Text("There are no changes to save.")
         }
     }
+    
     private var hasUnsavedChanges: Bool {
         tempCaption != post.caption ||
-        tempFoodRating != (post.foodRating ?? 0) ||
-        tempAtmosphereRating != (post.atmosphereRating ?? 0) ||
-        tempValueRating != (post.valueRating ?? 0) ||
-        tempServiceRating != (post.serviceRating ?? 0)
+        (editViewModel.isFoodNA != (post.foodRating == nil) || (!editViewModel.isFoodNA && tempFoodRating != post.foodRating)) ||
+        (editViewModel.isAtmosphereNA != (post.atmosphereRating == nil) || (!editViewModel.isAtmosphereNA && tempAtmosphereRating != post.atmosphereRating)) ||
+        (editViewModel.isValueNA != (post.valueRating == nil) || (!editViewModel.isValueNA && tempValueRating != post.valueRating)) ||
+        (editViewModel.isServiceNA != (post.serviceRating == nil) || (!editViewModel.isServiceNA && tempServiceRating != post.serviceRating))
     }
+    
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

@@ -247,29 +247,33 @@ struct ReelsUploadView: View {
             RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating, isNA: $uploadViewModel.isServiceNA)
         }
     }
-    func calculateOverallRating() -> Double {
-        var totalRating = 0.0
-        var count = 0
-        
-        if  !uploadViewModel.isFoodNA {
-            totalRating += uploadViewModel.foodRating
-            count += 1
+    func calculateOverallRating() -> String {
+            var totalRating = 0.0
+            var count = 0
+            
+            if !uploadViewModel.isFoodNA {
+                totalRating += uploadViewModel.foodRating
+                count += 1
+            }
+            if !uploadViewModel.isAtmosphereNA {
+                totalRating += uploadViewModel.atmosphereRating
+                count += 1
+            }
+            if !uploadViewModel.isValueNA {
+                totalRating += uploadViewModel.valueRating
+                count += 1
+            }
+            if !uploadViewModel.isServiceNA {
+                totalRating += uploadViewModel.serviceRating
+                count += 1
+            }
+            
+            if count == 0 {
+                return "N/A"
+            } else {
+                return String(format: "%.1f", totalRating / Double(count))
+            }
         }
-        if !uploadViewModel.isAtmosphereNA {
-            totalRating += uploadViewModel.atmosphereRating
-            count += 1
-        }
-        if !uploadViewModel.isValueNA {
-            totalRating += uploadViewModel.valueRating
-            count += 1
-        }
-        if  !uploadViewModel.isServiceNA {
-            totalRating += uploadViewModel.serviceRating
-            count += 1
-        }
-        
-        return count > 0 ? totalRating / Double(count) : 0
-    }
     
     var tagUsersButton: some View {
         Button {
@@ -304,37 +308,38 @@ struct ReelsUploadView: View {
     }
     
     var postButton: some View {
-        Button {
-            if writtenReview {
-                uploadViewModel.mediaType = .written
-            }
-            if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
-                alertMessage = "Please select a restaurant."
-                showAlert = true
-            } else {
-                Task {
-                    await uploadViewModel.uploadPost()
-                    uploadViewModel.reset()
-                    cameraViewModel.reset()
-                    tabBarController.selectedTab = 0
+            Button {
+                if writtenReview {
+                    uploadViewModel.mediaType = .written
                 }
-            }
-        } label: {
-            Text(uploadViewModel.isLoading ? "" : "Post")
-                .modifier(StandardButtonModifier(width: 90))
-                .overlay {
-                    if uploadViewModel.isLoading {
-                        ProgressView()
-                            .tint(.white)
+                if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
+                    alertMessage = "Please select a restaurant."
+                    showAlert = true
+                } else {
+                    Task {
+                        let overallRating = calculateOverallRating()
+                        await uploadViewModel.uploadPost()
+                        uploadViewModel.reset()
+                        cameraViewModel.reset()
+                        tabBarController.selectedTab = 0
                     }
                 }
+            } label: {
+                Text(uploadViewModel.isLoading ? "" : "Post")
+                    .modifier(StandardButtonModifier(width: 90))
+                    .overlay {
+                        if uploadViewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                    }
+            }
+            .disabled(uploadViewModel.isLoading)
+            .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
         }
-        .disabled(uploadViewModel.isLoading)
-        .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
-    }
     
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
