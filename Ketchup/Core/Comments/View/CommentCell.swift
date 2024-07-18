@@ -73,7 +73,8 @@ struct CommentCell: View {
         .environment(\.openURL, OpenURLAction { url in
             if url.scheme == "user",
                let userId = url.host,
-               let user = comment.mentionedUsers.first(where: { $0.id == userId }) {
+               let mentionedUsers = comment.mentionedUsers,
+               let user = mentionedUsers.first(where: { $0.id == userId }) {
                 selectedUser = user
                 return .handled
             }
@@ -112,7 +113,8 @@ struct CommentCell: View {
             let fullMatch = String(input[range])
             let username = String(fullMatch.dropFirst()) // Remove @ from username
             
-            if let user = comment.mentionedUsers.first(where: { $0.username.lowercased() == username.lowercased() }),
+            if let mentionedUsers = comment.mentionedUsers,
+               let user = mentionedUsers.first(where: { $0.username.lowercased() == username.lowercased() }),
                let attributedRange = Range(range, in: result) {
                 result[attributedRange].foregroundColor = Color("Colors/AccentColor")
                 result[attributedRange].link = URL(string: "user://\(user.id)")

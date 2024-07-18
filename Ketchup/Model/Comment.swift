@@ -16,5 +16,5 @@ struct Comment: Identifiable, Codable, Equatable, Hashable {
     let timestamp: Timestamp
     let commentOwnerUid: String
     var user: User?
-    var mentionedUsers: [PostUser]
+    var mentionedUsers: [PostUser]?
 }
