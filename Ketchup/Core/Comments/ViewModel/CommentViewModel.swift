@@ -90,7 +90,32 @@ class CommentViewModel: ObservableObject {
             filteredTaggedUsers = taggedUsers.filter { $0.username.lowercased().contains(searchQuery) }
         }
 
-        isTagging = !filteredTaggedUsers.isEmpty
+        isTagging = true
+    }
+    
+    func checkForAlgoliaTagging() -> String{
+        let words = commentText.split(separator: " ")
+
+        if commentText.last == " " {
+            isTagging = false
+            filteredTaggedUsers = []
+            return ""
+        }
+
+        guard let lastWord = words.last, lastWord.hasPrefix("@") else {
+            isTagging = false
+            filteredTaggedUsers = []
+            return ""
+        }
+
+        let searchQuery = String(lastWord.dropFirst()).lowercased()
+        if searchQuery.isEmpty {
+            filteredTaggedUsers = taggedUsers
+        } else {
+            filteredTaggedUsers = taggedUsers.filter { $0.username.lowercased().contains(searchQuery) }
+        }
+        isTagging = true
+        return searchQuery
     }
 
     func uploadComment() async {

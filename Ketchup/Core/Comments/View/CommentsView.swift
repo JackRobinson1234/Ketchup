@@ -1,8 +1,10 @@
 import SwiftUI
+import InstantSearchSwiftUI
 
 struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
-    
+    @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
+
     init(post: Binding<Post>) {
         let viewModel = CommentViewModel(post: post)
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -27,20 +29,43 @@ struct CommentsView: View {
                                 .padding(.top, 10)
                                 .padding(.horizontal)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            
-                            ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
-                                Button(action: {
-                                    let username = user.username
-                                    var words = viewModel.commentText.split(separator: " ").map(String.init)
-                                    words.removeLast()
-                                    words.append("@" + username)
-                                    viewModel.commentText = words.joined(separator: " ") + " "
-                                    viewModel.isTagging = false
-                                }) {
-                                    UserCell(user: user)
-                                        .padding(.horizontal)
+                            if !viewModel.filteredTaggedUsers.isEmpty{
+                                ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
+                                    Button(action: {
+                                        let username = user.username
+                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
+                                        words.removeLast()
+                                        words.append("@" + username)
+                                        viewModel.commentText = words.joined(separator: " ") + " "
+                                        viewModel.isTagging = false
+                                    }) {
+                                        UserCell(user: user)
+                                            .padding(.horizontal)
+                                    }
+                                    .contentShape(Rectangle())
                                 }
-                                .contentShape(Rectangle())
+                                    
+                                } else {
+                                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                                    Button{
+                                        let username = hit.object.username
+                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
+                                        words.removeLast()
+                                        words.append("@" + username)
+                                        viewModel.commentText = words.joined(separator: " ") + " "
+                                        viewModel.isTagging = false
+                                    } label: {
+                                        UserCell(user: hit.object)
+                                            .padding()
+                                      
+                                    }
+                        
+                                    Divider()
+                                }, noResults: {
+                                    Text("No results found")
+                                        .foregroundStyle(.primary)
+                                })
+                                
                             }
                         } else {
                             ForEach(viewModel.comments) { comment in
@@ -58,6 +83,21 @@ struct CommentsView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
+            }
+            .onChange(of: viewModel.commentText){
+                if viewModel.filteredTaggedUsers.isEmpty{
+                    print("Entering 1")
+                    let text = viewModel.checkForAlgoliaTagging()
+                    if !text.isEmpty{
+                        print("Entering 2")
+                        searchViewModel.searchQuery = text
+                        print(text)
+                        Debouncer(delay: 1.0).schedule{
+                            print("Entering 3")
+                            searchViewModel.notifyQueryChanged()
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $viewModel.showOptionsSheet) {
                 if let comment = viewModel.selectedComment {
