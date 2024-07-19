@@ -31,7 +31,7 @@ class UploadViewModel: ObservableObject {
     @Published var valueRating: Double = 5.0
     @Published var foodRating: Double = 5.0
     @Published var taggedUsers: [PostUser] = []
-    
+    @Published var taggedUserPreviews: [User] = []
     @Published var filteredMentionedUsers: [User] = []
     @Published var isMentioning: Bool = false
     @Published var isServiceNA: Bool = false

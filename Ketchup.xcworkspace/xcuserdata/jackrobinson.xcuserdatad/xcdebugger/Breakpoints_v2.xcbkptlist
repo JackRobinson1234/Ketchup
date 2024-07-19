@@ -84,5 +84,68 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1FEF7F51-A77C-46D0-8243-EBEFDAC1199A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Ketchup/Core/Search/View/SearchView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "13"
+            endingLineNumber = "13"
+            landmarkName = "SearchView"
+            landmarkType = "14">
+            <Locations>
+               <Location
+                  uuid = "1FEF7F51-A77C-46D0-8243-EBEFDAC1199A - ea80805522fcec9f"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Ketchup.SearchView.dismiss.getter : SwiftUI.DismissAction"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "1FEF7F51-A77C-46D0-8243-EBEFDAC1199A - 7933695a88a9e2d6"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Ketchup.SearchView.init(initialSearchConfig: Ketchup.SearchModelConfig) -&gt; Ketchup.SearchView"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Search/View/SearchView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "192">
+               </Location>
+               <Location
+                  uuid = "1FEF7F51-A77C-46D0-8243-EBEFDAC1199A - 7933695a88a9e2d6"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Ketchup.SearchView.init(initialSearchConfig: Ketchup.SearchModelConfig) -&gt; Ketchup.SearchView"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Search/View/SearchView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "172">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
