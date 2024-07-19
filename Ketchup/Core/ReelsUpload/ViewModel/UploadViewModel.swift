@@ -223,7 +223,32 @@ class UploadViewModel: ObservableObject {
             filteredMentionedUsers = mentionableUsers.filter { $0.username.lowercased().contains(searchQuery) }
         }
 
-        isMentioning = !filteredMentionedUsers.isEmpty
+        isMentioning = true
+    }
+    func checkForAlgoliaTagging() -> String{
+        let words = caption.split(separator: " ")
+        
+        if caption.last == " " {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return ""
+        }
+        
+        guard let lastWord = words.last, lastWord.hasPrefix("@") else {
+            isMentioning = false
+            filteredMentionedUsers = []
+            return ""
+        }
+
+        let searchQuery = String(lastWord.dropFirst()).lowercased()
+        if searchQuery.isEmpty {
+            filteredMentionedUsers = mentionableUsers
+        } else {
+            filteredMentionedUsers = mentionableUsers.filter { $0.username.lowercased().contains(searchQuery) }
+        }
+
+        isMentioning = true
+        return searchQuery
     }
     
     func addMention(user: User) {

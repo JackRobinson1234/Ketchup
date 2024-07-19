@@ -7,6 +7,7 @@
 import SwiftUI
 import AVKit
 import AVFoundation
+import InstantSearchSwiftUI
 
 struct ReelsUploadView: View {
     @ObservedObject var uploadViewModel: UploadViewModel
@@ -20,6 +21,7 @@ struct ReelsUploadView: View {
     @State private var alertMessage: String = ""
     @State private var isVideoExpanded = false
     @State private var isTaggingUsers = false
+    @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     let writtenReview: Bool
     
     private let maxCharacters = 25
@@ -67,6 +69,49 @@ struct ReelsUploadView: View {
                         Divider()
                         
                         captionEditor
+                        if uploadViewModel.isMentioning {
+                            if !uploadViewModel.filteredMentionedUsers.isEmpty{
+                                ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
+                                    Button(action: {
+                                        let username = user.username
+                                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                                        words.removeLast()
+                                        words.append("@" + username)
+                                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                                        uploadViewModel.isMentioning = false
+                                    }) {
+                                        HStack {
+                                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
+                                            Text(user.username)
+                                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                            Spacer()
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                    .contentShape(Rectangle())
+                                }
+                            } else {
+                                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                                    Button{
+                                        let username = hit.object.username
+                                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                                        words.removeLast()
+                                        words.append("@" + username)
+                                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                                        uploadViewModel.isMentioning = false
+                                    } label: {
+                                        UserCell(user: hit.object)
+                                            .padding()
+                                      
+                                    }
+                        
+                                    Divider()
+                                }, noResults: {
+                                    Text("No results found")
+                                        .foregroundStyle(.primary)
+                                })
+                            }
+                        }
                         
                         Divider()
                         
@@ -84,8 +129,8 @@ struct ReelsUploadView: View {
                 .padding()
             }
             .if(writtenReview) { view in
-                        view.safeAreaPadding(.vertical, 100)
-                    }
+                view.safeAreaPadding(.vertical, 100)
+            }
         }
         .onTapGesture {
             dismissKeyboard()
@@ -106,6 +151,9 @@ struct ReelsUploadView: View {
                 }
             }
         )
+        .onChange(of: uploadViewModel.caption) {
+            uploadViewModel.checkForMentioning()
+        }
         .navigationDestination(isPresented: $isPickingRestaurant) {
             SelectRestaurantListView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Select Restaurant")
@@ -113,6 +161,21 @@ struct ReelsUploadView: View {
         .navigationDestination(isPresented: $isTaggingUsers) {
             SelectFollowingView(uploadViewModel: uploadViewModel)
                 .navigationTitle("Tag Users")
+        }
+        .onChange(of: uploadViewModel.caption){
+            if uploadViewModel.filteredMentionedUsers.isEmpty{
+                print("Entering 1")
+                let text = uploadViewModel.checkForAlgoliaTagging()
+                if !text.isEmpty{
+                    print("Entering 2")
+                    searchViewModel.searchQuery = text
+                    print(text)
+                    Debouncer(delay: 1.0).schedule{
+                        print("Entering 3")
+                        searchViewModel.notifyQueryChanged()
+                    }
+                }
+            }
         }
     }
     
@@ -248,32 +311,32 @@ struct ReelsUploadView: View {
         }
     }
     func calculateOverallRating() -> String {
-            var totalRating = 0.0
-            var count = 0
-            
-            if !uploadViewModel.isFoodNA {
-                totalRating += uploadViewModel.foodRating
-                count += 1
-            }
-            if !uploadViewModel.isAtmosphereNA {
-                totalRating += uploadViewModel.atmosphereRating
-                count += 1
-            }
-            if !uploadViewModel.isValueNA {
-                totalRating += uploadViewModel.valueRating
-                count += 1
-            }
-            if !uploadViewModel.isServiceNA {
-                totalRating += uploadViewModel.serviceRating
-                count += 1
-            }
-            
-            if count == 0 {
-                return "N/A"
-            } else {
-                return String(format: "%.1f", totalRating / Double(count))
-            }
+        var totalRating = 0.0
+        var count = 0
+        
+        if !uploadViewModel.isFoodNA {
+            totalRating += uploadViewModel.foodRating
+            count += 1
         }
+        if !uploadViewModel.isAtmosphereNA {
+            totalRating += uploadViewModel.atmosphereRating
+            count += 1
+        }
+        if !uploadViewModel.isValueNA {
+            totalRating += uploadViewModel.valueRating
+            count += 1
+        }
+        if !uploadViewModel.isServiceNA {
+            totalRating += uploadViewModel.serviceRating
+            count += 1
+        }
+        
+        if count == 0 {
+            return "N/A"
+        } else {
+            return String(format: "%.1f", totalRating / Double(count))
+        }
+    }
     
     var tagUsersButton: some View {
         Button {
@@ -308,38 +371,38 @@ struct ReelsUploadView: View {
     }
     
     var postButton: some View {
-            Button {
-                if writtenReview {
-                    uploadViewModel.mediaType = .written
+        Button {
+            if writtenReview {
+                uploadViewModel.mediaType = .written
+            }
+            if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
+                alertMessage = "Please select a restaurant."
+                showAlert = true
+            } else {
+                Task {
+                    let overallRating = calculateOverallRating()
+                    await uploadViewModel.uploadPost()
+                    uploadViewModel.reset()
+                    cameraViewModel.reset()
+                    tabBarController.selectedTab = 0
                 }
-                if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
-                    alertMessage = "Please select a restaurant."
-                    showAlert = true
-                } else {
-                    Task {
-                        let overallRating = calculateOverallRating()
-                        await uploadViewModel.uploadPost()
-                        uploadViewModel.reset()
-                        cameraViewModel.reset()
-                        tabBarController.selectedTab = 0
+            }
+        } label: {
+            Text(uploadViewModel.isLoading ? "" : "Post")
+                .modifier(StandardButtonModifier(width: 90))
+                .overlay {
+                    if uploadViewModel.isLoading {
+                        ProgressView()
+                            .tint(.white)
                     }
                 }
-            } label: {
-                Text(uploadViewModel.isLoading ? "" : "Post")
-                    .modifier(StandardButtonModifier(width: 90))
-                    .overlay {
-                        if uploadViewModel.isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        }
-                    }
-            }
-            .disabled(uploadViewModel.isLoading)
-            .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
         }
+        .disabled(uploadViewModel.isLoading)
+        .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+    }
     
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
