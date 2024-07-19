@@ -112,14 +112,15 @@ struct ReelsUploadView: View {
                                 })
                             }
                         }
+                        Divider()
                         
+                        tagUsersButton
+                            .padding(.vertical)
                         Divider()
                         
                         ratingsSection
                         
-                        Divider()
-                        
-                        tagUsersButton
+                    
                         
                         Divider()
                         
