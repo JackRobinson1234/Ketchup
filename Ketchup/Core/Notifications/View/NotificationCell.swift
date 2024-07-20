@@ -23,7 +23,45 @@ struct NotificationCell: View {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
                 VStack(alignment: .leading) {
                     HStack(spacing: 0) {
-                        notificationText
+                        if let restaurantName = notification.restaurantName, let text = notification.text {
+                            Button {
+                                if let restaurantId = notification.restaurantId {
+                                    print("Setting selectedRestaurantId to \(restaurantId)")
+                                    self.selectedRestaurantId = restaurantId
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        self.showRestaurant.toggle()
+                                    }
+                                }
+                            } label: {
+                                VStack {
+                                    Text(notification.user?.username ?? "")
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .foregroundStyle(.primary)
+                                        .fontWeight(.semibold) +
+                                    Text(notification.type.notificationMessage)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .foregroundStyle(.primary) +
+                                    Text("\(restaurantName): ")
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .foregroundStyle(.primary) +
+                                    Text(text)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .foregroundStyle(.primary)
+                                }
+                                .multilineTextAlignment(.leading)
+                            }
+                        } else {
+                            VStack {
+                                Text(notification.user?.username ?? "")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.primary)
+                                    .fontWeight(.semibold) +
+                                Text(notification.type.notificationMessage)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.primary)
+                            }
+                            .multilineTextAlignment(.leading)
+                        }
                     }
                     Text("\(notification.timestamp.timestampString())")
                         .foregroundColor(.gray)
@@ -32,7 +70,46 @@ struct NotificationCell: View {
                 .multilineTextAlignment(.leading)
             }
             Spacer()
-            trailingContent
+            if notification.type == .follow {
+                Button(action: {
+                    Task {
+                        isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId: notification.uid)
+                        self.isFollowed.toggle()
+                    }
+                }, label: {
+                    Text(isFollowed ? "Following" : "Follow")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                        .fontWeight(.semibold)
+                        .frame(width: 110)
+                        .padding(.vertical, 8)
+                        .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
+                        .background(isFollowed ? Color.clear : Color.red)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
+                        }
+                })
+            } else {
+                if let postThumbnail = notification.postThumbnail {
+                    Button {
+                        if let postId = notification.postId {
+                            Task {
+                                print("Fetching post with ID \(postId)")
+                                self.post = try await PostService.shared.fetchPost(postId: postId)
+                                print("Fetched post: \(String(describing: self.post))")
+                                showPost.toggle()
+                            }
+                        }
+                    } label: {
+                        KFImage(URL(string: postThumbnail))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                }
+            }
         }
         .onAppear {
             if notification.type == .follow {
@@ -42,141 +119,26 @@ struct NotificationCell: View {
             }
         }
         .padding(.horizontal)
-        .fullScreenCover(isPresented: $showRestaurant, content: {
+        .fullScreenCover (isPresented: Binding(
+            get: { showRestaurant && selectedRestaurantId != nil },
+            set: { showRestaurant = $0 }
+        )) {
             NavigationStack {
                 if let selectedRestaurantId = selectedRestaurantId {
+                    let _ =  print("Showing RestaurantProfileView for \(selectedRestaurantId)")
                     RestaurantProfileView(restaurantId: selectedRestaurantId)
                 }
             }
-        })
-        .fullScreenCover(isPresented: $showPost, content: {
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { showPost && post != nil },
+            set: { showPost = $0 }
+        )) {
             NavigationStack {
                 if let post = post {
+                    let _ = print("Showing FeedView for post: \(post)")
                     let feedViewModel = FeedViewModel(posts: [post])
                     SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
-                }
-            }
-        })
-    }
-
-    private var notificationText: some View {
-        Group {
-            switch notification.type {
-            case .postLike, .comment, .reviewLike:
-                postInteractionNotificationText
-            case .follow:
-                followNotificationText
-            case .commentMention, .postCaptionMention, .postWentWithMention:
-                mentionNotificationText
-            }
-        }
-    }
-
-    private var postInteractionNotificationText: some View {
-        Button {
-            if let postId = notification.postId {
-                Task {
-                    self.post = try await PostService.shared.fetchPost(postId: postId)
-                    showPost.toggle()
-                }
-            }
-        } label: {
-            Text(notification.user?.username ?? "")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary)
-                .fontWeight(.semibold) +
-            Text(notification.type.notificationMessage)
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary) +
-            Text(notification.type == .reviewLike ? (notification.restaurantName ?? "") : "")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary)
-        }
-    }
-
-    private var followNotificationText: some View {
-        Text(notification.user?.username ?? "")
-            .font(.custom("MuseoSansRounded-300", size: 16))
-            .foregroundStyle(.primary)
-            .fontWeight(.semibold) +
-        Text(notification.type.notificationMessage)
-            .font(.custom("MuseoSansRounded-300", size: 16))
-            .foregroundStyle(.primary)
-    }
-
-    private var mentionNotificationText: some View {
-        Button {
-            if let postId = notification.postId {
-                Task {
-                    self.post = try await PostService.shared.fetchPost(postId: postId)
-                    showPost.toggle()
-                }
-            }
-        } label: {
-            Text(notification.user?.username ?? "")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary)
-                .fontWeight(.semibold) +
-            Text(notification.type.notificationMessage)
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary) +
-            Text(notification.restaurantName != nil ? " at \(notification.restaurantName!): " : ": ")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary) +
-            Text(notification.text ?? "")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundStyle(.primary)
-        }
-    }
-
-    private var trailingContent: some View {
-        Group {
-            if notification.type == .follow {
-                followButton
-            } else {
-                postThumbnail
-            }
-        }
-    }
-
-    private var followButton: some View {
-        Button(action: {
-            Task {
-                isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId: notification.uid)
-                self.isFollowed.toggle()
-            }
-        }, label: {
-            Text(isFollowed ? "Following" : "Follow")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .fontWeight(.semibold)
-                .frame(width: 110)
-                .padding(.vertical, 8)
-                .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
-                .background(isFollowed ? Color.clear : Color.red)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
-                }
-        })
-    }
-
-    private var postThumbnail: some View {
-        Group {
-            if let postThumbnail = notification.postThumbnail {
-                Button {
-                    if let postId = notification.postId {
-                        Task {
-                            self.post = try await PostService.shared.fetchPost(postId: postId)
-                            showPost.toggle()
-                        }
-                    }
-                } label: {
-                    KFImage(URL(string: postThumbnail))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 48, height: 48)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
             }
         }
