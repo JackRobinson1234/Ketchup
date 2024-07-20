@@ -66,22 +66,24 @@ struct WrittenFeedCell: View {
     var body: some View {
         VStack {
             VStack {
-                HStack {
+                HStack(alignment: .top) {
                     NavigationLink(value: post.user) {
                         UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
                     }
                     NavigationLink(value: post.user) {
                         VStack(alignment: .leading) {
-                            Text("@\(post.user.username)")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                .foregroundStyle(.primary)
-                                .multilineTextAlignment(.leading)
                             Text("\(post.user.fullname)")
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.primary)
                                 .bold()
                                 .multilineTextAlignment(.leading)
+                            Text("@\(post.user.username)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundStyle(.primary)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(Color("Colors/AccentColor"))
+                            
                         }
                     }
                     .disabled(post.user.username == "ketchup_media")
@@ -187,13 +189,14 @@ struct WrittenFeedCell: View {
                     }
                 }
                 NavigationLink(value: post.restaurant) {
-                    HStack(alignment: .top) {
+                    HStack(alignment: .center) {
                         VStack(alignment: .leading) {
                             Text(post.restaurant.name)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .bold()
                             Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
                                 .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundColor(.black)
                         }
                         .multilineTextAlignment(.leading)
                         Spacer()
@@ -214,6 +217,7 @@ struct WrittenFeedCell: View {
                             }
                         }
                     }
+                    .padding(.top, 5)
                 }
             }
             
@@ -647,3 +651,5 @@ struct FeedOverallRatingView: View {
         }
     }
 }
+
+

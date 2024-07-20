@@ -135,7 +135,7 @@ struct DeveloperPreview {
         .init(
                 id: "1",
                 mediaType: .photo,
-                mediaUrls: ["https://picsum.photos/400/500", "https://picsum.photos/300/200", "https://picsum.photos/500/700"],
+                mediaUrls: ["https://picsum.photos/300/400", "https://picsum.photos/400/300"],
                 caption: "Check out this delicious dish!",
                 likes: 141,
                 commentCount: 20,
