@@ -64,7 +64,6 @@ struct PrimaryFeedView: View {
                                 Rectangle()
                                     .foregroundStyle(.clear)
                                     .onAppear {
-                                        print("CLEAR APPEARED")
                                         if let last = viewModel.posts.last {
                                             Task {
                                                 await viewModel.loadMoreContentIfNeeded(currentPost: last.id)

@@ -55,6 +55,39 @@ struct RestaurantCircularProfileImageView: View {
     }
 }
 
+struct RestaurantRectangleProfileImageView: View {
+    var imageUrl: String?
+    var color: Color? = .white
+    let size: RestaurantImageSize
+    var cornerRadius: CGFloat = 10 // Adjust this value for the desired corner radius
+
+    var body: some View {
+        ZStack {
+            if let color = color {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(color)
+                    .frame(width: size.dimension + 4, height: size.dimension + 4)
+            }
+
+            if let imageUrl, !imageUrl.isEmpty {
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size.dimension, height: size.dimension)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            } else {
+                Image(systemName: "building.2.crop.circle.fill")
+                    .resizable()
+                    .frame(width: size.dimension, height: size.dimension)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                    .foregroundColor(Color(.systemGray5))
+            }
+        }
+    }
+}
+
+
+
 #Preview {
     RestaurantCircularProfileImageView(size: .medium)
 }

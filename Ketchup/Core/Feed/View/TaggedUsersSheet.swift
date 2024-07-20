@@ -14,7 +14,7 @@ struct TaggedUsersSheetView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                Text("Tagged Users")
+                Text("Went With")
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .bold()
                     .padding()
