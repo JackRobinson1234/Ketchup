@@ -415,6 +415,7 @@ extension FeedViewModel {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didRepost = true
         posts[index].repostCount += 1
+        
         AuthService.shared.userSession?.stats.posts += 1
         do {
             try await PostService.shared.repostPost(post)

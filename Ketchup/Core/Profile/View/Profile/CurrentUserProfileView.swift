@@ -85,7 +85,7 @@ struct CurrentUserProfileView: View {
                                         .foregroundColor(.primary)
                                         .padding()
 
-                                    if profileViewModel.user.notificationAlert > 0 {
+                                    if  profileViewModel.user.notificationAlert > 0 {
                                         Circle()
                                             .fill(Color("Colors/AccentColor"))
                                             .frame(width: 10, height: 10)
@@ -112,7 +112,9 @@ struct CurrentUserProfileView: View {
                         SettingsView(profileViewModel: profileViewModel)
                     }
                     .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
-                        RestaurantProfileView(restaurantId: restaurant.id)
+                        
+                            RestaurantProfileView(restaurantId: restaurant.id ?? "")
+                        
                     }
                     .onChange(of: AuthService.shared.userSession) {
                         if AuthService.shared.userSession != nil {

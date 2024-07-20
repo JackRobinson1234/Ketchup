@@ -136,7 +136,7 @@ struct ProfileView: View {
                 }
                 .navigationBarBackButtonHidden()
                 .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
-                    RestaurantProfileView(restaurantId: restaurant.id)
+                    RestaurantProfileView(restaurantId: restaurant.id ?? "")
                 }
                 
                 if showZoomedProfileImage {

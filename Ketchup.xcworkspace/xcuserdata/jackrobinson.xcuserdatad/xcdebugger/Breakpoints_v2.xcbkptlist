@@ -147,5 +147,53 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "22C7F63F-D493-4676-AA86-A1A0A08E04B9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Ketchup/Core/Profile/View/Profile/ProfileView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "22C7F63F-D493-4676-AA86-A1A0A08E04B9 - 6de26c3ebfe42dbf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #5 (Ketchup.FavoriteRestaurant) -&gt; Ketchup.RestaurantProfileView in closure #2 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.navigationDestination&lt;&#x3c4;_0_0, &#x3c4;_0_1 where &#x3c4;_1_0: Swift.Hashable, &#x3c4;_1_1: SwiftUI.View&gt;(for: &#x3c4;_1_0.Type, destination: (&#x3c4;_1_0) -&gt; &#x3c4;_1_1) -&gt; some&gt;&gt;.0, Swift.Optional&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, SwiftUI.Spacer)&gt;&gt;)&gt;&gt;)&gt; in Ketchup.ProfileView.body.getter : some"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Profile/View/Profile/ProfileView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "140"
+                  endingLineNumber = "140"
+                  offsetFromSymbolStart = "740">
+               </Location>
+               <Location
+                  uuid = "22C7F63F-D493-4676-AA86-A1A0A08E04B9 - 6de26c3ebfe42dbf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #5 (Ketchup.FavoriteRestaurant) -&gt; Ketchup.RestaurantProfileView in closure #2 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.navigationDestination&lt;&#x3c4;_0_0, &#x3c4;_0_1 where &#x3c4;_1_0: Swift.Hashable, &#x3c4;_1_1: SwiftUI.View&gt;(for: &#x3c4;_1_0.Type, destination: (&#x3c4;_1_0) -&gt; &#x3c4;_1_1) -&gt; some&gt;&gt;.0, Swift.Optional&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Spacer, &lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, SwiftUI.Spacer)&gt;&gt;)&gt;&gt;)&gt; in Ketchup.ProfileView.body.getter : some"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Profile/View/Profile/ProfileView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "140"
+                  endingLineNumber = "140"
+                  offsetFromSymbolStart = "844">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
