@@ -171,7 +171,7 @@ struct ReelsUploadView: View {
                     print("Entering 2")
                     searchViewModel.searchQuery = text
                     print(text)
-                    Debouncer(delay: 1.0).schedule{
+                    Debouncer(delay: 0).schedule{
                         print("Entering 3")
                         searchViewModel.notifyQueryChanged()
                     }

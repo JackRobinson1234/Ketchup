@@ -39,9 +39,9 @@ enum NotificationType: Int, Codable {
         case .comment: return " commented on one of your posts."
         case .follow: return " started following you."
         case .reviewLike: return " liked your review of "
-        case .commentMention: return " mentioned you in a comment"
-        case .postCaptionMention: return " mentioned you in a post"
-        case .postWentWithMention: return " tagged you in a post"
+        case .commentMention: return " mentioned you in a comment:"
+        case .postCaptionMention: return " mentioned you in a post caption:"
+        case .postWentWithMention: return " tagged you in a post."
         }
     }
 }
