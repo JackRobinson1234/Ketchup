@@ -12,7 +12,7 @@ struct TaggedUsersSheetView: View {
     var taggedUsers: [PostUser]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 Text("Went With")
                     .font(.custom("MuseoSansRounded-300", size: 16))
