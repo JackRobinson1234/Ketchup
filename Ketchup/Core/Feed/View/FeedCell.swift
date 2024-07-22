@@ -112,8 +112,32 @@ struct FeedCell: View {
                     ZStack {
                         if post.mediaType == .video {
                             VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                                .overlay(
+                                    Group {
+                                        if !post.taggedUsers.isEmpty {
+                                            VStack {
+                                                Spacer()
+                                                HStack {
+                                                    Spacer()
+                                                    
+                                                    Button {
+                                                        isTaggedSheetPresented.toggle()
+                                                    } label: {
+                                                        Image(systemName: "person.2.circle.fill")
+                                                            .symbolRenderingMode(.palette)
+                                                            .foregroundStyle(.white, .red)
+                                                                .font(.system(size: 30))
+                                                    }
+                                                }
+                                            }
+                                            .padding()
+                                        }
+                                    }
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                                .containerRelativeFrame([.horizontal, .vertical])
+                                
+                                
                         } else if post.mediaType == .photo {
                             GeometryReader { geometry in
                                 HStack(spacing: 0) {
@@ -121,8 +145,31 @@ struct FeedCell: View {
                                         KFImage(URL(string: post.mediaUrls[index]))
                                             .resizable()
                                             .scaledToFit()
+                                            .overlay(
+                                                Group {
+                                                    if !post.taggedUsers.isEmpty {
+                                                        VStack {
+                                                            Spacer()
+                                                            HStack {
+                                                                Spacer()
+                                                                
+                                                                Button {
+                                                                    isTaggedSheetPresented.toggle()
+                                                                } label: {
+                                                                    Image(systemName: "person.2.circle.fill")
+                                                                        .symbolRenderingMode(.palette)
+                                                                        .foregroundStyle(.white, .red)
+                                                                            .font(.system(size: 30))
+                                                                }
+                                                            }
+                                                        }
+                                                        .padding()
+                                                    }
+                                                }
+                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 20))
                                             .frame(width: geometry.size.width, height: geometry.size.height)
+                                            
                                             
                                     }
                                 }
@@ -147,38 +194,25 @@ struct FeedCell: View {
                                     }
                                 }
                             )
-                            .overlay(
-                                Group {
-                                    if !post.taggedUsers.isEmpty {
-                                        VStack {
-                                            Spacer()
-                                            HStack {
-                                                Spacer()
-                                                
-                                                Button {
-                                                    isTaggedSheetPresented.toggle()
-                                                } label: {
-                                                    Image(systemName: "person.2.circle.fill")
-                                                        .symbolRenderingMode(.palette)
-                                                        .foregroundStyle(.white, .red)
-                                                            .font(.system(size: 30))
-                                                }
-                                            }
-                                        }
-                                        .padding()
-                                    }
-                                }
-                            )
+                            
                         }
                         
                     }
-                    
-                    if post.mediaType == .video {
-                        videoSlider
-                    }
-                    
+                                    
                     Spacer()
                 }
+                .overlay(
+                    Group {
+                        if post.mediaType == .video {
+                            VStack {
+                                videoSlider
+                                    .padding(.top, 40)
+                                Spacer()
+                            }
+                        }
+                    }
+                    
+                )
                 // align with caption since its overlayed for expansion
                 .padding(.bottom, 137)
             }

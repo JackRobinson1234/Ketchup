@@ -4,6 +4,7 @@ import InstantSearchSwiftUI
 struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
+    let debouncer = Debouncer(delay: 1.0)
 
     init(post: Binding<Post>) {
         let viewModel = CommentViewModel(post: post)
@@ -23,7 +24,7 @@ struct CommentsView: View {
                     Divider()
                     VStack(spacing: 24) {
                         if viewModel.isTagging {
-                            Text("Tag Users")
+                            Text("Mention Users")
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .fontWeight(.bold)
                                 .padding(.top, 10)
@@ -92,7 +93,7 @@ struct CommentsView: View {
                         print("Entering 2")
                         searchViewModel.searchQuery = text
                         print(text)
-                        Debouncer(delay: 1.0).schedule{
+                        Debouncer(delay: 0).schedule{
                             print("Entering 3")
                             searchViewModel.notifyQueryChanged()
                         }
@@ -135,8 +136,4 @@ struct CommentsView: View {
             .listStyle(PlainListStyle())
         }
     }
-}
-
-#Preview {
-    CommentsView(post: .constant(DeveloperPreview.posts[0]))
 }

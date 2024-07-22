@@ -19,7 +19,7 @@ struct CommentInputView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.systemGray5), lineWidth: 1)
                     )
-                    .onChange(of: viewModel.commentText) { newValue in
+                    .onChange(of: viewModel.commentText) { 
                         viewModel.checkForTagging()
                     }
                 

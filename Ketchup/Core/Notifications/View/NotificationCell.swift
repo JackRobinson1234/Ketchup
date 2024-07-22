@@ -4,7 +4,6 @@
 //
 //  Created by Jack Robinson on 2/1/24.
 //
-
 import SwiftUI
 import Kingfisher
 
@@ -21,36 +20,45 @@ struct NotificationCell: View {
         HStack {
             NavigationLink(value: notification.user) {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
-                VStack(alignment: .leading) {
-                    HStack(spacing: 0) {
-                        if let restaurantName = notification.restaurantName, let text = notification.text {
-                            Button {
-                                if let restaurantId = notification.restaurantId {
-                                    print("Setting selectedRestaurantId to \(restaurantId)")
-                                    self.selectedRestaurantId = restaurantId
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        self.showRestaurant.toggle()
-                                    }
+            }
+            VStack(alignment: .leading) {
+                HStack(spacing: 0) {
+                    if let restaurantName = notification.restaurantName, let text = notification.text {
+                        Button {
+                            if let postId = notification.postId {
+                                Task {
+                                    print("Fetching post with ID \(postId)")
+                                    self.post = try await PostService.shared.fetchPost(postId: postId)
+                                    print("Fetched post: \(String(describing: self.post))")
+                                    showPost.toggle()
                                 }
-                            } label: {
-                                VStack {
-                                    Text(notification.user?.username ?? "")
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary)
-                                        .fontWeight(.semibold) +
-                                    Text(notification.type.notificationMessage)
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary) +
-                                    Text("\(restaurantName): ")
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary) +
-                                    Text(text)
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary)
-                                }
-                                .multilineTextAlignment(.leading)
                             }
-                        } else {
+                        } label: {
+                            VStack {
+                                Text(notification.user?.username ?? "")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.primary)
+                                    .fontWeight(.semibold) +
+                                Text(notification.type.notificationMessage)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.primary) +
+                                Text(notification.type != .postWentWithMention ? " \(text)" : "")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                    .foregroundStyle(.primary)
+                            }
+                            .multilineTextAlignment(.leading)
+                        }
+                    } else {
+                        Button {
+                            if let postId = notification.postId {
+                                Task {
+                                    print("Fetching post with ID \(postId)")
+                                    self.post = try await PostService.shared.fetchPost(postId: postId)
+                                    print("Fetched post: \(String(describing: self.post))")
+                                    showPost.toggle()
+                                }
+                            }
+                        } label: {
                             VStack {
                                 Text(notification.user?.username ?? "")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
@@ -63,12 +71,12 @@ struct NotificationCell: View {
                             .multilineTextAlignment(.leading)
                         }
                     }
-                    Text("\(notification.timestamp.timestampString())")
-                        .foregroundColor(.gray)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
                 }
-                .multilineTextAlignment(.leading)
+                Text("\(notification.timestamp.timestampString())")
+                    .foregroundColor(.gray)
+                    .font(.custom("MuseoSansRounded-300", size: 10))
             }
+            .multilineTextAlignment(.leading)
             Spacer()
             if notification.type == .follow {
                 Button(action: {
@@ -91,7 +99,7 @@ struct NotificationCell: View {
                         }
                 })
             } else {
-                if let postThumbnail = notification.postThumbnail {
+                if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
                     Button {
                         if let postId = notification.postId {
                             Task {
@@ -138,9 +146,32 @@ struct NotificationCell: View {
                 if let post = post {
                     let _ = print("Showing FeedView for post: \(post)")
                     let feedViewModel = FeedViewModel(posts: [post])
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
+                    
+                    if post.mediaType == .written {
+                        NavigationView {
+                            WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+                                .toolbar {
+                                    ToolbarItem(placement: .navigationBarLeading) {
+                                        Button(action: {
+                                            showPost = false
+                                        }) {
+                                            Image(systemName: "chevron.left")
+                                                .foregroundStyle(.white)
+                                                .background(
+                                                    Circle()
+                                                        .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
+                                                        .frame(width: 30, height: 30) // Adjust the size as needed
+                                                )
+                                        }
+                                    }
+                                }
+                        }
+                    } else {
+                        SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
+                    }
                 }
             }
         }
     }
 }
+
