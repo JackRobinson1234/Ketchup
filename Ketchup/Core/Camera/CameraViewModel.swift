@@ -127,44 +127,65 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
     func setUp() {
-        do {
-            self.session.beginConfiguration()
-            session.inputs.forEach { session.removeInput($0) }
-            
-            let cameraDevice: AVCaptureDevice?
-            
-            switch cameraPosition {
-                case .front:
-                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
-                case .back:
-                    cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+        sessionQueue.async {
+            do {
+                self.session.beginConfiguration()
+                self.session.inputs.forEach { self.session.removeInput($0) }
+                self.session.outputs.forEach { self.session.removeOutput($0) }
+                
+                let cameraDevice: AVCaptureDevice?
+                
+                switch self.cameraPosition {
+                    case .front:
+                        cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+                    case .back:
+                        cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+                }
+                
+                let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
+                let audioDevice = AVCaptureDevice.default(for: .audio)
+                let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
+                
+                if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
+                    self.session.addInput(videoInput)
+                    self.session.addInput(audioInput)
+                }
+                
+                if self.session.canAddOutput(self.videoOutput) {
+                    self.session.addOutput(self.videoOutput)
+                }
+                
+                if self.session.canAddOutput(self.photoOutput) {
+                    self.session.addOutput(self.photoOutput)
+                }
+                
+                self.session.commitConfiguration()
+                self.startCameraSession()
+            } catch {
+                print(error.localizedDescription)
             }
-            
-            let videoInput = try AVCaptureDeviceInput(device: cameraDevice!)
-            let audioDevice = AVCaptureDevice.default(for: .audio)
-            let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
-            
-            if self.session.canAddInput(videoInput) && self.session.canAddInput(audioInput) {
-                self.session.addInput(videoInput)
-                self.session.addInput(audioInput)
-            }
-            
-            if self.session.canAddOutput(self.videoOutput) {
-                self.session.addOutput(self.videoOutput)
-            }
-            
-            if self.session.canAddOutput(self.photoOutput) {
-                self.session.addOutput(self.photoOutput)
-            }
-            
-            self.session.commitConfiguration()
-            self.startCameraSession()
-            
-        } catch {
-            print(error.localizedDescription)
         }
     }
-    
+
+    // Add this property to your CameraViewModel
+    private let sessionQueue = DispatchQueue(label: "com.yourapp.sessionQueue")
+
+    // Modify startCameraSession and stopCameraSession
+    func startCameraSession() {
+        sessionQueue.async {
+            if !self.session.isRunning {
+                self.session.startRunning()
+            }
+        }
+    }
+
+    func stopCameraSession() {
+        sessionQueue.async {
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+        }
+    }
     func startRecording() {
         isRecording = true
         let tempURL = NSTemporaryDirectory() + "\(Date()).mov"
@@ -364,6 +385,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
 
+
     func fixOrientation(of image: UIImage) -> UIImage {
         if image.imageOrientation == .up {
             return image
@@ -394,6 +416,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         configureFlash()
     }
     
+   
     func reset() {
         DispatchQueue.main.async {
             self.images.removeAll()
@@ -411,17 +434,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
 
-    func stopCameraSession() {
-        DispatchQueue.global(qos: .background).async {
-            self.session.stopRunning()
-        }
-    }
-
-    func startCameraSession() {
-        DispatchQueue.global(qos: .background).async {
-            self.session.startRunning()
-        }
-    }
+    
     
     func configureFlash() {
         guard let device = AVCaptureDevice.default(for: .video) else { return }

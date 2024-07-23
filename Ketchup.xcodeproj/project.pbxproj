@@ -41,6 +41,8 @@
 		F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85E8B112C3DD37100B5F79E /* ImageCropper.swift */; };
 		F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050BE2BBC91EE00318080 /* CuisineCategories.swift */; };
 		F86050C12BBC95E200318080 /* CuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86050C02BBC95E200318080 /* CuisineFilter.swift */; };
+		F8628A6E2C501B62000B046B /* YPImagePicker in Frameworks */ = {isa = PBXBuildFile; productRef = F8628A6D2C501B62000B046B /* YPImagePicker */; };
+		F8628A712C501BFD000B046B /* YPImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8628A702C501BFD000B046B /* YPImagePicker.swift */; };
 		F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */; };
 		F8631E332BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E322BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift */; };
 		F8631E352BD6E49E00A48565 /* PostListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E342BD6E49E00A48565 /* PostListCell.swift */; };
@@ -293,6 +295,7 @@
 		F85E8B112C3DD37100B5F79E /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
 		F86050BE2BBC91EE00318080 /* CuisineCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineCategories.swift; sourceTree = "<group>"; };
 		F86050C02BBC95E200318080 /* CuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineFilter.swift; sourceTree = "<group>"; };
+		F8628A702C501BFD000B046B /* YPImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YPImagePicker.swift; sourceTree = "<group>"; };
 		F8631E302BD6DCE100A48565 /* CollectionsSearchListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsSearchListView.swift; sourceTree = "<group>"; };
 		F8631E322BD6DCEF00A48565 /* CollectionsListSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsListSearchViewModel.swift; sourceTree = "<group>"; };
 		F8631E342BD6E49E00A48565 /* PostListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListCell.swift; sourceTree = "<group>"; };
@@ -479,6 +482,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8628A6E2C501B62000B046B /* YPImagePicker in Frameworks */,
 				F8C6455A2C3B73770004F1B0 /* InstantSearch in Frameworks */,
 				F8C645632C3B73850004F1B0 /* AlgoliaSearchClient in Frameworks */,
 				F8C645662C3B738E0004F1B0 /* CachingPlayerItem in Frameworks */,
@@ -723,6 +727,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8628A6F2C501BD6000B046B /* NewUploadFlow */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
@@ -918,6 +923,13 @@
 				F84FE2942B6A55F800144F01 /* AuthError.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		F8628A6F2C501BD6000B046B /* NewUploadFlow */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = NewUploadFlow;
 			sourceTree = "<group>";
 		};
 		F8631E2F2BD6DC7100A48565 /* CollectionsList */ = {
@@ -1438,6 +1450,7 @@
 		F8CC21A32BD58A7B00B4B329 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
+				F8628A702C501BFD000B046B /* YPImagePicker.swift */,
 				F8CC21A42BD58A9C00B4B329 /* CameraView.swift */,
 				F8CC21A62BD58AB200B4B329 /* CameraViewModel.swift */,
 				F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */,
@@ -1514,6 +1527,7 @@
 				F8C645622C3B73850004F1B0 /* AlgoliaSearchClient */,
 				F8C645652C3B738E0004F1B0 /* CachingPlayerItem */,
 				F88322042C3DDD9E006744D2 /* SwiftyCrop */,
+				F8628A6D2C501B62000B046B /* YPImagePicker */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1596,6 +1610,7 @@
 				F8C645612C3B73850004F1B0 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 				F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
+				F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -1793,6 +1808,7 @@
 				F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */,
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
+				F8628A712C501BFD000B046B /* YPImagePicker.swift in Sources */,
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */,
@@ -2332,6 +2348,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Yummypets/YPImagePicker.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.2;
+			};
+		};
 		F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/benedom/SwiftyCrop";
@@ -2375,6 +2399,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F8628A6D2C501B62000B046B /* YPImagePicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */;
+			productName = YPImagePicker;
+		};
 		F88322042C3DDD9E006744D2 /* SwiftyCrop */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */;
