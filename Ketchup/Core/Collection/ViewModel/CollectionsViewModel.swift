@@ -149,7 +149,7 @@ class CollectionsViewModel: ObservableObject {
             if let user = AuthService.shared.userSession{
                 let collectionItem = CollectionItem(
                     collectionId: "",
-                    id: post.id,
+                    id: post.restaurant.id,
                     name: post.restaurant.name,
                     image: post.restaurant.profileImageUrl,
                     city: post.restaurant.city,

@@ -17,14 +17,20 @@ struct CreateCollectionDetails: View {
     @FocusState private var isCaptionEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
     @Binding var dismissCollectionsList: Bool
+    @FocusState private var focusedField: Field?
+    
+    enum Field: Hashable {
+        case title, description
+    }
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ZStack {
-                ScrollView{
+                ScrollView {
                     VStack {
                         CoverPhotoSelector(viewModel: collectionsViewModel)
-                        //MARK: Title Box
+                        
+                        // MARK: Title Box
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $collectionsViewModel.editTitle)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
@@ -32,6 +38,7 @@ struct CreateCollectionDetails: View {
                                 .padding(.horizontal, 20)
                                 .background(Color.white)
                                 .cornerRadius(5)
+                                .focused($focusedField, equals: .title)
                             if collectionsViewModel.editTitle.isEmpty {
                                 Text("Enter a Title...")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
@@ -40,9 +47,9 @@ struct CreateCollectionDetails: View {
                                     .padding(.top, 8)
                             }
                         }
-                        
                         .padding(.vertical)
-                        //MARK: CaptionBox
+                        Divider()
+                        // MARK: CaptionBox
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $collectionsViewModel.editDescription)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
@@ -50,14 +57,8 @@ struct CreateCollectionDetails: View {
                                 .padding(.horizontal, 20)
                                 .background(Color.white)
                                 .cornerRadius(5)
-                                .toolbar {
-                                    ToolbarItemGroup(placement: .keyboard) {
-                                        Spacer()
-                                        Button("Done") {
-                                            dismissKeyboard()
-                                        }
-                                    }
-                                }
+                                .focused($focusedField, equals: .description)
+                            
                             if collectionsViewModel.editDescription.isEmpty {
                                 Text("Enter a description...")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
@@ -66,40 +67,34 @@ struct CreateCollectionDetails: View {
                                     .padding(.top, 8)
                             }
                         }
-                        
-                        
-                        //MARK: Item Preview if theres an item
+                        Divider()
+                        // MARK: Item Preview if there's an item
                         if let item = collectionsViewModel.convertPostToCollectionItem() {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
                             }
                             .padding(.top)
-                            //Restaurant preview
                         } else if let item = collectionsViewModel.convertRestaurantToCollectionItem() {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
                             }
                             .padding(.top)
-                            
-                            Spacer()
-                                .padding(.vertical)
                         }
-                    }
-                }
-                    .overlay(alignment: .bottom) {
-                        //MARK: Create Collection Button
                         
+                        Spacer()
+                            .padding(.vertical)
+                        
+                        // MARK: Create Collection Button
                         Button {
                             Task {
                                 if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil {
                                     collectionsViewModel.dismissListView.toggle()
                                 }
                                 try await collectionsViewModel.uploadCollection()
-                                // Dismiss all the views
                                 dismiss()
                             }
                         } label: {
-                            if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil{
+                            if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil {
                                 Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
                                     .modifier(StandardButtonModifier())
                                     .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
@@ -121,51 +116,62 @@ struct CreateCollectionDetails: View {
                                     }
                             }
                         }
-                        
+                        .padding(.top, 100)
                         .disabled(collectionsViewModel.editTitle.isEmpty)
                         .frame(maxWidth: .infinity)
                         .padding(.top)
                         .background(.white)
-                        
-                    }
-                    //MARK: Title Editor Overlay
-                    if isEditingTitle {
-                        EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
-                            .focused($isTitleEditorFocused) // Connects the focus state to the editor view
-                            .onAppear {
-                                isTitleEditorFocused = true // Automatically focuses the TextEditor when it appears
-                            }
-                    }
-                    //MARK: Caption Editor Overlay
-                    if isEditingCaption {
-                        EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
-                            .focused($isCaptionEditorFocused) // Connects the focus state to the editor view
-                            .onAppear {
-                                isCaptionEditorFocused = true // Automatically focuses the TextEditor when it appears
-                            }
                     }
                 }
-            .onAppear{
+                
+                // MARK: Title Editor Overlay
+                if isEditingTitle {
+                    EditorView(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...", maxCharacters: 100, title: "Title")
+                        .focused($isTitleEditorFocused)
+                        .onAppear {
+                            isTitleEditorFocused = true
+                        }
+                }
+                // MARK: Caption Editor Overlay
+                if isEditingCaption {
+                    EditorView(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150, title: "Description")
+                        .focused($isCaptionEditorFocused)
+                        .onAppear {
+                            isCaptionEditorFocused = true
+                        }
+                }
+            }
+            .onAppear {
                 print("third viewModel post", collectionsViewModel.post)
                 print("third viewModel restaurant", collectionsViewModel.restaurant)
             }
-                //.onDisappear{collectionsViewModel.resetViewModel()}
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Create a New Collection")
-                .preferredColorScheme(.light)
-                //POSS Check if keyboard is active here
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Cancel")
-                        }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Create a New Collection")
+            .preferredColorScheme(.light)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focusedField = nil
                     }
                 }
             }
         }
     }
+    
+    private func dismissKeyboard() {
+        focusedField = nil
+    }
+}
 #Preview {
     CreateCollectionDetails(collectionsViewModel: CollectionsViewModel(), dismissCollectionsList: .constant(false))
 }

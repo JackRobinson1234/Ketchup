@@ -16,6 +16,7 @@ struct EditCollectionView: View {
     @FocusState private var isTitleEditorFocused: Bool
     @State private var itemsPreview: [CollectionItem]
     @State var selectedItem: CollectionItem?
+    @State private var showDeleteAlert = false
 
     init(collectionsViewModel: CollectionsViewModel) {
         self.collectionsViewModel = collectionsViewModel
@@ -28,10 +29,7 @@ struct EditCollectionView: View {
                 LazyVStack(spacing: 0) {
                     // Delete Collection Button
                     Button {
-                        Task {
-                            try await collectionsViewModel.deleteCollection()
-                            dismiss()
-                        }
+                        showDeleteAlert = true
                     } label: {
                         Text("Delete Collection")
                             .font(.system(size: 16, weight: .medium))
@@ -42,6 +40,19 @@ struct EditCollectionView: View {
                             .cornerRadius(10)
                     }
                     .padding()
+                    .alert(isPresented: $showDeleteAlert) {
+                        Alert(
+                            title: Text("Delete Collection"),
+                            message: Text("Are you sure you want to delete this collection? This action cannot be undone."),
+                            primaryButton: .destructive(Text("Delete")) {
+                                Task {
+                                    try await collectionsViewModel.deleteCollection()
+                                    dismiss()
+                                }
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
 
                     // Cover Photo Selector
                     CoverPhotoSelector(viewModel: collectionsViewModel)

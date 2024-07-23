@@ -268,6 +268,7 @@ struct WrittenFeedCell: View {
                 }
                 .sheet(isPresented: $isTaggedSheetPresented) {
                     TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                        
                 }
             }
             

@@ -24,22 +24,25 @@ struct ActivityCell: View {
             }
             
             // Activity Info
-            HStack(spacing: 8) {
-                Button {
-                    viewModel.selectedUid = activity.uid
-                    viewModel.showUserProfile = true
-                } label: {
+            
+            Button {
+                viewModel.selectedUid = activity.uid
+                viewModel.showUserProfile = true
+            } label: {
+                HStack(spacing: 8) {
                     UserCircularProfileImageView(profileImageUrl: activity.profileImageUrl, size: .small)
+                    
+                    Text("@\(activity.username)")
+                        .font(.custom("MuseoSansRounded-700", size: 14))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
                 }
-                
-                Text("@\(activity.username)")
-                    .font(.custom("MuseoSansRounded-700", size: 14))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
             }
-            
-            activityDescription
-            
+            if let restaurantId = activity.restaurantId {
+                NavigationLink(value: activity){
+                    activityDescription
+                }
+            }
             Text(getTimeElapsedString(from: activity.timestamp))
                 .font(.custom("MuseoSansRounded-300", size: 11))
                 .foregroundColor(.gray)
@@ -106,10 +109,16 @@ struct ActivityCell: View {
         switch activity.type {
         case .newPost:
             if let postId = activity.postId {
-                Task {
-                    viewModel.post = try await PostService.shared.fetchPost(postId: postId)
-                    if viewModel.post != nil {
-                        viewModel.showPost.toggle()
+                if let image = activity.image, !image.isEmpty{
+                    Task {
+                        viewModel.post = try await PostService.shared.fetchPost(postId: postId)
+                        if viewModel.post != nil {
+                            viewModel.showPost.toggle()
+                        }
+                    }
+                } else {
+                    Task {
+                        viewModel.writtenPost = try await PostService.shared.fetchPost(postId: postId)
                     }
                 }
             }

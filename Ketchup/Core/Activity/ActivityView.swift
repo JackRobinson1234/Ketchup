@@ -151,7 +151,12 @@ struct ActivityView: View {
                                 RestaurantProfileView(restaurantId: restaurant.id)
                             }
                         }
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
+                    }
+                    .navigationDestination(for: Activity.self) {activity in
+                        if let id = activity.restaurantId{
+                            RestaurantProfileView(restaurantId: id)
+                        }
                     }
                 }
             }

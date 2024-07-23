@@ -10,7 +10,7 @@ import Firebase
 import SwiftUI
 import FirebaseFirestoreInternal
 
-struct Activity: Identifiable, Codable, Equatable {
+struct Activity: Identifiable, Codable, Equatable, Hashable {
     let id: String
     var username: String
     var postId: String?
