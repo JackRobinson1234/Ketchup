@@ -111,112 +111,31 @@ struct FeedCell: View {
                     Spacer()
                     ZStack {
                         if post.mediaType == .video {
-                            VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                                .overlay(
-                                    Group {
-                                        if !post.taggedUsers.isEmpty {
-                                            VStack {
-                                                Spacer()
-                                                HStack {
-                                                    Spacer()
-                                                    
-                                                    Button {
-                                                        isTaggedSheetPresented.toggle()
-                                                    } label: {
-                                                        Image(systemName: "person.2.circle.fill")
-                                                            .symbolRenderingMode(.palette)
-                                                            .foregroundStyle(.white, .red)
-                                                                .font(.system(size: 30))
-                                                    }
-                                                }
-                                            }
-                                            .padding()
-                                        }
-                                    }
-                                )
+                            ZoomableVideoPlayer(videoCoordinator: videoCoordinator)
+                            //VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+                                .overlay(taggedUsersOverlay)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                                
-                                
                         } else if post.mediaType == .photo {
                             GeometryReader { geometry in
-                                HStack(spacing: 0) {
+                                TabView(selection: $currentImageIndex) {
                                     ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                                        KFImage(URL(string: post.mediaUrls[index]))
-                                            .resizable()
-                                            .scaledToFit()
-                                            .overlay(
-                                                Group {
-                                                    if !post.taggedUsers.isEmpty {
-                                                        VStack {
-                                                            Spacer()
-                                                            HStack {
-                                                                Spacer()
-                                                                
-                                                                Button {
-                                                                    isTaggedSheetPresented.toggle()
-                                                                } label: {
-                                                                    Image(systemName: "person.2.circle.fill")
-                                                                        .symbolRenderingMode(.palette)
-                                                                        .foregroundStyle(.white, .red)
-                                                                            .font(.system(size: 30))
-                                                                }
-                                                            }
-                                                        }
-                                                        .padding()
-                                                    }
-                                                }
-                                            )
-                                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                                            .frame(width: geometry.size.width, height: geometry.size.height)
-                                            
-                                            
+                                        ZoomableImage(imageURL: post.mediaUrls[index])
+                                            .tag(index)
                                     }
                                 }
-                                .offset(x: -CGFloat(currentImageIndex) * geometry.size.width + offset + dragOffset)
-                                .animation(.spring(), value: offset)
+                                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                                .overlay(taggedUsersOverlay)
+                                .overlay(imageIndexIndicator)
                             }
                             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                            .overlay(
-                                Group {
-                                    if post.mediaUrls.count > 1 {
-                                        VStack {
-                                            HStack(spacing: 6) {
-                                                ForEach(0..<post.mediaUrls.count, id: \.self) { index in
-                                                    Circle()
-                                                        .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
-                                                        .frame(width: 10, height: 10)
-                                                }
-                                            }
-                                            .padding(.top, 30)
-                                            Spacer()
-                                        }
-                                    }
-                                }
-                            )
-                            
                         }
-                        
                     }
-                                    
                     Spacer()
                 }
-                .overlay(
-                    Group {
-                        if post.mediaType == .video {
-                            VStack {
-                                videoSlider
-                                    .padding(.top, 40)
-                                Spacer()
-                            }
-                        }
-                    }
-                    
-                )
-                // align with caption since its overlayed for expansion
+                .overlay(videoSliderOverlay)
                 .padding(.bottom, 137)
             }
-            
             .padding(.top, 35)
             .overlay(heartOverlay)
             .onTapGesture(count: 2) {
@@ -225,6 +144,7 @@ struct FeedCell: View {
             .onTapGesture {
                 toggleVideoPlayback()
             }
+            // Remove the .gesture(drag) here as it's now handled in ZoomableImage
             .gesture(drag)
             .onAppear {
                 handleOnAppear()
@@ -247,6 +167,7 @@ struct FeedCell: View {
                     AddItemCollectionList(post: post)
                 }
             }
+            .gesture(drag)
             .sheet(isPresented: $showingOptionsSheet) {
                 PostOptionsSheet(post: $post, viewModel: viewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
@@ -623,7 +544,68 @@ struct FeedCell: View {
             }
         }
     }
+    private var taggedUsersOverlay: some View {
+            Group {
+                if !post.taggedUsers.isEmpty {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button {
+                                isTaggedSheetPresented.toggle()
+                            } label: {
+                                Image(systemName: "person.2.circle.fill")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(.white, .red)
+                                    .font(.system(size: 30))
+                            }
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
 
+        private var imageIndexIndicator: some View {
+            Group {
+                if post.mediaUrls.count > 1 {
+                    VStack {
+                        HStack(spacing: 6) {
+                            ForEach(0..<post.mediaUrls.count, id: \.self) { index in
+                                Circle()
+                                    .fill(index == currentImageIndex ? Color("Colors/AccentColor") : Color.gray)
+                                    .frame(width: 10, height: 10)
+                            }
+                        }
+                        .padding(.top, 30)
+                        Spacer()
+                    }
+                }
+            }
+        }
+
+        private var videoSliderOverlay: some View {
+            Group {
+                if post.mediaType == .video {
+                    VStack {
+                        videoSlider
+                            .padding(.top, 40)
+                        Spacer()
+                    }
+                }
+            }
+        }
+
+        private var captionAndRatingsOverlay: some View {
+            GeometryReader { geometry in
+                VStack {
+                    Spacer()
+                    captionAndRatingsBox
+                        .animation(.spring(), value: expandCaption)
+                }
+                .padding(.bottom, 50)
+            }
+        }
 }
 
 //MARK: Photo Library Access
@@ -696,3 +678,91 @@ struct ScrollFeedOverallRatingView: View {
     }
 }
 
+struct ZoomableImage: View {
+    let imageURL: String
+
+    var body: some View {
+        ZoomableScrollView {
+            KFImage(URL(string: imageURL))
+                .resizable()
+                .scaledToFit()
+        }
+    }
+}
+
+struct ZoomableScrollView<Content: View>: UIViewRepresentable {
+    private var content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.maximumZoomScale = 5
+        scrollView.minimumZoomScale = 1
+        scrollView.bouncesZoom = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+
+        let hostedView = context.coordinator.hostingController.view!
+        hostedView.translatesAutoresizingMaskIntoConstraints = true
+        hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        hostedView.frame = scrollView.bounds
+        scrollView.addSubview(hostedView)
+
+        return scrollView
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(hostingController: UIHostingController(rootView: self.content))
+    }
+
+    func updateUIView(_ uiView: UIScrollView, context: Context) {
+        context.coordinator.hostingController.rootView = self.content
+        assert(context.coordinator.hostingController.view.superview == uiView)
+    }
+
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var hostingController: UIHostingController<Content>
+        private var initialZoomScale: CGFloat = 1.0
+
+        init(hostingController: UIHostingController<Content>) {
+            self.hostingController = hostingController
+        }
+
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            return hostingController.view
+        }
+
+        func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+            initialZoomScale = scrollView.zoomScale
+        }
+
+        func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+            if scale != initialZoomScale {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    scrollView.setZoomScale(1.0, animated: true)
+                }
+            }
+        }
+
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if scrollView.zoomScale != 1.0 {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    scrollView.setZoomScale(1.0, animated: true)
+                }
+            }
+        }
+    }
+}
+struct ZoomableVideoPlayer: View {
+    @ObservedObject var videoCoordinator: VideoPlayerCoordinator
+
+    var body: some View {
+        ZoomableScrollView {
+            VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+        }
+    }
+}
