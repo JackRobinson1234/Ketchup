@@ -64,7 +64,6 @@ struct LibraryTypeMenuView: View {
                     .frame(width: 130, height: 100)
                 }
             }
-            
             Divider()
         }
         .frame(width: 260)

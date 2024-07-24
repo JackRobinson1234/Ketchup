@@ -56,6 +56,8 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             destinationURL = documentsURL.appendingPathComponent("downloadedVideo.mp4")
         case .written:
             return
+        case .mixed:
+            return
         }
   
         
@@ -124,6 +126,9 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                 assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: mediaURL)
             case .written:
                 return 
+            case .mixed:
+                print("DEBUG")
+                return
             }
             
             let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)

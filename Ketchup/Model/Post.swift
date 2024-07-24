@@ -15,6 +15,7 @@ struct Post: Identifiable, Codable {
     let id: String
     let mediaType: MediaType
     var mediaUrls: [String]
+    var mixedMediaUrls: [MixedMediaItem]?
     var caption: String
     var likes: Int
     var commentCount: Int
@@ -48,6 +49,7 @@ struct Post: Identifiable, Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.mediaType = try container.decode(MediaType.self, forKey: .mediaType)
         self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
+        self.mixedMediaUrls = try container.decodeIfPresent([MixedMediaItem].self, forKey: .mixedMediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
@@ -69,11 +71,12 @@ struct Post: Identifiable, Codable {
         self.taggedUsers = try container.decodeIfPresent([PostUser].self, forKey: .taggedUsers) ?? []
         self.captionMentions = try container.decodeIfPresent([PostUser].self, forKey: .captionMentions) ?? []
     }
-
+    
     init(
         id: String,
         mediaType: MediaType,
         mediaUrls: [String],
+        mixedMediaUrls: [MixedMediaItem]? = nil,
         caption: String,
         likes: Int,
         commentCount: Int,
@@ -98,6 +101,7 @@ struct Post: Identifiable, Codable {
         self.id = id
         self.mediaType = mediaType
         self.mediaUrls = mediaUrls
+        self.mixedMediaUrls = mixedMediaUrls
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount
@@ -154,11 +158,18 @@ enum MediaType: Int, Codable {
     case video
     case photo
     case written
+    case mixed
     var text: String {
         switch self {
         case .video: return "Video"
         case .photo: return "Photo"
         case .written: return "Written"
+        case .mixed: return "Mixed"
         }
     }
+}
+
+struct MixedMediaItem: Codable, Hashable {
+    var url: String
+    var type: MediaType
 }

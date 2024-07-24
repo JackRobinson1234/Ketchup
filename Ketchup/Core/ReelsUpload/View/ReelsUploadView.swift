@@ -23,7 +23,8 @@ struct ReelsUploadView: View {
     @State private var isTaggingUsers = false
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     let writtenReview: Bool
-    
+    @State private var currentMediaIndex = 0
+
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
     private var width: CGFloat {
@@ -31,7 +32,9 @@ struct ReelsUploadView: View {
     }
     
     @Namespace private var animationNamespace
-    
+    @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
+     @State private var isPlaying: Bool = false
+     @State private var volume: Float = 0.5
     var overallRatingPercentage: Double {
         ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
     }
@@ -51,15 +54,13 @@ struct ReelsUploadView: View {
                     if writtenReview {
                         restaurantSelector
                             .frame(maxWidth: .infinity, alignment: .center)
-                    } else {
+                    } else if !writtenReview {
                         HStack {
                             Spacer()
                             if !isVideoExpanded {
                                 restaurantSelector
                             }
-                            if !writtenReview {
-                                mediaPreview
-                            }
+                            mixedMediaPreview
                             Spacer()
                         }
                         .padding(.vertical)
@@ -236,29 +237,71 @@ struct ReelsUploadView: View {
             }
         }
     }
-    
-    var mediaPreview: some View {
-        Group {
-            if uploadViewModel.mediaType == .video {
-                VideoPlayerTest(uploadViewModel: uploadViewModel, isVideoExpanded: $isVideoExpanded)
-            } else if uploadViewModel.mediaType == .photo {
-                FinalPhotoPreview(uploadViewModel: uploadViewModel)
-                    .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width, height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
-                    .cornerRadius(10)
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            isVideoExpanded.toggle()
+    var mixedMediaPreview: some View {
+            VStack {
+                if !uploadViewModel.mixedMediaItems.isEmpty {
+                    ZStack(alignment: .bottomTrailing) {
+                        TabView(selection: $currentMediaIndex) {
+                            ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
+                                let item = uploadViewModel.mixedMediaItems[index]
+                                Group {
+                                    if item.type == .photo {
+                                        if let image = item.localMedia as? UIImage {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .scaledToFill()
+                                        } else {
+                                            Color.gray // Placeholder
+                                        }
+                                    } else if item.type == .video {
+                                        VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
+                                            videoPlayers[index] = player
+                                        }
+                                    }
+                                }
+                                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
+                                       height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
+                                .cornerRadius(10)
+                                .tag(index)
+                            }
+                        }
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                        .frame(height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
+
+                        if !isVideoExpanded && uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
+                            VideoControlButtons(
+                                isPlaying: $isPlaying,
+                                volume: $volume,
+                                onPlayPause: {
+                                    videoPlayers[currentMediaIndex]?.togglePlayPause()
+                                },
+                                onVolumeToggle: {
+                                    videoPlayers[currentMediaIndex]?.toggleVolume()
+                                }
+                            )
+                            .padding(8)
                         }
                     }
-            } else {
-                Rectangle()
-                    .frame(width: width, height: 150)
-                    .cornerRadius(5)
-                    .foregroundStyle(.primary)
+
+                    if uploadViewModel.mixedMediaItems.count > 1 {
+                        Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
+                            .font(.caption)
+                            .padding(.top, 5)
+                    }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray)
+                        .frame(width: width, height: width * (6/5))
+                        .cornerRadius(10)
+                }
+            }
+            .onTapGesture {
+                withAnimation(.spring()) {
+                    isVideoExpanded.toggle()
+                }
             }
         }
-    }
-    
+   
     var captionEditor: some View {
         VStack {
             ZStack(alignment: .topLeading) {
@@ -416,62 +459,31 @@ func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
 struct VideoPlayerTest: View {
-    @ObservedObject var uploadViewModel: UploadViewModel
+    let videoURL: URL?
     @State private var player: AVPlayer?
-    @State private var isPlaying = false
-    @State private var volume: Float = 0.5
     @Binding var isVideoExpanded: Bool
-    
+    @Binding var isPlaying: Bool
+    @Binding var volume: Float
+    var onPlayerCreated: (VideoPlayerTest) -> Void
+
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (20 * 2)) / 3
     }
-    
+
     var body: some View {
-        HStack(alignment: .bottom) {
+        ZStack {
             if let player = player {
                 CustomVideoPlayer(player: player,
                                   videoGravity: .resizeAspectFill,
                                   showsPlaybackControls: false)
-                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
-                       height: isVideoExpanded ? UIScreen.main.bounds.width : width * (6/5))
-                .cornerRadius(10)
-                .onTapGesture {
-                    withAnimation(.spring()) {
-                        isVideoExpanded.toggle()
-                    }
-                }
-            }
-            
-            if !isVideoExpanded {
-                VStack(spacing: 20) {
-                    Button(action: {
-                        isPlaying.toggle()
-                        if isPlaying {
-                            player?.play()
-                        } else {
-                            player?.pause()
-                        }
-                    }) {
-                        Image(systemName: isPlaying ? "pause" : "play")
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(Color.gray))
-                    }
-                    
-                    Button(action: {
-                        volume = volume > 0 ? 0 : 0.5
-                        player?.volume = volume
-                    }) {
-                        Image(systemName: volume > 0 ? "speaker.wave.2" : "speaker.slash")
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(Color.gray))
-                    }
-                }
             }
         }
+        .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
+               height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
+        .cornerRadius(10)
         .onAppear {
             setupPlayer()
+            onPlayerCreated(self)
         }
         .onDisappear {
             deinitPlayer()
@@ -484,29 +496,43 @@ struct VideoPlayerTest: View {
             }
         }
     }
-    
+
     private func setupPlayer() {
-        guard let url = uploadViewModel.videoURL else { return }
+        guard let url = videoURL else { return }
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
         player?.actionAtItemEnd = .none
         player?.volume = volume
-        
+
         NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime,
                                                object: playerItem,
                                                queue: .main) { _ in
             player?.seek(to: .zero)
             player?.play()
         }
-        
+
         player?.play()
         isPlaying = true
     }
-    
+
     private func deinitPlayer() {
         player?.pause()
         player = nil
         NotificationCenter.default.removeObserver(self)
+    }
+
+    func togglePlayPause() {
+        isPlaying.toggle()
+        if isPlaying {
+            player?.play()
+        } else {
+            player?.pause()
+        }
+    }
+
+    func toggleVolume() {
+        volume = volume > 0 ? 0 : 0.5
+        player?.volume = volume
     }
 }
 
@@ -514,7 +540,7 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
     var player: AVPlayer
     var videoGravity: AVLayerVideoGravity
     var showsPlaybackControls: Bool
-    
+
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.player = player
@@ -525,12 +551,38 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
         controller.videoGravity = videoGravity
         return controller
     }
-    
+
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         uiViewController.player = player
         uiViewController.showsPlaybackControls = showsPlaybackControls
     }
 }
+struct VideoControlButtons: View {
+    @Binding var isPlaying: Bool
+    @Binding var volume: Float
+    var onPlayPause: () -> Void
+    var onVolumeToggle: () -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button(action: onPlayPause) {
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(Color.black.opacity(0.6)))
+            }
+
+            Button(action: onVolumeToggle) {
+                Image(systemName: volume > 0 ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(Color.black.opacity(0.6)))
+            }
+        }
+    }
+}
+
+
 extension View {
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {

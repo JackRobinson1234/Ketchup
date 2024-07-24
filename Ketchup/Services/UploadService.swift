@@ -13,91 +13,65 @@ struct UploadService {
     static let shared = UploadService() // Singleton instance
     private init() {}
     func uploadPost(
-           videoURL: URL?,
-           images: [UIImage]?,
-           mediaType: MediaType,
-           caption: String,
-           postRestaurant: PostRestaurant,
-           fromInAppCamera: Bool,
-           overallRating: Double?,
-           serviceRating: Double?,
-           atmosphereRating: Double?,
-           valueRating: Double?,
-           foodRating: Double?,
-           taggedUsers: [PostUser],
-           captionMentions: [PostUser]
-       ) async throws -> Post {
-        let user = try await UserService.shared.fetchCurrentUser()  // Fetch user data
-        let ref = FirestoreConstants.PostsCollection.document()  // Create a new document reference
-        
-        var mediaUrls = [String]()
-        
-        // Determine the media URL based on type
-        if mediaType == .video, let videoURL = videoURL {
-            guard let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) else {
-                throw UploadError.videoUploadFailed
-            }
-            mediaUrls.append(videoUrl)
-        } else if mediaType == .photo, let images = images {
-            for image in images {
-                if let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
-                    mediaUrls.append(imageUrl)
-                } else {
-                    print("Failed to upload one of the images")
-                    // Optionally, you can also throw an error here to stop the process if any image fails to upload.
+            mixedMediaItems: [MixedMediaItem],
+            mediaType: MediaType,
+            caption: String,
+            postRestaurant: PostRestaurant,
+            fromInAppCamera: Bool,
+            overallRating: Double?,
+            serviceRating: Double?,
+            atmosphereRating: Double?,
+            valueRating: Double?,
+            foodRating: Double?,
+            taggedUsers: [PostUser],
+            captionMentions: [PostUser]
+        ) async throws -> Post {
+            let user = try await UserService.shared.fetchCurrentUser()
+            let ref = FirestoreConstants.PostsCollection.document()
+
+            var thumbnailUrl = ""
+            if let firstItem = mixedMediaItems.first {
+                thumbnailUrl = firstItem.url ?? ""
+                if firstItem.type == .video {
+                    thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl)
                 }
             }
-        }
-//        } else {
-//            throw UploadError.invalidMediaData
-//        }
-        
-        var thumbnailUrl = ""
-        if let url = mediaUrls.first {
-            if mediaType == .photo {
-                thumbnailUrl = url
-            } else if mediaType == .video {
-                thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: url)
+
+            let post = Post(
+                id: ref.documentID,
+                mediaType: .mixed,
+                mediaUrls: mixedMediaItems.compactMap { $0.url },
+                mixedMediaUrls: mixedMediaItems,
+                caption: caption,
+                likes: 0,
+                commentCount: 0,
+                repostCount: 0,
+                thumbnailUrl: thumbnailUrl,
+                timestamp: Timestamp(),
+                user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
+                restaurant: postRestaurant,
+                didLike: false,
+                didBookmark: false,
+                fromInAppCamera: fromInAppCamera,
+                repost: false,
+                didRepost: false,
+                overallRating: overallRating,
+                serviceRating: serviceRating,
+                atmosphereRating: atmosphereRating,
+                valueRating: valueRating,
+                foodRating: foodRating,
+                taggedUsers: taggedUsers,
+                captionMentions: captionMentions
+            )
+
+            guard let postData = try? Firestore.Encoder().encode(post) else {
+                throw UploadError.encodingFailed
             }
+
+            try await ref.setData(postData)
+            print("Post created successfully")
+            return post
         }
-        // Create the post object
-           let post = Post(
-                       id: ref.documentID,
-                       mediaType: mediaType,
-                       mediaUrls: mediaUrls,
-                       caption: caption,
-                       likes: 0,
-                       commentCount: 0,
-                       repostCount: 0,
-                       thumbnailUrl: thumbnailUrl,
-                       timestamp: Timestamp(),
-                       user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
-                       restaurant: postRestaurant,
-                       didLike: false,
-                       didBookmark: false,
-                       fromInAppCamera: fromInAppCamera,
-                       repost: false,
-                       didRepost: false,
-                       overallRating: overallRating,
-                       serviceRating: serviceRating,
-                       atmosphereRating: atmosphereRating,
-                       valueRating: valueRating,
-                       foodRating: foodRating,
-                       taggedUsers: taggedUsers,
-                       captionMentions: captionMentions
-                   )
-        
-        // Encode the post data
-        guard let postData = try? Firestore.Encoder().encode(post) else {
-            print("Encoding failed for post data")
-            throw UploadError.encodingFailed
-        }
-        
-        // Set the post data in Firestore
-        try await ref.setData(postData)
-        print("Post created successfully")
-        return post
-    }
     
     func updateThumbnailUrl(fromVideoUrl videoUrl: String) async throws -> String{
         guard let image = MediaHelpers.generateThumbnail(path: videoUrl) else {

@@ -8,6 +8,7 @@
 import SwiftUI
 import Firebase
 import PhotosUI
+import YPImagePicker
 
 @MainActor
 class UploadViewModel: ObservableObject {
@@ -38,14 +39,24 @@ class UploadViewModel: ObservableObject {
     @Published var isAtmosphereNA: Bool = false
     @Published var isValueNA: Bool = false
     @Published var isFoodNA: Bool = false
-
+    @Published var MixedImages: [UIImage]?
+    @Published var mixedMediaItems: [MixedMediaItemHolder] = []
+    
+    
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
         fetchFollowingUsers()
     }
-    
+    func addMixedMediaItem(_ item: YPMediaItem) {
+        switch item {
+        case .photo(let photo):
+            mixedMediaItems.append(MixedMediaItemHolder(localMedia: photo.image, type: .photo))
+        case .video(let video):
+            mixedMediaItems.append(MixedMediaItemHolder(localMedia: video.url, type: .video))
+        }
+    }
     func reset() {
         isLoading = false
         error = nil
@@ -66,6 +77,8 @@ class UploadViewModel: ObservableObject {
         taggedUsers = []
         filteredMentionedUsers = []
         isMentioning = false
+        mixedMediaItems = []
+        
     }
     
     func uploadPost() async {
@@ -105,7 +118,7 @@ class UploadViewModel: ObservableObject {
                     if word.hasPrefix("@") {
                         let username = String(word.dropFirst())
                         if let user = mentionableUsers.first(where: { $0.username == username }) {
-                            mentionedUsers.append(PostUser(id: user.id, 
+                            mentionedUsers.append(PostUser(id: user.id,
                                                            fullname: user.fullname,
                                                            profileImageUrl: user.profileImageUrl,
                                                            privateMode: user.privateMode,
@@ -129,77 +142,55 @@ class UploadViewModel: ObservableObject {
                     }
                 }
                 
-                if mediaType == .video {
-                    guard let videoURL = videoURL else {
-                        throw UploadError.invalidMediaData
+                var uploadedMixedMediaItems: [MixedMediaItem] = []
+                
+                for item in mixedMediaItems {
+                    switch item.type {
+                    case .photo:
+                        if let image = item.localMedia as? UIImage,
+                           let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
+                            uploadedMixedMediaItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                        }
+                    case .video:
+                        if let videoURL = item.localMedia as? URL,
+                           let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
+                            uploadedMixedMediaItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                        }
+                    default:
+                        break  // Handle other cases if necessary
                     }
-                    post = try await UploadService.shared.uploadPost(
-                        videoURL: videoURL,
-                        images: nil,
-                        mediaType: mediaType,
-                        caption: caption,
-                        postRestaurant: postRestaurant,
-                        fromInAppCamera: fromInAppCamera,
-                        overallRating: overallRating,
-                        serviceRating: isServiceNA ? nil : serviceRating,
-                        atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-                        valueRating: isValueNA ? nil : valueRating,
-                        foodRating: isFoodNA ? nil : foodRating,
-                        taggedUsers: taggedUsers,
-                        captionMentions: mentionedUsers
-                    )
-                } else if mediaType == .photo {
-                    guard let images = images else {
-                        throw UploadError.invalidMediaData
-                    }
-                    post = try await UploadService.shared.uploadPost(
-                        videoURL: nil,
-                        images: images,
-                        mediaType: mediaType,
-                        caption: caption,
-                        postRestaurant: postRestaurant,
-                        fromInAppCamera: fromInAppCamera,
-                        overallRating: overallRating,
-                        serviceRating: isServiceNA ? nil : serviceRating,
-                                atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-                                valueRating: isValueNA ? nil : valueRating,
-                                foodRating: isFoodNA ? nil : foodRating,
-                        taggedUsers: taggedUsers,
-                        captionMentions: mentionedUsers
-                    )
-                } else if mediaType == .written {
-                    post = try await UploadService.shared.uploadPost(
-                        videoURL: nil,
-                        images: nil,
-                        mediaType: mediaType,
-                        caption: caption,
-                        postRestaurant: postRestaurant,
-                        fromInAppCamera: false,
-                        overallRating: overallRating,
-                        serviceRating: isServiceNA ? nil : serviceRating,
-                                atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-                                valueRating: isValueNA ? nil : valueRating,
-                                foodRating: isFoodNA ? nil : foodRating,
-                        taggedUsers: taggedUsers,
-                        captionMentions: mentionedUsers)
                 }
-            }
-            else {
+                
+                let post = try await UploadService.shared.uploadPost(
+                    mixedMediaItems: uploadedMixedMediaItems,
+                    mediaType: .mixed,
+                    caption: caption,
+                    postRestaurant: postRestaurant,
+                    fromInAppCamera: fromInAppCamera,
+                    overallRating: overallRating,
+                    serviceRating: isServiceNA ? nil : serviceRating,
+                    atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+                    valueRating: isValueNA ? nil : valueRating,
+                    foodRating: isFoodNA ? nil : foodRating,
+                    taggedUsers: taggedUsers,
+                    captionMentions: mentionedUsers
+                )
+                
+                uploadSuccess = true
+                feedViewModel.showPostAlert = true
+                feedViewModel.posts.insert(post, at: 0)
+            } else {
                 throw UploadError.invalidMediaType
             }
-            uploadSuccess = true
-            
         } catch {
             self.error = error
             uploadFailure = true
         }
-        if let post {
-            feedViewModel.showPostAlert = true
-            feedViewModel.posts.insert(post, at: 0)
-        }
+        
         isLoading = false
         reset()
     }
+    
     
     func checkForMentioning() {
         let words = caption.split(separator: " ")
@@ -272,4 +263,9 @@ class UploadViewModel: ObservableObject {
         }
     }
 }
-
+struct MixedMediaItemHolder: Identifiable {
+    let id = UUID()
+    var localMedia: Any  // UIImage for photos, URL for videos
+    var type: MediaType
+    var url: String?  // This will be set after uploading to Firebase
+}
