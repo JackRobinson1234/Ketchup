@@ -89,7 +89,7 @@ struct CameraView: View {
                             if !cameraViewModel.audioOrVideoPermissionsDenied {
                                 VStack {
                                     if cameraViewModel.selectedCamTab == 0 {
-                                        ImagePicker(isPresented: $isImagePickerPresented, selectedItems: $selectedItems,  uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                                        ImagePicker(isPresented: $isImagePickerPresented,  uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                                     } else if cameraViewModel.selectedCamTab == 1 {
                                         VideoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                                     } else if cameraViewModel.selectedCamTab == 2 {
@@ -98,6 +98,7 @@ struct CameraView: View {
                                         ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
                                     }
                                 }
+                                .edgesIgnoringSafeArea(.bottom)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .padding(.bottom,60)
                             }

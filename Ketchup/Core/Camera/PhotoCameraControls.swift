@@ -20,6 +20,8 @@ struct PhotoCameraControls: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
+                    Spacer().frame(height: 80) // Add some space at the top
+                    
                     // Top controls
                     HStack {
                         closeButton
@@ -28,7 +30,6 @@ struct PhotoCameraControls: View {
                         Spacer()
                         placeholderButton
                     }
-                    .padding(.top, geometry.safeAreaInsets.top)
                     .padding(.horizontal)
                     
                     Spacer()
@@ -67,24 +68,24 @@ struct PhotoCameraControls: View {
     }
     
     private var photoStack: some View {
-        VStack {
-            HStack(spacing: -30) {
-                ForEach((0..<5).reversed(), id: \.self) { index in
-                    photoStackItem(at: index)
+            VStack(spacing: 4) { // Reduce spacing between elements
+                HStack(spacing: -30) {
+                    ForEach((0..<5).reversed(), id: \.self) { index in
+                        photoStackItem(at: index)
+                    }
                 }
-            }
-            
-            if cameraViewModel.images.count > 0 {
-                Text("Edit")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                
+                if cameraViewModel.images.count > 0 {
+                    Text("Edit")
+                        .font(.custom("MuseoSansRounded-300", size: 14)) // Slightly smaller font
+                        .foregroundColor(.white)
+                }
+                
+                Text("\(cameraViewModel.images.count)/5")
+                    .font(.custom("MuseoSansRounded-300", size: 14)) // Slightly smaller font
                     .foregroundColor(.white)
             }
-            
-            Text("\(cameraViewModel.images.count)/5")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .foregroundColor(.white)
         }
-    }
     
     private func photoStackItem(at index: Int) -> some View {
         Group {

@@ -12,34 +12,25 @@ import AVFoundation
 
 struct YPImagePickerSwiftUI: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    @Binding var selectedItems: [YPMediaItem]
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
     var configuration: YPImagePickerConfiguration
     
     func makeUIViewController(context: Context) -> YPImagePicker {
         let picker = YPImagePicker(configuration: configuration)
-//        picker.didFinishPicking { [unowned picker] items, cancelled in
-//            if cancelled {
-//                self.isPresented = false
-//            } else {
-//                self.selectedItems = items
-//                self.isPresented = false
-//            }
-//            picker.dismiss(animated: true, completion: nil)
-//        }
         picker.didFinishPicking { [unowned picker] items, cancelled in
-            for item in items {
-                switch item {
-                case .photo(let photo):
-                    print(photo)
-                case .video(let video):
-                    print(video)
+            if cancelled {
+                print("Picker was canceled")
+                self.isPresented = false
+            } else {
+                for item in items {
+                    uploadViewModel.addMixedMediaItem(item)
+
                 }
-                
+                uploadViewModel.navigateToUpload = true
+                self.isPresented = false
             }
-            uploadViewModel.navigateToUpload = true
-            //picker.dismiss(animated: true, completion: nil)
+            picker.dismiss(animated: true, completion: nil)
         }
         return picker
     }
@@ -49,15 +40,13 @@ struct YPImagePickerSwiftUI: UIViewControllerRepresentable {
 
 struct ImagePicker: View {
     @Binding var isPresented: Bool
-    @Binding var selectedItems: [YPMediaItem]
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
+    
     var body: some View {
-        VStack{
+        VStack {
             YPImagePickerSwiftUI(
                 isPresented: $isPresented,
-                selectedItems: $selectedItems,
-                
                 uploadViewModel: uploadViewModel,
                 cameraViewModel: cameraViewModel,
                 configuration: {
@@ -66,7 +55,7 @@ struct ImagePicker: View {
                     config.library.maxNumberOfItems = 5
                     config.library.minNumberOfItems = 1
                     config.library.skipSelectionsGallery = true
-                    config.library.defaultMultipleSelection = true
+                    config.library.defaultMultipleSelection = false
                     config.gallery.hidesRemoveButton = false
                     config.screens = [.library]
                     config.onlySquareImagesFromCamera = false

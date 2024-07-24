@@ -13,30 +13,28 @@ struct VideoCameraControls: View {
     @EnvironmentObject var tabBarController: TabBarController
     
     var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                // VIDEO PROGRESS BAR
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(.black.opacity(0.25))
-                    
-                    Rectangle()
-                        .fill(Color("Colors/AccentColor"))
-                        .frame(width: geometry.size.width * (cameraViewModel.recordedDuration / cameraViewModel.maxDuration))
-                }
-                .frame(height: 4)
-                .padding(.top, geometry.safeAreaInsets.top)
+        VStack(spacing: 0) {
+            // VIDEO PROGRESS BAR
+            Spacer().frame(height: 30) 
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(.black.opacity(0.25))
                 
-                Spacer()
-                
-                // BOTTOM BUTTONS
-                HStack(spacing: 30) {
-                    deleteButton
-                    recordButton
-                    nextButton
-                }
-                .padding(.bottom, 20) // Adjust this value to create space above the tab bar
+                Rectangle()
+                    .fill(Color("Colors/AccentColor"))
+                    .frame(width: UIScreen.main.bounds.width * (cameraViewModel.recordedDuration / cameraViewModel.maxDuration))
             }
+            .frame(height: 4)
+            
+            Spacer()
+            
+            // BOTTOM BUTTONS
+            HStack(spacing: 30) {
+                deleteButton
+                recordButton
+                nextButton
+            }
+            .padding(.bottom, 20)
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
             if cameraViewModel.recordedDuration <= cameraViewModel.maxDuration && cameraViewModel.isRecording {
