@@ -10,6 +10,14 @@ import AVFoundation
 import SwiftUI
 import AVKit
 import CachingPlayerItem
+class CoordinatorWrapper: NSObject {
+    var coordinators: [String: VideoPlayerCoordinator]
+    
+    init(coordinators: [String: VideoPlayerCoordinator] = [:]) {
+        self.coordinators = coordinators
+    }
+}
+
 class VideoPrefetcher {
     static let shared = VideoPrefetcher()
     private var preloadedPlayerItems: NSCache<NSString, VideoPlayerCoordinator> = NSCache()

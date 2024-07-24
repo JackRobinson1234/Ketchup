@@ -169,7 +169,14 @@ enum MediaType: Int, Codable {
     }
 }
 
-struct MixedMediaItem: Codable, Hashable {
+struct MixedMediaItem: Codable, Hashable, Identifiable {
+    let id: String
     var url: String
     var type: MediaType
+    
+    init(id: String = NSUUID().uuidString, url: String, type: MediaType) {
+        self.id = id
+        self.url = url
+        self.type = type
+    }
 }

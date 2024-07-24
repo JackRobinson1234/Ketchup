@@ -13,7 +13,7 @@ import FirebaseAuth
 struct MainTabView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var feedViewModel = FeedViewModel()
-    
+
     @State private var sessionStartTime: Date = Date()
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
@@ -146,11 +146,9 @@ struct MainTabView: View {
 
     private func sendSessionAnalytics() {
         let totalSessionTime = Date().timeIntervalSince(sessionStartTime)
-
         Analytics.logEvent("session_time", parameters: [
             "total_time": totalSessionTime as NSObject
         ])
-
         for (tab, time) in sessionTimeSpent {
             Analytics.logEvent("tab_time_in_session", parameters: [
                 "tab": tab as NSObject,
