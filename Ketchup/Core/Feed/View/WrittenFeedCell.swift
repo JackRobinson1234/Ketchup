@@ -17,7 +17,7 @@ struct WrittenFeedCell: View {
     @State private var showingOptionsSheet = false
     @State private var currentImageIndex = 0
     @Binding var scrollPosition: String?
-    @StateObject private var videoCoordinator: VideoPlayerCoordinator
+    //@StateObject private var videoCoordinator: VideoPlayerCoordinator
     @Binding var pauseVideo: Bool
     private let pictureWidth: CGFloat = 240
     private let pictureHeight: CGFloat = 300
@@ -27,6 +27,8 @@ struct WrittenFeedCell: View {
     private var didBookmark: Bool {
         return post.didBookmark
     }
+    @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
+
     @State var configured = false
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
@@ -46,15 +48,12 @@ struct WrittenFeedCell: View {
         self._post = post
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
-        if post.wrappedValue.mediaType == .video {
-            let coordinator = VideoPrefetcher.shared.getPlayerItem(for: post.wrappedValue)
-            self._videoCoordinator = StateObject(wrappedValue: coordinator)
-        } else {
-            // Initialize with a dummy coordinator for non-video posts
-            self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
-        }
         self._selectedPost = selectedPost
         self.checkLikes = checkLikes
+        
+        // Initialize videoCoordinators
+        let coordinators = VideoPrefetcher.shared.getPlayerItems(for: post.wrappedValue)
+        self._videoCoordinators = State(initialValue: coordinators)
     }
     
     var overallRating: Double? {
@@ -146,29 +145,23 @@ struct WrittenFeedCell: View {
                         Rectangle()
                             .frame(width: 40, height: 40)
                             .foregroundStyle(.clear)
-                        Button {
-                            viewModel.startingPostId = post.id
-                            selectedPost = post
-                        } label: {
-                            VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                                .frame(width: pictureWidth, height: pictureHeight)
-                                .cornerRadius(10)
+                        
+                        ForEach(videoCoordinators, id: \.0) { mediaItemId, coordinator in
+                            Button {
+                                viewModel.startingPostId = post.id
+                                selectedPost = post
+                            } label: {
+                                VideoPlayerView(coordinator: coordinator, videoGravity: .resizeAspectFill)
+                                    .frame(width: pictureWidth, height: pictureHeight)
+                                    .cornerRadius(10)
+                            }
                         }
+                        
                         VStack {
                             Button(action: {
-                                let player = videoCoordinator.player
-                                switch player.timeControlStatus {
-                                case .paused:
-                                    videoCoordinator.play()
-                                case .waitingToPlayAtSpecifiedRate:
-                                    print("WAITING TO PERFORM AT A SPECIFIED RATE")
-                                case .playing:
-                                    videoCoordinator.pause()
-                                @unknown default:
-                                    print("UNKNOWN PLAYING STATUS")
-                                }
+                                togglePlayPause()
                             }) {
-                                Image(systemName: videoCoordinator.player.timeControlStatus == .playing ? "pause" : "play")
+                                Image(systemName: isPlaying ? "pause" : "play")
                                     .foregroundColor(.white)
                                     .frame(width: 24, height: 24)
                                     .background(Circle().fill(Color.gray))
@@ -176,8 +169,7 @@ struct WrittenFeedCell: View {
                             .frame(width: 40, height: 30)
                             
                             Button(action: {
-                                viewModel.isMuted.toggle()
-                                videoCoordinator.player.isMuted = viewModel.isMuted
+                                toggleMute()
                             }) {
                                 Image(systemName: viewModel.isMuted ? "speaker.slash" : "speaker.wave.2")
                                     .foregroundColor(.white)
@@ -280,7 +272,7 @@ struct WrittenFeedCell: View {
                 }
                 
                 Button {
-                    videoCoordinator.pause()
+                    //videoCoordinator.pause()
                     showComments.toggle()
                 } label: {
                     InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
@@ -295,7 +287,7 @@ struct WrittenFeedCell: View {
                 }
                 if viewModel.showBookmarks{
                     Button {
-                        videoCoordinator.pause()
+                        //videoCoordinator.pause()
                         showCollections.toggle()
                     } label: {
                         InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
@@ -303,14 +295,14 @@ struct WrittenFeedCell: View {
                 }
                 
                 Button {
-                    videoCoordinator.pause()
+                    //videoCoordinator.pause()
                     showShareView.toggle()
                 } label: {
                     InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
                 }
                 
                 Button {
-                    videoCoordinator.pause()
+                    //videoCoordinator.pause()
                     showingOptionsSheet = true
                 } label: {
                     ZStack {
@@ -340,29 +332,26 @@ struct WrittenFeedCell: View {
             }
             
             if post.mediaType == .video {
-                videoCoordinator.player.isMuted = viewModel.isMuted
-                
-                Task {
-                    // Safely access the first media URL
-                    guard let firstMediaUrl = post.mediaUrls.first,
-                          let videoURL = URL(string: firstMediaUrl) else {
-                        print("Invalid or missing video URL")
-                        return
-                    }
-                    
-                    if !configured {
-                        // Handle configuration if needed
-                    }
-                    
-                    // Safely check if this is the first post and should auto-play
-                    if scrollPosition == nil,
-                       let firstPost = viewModel.posts.first,
-                       firstPost.id == post.id {
-                        videoCoordinator.replay()
+                            for (_, coordinator) in videoCoordinators {
+                                coordinator.player.isMuted = viewModel.isMuted
+                            }
+                            
+                            if scrollPosition == nil,
+                               let firstPost = viewModel.posts.first,
+                               firstPost.id == post.id {
+                                playAll()
+                            }
+                        }
+        }
+        .onChange(of: scrollPosition) { oldValue, newValue in
+                    if post.mediaType == .video {
+                        if newValue == post.id {
+                            playAll()
+                        } else {
+                            pauseAll()
+                        }
                     }
                 }
-            }
-        }
         .environment(\.openURL, OpenURLAction { url in
             if url.scheme == "user",
                let userId = url.host,
@@ -386,38 +375,38 @@ struct WrittenFeedCell: View {
         }
         .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
             if post.mediaType == .video && newTab !=  0 {
-                videoCoordinator.pause()
+                //videoCoordinator.pause()
             }
         }
-        .onChange(of: scrollPosition) { oldValue, newValue in
-            videoCoordinator.player.isMuted = viewModel.isMuted
-            if post.mediaType == .video {
-                if newValue == post.id {
-                    videoCoordinator.play()
-                } else {
-                    videoCoordinator.pause()
-                }
-            }
-        }
+//        .onChange(of: scrollPosition) { oldValue, newValue in
+//            videoCoordinator.player.isMuted = viewModel.isMuted
+//            if post.mediaType == .video {
+//                if newValue == post.id {
+//                    videoCoordinator.play()
+//                } else {
+//                    videoCoordinator.pause()
+//                }
+//            }
+//        }
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onDisappear {
-                    videoCoordinator.play()
+                    //videoCoordinator.play()
                 }
         }
         .sheet(isPresented: $showShareView) {
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear {
-                    videoCoordinator.play()
+                    //videoCoordinator.play()
                 }
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(post: post)
                     .onDisappear {
-                        videoCoordinator.play()
+                        //videoCoordinator.play()
                     }
             }
         }
@@ -425,12 +414,12 @@ struct WrittenFeedCell: View {
             PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onDisappear {
-                    videoCoordinator.play()
+                    //videoCoordinator.play()
                 }
         }
         .onChange(of: selectedPost) {
             if selectedPost != nil {
-                videoCoordinator.pause()
+                //videoCoordinator.pause()
             }
         }
         .overlay(
@@ -445,18 +434,47 @@ struct WrittenFeedCell: View {
                 }
             }
         )
-        .onDisappear {
-            videoCoordinator.pause()
-        }
-        .onChange(of: pauseVideo) {
-            if pauseVideo {
-                videoCoordinator.pause()
-            } else {
-                videoCoordinator.play()
-            }
-        }
+//        .onDisappear {
+//            videoCoordinator.pause()
+//        }
+//        .onChange(of: pauseVideo) {
+//            if pauseVideo {
+//                videoCoordinator.pause()
+//            } else {
+//                videoCoordinator.play()
+//            }
+//        }
     }
-    
+    private func togglePlayPause() {
+           if isPlaying {
+               pauseAll()
+           } else {
+               playAll()
+           }
+       }
+       
+       private func toggleMute() {
+           viewModel.isMuted.toggle()
+           for (_, coordinator) in videoCoordinators {
+               coordinator.player.isMuted = viewModel.isMuted
+           }
+       }
+       
+       private func playAll() {
+           for (_, coordinator) in videoCoordinators {
+               coordinator.play()
+           }
+       }
+       
+       private func pauseAll() {
+           for (_, coordinator) in videoCoordinators {
+               coordinator.pause()
+           }
+       }
+       
+       private var isPlaying: Bool {
+           videoCoordinators.first?.1.player.timeControlStatus == .playing
+       }
     private func parseCaption(_ input: String) -> AttributedString {
         var result = AttributedString(input)
         let pattern = "@\\w+"

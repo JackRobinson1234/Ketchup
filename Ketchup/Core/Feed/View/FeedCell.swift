@@ -20,7 +20,7 @@ import FirebaseAuth
 import UIKit
 struct FeedCell: View {
     @Binding var post: Post
-    @StateObject var videoCoordinator: VideoPlayerCoordinator
+    @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
     @ObservedObject var viewModel: FeedViewModel
     @State private var expandCaption = false
     @State private var showComments = false
@@ -54,27 +54,23 @@ struct FeedCell: View {
         return post.didBookmark
     }
     init(post: Binding<Post>,
-         viewModel: FeedViewModel,
-         scrollPosition: Binding<String?>,
-         pauseVideo: Binding<Bool>,
-         hideFeedOptions: Bool,
-         checkLikes: Bool = false) {
-        
-        self._post = post
-        self.viewModel = viewModel
-        self._scrollPosition = scrollPosition
-        self._pauseVideo = pauseVideo
-        self.hideFeedOptions = hideFeedOptions
-        self.checkLikes = checkLikes
-        
-        if post.wrappedValue.mediaType == .video {
-            let coordinator = VideoPrefetcher.shared.getPlayerItem(for: post.wrappedValue)
-            self._videoCoordinator = StateObject(wrappedValue: coordinator)
-        } else {
-            // Initialize with a dummy coordinator for non-video posts
-            self._videoCoordinator = StateObject(wrappedValue: VideoPlayerCoordinator())
+             viewModel: FeedViewModel,
+             scrollPosition: Binding<String?>,
+             pauseVideo: Binding<Bool>,
+             hideFeedOptions: Bool,
+             checkLikes: Bool = false) {
+            
+            self._post = post
+            self.viewModel = viewModel
+            self._scrollPosition = scrollPosition
+            self._pauseVideo = pauseVideo
+            self.hideFeedOptions = hideFeedOptions
+            self.checkLikes = checkLikes
+            
+            // Initialize videoCoordinators
+            let coordinators = VideoPrefetcher.shared.getPlayerItems(for: post.wrappedValue)
+            self._videoCoordinators = State(initialValue: coordinators)
         }
-    }
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 5)
@@ -102,7 +98,8 @@ struct FeedCell: View {
             }
     }
 
-    var body: some View {
+
+        var body: some View {
             ZStack {
                 Color("Colors/HingeGray")
                     .ignoresSafeArea()
@@ -111,11 +108,12 @@ struct FeedCell: View {
                     Spacer()
                     ZStack {
                         if post.mediaType == .video {
-                            ZoomableVideoPlayer(videoCoordinator: videoCoordinator)
-                            //VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
-                                .overlay(taggedUsersOverlay)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
-                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
+                            ForEach(videoCoordinators, id: \.0) { mediaItemId, coordinator in
+                                ZoomableVideoPlayer(videoCoordinator: coordinator)
+                                    .overlay(taggedUsersOverlay)
+                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
+                            }
                         } else if post.mediaType == .photo {
                             GeometryReader { geometry in
                                 TabView(selection: $currentImageIndex) {
@@ -133,7 +131,7 @@ struct FeedCell: View {
                     }
                     Spacer()
                 }
-                .overlay(videoSliderOverlay)
+                //.overlay(videoSliderOverlay)
                 .padding(.bottom, 137)
             }
             .padding(.top, 35)
@@ -150,17 +148,17 @@ struct FeedCell: View {
                 handleOnAppear()
             }
             .onDisappear {
-                videoCoordinator.pause()
-            }
+                       pauseAllVideos()
+                   }
             .sheet(isPresented: $showComments) {
                 CommentsView(post: $post)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
-                    .onDisappear { Task { videoCoordinator.play() } }
+                    //.onDisappear { Task { videoCoordinator.play() } }
             }
             .sheet(isPresented: $showShareView) {
                 ShareView(post: post, currentImageIndex: currentImageIndex)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
-                    .onDisappear { Task { videoCoordinator.play() } }
+                    //.onDisappear { Task { videoCoordinator.play() } }
             }
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {
@@ -359,7 +357,7 @@ struct FeedCell: View {
             }
             
             Button {
-                videoCoordinator.pause()
+                //videoCoordinator.pause()
                 showComments.toggle()
             } label: {
                 InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
@@ -374,7 +372,7 @@ struct FeedCell: View {
             }
             if viewModel.showBookmarks{
                 Button {
-                    videoCoordinator.pause()
+                    //videoCoordinator.pause()
                     showCollections.toggle()
                 } label: {
                     InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
@@ -382,14 +380,14 @@ struct FeedCell: View {
             }
             
             Button {
-                videoCoordinator.pause()
+                //videoCoordinator.pause()
                 showShareView.toggle()
             } label: {
                 InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
             }
             
             Button {
-                videoCoordinator.pause()
+                //videoCoordinator.pause()
                 showingOptionsSheet = true
             } label: {
                 ZStack {
@@ -407,15 +405,15 @@ struct FeedCell: View {
         }
     }
     
-    private var videoSlider: some View {
-        let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
-        return Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
-            .onAppear {
-                let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
-                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
-            }
-            .offset(y: 40)
-    }
+//    private var videoSlider: some View {
+//        let totalTime = videoCoordinator.duration.isFinite ? max(videoCoordinator.duration, 0) : 0
+//        return Slider(value: $videoCoordinator.currentTime, in: 0...totalTime, onEditingChanged: sliderEditingChanged)
+//            .onAppear {
+//                let clearCircleImage = UIImage.clearCircle(radius: 15, lineWidth: 1, color: .clear)
+//                UISlider.appearance().setThumbImage(clearCircleImage, for: .normal)
+//            }
+//            .offset(y: 40)
+//    }
     
     private var heartOverlay: some View {
         ZStack {
@@ -472,39 +470,41 @@ struct FeedCell: View {
     }
     
     private func toggleVideoPlayback() {
-        guard post.mediaType == .video else { return }
-        let player = videoCoordinator.player
-        switch player.timeControlStatus {
-        case .paused:
-            videoCoordinator.play()
-        case .waitingToPlayAtSpecifiedRate:
-            break
-        case .playing:
-            videoCoordinator.pause()
-        @unknown default:
-            break
-        }
-    }
-    
-    private func handleScrollPositionChange(newValue: String?) {
-        guard post.mediaType == .video else { return }
-        if newValue == post.id {
-            videoCoordinator.replay()
-        } else {
-            videoCoordinator.pause()
-        }
-    }
-    
-    private func handlePauseVideoChange(newValue: Bool) {
-        guard post.mediaType == .video else { return }
-        if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil {
-            if newValue == true {
-                videoCoordinator.pause()
-            } else {
-                videoCoordinator.play()
+            guard post.mediaType == .video else { return }
+            if let (_, coordinator) = videoCoordinators.first {
+                let player = coordinator.player
+                switch player.timeControlStatus {
+                case .paused:
+                    playAllVideos()
+                case .waitingToPlayAtSpecifiedRate:
+                    break
+                case .playing:
+                    pauseAllVideos()
+                @unknown default:
+                    break
+                }
             }
         }
-    }
+    
+    private func handleScrollPositionChange(newValue: String?) {
+            guard post.mediaType == .video else { return }
+            if newValue == post.id {
+                playAllVideos()
+            } else {
+                pauseAllVideos()
+            }
+        }
+    
+    private func handlePauseVideoChange(newValue: Bool) {
+            guard post.mediaType == .video else { return }
+            if scrollPosition == post.id || viewModel.posts.first?.id == post.id && scrollPosition == nil {
+                if newValue == true {
+                    pauseAllVideos()
+                } else {
+                    playAllVideos()
+                }
+            }
+        }
     
     private func handleOnAppear() {
         if checkLikes{
@@ -513,28 +513,43 @@ struct FeedCell: View {
             }
         }
         if post.mediaType == .video {
-            if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
-                videoCoordinator.replay()
+                    if let firstPost = viewModel.posts.first, firstPost.id == post.id && scrollPosition == nil {
+                        playAllVideos()
+                    }
+                }
+                
+        if viewModel.startingPostId == post.id, post.mediaType == .video {
+            playAllVideos()
+        }
+//        if viewModel.startingPostId == post.id, post.mediaType == .photo {
+//            self.currentImageIndex = viewModel.startingImageIndex
+//            viewModel.startingPostId = ""
+//            viewModel.startingImageIndex = 0
+//        } else if viewModel.startingPostId == post.id, post.mediaType == .video {
+//            Task { videoCoordinator.play() }
+//        }
+    }
+    private func playAllVideos() {
+            for (_, coordinator) in videoCoordinators {
+                coordinator.play()
             }
         }
         
-        if viewModel.startingPostId == post.id, post.mediaType == .photo {
-            self.currentImageIndex = viewModel.startingImageIndex
-            viewModel.startingPostId = ""
-            viewModel.startingImageIndex = 0
-        } else if viewModel.startingPostId == post.id, post.mediaType == .video {
-            Task { videoCoordinator.play() }
+        private func pauseAllVideos() {
+            for (_, coordinator) in videoCoordinators {
+                coordinator.pause()
+            }
         }
-    }
-    
     private func sliderEditingChanged(_ editingStarted: Bool) {
-        if editingStarted {
-            videoCoordinator.pause()
-        } else {
-            videoCoordinator.seekToTime(seconds: videoCoordinator.currentTime)
-            videoCoordinator.play()
-        }
-    }
+           if let (_, coordinator) = videoCoordinators.first {
+               if editingStarted {
+                   coordinator.pause()
+               } else {
+                   coordinator.seekToTime(seconds: coordinator.currentTime)
+                   coordinator.play()
+               }
+           }
+       }
     private func handleBookmarkTapped() {
         Task {
             if post.didBookmark {
@@ -584,17 +599,17 @@ struct FeedCell: View {
             }
         }
 
-        private var videoSliderOverlay: some View {
-            Group {
-                if post.mediaType == .video {
-                    VStack {
-                        videoSlider
-                            .padding(.top, 40)
-                        Spacer()
-                    }
-                }
-            }
-        }
+//    private var videoSliderOverlay: some View {
+//            Group {
+//                if post.mediaType == .video, let (_, coordinator) = videoCoordinators.first {
+//                    VStack {
+//                        Slider(value: $coordinator.currentTime, in: 0...max(coordinator.duration, 0), onEditingChanged: sliderEditingChanged)
+//                            .padding(.top, 40)
+//                        Spacer()
+//                    }
+//                }
+//            }
+//        }
 
         private var captionAndRatingsOverlay: some View {
             GeometryReader { geometry in

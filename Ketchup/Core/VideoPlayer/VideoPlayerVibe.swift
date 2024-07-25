@@ -25,16 +25,33 @@ class VideoPrefetcher {
 
     private init() {}
 
-    func getPlayerItem(for post: Post) -> VideoPlayerCoordinator {
-        if let existingCoordinator = preloadedPlayerItems.object(forKey: post.id as NSString) {
+    func getPlayerItems(for post: Post) -> [(String, VideoPlayerCoordinator)] {
+        var result: [(String, VideoPlayerCoordinator)] = []
+        
+        if let mixedMediaUrls = post.mixedMediaUrls {
+            for mediaItem in mixedMediaUrls where mediaItem.type == .video {
+                let coordinator = getOrCreateCoordinator(for: mediaItem, postId: post.id)
+                result.append((mediaItem.id, coordinator))
+            }
+        } else if post.mediaType == .video, let url = post.mediaUrls.first {
+            let coordinator = getOrCreateCoordinator(for: MixedMediaItem(id: "default", url: url, type: .video), postId: post.id)
+            result.append(("default", coordinator))
+        }
+        
+        return result
+    }
+    
+    private func getOrCreateCoordinator(for mediaItem: MixedMediaItem, postId: String) -> VideoPlayerCoordinator {
+        let key = mediaItem.id as NSString
+        
+        if let existingCoordinator = preloadedPlayerItems.object(forKey: key) {
             return existingCoordinator
         } else {
             let newCoordinator = VideoPlayerCoordinator()
-            preloadedPlayerItems.setObject(newCoordinator, forKey: post.id as NSString)
+            preloadedPlayerItems.setObject(newCoordinator, forKey: key)
             
-            // Start prefetching for the new coordinator
-            if let url = post.mediaUrls.first, let videoURL = URL(string: url) {
-                newCoordinator.prefetch(url: videoURL, postId: post.id) {
+            if let videoURL = URL(string: mediaItem.url) {
+                newCoordinator.prefetch(url: videoURL, mediaItemId: mediaItem.id) {
                     // Prefetch completed
                 }
             }
@@ -47,18 +64,31 @@ class VideoPrefetcher {
         queue.async { [weak self] in
             guard let self = self else { return }
             for post in posts {
-                if self.preloadedPlayerItems.object(forKey: post.id as NSString) == nil {
-                    self.preparePost(for: post)
-                }
+                self.prefetchMediaItems(for: post)
             }
         }
     }
     
-    private func preparePost(for post: Post) {
+    private func prefetchMediaItems(for post: Post) {
+        if let mixedMediaUrls = post.mixedMediaUrls {
+            for mediaItem in mixedMediaUrls where mediaItem.type == .video {
+                if preloadedPlayerItems.object(forKey: mediaItem.id as NSString) == nil {
+                    prepareMediaItem(mediaItem, postId: post.id)
+                }
+            }
+        } else if post.mediaType == .video, let url = post.mediaUrls.first {
+            let defaultMediaItem = MixedMediaItem(id: "default", url: url, type: .video)
+            if preloadedPlayerItems.object(forKey: "default" as NSString) == nil {
+                prepareMediaItem(defaultMediaItem, postId: post.id)
+            }
+        }
+    }
+    
+    private func prepareMediaItem(_ mediaItem: MixedMediaItem, postId: String) {
         let coordinator = VideoPlayerCoordinator()
-        if let url = post.mediaUrls.first, let videoURL = URL(string: url) {
-            coordinator.prefetch(url: videoURL, postId: post.id) { [weak self] in
-                self?.preloadedPlayerItems.setObject(coordinator, forKey: post.id as NSString)
+        if let videoURL = URL(string: mediaItem.url) {
+            coordinator.prefetch(url: videoURL, mediaItemId: mediaItem.id) { [weak self] in
+                self?.preloadedPlayerItems.setObject(coordinator, forKey: mediaItem.id as NSString)
             }
         }
     }
@@ -96,7 +126,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     private var playerItem: CachingPlayerItem?
     private var configured = false
     private var currentUrl: URL?
-    private var currentPostId: String?
+    private var currentMediaItemId: String?
     private var retries: Int = 0
     private var playerTimeObserver: PlayerTimeObserver?
     private var cancellables = Set<AnyCancellable>()
@@ -141,7 +171,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         setupTimeObserver()
     }
     
-    func prefetch(url: URL?, postId: String, completion: @escaping () -> Void) {
+    func prefetch(url: URL?, mediaItemId: String, completion: @escaping () -> Void) {
         if prefetching {
             print("Already prefetching")
             completion()
@@ -157,18 +187,20 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         }
 
         currentUrl = url
-        currentPostId = postId
+        currentMediaItemId = mediaItemId
         
         do {
             var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            saveFilePath.appendPathComponent(postId)
+            saveFilePath.appendPathComponent(mediaItemId)
             saveFilePath.appendPathExtension("mp4")
             
             if FileManager.default.fileExists(atPath: saveFilePath.path) {
+                print("Using cached file for mediaItemId: \(mediaItemId)")
                 playerItem = CachingPlayerItem(filePathURL: saveFilePath)
                 playerItem?.delegate = self
                 player.replaceCurrentItem(with: playerItem)
             } else {
+                print("Downloading file for mediaItemId: \(mediaItemId)")
                 playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
                 playerItem?.delegate = self
                 playerItem?.download()
@@ -177,7 +209,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             configurePlayer()
             completion()
         } catch {
-            print("File path error: \(error)")
+            print("File path error for mediaItemId \(mediaItemId): \(error)")
             prefetching = false
             completion()
         }
