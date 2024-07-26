@@ -19,8 +19,8 @@ struct WrittenFeedCell: View {
     @Binding var scrollPosition: String?
     //@StateObject private var videoCoordinator: VideoPlayerCoordinator
     @Binding var pauseVideo: Bool
-    private let pictureWidth: CGFloat = 240
-    private let pictureHeight: CGFloat = 300
+    private let mediaWidth: CGFloat = 240
+    private let mediaHeight: CGFloat = 300
     private var didLike: Bool {
         return post.didLike
     }
@@ -33,7 +33,8 @@ struct WrittenFeedCell: View {
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
-    
+    @State private var currentlyPlayingVideoId: String?
+       @State private var isCurrentVideoPlaying = false
     @State private var isTaggedSheetPresented = false
     
     @State private var selectedUser: PostUser?
@@ -93,6 +94,86 @@ struct WrittenFeedCell: View {
                             .foregroundColor(.gray)
                     }
                 }
+                if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+                               VStack {
+                                   ScrollView(.horizontal, showsIndicators: false) {
+                                       LazyHStack {
+                                           ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                               VStack {
+                                                   Button {
+                                                       viewModel.startingImageIndex = index
+                                                       viewModel.startingPostId = post.id
+                                                       selectedPost = post
+                                                   } label: {
+                                                       if mediaItem.type == .photo {
+                                                           KFImage(URL(string: mediaItem.url))
+                                                               .resizable()
+                                                               .aspectRatio(contentMode: .fill)
+                                                               .frame(width: mediaWidth, height: mediaHeight)
+                                                               .clipped()
+                                                               .cornerRadius(10)
+                                                       } else if mediaItem.type == .video {
+                                                           ZStack {
+                                                               VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                                                                   .frame(width: mediaWidth, height: mediaHeight)
+                                                                   .cornerRadius(10)
+                                                                   .id(mediaItem.id)
+                                                               
+                                                               if !isCurrentVideoPlaying && currentlyPlayingVideoId == mediaItem.id {
+                                                                   Image(systemName: "play.circle.fill")
+                                                                       .resizable()
+                                                                       .frame(width: 50, height: 50)
+                                                                       .foregroundColor(.white)
+                                                                       .opacity(0.8)
+                                                               }
+                                                           }
+                                                       }
+                                                   }
+                                               }
+                                               .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                                   content
+                                                       .opacity(phase.isIdentity ? 1.0 : 0.8)
+                                               }
+                                           }
+                                       }
+                                       .frame(height: mediaHeight)
+                                       .scrollTargetLayout()
+                                   }
+                                   .scrollTargetBehavior(.viewAligned)
+                                   .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
+                                   .scrollPosition(id: $currentlyPlayingVideoId)
+                                   
+                                   // Play/Pause and Mute buttons
+                                   if let currentVideoId = currentlyPlayingVideoId,
+                                      mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
+                                       HStack {
+                                           Spacer()
+                                           Button(action: {
+                                               togglePlayPause()
+                                           }) {
+                                               Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                                   .resizable()
+                                                   .frame(width: 30, height: 30)
+                                                   .foregroundColor(.white)
+                                                   .background(Color.black.opacity(0.6))
+                                                   .clipShape(Circle())
+                                           }
+                                           Button(action: {
+                                               toggleMute()
+                                           }) {
+                                               Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
+                                                   .resizable()
+                                                   .frame(width: 30, height: 30)
+                                                   .foregroundColor(.white)
+                                                   .background(Color.black.opacity(0.6))
+                                                   .clipShape(Circle())
+                                           }
+                                           Spacer()
+                                       }
+                                       .padding(.top, 8)
+                                   }
+                               }
+                           }
                 if post.mediaType == .photo {
                     if post.mediaUrls.count > 1 {
                         // Use ScrollView for multiple photos
@@ -108,7 +189,7 @@ struct WrittenFeedCell: View {
                                             KFImage(URL(string: url))
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fill)
-                                                .frame(width: pictureWidth, height: pictureHeight)
+                                                .frame(width: mediaWidth, height: mediaHeight)
                                                 .clipped()
                                                 .cornerRadius(10)
                                         }
@@ -119,11 +200,11 @@ struct WrittenFeedCell: View {
                                     }
                                 }
                             }
-                            .frame(height: pictureHeight)
+                            .frame(height: mediaHeight)
                             .scrollTargetLayout()
                         }
                         .scrollTargetBehavior(.viewAligned)
-                        .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - pictureWidth) / 2))
+                        .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
                     } else {
                         // Center a single photo
                         Button {
@@ -134,7 +215,7 @@ struct WrittenFeedCell: View {
                             KFImage(URL(string: post.mediaUrls.first ?? ""))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: pictureWidth, height: pictureHeight)
+                                .frame(width: mediaWidth, height: mediaHeight)
                                 .clipped()
                                 .cornerRadius(10)
                         }
@@ -152,7 +233,7 @@ struct WrittenFeedCell: View {
                                 selectedPost = post
                             } label: {
                                 VideoPlayerView(coordinator: coordinator, videoGravity: .resizeAspectFill)
-                                    .frame(width: pictureWidth, height: pictureHeight)
+                                    .frame(width: mediaWidth, height: mediaHeight)
                                     .cornerRadius(10)
                             }
                         }
@@ -474,6 +555,15 @@ struct WrittenFeedCell: View {
        
        private var isPlaying: Bool {
            videoCoordinators.first?.1.player.timeControlStatus == .playing
+       }
+    private func getVideoCoordinator(for mediaItemId: String) -> VideoPlayerCoordinator {
+           if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
+               return coordinator.1
+           }
+           // If not found, create a new one (this should be rare)
+           let newCoordinator = VideoPlayerCoordinator()
+           videoCoordinators.append((mediaItemId, newCoordinator))
+           return newCoordinator
        }
     private func parseCaption(_ input: String) -> AttributedString {
         var result = AttributedString(input)
