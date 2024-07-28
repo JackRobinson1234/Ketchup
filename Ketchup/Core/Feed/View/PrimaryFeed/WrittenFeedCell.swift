@@ -1,0 +1,796 @@
+//
+//  WrittenFeedCell.swift
+//  Ketchup
+//
+//  Created by Jack Robinson on 6/25/24.
+//
+import SwiftUI
+import Kingfisher
+
+struct WrittenFeedCell: View {
+    @EnvironmentObject var tabBarController: TabBarController
+    @ObservedObject var viewModel: FeedViewModel
+    @Binding var post: Post
+    @State private var showComments = false
+    @State private var showShareView = false
+    @State private var showCollections = false
+    @State private var showingOptionsSheet = false
+    @State private var currentImageIndex = 0
+    @Binding var scrollPosition: String?
+    //@StateObject private var videoCoordinator: VideoPlayerCoordinator
+    @Binding var pauseVideo: Bool
+    private let mediaWidth: CGFloat = 240
+    private let mediaHeight: CGFloat = 300
+    private var didLike: Bool {
+        return post.didLike
+    }
+    private var didBookmark: Bool {
+        return post.didBookmark
+    }
+    @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
+    
+    @State var configured = false
+    @Binding var selectedPost: Post?
+    @State var showHeartOverlay = false
+    @State var isExpanded = false
+    @State private var currentlyPlayingVideoId: String?
+    @State private var isCurrentVideoPlaying = false
+    @State private var isTaggedSheetPresented = false
+    
+    @State private var selectedUser: PostUser?
+    @State private var parsedCaption: AttributedString?
+    
+    @State private var selectedUserId: String?
+    
+    var checkLikes: Bool
+    
+    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
+        self._viewModel = ObservedObject(initialValue: viewModel)
+        self._post = post
+        self._scrollPosition = scrollPosition
+        self._pauseVideo = pauseVideo
+        self._selectedPost = selectedPost
+        self.checkLikes = checkLikes
+        
+        // Initialize videoCoordinators
+        let coordinators = VideoPrefetcher.shared.getPlayerItems(for: post.wrappedValue)
+        self._videoCoordinators = State(initialValue: coordinators)
+    }
+    
+    var overallRating: Double? {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return nil }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
+    
+    var body: some View {
+        VStack {
+            
+            HStack(alignment: .top) {
+                NavigationLink(value: post.user) {
+                    UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                }
+                NavigationLink(value: post.user) {
+                    VStack(alignment: .leading) {
+                        Text("\(post.user.fullname)")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
+                            .bold()
+                            .multilineTextAlignment(.leading)
+                        Text("@\(post.user.username)")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(Color("Colors/AccentColor"))
+                        
+                    }
+                }
+                .disabled(post.user.username == "ketchup_media")
+                Spacer()
+                if let timestamp = post.timestamp {
+                    Text(getTimeElapsedString(from: timestamp))
+                        .font(.custom("MuseoSansRounded-300", size: 12))
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.horizontal)
+            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+                VStack {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack {
+                            ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        if mediaItem.type == .photo {
+                                            KFImage(URL(string: mediaItem.url))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: mediaWidth, height: mediaHeight)
+                                                .clipped()
+                                                .cornerRadius(10)
+                                        } else if mediaItem.type == .video {
+                                            ZStack {
+                                                VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                                                    .frame(width: mediaWidth, height: mediaHeight)
+                                                    .cornerRadius(10)
+                                                    .id(mediaItem.id)
+                                                
+                                                if !isCurrentVideoPlaying && currentlyPlayingVideoId == mediaItem.id {
+                                                    Image(systemName: "play.circle.fill")
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                        .foregroundColor(.white)
+                                                        .opacity(0.8)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                    content
+                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
+                                }
+                            }
+                        }
+                        .frame(height: mediaHeight)
+                        .scrollTargetLayout()
+                    }
+                    .scrollTargetBehavior(.viewAligned)
+                    .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
+                    .scrollPosition(id: $currentlyPlayingVideoId)
+                    
+                    // Play/Pause and Mute buttons
+                    if let currentVideoId = currentlyPlayingVideoId,
+                       mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                togglePlayPause()
+                            }) {
+                                Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(.white)
+                                    .background(Color.black.opacity(0.6))
+                                    .clipShape(Circle())
+                            }
+                            Button(action: {
+                                toggleMute()
+                            }) {
+                                Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(.white)
+                                    .background(Color.black.opacity(0.6))
+                                    .clipShape(Circle())
+                            }
+                            Spacer()
+                        }
+                        .padding(.top, 8)
+                    }
+                }
+            } else if post.mediaType == .video {
+                HStack(alignment: .bottom) {
+                    Rectangle()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.clear)
+                    
+                    ForEach(videoCoordinators, id: \.0) { mediaItemId, coordinator in
+                        Button {
+                            viewModel.startingPostId = post.id
+                            selectedPost = post
+                        } label: {
+                            VideoPlayerView(coordinator: coordinator, videoGravity: .resizeAspectFill)
+                                .frame(width: mediaWidth, height: mediaHeight)
+                                .cornerRadius(10)
+                        }
+                    }
+                    
+                    VStack {
+                        Button(action: {
+                            togglePlayPause()
+                        }) {
+                            Image(systemName: isPlaying ? "pause" : "play")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color.gray))
+                        }
+                        .frame(width: 40, height: 30)
+                        
+                        Button(action: {
+                            toggleMute()
+                        }) {
+                            Image(systemName: viewModel.isMuted ? "speaker.slash" : "speaker.wave.2")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color.gray))
+                        }
+                        .frame(width: 40, height: 30)
+                    }
+                }
+            }  else if post.mediaType == .photo {
+                if post.mediaUrls.count > 1 {
+                    // Use ScrollView for multiple photos
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack {
+                            ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        KFImage(URL(string: url))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: mediaWidth, height: mediaHeight)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                    }
+                                }
+                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                    content
+                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
+                                }
+                            }
+                        }
+                        .frame(height: mediaHeight)
+                        .scrollTargetLayout()
+                    }
+                    .scrollTargetBehavior(.viewAligned)
+                    .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
+                } else {
+                    // Center a single photo
+                    Button {
+                        viewModel.startingImageIndex = 0
+                        viewModel.startingPostId = post.id
+                        selectedPost = post
+                    } label: {
+                        KFImage(URL(string: post.mediaUrls.first ?? ""))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: mediaWidth, height: mediaHeight)
+                            .clipped()
+                            .cornerRadius(10)
+                    }
+                    .frame(maxWidth: .infinity) // This will allow the Button to take full width
+                }
+            }
+            VStack{
+                NavigationLink(value: post.restaurant) {
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading) {
+                            Text(post.restaurant.name)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .bold()
+                            Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundColor(.black)
+                        }
+                        .multilineTextAlignment(.leading)
+                        Spacer()
+                        if let overallRating = overallRating {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isExpanded.toggle()
+                                }
+                            }) {
+                                HStack(alignment: .center, spacing: 4) {
+                                    FeedOverallRatingView(rating: overallRating)
+                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                        .foregroundColor(.gray)
+                                        .frame(width: 25)
+                                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.top, 5)
+                }
+                
+                
+                if isExpanded {
+                    RatingsView(post: post, isExpanded: $isExpanded)
+                        .padding(.vertical, 5)
+                }
+                
+                HStack {
+                    if let parsed = parsedCaption {
+                        Text(parsed)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    } else {
+                        Text(post.caption)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .onAppear {
+                                parsedCaption = parseCaption(post.caption)
+                            }
+                    }
+                    Spacer()
+                }
+                
+                if !post.taggedUsers.isEmpty {
+                    Button(action: {
+                        isTaggedSheetPresented.toggle()
+                    }) {
+                        HStack() {
+                            Text("Went with:")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .bold()
+                            
+                            // Display profile images of the first three tagged users
+                            ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
+                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                            }
+                            
+                            // If there are more than three users, display the count of additional users
+                            if post.taggedUsers.count > 3 {
+                                VStack {
+                                    Spacer()
+                                    Text("and \(post.taggedUsers.count - 3) others")
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                }
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    .sheet(isPresented: $isTaggedSheetPresented) {
+                        TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                        
+                    }
+                }
+                
+                HStack(spacing: 15) {
+                    Button {
+                        handleLikeTapped()
+                    } label: {
+                        InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
+                    }
+                    
+                    Button {
+                        //videoCoordinator.pause()
+                        showComments.toggle()
+                    } label: {
+                        InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
+                    }
+                    
+                    if viewModel.showBookmarks{
+                        Button {
+                            handleBookmarkTapped()
+                        } label: {
+                            InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
+                        }
+                    }
+                    if viewModel.showBookmarks{
+                        Button {
+                            //videoCoordinator.pause()
+                            showCollections.toggle()
+                        } label: {
+                            InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
+                        }
+                    }
+                    
+                    Button {
+                        //videoCoordinator.pause()
+                        showShareView.toggle()
+                    } label: {
+                        InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
+                    }
+                    
+                    Button {
+                        //videoCoordinator.pause()
+                        showingOptionsSheet = true
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .fill(.clear)
+                                .frame(width: 20, height: 28)
+                            Image(systemName: "ellipsis")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 5, height: 5)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
+            }
+            .padding(.horizontal)
+            Divider()
+                .padding(.top, 5)
+        }
+        
+        .onAppear {
+            if checkLikes {
+                Task {
+                    await viewModel.checkIfUserLikedPosts()
+                    await viewModel.checkIfUserBookmarkedRestaurants()
+                }
+            }
+            
+            if post.mediaType == .mixed || post.mediaType == .video {
+                for (_, coordinator) in videoCoordinators {
+                    coordinator.player.isMuted = viewModel.isMuted
+                }
+                
+                // Initialize currentlyPlayingVideoId with the first video's ID
+                if let firstVideoId = (post.mediaType == .mixed ? post.mixedMediaUrls?.first { $0.type == .video }?.id : videoCoordinators.first?.0) {
+                    currentlyPlayingVideoId = firstVideoId
+                    isCurrentVideoPlaying = false // Ensure it's not playing initially
+                }
+            }
+        }
+        .onChange(of: scrollPosition) { oldValue, newValue in
+            if post.mediaType == .video {
+                if newValue == post.id {
+                    playAll()
+                } else {
+                    pauseAllVideos()
+                }
+            }
+        }
+        .environment(\.openURL, OpenURLAction { url in
+            if url.scheme == "user",
+               let userId = url.host,
+               let user = post.captionMentions.first(where: { $0.id == userId }) {
+                selectedUserId = user.id
+                viewModel.isShowingProfileSheet = true
+                return .handled
+            }
+            return .systemAction
+        })
+        .sheet(isPresented: $viewModel.isShowingProfileSheet) {
+            if let userId = selectedUserId {
+                NavigationStack {
+                    if userId == "invalid" {
+                        Text("User does not exist")
+                    } else {
+                        ProfileView(uid: userId)
+                    }
+                }
+            }
+        } .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+            if let newValue = newValue,
+               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+                pauseAllVideos()
+                coordinator.play()
+                isCurrentVideoPlaying = true
+            }
+        }
+        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
+            if post.mediaType == .video && newTab !=  0 {
+                //videoCoordinator.pause()
+            }
+        }
+        //        .onChange(of: scrollPosition) { oldValue, newValue in
+        //            videoCoordinator.player.isMuted = viewModel.isMuted
+        //            if post.mediaType == .video {
+        //                if newValue == post.id {
+        //                    videoCoordinator.play()
+        //                } else {
+        //                    videoCoordinator.pause()
+        //                }
+        //            }
+        //        }
+        .sheet(isPresented: $showComments) {
+            CommentsView(post: $post)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                .onDisappear {
+                    //videoCoordinator.play()
+                }
+        }
+        .sheet(isPresented: $showShareView) {
+            ShareView(post: post, currentImageIndex: currentImageIndex)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onDisappear {
+                    //videoCoordinator.play()
+                }
+        }
+        .sheet(isPresented: $showCollections) {
+            if let currentUser = AuthService.shared.userSession {
+                AddItemCollectionList(post: post)
+                    .onDisappear {
+                        //videoCoordinator.play()
+                    }
+            }
+        }
+        .sheet(isPresented: $showingOptionsSheet) {
+            PostOptionsSheet(post: $post, viewModel: viewModel)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onDisappear {
+                    //videoCoordinator.play()
+                }
+        }
+        .onChange(of: selectedPost) {
+            if selectedPost != nil {
+                //videoCoordinator.pause()
+            }
+        }
+        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+            if let newValue = newValue,
+               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+                pauseAllVideos()
+                coordinator.play()
+                isCurrentVideoPlaying = true
+            }
+        }
+        .overlay(
+            ZStack {
+                if showHeartOverlay {
+                    Image(systemName: "heart.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .transition(.opacity)
+                }
+            }
+        )
+        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+            if let newValue = newValue,
+               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+                pauseAllVideos()
+                coordinator.play()
+                isCurrentVideoPlaying = true
+            }
+        }
+        
+        //        .onDisappear {
+        //            videoCoordinator.pause()
+        //        }
+        //        .onChange(of: pauseVideo) {
+        //            if pauseVideo {
+        //                videoCoordinator.pause()
+        //            } else {
+        //                videoCoordinator.play()
+        //            }
+        //        }
+    }
+    private func pauseAllVideos() {
+        for (_, coordinator) in videoCoordinators {
+            coordinator.pause()
+        }
+        isCurrentVideoPlaying = false
+    }
+    private func togglePlayPause() {
+        if let currentVideoId = currentlyPlayingVideoId,
+           let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
+            if isCurrentVideoPlaying {
+                coordinator.pause()
+            } else {
+                coordinator.play()
+            }
+            isCurrentVideoPlaying.toggle()
+        }
+    }
+    
+    private func toggleMute() {
+        viewModel.isMuted.toggle()
+        for (_, coordinator) in videoCoordinators {
+            coordinator.player.isMuted = viewModel.isMuted
+        }
+    }
+    
+    private func playAll() {
+        for (_, coordinator) in videoCoordinators {
+            coordinator.play()
+        }
+    }
+    
+    
+    
+    private var isPlaying: Bool {
+        videoCoordinators.first?.1.player.timeControlStatus == .playing
+    }
+    private func getVideoCoordinator(for mediaItemId: String) -> VideoPlayerCoordinator {
+        if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
+            return coordinator.1
+        }
+        // If not found, create a new one (this should be rare)
+        let newCoordinator = VideoPlayerCoordinator()
+        videoCoordinators.append((mediaItemId, newCoordinator))
+        return newCoordinator
+    }
+    private func parseCaption(_ input: String) -> AttributedString {
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return result
+        }
+        
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst()) // Remove @ from username
+            
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
+            }
+        }
+        
+        return result
+    }
+    
+    private func handleBookmarkTapped() {
+        Task {
+            if post.didBookmark {
+                await viewModel.unbookmark(post)
+            } else {
+                await viewModel.bookmark(post)
+            }
+        }
+    }
+    
+    private func handleLikeTapped() {
+        Task {
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
+            if didLike {
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
+                    withAnimation {
+                        showHeartOverlay = false
+                    }
+                }
+            }
+        }
+    }
+    
+    private func handleDoubleTap() {
+        if !didLike {
+            Task {
+                await viewModel.like(post)
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
+                    withAnimation {
+                        showHeartOverlay = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct InteractionButtonView: View {
+    var icon: String
+    var count: Int?
+    var color: Color = .gray
+    var width: CGFloat?
+    var height: CGFloat?
+    
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: width ?? 18, height: height ?? 18)
+                .foregroundColor(color)
+            if let count {
+                Text("\(count)")
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.trailing, 10)
+    }
+}
+
+struct RatingSlider: View {
+    let rating: Double
+    let label: String
+    let isOverall: Bool
+    let fontColor: Color
+    
+    var formattedRating: String {
+        return String(format: "%.1f", rating)
+    }
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 5) {
+            Text(label)
+                .font(isOverall ? .custom("MuseoSansRounded-700", size: 16) : .custom("MuseoSansRounded-300", size: 16))
+                .foregroundColor(fontColor)
+                .frame(width: 90, alignment: .leading)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 2)
+                        .cornerRadius(1)
+                    
+                    Rectangle()
+                        .fill(Color("Colors/AccentColor"))
+                        .frame(width: (rating / 10.0) * geometry.size.width, height: 2)
+                        .cornerRadius(1)
+                }
+                .frame(maxHeight: .infinity)
+            }
+            .frame(height: 20) // This sets a fixed height for the GeometryReader
+            
+            Text(formattedRating)
+                .font(.custom("MuseoSansRounded-300", size: 14))
+                .foregroundColor(fontColor)
+                .frame(width: 40, alignment: .trailing)
+        }
+    }
+}
+
+struct RatingsView: View {
+    let post: Post
+    @Binding var isExpanded: Bool
+    
+    var overallRating: Double {
+        let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
+        guard !ratings.isEmpty else { return 0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
+    
+    var body: some View {
+        VStack {
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 10) {
+                    if let foodRating = post.foodRating {
+                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                    }
+                    if let atmosphereRating = post.atmosphereRating {
+                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                    }
+                    if let valueRating = post.valueRating {
+                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                    }
+                    if let serviceRating = post.serviceRating {
+                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                    }
+                }
+                .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))
+            }
+        }
+    }
+}
+
+struct FeedOverallRatingView: View {
+    let rating: Double?
+    var font: Color? = .primary
+    
+    var body: some View {
+        if let rating = rating {
+            VStack(spacing: 4) {
+                ZStack {
+                    Circle()
+                        .stroke(lineWidth: 3)
+                        .opacity(0.3)
+                        .foregroundColor(Color.gray)
+                    
+                    Circle()
+                        .trim(from: 0.0, to: CGFloat(min(rating / 10, 1.0)))
+                        .stroke(Color("Colors/AccentColor"), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                        .rotationEffect(Angle(degrees: 270.0))
+                        .animation(.linear, value: rating)
+                    
+                    Text(String(format: "%.1f", rating))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                }
+                .frame(width: 40, height: 40)
+            }
+        }
+    }
+}
+
+

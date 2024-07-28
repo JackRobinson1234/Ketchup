@@ -96,6 +96,10 @@
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
 		F8760EF42BD34E4D00C4EAB9 /* AvailabilityMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */; };
 		F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */; };
+		F87987452C56F431007BAAB4 /* CustomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87987442C56F431007BAAB4 /* CustomScrollView.swift */; };
+		F87987472C56F451007BAAB4 /* ZoomableViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87987462C56F451007BAAB4 /* ZoomableViews.swift */; };
+		F87987492C56F48D007BAAB4 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87987482C56F48D007BAAB4 /* OverallRatingView.swift */; };
+		F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */; };
 		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
 		F88322072C3DE8B0006744D2 /* ReviewSlideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322062C3DE8B0006744D2 /* ReviewSlideBar.swift */; };
 		F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322082C3DE8EA006744D2 /* OverallRatingView.swift */; };
@@ -351,6 +355,10 @@
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerVibe.swift; sourceTree = "<group>"; };
 		F8760EF32BD34E4D00C4EAB9 /* AvailabilityMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityMetaData.swift; sourceTree = "<group>"; };
 		F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		F87987442C56F431007BAAB4 /* CustomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScrollView.swift; sourceTree = "<group>"; };
+		F87987462C56F451007BAAB4 /* ZoomableViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableViews.swift; sourceTree = "<group>"; };
+		F87987482C56F48D007BAAB4 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
+		F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearCircle.swift; sourceTree = "<group>"; };
 		F88322062C3DE8B0006744D2 /* ReviewSlideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSlideBar.swift; sourceTree = "<group>"; };
 		F88322082C3DE8EA006744D2 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
@@ -720,6 +728,7 @@
 				F88E0B102B6B0A8B00EC159B /* DeveloperPreview.swift */,
 				F88E0B122B6B0AA700EC159B /* FIrestore + Query.swift */,
 				F88E0B142B6B0AD300EC159B /* Firestore+Timestamp.swift */,
+				F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1109,6 +1118,41 @@
 			path = Unused;
 			sourceTree = "<group>";
 		};
+		F87987422C56F40F007BAAB4 /* PrimaryFeed */ = {
+			isa = PBXGroup;
+			children = (
+				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
+				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
+			);
+			path = PrimaryFeed;
+			sourceTree = "<group>";
+		};
+		F87987432C56F41F007BAAB4 /* SecondaryFeed */ = {
+			isa = PBXGroup;
+			children = (
+				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
+				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
+				F87987442C56F431007BAAB4 /* CustomScrollView.swift */,
+				F87987462C56F451007BAAB4 /* ZoomableViews.swift */,
+				F87987482C56F48D007BAAB4 /* OverallRatingView.swift */,
+			);
+			path = SecondaryFeed;
+			sourceTree = "<group>";
+		};
+		F879874C2C56F4F8007BAAB4 /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */,
+				F86E15B02C039FA40059D15C /* RepostView.swift */,
+				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,
+				6FCD8EC02C4338B2000ACE3F /* TaggedUsersSheet.swift */,
+				F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */,
+				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
+				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
+			);
+			path = Sheets;
+			sourceTree = "<group>";
+		};
 		F88E0A332B6A5D5D00EC159B /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -1131,17 +1175,9 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
-				F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */,
-				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
-				F88E0A8D2B6B01F100EC159B /* FeedCell.swift */,
-				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
-				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
-				F8A24B5C2BE7F44200AB7FDD /* ImageView.swift */,
-				F86E15B02C039FA40059D15C /* RepostView.swift */,
-				F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */,
-				F8E66ACE2C3896E400F55DF0 /* FeedLocationFilter.swift */,
-				6FCD8EC02C4338B2000ACE3F /* TaggedUsersSheet.swift */,
+				F879874C2C56F4F8007BAAB4 /* Sheets */,
+				F87987432C56F41F007BAAB4 /* SecondaryFeed */,
+				F87987422C56F40F007BAAB4 /* PrimaryFeed */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1825,6 +1861,7 @@
 				F88E0B2A2B6CA03900EC159B /* FirestoreConstants.swift in Sources */,
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
+				F87987472C56F451007BAAB4 /* ZoomableViews.swift in Sources */,
 				F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */,
 				F871CDED2BC6F643003C9BE8 /* CollectionListView.swift in Sources */,
 				F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */,
@@ -1854,6 +1891,7 @@
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
 				F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */,
+				F87987492C56F48D007BAAB4 /* OverallRatingView.swift in Sources */,
 				F8631E3C2BD76DD200A48565 /* CollectionSearchModel.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
 				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
@@ -1895,6 +1933,7 @@
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
 				F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */,
 				F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */,
+				F87987452C56F431007BAAB4 /* CustomScrollView.swift in Sources */,
 				F88E0AC22B6B055200EC159B /* ProfileViewModel.swift in Sources */,
 				F84FE29C2B6A58ED00144F01 /* AuthService.swift in Sources */,
 				F84FE2952B6A55F800144F01 /* AuthError.swift in Sources */,
@@ -1916,6 +1955,7 @@
 				F8631E422BD883C700A48565 /* FacetsView.swift in Sources */,
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
 				F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */,
+				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
