@@ -42,11 +42,11 @@ struct CustomHorizontalScrollView<Content: View>: View {
                             if currentIndex == 0 && value.translation.width > 50 && abs(value.translation.width) > abs(value.translation.height) {
                                 onDismiss?()
                             } else {
-                                withAnimation(.interactiveSpring()) {
+                                
                                     currentIndex = max(0, min(itemCount - 1, predictedIndex))
                                     offset = 0
                                 }
-                            }
+                            
                         }
                 )
         }
@@ -54,6 +54,4 @@ struct CustomHorizontalScrollView<Content: View>: View {
 }
 
 
-#Preview {
-    CustomScrollView()
-}
+

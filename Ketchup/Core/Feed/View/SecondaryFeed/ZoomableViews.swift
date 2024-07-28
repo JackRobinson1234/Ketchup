@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Kingfisher
+import AVFoundation
 struct ZoomableImage: View {
     let imageURL: String
     
@@ -84,12 +86,87 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         }
     }
 }
-struct ZoomableVideoPlayer: View {
+struct ZoomableVideoPlayer: UIViewRepresentable {
     @ObservedObject var videoCoordinator: VideoPlayerCoordinator
     
-    var body: some View {
-        ZoomableScrollView {
-            VideoPlayerView(coordinator: videoCoordinator, videoGravity: .resizeAspectFill)
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.maximumZoomScale = 5
+        scrollView.minimumZoomScale = 1
+        scrollView.bouncesZoom = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        
+        let playerView = VideoPlayerUIView(coordinator: videoCoordinator)
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(playerView)
+        
+        NSLayoutConstraint.activate([
+            playerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            playerView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            playerView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            playerView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor)
+        ])
+        
+        return scrollView
+    }
+    
+    func updateUIView(_ uiView: UIScrollView, context: Context) {
+        // Update if needed
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: ZoomableVideoPlayer
+        
+        init(_ parent: ZoomableVideoPlayer) {
+            self.parent = parent
         }
+        
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            return scrollView.subviews.first
+        }
+        
+        func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+            if scale != 1.0 {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    scrollView.setZoomScale(1.0, animated: true)
+                }
+            }
+        }
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if scrollView.zoomScale != 1.0 {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    scrollView.setZoomScale(1.0, animated: true)
+                }
+            }
+        }
+    }
+}
+
+class VideoPlayerUIView: UIView {
+    private var playerLayer: AVPlayerLayer?
+    
+    init(coordinator: VideoPlayerCoordinator) {
+        super.init(frame: .zero)
+        
+        let playerLayer = AVPlayerLayer(player: coordinator.player)
+        playerLayer.videoGravity = .resizeAspectFill
+        layer.addSublayer(playerLayer)
+        self.playerLayer = playerLayer
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        playerLayer?.frame = bounds
     }
 }

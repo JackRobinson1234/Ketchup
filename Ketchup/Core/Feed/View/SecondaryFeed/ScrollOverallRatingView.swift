@@ -35,7 +35,3 @@ struct ScrollFeedOverallRatingView: View {
         }
     }
 }
-
-#Preview {
-    OverallRatingView()
-}
