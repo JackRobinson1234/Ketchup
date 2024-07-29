@@ -14,24 +14,24 @@ struct VideoCameraControls: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // VIDEO PROGRESS BAR
-            Spacer().frame(height: 30) 
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .fill(.black.opacity(0.25))
-                
-                Rectangle()
-                    .fill(Color("Colors/AccentColor"))
-                    .frame(width: UIScreen.main.bounds.width * (cameraViewModel.recordedDuration / cameraViewModel.maxDuration))
-            }
-            .frame(height: 4)
-            
             Spacer()
             
             // BOTTOM BUTTONS
             HStack(spacing: 30) {
                 deleteButton
-                recordButton
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.3), lineWidth: 5)
+                        .frame(width: 80, height: 80)
+                    
+                    Circle()
+                        .trim(from: 0, to: CGFloat(cameraViewModel.recordedDuration / cameraViewModel.maxDuration))
+                        .stroke(Color("Colors/AccentColor"), lineWidth: 5)
+                        .frame(width: 80, height: 80)
+                        .rotationEffect(.degrees(-90))
+                    
+                    recordButton
+                }
                 nextButton
             }
             .padding(.bottom, 20)
@@ -56,7 +56,7 @@ struct VideoCameraControls: View {
                 if cameraViewModel.isLoading {
                     // DO NOTHING
                 } else {
-                    Text("Delete")
+                    Text("Delete All")
                         .foregroundColor(.white)
                         .font(.custom("MuseoSansRounded-500", size: 16))
                 }
@@ -81,12 +81,14 @@ struct VideoCameraControls: View {
         } label: {
             ZStack {
                 Circle()
-                    .stroke(.white, lineWidth: 5)
-                    .frame(width: 70, height: 70)
-                
-                Circle()
                     .fill(cameraViewModel.isRecording ? .clear : Color("Colors/AccentColor"))
                     .frame(width: 60, height: 60)
+                
+                if cameraViewModel.isRecording {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color("Colors/AccentColor"))
+                        .frame(width: 20, height: 20)
+                }
             }
         }
     }

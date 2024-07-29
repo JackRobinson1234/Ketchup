@@ -20,7 +20,7 @@ struct CameraView: View {
     @State var dragDirection = "left"
     @State var isDragging = false
     @State private var canSwitchTab = true
-    @State private var isImagePickerPresented = false
+    @State private var isImagePickerPresented = true
     @State private var selectedItems: [YPMediaItem] = []
     
     init(feedViewModel: FeedViewModel) {
@@ -50,7 +50,6 @@ struct CameraView: View {
     }
     
     var body: some View {
-        NavigationStack {
             GeometryReader { geometry in
                 ZStack(alignment: .bottom) {
                     Color.white.edgesIgnoringSafeArea(.all)
@@ -191,19 +190,17 @@ struct CameraView: View {
             .gesture(
                 cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
             )
-            .navigationDestination(isPresented: $cameraViewModel.navigateToUpload) {
-                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                    .toolbar(.hidden, for: .tabBar)
-                    .onAppear {
-                        cameraViewModel.stopCameraSession()
-                    }
-            }
-            .navigationDestination(isPresented: $cameraViewModel.uploadFromLibray) {
-                LibrarySelectorView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                    .toolbar(.hidden, for: .tabBar)
+            .fullScreenCover(isPresented: $cameraViewModel.navigateToUpload) {
+                NavigationStack {
+                    ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                        .toolbar(.hidden, for: .tabBar)
+                        .onAppear {
+                            cameraViewModel.stopCameraSession()
+                        }
+                }
             }
             .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-            .onChange(of: tabBarController.selectedTab) { _ in
+            .onChange(of: tabBarController.selectedTab) {
                 cameraViewModel.reset()
             }
             .onChange(of: cameraViewModel.selectedCamTab) { _, newValue in
@@ -219,7 +216,7 @@ struct CameraView: View {
                     isImagePickerPresented = false
                 }
             }
-        }
+        
     }
     
     func switchTab(to newTab: Int) {

@@ -19,10 +19,10 @@ struct YPImagePickerSwiftUI: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> YPImagePicker {
         let picker = YPImagePicker(configuration: configuration)
+
         picker.didFinishPicking { [unowned picker] items, cancelled in
             uploadViewModel.mixedMediaItems = []
             if cancelled {
-                print("Picker was canceled")
                 self.isPresented = false
             } else {
                 for item in items {
@@ -45,37 +45,39 @@ struct ImagePicker: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     
     var body: some View {
-        VStack {
-            YPImagePickerSwiftUI(
-                isPresented: $isPresented,
-                uploadViewModel: uploadViewModel,
-                cameraViewModel: cameraViewModel,
-                configuration: {
-                    var config = YPImagePickerConfiguration()
-                    config.library.mediaType = .photoAndVideo
-                    config.library.maxNumberOfItems = 5
-                    config.library.minNumberOfItems = 1
-                    config.library.skipSelectionsGallery = true
-                    config.library.defaultMultipleSelection = true
-                    config.gallery.hidesRemoveButton = false
-                    config.screens = [.library]
-                    config.onlySquareImagesFromCamera = false
-                    config.hidesBottomBar = true
-                    config.shouldSaveNewPicturesToAlbum = false
-                    config.showsPhotoFilters = false
-                    config.showsVideoTrimmer = false
-                    config.library.isSquareByDefault = false
-                    return config
-                }()
-            )
+     
+            VStack {
+                if isPresented{
+                YPImagePickerSwiftUI(
+                    isPresented: $isPresented,
+                    uploadViewModel: uploadViewModel,
+                    cameraViewModel: cameraViewModel,
+                    configuration: {
+                        var config = YPImagePickerConfiguration()
+                        config.library.mediaType = .photoAndVideo
+                        config.library.maxNumberOfItems = 5
+                        config.library.minNumberOfItems = 1
+                        config.library.skipSelectionsGallery = true
+                        config.library.defaultMultipleSelection = true
+                        config.gallery.hidesRemoveButton = false
+                        config.screens = [.library]
+                        config.onlySquareImagesFromCamera = false
+                        config.hidesBottomBar = true
+                        config.shouldSaveNewPicturesToAlbum = false
+                        config.showsPhotoFilters = false
+                        config.showsVideoTrimmer = false
+                        config.library.isSquareByDefault = false
+                        return config
+                    }()
+                )
+            }
         }
-        .edgesIgnoringSafeArea(.bottom)
-        .navigationDestination(isPresented: $uploadViewModel.navigateToUpload) {
-            
-            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-            //.toolbar(.hidden, for: .tabBar)
-            
-        }
+            .edgesIgnoringSafeArea(.bottom)
+            .fullScreenCover(isPresented: $uploadViewModel.navigateToUpload) {
+                    ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                .onDisappear{isPresented = true}
+            }
+        
     }
 }
 

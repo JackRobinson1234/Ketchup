@@ -52,7 +52,7 @@ struct AddRestaurantView: View {
                     } message: {
                         Text("Please fill out all required fields before submitting.")
                     }
-                    Text("The Ketchup team will update your restaurant profile request within 48 hours! Your post can still be posted now.")
+                    Text("The Ketchup team will update your restaurant profile request! Your post can still be posted now.")
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .padding(.horizontal)
                         .foregroundStyle(.gray)
