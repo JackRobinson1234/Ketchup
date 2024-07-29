@@ -51,7 +51,7 @@ class FeedViewModel: ObservableObject {
     private let synchronizationQueue = DispatchQueue(label: "com.yourapp.prefetchingQueue")
     private var followingUsers: [String] = []
     @Published var isLoadingMoreContent = false
-    private var fetchTask: Task<Void, Error>?    
+    private var fetchTask: Task<Void, Error>?
     @Published var isShowingProfileSheet: Bool = false
     @Published var selectedTab: FeedTab = .discover {
         didSet {
@@ -60,7 +60,7 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-@Published var showBookmarks = true
+    @Published var showBookmarks = true
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
@@ -98,15 +98,15 @@ class FeedViewModel: ObservableObject {
         self.filters = filters
         self.lastDocument = nil
         self.lastFetched = 0  // Reset the threshold
-
+        
         if selectedTab == .following {
             await fetchFollowingUsers()
         }
-
+        
         await fetchPosts(withFilters: filters, isInitialLoad: true)
         self.isLoading = false
     }
-
+    
     private func cancelExistingFetchAndStartNew() {
         fetchTask?.cancel()
         fetchTask = Task {
@@ -121,14 +121,14 @@ class FeedViewModel: ObservableObject {
             self.isLoading = false
         }
     }
-
+    
     func fetchMorePosts() async {
         guard !isFetching else { return }
         isFetching = true
         await fetchPosts(withFilters: self.filters, isInitialLoad: false)
         isFetching = false
     }
-
+    
     private func fetchFollowingUsers() async {
         do {
             let userIds = try await UserService.shared.fetchFollowingUserIds()
@@ -180,18 +180,18 @@ class FeedViewModel: ObservableObject {
                 lastDocument = nil
             }
         }
-
+        
         do {
             var updatedFilters = filters ?? [:]
             updatedFilters["user.privateMode"] = [false]
-
+            
             let db = Firestore.firestore()
             var query: Query = db.collection("posts")
-
+            
             for (key, value) in updatedFilters {
                 query = query.whereField(key, in: value)
             }
-
+            
             if selectedTab == .following {
                 let followingBatch = Array(followingUsers.prefix(30))
                 if followingBatch.isEmpty {
@@ -204,18 +204,18 @@ class FeedViewModel: ObservableObject {
                 }
                 query = query.whereField("user.id", in: followingBatch)
             }
-
+            
             query = query.order(by: "timestamp", descending: true)
                 .limit(to: pageSize)
-
+            
             if let lastDocument = lastDocument {
                 query = query.start(afterDocument: lastDocument)
             }
-
+            
             let snapshot = try await query.getDocuments()
             if Task.isCancelled { return }
             var newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-
+            
             // Check if user liked and bookmarked the new posts
             for i in 0..<newPosts.count {
                 do {
@@ -225,7 +225,7 @@ class FeedViewModel: ObservableObject {
                     print("DEBUG: Failed to check if user liked or bookmarked post")
                 }
             }
-
+            
             await MainActor.run {
                 if newPosts.isEmpty {
                     self.hasMorePosts = false
@@ -245,37 +245,37 @@ class FeedViewModel: ObservableObject {
         }
     }
     func fetchRestaurantPosts(restaurant: Restaurant) async throws{
-            do {
-                self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
-            } catch {
-                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-                
-            }
+        do {
+            self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
+        } catch {
+            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            
+        }
     }
     func updateCache(scrollPosition: String?) {
         guard !posts.isEmpty, let scrollPosition = scrollPosition else {
-                print("Posts array is empty or scroll position is nil")
-                return
-            }
-
-            guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-                print("Current index not found in posts array")
-                return
-            }
-
-            print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
-
-            let startIndex = min(currentIndex + 1, posts.count - 1)
-            let endIndex = min(currentIndex + 6, posts.count)
-
-            guard startIndex < endIndex else {
-                print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-                return
-            }
-
-            let postsToPreload = Array(posts[startIndex..<endIndex])
-            
-            print("Preloading \(postsToPreload.count) posts")
+            print("Posts array is empty or scroll position is nil")
+            return
+        }
+        
+        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+            print("Current index not found in posts array")
+            return
+        }
+        
+        print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
+        
+        let startIndex = min(currentIndex + 1, posts.count - 1)
+        let endIndex = min(currentIndex + 6, posts.count)
+        
+        guard startIndex < endIndex else {
+            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+            return
+        }
+        
+        let postsToPreload = Array(posts[startIndex..<endIndex])
+        
+        print("Preloading \(postsToPreload.count) posts")
         
         DispatchQueue.global().async {
             for post in postsToPreload {
@@ -289,12 +289,12 @@ class FeedViewModel: ObservableObject {
                         let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
                         prefetcher.start()
                     }
-
+                    
                     if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
                         let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
                         prefetcher.start()
                     }
-
+                    
                     if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
                         let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
                         prefetcher.start()
@@ -310,7 +310,7 @@ extension FeedViewModel {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = true
         posts[index].likes += 1
-
+        
         do {
             try await PostService.shared.likePost(post)
         } catch {
@@ -319,12 +319,12 @@ extension FeedViewModel {
             posts[index].likes -= 1
         }
     }
-
+    
     func unlike(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didLike = false
         posts[index].likes -= 1
-
+        
         do {
             try await PostService.shared.unlikePost(post)
         } catch {
@@ -333,7 +333,7 @@ extension FeedViewModel {
             posts[index].likes += 1
         }
     }
-
+    
     func checkIfUserLikedPosts() async {
         guard !posts.isEmpty else { return }
         var copy = posts
@@ -341,7 +341,7 @@ extension FeedViewModel {
             do {
                 let post = copy[i]
                 let didLike = try await PostService.shared.checkIfUserLikedPost(post)
-
+                
                 if didLike {
                     copy[i].didLike = didLike
                 }
@@ -349,32 +349,32 @@ extension FeedViewModel {
                 print("DEBUG: Failed to check if user liked post")
             }
         }
-
+        
         posts = copy
     }
-
+    
     func loadMoreContentIfNeeded(currentPost: String?) async {
         guard let currentPost = currentPost, !posts.isEmpty else {
             print("No current post or posts array is empty")
             return
         }
-
+        
         guard !isFetching && hasMorePosts else {
             print("Already fetching or no more posts to fetch")
             return
         }
-
+        
         guard let currentIndex = posts.firstIndex(where: { $0.id == currentPost }) else {
             print("Error: Current post not found in the posts array")
             return
         }
-
+        
         let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
-
+        
         if currentIndex >= thresholdIndex && currentIndex > lastFetched {
             print("Fetching more posts. Current index: \(currentIndex), Last fetched: \(lastFetched)")
             lastFetched = currentIndex
-
+            
             Task {
                 isLoadingMoreContent = true
                 await fetchMorePosts()
@@ -384,7 +384,7 @@ extension FeedViewModel {
             print("Not yet reached the threshold for fetching more posts. Current index: \(currentIndex), Threshold: \(thresholdIndex), Last fetched: \(lastFetched)")
         }
     }
-
+    
     func isLastItem(_ post: Post) -> Bool {
         guard let lastPost = posts.last else {
             return false
@@ -410,7 +410,7 @@ extension FeedViewModel {
             print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
         }
     }
-
+    
     func repost(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didRepost = true
@@ -426,7 +426,7 @@ extension FeedViewModel {
             AuthService.shared.userSession?.stats.posts -= 1
         }
     }
-
+    
     func removeRepost(_ post: Post) async {
         guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
         posts[index].didRepost = false
@@ -455,48 +455,48 @@ extension FeedViewModel {
 }
 extension FeedViewModel {
     func bookmark(_ post: Post) async {
+        do {
+            try await PostService.shared.bookmarkRestaurant(from: post)
+            
+            // Update all posts with the same restaurant.id
+            updateBookmarkStatus(for: post.restaurant.id, isBookmarked: true)
+        } catch {
+            print("DEBUG: Failed to bookmark restaurant with error \(error.localizedDescription)")
+        }
+    }
+    
+    func unbookmark(_ post: Post) async {
+        do {
+            try await PostService.shared.unbookmarkRestaurant(restaurantId: post.restaurant.id)
+            
+            // Update all posts with the same restaurant.id
+            updateBookmarkStatus(for: post.restaurant.id, isBookmarked: false)
+        } catch {
+            print("DEBUG: Failed to unbookmark restaurant with error \(error.localizedDescription)")
+        }
+    }
+    
+    private func updateBookmarkStatus(for restaurantId: String, isBookmarked: Bool) {
+        for index in posts.indices {
+            if posts[index].restaurant.id == restaurantId {
+                posts[index].didBookmark = isBookmarked
+            }
+        }
+    }
+    
+    func checkIfUserBookmarkedRestaurants() async {
+        guard !posts.isEmpty else { return }
+        var copy = posts
+        for i in 0..<copy.count {
             do {
-                try await PostService.shared.bookmarkRestaurant(from: post)
-                
-                // Update all posts with the same restaurant.id
-                updateBookmarkStatus(for: post.restaurant.id, isBookmarked: true)
+                let post = copy[i]
+                let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
+                copy[i].didBookmark = isBookmarked
             } catch {
-                print("DEBUG: Failed to bookmark restaurant with error \(error.localizedDescription)")
+                print("DEBUG: Failed to check if user bookmarked restaurant")
             }
         }
-
-        func unbookmark(_ post: Post) async {
-            do {
-                try await PostService.shared.unbookmarkRestaurant(restaurantId: post.restaurant.id)
-                
-                // Update all posts with the same restaurant.id
-                updateBookmarkStatus(for: post.restaurant.id, isBookmarked: false)
-            } catch {
-                print("DEBUG: Failed to unbookmark restaurant with error \(error.localizedDescription)")
-            }
-        }
-
-        private func updateBookmarkStatus(for restaurantId: String, isBookmarked: Bool) {
-            for index in posts.indices {
-                if posts[index].restaurant.id == restaurantId {
-                    posts[index].didBookmark = isBookmarked
-                }
-            }
-        }
-
-        func checkIfUserBookmarkedRestaurants() async {
-            guard !posts.isEmpty else { return }
-            var copy = posts
-            for i in 0..<copy.count {
-                do {
-                    let post = copy[i]
-                    let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
-                    copy[i].didBookmark = isBookmarked
-                } catch {
-                    print("DEBUG: Failed to check if user bookmarked restaurant")
-                }
-            }
-
-            posts = copy
-        }
+        
+        posts = copy
+    }
 }
