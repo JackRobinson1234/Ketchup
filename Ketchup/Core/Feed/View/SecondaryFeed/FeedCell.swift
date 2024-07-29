@@ -33,7 +33,7 @@ struct FeedCell: View {
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
     @State private var showingOptionsSheet = false
-    @State private var currentImageIndex = 0
+    @State private var currentImageIndex =  0
     @State var isDragging = false
     @State var dragDirection = "left"
     var hideFeedOptions: Bool
@@ -119,8 +119,10 @@ struct FeedCell: View {
                         currentIndex: $currentIndex,
                         itemCount: mixedMediaUrls.count,
                         itemWidth: mediaWidth,
+                        initialIndex: viewModel.startingImageIndex,
                         onDismiss: { dismiss() }
                     )
+                    .onAppear{viewModel.startingImageIndex = 0}
                     .frame(height: mediaHeight)
                     .overlay(alignment: .top){IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)}
 
@@ -169,22 +171,55 @@ struct FeedCell: View {
         .onDisappear {
             pauseAllVideos()
         }
+        .onChange(of: pauseVideo){
+            if pauseVideo{
+                pauseAllVideos()
+            } else {
+                handleIndexChange(currentIndex)
+            }
+        }
         .sheet(isPresented: $showComments) {
+    
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                .onAppear {
+                    pauseAllVideos()
+                }
+                .onDisappear {
+                    handleIndexChange(currentIndex)
+                }
         }
         .sheet(isPresented: $showShareView) {
+            
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onAppear {
+                    pauseAllVideos()
+                }
+                .onDisappear {
+                    handleIndexChange(currentIndex)
+                }
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(post: post)
+                    .onAppear {
+                        pauseAllVideos()
+                    }
+                    .onDisappear {
+                        handleIndexChange(currentIndex)
+                    }
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onAppear {
+                    pauseAllVideos()
+                }
+                .onDisappear {
+                    handleIndexChange(currentIndex)
+                }
         }
         .onChange(of: currentIndex) { oldValue, newValue in
                    handleIndexChange(newValue)
@@ -201,6 +236,9 @@ struct FeedCell: View {
         )
         .sheet(isPresented: $isTaggedSheetPresented) {
             TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                .onAppear {
+                    pauseAllVideos()
+                }
         }
     }
     
@@ -253,8 +291,12 @@ struct FeedCell: View {
             currentIndex: $currentIndex,
             itemCount: items.count,
             itemWidth: mediaWidth,
+            initialIndex: viewModel.startingImageIndex,
             onDismiss: { dismiss() }
         )
+        .onAppear{
+           viewModel.startingImageIndex = 0
+        }
         .frame(height: mediaHeight)
         .overlay(alignment: .top) {
             IndexIndicatorView(currentIndex: currentIndex, totalCount: items.count)
@@ -564,11 +606,11 @@ struct FeedCell: View {
                     ZoomableVideoPlayer(videoCoordinator: coordinator)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                        .overlay(IndexIndicatorView(currentIndex: 0, totalCount: 1))
+                       
                 } else if let imageURL = imageURL {
                     ZoomableImage(imageURL: imageURL)
                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                        .overlay(IndexIndicatorView(currentIndex: 0, totalCount: post.mediaUrls.count))
+                       
                 }
                 
                 VStack {
@@ -817,20 +859,22 @@ struct FeedCell: View {
 struct IndexIndicatorView: View {
     var currentIndex: Int
     var totalCount: Int
-
+    
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<totalCount, id: \.self) { index in
-                Circle()
-                    .fill(index == currentIndex ? Color.white : Color.white.opacity(0.5))
-                    .frame(width: 8, height: 8)
+        if totalCount > 1 {
+            HStack(spacing: 8) {
+                ForEach(0..<totalCount, id: \.self) { index in
+                    Circle()
+                        .fill(index == currentIndex ? Color.white : Color.white.opacity(0.5))
+                        .frame(width: 8, height: 8)
+                }
             }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color.black.opacity(0.3))
+            .cornerRadius(20)
+            .padding(.top, 12)
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Color.black.opacity(0.3))
-        .cornerRadius(20)
-        .padding(.top, 12)
     }
 }
 

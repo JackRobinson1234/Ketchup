@@ -41,7 +41,8 @@ struct WrittenFeedCell: View {
     @State private var parsedCaption: AttributedString?
     
     @State private var selectedUserId: String?
-    
+    @State private var currentIndex: Int = 0
+
     var checkLikes: Bool
     
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
@@ -96,85 +97,85 @@ struct WrittenFeedCell: View {
             }
             .padding(.horizontal)
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                VStack {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack {
-                            ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                VStack {
-                                    Button {
-                                        viewModel.startingImageIndex = index
-                                        viewModel.startingPostId = post.id
-                                        selectedPost = post
-                                    } label: {
-                                        if mediaItem.type == .photo {
-                                            KFImage(URL(string: mediaItem.url))
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: mediaWidth, height: mediaHeight)
-                                                .clipped()
-                                                .cornerRadius(10)
-                                        } else if mediaItem.type == .video {
-                                            ZStack {
-                                                VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
-                                                    .frame(width: mediaWidth, height: mediaHeight)
-                                                    .cornerRadius(10)
-                                                    .id(mediaItem.id)
-                                                
-                                                if !isCurrentVideoPlaying && currentlyPlayingVideoId == mediaItem.id {
-                                                    Image(systemName: "play.circle.fill")
-                                                        .resizable()
-                                                        .frame(width: 50, height: 50)
-                                                        .foregroundColor(.white)
-                                                        .opacity(0.8)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                    content
-                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
-                                }
-                            }
-                        }
-                        .frame(height: mediaHeight)
-                        .scrollTargetLayout()
-                    }
-                    .scrollTargetBehavior(.viewAligned)
-                    .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
-                    .scrollPosition(id: $currentlyPlayingVideoId)
-                    
-                    // Play/Pause and Mute buttons
-                    if let currentVideoId = currentlyPlayingVideoId,
-                       mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                togglePlayPause()
-                            }) {
-                                Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                    .resizable()
-                                    .frame(width: 30, height: 30)
-                                    .foregroundColor(.white)
-                                    .background(Color.black.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                            Button(action: {
-                                toggleMute()
-                            }) {
-                                Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
-                                    .resizable()
-                                    .frame(width: 30, height: 30)
-                                    .foregroundColor(.white)
-                                    .background(Color.black.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                            Spacer()
-                        }
-                        .padding(.top, 8)
-                    }
-                }
-            } else if post.mediaType == .video {
+                           VStack {
+                               ScrollView(.horizontal, showsIndicators: false) {
+                                   LazyHStack {
+                                       ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                           VStack {
+                                               Button {
+                                                   viewModel.startingImageIndex = index
+                                                   viewModel.startingPostId = post.id
+                                                   selectedPost = post
+                                               } label: {
+                                                   if mediaItem.type == .photo {
+                                                       KFImage(URL(string: mediaItem.url))
+                                                           .resizable()
+                                                           .aspectRatio(contentMode: .fill)
+                                                           .frame(width: mediaWidth, height: mediaHeight)
+                                                           .clipped()
+                                                           .cornerRadius(10)
+                                                   } else if mediaItem.type == .video {
+                                                       ZStack {
+                                                           VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                                                               .frame(width: mediaWidth, height: mediaHeight)
+                                                               .cornerRadius(10)
+                                                               .id(mediaItem.id)
+                                                           
+                                                           if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
+                                                               Image(systemName: "play.circle.fill")
+                                                                   .resizable()
+                                                                   .frame(width: 50, height: 50)
+                                                                   .foregroundColor(.white)
+                                                                   .opacity(0.8)
+                                                           }
+                                                       }
+                                                   }
+                                               }
+                                           }
+                                           .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                               content
+                                                   .opacity(phase.isIdentity ? 1.0 : 0.8)
+                                           }
+                                       }
+                                   }
+                                   .frame(height: mediaHeight)
+                                   .scrollTargetLayout()
+                               }
+                               .scrollTargetBehavior(.viewAligned)
+                               .safeAreaPadding(.horizontal, ((UIScreen.main.bounds.width - mediaWidth) / 2))
+                               .scrollPosition(id: $currentlyPlayingVideoId)
+                               
+                               // Play/Pause and Mute buttons
+                               if let currentVideoId = currentlyPlayingVideoId,
+                                  mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
+                                   HStack {
+                                       Spacer()
+                                       Button(action: {
+                                           togglePlayPause()
+                                       }) {
+                                           Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                               .resizable()
+                                               .frame(width: 30, height: 30)
+                                               .foregroundColor(.white)
+                                               .background(Color.black.opacity(0.6))
+                                               .clipShape(Circle())
+                                       }
+                                       Button(action: {
+                                           toggleMute()
+                                       }) {
+                                           Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
+                                               .resizable()
+                                               .frame(width: 30, height: 30)
+                                               .foregroundColor(.white)
+                                               .background(Color.black.opacity(0.6))
+                                               .clipShape(Circle())
+                                       }
+                                       Spacer()
+                                   }
+                                   .padding(.top, 8)
+                               }
+                           }
+                       } else if post.mediaType == .video {
                 HStack(alignment: .bottom) {
                     Rectangle()
                         .frame(width: 40, height: 40)
@@ -413,26 +414,27 @@ struct WrittenFeedCell: View {
                     await viewModel.checkIfUserBookmarkedRestaurants()
                 }
             }
-            
-            if post.mediaType == .mixed || post.mediaType == .video {
-                for (_, coordinator) in videoCoordinators {
-                    coordinator.player.isMuted = viewModel.isMuted
-                }
-                
-                // Initialize currentlyPlayingVideoId with the first video's ID
-                if let firstVideoId = (post.mediaType == .mixed ? post.mixedMediaUrls?.first { $0.type == .video }?.id : videoCoordinators.first?.0) {
-                    currentlyPlayingVideoId = firstVideoId
-                    isCurrentVideoPlaying = false // Ensure it's not playing initially
-                }
+            isCurrentVideoPlaying = false
+          
             }
-        }
+        
         .onChange(of: scrollPosition) { oldValue, newValue in
-            if post.mediaType == .video {
-                if newValue == post.id {
-                    playAll()
-                } else {
-                    pauseAllVideos()
+                    if post.mediaType == .video || post.mediaType == .mixed {
+                        if newValue == post.id {
+                            handleIndexChange(currentIndex)
+                        } else {
+                            pauseAllVideos()
+                        }
+                    }
                 }
+        .onChange(of: currentIndex) { oldValue, newValue in
+                    handleIndexChange(newValue)
+                }
+        .onChange(of: pauseVideo){
+            if pauseVideo{
+                pauseAllVideos()
+            } else {
+                handleIndexChange(currentIndex)
             }
         }
         .environment(\.openURL, OpenURLAction { url in
@@ -454,6 +456,12 @@ struct WrittenFeedCell: View {
                         ProfileView(uid: userId)
                     }
                 }
+                .onAppear {
+                    pauseAllVideos()
+                }
+                .onDisappear {
+                    handleIndexChange(currentIndex)
+                }
             }
         } .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
             if let newValue = newValue,
@@ -463,48 +471,47 @@ struct WrittenFeedCell: View {
                 isCurrentVideoPlaying = true
             }
         }
-        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
-            if post.mediaType == .video && newTab !=  0 {
-                //videoCoordinator.pause()
-            }
-        }
-        //        .onChange(of: scrollPosition) { oldValue, newValue in
-        //            videoCoordinator.player.isMuted = viewModel.isMuted
-        //            if post.mediaType == .video {
-        //                if newValue == post.id {
-        //                    videoCoordinator.play()
-        //                } else {
-        //                    videoCoordinator.pause()
-        //                }
-        //            }
-        //        }
+        
+
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+                .onAppear {
+                    pauseAllVideos()
+                }
                 .onDisappear {
-                    //videoCoordinator.play()
+                    handleIndexChange(currentIndex)
                 }
         }
         .sheet(isPresented: $showShareView) {
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onAppear {
+                    pauseAllVideos()
+                }
                 .onDisappear {
-                    //videoCoordinator.play()
+                    handleIndexChange(currentIndex)
                 }
         }
         .sheet(isPresented: $showCollections) {
             if let currentUser = AuthService.shared.userSession {
                 AddItemCollectionList(post: post)
+                    .onAppear {
+                        pauseAllVideos()
+                    }
                     .onDisappear {
-                        //videoCoordinator.play()
+                        handleIndexChange(currentIndex)
                     }
             }
         }
         .sheet(isPresented: $showingOptionsSheet) {
             PostOptionsSheet(post: $post, viewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
+                .onAppear {
+                    pauseAllVideos()
+                }
                 .onDisappear {
-                    //videoCoordinator.play()
+                    handleIndexChange(currentIndex)
                 }
         }
         .onChange(of: selectedPost) {
@@ -532,56 +539,69 @@ struct WrittenFeedCell: View {
                 }
             }
         )
-        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
-            if let newValue = newValue,
-               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
-                pauseAllVideos()
-                coordinator.play()
-                isCurrentVideoPlaying = true
-            }
-        }
+
         
-        //        .onDisappear {
-        //            videoCoordinator.pause()
-        //        }
-        //        .onChange(of: pauseVideo) {
-        //            if pauseVideo {
-        //                videoCoordinator.pause()
-        //            } else {
-        //                videoCoordinator.play()
-        //            }
-        //        }
+                .onDisappear {
+                   pauseAllVideos()
+                }
     }
+    private func handleIndexChange(_ index: Int) {
+           pauseAllVideos()
+           
+           if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+               let mediaItem = mixedMediaUrls[index]
+               if mediaItem.type == .video {
+                   currentlyPlayingVideoId = mediaItem.id
+                   playVideo(id: mediaItem.id)
+               }
+           } else if post.mediaType == .video && index == 0 {
+               if let firstVideoId = videoCoordinators.first?.0 {
+                   currentlyPlayingVideoId = firstVideoId
+                   playVideo(id: firstVideoId)
+               }
+           }
+       }
     private func pauseAllVideos() {
-        for (_, coordinator) in videoCoordinators {
-            coordinator.pause()
-        }
-        isCurrentVideoPlaying = false
-    }
-    private func togglePlayPause() {
-        if let currentVideoId = currentlyPlayingVideoId,
-           let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
-            if isCurrentVideoPlaying {
+            for (_, coordinator) in videoCoordinators {
                 coordinator.pause()
-            } else {
-                coordinator.play()
             }
-            isCurrentVideoPlaying.toggle()
+            isCurrentVideoPlaying = false
         }
-    }
+
+    private func togglePlayPause() {
+           if let currentVideoId = currentlyPlayingVideoId,
+              let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
+               if isCurrentVideoPlaying {
+                   coordinator.pause()
+               } else {
+                   coordinator.play()
+               }
+               isCurrentVideoPlaying.toggle()
+           }
+       }
     
     private func toggleMute() {
-        viewModel.isMuted.toggle()
-        for (_, coordinator) in videoCoordinators {
-            coordinator.player.isMuted = viewModel.isMuted
-        }
-    }
+           viewModel.isMuted.toggle()
+           for (_, coordinator) in videoCoordinators {
+               coordinator.player.isMuted = viewModel.isMuted
+           }
+       }
     
-    private func playAll() {
-        for (_, coordinator) in videoCoordinators {
-            coordinator.play()
+    private func playVideo(id: String) {
+            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+                coordinator.play()
+                isCurrentVideoPlaying = true
+                currentlyPlayingVideoId = id
+            }
         }
-    }
+    private func pauseVideo(id: String) {
+            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+                coordinator.pause()
+                if currentlyPlayingVideoId == id {
+                    isCurrentVideoPlaying = false
+                }
+            }
+        }
     
     
     

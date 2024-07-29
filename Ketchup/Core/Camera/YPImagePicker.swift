@@ -45,36 +45,36 @@ struct ImagePicker: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     
     var body: some View {
-        NavigationStack{
-            VStack {
-                YPImagePickerSwiftUI(
-                    isPresented: $isPresented,
-                    uploadViewModel: uploadViewModel,
-                    cameraViewModel: cameraViewModel,
-                    configuration: {
-                        var config = YPImagePickerConfiguration()
-                        config.library.mediaType = .photoAndVideo
-                        config.library.maxNumberOfItems = 5
-                        config.library.minNumberOfItems = 1
-                        config.library.skipSelectionsGallery = true
-                        config.library.defaultMultipleSelection = true
-                        config.gallery.hidesRemoveButton = false
-                        config.screens = [.library]
-                        config.onlySquareImagesFromCamera = false
-                        config.hidesBottomBar = true
-                        config.shouldSaveNewPicturesToAlbum = false
-                        config.showsPhotoFilters = false
-                        config.showsVideoTrimmer = false
-                        config.library.isSquareByDefault = false
-                        return config
-                    }()
-                )
-            }
-            .edgesIgnoringSafeArea(.bottom)
-            .navigationDestination(isPresented: $uploadViewModel.navigateToUpload) {
-                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                    .toolbar(.hidden, for: .tabBar)
-            }
+        VStack {
+            YPImagePickerSwiftUI(
+                isPresented: $isPresented,
+                uploadViewModel: uploadViewModel,
+                cameraViewModel: cameraViewModel,
+                configuration: {
+                    var config = YPImagePickerConfiguration()
+                    config.library.mediaType = .photoAndVideo
+                    config.library.maxNumberOfItems = 5
+                    config.library.minNumberOfItems = 1
+                    config.library.skipSelectionsGallery = true
+                    config.library.defaultMultipleSelection = true
+                    config.gallery.hidesRemoveButton = false
+                    config.screens = [.library]
+                    config.onlySquareImagesFromCamera = false
+                    config.hidesBottomBar = true
+                    config.shouldSaveNewPicturesToAlbum = false
+                    config.showsPhotoFilters = false
+                    config.showsVideoTrimmer = false
+                    config.library.isSquareByDefault = false
+                    return config
+                }()
+            )
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .navigationDestination(isPresented: $uploadViewModel.navigateToUpload) {
+            
+            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+            //.toolbar(.hidden, for: .tabBar)
+            
         }
     }
 }
