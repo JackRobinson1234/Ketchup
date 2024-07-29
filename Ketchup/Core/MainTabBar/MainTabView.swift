@@ -54,8 +54,7 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
-            CameraView(feedViewModel: feedViewModel)
-//            ImagePicker()
+            UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")
                         .foregroundStyle(.primary)

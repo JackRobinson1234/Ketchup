@@ -14,7 +14,6 @@ import UniformTypeIdentifiers
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @EnvironmentObject var tabBarController: TabBarController
-    @ObservedObject var feedViewModel: FeedViewModel
     @StateObject var uploadViewModel: UploadViewModel
     @StateObject var keyboardObserver = KeyboardObserver()
     @State var dragDirection = "left"
@@ -23,10 +22,7 @@ struct CameraView: View {
     @State private var isImagePickerPresented = true
     @State private var selectedItems: [YPMediaItem] = []
     
-    init(feedViewModel: FeedViewModel) {
-        _feedViewModel = ObservedObject(wrappedValue: feedViewModel)
-        _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel))
-    }
+
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)

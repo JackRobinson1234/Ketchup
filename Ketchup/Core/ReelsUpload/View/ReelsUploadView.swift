@@ -145,7 +145,7 @@ struct ReelsUploadView: View {
                     .padding()
                 }
                 .if(writtenReview) { view in
-                    view.safeAreaPadding(.vertical, 100)
+                    view.safeAreaPadding(.bottom, 100)
                 }
             }
             .onTapGesture {
@@ -171,7 +171,7 @@ struct ReelsUploadView: View {
                 uploadViewModel.checkForMentioning()
             }
             .navigationDestination(isPresented: $isPickingRestaurant) {
-                SelectRestaurantListView(uploadViewModel: uploadViewModel)
+                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, isEditingRestaurant: true)
                     .navigationTitle("Select Restaurant")
             }
             .navigationDestination(isPresented: $isTaggingUsers) {

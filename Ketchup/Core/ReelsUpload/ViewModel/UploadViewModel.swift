@@ -41,6 +41,7 @@ class UploadViewModel: ObservableObject {
     @Published var isFoodNA: Bool = false
     @Published var MixedImages: [UIImage]?
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
+    @Published var thumbnailImage: UIImage?
     
     
     var mentionableUsers: [User] = []  // Assuming you have this data available
@@ -78,13 +79,14 @@ class UploadViewModel: ObservableObject {
         filteredMentionedUsers = []
         isMentioning = false
         mixedMediaItems = []
+        thumbnailImage = nil
         
     }
     
     func uploadPost() async {
         isLoading = true
         var postRestaurant: PostRestaurant? = nil
-        
+       
         if let restaurant = restaurant {
             postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
         } else if let restaurant = restaurantRequest {
@@ -108,7 +110,7 @@ class UploadViewModel: ObservableObject {
         
         error = nil
         
-        var post: Post? = nil
+     
         do {
             if let postRestaurant {
                 // Extract mentioned users from caption
@@ -173,7 +175,8 @@ class UploadViewModel: ObservableObject {
                     valueRating: isValueNA ? nil : valueRating,
                     foodRating: isFoodNA ? nil : foodRating,
                     taggedUsers: taggedUsers,
-                    captionMentions: mentionedUsers
+                    captionMentions: mentionedUsers,
+                    thumbnailImage: thumbnailImage
                 )
                 
                 uploadSuccess = true

@@ -12,66 +12,71 @@ import SwiftUI
 struct UploadService {
     static let shared = UploadService() // Singleton instance
     private init() {}
+    
     func uploadPost(
-            mixedMediaItems: [MixedMediaItem],
-            mediaType: MediaType,
-            caption: String,
-            postRestaurant: PostRestaurant,
-            fromInAppCamera: Bool,
-            overallRating: Double?,
-            serviceRating: Double?,
-            atmosphereRating: Double?,
-            valueRating: Double?,
-            foodRating: Double?,
-            taggedUsers: [PostUser],
-            captionMentions: [PostUser]
-        ) async throws -> Post {
-            let user = try await UserService.shared.fetchCurrentUser()
-            let ref = FirestoreConstants.PostsCollection.document()
-
-            var thumbnailUrl = ""
-            if let firstItem = mixedMediaItems.first {
-                thumbnailUrl = firstItem.url ?? ""
-                if firstItem.type == .video {
-                    thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl)
-                }
+        mixedMediaItems: [MixedMediaItem],
+        mediaType: MediaType,
+        caption: String,
+        postRestaurant: PostRestaurant,
+        fromInAppCamera: Bool,
+        overallRating: Double?,
+        serviceRating: Double?,
+        atmosphereRating: Double?,
+        valueRating: Double?,
+        foodRating: Double?,
+        taggedUsers: [PostUser],
+        captionMentions: [PostUser],
+        thumbnailImage: UIImage?  // New parameter
+    ) async throws -> Post {
+        let user = try await UserService.shared.fetchCurrentUser()
+        let ref = FirestoreConstants.PostsCollection.document()
+        
+        var thumbnailUrl = ""
+        if let thumbnailImage = thumbnailImage {
+            // Use the provided thumbnail image
+            thumbnailUrl = try await ImageUploader.uploadImage(image: thumbnailImage, type: .post) ?? ""
+        } else if let firstItem = mixedMediaItems.first {
+            thumbnailUrl = firstItem.url
+            if firstItem.type == .video {
+                thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl)
             }
-
-            let post = Post(
-                id: ref.documentID,
-                mediaType: .mixed,
-                mediaUrls: mixedMediaItems.compactMap { $0.url },
-                mixedMediaUrls: mixedMediaItems,
-                caption: caption,
-                likes: 0,
-                commentCount: 0,
-                repostCount: 0,
-                thumbnailUrl: thumbnailUrl,
-                timestamp: Timestamp(),
-                user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
-                restaurant: postRestaurant,
-                didLike: false,
-                didBookmark: false,
-                fromInAppCamera: fromInAppCamera,
-                repost: false,
-                didRepost: false,
-                overallRating: overallRating,
-                serviceRating: serviceRating,
-                atmosphereRating: atmosphereRating,
-                valueRating: valueRating,
-                foodRating: foodRating,
-                taggedUsers: taggedUsers,
-                captionMentions: captionMentions
-            )
-
-            guard let postData = try? Firestore.Encoder().encode(post) else {
-                throw UploadError.encodingFailed
-            }
-
-            try await ref.setData(postData)
-            print("Post created successfully")
-            return post
         }
+
+        let post = Post(
+            id: ref.documentID,
+            mediaType: .mixed,
+            mediaUrls: mixedMediaItems.compactMap { $0.url },
+            mixedMediaUrls: mixedMediaItems,
+            caption: caption,
+            likes: 0,
+            commentCount: 0,
+            repostCount: 0,
+            thumbnailUrl: thumbnailUrl,
+            timestamp: Timestamp(),
+            user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
+            restaurant: postRestaurant,
+            didLike: false,
+            didBookmark: false,
+            fromInAppCamera: fromInAppCamera,
+            repost: false,
+            didRepost: false,
+            overallRating: overallRating,
+            serviceRating: serviceRating,
+            atmosphereRating: atmosphereRating,
+            valueRating: valueRating,
+            foodRating: foodRating,
+            taggedUsers: taggedUsers,
+            captionMentions: captionMentions
+        )
+
+        guard let postData = try? Firestore.Encoder().encode(post) else {
+            throw UploadError.encodingFailed
+        }
+
+        try await ref.setData(postData)
+        print("Post created successfully")
+        return post
+    }
     
     func updateThumbnailUrl(fromVideoUrl videoUrl: String) async throws -> String{
         guard let image = MediaHelpers.generateThumbnail(path: videoUrl) else {
