@@ -7,10 +7,12 @@
 
 import SwiftUI
 
+
 struct VideoCameraControls: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     @ObservedObject var uploadViewModel: UploadViewModel
     @EnvironmentObject var tabBarController: TabBarController
+    @State private var showDeleteWarning = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -45,26 +47,31 @@ struct VideoCameraControls: View {
                 cameraViewModel.isRecording = false
             }
         }
+        .alert(isPresented: $showDeleteWarning) {
+            Alert(
+                title: Text("Delete All"),
+                message: Text("Are you sure you want to delete all recorded videos? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    cameraViewModel.reset()
+                    uploadViewModel.reset()
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
     
     private var deleteButton: some View {
         Button {
-            cameraViewModel.reset()
-            uploadViewModel.reset()
+            showDeleteWarning = true
         } label: {
-            Group {
-                if cameraViewModel.isLoading {
-                    // DO NOTHING
-                } else {
-                    Text("Delete All")
-                        .foregroundColor(.white)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-            }
-            .frame(width: 70, height: 30)
-            .background(Capsule().fill(Color("Colors/AccentColor")))
+            Text("Delete All")
+                .foregroundColor(.white)
+                .font(.custom("MuseoSansRounded-500", size: 14))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Capsule().fill(Color.red))
+                .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 2)
         }
-        .frame(width: 80)
         .opacity((cameraViewModel.previewURL == nil || cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
     }
     
@@ -106,22 +113,23 @@ struct VideoCameraControls: View {
             Group {
                 if cameraViewModel.isLoading {
                     ProgressView()
-                        .tint(.black)
+                        .tint(.white)
                 } else {
-                    Label {
-                        Image(systemName: "chevron.right")
-                            .font(.callout)
-                    } icon: {
+                    HStack(spacing: 4) {
                         Text("Next")
-                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 14))
+                            .foregroundStyle(.black)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .bold))
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                 }
             }
-            .frame(width: 70, height: 30)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(Capsule().fill(.white))
+            .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 2)
         }
-        .frame(width: 80)
         .opacity((cameraViewModel.previewURL == nil && cameraViewModel.recordedURLs.isEmpty) || cameraViewModel.isRecording ? 0 : 1)
     }
 }

@@ -11,23 +11,23 @@ struct SelectFollowingView: View {
     var debouncer = Debouncer(delay: 1.0)
     @ObservedObject var uploadViewModel: UploadViewModel
     @Environment(\.dismiss) var dismiss
-    //@State private var searchText: String = ""
     @State private var followingUsers: [User] = []
     @FocusState private var isSearchFieldFocused: Bool
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
+    @EnvironmentObject var tabBarController: TabBarController
 
     var body: some View {
-        VStack {
-            TextField("Search users...", text: $searchViewModel.searchQuery)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-                .padding(.horizontal)
-                .focused($isSearchFieldFocused)
+            VStack {
+                TextField("Search users...", text: $searchViewModel.searchQuery)
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+                    .focused($isSearchFieldFocused)
 
-            if searchViewModel.searchQuery.isEmpty {
-                List {
-                    ForEach(uploadViewModel.taggedUserPreviews) { user in
+                if searchViewModel.searchQuery.isEmpty {
+                    List {
+                        ForEach(uploadViewModel.taggedUserPreviews) { user in
                             HStack {
                                 UserCell(user: user)
                                     .padding(.horizontal)
@@ -41,52 +41,59 @@ struct SelectFollowingView: View {
                             }
                         }
                     }
-                }
-             else {
-                if !filteredUsers.isEmpty{
-                    List {
-                        ForEach(filteredUsers.prefix(10), id: \.id) { user in
-                            Button(action: {
-                                tagUser(user)
-                            }) {
-                                HStack {
-                                    UserCell(user: user)
-                                        .padding(.horizontal)
-                                    Spacer()
-                                    if uploadViewModel.taggedUsers.contains(where: { $0.id == user.id }) {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
+                } else {
+                    if !filteredUsers.isEmpty {
+                        List {
+                            ForEach(filteredUsers.prefix(10), id: \.id) { user in
+                                Button(action: {
+                                    tagUser(user)
+                                }) {
+                                    HStack {
+                                        UserCell(user: user)
+                                            .padding(.horizontal)
+                                        Spacer()
+                                        if uploadViewModel.taggedUsers.contains(where: { $0.id == user.id }) {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.blue)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                } else {
-                    InfiniteList(searchViewModel.userHits, itemView: { hit in
-                        Button{
-                            tagUser(hit.object)
-                        } label: {
-                            UserCell(user: hit.object)
-                                .padding()
-                            Spacer()
-                            if uploadViewModel.taggedUsers.contains(where: { $0.id == hit.object.id }) {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
+                    } else {
+                        InfiniteList(searchViewModel.userHits, itemView: { hit in
+                            Button {
+                                tagUser(hit.object)
+                            } label: {
+                                UserCell(user: hit.object)
+                                    .padding()
+                                Spacer()
+                                if uploadViewModel.taggedUsers.contains(where: { $0.id == hit.object.id }) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
                             }
-                        }
-                        
-                        Divider()
-                    }, noResults: {
-                        Text("No results found")
-                            .foregroundStyle(.primary)
-                    })
+                            
+                            Divider()
+                        }, noResults: {
+                            Text("No results found")
+                                .foregroundStyle(.primary)
+                        })
+                    }
                 }
             }
-        }
+            .navigationTitle("Tag Users")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.primary)
+            })
+        
         .onAppear(perform: fetchFollowingUsers)
-        .navigationTitle("Tag Users")
         .onChange(of: searchViewModel.searchQuery) {
-            if filteredUsers.isEmpty && !searchViewModel.searchQuery.isEmpty{
+            if filteredUsers.isEmpty && !searchViewModel.searchQuery.isEmpty {
                 debouncer.schedule {
                     searchViewModel.notifyQueryChanged()
                 }
@@ -111,10 +118,10 @@ struct SelectFollowingView: View {
 
     private func tagUser(_ user: User) {
         if let index = uploadViewModel.taggedUsers.firstIndex(where: { $0.username == user.username }) {
-            uploadViewModel.taggedUsers.remove(at: index) 
+            uploadViewModel.taggedUsers.remove(at: index)
             uploadViewModel.taggedUserPreviews.remove(at: index)
             // Un-tag user if already tagged
-        }  else {
+        } else {
             uploadViewModel.taggedUserPreviews.append(user)
             uploadViewModel.taggedUsers.append(PostUser(id: user.id,
                                                         fullname: user.fullname,
@@ -127,91 +134,3 @@ struct SelectFollowingView: View {
         searchViewModel.searchQuery = ""
     }
 }
-
-//struct SelectFollowingWrittenView: View {
-//    @ObservedObject var reviewViewModel: ReviewsViewModel
-//    @Environment(\.dismiss) var dismiss
-//    @State private var searchText: String = ""
-//    @State private var followingUsers: [User] = []
-//    @FocusState private var isSearchFieldFocused: Bool
-//
-//    var body: some View {
-//        VStack {
-//            TextField("Search users...", text: $searchText)
-//                .padding()
-//                .background(Color(.systemGray6))
-//                .cornerRadius(8)
-//                .padding(.horizontal)
-//                .focused($isSearchFieldFocused)
-//
-//            if searchText.isEmpty {
-//                List {
-//                    ForEach(Array(reviewViewModel.taggedUsers.keys), id: \.self) { username in
-//                        if let user = followingUsers.first(where: { $0.username == username }) {
-//                            HStack {
-//                                UserCell(user: user)
-//                                    .padding(.horizontal)
-//                                Spacer()
-//                                Button(action: {
-//                                    tagUser(user)
-//                                }) {
-//                                    Image(systemName: "minus.circle")
-//                                        .foregroundColor(.red)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                List {
-//                    ForEach(filteredUsers.prefix(10), id: \.id) { user in
-//                        Button(action: {
-//                            tagUser(user)
-//                        }) {
-//                            HStack {
-//                                UserCell(user: user)
-//                                    .padding(.horizontal)
-//                                Spacer()
-//                                if reviewViewModel.taggedUsers[user.username] != nil {
-//                                    Image(systemName: "checkmark")
-//                                        .foregroundColor(.blue)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .onAppear(perform: fetchFollowingUsers)
-//        .navigationTitle("Tag Users")
-//    }
-//
-//    private var filteredUsers: [User] {
-//        return followingUsers.filter { $0.username.lowercased().contains(searchText.lowercased()) }
-//    }
-//
-//    private func fetchFollowingUsers() {
-//        Task {
-//            do {
-//                let users = try await UserService.shared.fetchFollowingUsers()
-//                followingUsers = users
-//            } catch {
-//                print("Error fetching following users: \(error)")
-//            }
-//        }
-//    }
-//
-//    private func tagUser(_ user: User) {
-//        if reviewViewModel.taggedUsers[user.username] != nil {
-//            reviewViewModel.taggedUsers.removeValue(forKey: user.username)
-//        } else {
-//            reviewViewModel.taggedUsers[user.username] = user.id
-//        }
-//        isSearchFieldFocused = false
-//        searchText = ""
-//    }
-//}
-
-
-
-

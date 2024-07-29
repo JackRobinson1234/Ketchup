@@ -32,7 +32,6 @@ class CommentViewModel: ObservableObject {
 
     init(post: Binding<Post>) {
         self._post = post
-        fetchFollowingUsers()
     }
     
     // Fetch comments for the current post
@@ -55,7 +54,7 @@ class CommentViewModel: ObservableObject {
         $post.wrappedValue.commentCount -= 1
     }
     
-    private func fetchFollowingUsers() {
+    func fetchFollowingUsers() {
         Task {
             do {
                 let users = try await UserService.shared.fetchFollowingUsers()

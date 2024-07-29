@@ -174,9 +174,12 @@ struct ReelsUploadView: View {
                 UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, isEditingRestaurant: true)
                     .navigationTitle("Select Restaurant")
             }
-            .navigationDestination(isPresented: $isTaggingUsers) {
-                SelectFollowingView(uploadViewModel: uploadViewModel)
-                    .navigationTitle("Tag Users")
+            .sheet(isPresented: $isTaggingUsers) {
+                NavigationStack{
+                    SelectFollowingView(uploadViewModel: uploadViewModel)
+                        .navigationTitle("Tag Users")
+                }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
             .onChange(of: uploadViewModel.caption){
                 if uploadViewModel.filteredMentionedUsers.isEmpty{
@@ -192,6 +195,11 @@ struct ReelsUploadView: View {
                         }
                     }
                 }
+            }
+            .onAppear{
+                
+                   uploadViewModel.fetchFollowingUsers()
+                
             }
         }
         .confirmationDialog("Are you sure you want to go back?",

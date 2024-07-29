@@ -17,6 +17,7 @@ struct UploadFlowRestaurantSelector: View {
     @State var createRestaurantView = false
     @State var dismissRestaurantList = false
     @State var navigateToCamera = false
+    @EnvironmentObject var tabBarController: TabBarController
     
     var debouncer = Debouncer(delay: 1.0)
     let isEditingRestaurant: Bool
@@ -68,7 +69,7 @@ struct UploadFlowRestaurantSelector: View {
                     Text("No Results Found")
                 })
             }
-            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Select Restaurant")
+            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Choose A Restaurant For Your Post")
             .searchable(text: $viewModel.searchQuery, prompt: "Search")
             .onChange(of: viewModel.searchQuery) {
                 debouncer.schedule {
@@ -90,6 +91,22 @@ struct UploadFlowRestaurantSelector: View {
             }
             .fullScreenCover(isPresented: $navigateToCamera) {
                 CameraView(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        if isEditingRestaurant {
+                            dismiss()
+                        } else {
+                            uploadViewModel.reset()
+                            cameraViewModel.reset()
+                            tabBarController.selectedTab = 0
+                        }
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.primary)
+                    }
+                }
             }
         }
     }

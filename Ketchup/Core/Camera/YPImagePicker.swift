@@ -16,7 +16,6 @@ struct YPImagePickerSwiftUI: UIViewControllerRepresentable {
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
     var configuration: YPImagePickerConfiguration
-    
     func makeUIViewController(context: Context) -> YPImagePicker {
            let picker = YPImagePicker(configuration: configuration)
 
@@ -36,7 +35,6 @@ struct YPImagePickerSwiftUI: UIViewControllerRepresentable {
                            break
                        }
                    }
-                   
                    // Process all items as before
                    for item in items {
                        uploadViewModel.addMixedMediaItem(item)
@@ -93,7 +91,7 @@ struct ImagePicker: View {
             }
         }
             .onAppear {
-                        let attributes = [NSAttributedString.Key.font: UIFont(name: "MuseoSansRounded-300", size: 14)]
+                        let attributes = [NSAttributedString.Key.font: UIFont(name: "MuseoSansRounded-300", size: 16)]
                 UINavigationBar.appearance().titleTextAttributes = attributes as [NSAttributedString.Key : Any] // Title fonts
                 UIBarButtonItem.appearance().setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
                 UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black ] // Title color

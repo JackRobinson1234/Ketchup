@@ -48,7 +48,6 @@ class UploadViewModel: ObservableObject {
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
-        fetchFollowingUsers()
     }
     func addMixedMediaItem(_ item: YPMediaItem) {
         switch item {
@@ -253,7 +252,7 @@ class UploadViewModel: ObservableObject {
         filteredMentionedUsers = []
     }
     
-    private func fetchFollowingUsers() {
+    func fetchFollowingUsers() {
         Task {
             do {
                 let users = try await UserService.shared.fetchFollowingUsers()

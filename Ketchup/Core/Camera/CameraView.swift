@@ -10,19 +10,20 @@ import SwiftUI
 import AVKit
 import PhotosUI
 import UniformTypeIdentifiers
+import YPImagePicker
 
 struct CameraView: View {
     @StateObject var cameraViewModel = CameraViewModel()
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var uploadViewModel: UploadViewModel
-    @StateObject var keyboardObserver = KeyboardObserver()
     @State var dragDirection = "left"
     @State var isDragging = false
     @State private var canSwitchTab = true
     @State private var isImagePickerPresented = true
     @State private var selectedItems: [YPMediaItem] = []
+    @State private var isKeyboardVisible = false  // New state variable
     
-
+    
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)
@@ -46,7 +47,8 @@ struct CameraView: View {
     }
     
     var body: some View {
-            GeometryReader { geometry in
+        GeometryReader { geometry in
+            VStack{
                 ZStack(alignment: .bottom) {
                     Color.white.edgesIgnoringSafeArea(.all)
                     
@@ -104,7 +106,7 @@ struct CameraView: View {
                     // Top controls
                     VStack {
                         HStack {
-                            if cameraViewModel.selectedCamTab != 0 {
+                            if cameraViewModel.selectedCamTab == 1 || cameraViewModel.selectedCamTab == 2 {
                                 Button {
                                     cameraViewModel.stopCameraSession()
                                     cameraViewModel.reset()
@@ -162,56 +164,65 @@ struct CameraView: View {
                     }
                     
                     // Bottom tab bar
-                    VStack(spacing: 0) {
-                                           Spacer()
-                                           
-                                           HStack {
-                                               CameraTabBarButton(text: "Library", isSelected: cameraViewModel.selectedCamTab == 0)
-                                                   .onTapGesture { switchTab(to: 0) }
-                                               CameraTabBarButton(text: "Video", isSelected: cameraViewModel.selectedCamTab == 1)
-                                                   .onTapGesture { switchTab(to: 1) }
-                                               CameraTabBarButton(text: "Photo", isSelected: cameraViewModel.selectedCamTab == 2)
-                                                   .onTapGesture { switchTab(to: 2) }
-                                               CameraTabBarButton(text: "Written", isSelected: cameraViewModel.selectedCamTab == 3)
-                                                   .onTapGesture { switchTab(to: 3) }
-                                           }
-                                           .frame(height: 60)
-                                           .frame(maxWidth: .infinity)
-                                           .background(Color.clear) // Add this line to ensure consistent background
-                                           .padding(.bottom, geometry.safeAreaInsets.bottom)
-                                       }
-                                       .edgesIgnoringSafeArea(.bottom)
-                }
-            }
-            .gesture(
-                cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
-            )
-            .fullScreenCover(isPresented: $cameraViewModel.navigateToUpload) {
-                NavigationStack {
-                    ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                        .toolbar(.hidden, for: .tabBar)
-                        .onAppear {
-                            cameraViewModel.stopCameraSession()
+                    if !isKeyboardVisible {
+                        VStack(spacing: 0) {
+                            Spacer()
+                            
+                            HStack {
+                                CameraTabBarButton(text: "Library", isSelected: cameraViewModel.selectedCamTab == 0)
+                                    .onTapGesture { switchTab(to: 0) }
+                                CameraTabBarButton(text: "Video", isSelected: cameraViewModel.selectedCamTab == 1)
+                                    .onTapGesture { switchTab(to: 1) }
+                                CameraTabBarButton(text: "Photo", isSelected: cameraViewModel.selectedCamTab == 2)
+                                    .onTapGesture { switchTab(to: 2) }
+                                CameraTabBarButton(text: "Written", isSelected: cameraViewModel.selectedCamTab == 3)
+                                    .onTapGesture { switchTab(to: 3) }
+                            }
+                            .frame(height: 60)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.clear) // Add this line to ensure consistent background
+                            .padding(.bottom, geometry.safeAreaInsets.bottom)
                         }
+                        .edgesIgnoringSafeArea(.bottom)
+                    }
                 }
             }
-            .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-            .onChange(of: tabBarController.selectedTab) {
-                cameraViewModel.reset()
+        }
+        .gesture(
+            cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
+        )
+        .fullScreenCover(isPresented: $cameraViewModel.navigateToUpload) {
+            NavigationStack {
+                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                    .toolbar(.hidden, for: .tabBar)
+                    .onAppear {
+                        cameraViewModel.stopCameraSession()
+                    }
             }
-            .onChange(of: cameraViewModel.selectedCamTab) { _, newValue in
-                if newValue == 3 {
-                    cameraViewModel.togglePreview(false)
-                } else {
-                    cameraViewModel.togglePreview(true)
-                }
-                
-                if newValue == 0 {
-                    isImagePickerPresented = true
-                } else {
-                    isImagePickerPresented = false
-                }
+        }
+        .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
+        .onChange(of: tabBarController.selectedTab) {
+            cameraViewModel.reset()
+        }
+        .onAppear {
+            setupKeyboardObservers()
+        }
+        .onDisappear {
+            removeKeyboardObservers()
+        }
+        .onChange(of: cameraViewModel.selectedCamTab) { _, newValue in
+            if newValue == 3 {
+                cameraViewModel.togglePreview(false)
+            } else {
+                cameraViewModel.togglePreview(true)
             }
+            
+            if newValue == 0 {
+                isImagePickerPresented = true
+            } else {
+                isImagePickerPresented = false
+            }
+        }
         
     }
     
@@ -239,31 +250,18 @@ struct CameraView: View {
             isImagePickerPresented = false
         }
     }
-}
-
-import Combine
-import SwiftUI
-import YPImagePicker
-
-class KeyboardObserver: ObservableObject {
-    @Published var keyboardHeight: CGFloat = 0
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = true
+        }
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = false
+        }
+    }
     
-    private var cancellables = Set<AnyCancellable>()
-    
-    init() {
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
-            .map { $0.height }
-            .sink { [weak self] height in
-                self?.keyboardHeight = height
-            }
-            .store(in: &cancellables)
-        
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-            .map { _ in CGFloat(0) }
-            .sink { [weak self] height in
-                self?.keyboardHeight = height
-            }
-            .store(in: &cancellables)
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 }
+
