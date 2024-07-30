@@ -10,6 +10,7 @@ import SwiftUI
 import ClusterMap
 import MapKit
 import FirebaseAuth
+
 @MainActor
 class ProfileViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
@@ -17,38 +18,38 @@ class ProfileViewModel: ObservableObject {
     var clusters: [ExampleClusterAnnotation] = []
     @Published var likedPosts = [Post]()
     @Published var user = User(id: "", username: "", fullname: "", privateMode: false)
+    @Published var profileSection: ProfileSectionEnum = .posts // Add this line
     private let uid: String
     private var didCompleteFollowCheck = false
     private var didCompleteStatsFetch = false
     var mapSize: CGSize = .zero
     @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
+    
     init(uid: String) {
         self.uid = uid
-
     }
     
     func fetchUser() async {
         do {
             self.user = try await UserService.shared.fetchUser(withUid: uid)
-           
         } catch {
             print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
     }
+    
     func fetchCurrentUser() async {
-        do{
+        do {
             if let currentUser = Auth.auth().currentUser?.uid {
                 self.user = try await UserService.shared.fetchUser(withUid: currentUser)
             }
-        }
-        catch {
-            print("DEBUG: Failed to fetch currentuser with error: \(error.localizedDescription)")
+        } catch {
+            print("DEBUG: Failed to fetch current user with error: \(error.localizedDescription)")
         }
     }
+    
     func refreshCurrentUser() async throws {
         do {
             self.user = try await UserService.shared.fetchCurrentUser()
-            //try await fetchUserLikedPosts()
             AuthService.shared.userSession = self.user
         } catch {
             print("Failed to refresh the current user")
@@ -57,44 +58,38 @@ class ProfileViewModel: ObservableObject {
 }
 
 // MARK: - Following
-
 extension ProfileViewModel {
     func follow() {
-            Task {
-                try await UserService.shared.follow(uid: user.id)
-                user.isFollowed = true
-                user.stats.followers += 1
-            }
-    }
-    func unfollow() {
-            Task {
-                try await UserService.shared.unfollow(uid: user.id)
-                user.isFollowed = false
-                user.stats.followers -= 1
-            }
+        Task {
+            try await UserService.shared.follow(uid: user.id)
+            user.isFollowed = true
+            user.stats.followers += 1
         }
+    }
+    
+    func unfollow() {
+        Task {
+            try await UserService.shared.unfollow(uid: user.id)
+            user.isFollowed = false
+            user.stats.followers -= 1
+        }
+    }
     
     func checkIfUserIsFollowed() async {
-            guard !user.isCurrentUser, !didCompleteFollowCheck else { return }
-            user.isFollowed = await UserService.shared.checkIfUserIsFollowed(uid: user.id)
-            self.didCompleteFollowCheck = true
-        }
-    
+        guard !user.isCurrentUser, !didCompleteFollowCheck else { return }
+        user.isFollowed = await UserService.shared.checkIfUserIsFollowed(uid: user.id)
+        self.didCompleteFollowCheck = true
+    }
 }
 
 // MARK: - Posts
-
 extension ProfileViewModel {
-    
-    
     func fetchUserLikedPosts() async throws {
         do {
             self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
-            //                feedViewModel.posts = likedPosts
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
-        
     }
     
     func clearNotificationAlerts() async throws {
@@ -102,9 +97,8 @@ extension ProfileViewModel {
             user.notificationAlert = 0
             AuthService.shared.userSession?.notificationAlert = 0
             try await UserService.shared.clearNotificationAlert()
-            
         } catch {
-            print("error clearing notification alert")
+            print("Error clearing notification alert")
         }
     }
 }

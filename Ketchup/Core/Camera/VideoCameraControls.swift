@@ -113,7 +113,7 @@ struct VideoCameraControls: View {
                Group {
                    if cameraViewModel.isLoading {
                        ProgressView()
-                           .tint(.white)
+                           .tint(.black)
                    } else {
                        HStack(spacing: 4) {
                            Text("Next")

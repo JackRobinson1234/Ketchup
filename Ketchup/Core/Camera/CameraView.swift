@@ -28,7 +28,7 @@ struct CameraView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                Color.white.edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 0) {
                     // Main content area
@@ -226,7 +226,7 @@ struct CameraView: View {
     private var bottomTabBar: some View {
         ZStack(alignment: .bottom) {
             // Background
-            Color.black.opacity(0.5)
+            Color.white.opacity(0.5)
                 .frame(height: 40)
             
             // Tab buttons
@@ -307,8 +307,8 @@ struct TabButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.custom("MuseoSansRounded-500", size: 14))
-                .foregroundColor(isSelected ? .white : .gray)
+                .font(.custom("MuseoSansRounded-500", size: 16))
+                .foregroundColor(isSelected ? Color("Colors/AccentColor") : .gray)
                 .frame(maxWidth: .infinity)
         }
     }

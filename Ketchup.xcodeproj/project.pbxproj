@@ -191,6 +191,7 @@
 		F8BD81642BC60F17007C2CFC /* MapModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81632BC60F17007C2CFC /* MapModifiers.swift */; };
 		F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81652BC6E9BA007C2CFC /* Collection.swift */; };
 		F8BE0C0A2C58A66800770E3F /* CombinedCameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BE0C092C58A66800770E3F /* CombinedCameraControls.swift */; };
+		F8BFEC252C59947700812232 /* PrimaryFeedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BFEC242C59947700812232 /* PrimaryFeedHelpers.swift */; };
 		F8C645552C3B736A0004F1B0 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645542C3B736A0004F1B0 /* ClusterMap */; };
 		F8C645572C3B736A0004F1B0 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645562C3B736A0004F1B0 /* ClusterMapSwiftUI */; };
 		F8C6455A2C3B73770004F1B0 /* InstantSearch in Frameworks */ = {isa = PBXBuildFile; productRef = F8C645592C3B73770004F1B0 /* InstantSearch */; };
@@ -450,6 +451,7 @@
 		F8BD81632BC60F17007C2CFC /* MapModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapModifiers.swift; sourceTree = "<group>"; };
 		F8BD81652BC6E9BA007C2CFC /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		F8BE0C092C58A66800770E3F /* CombinedCameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedCameraControls.swift; sourceTree = "<group>"; };
+		F8BFEC242C59947700812232 /* PrimaryFeedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFeedHelpers.swift; sourceTree = "<group>"; };
 		F8CC219B2BD5876F00B4B329 /* ReelsUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelsUploadView.swift; sourceTree = "<group>"; };
 		F8CC219D2BD5879900B4B329 /* UploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewModel.swift; sourceTree = "<group>"; };
 		F8CC219F2BD587EE00B4B329 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
@@ -1125,6 +1127,7 @@
 			children = (
 				F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */,
 				F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */,
+				F8BFEC242C59947700812232 /* PrimaryFeedHelpers.swift */,
 			);
 			path = PrimaryFeed;
 			sourceTree = "<group>";
@@ -1821,6 +1824,7 @@
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
 				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
+				F8BFEC252C59947700812232 /* PrimaryFeedHelpers.swift in Sources */,
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
 				F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */,
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,

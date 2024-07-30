@@ -13,7 +13,7 @@ import FirebaseAuth
 struct MainTabView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var feedViewModel = FeedViewModel()
-
+    @StateObject var currentUserFeedViewModel = FeedViewModel()
     @State private var sessionStartTime: Date = Date()
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
@@ -54,7 +54,7 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
             
-            UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
+            UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")
                         .foregroundStyle(.primary)
@@ -83,7 +83,7 @@ struct MainTabView: View {
                     tabBarController.visibility = .visible
                 }
 
-            CurrentUserProfileView(showNotifications: $showNotifications)
+            CurrentUserProfileView(showNotifications: $showNotifications, feedViewModel: currentUserFeedViewModel)
                 .tabItem {
                     VStack {
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")

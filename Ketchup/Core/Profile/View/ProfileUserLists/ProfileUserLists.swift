@@ -15,10 +15,7 @@ struct ProfileUserLists: View {
         self.config = config
         self._viewModel = StateObject(wrappedValue: ProfileUserListViewModel(config: config))
     }
-    
-    //var users: [User] {
-        //return viewModel.searchText.isEmpty ? viewModel.users : viewModel.filteredUsers(viewModel.searchText)
-    //}
+
     
     var body: some View {
         NavigationStack{
