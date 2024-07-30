@@ -69,7 +69,7 @@ struct UploadFlowRestaurantSelector: View {
                     Text("No Results Found")
                 })
             }
-            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Choose A Restaurant For Your Post")
+            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Choose a Restaurant To Review")
             .searchable(text: $viewModel.searchQuery, prompt: "Search")
             .onChange(of: viewModel.searchQuery) {
                 debouncer.schedule {

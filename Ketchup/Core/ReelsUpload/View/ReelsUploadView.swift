@@ -27,9 +27,13 @@ struct ReelsUploadView: View {
     @State private var currentMediaIndex = 0
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
-    private var width: CGFloat {
-        (UIScreen.main.bounds.width - (spacing * 2)) / 3
-    }
+     private var width: CGFloat {
+         (UIScreen.main.bounds.width - (spacing * 2)) / 3
+     }
+     
+     private var expandedWidth: CGFloat {
+         UIScreen.main.bounds.width * 5/6
+     }
     
     @Namespace private var animationNamespace
     @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
@@ -51,7 +55,6 @@ struct ReelsUploadView: View {
         NavigationStack{
             VStack {
                 HStack{
-                    
                     Button(action: {
                         showingWarningAlert = true
                     }) {
@@ -78,54 +81,16 @@ struct ReelsUploadView: View {
                                 Spacer()
                             }
                             .padding(.vertical)
+                            
                         }
+                        
                         
                         if !isVideoExpanded {
                             Divider()
                             
                             captionEditor
                             if uploadViewModel.isMentioning {
-                                if !uploadViewModel.filteredMentionedUsers.isEmpty{
-                                    ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
-                                        Button(action: {
-                                            let username = user.username
-                                            var words = uploadViewModel.caption.split(separator: " ").map(String.init)
-                                            words.removeLast()
-                                            words.append("@" + username)
-                                            uploadViewModel.caption = words.joined(separator: " ") + " "
-                                            uploadViewModel.isMentioning = false
-                                        }) {
-                                            HStack {
-                                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
-                                                Text(user.username)
-                                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                                                Spacer()
-                                            }
-                                            .padding(.horizontal)
-                                        }
-                                        .contentShape(Rectangle())
-                                    }
-                                } else {
-                                    InfiniteList(searchViewModel.userHits, itemView: { hit in
-                                        Button{
-                                            let username = hit.object.username
-                                            var words = uploadViewModel.caption.split(separator: " ").map(String.init)
-                                            words.removeLast()
-                                            words.append("@" + username)
-                                            uploadViewModel.caption = words.joined(separator: " ") + " "
-                                            uploadViewModel.isMentioning = false
-                                        } label: {
-                                            UserCell(user: hit.object)
-                                                .padding()
-                                            
-                                        }
-                                        
-                                        Divider()
-                                    }, noResults: {
-                                        Text("No results found")
-                                            .foregroundStyle(.primary)
-                                    })
-                                }
+                                mentionsList
                             }
                             Divider()
                             
@@ -134,8 +99,6 @@ struct ReelsUploadView: View {
                             Divider()
                             
                             ratingsSection
-                            
-                            
                             
                             Divider()
                             
@@ -183,23 +146,17 @@ struct ReelsUploadView: View {
             }
             .onChange(of: uploadViewModel.caption){
                 if uploadViewModel.filteredMentionedUsers.isEmpty{
-                    print("Entering 1")
                     let text = uploadViewModel.checkForAlgoliaTagging()
                     if !text.isEmpty{
-                        print("Entering 2")
                         searchViewModel.searchQuery = text
-                        print(text)
                         Debouncer(delay: 0).schedule{
-                            print("Entering 3")
                             searchViewModel.notifyQueryChanged()
                         }
                     }
                 }
             }
             .onAppear{
-                
-                   uploadViewModel.fetchFollowingUsers()
-                
+                uploadViewModel.fetchFollowingUsers()
             }
         }
         .confirmationDialog("Are you sure you want to go back?",
@@ -215,6 +172,7 @@ struct ReelsUploadView: View {
             Text("All progress will be lost.")
         }
     }
+    
     var restaurantSelector: some View {
         Button {
             isPickingRestaurant = true
@@ -271,10 +229,10 @@ struct ReelsUploadView: View {
             }
         }
     }
+    
     var mixedMediaPreview: some View {
-        VStack {
-            if !uploadViewModel.mixedMediaItems.isEmpty {
-                ZStack(alignment: .bottomTrailing) {
+            VStack(spacing: 8) {
+                if !uploadViewModel.mixedMediaItems.isEmpty {
                     TabView(selection: $currentMediaIndex) {
                         ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
                             let item = uploadViewModel.mixedMediaItems[index]
@@ -293,16 +251,18 @@ struct ReelsUploadView: View {
                                     }
                                 }
                             }
-                            .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
-                                   height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
+                            .frame(width: isVideoExpanded ? expandedWidth : width,
+                                   height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
                             .cornerRadius(10)
+                            .clipped()
                             .tag(index)
                         }
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                    .frame(height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
+                    .frame(width: isVideoExpanded ? expandedWidth : width,
+                           height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
                     
-                    if !isVideoExpanded && uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
+                    if uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
                         VideoControlButtons(
                             isPlaying: $isPlaying,
                             volume: $volume,
@@ -313,28 +273,30 @@ struct ReelsUploadView: View {
                                 videoPlayers[currentMediaIndex]?.toggleVolume()
                             }
                         )
-                        .padding(8)
+                        .frame(width: isVideoExpanded ? expandedWidth : width)
                     }
+                    
+                    if uploadViewModel.mixedMediaItems.count > 1 {
+                        Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
+                            .font(.caption)
+                            .padding(.top, 5)
+                    }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray)
+                        .frame(width: width, height: width * 6/5)
+                        .cornerRadius(10)
                 }
-                
-                if uploadViewModel.mixedMediaItems.count > 1 {
-                    Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
-                        .font(.caption)
-                        .padding(.top, 5)
+            }
+            .onTapGesture {
+                withAnimation(.spring()) {
+                    isVideoExpanded.toggle()
                 }
-            } else {
-                Rectangle()
-                    .fill(Color.gray)
-                    .frame(width: width, height: width * (6/5))
-                    .cornerRadius(10)
             }
         }
-        .onTapGesture {
-            withAnimation(.spring()) {
-                isVideoExpanded.toggle()
-            }
-        }
-    }
+
+  
+
     
     var captionEditor: some View {
         VStack {
@@ -342,7 +304,6 @@ struct ReelsUploadView: View {
                 TextEditor(text: $uploadViewModel.caption)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .frame(height: 75)
-                    .padding(.horizontal, 20)
                     .background(Color.white)
                     .cornerRadius(5)
                     .toolbar {
@@ -360,8 +321,8 @@ struct ReelsUploadView: View {
                     Text("Enter a caption...")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(Color.gray)
-                        .padding(.horizontal, 25)
                         .padding(.top, 8)
+                        .padding(.horizontal, 5)
                 }
             }
             HStack {
@@ -379,6 +340,50 @@ struct ReelsUploadView: View {
         }
     }
     
+    var mentionsList: some View {
+        Group {
+            if !uploadViewModel.filteredMentionedUsers.isEmpty {
+                ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
+                    Button(action: {
+                        let username = user.username
+                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                        words.removeLast()
+                        words.append("@" + username)
+                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                        uploadViewModel.isMentioning = false
+                    }) {
+                        HStack {
+                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
+                            Text(user.username)
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                    }
+                    .contentShape(Rectangle())
+                }
+            } else {
+                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                    Button {
+                        let username = hit.object.username
+                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                        words.removeLast()
+                        words.append("@" + username)
+                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                        uploadViewModel.isMentioning = false
+                    } label: {
+                        UserCell(user: hit.object)
+                            .padding()
+                    }
+                    Divider()
+                }, noResults: {
+                    Text("No results found")
+                        .foregroundStyle(.primary)
+                })
+            }
+        }
+    }
+    
     var ratingsSection: some View {
         VStack(spacing: 10) {
             OverallRatingView(rating: calculateOverallRating())
@@ -387,7 +392,7 @@ struct ReelsUploadView: View {
             RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating, isNA: $uploadViewModel.isValueNA)
             RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating, isNA: $uploadViewModel.isServiceNA)
         }
-    }
+    } 
     func calculateOverallRating() -> String {
         var totalRating = 0.0
         var count = 0
@@ -488,20 +493,27 @@ struct ReelsUploadView: View {
 }
 
 
-
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
+
+
+
 struct VideoPlayerTest: View {
     let videoURL: URL?
     @State private var player: AVPlayer?
     @Binding var isVideoExpanded: Bool
     @Binding var isPlaying: Bool
     @Binding var volume: Float
+    @State private var videoAspectRatio: CGFloat = 16/9  // Default aspect ratio
     var onPlayerCreated: (VideoPlayerTest) -> Void
     
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (20 * 2)) / 3
+    }
+    
+    private var expandedWidth: CGFloat {
+        UIScreen.main.bounds.width * 5/6
     }
     
     var body: some View {
@@ -512,9 +524,6 @@ struct VideoPlayerTest: View {
                                   showsPlaybackControls: false)
             }
         }
-        .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
-               height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
-        .cornerRadius(10)
         .onAppear {
             setupPlayer()
             onPlayerCreated(self)
@@ -543,6 +552,12 @@ struct VideoPlayerTest: View {
                                                queue: .main) { _ in
             player?.seek(to: .zero)
             player?.play()
+        }
+        
+        // Get video aspect ratio
+        if let track = playerItem.asset.tracks(withMediaType: .video).first {
+            let size = track.naturalSize.applying(track.preferredTransform)
+            videoAspectRatio = abs(size.width / size.height)
         }
         
         player?.play()
@@ -589,8 +604,10 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         uiViewController.player = player
         uiViewController.showsPlaybackControls = showsPlaybackControls
+        uiViewController.videoGravity = videoGravity
     }
 }
+
 struct VideoControlButtons: View {
     @Binding var isPlaying: Bool
     @Binding var volume: Float
@@ -598,7 +615,7 @@ struct VideoControlButtons: View {
     var onVolumeToggle: () -> Void
     
     var body: some View {
-        VStack(spacing: 10) {
+        HStack(spacing: 20) {
             Button(action: onPlayPause) {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                     .foregroundColor(.white)
@@ -615,7 +632,6 @@ struct VideoControlButtons: View {
         }
     }
 }
-
 
 extension View {
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
