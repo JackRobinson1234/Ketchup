@@ -9,12 +9,12 @@ import SwiftUI
 
 struct PhotoCameraControls: View {
     @ObservedObject var cameraViewModel: CameraViewModel
-    @ObservedObject var uploadViewModel: UploadViewModel
-    
-    @State private var showFlash = false
-    @State private var maxPhotosReached = false
-    @State private var showWarning = false
-    @State private var showReorderView = false
+       @ObservedObject var uploadViewModel: UploadViewModel
+       
+       @State private var showFlash = false
+       @State private var maxPhotosReached = false
+       @State private var showWarning = false
+       @State private var showReorderView = false
     
     var body: some View {
         GeometryReader { geometry in

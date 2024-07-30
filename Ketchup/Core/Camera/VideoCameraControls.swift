@@ -10,9 +10,9 @@ import SwiftUI
 
 struct VideoCameraControls: View {
     @ObservedObject var cameraViewModel: CameraViewModel
-    @ObservedObject var uploadViewModel: UploadViewModel
-    @EnvironmentObject var tabBarController: TabBarController
-    @State private var showDeleteWarning = false
+        @ObservedObject var uploadViewModel: UploadViewModel
+        @EnvironmentObject var tabBarController: TabBarController
+        @State private var showDeleteWarning = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +21,7 @@ struct VideoCameraControls: View {
             // BOTTOM BUTTONS
             HStack(spacing: 30) {
                 deleteButton
+                    .frame(width: 90)
                 ZStack {
                     Circle()
                         .stroke(Color.white.opacity(0.3), lineWidth: 5)
@@ -35,6 +36,7 @@ struct VideoCameraControls: View {
                     recordButton
                 }
                 nextButton
+                    .frame(width: 90)
             }
             .padding(.bottom, 20)
         }
@@ -121,6 +123,7 @@ struct VideoCameraControls: View {
                             .foregroundStyle(.black)
                         Image(systemName: "chevron.right")
                             .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.black)
                     }
                     .foregroundColor(.white)
                 }
