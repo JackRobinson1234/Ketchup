@@ -20,15 +20,15 @@ struct PhotoCameraControls: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    Spacer().frame(height: 80) // Add some space at the top
+                    Spacer().frame(height: 100) // Add some space at the top
                     
                     // Top controls
                     HStack {
-                        closeButton
+                        //closeButton
                         Spacer()
                         photoStack
                         Spacer()
-                        placeholderButton
+                        //placeholderButton
                     }
                     .padding(.horizontal)
                     
@@ -40,7 +40,7 @@ struct PhotoCameraControls: View {
                         captureButton
                         nextButton
                     }
-                    .padding(.bottom, 20) // Adjust this value to create space above the tab bar
+                    .padding(.bottom, 30) // Adjust this value to create space above the tab bar
                 }
                 
                 flashOverlay
@@ -53,18 +53,6 @@ struct PhotoCameraControls: View {
         .sheet(isPresented: $showReorderView) {
             PhotoReorderView(cameraViewModel: cameraViewModel)
         }
-    }
-    
-    private var closeButton: some View {
-        Button {
-            cameraViewModel.clearPics()
-            cameraViewModel.mediaType = .video
-        } label: {
-            Image(systemName: "xmark")
-                .font(.custom("MuseoSansRounded-300", size: 20))
-                .foregroundColor(.white)
-        }
-        .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
     }
     
     private var photoStack: some View {
@@ -165,28 +153,37 @@ struct PhotoCameraControls: View {
     }
     
     private var nextButton: some View {
-        Button {
-            if cameraViewModel.isPhotoTaken {
-                cameraViewModel.navigateToUpload.toggle()
-                cameraViewModel.mediaType = .photo
-                uploadViewModel.images = cameraViewModel.images
-                uploadViewModel.mediaType = .photo
-            }
-        } label: {
-            Label {
-                Image(systemName: "chevron.right")
-                    .font(.callout)
-            } icon: {
-                Text("Next")
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-            }
-            .foregroundColor(.black)
-            .frame(width: 70, height: 30)
-            .background(Capsule().fill(.white))
-        }
-        .frame(width: 80)
-        .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
-    }
+           Button {
+               if cameraViewModel.isPhotoTaken {
+                   // Add photos to mixedMediaItems array
+                   for image in cameraViewModel.images {
+                       addMixedMediaItem(image: image)
+                   }
+                   
+                   cameraViewModel.navigateToUpload.toggle()
+                   cameraViewModel.mediaType = .photo
+                   uploadViewModel.mediaType = .photo
+                   
+                   // Set the first image as the thumbnail
+                   if let firstImage = cameraViewModel.images.first {
+                       uploadViewModel.thumbnailImage = firstImage
+                   }
+               }
+           } label: {
+               Label {
+                   Image(systemName: "chevron.right")
+                       .font(.callout)
+               } icon: {
+                   Text("Next")
+                       .font(.custom("MuseoSansRounded-500", size: 16))
+               }
+               .foregroundColor(.black)
+               .frame(width: 70, height: 30)
+               .background(Capsule().fill(.white))
+           }
+           .frame(width: 80)
+           .opacity(cameraViewModel.isPhotoTaken ? 1 : 0)
+       }
     
     private var flashOverlay: some View {
         Color.white
@@ -212,4 +209,7 @@ struct PhotoCameraControls: View {
             }
         }
     }
+    private func addMixedMediaItem(image: UIImage) {
+        uploadViewModel.mixedMediaItems.append(MixedMediaItemHolder(localMedia: image, type: .photo))
+        }
 }

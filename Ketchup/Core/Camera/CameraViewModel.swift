@@ -433,7 +433,6 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.selectedCamTab = 0
         }
     }
-
     
     
     func configureFlash() {

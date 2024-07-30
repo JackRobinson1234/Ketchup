@@ -62,12 +62,11 @@ struct ReelsUploadView: View {
                             .font(.title2)
                             .foregroundColor(Color("Colors/AccentColor"))
                     }
-                    .padding(.leading)
+                    .padding([.leading, .top])
                     Spacer()
                 }
                 ScrollView {
                     VStack {
-                        Spacer().frame(height: 20)  // Top padding
                         if writtenReview {
                             restaurantSelector
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -392,7 +391,7 @@ struct ReelsUploadView: View {
             RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating, isNA: $uploadViewModel.isValueNA)
             RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating, isNA: $uploadViewModel.isServiceNA)
         }
-    } 
+    }
     func calculateOverallRating() -> String {
         var totalRating = 0.0
         var count = 0
@@ -463,10 +462,12 @@ struct ReelsUploadView: View {
                 showAlert = true
             } else {
                 Task {
+                    
                     let overallRating = calculateOverallRating()
                     await uploadViewModel.uploadPost()
                     uploadViewModel.reset()
                     cameraViewModel.reset()
+                    uploadViewModel.dismissAll = true
                     tabBarController.selectedTab = 0
                 }
             }

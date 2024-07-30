@@ -19,6 +19,7 @@ struct CameraView: View {
     @State private var isImagePickerPresented = true
     @State private var isKeyboardVisible = false
     @State private var cameraMode: CameraMode = .video
+    @Environment(\.dismiss) var dismiss
 
     enum CameraMode {
         case video, photo
@@ -30,10 +31,6 @@ struct CameraView: View {
                 Color.black.edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 0) {
-                    // Top controls
-                    topControls
-                        .padding(.top, geometry.safeAreaInsets.top)
-                    
                     // Main content area
                     ZStack {
                         if cameraViewModel.audioOrVideoPermissionsDenied {
@@ -78,19 +75,21 @@ struct CameraView: View {
                                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
                             }
                         }
+                        
+                        topControls
+                            .padding(.top, geometry.safeAreaInsets.top)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                     // Bottom tab bar
                     if !isKeyboardVisible {
                         bottomTabBar
-                            .frame(height: 60)
-                            .background(Color.black.opacity(0.5))
                             .padding(.bottom, geometry.safeAreaInsets.bottom)
                     }
                 }
                 .edgesIgnoringSafeArea(.vertical)
             }
+            .edgesIgnoringSafeArea(.vertical)
         }
         .gesture(
             cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
@@ -105,7 +104,7 @@ struct CameraView: View {
             }
         }
         .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-        .onChange(of: tabBarController.selectedTab) { _ in
+        .onChange(of: tabBarController.selectedTab) {
             cameraViewModel.reset()
         }
         .onAppear {
@@ -114,77 +113,129 @@ struct CameraView: View {
         .onDisappear {
             removeKeyboardObservers()
         }
+        .onChange(of: uploadViewModel.dismissAll){
+            if uploadViewModel.dismissAll{
+                uploadViewModel.dismissAll = false
+                dismiss()
+            }
+        }
+    }
+    
+    private var cameraModeSelector: some View {
+        HStack(spacing: 0) {
+            Button(action: { cameraMode = .photo }) {
+                Image(systemName: "camera")
+                    .foregroundColor(cameraMode == .photo ? .black : .white)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(cameraMode == .photo ? Color.white : Color.clear)
+                    )
+            }
+            
+            Button(action: { cameraMode = .video }) {
+                Image(systemName: "video")
+                    .foregroundColor(cameraMode == .video ? .black : .white)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(cameraMode == .video ? Color.white : Color.clear)
+                    )
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.black.opacity(0.5))
+        )
     }
     
     private var topControls: some View {
-        HStack {
-            if cameraViewModel.selectedCamTab == 1 {
-                Button {
-                    cameraViewModel.stopCameraSession()
-                    cameraViewModel.reset()
-                    uploadViewModel.reset()
-                    tabBarController.selectedTab = 0
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.custom("MuseoSansRounded-300", size: 28))
-                        .foregroundColor(.white)
+        VStack {
+            HStack {
+                if cameraViewModel.selectedCamTab == 1 && cameraViewModel.previewURL == nil && cameraViewModel.images.isEmpty {
+                    Button {
+                        cameraViewModel.stopCameraSession()
+                        cameraViewModel.reset()
+                        uploadViewModel.reset()
+                        dismiss()
+                        //tabBarController.selectedTab = 0
+                     
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.custom("MuseoSansRounded-300", size: 28))
+                            .foregroundColor(.white)
+                            .frame(width: 80)
+                    }
+                } else {
+                    Spacer().frame(width: 80)
                 }
-            } else {
-                Spacer().frame(width: 28)
+                
+                Spacer()
+                
+                if !cameraViewModel.audioOrVideoPermissionsDenied && cameraViewModel.selectedCamTab == 1 && cameraViewModel.previewURL == nil && cameraViewModel.images.isEmpty {
+                    cameraModeSelector
+                }
+                
+                Spacer()
+                
+                if !cameraViewModel.audioOrVideoPermissionsDenied && cameraViewModel.selectedCamTab == 1 {
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            cameraViewModel.toggleCamera()
+                        }) {
+                            Image(systemName: "camera.rotate")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 28, height: 28)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Button(action: {
+                            cameraViewModel.flashMode = cameraViewModel.flashMode == .off ? .on : .off
+                        }) {
+                            Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 28, height: 28)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .frame(width: 80)
+                    .disabled(cameraViewModel.isRecording)
+                    .opacity(cameraViewModel.isRecording ? 0 : 1)
+                } else {
+                    Spacer().frame(width: 80)  // To maintain balance when buttons are not shown
+                }
             }
+            .padding(.horizontal)
+            .frame(height: 60)
             
             Spacer()
-            
-            if !cameraViewModel.audioOrVideoPermissionsDenied && cameraViewModel.selectedCamTab == 1 {
-                HStack(spacing: 20) {
-                    Button(action: {
-                        cameraViewModel.toggleCamera()
-                    }) {
-                        Image(systemName: "camera.rotate")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 28, height: 28)
-                            .foregroundColor(.white)
-                    }
-                    
-                    Button(action: {
-                        cameraViewModel.flashMode = cameraViewModel.flashMode == .off ? .on : .off
-                    }) {
-                        Image(systemName: cameraViewModel.flashMode == .off ? "bolt.slash.fill" : "bolt.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 28, height: 28)
-                            .foregroundColor(.white)
-                    }
-                    
-                    Button(action: toggleCameraMode) {
-                        Image(systemName: cameraMode == .video ? "camera" : "video")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 28, height: 28)
-                            .foregroundColor(.white)
-                    }
-                }
-                .disabled(cameraViewModel.isRecording)
-                .opacity(cameraViewModel.isRecording ? 0 : 1)
-            }
         }
-        .padding(.horizontal)
-        .frame(height: 60)
     }
-    
     private var bottomTabBar: some View {
-        HStack {
-            TabButton(title: "Library", isSelected: cameraViewModel.selectedCamTab == 0) {
-                switchTab(to: 0)
+        ZStack(alignment: .bottom) {
+            // Background
+            Color.black.opacity(0.5)
+                .frame(height: 40)
+            
+            // Tab buttons
+            HStack {
+                TabButton(title: "Library", isSelected: cameraViewModel.selectedCamTab == 0) {
+                    switchTab(to: 0)
+                }
+                TabButton(title: "Camera", isSelected: cameraViewModel.selectedCamTab == 1) {
+                    switchTab(to: 1)
+                }
+                TabButton(title: "Written", isSelected: cameraViewModel.selectedCamTab == 3) {
+                    switchTab(to: 3)
+                }
             }
-            TabButton(title: "Camera", isSelected: cameraViewModel.selectedCamTab == 1) {
-                switchTab(to: 1)
-            }
-            TabButton(title: "Written", isSelected: cameraViewModel.selectedCamTab == 3) {
-                switchTab(to: 3)
-            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)  // Consistent height for the tab bar
         }
+        // Consistent overall height
+        .animation(.easeInOut, value: cameraViewModel.selectedCamTab)
     }
     
     private func toggleCameraMode() {

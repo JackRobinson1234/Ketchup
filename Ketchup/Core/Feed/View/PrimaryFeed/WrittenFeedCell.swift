@@ -96,7 +96,7 @@ struct WrittenFeedCell: View {
                 }
             }
             .padding(.horizontal)
-            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
                            VStack {
                                ScrollView(.horizontal, showsIndicators: false) {
                                    LazyHStack {
@@ -548,18 +548,20 @@ struct WrittenFeedCell: View {
     private func handleIndexChange(_ index: Int) {
            pauseAllVideos()
            
-           if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-               let mediaItem = mixedMediaUrls[index]
-               if mediaItem.type == .video {
-                   currentlyPlayingVideoId = mediaItem.id
-                   playVideo(id: mediaItem.id)
+        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
+                   if index < mixedMediaUrls.count {
+                       let mediaItem = mixedMediaUrls[index]
+                       if mediaItem.type == .video {
+                           currentlyPlayingVideoId = mediaItem.id
+                           playVideo(id: mediaItem.id)
+                       }
+                   }
+               } else if post.mediaType == .video && index == 0 {
+                   if let firstVideoId = videoCoordinators.first?.0 {
+                       currentlyPlayingVideoId = firstVideoId
+                       playVideo(id: firstVideoId)
+                   }
                }
-           } else if post.mediaType == .video && index == 0 {
-               if let firstVideoId = videoCoordinators.first?.0 {
-                   currentlyPlayingVideoId = firstVideoId
-                   playVideo(id: firstVideoId)
-               }
-           }
        }
     private func pauseAllVideos() {
             for (_, coordinator) in videoCoordinators {

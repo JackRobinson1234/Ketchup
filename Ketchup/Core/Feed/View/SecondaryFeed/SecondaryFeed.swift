@@ -36,8 +36,8 @@ struct SecondaryFeedView: View {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
                         ForEach($viewModel.posts) { post in
-                            if !post.mediaUrls.isEmpty {
-                                ZStack{
+                            if hasValidMedia(post.wrappedValue) {
+                                ZStack {
                                     Color("Colors/HingeGray")
                                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                                         .ignoresSafeArea(.all)
@@ -52,9 +52,7 @@ struct SecondaryFeedView: View {
                     }
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     .onAppear {
-                        
                         scrollProxy.scrollTo(viewModel.startingPostId, anchor: .center)
-                        
                     }
                 }
                 .transition(.slide)
@@ -62,6 +60,7 @@ struct SecondaryFeedView: View {
                 .scrollPosition(id: $scrollPosition)
                 .scrollTargetBehavior(.paging)
             }
+
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
@@ -203,5 +202,17 @@ struct SecondaryFeedView: View {
             }
         }
     }
+    private func hasValidMedia(_ post: Post) -> Bool {
+           switch post.mediaType {
+           case .mixed:
+               return post.mixedMediaUrls?.isEmpty == false
+           case .video:
+               return !post.mediaUrls.isEmpty
+           case .photo:
+               return !post.mediaUrls.isEmpty
+           case .written:
+               return false // Assuming text-only posts should not be displayed in this feed
+           }
+       }
 }
 

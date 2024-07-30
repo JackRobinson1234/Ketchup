@@ -11,9 +11,18 @@ struct CombinedCameraControls: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     @ObservedObject var uploadViewModel: UploadViewModel
     @EnvironmentObject var tabBarController: TabBarController
+    @State private var cameraMode: CameraMode = .photo
+    
+    enum CameraMode {
+        case photo, video
+    }
     
     var body: some View {
         VStack {
+            if cameraViewModel.previewURL == nil && cameraViewModel.images.isEmpty {
+                cameraModeSelector
+            }
+            
             Spacer()
             
             HStack {
@@ -49,6 +58,35 @@ struct CombinedCameraControls: View {
         }
     }
     
+    private var cameraModeSelector: some View {
+        HStack(spacing: 0) {
+            Button(action: { cameraMode = .photo }) {
+                Image(systemName: "camera")
+                    .foregroundColor(cameraMode == .photo ? .black : .white)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(cameraMode == .photo ? Color.white : Color.clear)
+                    )
+            }
+            
+            Button(action: { cameraMode = .video }) {
+                Image(systemName: "video")
+                    .foregroundColor(cameraMode == .video ? .black : .white)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(cameraMode == .video ? Color.white : Color.clear)
+                    )
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.black.opacity(0.5))
+        )
+        .padding(.top, 20)
+    }
+    
     private var deleteButton: some View {
         Button(action: {
             // Implement delete functionality
@@ -60,7 +98,7 @@ struct CombinedCameraControls: View {
     }
     
     private func captureMedia() {
-        if cameraViewModel.selectedCamTab == 1 {
+        if cameraMode == .video {
             if cameraViewModel.isRecording {
                 cameraViewModel.stopRecording()
             } else {
@@ -74,7 +112,7 @@ struct CombinedCameraControls: View {
     private var nextButton: some View {
         Button(action: {
             cameraViewModel.navigateToUpload.toggle()
-            if cameraViewModel.selectedCamTab == 1 {
+            if cameraMode == .video {
                 uploadViewModel.videoURL = cameraViewModel.previewURL
                 uploadViewModel.mediaType = .video
             } else {

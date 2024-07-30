@@ -42,7 +42,7 @@ class UploadViewModel: ObservableObject {
     @Published var MixedImages: [UIImage]?
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
     @Published var thumbnailImage: UIImage?
-    
+    @Published var dismissAll: Bool = false
     
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
@@ -83,115 +83,116 @@ class UploadViewModel: ObservableObject {
     }
     
     func uploadPost() async {
-        isLoading = true
-        var postRestaurant: PostRestaurant? = nil
-       
-        if let restaurant = restaurant {
-            postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
-        } else if let restaurant = restaurantRequest {
-            postRestaurant = PostRestaurant(
-                id: "construction" + NSUUID().uuidString,
-                name: restaurant.name,
-                geoPoint: nil,
-                geoHash: nil,
-                address: nil,
-                city: restaurant.city.isEmpty ? nil : restaurant.city,
-                state: restaurant.state.isEmpty ? nil : restaurant.state,
-                profileImageUrl: nil
-                
-            )
-            do {
-                try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
-            } catch {
-                print("error uploading restaurant request")
+            isLoading = true
+            var postRestaurant: PostRestaurant? = nil
+           
+            if let restaurant = restaurant {
+                postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
+            } else if let restaurant = restaurantRequest {
+                postRestaurant = PostRestaurant(
+                    id: "construction" + NSUUID().uuidString,
+                    name: restaurant.name,
+                    geoPoint: nil,
+                    geoHash: nil,
+                    address: nil,
+                    city: restaurant.city.isEmpty ? nil : restaurant.city,
+                    state: restaurant.state.isEmpty ? nil : restaurant.state,
+                    profileImageUrl: nil
+                )
+                do {
+                    try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
+                } catch {
+                    print("error uploading restaurant request")
+                }
             }
-        }
-        
-        error = nil
-        
-     
-        do {
-            if let postRestaurant {
-                // Extract mentioned users from caption
-                var mentionedUsers: [PostUser] = []
-                let words = caption.split(separator: " ")
-                for word in words {
-                    if word.hasPrefix("@") {
-                        let username = String(word.dropFirst())
-                        if let user = mentionableUsers.first(where: { $0.username == username }) {
-                            mentionedUsers.append(PostUser(id: user.id,
-                                                           fullname: user.fullname,
-                                                           profileImageUrl: user.profileImageUrl,
-                                                           privateMode: user.privateMode,
-                                                           username: user.username))
-                        } else {
-                            // fetching user by username if not found in suggestions
-                            if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
-                                mentionedUsers.append(PostUser(id: fetchedUser.id,
-                                                               fullname: fetchedUser.fullname,
-                                                               profileImageUrl: fetchedUser.profileImageUrl,
-                                                               privateMode: fetchedUser.privateMode,
-                                                               username: fetchedUser.username))
+            
+            error = nil
+            
+            do {
+                if let postRestaurant {
+                    // Extract mentioned users from caption
+                    var mentionedUsers: [PostUser] = []
+                    let words = caption.split(separator: " ")
+                    for word in words {
+                        if word.hasPrefix("@") {
+                            let username = String(word.dropFirst())
+                            if let user = mentionableUsers.first(where: { $0.username == username }) {
+                                mentionedUsers.append(PostUser(id: user.id,
+                                                               fullname: user.fullname,
+                                                               profileImageUrl: user.profileImageUrl,
+                                                               privateMode: user.privateMode,
+                                                               username: user.username))
                             } else {
-                                mentionedUsers.append(PostUser(id: "invalid",
-                                                               fullname: "invalid",
-                                                               profileImageUrl: nil,
-                                                               privateMode: false,
-                                                               username: username))
+                                // fetching user by username if not found in suggestions
+                                if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                                    mentionedUsers.append(PostUser(id: fetchedUser.id,
+                                                                   fullname: fetchedUser.fullname,
+                                                                   profileImageUrl: fetchedUser.profileImageUrl,
+                                                                   privateMode: fetchedUser.privateMode,
+                                                                   username: fetchedUser.username))
+                                } else {
+                                    mentionedUsers.append(PostUser(id: "invalid",
+                                                                   fullname: "invalid",
+                                                                   profileImageUrl: nil,
+                                                                   privateMode: false,
+                                                                   username: username))
+                                }
                             }
                         }
                     }
-                }
-                
-                var uploadedMixedMediaItems: [MixedMediaItem] = []
-                
-                for item in mixedMediaItems {
-                    switch item.type {
-                    case .photo:
-                        if let image = item.localMedia as? UIImage,
-                           let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
-                            uploadedMixedMediaItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                    
+                    var uploadedMixedMediaItems: [MixedMediaItem]? = nil
+                    
+                    if !mixedMediaItems.isEmpty {
+                        uploadedMixedMediaItems = []
+                        for item in mixedMediaItems {
+                            switch item.type {
+                            case .photo:
+                                if let image = item.localMedia as? UIImage,
+                                   let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
+                                    uploadedMixedMediaItems?.append(MixedMediaItem(url: imageUrl, type: .photo))
+                                }
+                            case .video:
+                                if let videoURL = item.localMedia as? URL,
+                                   let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
+                                    uploadedMixedMediaItems?.append(MixedMediaItem(url: videoUrl, type: .video))
+                                }
+                            default:
+                                break  // Handle other cases if necessary
+                            }
                         }
-                    case .video:
-                        if let videoURL = item.localMedia as? URL,
-                           let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
-                            uploadedMixedMediaItems.append(MixedMediaItem(url: videoUrl, type: .video))
-                        }
-                    default:
-                        break  // Handle other cases if necessary
                     }
+                    
+                    let post = try await UploadService.shared.uploadPost(
+                        mixedMediaItems: uploadedMixedMediaItems,
+                        mediaType: .mixed,
+                        caption: caption,
+                        postRestaurant: postRestaurant,
+                        fromInAppCamera: fromInAppCamera,
+                        overallRating: overallRating,
+                        serviceRating: isServiceNA ? nil : serviceRating,
+                        atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+                        valueRating: isValueNA ? nil : valueRating,
+                        foodRating: isFoodNA ? nil : foodRating,
+                        taggedUsers: taggedUsers,
+                        captionMentions: mentionedUsers,
+                        thumbnailImage: thumbnailImage
+                    )
+                    
+                    uploadSuccess = true
+                    feedViewModel.showPostAlert = true
+                    feedViewModel.posts.insert(post, at: 0)
+                } else {
+                    throw UploadError.invalidMediaType
                 }
-                
-                let post = try await UploadService.shared.uploadPost(
-                    mixedMediaItems: uploadedMixedMediaItems,
-                    mediaType: .mixed,
-                    caption: caption,
-                    postRestaurant: postRestaurant,
-                    fromInAppCamera: fromInAppCamera,
-                    overallRating: overallRating,
-                    serviceRating: isServiceNA ? nil : serviceRating,
-                    atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-                    valueRating: isValueNA ? nil : valueRating,
-                    foodRating: isFoodNA ? nil : foodRating,
-                    taggedUsers: taggedUsers,
-                    captionMentions: mentionedUsers,
-                    thumbnailImage: thumbnailImage
-                )
-                
-                uploadSuccess = true
-                feedViewModel.showPostAlert = true
-                feedViewModel.posts.insert(post, at: 0)
-            } else {
-                throw UploadError.invalidMediaType
+            } catch {
+                self.error = error
+                uploadFailure = true
             }
-        } catch {
-            self.error = error
-            uploadFailure = true
+            
+            isLoading = false
+            reset()
         }
-        
-        isLoading = false
-        reset()
-    }
     
     
     func checkForMentioning() {
