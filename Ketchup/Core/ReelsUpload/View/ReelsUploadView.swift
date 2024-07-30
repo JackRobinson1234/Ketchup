@@ -56,7 +56,7 @@ struct ReelsUploadView: View {
             VStack {
                 HStack{
                     Button(action: {
-                        showingWarningAlert = true
+                        dismiss()
                     }) {
                         Image(systemName: "chevron.left")
                             .font(.title2)
@@ -162,8 +162,8 @@ struct ReelsUploadView: View {
                             isPresented: $showingWarningAlert,
                             titleVisibility: .visible) {
             Button("Yes, go back", role: .destructive) {
-                uploadViewModel.reset()
-                cameraViewModel.reset()
+                //uploadViewModel.reset()
+                //cameraViewModel.reset()
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -623,7 +623,6 @@ struct VideoControlButtons: View {
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.black.opacity(0.6)))
             }
-            
             Button(action: onVolumeToggle) {
                 Image(systemName: volume > 0 ? "speaker.wave.2.fill" : "speaker.slash.fill")
                     .foregroundColor(.white)

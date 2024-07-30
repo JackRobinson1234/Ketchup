@@ -100,13 +100,13 @@ func configureKingfisherCache() {
     let cache = ImageCache.default
     
     // Set maximum disk cache size to 500 MB (500 * 1024 * 1024 bytes)
-    cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
+    cache.diskStorage.config.sizeLimit = 100 * 1024 * 1024
     
     // Optionally set maximum memory cache size to 100 MB (100 * 1024 * 1024 bytes)
     cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024
     
     // Set the expiration for cached images (e.g., 7 days)
-    cache.diskStorage.config.expiration = .days(7)
+    cache.diskStorage.config.expiration = .days(1)
     
     // Optionally clear the cache if needed
     // cache.clearDiskCache()
