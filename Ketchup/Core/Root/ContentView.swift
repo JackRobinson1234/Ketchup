@@ -7,6 +7,8 @@
 
 import SwiftUI
 import FirebaseAuth
+import SwiftUI
+import FirebaseAuth
 struct ContentView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
@@ -14,7 +16,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if Auth.auth().currentUser != nil {
-                MainTabView(showNotifications: $showNotifications)
+                MainTabView()
                     .environmentObject(viewModel)
                     .environmentObject(tabBarController)
                     .customFont()
@@ -48,3 +50,4 @@ struct ContentView: View {
         }
     }
 }
+

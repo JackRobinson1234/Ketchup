@@ -117,7 +117,17 @@ func configureKingfisherCache() {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     // Receive displayed notifications for iOS 10 devices.
-    
+
+
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                    options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        if connectingSceneSession.role == .windowApplication {
+            configuration.delegateClass = SceneDelegate.self
+        }
+        return configuration
+    }
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken;
@@ -183,4 +193,62 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
     
+}
+final class SceneDelegate: NSObject, UIWindowSceneDelegate {
+
+  var secondaryWindow: UIWindow?
+
+  func scene(_ scene: UIScene,
+             willConnectTo session: UISceneSession,
+             options connectionOptions: UIScene.ConnectionOptions) {
+      if let windowScene = scene as? UIWindowScene {
+          setupSecondaryOverlayWindow(in: windowScene)
+      }
+  }
+
+  func setupSecondaryOverlayWindow(in scene: UIWindowScene) {
+      let secondaryViewController = UIHostingController(
+          rootView:
+              EmptyView()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  .modifier(InAppNotificationViewModifier())
+      )
+    secondaryViewController.view.backgroundColor = .clear
+    let secondaryWindow = PassThroughWindow(windowScene: scene)
+    secondaryWindow.rootViewController = secondaryViewController
+    secondaryWindow.isHidden = false
+    self.secondaryWindow = secondaryWindow
+  }
+}
+class PassThroughWindow: UIWindow {
+  override func hitTest(_ point: CGPoint,
+                        with event: UIEvent?) -> UIView? {
+    guard let hitView = super.hitTest(point, with: event)
+    else { return nil }
+
+    return rootViewController?.view == hitView ? nil : hitView
+  }
+}
+struct InAppNotificationViewModifier: ViewModifier {
+func body(content: Content) -> some View {
+  content
+    .overlay {
+      VStack {
+        Text("Notification Example")
+          .frame(maxWidth: .infinity)
+          .padding()
+          .background(.background)
+          .clipShape(
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
+          )
+          .overlay(
+            RoundedRectangle(cornerRadius: 25)
+              .strokeBorder(.tertiary, lineWidth: 1)
+          )
+          .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
+          .padding(.horizontal)
+        Spacer()
+      }
+    }
+  }
 }

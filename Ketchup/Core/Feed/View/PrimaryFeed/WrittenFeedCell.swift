@@ -269,9 +269,7 @@ struct WrittenFeedCell: View {
                 }
             }
             VStack{
-                Button(action: {
-                    showUserProfile = true
-                }) {
+                NavigationLink(value: post.restaurant) {
                     HStack(alignment: .center) {
                         VStack(alignment: .leading) {
                             Text(post.restaurant.name)

@@ -10,7 +10,7 @@ struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
-    @Binding var showNotifications: Bool
+    @State var showNotifications: Bool = false
     @State var showSettings = false
     @State var isDragging = false
     @State var dragDirection = "left"
@@ -19,11 +19,10 @@ struct CurrentUserProfileView: View {
     @State private var showZoomedProfileImage = false
     @ObservedObject var feedViewModel: FeedViewModel
 
-    init(currentProfileSection: ProfileSectionEnum = .posts, showNotifications: Binding<Bool>, feedViewModel: FeedViewModel) {
+    init(currentProfileSection: ProfileSectionEnum = .posts,  feedViewModel: FeedViewModel) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
-        self._showNotifications = showNotifications
         self.feedViewModel = feedViewModel
     }
     
@@ -114,7 +113,7 @@ struct CurrentUserProfileView: View {
                         }
                     }
                     .sheet(isPresented: $showNotifications) {
-                        NotificationsView()
+                        NotificationsView(isPresented: $showNotifications)
                     }
                     .fullScreenCover(isPresented: $showSettings) {
                         SettingsView(profileViewModel: profileViewModel)

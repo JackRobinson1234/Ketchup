@@ -37,14 +37,14 @@ struct NotificationCell: View {
                             VStack {
                                 Text(notification.user?.username ?? "")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                                     .fontWeight(.semibold) +
                                 Text(notification.type.notificationMessage)
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary) +
+                                    .foregroundStyle(.black) +
                                 Text(notification.type != .postWentWithMention ? " \(text)" : "")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                             }
                             .multilineTextAlignment(.leading)
                         }
@@ -62,11 +62,11 @@ struct NotificationCell: View {
                             VStack {
                                 Text(notification.user?.username ?? "")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                                     .fontWeight(.semibold) +
                                 Text(notification.type.notificationMessage)
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                             }
                             .multilineTextAlignment(.leading)
                         }
@@ -127,7 +127,7 @@ struct NotificationCell: View {
             }
         }
         .padding(.horizontal)
-        .fullScreenCover (isPresented: Binding(
+        .fullScreenCover(isPresented: Binding(
             get: { showRestaurant && selectedRestaurantId != nil },
             set: { showRestaurant = $0 }
         )) {
@@ -156,7 +156,7 @@ struct NotificationCell: View {
                                             showPost = false
                                         }) {
                                             Image(systemName: "chevron.left")
-                                                .foregroundStyle(.white)
+                                                .foregroundStyle(.black)
                                                 .background(
                                                     Circle()
                                                         .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
@@ -174,4 +174,3 @@ struct NotificationCell: View {
         }
     }
 }
-
