@@ -12,7 +12,6 @@ import FirebaseAuth
 struct ContentView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
-    @State var showNotifications = false
     var body: some View {
         Group {
             if Auth.auth().currentUser != nil {
@@ -23,14 +22,7 @@ struct ContentView: View {
                     .onAppear {
                         checkInitialNavigation()
                     }
-                    .onReceive(NotificationCenter.default.publisher(for: .navigateToProfile)) { _ in
-                        print("Received navigate to profile notification")
-                        DispatchQueue.main.async {
-                            self.tabBarController.selectedTab = 4
-                            showNotifications = true
-                            print("Tab set to: \(self.tabBarController.selectedTab)")
-                        }
-                    }
+
             } else if viewModel.userSession == nil {
                 LoginView()
                     .customFont()
@@ -40,13 +32,16 @@ struct ContentView: View {
 
     private func checkInitialNavigation() {
         if let initialTab = UserDefaults.standard.object(forKey: "initialTab") as? Int {
-            print("Found initial tab: \(initialTab)")
-            DispatchQueue.main.async {
-                self.tabBarController.selectedTab = initialTab
-                print("Tab set to: \(self.tabBarController.selectedTab)")
-                showNotifications = true
-                UserDefaults.standard.removeObject(forKey: "initialTab")
-            }
+            NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])
+            UserDefaults.standard.removeObject(forKey: "initialTab")
+// If you want to change tabs
+//            print("Found initial tab: \(initialTab)")
+//            DispatchQueue.main.async {
+//                self.tabBarController.selectedTab = initialTab
+//                print("Tab set to: \(self.tabBarController.selectedTab)")
+//                showNotifications = true
+//                UserDefaults.standard.removeObject(forKey: "initialTab")
+//            }
         }
     }
 }

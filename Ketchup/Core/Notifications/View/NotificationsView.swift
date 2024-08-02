@@ -11,8 +11,6 @@ struct NotificationsView: View {
     @StateObject var viewModel = NotificationsViewModel(service: NotificationService())
     @State var dragDirection = "left"
     @State var isDragging = false
-    @EnvironmentObject var overlayManager: OverlayManager
-    @EnvironmentObject var notificationManager: NotificationManager
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)
@@ -20,7 +18,8 @@ struct NotificationsView: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    dismissNotificationView()
+                    isPresented = false
+                    dismiss()
                 }
             }
     }
@@ -52,7 +51,8 @@ struct NotificationsView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        dismissNotificationView()
+                        isPresented = false
+                        dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
                             .foregroundStyle(.black)
@@ -63,7 +63,7 @@ struct NotificationsView: View {
         }
         .gesture(drag)
         .onAppear {
-            Task {
+            Task{
                 try await clearNotificationAlerts()
             }
         }
@@ -77,9 +77,6 @@ struct NotificationsView: View {
             print("Error clearing notification alert")
         }
     }
-    
-    private func dismissNotificationView() {
-        overlayManager.dismissOverlay()
-        notificationManager.hideNotificationView()
-    }
 }
+
+
