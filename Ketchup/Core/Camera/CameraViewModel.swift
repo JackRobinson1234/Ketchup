@@ -328,7 +328,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     }
     
     func takePic() {
-        if images.count < 5 {
+        if images.count < 8 {
             let photoSettings = AVCapturePhotoSettings()
             if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
                 photoSettings.flashMode = self.flashMode

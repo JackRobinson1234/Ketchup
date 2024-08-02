@@ -65,7 +65,7 @@ struct ImagePicker: View {
                     configuration: {
                         var config = YPImagePickerConfiguration()
                         config.library.mediaType = .photoAndVideo
-                        config.library.maxNumberOfItems = 5
+                        config.library.maxNumberOfItems = 8
                         config.library.minNumberOfItems = 1
                         config.library.skipSelectionsGallery = false
                         config.library.defaultMultipleSelection = false

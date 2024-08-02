@@ -16,7 +16,6 @@ struct CaptionBox: View {
     
     var body: some View {
         VStack {
-            
             ScrollView {
                 ZStack(alignment: .leading) {
                     

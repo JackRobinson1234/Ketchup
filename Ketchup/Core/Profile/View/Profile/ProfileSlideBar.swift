@@ -138,9 +138,9 @@ struct ProfileSlideBar: View {
             if viewModel.profileSection == .map {
                 ProfileMapView(feedViewModel: feedViewModel)
                     .id("map")
-                    .onAppear {
-                        scrollTarget = "map"
-                    }
+//                    .onAppear {
+//                        scrollTarget = "map"
+//                    }
             }
             if viewModel.profileSection == .bookmarks {
                 BookmarksListView(profileViewModel: viewModel)

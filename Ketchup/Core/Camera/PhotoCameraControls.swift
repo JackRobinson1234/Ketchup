@@ -58,7 +58,7 @@ struct PhotoCameraControls: View {
     private var photoStack: some View {
             VStack(spacing: 4) { // Reduce spacing between elements
                 HStack(spacing: -30) {
-                    ForEach((0..<5).reversed(), id: \.self) { index in
+                    ForEach((0..<8).reversed(), id: \.self) { index in
                         photoStackItem(at: index)
                     }
                 }
