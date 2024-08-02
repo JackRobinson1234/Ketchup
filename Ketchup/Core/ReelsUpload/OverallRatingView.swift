@@ -15,7 +15,17 @@ struct OverallRatingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
+            if numericRating == 10 {
+                Image("Skip")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 40)
+            } else {
+                Spacer()
+                    .frame(height: 20)  // To maintain consistent spacing when star is not shown
+            }
+            
             ZStack {
                 Circle()
                     .stroke(lineWidth: 6)
@@ -33,17 +43,6 @@ struct OverallRatingView: View {
                 Text(rating)
                     .font(.custom("MuseoSansRounded-500", size: 18))
                     .foregroundColor(.primary)
-                
-                // Fun lines coming out of the circle if rating is 10
-                if numericRating == 10 {
-                    ForEach(0..<8) { index in
-                        Line()
-                            .stroke(Color("Colors/AccentColor"), lineWidth: 2)
-                            .frame(width: 10, height: 2)
-                            .offset(x: 30)
-                            .rotationEffect(.degrees(Double(index) * 45))
-                    }
-                }
             }
             .frame(width: 50, height: 50)
 
@@ -51,14 +50,5 @@ struct OverallRatingView: View {
                 .font(.custom("MuseoSansRounded-500", size: 16))
                 .foregroundColor(.primary)
         }
-    }
-}
-
-struct Line: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: 0, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.midY))
-        return path
     }
 }

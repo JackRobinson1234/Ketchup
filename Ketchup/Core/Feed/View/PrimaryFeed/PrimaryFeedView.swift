@@ -305,7 +305,7 @@ struct PrimaryFeedView: View {
                 .onChange(of: viewModel.showPostAlert) { oldValue, newValue in
                     if newValue {
                         showSuccessMessage = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
                             showSuccessMessage = false
                         }
                     }
@@ -351,7 +351,7 @@ struct SuccessMessageOverlay: View {
             HStack {
                 Spacer()
                 VStack {
-                    Image(systemName: "Skip")
+                    Image("Skip")
                         .resizable()
                         .frame(width: 40, height: 40)
                     Text(text)
@@ -360,7 +360,7 @@ struct SuccessMessageOverlay: View {
                         .bold()
                 }
                 .padding()
-                .background(Color.gray.opacity(1.0))
+                .background(Color.gray.opacity(0.5))
                 .cornerRadius(15)
                 Spacer()
             }

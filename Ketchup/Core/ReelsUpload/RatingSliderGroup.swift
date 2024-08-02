@@ -19,7 +19,7 @@ struct RatingSliderGroup: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack (alignment: .bottom) {
                 Text(label)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .font(.custom("MuseoSansRounded-500", size: 16))
                     .foregroundColor(.primary)
                 Spacer()
                 HStack(alignment: .bottom){

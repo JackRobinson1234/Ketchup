@@ -6,9 +6,24 @@
 //
 import SwiftUI
 struct NotificationsView: View {
+    @Binding var isPresented: Bool
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel = NotificationsViewModel(service: NotificationService())
-
+    @State var dragDirection = "left"
+    @State var isDragging = false
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 15)
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { endedGesture in
+                if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
+                    self.dragDirection = "left"
+                    isPresented = false
+                    dismiss()
+                }
+            }
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -18,7 +33,6 @@ struct NotificationsView: View {
                             .padding(.top)
                     }
                 }
-
             }
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.inline)
@@ -31,27 +45,38 @@ struct NotificationsView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            //.navigationDestination(for: notification.postId): {
-            .navigationDestination(for: User.self, destination: {user in
-                ProfileView(uid: user.id)})
-           
+            .navigationDestination(for: User.self, destination: { user in
+                ProfileView(uid: user.id)
+            })
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        isPresented = false
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                             .padding()
                     }
                 }
             }
-
+        }
+        .gesture(drag)
+        .onAppear {
+            Task{
+                try await clearNotificationAlerts()
+            }
         }
     }
     
+    private func clearNotificationAlerts() async throws {
+        do {
+            AuthService.shared.userSession?.notificationAlert = 0
+            try await UserService.shared.clearNotificationAlert()
+        } catch {
+            print("Error clearing notification alert")
+        }
+    }
 }
 
-#Preview {
-    NotificationsView()
-}
+

@@ -74,7 +74,7 @@ struct ProfileView: View {
                         VStack(spacing: 2) {
                             ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection, showZoomedProfileImage: $showZoomedProfileImage)
                             if !profileViewModel.user.privateMode {
-                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel, profileSection: $profileSection,
+                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             } else {

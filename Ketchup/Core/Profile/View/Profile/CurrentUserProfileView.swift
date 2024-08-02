@@ -10,20 +10,20 @@ struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State var currentProfileSection: ProfileSectionEnum
     @State var isLoading = true
-    @Binding var showNotifications: Bool
+    @State var showNotifications: Bool = false
     @State var showSettings = false
     @State var isDragging = false
     @State var dragDirection = "left"
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
-    @StateObject var feedViewModel = FeedViewModel()
+    @ObservedObject var feedViewModel: FeedViewModel
 
-    init(currentProfileSection: ProfileSectionEnum = .posts, showNotifications: Binding<Bool>) {
+    init(currentProfileSection: ProfileSectionEnum = .posts,  feedViewModel: FeedViewModel) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
-        self._showNotifications = showNotifications
+        self.feedViewModel = feedViewModel
     }
     
     var body: some View {
@@ -47,7 +47,7 @@ struct CurrentUserProfileView: View {
                                 ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection, showZoomedProfileImage: $showZoomedProfileImage)
                                     .padding(.top)
                                 //MARK: Slide bar
-                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel, profileSection: $currentProfileSection,
+                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             }
@@ -104,21 +104,29 @@ struct CurrentUserProfileView: View {
                         ProfileView(uid: user.id)
                     }
                     .navigationBarBackButtonHidden(true)
-                    .refreshable { Task { try await profileViewModel.refreshCurrentUser() } }
+                    .refreshable {
+                        if profileViewModel.profileSection == .posts{
+                            Task {
+                                try await profileViewModel.refreshCurrentUser()
+                                try await feedViewModel.fetchUserPosts(user: profileViewModel.user)
+                            }
+                        }
+                    }
                     .sheet(isPresented: $showNotifications) {
-                        NotificationsView()
+                        NotificationsView(isPresented: $showNotifications)
                     }
                     .fullScreenCover(isPresented: $showSettings) {
                         SettingsView(profileViewModel: profileViewModel)
                     }
                     .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
                         
-                            RestaurantProfileView(restaurantId: restaurant.id ?? "")
+                            RestaurantProfileView(restaurantId: restaurant.id)
                         
                     }
                     .onChange(of: AuthService.shared.userSession) {
                         if AuthService.shared.userSession != nil {
-                            Task { try await profileViewModel.refreshCurrentUser() }
+                            Task { try await profileViewModel.refreshCurrentUser()
+                            }
                         }
                     }
                     .navigationDestination(for: PostRestaurant.self) { restaurant in

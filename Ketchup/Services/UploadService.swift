@@ -12,8 +12,9 @@ import SwiftUI
 struct UploadService {
     static let shared = UploadService() // Singleton instance
     private init() {}
+    
     func uploadPost(
-            mixedMediaItems: [MixedMediaItem],
+            mixedMediaItems: [MixedMediaItem]?,
             mediaType: MediaType,
             caption: String,
             postRestaurant: PostRestaurant,
@@ -24,14 +25,18 @@ struct UploadService {
             valueRating: Double?,
             foodRating: Double?,
             taggedUsers: [PostUser],
-            captionMentions: [PostUser]
+            captionMentions: [PostUser],
+            thumbnailImage: UIImage?
         ) async throws -> Post {
             let user = try await UserService.shared.fetchCurrentUser()
             let ref = FirestoreConstants.PostsCollection.document()
-
+            
             var thumbnailUrl = ""
-            if let firstItem = mixedMediaItems.first {
-                thumbnailUrl = firstItem.url ?? ""
+            if let thumbnailImage = thumbnailImage {
+                // Use the provided thumbnail image
+                thumbnailUrl = try await ImageUploader.uploadImage(image: thumbnailImage, type: .post) ?? ""
+            } else if let firstItem = mixedMediaItems?.first {
+                thumbnailUrl = firstItem.url
                 if firstItem.type == .video {
                     thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl)
                 }
@@ -39,9 +44,9 @@ struct UploadService {
 
             let post = Post(
                 id: ref.documentID,
-                mediaType: .mixed,
-                mediaUrls: mixedMediaItems.compactMap { $0.url },
-                mixedMediaUrls: mixedMediaItems,
+                mediaType: mediaType,
+                mediaUrls: mixedMediaItems?.compactMap { $0.url } ?? [],
+                mixedMediaUrls: mixedMediaItems ?? [],
                 caption: caption,
                 likes: 0,
                 commentCount: 0,

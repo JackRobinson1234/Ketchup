@@ -100,6 +100,9 @@ struct CommentsView: View {
                     }
                 }
             }
+            .onAppear{
+                viewModel.fetchFollowingUsers()
+            }
             .sheet(isPresented: $viewModel.showOptionsSheet) {
                 if let comment = viewModel.selectedComment {
                     ScrollView {

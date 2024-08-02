@@ -126,6 +126,12 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         }
     }
     
+    func restartCameraSession() {
+        DispatchQueue.main.async {
+            self.startCameraSession()
+            self.togglePreview(true)
+        }
+    }
     func setUp() {
         sessionQueue.async {
             do {
@@ -430,10 +436,9 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             self.recordedDuration = 0
             self.isDragging = false
             self.uploadFromLibray = false
-            self.selectedCamTab = 0
+            //self.selectedCamTab = 0
         }
     }
-
     
     
     func configureFlash() {

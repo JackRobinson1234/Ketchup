@@ -11,19 +11,19 @@ import UniformTypeIdentifiers
 struct PhotoReorderView: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     @Environment(\.presentationMode) var presentationMode
-
     @State private var draggedItem: UIImage?
     @State private var draggedIndex: Int?
     @State private var dropIndex: Int?
+    @State private var selectedImage: UIImage?
+    @State private var isExpanded: Bool = false
 
     let columns = [
-        GridItem(.flexible()),
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
 
     var body: some View {
-        VStack {
+        VStack(spacing: 10) {
             HStack {
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
@@ -35,6 +35,11 @@ struct PhotoReorderView: View {
                 Spacer()
             }
 
+            Text("Drag photos to reorder")
+                .font(.custom("MuseoSansRounded-300", size: 16))
+                .foregroundColor(.gray)
+                .padding(.bottom, 5)
+
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(cameraViewModel.images.indices, id: \.self) { index in
@@ -42,26 +47,20 @@ struct PhotoReorderView: View {
                             Image(uiImage: cameraViewModel.images[index])
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 104, height: 225)
+                                .frame(width: UIScreen.main.bounds.width / 2 - 20, height: (UIScreen.main.bounds.width / 2 - 20) * 6/5)
                                 .cornerRadius(10)
                                 .clipped()
                                 .shadow(radius: 5)
-                                //.offset(y: draggedIndex == index ? -20 : 0)
+                                .onTapGesture {
+                                    selectedImage = cameraViewModel.images[index]
+                                    isExpanded = true
+                                }
                                 .onDrag {
                                     self.draggedItem = cameraViewModel.images[index]
                                     self.draggedIndex = index
                                     return NSItemProvider(object: String(index) as NSString)
                                 }
                                 .onDrop(of: [UTType.text], delegate: DragRelocateDelegate(item: cameraViewModel.images[index], listData: $cameraViewModel.images, current: index, draggedIndex: $draggedIndex, dropIndex: $dropIndex))
-                                .onHover { hovering in
-                                    if hovering {
-                                        self.dropIndex = index
-                                    } else {
-                                        if self.dropIndex == index {
-                                            self.dropIndex = nil
-                                        }
-                                    }
-                                }
 
                             Button(action: {
                                 cameraViewModel.images.remove(at: index)
@@ -83,9 +82,7 @@ struct PhotoReorderView: View {
         }
         .onChange(of: dropIndex) { _ in
             if let draggedIndex = draggedIndex, let dropIndex = dropIndex {
-                
-                    reorderImages(from: draggedIndex, to: dropIndex)
-                
+                reorderImages(from: draggedIndex, to: dropIndex)
             }
         }
         .onChange(of: draggedIndex) { _ in
@@ -93,8 +90,10 @@ struct PhotoReorderView: View {
                 dropIndex = nil
             }
         }
+        .sheet(item: $selectedImage) { image in
+            ExpandedImageView(image: image, isPresented: $isExpanded)
+        }
     }
-
 
     private func reorderImages(from source: Int, to destination: Int) {
         if source != destination {
@@ -103,6 +102,69 @@ struct PhotoReorderView: View {
             images.insert(item, at: destination)
             cameraViewModel.images = images
             self.draggedIndex = destination
+        }
+    }
+}
+
+extension UIImage: Identifiable {
+    public var id: String {
+        UUID().uuidString
+    }
+}
+
+struct ExpandedImageView: View {
+    let image: UIImage
+    @Binding var isPresented: Bool
+    @State private var imageLoadError: Bool = false
+    @State private var isLoading: Bool = true
+
+    var body: some View {
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+            }
+            
+            if !imageLoadError {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            isLoading = false
+                        }
+                    }
+            } else {
+                Text("Failed to load image")
+                    .foregroundColor(.white)
+            }
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding()
+                Spacer()
+            }
+        }
+        .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            if image.size.width == 0 || image.size.height == 0 {
+                imageLoadError = true
+            }
         }
     }
 }

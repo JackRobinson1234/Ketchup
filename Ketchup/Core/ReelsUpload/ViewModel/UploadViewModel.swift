@@ -26,6 +26,7 @@ class UploadViewModel: ObservableObject {
     @Published var fromInAppCamera = true
     @Published var restaurantRequest: RestaurantRequest?
     @ObservedObject var feedViewModel: FeedViewModel
+    @ObservedObject var currentUserFeedViewModel: FeedViewModel
     @Published var overallRating: Double = 5.0
     @Published var serviceRating: Double = 5.0
     @Published var atmosphereRating: Double = 5.0
@@ -41,13 +42,14 @@ class UploadViewModel: ObservableObject {
     @Published var isFoodNA: Bool = false
     @Published var MixedImages: [UIImage]?
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
-    
+    @Published var thumbnailImage: UIImage?
+    @Published var dismissAll: Bool = false
     
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
-    init(feedViewModel: FeedViewModel) {
+    init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
-        fetchFollowingUsers()
+        self.currentUserFeedViewModel = currentUserFeedViewModel
     }
     func addMixedMediaItem(_ item: YPMediaItem) {
         switch item {
@@ -78,17 +80,38 @@ class UploadViewModel: ObservableObject {
         filteredMentionedUsers = []
         isMentioning = false
         mixedMediaItems = []
+        thumbnailImage = nil
         
     }
     
     func uploadPost() async {
         isLoading = true
-        var postRestaurant: PostRestaurant? = nil
         
+        do {
+            let postRestaurant = try await createPostRestaurant()
+            let mentionedUsers = try await extractMentionedUsers(from: caption)
+            let uploadedMixedMediaItems = try await uploadMixedMediaItems()
+            
+            let post = try await uploadPostToService(
+                mixedMediaItems: uploadedMixedMediaItems,
+                postRestaurant: postRestaurant,
+                mentionedUsers: mentionedUsers
+            )
+            
+            handleUploadSuccess(post: post)
+        } catch {
+            handleUploadFailure(error: error)
+        }
+        
+        isLoading = false
+        reset()
+    }
+
+    private func createPostRestaurant() async throws -> PostRestaurant? {
         if let restaurant = restaurant {
-            postRestaurant = UploadService.shared.createPostRestaurant(from: restaurant)
+            return UploadService.shared.createPostRestaurant(from: restaurant)
         } else if let restaurant = restaurantRequest {
-            postRestaurant = PostRestaurant(
+            let postRestaurant = PostRestaurant(
                 id: "construction" + NSUUID().uuidString,
                 name: restaurant.name,
                 geoPoint: nil,
@@ -97,99 +120,111 @@ class UploadViewModel: ObservableObject {
                 city: restaurant.city.isEmpty ? nil : restaurant.city,
                 state: restaurant.state.isEmpty ? nil : restaurant.state,
                 profileImageUrl: nil
-                
             )
-            do {
-                try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
-            } catch {
-                print("error uploading restaurant request")
-            }
+            try await RestaurantService.shared.requestRestaurant(requestRestaurant: restaurant)
+            return postRestaurant
         }
-        
-        error = nil
-        
-        var post: Post? = nil
-        do {
-            if let postRestaurant {
-                // Extract mentioned users from caption
-                var mentionedUsers: [PostUser] = []
-                let words = caption.split(separator: " ")
-                for word in words {
-                    if word.hasPrefix("@") {
-                        let username = String(word.dropFirst())
-                        if let user = mentionableUsers.first(where: { $0.username == username }) {
-                            mentionedUsers.append(PostUser(id: user.id,
-                                                           fullname: user.fullname,
-                                                           profileImageUrl: user.profileImageUrl,
-                                                           privateMode: user.privateMode,
-                                                           username: user.username))
-                        } else {
-                            // fetching user by username if not found in suggestions
-                            if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
-                                mentionedUsers.append(PostUser(id: fetchedUser.id,
-                                                               fullname: fetchedUser.fullname,
-                                                               profileImageUrl: fetchedUser.profileImageUrl,
-                                                               privateMode: fetchedUser.privateMode,
-                                                               username: fetchedUser.username))
-                            } else {
-                                mentionedUsers.append(PostUser(id: "invalid",
-                                                               fullname: "invalid",
-                                                               profileImageUrl: nil,
-                                                               privateMode: false,
-                                                               username: username))
-                            }
-                        }
-                    }
-                }
-                
-                var uploadedMixedMediaItems: [MixedMediaItem] = []
-                
-                for item in mixedMediaItems {
-                    switch item.type {
-                    case .photo:
-                        if let image = item.localMedia as? UIImage,
-                           let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
-                            uploadedMixedMediaItems.append(MixedMediaItem(url: imageUrl, type: .photo))
-                        }
-                    case .video:
-                        if let videoURL = item.localMedia as? URL,
-                           let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
-                            uploadedMixedMediaItems.append(MixedMediaItem(url: videoUrl, type: .video))
-                        }
-                    default:
-                        break  // Handle other cases if necessary
-                    }
-                }
-                
-                let post = try await UploadService.shared.uploadPost(
-                    mixedMediaItems: uploadedMixedMediaItems,
-                    mediaType: .mixed,
-                    caption: caption,
-                    postRestaurant: postRestaurant,
-                    fromInAppCamera: fromInAppCamera,
-                    overallRating: overallRating,
-                    serviceRating: isServiceNA ? nil : serviceRating,
-                    atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-                    valueRating: isValueNA ? nil : valueRating,
-                    foodRating: isFoodNA ? nil : foodRating,
-                    taggedUsers: taggedUsers,
-                    captionMentions: mentionedUsers
-                )
-                
-                uploadSuccess = true
-                feedViewModel.showPostAlert = true
-                feedViewModel.posts.insert(post, at: 0)
-            } else {
-                throw UploadError.invalidMediaType
-            }
-        } catch {
-            self.error = error
-            uploadFailure = true
-        }
-        
-        isLoading = false
-        reset()
+        return nil
     }
+
+    private func extractMentionedUsers(from caption: String) async throws -> [PostUser] {
+        var mentionedUsers: [PostUser] = []
+        let words = caption.split(separator: " ")
+        
+        for word in words where word.hasPrefix("@") {
+            let username = String(word.dropFirst())
+            if let user = mentionableUsers.first(where: { $0.username == username }) {
+                mentionedUsers.append(PostUser(
+                    id: user.id,
+                    fullname: user.fullname,
+                    profileImageUrl: user.profileImageUrl,
+                    privateMode: user.privateMode,
+                    username: user.username
+                ))
+            } else if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                mentionedUsers.append(PostUser(
+                    id: fetchedUser.id,
+                    fullname: fetchedUser.fullname,
+                    profileImageUrl: fetchedUser.profileImageUrl,
+                    privateMode: fetchedUser.privateMode,
+                    username: fetchedUser.username
+                ))
+            } else {
+                mentionedUsers.append(PostUser(
+                    id: "invalid",
+                    fullname: "invalid",
+                    profileImageUrl: nil,
+                    privateMode: false,
+                    username: username
+                ))
+            }
+        }
+        
+        return mentionedUsers
+    }
+
+    private func uploadMixedMediaItems() async throws -> [MixedMediaItem]? {
+        guard !mixedMediaItems.isEmpty else { return nil }
+        
+        var uploadedItems: [MixedMediaItem] = []
+        for item in mixedMediaItems {
+            switch item.type {
+            case .photo:
+                if let image = item.localMedia as? UIImage,
+                   let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
+                    uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                }
+            case .video:
+                if let videoURL = item.localMedia as? URL,
+                   let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
+                    uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                }
+            default:
+                break  // Handle other cases if necessary
+            }
+        }
+        
+        return uploadedItems
+    }
+
+    private func uploadPostToService(
+        mixedMediaItems: [MixedMediaItem]?,
+        postRestaurant: PostRestaurant?,
+        mentionedUsers: [PostUser]
+    ) async throws -> Post {
+        guard let postRestaurant else {
+            throw UploadError.invalidMediaType
+        }
+        
+        return try await UploadService.shared.uploadPost(
+            mixedMediaItems: mixedMediaItems,
+            mediaType: .mixed,
+            caption: caption,
+            postRestaurant: postRestaurant,
+            fromInAppCamera: fromInAppCamera,
+            overallRating: overallRating,
+            serviceRating: isServiceNA ? nil : serviceRating,
+            atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+            valueRating: isValueNA ? nil : valueRating,
+            foodRating: isFoodNA ? nil : foodRating,
+            taggedUsers: taggedUsers,
+            captionMentions: mentionedUsers,
+            thumbnailImage: thumbnailImage
+        )
+    }
+
+    private func handleUploadSuccess(post: Post) {
+        uploadSuccess = true
+        feedViewModel.showPostAlert = true
+        feedViewModel.posts.insert(post, at: 0)
+        currentUserFeedViewModel.posts.insert(post, at: 0)
+    }
+
+    private func handleUploadFailure(error: Error) {
+        self.error = error
+        uploadFailure = true
+    }
+
     
     
     func checkForMentioning() {
@@ -250,7 +285,7 @@ class UploadViewModel: ObservableObject {
         filteredMentionedUsers = []
     }
     
-    private func fetchFollowingUsers() {
+    func fetchFollowingUsers() {
         Task {
             do {
                 let users = try await UserService.shared.fetchFollowingUsers()

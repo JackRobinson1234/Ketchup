@@ -14,162 +14,96 @@ import FirebaseMessaging
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     let gcmMessageIDKey = "gcm.Message_ID"
+    
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        setupFirebase()
+        setupNotifications(application)
+        setupAudioSession()
+        configureKingfisherCache()
+        return true
+    }
+    
+    private func setupFirebase() {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
+    }
+    
+    private func setupNotifications(_ application: UIApplication) {
         UNUserNotificationCenter.current().delegate = self
-        
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { _, _ in }
-        )
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
         application.registerForRemoteNotifications()
+        fetchFCMToken()
+        resetBadgeCount()
+    }
+    
+    private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
-            if let error {
+            if let error = error {
                 print("Error fetching FCM registration token: \(error)")
-            } else if let token {
+            } else if let token = token {
                 print("FCM registration token: \(token)")
             }
         }
+    }
+    
+    private func resetBadgeCount() {
         UNUserNotificationCenter.current().setBadgeCount(0) { error in
             if let error = error {
                 print("Error setting badge count: \(error)")
             }
         }
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
-            try audioSession.setActive(true)
-        } catch let error as NSError {
-            print("Failed to set the audio session category and mode: \(error.localizedDescription)")
-        }
-        configureKingfisherCache()
-        return true
-    }
-    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("Oh no! Failed to register for remote notifications with error \(error)")
     }
     
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set the audio session category and mode: \(error.localizedDescription)")
+        }
+    }
+    
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register for remote notifications: \(error)")
+    }
+    
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken
+    }
+    
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        if connectingSceneSession.role == .windowApplication {
+            configuration.delegateClass = SceneDelegate.self
+        }
+        return configuration
+    }
+    
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        handleNotificationAction(userInfo: userInfo)
+        completionHandler(.noData)
+    }
 }
+
 extension AppDelegate: MessagingDelegate {
-    @objc func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("Firebase token: \(String(describing: fcmToken))")
         if let token = fcmToken {
             saveTokenToFirestore(token: token)
         }
     }
-}
-@main
-struct KetchupApp: App {
-    @StateObject private var tabBarController = TabBarController()
-    @State private var showNotifications = false
     
-    init() {
-        let appear = UINavigationBarAppearance()
-        
-        let atters: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "MuseoSansRounded-1000", size: 30)!
-        ]
-        let inlineTitleAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "MuseoSansRounded-1000", size: 20)! // Smaller size for inline title
-        ]
-        
-        appear.largeTitleTextAttributes = atters
-        appear.titleTextAttributes = inlineTitleAttributes
-        appear.configureWithTransparentBackground()
-        UINavigationBar.appearance().standardAppearance = appear
-        UINavigationBar.appearance().compactAppearance = appear
-        UINavigationBar.appearance().scrollEdgeAppearance = appear
-    }
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environmentObject(tabBarController)
-            
-        }
-    }
-}
-
-
-func configureKingfisherCache() {
-    // Get the default cache
-    let cache = ImageCache.default
-    
-    // Set maximum disk cache size to 500 MB (500 * 1024 * 1024 bytes)
-    cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
-    
-    // Optionally set maximum memory cache size to 100 MB (100 * 1024 * 1024 bytes)
-    cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024
-    
-    // Set the expiration for cached images (e.g., 7 days)
-    cache.diskStorage.config.expiration = .days(7)
-    
-    // Optionally clear the cache if needed
-    // cache.clearDiskCache()
-    // cache.clearMemoryCache()
-}
-
-// Call this function early in your app lifecycle, such as in AppDelegate or SceneDelegate
-
-extension AppDelegate: UNUserNotificationCenterDelegate {
-    // Receive displayed notifications for iOS 10 devices.
-    
-    func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken;
-    }
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        let userInfo = notification.request.content.userInfo
-        
-        Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        // Change this to your preferred presentation option
-        if #available(iOS 14.0, *) {
-            completionHandler([.banner, .sound, .badge])
-        } else {
-            completionHandler([.alert, .sound, .badge])
-        }
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-        let userInfo = response.notification.request.content.userInfo
-        
-        Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        // Handle the notification action
-        handleNotificationAction(userInfo: userInfo)
-        
-        completionHandler()
-    }
-    
-    func handleNotificationAction(userInfo: [AnyHashable: Any]) {
-            // Store the navigation info in UserDefaults
-            UserDefaults.standard.set(4, forKey: "initialTab")
-            UserDefaults.standard.synchronize()
-
-            // Post a notification to navigate to the profile tab
-            NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])
-        }
-    func application(_ application: UIApplication,
-                        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-                        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-           Messaging.messaging().appDidReceiveMessage(userInfo)
-           handleNotificationAction(userInfo: userInfo)
-           completionHandler(.noData)
-       }
-    func saveTokenToFirestore(token: String) {
+    private func saveTokenToFirestore(token: String) {
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
         let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
-        
         let db = Firestore.firestore()
         db.collection("users").document(userId).collection("devices").document(deviceId).setData([
             "fcmToken": token,
@@ -182,5 +116,117 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             }
         }
     }
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        completionHandler([.banner, .sound, .badge])
+    }
     
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        handleNotificationAction(userInfo: userInfo)
+        completionHandler()
+    }
+    
+    private func handleNotificationAction(userInfo: [AnyHashable: Any]) {
+        UserDefaults.standard.set(4, forKey: "initialTab")
+        NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])
+    }
+}
+
+@main
+struct KetchupApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var tabBarController = TabBarController()
+    
+    init() {
+        configureNavigationBarAppearance()
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(tabBarController)
+        }
+    }
+    
+    private func configureNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont(name: "MuseoSansRounded-1000", size: 20)!
+        ]
+        appearance.largeTitleTextAttributes = attributes
+        appearance.titleTextAttributes = attributes
+        appearance.configureWithTransparentBackground()
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+}
+
+func configureKingfisherCache() {
+    let cache = ImageCache.default
+    cache.diskStorage.config.sizeLimit = 100 * 1024 * 1024 // 100 MB
+    cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100 MB
+    cache.diskStorage.config.expiration = .days(1)
+}
+
+final class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    var secondaryWindow: UIWindow?
+    
+    func scene(_ scene: UIScene,
+               willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
+        if let windowScene = scene as? UIWindowScene {
+            setupSecondaryOverlayWindow(in: windowScene)
+        }
+    }
+    
+    private func setupSecondaryOverlayWindow(in scene: UIWindowScene) {
+        let secondaryViewController = UIHostingController(
+            rootView: EmptyView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .modifier(InAppNotificationViewModifier())
+        )
+        secondaryViewController.view.backgroundColor = .clear
+        let secondaryWindow = PassThroughWindow(windowScene: scene)
+        secondaryWindow.rootViewController = secondaryViewController
+        secondaryWindow.isHidden = false
+        self.secondaryWindow = secondaryWindow
+    }
+}
+
+class PassThroughWindow: UIWindow {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard let hitView = super.hitTest(point, with: event) else { return nil }
+        return rootViewController?.view == hitView ? nil : hitView
+    }
+}
+
+struct InAppNotificationViewModifier: ViewModifier {
+    @State private var showNotifications = false
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if showNotifications {
+                    NotificationsView(isPresented: $showNotifications)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .navigateToProfile)) { _ in
+                print("Received navigate to profile notification")
+                DispatchQueue.main.async {
+                    showNotifications = true
+                }
+            }
+    }
 }

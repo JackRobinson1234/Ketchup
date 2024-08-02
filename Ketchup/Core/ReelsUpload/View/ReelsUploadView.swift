@@ -10,6 +10,7 @@ import AVFoundation
 import InstantSearchSwiftUI
 
 struct ReelsUploadView: View {
+    @Environment(\.dismiss) var dismiss
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
     @EnvironmentObject var tabBarController: TabBarController
@@ -24,17 +25,22 @@ struct ReelsUploadView: View {
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     let writtenReview: Bool
     @State private var currentMediaIndex = 0
-
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
-    private var width: CGFloat {
-        (UIScreen.main.bounds.width - (spacing * 2)) / 3
-    }
+     private var width: CGFloat {
+         (UIScreen.main.bounds.width - (spacing * 2)) / 3
+     }
+     
+     private var expandedWidth: CGFloat {
+         UIScreen.main.bounds.width * 5/6
+     }
     
     @Namespace private var animationNamespace
     @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
-     @State private var isPlaying: Bool = false
-     @State private var volume: Float = 0.5
+    @State private var isPlaying: Bool = false
+    @State private var volume: Float = 0.5
+    @State private var showingWarningAlert = false
+    
     var overallRatingPercentage: Double {
         ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
     }
@@ -46,138 +52,123 @@ struct ReelsUploadView: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack {
-                    Spacer().frame(height: 20)  // Top padding
-                    
-                    if writtenReview {
-                        restaurantSelector
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    } else if !writtenReview {
-                        HStack {
-                            Spacer()
-                            if !isVideoExpanded {
-                                restaurantSelector
-                            }
-                            mixedMediaPreview
-                            Spacer()
-                        }
-                        .padding(.vertical)
+        NavigationStack{
+            VStack {
+                HStack{
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title2)
+                            .foregroundColor(Color("Colors/AccentColor"))
                     }
-                    
-                    if !isVideoExpanded {
-                        Divider()
-                        
-                        captionEditor
-                        if uploadViewModel.isMentioning {
-                            if !uploadViewModel.filteredMentionedUsers.isEmpty{
-                                ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
-                                    Button(action: {
-                                        let username = user.username
-                                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        uploadViewModel.caption = words.joined(separator: " ") + " "
-                                        uploadViewModel.isMentioning = false
-                                    }) {
-                                        HStack {
-                                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
-                                            Text(user.username)
-                                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                            Spacer()
-                                        }
-                                        .padding(.horizontal)
-                                    }
-                                    .contentShape(Rectangle())
+                    .padding([.leading, .top])
+                    Spacer()
+                }
+                ScrollView {
+                    VStack {
+                        if writtenReview {
+                            restaurantSelector
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if !writtenReview {
+                            HStack {
+                                Spacer()
+                                if !isVideoExpanded {
+                                    restaurantSelector
                                 }
-                            } else {
-                                InfiniteList(searchViewModel.userHits, itemView: { hit in
-                                    Button{
-                                        let username = hit.object.username
-                                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        uploadViewModel.caption = words.joined(separator: " ") + " "
-                                        uploadViewModel.isMentioning = false
-                                    } label: {
-                                        UserCell(user: hit.object)
-                                            .padding()
-                                      
-                                    }
-                        
-                                    Divider()
-                                }, noResults: {
-                                    Text("No results found")
-                                        .foregroundStyle(.primary)
-                                })
+                                mixedMediaPreview
+                                Spacer()
                             }
-                        }
-                        Divider()
-                        
-                        tagUsersButton
                             .padding(.vertical)
-                        Divider()
+                            
+                        }
                         
-                        ratingsSection
                         
-                    
-                        
-                        Divider()
-                        
-                        postButton
+                        if !isVideoExpanded {
+                            Divider()
+                            
+                            captionEditor
+                            if uploadViewModel.isMentioning {
+                                mentionsList
+                            }
+                            Divider()
+                            
+                            tagUsersButton
+                                .padding(.vertical)
+                            Divider()
+                            
+                            ratingsSection
+                            
+                            Divider()
+                            
+                            postButton
+                        }
                     }
+                    .padding()
                 }
-                .padding()
-            }
-            .if(writtenReview) { view in
-                view.safeAreaPadding(.vertical, 100)
-            }
-        }
-        .onTapGesture {
-            dismissKeyboard()
-            if isVideoExpanded {
-                withAnimation(.spring()) {
-                    isVideoExpanded = false
+                .if(writtenReview) { view in
+                    view.safeAreaPadding(.bottom, 100)
                 }
             }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.white, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .preferredColorScheme(.light)
-        .gesture(
-            DragGesture().onChanged { value in
-                if value.translation.height > 50 {
-                    dismissKeyboard()
-                }
-            }
-        )
-        .onChange(of: uploadViewModel.caption) {
-            uploadViewModel.checkForMentioning()
-        }
-        .navigationDestination(isPresented: $isPickingRestaurant) {
-            SelectRestaurantListView(uploadViewModel: uploadViewModel)
-                .navigationTitle("Select Restaurant")
-        }
-        .navigationDestination(isPresented: $isTaggingUsers) {
-            SelectFollowingView(uploadViewModel: uploadViewModel)
-                .navigationTitle("Tag Users")
-        }
-        .onChange(of: uploadViewModel.caption){
-            if uploadViewModel.filteredMentionedUsers.isEmpty{
-                print("Entering 1")
-                let text = uploadViewModel.checkForAlgoliaTagging()
-                if !text.isEmpty{
-                    print("Entering 2")
-                    searchViewModel.searchQuery = text
-                    print(text)
-                    Debouncer(delay: 0).schedule{
-                        print("Entering 3")
-                        searchViewModel.notifyQueryChanged()
+            .onTapGesture {
+                dismissKeyboard()
+                if isVideoExpanded {
+                    withAnimation(.spring()) {
+                        isVideoExpanded = false
                     }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.white, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .preferredColorScheme(.light)
+            .gesture(
+                DragGesture().onChanged { value in
+                    if value.translation.height > 50 {
+                        dismissKeyboard()
+                    }
+                }
+            )
+            .onChange(of: uploadViewModel.caption) {
+                uploadViewModel.checkForMentioning()
+            }
+            .navigationDestination(isPresented: $isPickingRestaurant) {
+                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, isEditingRestaurant: true)
+                    .navigationTitle("Select Restaurant")
+            }
+            .sheet(isPresented: $isTaggingUsers) {
+                NavigationStack{
+                    SelectFollowingView(uploadViewModel: uploadViewModel)
+                        .navigationTitle("Tag Users")
+                }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+            }
+            .onChange(of: uploadViewModel.caption){
+                if uploadViewModel.filteredMentionedUsers.isEmpty{
+                    let text = uploadViewModel.checkForAlgoliaTagging()
+                    if !text.isEmpty{
+                        searchViewModel.searchQuery = text
+                        Debouncer(delay: 0).schedule{
+                            searchViewModel.notifyQueryChanged()
+                        }
+                    }
+                }
+            }
+            .onAppear{
+                uploadViewModel.fetchFollowingUsers()
+            }
+        }
+        .confirmationDialog("Are you sure you want to go back?",
+                            isPresented: $showingWarningAlert,
+                            titleVisibility: .visible) {
+            Button("Yes, go back", role: .destructive) {
+                //uploadViewModel.reset()
+                //cameraViewModel.reset()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("All progress will be lost.")
         }
     }
     
@@ -237,52 +228,53 @@ struct ReelsUploadView: View {
             }
         }
     }
+    
     var mixedMediaPreview: some View {
-            VStack {
+            VStack(spacing: 8) {
                 if !uploadViewModel.mixedMediaItems.isEmpty {
-                    ZStack(alignment: .bottomTrailing) {
-                        TabView(selection: $currentMediaIndex) {
-                            ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
-                                let item = uploadViewModel.mixedMediaItems[index]
-                                Group {
-                                    if item.type == .photo {
-                                        if let image = item.localMedia as? UIImage {
-                                            Image(uiImage: image)
-                                                .resizable()
-                                                .scaledToFill()
-                                        } else {
-                                            Color.gray // Placeholder
-                                        }
-                                    } else if item.type == .video {
-                                        VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
-                                            videoPlayers[index] = player
-                                        }
+                    TabView(selection: $currentMediaIndex) {
+                        ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
+                            let item = uploadViewModel.mixedMediaItems[index]
+                            Group {
+                                if item.type == .photo {
+                                    if let image = item.localMedia as? UIImage {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                    } else {
+                                        Color.gray // Placeholder
+                                    }
+                                } else if item.type == .video {
+                                    VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
+                                        videoPlayers[index] = player
                                     }
                                 }
-                                .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
-                                       height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
-                                .cornerRadius(10)
-                                .tag(index)
                             }
-                        }
-                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                        .frame(height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
-
-                        if !isVideoExpanded && uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
-                            VideoControlButtons(
-                                isPlaying: $isPlaying,
-                                volume: $volume,
-                                onPlayPause: {
-                                    videoPlayers[currentMediaIndex]?.togglePlayPause()
-                                },
-                                onVolumeToggle: {
-                                    videoPlayers[currentMediaIndex]?.toggleVolume()
-                                }
-                            )
-                            .padding(8)
+                            .frame(width: isVideoExpanded ? expandedWidth : width,
+                                   height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
+                            .cornerRadius(10)
+                            .clipped()
+                            .tag(index)
                         }
                     }
-
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                    .frame(width: isVideoExpanded ? expandedWidth : width,
+                           height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
+                    
+                    if uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
+                        VideoControlButtons(
+                            isPlaying: $isPlaying,
+                            volume: $volume,
+                            onPlayPause: {
+                                videoPlayers[currentMediaIndex]?.togglePlayPause()
+                            },
+                            onVolumeToggle: {
+                                videoPlayers[currentMediaIndex]?.toggleVolume()
+                            }
+                        )
+                        .frame(width: isVideoExpanded ? expandedWidth : width)
+                    }
+                    
                     if uploadViewModel.mixedMediaItems.count > 1 {
                         Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
                             .font(.caption)
@@ -291,7 +283,7 @@ struct ReelsUploadView: View {
                 } else {
                     Rectangle()
                         .fill(Color.gray)
-                        .frame(width: width, height: width * (6/5))
+                        .frame(width: width, height: width * 6/5)
                         .cornerRadius(10)
                 }
             }
@@ -301,14 +293,16 @@ struct ReelsUploadView: View {
                 }
             }
         }
-   
+
+  
+
+    
     var captionEditor: some View {
         VStack {
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $uploadViewModel.caption)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .frame(height: 75)
-                    .padding(.horizontal, 20)
                     .background(Color.white)
                     .cornerRadius(5)
                     .toolbar {
@@ -326,8 +320,8 @@ struct ReelsUploadView: View {
                     Text("Enter a caption...")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(Color.gray)
-                        .padding(.horizontal, 25)
                         .padding(.top, 8)
+                        .padding(.horizontal, 5)
                 }
             }
             HStack {
@@ -341,6 +335,50 @@ struct ReelsUploadView: View {
         .onChange(of: uploadViewModel.caption) {
             if uploadViewModel.caption.count >= 500 {
                 uploadViewModel.caption = String(uploadViewModel.caption.prefix(500))
+            }
+        }
+    }
+    
+    var mentionsList: some View {
+        Group {
+            if !uploadViewModel.filteredMentionedUsers.isEmpty {
+                ForEach(uploadViewModel.filteredMentionedUsers, id: \.id) { user in
+                    Button(action: {
+                        let username = user.username
+                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                        words.removeLast()
+                        words.append("@" + username)
+                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                        uploadViewModel.isMentioning = false
+                    }) {
+                        HStack {
+                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
+                            Text(user.username)
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                    }
+                    .contentShape(Rectangle())
+                }
+            } else {
+                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                    Button {
+                        let username = hit.object.username
+                        var words = uploadViewModel.caption.split(separator: " ").map(String.init)
+                        words.removeLast()
+                        words.append("@" + username)
+                        uploadViewModel.caption = words.joined(separator: " ") + " "
+                        uploadViewModel.isMentioning = false
+                    } label: {
+                        UserCell(user: hit.object)
+                            .padding()
+                    }
+                    Divider()
+                }, noResults: {
+                    Text("No results found")
+                        .foregroundStyle(.primary)
+                })
             }
         }
     }
@@ -424,10 +462,12 @@ struct ReelsUploadView: View {
                 showAlert = true
             } else {
                 Task {
+                    
                     let overallRating = calculateOverallRating()
                     await uploadViewModel.uploadPost()
                     uploadViewModel.reset()
                     cameraViewModel.reset()
+                    uploadViewModel.dismissAll = true
                     tabBarController.selectedTab = 0
                 }
             }
@@ -454,22 +494,29 @@ struct ReelsUploadView: View {
 }
 
 
-
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
+
+
+
 struct VideoPlayerTest: View {
     let videoURL: URL?
     @State private var player: AVPlayer?
     @Binding var isVideoExpanded: Bool
     @Binding var isPlaying: Bool
     @Binding var volume: Float
+    @State private var videoAspectRatio: CGFloat = 16/9  // Default aspect ratio
     var onPlayerCreated: (VideoPlayerTest) -> Void
-
+    
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (20 * 2)) / 3
     }
-
+    
+    private var expandedWidth: CGFloat {
+        UIScreen.main.bounds.width * 5/6
+    }
+    
     var body: some View {
         ZStack {
             if let player = player {
@@ -478,9 +525,6 @@ struct VideoPlayerTest: View {
                                   showsPlaybackControls: false)
             }
         }
-        .frame(width: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width,
-               height: isVideoExpanded ? UIScreen.main.bounds.width * 5/6 : width * (6/5))
-        .cornerRadius(10)
         .onAppear {
             setupPlayer()
             onPlayerCreated(self)
@@ -496,31 +540,37 @@ struct VideoPlayerTest: View {
             }
         }
     }
-
+    
     private func setupPlayer() {
         guard let url = videoURL else { return }
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
         player?.actionAtItemEnd = .none
         player?.volume = volume
-
+        
         NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime,
                                                object: playerItem,
                                                queue: .main) { _ in
             player?.seek(to: .zero)
             player?.play()
         }
-
+        
+        // Get video aspect ratio
+        if let track = playerItem.asset.tracks(withMediaType: .video).first {
+            let size = track.naturalSize.applying(track.preferredTransform)
+            videoAspectRatio = abs(size.width / size.height)
+        }
+        
         player?.play()
         isPlaying = true
     }
-
+    
     private func deinitPlayer() {
         player?.pause()
         player = nil
         NotificationCenter.default.removeObserver(self)
     }
-
+    
     func togglePlayPause() {
         isPlaying.toggle()
         if isPlaying {
@@ -529,7 +579,7 @@ struct VideoPlayerTest: View {
             player?.pause()
         }
     }
-
+    
     func toggleVolume() {
         volume = volume > 0 ? 0 : 0.5
         player?.volume = volume
@@ -540,7 +590,7 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
     var player: AVPlayer
     var videoGravity: AVLayerVideoGravity
     var showsPlaybackControls: Bool
-
+    
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.player = player
@@ -551,27 +601,28 @@ struct CustomVideoPlayer: UIViewControllerRepresentable {
         controller.videoGravity = videoGravity
         return controller
     }
-
+    
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         uiViewController.player = player
         uiViewController.showsPlaybackControls = showsPlaybackControls
+        uiViewController.videoGravity = videoGravity
     }
 }
+
 struct VideoControlButtons: View {
     @Binding var isPlaying: Bool
     @Binding var volume: Float
     var onPlayPause: () -> Void
     var onVolumeToggle: () -> Void
-
+    
     var body: some View {
-        VStack(spacing: 10) {
+        HStack(spacing: 20) {
             Button(action: onPlayPause) {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                     .foregroundColor(.white)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.black.opacity(0.6)))
             }
-
             Button(action: onVolumeToggle) {
                 Image(systemName: volume > 0 ? "speaker.wave.2.fill" : "speaker.slash.fill")
                     .foregroundColor(.white)
@@ -581,7 +632,6 @@ struct VideoControlButtons: View {
         }
     }
 }
-
 
 extension View {
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {

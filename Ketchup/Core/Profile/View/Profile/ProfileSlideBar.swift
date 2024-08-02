@@ -25,7 +25,6 @@ enum PostDisplayMode: String, CaseIterable {
 }
 
 struct ProfileSlideBar: View {
-    @Binding var profileSection: ProfileSectionEnum
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
     @ObservedObject var feedViewModel = FeedViewModel()
@@ -37,8 +36,7 @@ struct ProfileSlideBar: View {
         return viewModel.user.username == "ketchup_media"
     }
 
-    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, profileSection: Binding<ProfileSectionEnum>, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
-        self._profileSection = profileSection
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
@@ -50,59 +48,59 @@ struct ProfileSlideBar: View {
         VStack {
             // MARK: Images
             HStack(spacing: 0) {
-                Image(systemName: profileSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
+                Image(systemName: viewModel.profileSection == .posts ? "line.3.horizontal" : "line.3.horizontal")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 15)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .posts
+                            self.viewModel.profileSection = .posts
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .posts))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .posts))
                     .frame(maxWidth: .infinity)
 
-                Image(systemName: profileSection == .map ? "location.fill" : "location")
+                Image(systemName: viewModel.profileSection == .map ? "location.fill" : "location")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .map
+                            self.viewModel.profileSection = .map
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .map))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .map))
                     .frame(maxWidth: .infinity)
 
-                Image(systemName: profileSection == .collections ? "folder.fill" : "folder")
+                Image(systemName: viewModel.profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .collections
+                            self.viewModel.profileSection = .collections
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .collections))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .collections))
                     .frame(maxWidth: .infinity)
 
-                Image(systemName: profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
+                Image(systemName: viewModel.profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 45, height: 20)
                     .onTapGesture {
                         withAnimation {
-                            self.profileSection = .bookmarks
+                            self.viewModel.profileSection = .bookmarks
                         }
                     }
-                    .modifier(UnderlineImageModifier(isSelected: profileSection == .bookmarks))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .bookmarks))
                     .frame(maxWidth: .infinity)
             }
             .padding()
             .padding(.bottom, 22)
 
             // MARK: Section Logic
-            if profileSection == .posts {
+            if viewModel.profileSection == .posts {
                 VStack {
                     Menu {
                         Picker("Post Display Mode", selection: $postDisplayMode) {
@@ -137,18 +135,18 @@ struct ProfileSlideBar: View {
                     }
                 }
             }
-            if profileSection == .map {
+            if viewModel.profileSection == .map {
                 ProfileMapView(feedViewModel: feedViewModel)
                     .id("map")
                     .onAppear {
                         scrollTarget = "map"
                     }
             }
-            if profileSection == .bookmarks {
+            if viewModel.profileSection == .bookmarks {
                 BookmarksListView(profileViewModel: viewModel)
             }
 
-            if profileSection == .collections {
+            if viewModel.profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }
         }
