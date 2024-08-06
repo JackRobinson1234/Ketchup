@@ -57,7 +57,7 @@ struct PhotoCameraControls: View {
     
     private var photoStack: some View {
             VStack(spacing: 4) { // Reduce spacing between elements
-                HStack(spacing: -30) {
+                HStack(spacing: -20) {
                     ForEach((0..<8).reversed(), id: \.self) { index in
                         photoStackItem(at: index)
                     }
@@ -69,7 +69,7 @@ struct PhotoCameraControls: View {
                         .foregroundColor(.white)
                 }
                 
-                Text("\(cameraViewModel.images.count)/5")
+                Text("\(cameraViewModel.images.count)/8")
                     .font(.custom("MuseoSansRounded-300", size: 14)) // Slightly smaller font
                     .foregroundColor(.white)
             }
@@ -84,7 +84,7 @@ struct PhotoCameraControls: View {
                     .frame(width: 31.2, height: 45)
                     .clipShape(RoundedRectangle(cornerRadius: 5))
                     .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                    .offset(x: CGFloat((2 - index) * 10), y: 0)
+                    //.offset(x: CGFloat((2 - index) * 10), y: 0)
                     .onTapGesture {
                         showReorderView.toggle()
                     }
@@ -101,7 +101,7 @@ struct PhotoCameraControls: View {
                         }
                     )
                     .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1))
-                    .offset(x: CGFloat((2 - index) * 10), y: 0)
+                    //.offset(x: CGFloat((2 - index) * 10), y: 0)
             }
         }
     }

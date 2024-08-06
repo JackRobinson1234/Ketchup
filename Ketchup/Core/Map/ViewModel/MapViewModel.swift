@@ -23,12 +23,13 @@ class MapViewModel: ObservableObject {
     @Published var selectedState: String = ""
     @Published var annotations: [RestaurantMapAnnotation] = []
     @Published var clusters: [ExampleClusterAnnotation] = []
+    @Published var largeClusters: [LargeClusterAnnotation] = []
     @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
     @Published var isLoading = false
     @Published var currentZoomLevel: String = "neighborhood"
     
     var mapSize: CGSize = .zero
-    let maxZoomOutSpan: Double = 0.5
+    let maxZoomOutSpan: Double = 0.4
     let longitudeDeltaToConvertToRestaurant: Double = 0.007
     
     var isZoomedEnoughForClusters: Bool {
@@ -39,10 +40,8 @@ class MapViewModel: ObservableObject {
         let span = currentRegion.span
         if span.longitudeDelta > maxZoomOutSpan {
             return "max_zoom_out"
-        } else if span.longitudeDelta > 0.1 {
-            return "country"
-        } else if span.longitudeDelta > 0.05 {
-            return "state"
+        } else if span.longitudeDelta > 0.03 {
+            return "region"
         } else if span.longitudeDelta > 0.007 {
             return "city"
         } else {
@@ -84,17 +83,32 @@ class MapViewModel: ObservableObject {
             }
 
             self.restaurants = restaurants
-            self.clusters = clusters.map { cluster in
-                ExampleClusterAnnotation(
+//            self.clusters = clusters.map { cluster in
+//                ExampleClusterAnnotation(
+//                    id: UUID(),
+//                    coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
+//                    count: cluster.count,
+//                    memberAnnotations: cluster.restaurants.map { restaurant in
+//                        RestaurantMapAnnotation(coordinate: restaurant.geoPoint.coordinate, restaurant: Restaurant(
+//                            id: restaurant.id,
+//                            name: restaurant.name,
+//                            cuisine: restaurant.cuisine,
+//                            price: restaurant.price,
+//                            profileImageUrl: restaurant.profileImageUrl,
+//                            geoPoint: restaurant.geoPoint,
+//                            fullGeoHash: restaurant.fullGeoHash,
+//                            attributes: restaurant.attributes
+//                        ))
+//                    }
+//                )
+//            }
+
+            self.largeClusters = clusters.map { cluster in
+                LargeClusterAnnotation(
                     id: UUID(),
                     coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
                     count: cluster.count,
-                    memberAnnotations: cluster.restaurantIds?.compactMap { restaurantId in
-                        if let restaurant = restaurants.first(where: { $0.id == restaurantId }) {
-                            return RestaurantMapAnnotation(coordinate: restaurant.coordinates!, restaurant: restaurant)
-                        }
-                        return nil
-                    } ?? []
+                    memberAnnotations: cluster.restaurants
                 )
             }
 
@@ -173,31 +187,31 @@ class MapViewModel: ObservableObject {
     }
     
     private func calculateRadius() -> Double {
-           let mapWidth = mapSize.width
-           let mapHeight = mapSize.height
-           let span = currentRegion.span
-           
-           // Calculate the diagonal distance of the visible map area in degrees
-           let diagonalSpan = sqrt(pow(span.latitudeDelta, 2) + pow(span.longitudeDelta, 2))
-           
-           // Convert the diagonal span to meters
-           let metersPerDegree = 111319.9 // Approximate meters per degree at the equator
-           let diagonalMeters = diagonalSpan * metersPerDegree
-           
-           // Adjust the radius based on the map size and zoom level
-           let baseRadius = diagonalMeters / 2
-           let zoomFactor = max(mapWidth, mapHeight) / 1000 // Adjust this factor as needed
-           
-           let adjustedRadius = baseRadius * zoomFactor
-           
-           // Clamp the radius to a reasonable range (e.g., between 500m and 50km)
+        let mapWidth = mapSize.width
+        let mapHeight = mapSize.height
+        let span = currentRegion.span
+        
+        // Calculate the diagonal distance of the visible map area in degrees
+        let diagonalSpan = sqrt(pow(span.latitudeDelta, 2) + pow(span.longitudeDelta, 2))
+        
+        // Convert the diagonal span to meters
+        let metersPerDegree = 111319.9 // Approximate meters per degree at the equator
+        let diagonalMeters = diagonalSpan * metersPerDegree
+        
+        // Adjust the radius based on the map size and zoom level
+        let baseRadius = diagonalMeters / 2
+        let zoomFactor = max(mapWidth, mapHeight) / 1000 // Adjust this factor as needed
+        
+        let adjustedRadius = baseRadius * zoomFactor
+        
+        // Clamp the radius to a reasonable range (e.g., between 500m and 50km)
         return min(max(adjustedRadius, 500), 50000) * 0.9
-       }
-   
+    }
     
     func checkForNearbyRestaurants() async {
         // Implementation of checkForNearbyRestaurants
     }
+    
     func clearFilters() {
         selectedCuisines = []
         selectedPrice = []
@@ -217,5 +231,10 @@ struct ExampleClusterAnnotation: Identifiable {
     var coordinate: CLLocationCoordinate2D
     var count: Int
     var memberAnnotations: [RestaurantMapAnnotation]
-    
+}
+struct LargeClusterAnnotation: Identifiable {
+    var id = UUID()
+    var coordinate: CLLocationCoordinate2D
+    var count: Int
+    var memberAnnotations: [ClusterRestaurant]
 }
