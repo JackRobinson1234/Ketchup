@@ -92,7 +92,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
                 if hasAllKeys {
                     self.popularTimesHistogram = try PopularTimesHistogram(from: container.superDecoder(forKey: .popularTimesHistogram))
                 } else {
-                    print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
+                   // print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
                     self.popularTimesHistogram = nil
                 }
             } else {

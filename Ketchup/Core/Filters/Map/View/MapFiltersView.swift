@@ -102,7 +102,7 @@ struct MapFiltersView: View {
     //MARK: saveFilters
     private func saveFilters() {
         Task {
-            await mapViewModel.fetchFilteredRestaurants()
+            await mapViewModel.fetchFilteredClusters()
         }
     }
 }

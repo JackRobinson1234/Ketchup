@@ -25,25 +25,4 @@ struct ClusterCell: View {
         }
     }
 }
-//#Preview {
-//    ClusterCell(cluster: ExampleClusterAnnotation(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), count: 0))
-//}
 
-
-struct Cluster: Identifiable, Hashable, Equatable {
-    let id = NSUUID().uuidString
-    var coordinate: CLLocationCoordinate2D
-    var count: Int
-    static func == (lhs: Cluster, rhs: Cluster) -> Bool {
-           return lhs.id == rhs.id &&
-                  lhs.coordinate.latitude == rhs.coordinate.latitude &&
-                  lhs.coordinate.longitude == rhs.coordinate.longitude &&
-                  lhs.count == rhs.count
-       }
-    func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-            hasher.combine(coordinate.latitude)
-            hasher.combine(coordinate.longitude)
-            hasher.combine(count)
-        }
-}

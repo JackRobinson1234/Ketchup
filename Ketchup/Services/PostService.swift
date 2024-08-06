@@ -128,13 +128,6 @@ class PostService {
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
-            case "recipe.dietary":
-                // Step 1: Fetch the recipes matching the dietary criteria
-                updatedQuery = updatedQuery.whereField(field, arrayContainsAny: value)
-            case "recipe.cookingTime":
-                if let cookingTime = value.first as? Int {
-                                            updatedQuery = updatedQuery.whereField(field, isLessThan: cookingTime)
-                                        }
             case "location":
                 continue
             default:

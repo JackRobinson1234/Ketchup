@@ -29,58 +29,58 @@ class MapViewModel: ObservableObject {
     @Published var isLoading = false
     
     /// variables for the postType filter
-    
     //MARK: fetchFilteredRestaurants
-    func fetchFilteredRestaurants(radius: Double = 500, limit: Int = 0) async -> Bool {
-        do{
-            isLoading = true
-            //TODO: Test
-            Task{
-                await clusterManager.removeAll()
-            }
-            /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
-            if selectedCuisines.isEmpty {
-                filters.removeValue(forKey: "categoryName")
-            } else {
-                filters["categoryName"] = selectedCuisines
-            }
-            
-            if selectedLocation.isEmpty {
-                filters.removeValue(forKey: "location")
-            } else {
-                filters["location"] = selectedLocation + [radius]
-            }
-            ///Price checking if there are any selected
-            if selectedPrice.isEmpty {
-                filters.removeValue(forKey: "price")
-            } else {
-                filters["price"] = selectedPrice
-            }
-            
-            
-            let restaurants: [Restaurant] = try await RestaurantService.shared.fetchRestaurants(withFilters: self.filters, limit: limit)
-            self.restaurants = restaurants
-            print("restaurant count", restaurants.count)
-            let restaurantAnnotations: [RestaurantMapAnnotation] = restaurants.compactMap { restaurant in
-                if let coordinates = restaurant.coordinates {
-                    return RestaurantMapAnnotation(coordinate: coordinates, restaurant: restaurant)
-                } else {
-                    return nil
-                }
-            }
-            print("restaurantAnnotations", restaurantAnnotations.count)
-            Task{
-                await clusterManager.add(restaurantAnnotations)
-                await reloadAnnotations()
-            }
-            isLoading = false
-        }
-        catch {
-            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
-        }
-        
-        return restaurants.count > 0
-    }
+    
+//    func fetchFilteredRestaurants(radius: Double = 500, limit: Int = 0) async -> Bool {
+//        do{
+//            isLoading = true
+//            //TODO: Test
+//            Task{
+//                await clusterManager.removeAll()
+//            }
+//            /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
+//            if selectedCuisines.isEmpty {
+//                filters.removeValue(forKey: "categoryName")
+//            } else {
+//                filters["categoryName"] = selectedCuisines
+//            }
+//            
+//            if selectedLocation.isEmpty {
+//                filters.removeValue(forKey: "location")
+//            } else {
+//                filters["location"] = selectedLocation + [radius]
+//            }
+//            ///Price checking if there are any selected
+//            if selectedPrice.isEmpty {
+//                filters.removeValue(forKey: "price")
+//            } else {
+//                filters["price"] = selectedPrice
+//            }
+//            
+//            
+//            let restaurants: [Restaurant] = try await RestaurantService.shared.fetchRestaurants(withFilters: self.filters, limit: limit)
+//            self.restaurants = restaurants
+//            print("restaurant count", restaurants.count)
+//            let restaurantAnnotations: [RestaurantMapAnnotation] = restaurants.compactMap { restaurant in
+//                if let coordinates = restaurant.coordinates {
+//                    return RestaurantMapAnnotation(coordinate: coordinates, restaurant: restaurant)
+//                } else {
+//                    return nil
+//                }
+//            }
+//            print("restaurantAnnotations", restaurantAnnotations.count)
+//            Task{
+//                await clusterManager.add(restaurantAnnotations)
+//                await reloadAnnotations()
+//            }
+//            isLoading = false
+//        }
+//        catch {
+//            print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+//        }
+//        
+//        return restaurants.count > 0
+//    }
     
     //MARK: filteredRestaurants
     func filteredRestaurants(_ query: String) -> [Restaurant] {
@@ -94,7 +94,7 @@ class MapViewModel: ObservableObject {
     func checkForNearbyRestaurants() async {
         let kmRadiusToCheck = [1.0, 2.5, 5.0, 10.0, 20.0, 200.0, 2000.0]
         for radius in kmRadiusToCheck {
-            let restaurants = await fetchFilteredRestaurants(radius: radius * 1000, limit: 1)
+            let restaurants = await fetchFilteredClusters(radius: radius * 1000, limit: 1)
             if restaurants {
                 break
             }
@@ -115,18 +115,18 @@ class MapViewModel: ObservableObject {
             }
         }
         for insertion in difference.insertions {
-                switch insertion {
-                case .annotation(let newItem):
-                    annotations.append(newItem)
-                case .cluster(let newItem):
-                    clusters.append(ExampleClusterAnnotation(
-                        id: newItem.id,
-                        coordinate: newItem.coordinate,
-                        count: newItem.memberAnnotations.count,
-                        memberAnnotations: newItem.memberAnnotations
-                    ))
-                }
+            switch insertion {
+            case .annotation(let newItem):
+                annotations.append(newItem)
+            case .cluster(let newItem):
+                clusters.append(ExampleClusterAnnotation(
+                    id: newItem.id,
+                    coordinate: newItem.coordinate,
+                    count: newItem.memberAnnotations.count,
+                    memberAnnotations: newItem.memberAnnotations
+                ))
             }
+        }
     }
     
     
@@ -154,5 +154,116 @@ struct ExampleClusterAnnotation: Identifiable {
     var coordinate: CLLocationCoordinate2D
     var count: Int
     var memberAnnotations: [RestaurantMapAnnotation]
-
+    
 }
+extension MapViewModel {
+    func fetchFilteredClusters(radius: Double = 500, limit: Int = 0) async -> Bool {
+           do {
+               isLoading = true
+               await clusterManager.removeAll()
+               
+               // Update filters
+               updateFilters(radius: radius)
+
+               let restaurants: [Restaurant]
+               let clusters: [Cluster]
+               
+               print("Current Region Span: \(currentRegion.span.longitudeDelta)")
+               print("Determined Zoom Level: \(determineZoomLevel())")
+               print("Is Zoomed Enough For Clusters: \(isZoomedEnoughForClusters)")
+
+               if isZoomedEnoughForClusters {
+                   print("Fetching Clusters...")
+                   clusters = try await ClusterService.shared.fetchClustersWithLocation(filters: self.filters, center: self.currentRegion.center, radiusInM: radius, zoomLevel: determineZoomLevel(), limit: limit)
+                   print("Fetched Clusters: \(clusters)")
+                   restaurants = []
+               } else {
+                   print("Fetching Restaurants...")
+                   restaurants = try await RestaurantService.shared.fetchRestaurants(withFilters: self.filters, limit: limit)
+                   clusters = []
+               }
+               
+               self.restaurants = restaurants
+               self.clusters = clusters.map { cluster in
+                   ExampleClusterAnnotation(
+                       id: UUID(),
+                       coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
+                       count: cluster.count,
+                       memberAnnotations: cluster.restaurantIds.compactMap { restaurantId in
+                           if let restaurant = restaurants.first(where: { $0.id == restaurantId }) {
+                               return RestaurantMapAnnotation(coordinate: restaurant.coordinates!, restaurant: restaurant)
+                           }
+                           return nil
+                       }
+                   )
+               }
+               
+               print("Restaurant count: \(restaurants.count)")
+               print("Cluster count: \(clusters.count)")
+               
+               let restaurantAnnotations: [RestaurantMapAnnotation] = restaurants.compactMap { restaurant in
+                   if let coordinates = restaurant.coordinates {
+                       return RestaurantMapAnnotation(coordinate: coordinates, restaurant: restaurant)
+                   } else {
+                       return nil
+                   }
+               }
+               
+               print("Restaurant Annotations count: \(restaurantAnnotations.count)")
+               await clusterManager.add(restaurantAnnotations)
+               await reloadAnnotations()
+               isLoading = false
+           } catch {
+               print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
+               isLoading = false
+               return false
+           }
+           
+           return !restaurants.isEmpty || !clusters.isEmpty
+       }
+       
+       private func determineZoomLevel() -> String {
+           let span = currentRegion.span
+           if span.longitudeDelta > 0.1 {
+               return "country"
+           } else if span.longitudeDelta > 0.05 {
+               return "state"
+           } else if span.longitudeDelta > 0.02 {
+               return "city"
+           } else {
+               return "neighborhood"
+           }
+       }
+       
+       private var isZoomedEnoughForClusters: Bool {
+           return currentRegion.span.longitudeDelta > 0.02
+       }
+       
+       private func updateFilters(radius: Double) {
+           print("Updating Filters...")
+
+           if selectedCuisines.isEmpty {
+               filters.removeValue(forKey: "categoryName")
+               print("No selected cuisines. Removed 'categoryName' filter.")
+           } else {
+               filters["categoryName"] = selectedCuisines
+               print("Selected cuisines: \(selectedCuisines). Added 'categoryName' filter.")
+           }
+           
+           if selectedLocation.isEmpty {
+               filters.removeValue(forKey: "location")
+               print("No selected locations. Removed 'location' filter.")
+           } else {
+               filters["location"] = selectedLocation + [radius]
+               print("Selected locations: \(selectedLocation). Added 'location' filter with radius \(radius).")
+           }
+           
+           if selectedPrice.isEmpty {
+               filters.removeValue(forKey: "price")
+               print("No selected prices. Removed 'price' filter.")
+           } else {
+               filters["price"] = selectedPrice
+               print("Selected prices: \(selectedPrice). Added 'price' filter.")
+           }
+       }
+   }
