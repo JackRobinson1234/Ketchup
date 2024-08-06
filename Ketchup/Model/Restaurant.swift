@@ -19,7 +19,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var bio: String?
     let _geoloc: geoLoc?
     var stats: RestaurantStats?
-    
     // New fields
     let additionalInfo: AdditionalInfo?
     let categories: [String]?
