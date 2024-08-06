@@ -102,6 +102,8 @@
 		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
 		F88322072C3DE8B0006744D2 /* RatingSliderGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */; };
 		F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322082C3DE8EA006744D2 /* OverallRatingView.swift */; };
+		F88C32942C604160004CF72E /* ClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88C32932C604160004CF72E /* ClusterService.swift */; };
+		F88C32962C60419C004CF72E /* Cluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88C32952C60419C004CF72E /* Cluster.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
 		F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A392B6A5E2C00EC159B /* CommentService.swift */; };
 		F88E0A3C2B6A5E4A00EC159B /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */; };
@@ -364,6 +366,8 @@
 		F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearCircle.swift; sourceTree = "<group>"; };
 		F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingSliderGroup.swift; sourceTree = "<group>"; };
 		F88322082C3DE8EA006744D2 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
+		F88C32932C604160004CF72E /* ClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterService.swift; sourceTree = "<group>"; };
+		F88C32952C60419C004CF72E /* Cluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cluster.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		F88E0A392B6A5E2C00EC159B /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		F88E0A3B2B6A5E4A00EC159B /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -706,6 +710,7 @@
 				F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */,
 				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
 				F846F45B2BFBF708009D1303 /* ReviewService.swift */,
+				F88C32932C604160004CF72E /* ClusterService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -725,6 +730,7 @@
 				F846F4522BFBD534009D1303 /* Review.swift */,
 				F86978D12C1E8A370036F86A /* RestaurantRequest.swift */,
 				F875AA342C458F2700CB14E6 /* Bookmark.swift */,
+				F88C32952C60419C004CF72E /* Cluster.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1899,6 +1905,7 @@
 				F88E0A902B6B021800EC159B /* FeedCellActionButtonView.swift in Sources */,
 				F871B0132B91CB9C00E4EB5F /* ShareView.swift in Sources */,
 				F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */,
+				F88C32942C604160004CF72E /* ClusterService.swift in Sources */,
 				F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */,
 				F8670A5E2BF3FBC800F527D9 /* FinalPhotoPreview.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
@@ -1981,6 +1988,7 @@
 				F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */,
+				F88C32962C60419C004CF72E /* Cluster.swift in Sources */,
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,

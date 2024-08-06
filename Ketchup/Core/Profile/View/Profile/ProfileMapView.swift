@@ -8,14 +8,17 @@
 import SwiftUI
 import _MapKit_SwiftUI
 import Kingfisher
-
+import ClusterMap
+import ClusterMapSwiftUI
 struct ProfileMapView: View {
+    @StateObject var viewModel = ProfileMapViewModel()
     @ObservedObject var feedViewModel: FeedViewModel
     @State var selectedPost: Post?
     @State var selectedWrittenPost: Post?
     @State var selectedLocation: LocationWithPosts?
     @Environment(\.dismiss) var dismiss
     @StateObject var newFeedViewModel = FeedViewModel()
+    @State var selectedCluster: PostClusterAnnotation?
     
     // Filter posts to exclude those with restaurant IDs starting with "construction"
     var filteredPosts: [Post] {
@@ -31,35 +34,44 @@ struct ProfileMapView: View {
     var body: some View {
         if !filteredPosts.isEmpty {
             Map(initialPosition: .automatic) {
-                ForEach(Array(groupedPosts.keys), id: \.self) { coordinate in
-                    let postsAtLocation = groupedPosts[coordinate] ?? []
-                    Annotation(postsAtLocation.first?.restaurant.name ?? "", coordinate: coordinate) {
-                        Button {
-                            if postsAtLocation.count > 1 {
-                                newFeedViewModel.posts = postsAtLocation
-                                selectedLocation = LocationWithPosts(coordinate: coordinate, posts: postsAtLocation)
-                            } else if let singlePost = postsAtLocation.first {
-                                if singlePost.mediaType == .written {
-                                    selectedWrittenPost = singlePost
-                                } else {
-                                    newFeedViewModel.posts = [singlePost]
-                                    selectedPost = singlePost
-                                }
+                ForEach(viewModel.annotations, id: \.self) { item in
+                                        Annotation(item.post.restaurant.name, coordinate: item.coordinate) {
+                                            Button {
+                                                print("DEBUG: Single post annotation tapped")
+                                                selectedWrittenPost = item.post
+                                            } label: {
+                                                SinglePostAnnotationView(post: item.post)
+                                            }
+                                        }
+                }
+                ForEach(viewModel.clusters) { cluster in
+                    Annotation("", coordinate: cluster.coordinate) {
+                        PostClusterCell(cluster: cluster)
+                            .onTapGesture {
+                                newFeedViewModel.posts = cluster.memberAnnotations.map { $0.post}
+                                print("DEBUG: Cluster tapped - \(cluster.count) posts")
+                                selectedCluster = cluster
                             }
-                        } label: {
-                            if postsAtLocation.count > 1 {
-                                MultiPostAnnotationView(count: postsAtLocation.count)
-                            } else if let singlePost = postsAtLocation.first {
-                                SinglePostAnnotationView(post: singlePost)
-                            }
-                        }
                     }
                 }
+            }
+            
+            .readSize(onChange: { newValue in
+                viewModel.mapSize = newValue
+            })
+            .onAppear{
+                viewModel.setPosts(posts: filteredPosts)
+            }
+            .onMapCameraChange { context in
+                viewModel.currentRegion = context.region
+            }
+            .onMapCameraChange(frequency: .onEnd) { context in
+                Task.detached { await viewModel.reloadAnnotations() }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
             .frame(height: UIScreen.main.bounds.height * 0.5)
             .cornerRadius(10)
-            .sheet(item: $selectedLocation) { locationWithPosts in
+            .sheet(item: $selectedCluster) { locationWithPosts in
                 NavigationStack{
                     ScrollView{
                         ProfileFeedView(viewModel: newFeedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
@@ -71,6 +83,7 @@ struct ProfileMapView: View {
                     updateOriginalFeedViewModel()
                 }
             }
+           
             .fullScreenCover(item: $selectedPost) { post in
                 NavigationStack {
                     SecondaryFeedView(viewModel: newFeedViewModel, hideFeedOptions: true, titleText: "Posts")
@@ -215,6 +228,92 @@ struct PostAnnotationView: View {
                 }
             }
             
+        }
+    }
+}
+
+class ProfileMapViewModel: ObservableObject {
+    let clusterManager = ClusterManager<PostMapAnnotation>()
+    @Published var posts = [Post]()
+    var annotations: [PostMapAnnotation] = []
+    var clusters: [PostClusterAnnotation] = []
+    var mapSize: CGSize = .zero
+    @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
+    func setPosts(posts: [Post]) {
+        annotations = []
+        clusters = []
+        self.posts = posts
+        let postAnnotations: [PostMapAnnotation] = self.posts.compactMap {post in
+            if let coordinates = post.coordinates {
+                return PostMapAnnotation(coordinate: coordinates, post: post)
+            } else {
+                return nil
+            }
+        }
+
+        Task{
+            await clusterManager.add(postAnnotations)
+            await reloadAnnotations()
+        }
+
+    }
+    func reloadAnnotations() async {
+        async let changes = clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
+        await applyChanges(changes)
+    }
+    @MainActor
+    private func applyChanges(_ difference: ClusterManager<PostMapAnnotation>.Difference) {
+        for removal in difference.removals {
+            switch removal {
+            case .annotation(let annotation):
+                annotations.removeAll { $0 == annotation }
+            case .cluster(let clusterAnnotation):
+                clusters.removeAll { $0.id == clusterAnnotation.id }
+            }
+        }
+        for insertion in difference.insertions {
+            switch insertion {
+            case .annotation(let newItem):
+                annotations.append(newItem)
+            case .cluster(let newItem):
+                clusters.append(PostClusterAnnotation(
+                    id: newItem.id,
+                    coordinate: newItem.coordinate,
+                    count: newItem.memberAnnotations.count,
+                    memberAnnotations: newItem.memberAnnotations
+                ))
+            }
+        }
+        print(annotations.count)
+        print(clusters.count)
+    }
+}
+struct PostMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
+    let id = UUID()
+    var coordinate: CLLocationCoordinate2D
+    var post: Post
+}
+struct PostClusterAnnotation: Identifiable {
+    var id = UUID()
+    var coordinate: CLLocationCoordinate2D
+    var count: Int
+    var memberAnnotations: [PostMapAnnotation]
+}
+
+struct PostClusterCell: View {
+    var cluster: PostClusterAnnotation
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
+                )
+            Text("\(cluster.count)")
+                .foregroundColor(.black)
+                .font(.custom("MuseoSansRounded-300", size: 10))
         }
     }
 }
