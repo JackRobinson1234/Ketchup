@@ -55,6 +55,15 @@ struct MapView: View {
                                     }
                             }
                         }
+                        ForEach(viewModel.largeClusters) { cluster in
+                            Annotation("", coordinate: cluster.coordinate) {
+                                NewClusterCell(cluster: cluster)
+                                    .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
+//                                    .onTapGesture {
+//                                        selectedCluster = cluster
+//                                    }
+                            }
+                        }
                         UserAnnotation()
                     }
                     .readSize(onChange: { newValue in

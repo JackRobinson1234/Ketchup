@@ -29,8 +29,8 @@ class MapViewModel: ObservableObject {
     @Published var currentZoomLevel: String = "neighborhood"
     
     var mapSize: CGSize = .zero
-    let maxZoomOutSpan: Double = 0.4
-    let longitudeDeltaToConvertToRestaurant: Double = 0.007
+    let maxZoomOutSpan: Double = 0.2
+    let longitudeDeltaToConvertToRestaurant: Double = 0.006
     
     var isZoomedEnoughForClusters: Bool {
         return currentRegion.span.longitudeDelta > longitudeDeltaToConvertToRestaurant

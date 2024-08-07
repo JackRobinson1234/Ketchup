@@ -13,7 +13,7 @@ import Firebase
 class ClusterService {
     static let shared = ClusterService() // Singleton instance
     private init() {}
-
+    
     func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, zoomLevel: String, limit: Int = 0) async throws -> [Cluster] {
         print("DEBUG: Fetching clusters around center: \(center), with radius: \(radiusInM) meters at zoom level: \(zoomLevel)")
         
@@ -29,7 +29,7 @@ class ClusterService {
             print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
             return query
         }
-
+        
         do {
             let (matchingDocs, totalDocuments) = try await withThrowingTaskGroup(of: (clusters: [Cluster], count: Int).self) { group -> ([Cluster], Int) in
                 for query in queries {
@@ -51,7 +51,7 @@ class ClusterService {
                         return (clusters, snapshot.documents.count)
                     }
                 }
-
+                
                 var allMatchingDocs = [Cluster]()
                 var totalDocumentCount = 0
                 for try await (documents, count) in group {
@@ -70,7 +70,7 @@ class ClusterService {
             throw error
         }
     }
-
+    
     func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
         var updatedQuery = query
         for (field, value) in filters {
