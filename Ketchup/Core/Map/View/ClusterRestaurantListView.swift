@@ -31,13 +31,21 @@ struct RestaurantRowView: View {
 
     var body: some View {
         HStack {
-            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .small)
+            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
             VStack(alignment: .leading) {
                 Text(restaurant.name)
                     .font(.headline)
+                    .font(.custom("MuseoSansRounded-300", size: 18))
                 Text(restaurant.cuisine ?? "")
                     .font(.subheadline)
                     .foregroundColor(.gray)
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                if let price = restaurant.price {
+                    Text(price)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                }
             }
         }
     }

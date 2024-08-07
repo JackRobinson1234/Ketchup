@@ -50,7 +50,7 @@ struct MapView: View {
                             Annotation("", coordinate: cluster.coordinate) {
                                 ClusterCell(cluster: cluster)
                                     .onTapGesture {
-                                        selectedCluster = selectedCluster
+                                        selectedCluster = cluster
                                     }
                             }
                         }
@@ -67,20 +67,20 @@ struct MapView: View {
                     .readSize(onChange: { newValue in
                         viewModel.mapSize = newValue
                     })
-                    .onMapCameraChange { context in
+                    .onMapCameraChange (frequency: .onEnd){ context in
                         showMoveWarning = false
                         let newRegion = context.region
                         viewModel.updateMapState(newRegion: newRegion)
                     }
                     .onMapCameraChange(frequency: .onEnd) { context in
-                        if !viewModel.isZoomedEnoughForClusters {
-                            Task.detached { await viewModel.reloadAnnotations() }
-                        }
+                        
+                        Task.detached { await viewModel.reloadAnnotations() }
+                        
                     }
                     .onChange(of: isFiltersPresented) {
-                        if !viewModel.isZoomedEnoughForClusters {
-                            Task.detached { await viewModel.reloadAnnotations() }
-                        }
+                        
+                        Task.detached { await viewModel.reloadAnnotations() }
+                        
                     }
                     .onAppear {
                         showMoveWarning = true
@@ -114,11 +114,12 @@ struct MapView: View {
                                 Spacer()
                                 LoadingIcon()
                                     .padding([.bottom, .trailing], 20)
+                                    .padding(.bottom, 50)
                             }
                         }
                     }
-                    userLocationButton
                 }
+                
                 
             }
             .sheet(item: $selectedCluster) { cluster in
@@ -158,7 +159,7 @@ struct MapView: View {
             }
             .mapStyle(.standard(elevation: .realistic))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .ignoresSafeArea()
+            .edgesIgnoringSafeArea(.top)
         }
     }
     
@@ -175,10 +176,10 @@ struct MapView: View {
             } else {
                 MapUserLocationButton(scope: mapScope)
                     .buttonBorderShape(.circle)
+                
             }
         }
         .padding([.bottom, .trailing], 20)
-        .buttonBorderShape(.circle)
     }
     
     private var filtersButton: some View {
