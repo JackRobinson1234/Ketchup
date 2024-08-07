@@ -71,14 +71,8 @@ struct MapView: View {
                     })
                     .onMapCameraChange { context in
                         showMoveWarning = false
-                        viewModel.currentRegion = context.region
-                        center = context.region.center
-                        Task {
-                            await viewModel.updateZoomLevelAndFetchIfNeeded()
-                            if viewModel.currentZoomLevel != "max_zoom_out" {
-                                await fetchRestaurantsInView(center: center)
-                            }
-                        }
+                        let newRegion = context.region
+                        viewModel.updateMapState(newRegion: newRegion)
                     }
                     .onMapCameraChange(frequency: .onEnd) { context in
                         if !viewModel.isZoomedEnoughForClusters {
@@ -97,7 +91,7 @@ struct MapView: View {
                         }
                     }
                     .overlay {
-                        if viewModel.currentZoomLevel == "max_zoom_out" {
+                        if viewModel.currentZoomLevel == .maxZoomOut {
                             Text("Zoom in to see restaurants")
                                 .modifier(OverlayModifier())
                         } else if viewModel.restaurants.isEmpty && viewModel.clusters.isEmpty && !viewModel.isLoading {
@@ -268,12 +262,10 @@ struct MapView: View {
     }
     
     private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
-        if viewModel.currentZoomLevel == "max_zoom_out" {
+        if viewModel.currentZoomLevel == .maxZoomOut {
             return // Don't fetch if zoomed out too far
         }
-        
         let distanceThreshold = calculateDistanceThreshold(for: viewModel.currentRegion)
-        
         if let lastLocation = viewModel.selectedLocation.first {
             let distance = calculateDistanceInKilometers(from: lastLocation, to: center)
             if distance >= distanceThreshold {
