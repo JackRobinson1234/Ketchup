@@ -25,6 +25,7 @@ struct MapView: View {
     @State private var noNearbyRestaurants = false
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
+    @State private var selectedLargeCluster: LargeClusterAnnotation?
     @State private var hasAppeared = false
     @State private var showMoveWarning = false
     
@@ -49,16 +50,16 @@ struct MapView: View {
                             Annotation("", coordinate: cluster.coordinate) {
                                 ClusterCell(cluster: cluster)
                                     .onTapGesture {
-                                        selectedCluster = cluster
+                                        selectedCluster = selectedCluster
                                     }
                             }
                         }
                         ForEach(viewModel.largeClusters) { cluster in
                             Annotation("", coordinate: cluster.coordinate) {
                                 NewClusterCell(cluster: cluster)
-                                //                                    .onTapGesture {
-                                //                                        selectedCluster = cluster
-                                //                                    }
+                                    .onTapGesture {
+                                        selectedLargeCluster = cluster
+                                    }
                             }
                         }
                         UserAnnotation()
@@ -122,6 +123,9 @@ struct MapView: View {
             }
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
+            }
+            .sheet(item: $selectedLargeCluster) { cluster in
+                ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
             }
             .onAppear {
                 if !hasAppeared {
