@@ -92,6 +92,7 @@ struct MapView: View {
                         if viewModel.currentZoomLevel == .maxZoomOut {
                             Text("Zoom in to see restaurants")
                                 .modifier(OverlayModifier())
+                                .font(.custom("MuseoSansRounded-300", size: 14))
                         }
                     }
                     .overlay(alignment: .bottomTrailing) {
@@ -100,11 +101,7 @@ struct MapView: View {
                     .mapScope(mapScope)
                     .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
-                if showMoveWarning {
-                    Text("Move Map to see restaurants")
-                        .modifier(OverlayModifier())
-                    Spacer()
-                }
+             
                 filtersButton
                 VStack{
                     if viewModel.isLoading {
@@ -190,17 +187,24 @@ struct MapView: View {
                     Button {
                         isFiltersPresented.toggle()
                     } label: {
-                        ZStack {
-                            Image(systemName: "slider.horizontal.3")
-                                .imageScale(.large)
-                                .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
-                                .font(.system(size: 23))
-                            if viewModel.filters.count > 1 {
-                                Circle()
-                                    .fill(Color("Colors/AccentColor"))
-                                    .frame(width: 12, height: 12)
-                                    .offset(x: 12, y: 12)
+                        VStack{
+                            ZStack {
+                                Image(systemName: "slider.horizontal.3")
+                                    .imageScale(.large)
+                                    .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
+                                    .font(.system(size: 23))
+                                if viewModel.filters.count > 1 {
+                                    Circle()
+                                        .fill(Color("Colors/AccentColor"))
+                                        .frame(width: 12, height: 12)
+                                        .offset(x: 12, y: 12)
+                                }
                             }
+                            Text("Filters")
+                                .foregroundStyle(.white)
+                                .shadow(color: Color.black , radius: 4)
+                                .font(.custom("MuseoSansRounded-700", size: 12))
+                            
                         }
                     }
                 }

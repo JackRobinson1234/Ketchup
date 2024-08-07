@@ -421,21 +421,27 @@ struct WrittenFeedCell: View {
                 }
             }
             isCurrentVideoPlaying = false
-          
+            
+            // Add this block
+            if post.mediaType == .mixed, let firstMediaItem = post.mixedMediaUrls?.first, firstMediaItem.type == .video {
+                currentlyPlayingVideoId = firstMediaItem.id
+            } else if post.mediaType == .video, let firstVideoId = videoCoordinators.first?.0 {
+                currentlyPlayingVideoId = firstVideoId
             }
+        }
         
-        .onChange(of: scrollPosition) { oldValue, newValue in
-                    if post.mediaType == .video || post.mediaType == .mixed {
-                        if newValue == post.id {
-                            handleIndexChange(currentIndex)
-                        } else {
-                            pauseAllVideos()
-                        }
-                    }
-                }
+        .onChange(of: scrollPosition){
+            if scrollPosition != post.id {
+                pauseAllVideos()
+            } else {
+                handleIndexChange(currentIndex)
+            }
+        }
+     
         .onChange(of: currentIndex) { oldValue, newValue in
-                    handleIndexChange(newValue)
-                }
+            pauseAllVideos()
+            handleIndexChange(newValue)
+        }
         .onChange(of: pauseVideo){
             if pauseVideo{
                 pauseAllVideos()
@@ -469,14 +475,15 @@ struct WrittenFeedCell: View {
                     handleIndexChange(currentIndex)
                 }
             }
-        } .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
-            if let newValue = newValue,
-               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
-                pauseAllVideos()
-                coordinator.play()
-                isCurrentVideoPlaying = true
-            }
         }
+//        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+//            if let newValue = newValue,
+//               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+//                pauseAllVideos()
+//                coordinator.play()
+//                isCurrentVideoPlaying = true
+//            }
+//        }
         
 
         .sheet(isPresented: $showComments) {
@@ -526,12 +533,8 @@ struct WrittenFeedCell: View {
             }
         }
         .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
-            if let newValue = newValue,
-               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
-                pauseAllVideos()
-                coordinator.play()
-                isCurrentVideoPlaying = true
-            }
+            pauseAllVideos()
+            handleVisibleMediaChange(oldValue: oldValue, newValue: newValue)
         }
         .overlay(
             ZStack {
@@ -550,43 +553,51 @@ struct WrittenFeedCell: View {
                 .onDisappear {
                    pauseAllVideos()
                 }
-        .fullScreenCover(isPresented: $showUserProfile) {
-            NavigationStack {
-                ProfileView(uid: post.user.id)
+                .fullScreenCover(isPresented: $showUserProfile) {
+                    NavigationStack {
+                        ProfileView(uid: post.user.id)
+                    }
+                }
+    }
+    private func handleVisibleMediaChange(oldValue: String?, newValue: String?) {
+            pauseAllVideos()
+            
+            if let newValue = newValue,
+               let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
+               mediaItem.type == .video {
+                playVideo(id: newValue)
+            }
+        }
+    private func handleIndexChange(_ index: Int) {
+        pauseAllVideos()
+        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
+            if index < mixedMediaUrls.count {
+                let mediaItem = mixedMediaUrls[index]
+                if mediaItem.type == .video {
+                    currentlyPlayingVideoId = mediaItem.id
+                    playVideo(id: mediaItem.id)
+                }
+            }
+        } else if post.mediaType == .video && index == 0 {
+            if let firstVideoId = videoCoordinators.first?.0 {
+                currentlyPlayingVideoId = firstVideoId
+                playVideo(id: firstVideoId)
             }
         }
     }
-    private func handleIndexChange(_ index: Int) {
-           pauseAllVideos()
-           
-        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                   if index < mixedMediaUrls.count {
-                       let mediaItem = mixedMediaUrls[index]
-                       if mediaItem.type == .video {
-                           currentlyPlayingVideoId = mediaItem.id
-                           playVideo(id: mediaItem.id)
-                       }
-                   }
-               } else if post.mediaType == .video && index == 0 {
-                   if let firstVideoId = videoCoordinators.first?.0 {
-                       currentlyPlayingVideoId = firstVideoId
-                       playVideo(id: firstVideoId)
-                   }
-               }
-       }
     private func pauseAllVideos() {
-            for (_, coordinator) in videoCoordinators {
-                coordinator.pause()
-            }
-            isCurrentVideoPlaying = false
+        for (_, coordinator) in videoCoordinators {
+            coordinator.pause()
         }
-
+        isCurrentVideoPlaying = false
+    }
+    
     private func togglePlayPause() {
-           if let currentVideoId = currentlyPlayingVideoId,
-              let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
-               if isCurrentVideoPlaying {
-                   coordinator.pause()
-               } else {
+        if let currentVideoId = currentlyPlayingVideoId,
+           let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
+            if isCurrentVideoPlaying {
+                coordinator.pause()
+            } else {
                    coordinator.play()
                }
                isCurrentVideoPlaying.toggle()
