@@ -50,7 +50,7 @@ class MapViewModel: ObservableObject {
             let span = region.span
             if span.longitudeDelta > maxZoomOutSpan {
                 return .maxZoomOut
-            } else if span.longitudeDelta > 0.03 {
+            } else if span.longitudeDelta > 0.04 {
                 return .region
             } else if span.longitudeDelta > 0.007 {
                 return .city
@@ -174,7 +174,7 @@ class MapViewModel: ObservableObject {
        }
     private func calculateDistanceThreshold(for region: MKCoordinateRegion) -> CLLocationDistance {
             // Adjust this calculation based on your app's requirements
-            return max(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * 0.25 // 25% of the visible region
+            return max(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * 0.20 // 25% of the visible region
         }
         
         private func calculateDistance(from coord1: CLLocationCoordinate2D, to coord2: CLLocationCoordinate2D) -> CLLocationDistance {
@@ -206,7 +206,7 @@ class MapViewModel: ObservableObject {
         let adjustedRadius = baseRadius * zoomFactor
         
         // Clamp the radius to a reasonable range (e.g., between 500m and 50km)
-        return min(max(adjustedRadius, 500), 7000) * 0.8
+        return min(max(adjustedRadius, 500), 5000) * 0.8
     }
     func reloadAnnotations() async {
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
