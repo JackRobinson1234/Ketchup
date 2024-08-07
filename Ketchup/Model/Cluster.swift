@@ -50,13 +50,13 @@ struct Cluster: Identifiable, Codable {
     }
 }
 
-struct ClusterRestaurant: Identifiable, Codable {
+struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
     let id: String
     let name: String
     var cuisine: String?
     var price: String?
     var profileImageUrl: String?
-    var geoPoint: GeoPoint?
+    var geoPoint: GeoPoint
     var fullGeoHash: String?
     var attributes: [String: Bool]?
 
@@ -72,13 +72,13 @@ struct ClusterRestaurant: Identifiable, Codable {
     }
 
     // Custom initializer
-    init(id: String, name: String, cuisine: String? = nil, price: String? = nil, profileImageUrl: String? = nil, geoPoint: GeoPoint? = nil, fullGeoHash: String? = nil, attributes: [String: Bool]? = nil) {
+    init(id: String, name: String, geoPoint: GeoPoint, cuisine: String? = nil, price: String? = nil, profileImageUrl: String? = nil, fullGeoHash: String? = nil, attributes: [String: Bool]? = nil) {
         self.id = id
         self.name = name
+        self.geoPoint = geoPoint
         self.cuisine = cuisine
         self.price = price
         self.profileImageUrl = profileImageUrl
-        self.geoPoint = geoPoint
         self.fullGeoHash = fullGeoHash
         self.attributes = attributes
     }
@@ -88,11 +88,14 @@ struct ClusterRestaurant: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
+        geoPoint = try container.decode(GeoPoint.self, forKey: .geoPoint)
         cuisine = try container.decodeIfPresent(String.self, forKey: .cuisine)
         price = try container.decodeIfPresent(String.self, forKey: .price)
         profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
-        geoPoint = try container.decodeIfPresent(GeoPoint.self, forKey: .geoPoint)
         fullGeoHash = try container.decodeIfPresent(String.self, forKey: .fullGeoHash)
         attributes = try container.decodeIfPresent([String: Bool].self, forKey: .attributes)
     }
 }
+
+// In MapViewModel
+

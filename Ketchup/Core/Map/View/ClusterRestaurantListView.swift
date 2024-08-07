@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ClusterRestaurantListView: View {
-    let restaurants: [Restaurant]
+    let restaurants: [ClusterRestaurant]
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -27,7 +27,7 @@ struct ClusterRestaurantListView: View {
 }
 
 struct RestaurantRowView: View {
-    let restaurant: Restaurant
+    let restaurant: ClusterRestaurant
 
     var body: some View {
         HStack {
@@ -35,7 +35,7 @@ struct RestaurantRowView: View {
             VStack(alignment: .leading) {
                 Text(restaurant.name)
                     .font(.headline)
-                Text(restaurant.categoryName ?? "")
+                Text(restaurant.cuisine ?? "")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }

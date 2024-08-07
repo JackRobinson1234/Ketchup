@@ -11,10 +11,16 @@ import Firebase
 import ClusterMap
 import SwiftUI
 @MainActor
+enum ZoomLevel: String {
+    case maxZoomOut = "max_zoom_out"
+    case region = "region"
+    case city = "city"
+    case neighborhood = "neighborhood"
+}
+@MainActor
 class MapViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
-    @Published var restaurants = [Restaurant]()
-    @Published var searchPreview = [Restaurant]()
+    @Published var visibleRestaurants: [ClusterRestaurant] = []
     @Published var filters: [String: [Any]] = [:]
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
@@ -27,18 +33,11 @@ class MapViewModel: ObservableObject {
     @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
     @Published var isLoading = false
     @Published var currentZoomLevel: ZoomLevel = .neighborhood
-       @Published var lastFetchedRegion: MKCoordinateRegion?
-       
-       private var fetchTask: Task<Void, Never>?
-       private let fetchDebouncer = Debouncer(delay: 0.3)
-       
-       enum ZoomLevel: String {
-           case maxZoomOut = "max_zoom_out"
-           case region = "region"
-           case city = "city"
-           case neighborhood = "neighborhood"
-       }
+    @Published var lastFetchedRegion: MKCoordinateRegion?
     
+    private var fetchTask: Task<Void, Never>?
+    private let fetchDebouncer = Debouncer(delay: 0.3)
+    private var allClusters: [Cluster] = []
     
     var mapSize: CGSize = .zero
     let maxZoomOutSpan: Double = 0.2
@@ -47,7 +46,6 @@ class MapViewModel: ObservableObject {
     var isZoomedEnoughForClusters: Bool {
         return currentRegion.span.longitudeDelta > longitudeDeltaToConvertToRestaurant
     }
-    
     private func determineZoomLevel(for region: MKCoordinateRegion) -> ZoomLevel {
             let span = region.span
             if span.longitudeDelta > maxZoomOutSpan {
@@ -65,15 +63,12 @@ class MapViewModel: ObservableObject {
     func updateMapState(newRegion: MKCoordinateRegion) {
             let newZoomLevel = determineZoomLevel(for: newRegion)
             
-            // Cancel any ongoing fetch task
             fetchTask?.cancel()
             
-            // Debounce the fetch operation
             fetchDebouncer.schedule { [weak self] in
                 guard let self = self else { return }
                 
                 self.fetchTask = Task { @MainActor in
-                    // Check if the task was cancelled
                     if Task.isCancelled { return }
                     
                     let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
@@ -81,12 +76,86 @@ class MapViewModel: ObservableObject {
                     if shouldFetch {
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
-                        await self.fetchFilteredClusters()
+                        
+                        if self.clusters.isEmpty || newZoomLevel == .maxZoomOut {
+                            await self.fetchFilteredClusters()
+                        } else {
+                            self.updateVisibleData(for: newRegion, zoomLevel: newZoomLevel)
+                        }
+                        
                         self.lastFetchedRegion = newRegion
                     }
                 }
             }
         }
+
+       func fetchFilteredClusters(limit: Int = 0) async {
+           do {
+               isLoading = true
+               await clusterManager.removeAll()
+
+               let radius = calculateRadius()
+               updateFilters(radius: radius)
+
+               if currentZoomLevel == .maxZoomOut {
+                   await removeAnnotations()
+                   isLoading = false
+                   return
+               }
+
+               let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
+                   filters: self.filters,
+                   center: self.currentRegion.center,
+                   radiusInM: radius,
+                   zoomLevel: currentZoomLevel.rawValue,
+                   limit: limit
+               )
+
+               await MainActor.run {
+                   self.allClusters = fetchedClusters
+                   updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
+               }
+
+               isLoading = false
+           } catch {
+               print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
+               isLoading = false
+           }
+       }
+
+       private func updateVisibleData(for region: MKCoordinateRegion, zoomLevel: ZoomLevel) {
+           if zoomLevel == .neighborhood || zoomLevel == .city {
+               // Show individual restaurants
+               visibleRestaurants = allClusters.flatMap { $0.restaurants }
+               largeClusters = []
+           } else {
+               // Show clusters
+               visibleRestaurants = []
+               largeClusters = allClusters.map { cluster in
+                   LargeClusterAnnotation(
+                       id: UUID(),
+                       coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
+                       count: cluster.count,
+                       memberAnnotations: cluster.restaurants
+                   )
+               }
+           }
+
+           updateAnnotations()
+       }
+
+    private func updateAnnotations() {
+        let restaurantAnnotations = visibleRestaurants.map { restaurant in
+            let coordinate = CLLocationCoordinate2D(latitude: restaurant.geoPoint.latitude, longitude: restaurant.geoPoint.longitude)
+            return RestaurantMapAnnotation(coordinate: coordinate, restaurant: restaurant)
+        }
+
+        Task {
+            await clusterManager.removeAll()
+            await clusterManager.add(restaurantAnnotations)
+            await reloadAnnotations()
+        }
+    }
     private func shouldFetchNewData(newRegion: MKCoordinateRegion, newZoomLevel: ZoomLevel) -> Bool {
            guard let lastFetchedRegion = lastFetchedRegion else {
                return true // First fetch
@@ -114,71 +183,6 @@ class MapViewModel: ObservableObject {
             return location1.distance(from: location2)
         }
     
-    func fetchFilteredClusters(limit: Int = 0) async {
-        do {
-            isLoading = true
-            await clusterManager.removeAll()
-
-            let radius = calculateRadius()
-            updateFilters(radius: radius)
-
-            if currentZoomLevel == .maxZoomOut {
-                await removeAnnotations()
-                isLoading = false
-                return
-            }
-
-            let restaurants: [Restaurant]
-            let clusters: [Cluster]
-
-            if isZoomedEnoughForClusters {
-                clusters = try await ClusterService.shared.fetchClustersWithLocation(
-                    filters: self.filters,
-                    center: self.currentRegion.center,
-                    radiusInM: radius,
-                    zoomLevel: currentZoomLevel.rawValue,
-                    limit: limit
-                )
-                restaurants = []
-                print("DEBUG: Fetched \(clusters.count) clusters")
-            } else {
-                restaurants = try await RestaurantService.shared.fetchRestaurants(
-                    withFilters: self.filters,
-                    limit: limit
-                )
-                clusters = []
-                print("DEBUG: Fetched \(restaurants.count) restaurants")
-            }
-
-            await MainActor.run {
-                self.restaurants = restaurants
-
-                self.largeClusters = clusters.map { cluster in
-                    LargeClusterAnnotation(
-                        id: UUID(),
-                        coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
-                        count: cluster.count,
-                        memberAnnotations: cluster.restaurants
-                    )
-                }
-
-                let restaurantAnnotations: [RestaurantMapAnnotation] = restaurants.compactMap { restaurant in
-                    guard let coordinates = restaurant.coordinates else { return nil }
-                    return RestaurantMapAnnotation(coordinate: coordinates, restaurant: restaurant)
-                }
-
-                Task {
-                    await self.clusterManager.add(restaurantAnnotations)
-                    await self.reloadAnnotations()
-                }
-            }
-
-            isLoading = false
-        } catch {
-            print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
-            isLoading = false
-        }
-    }
     func removeAnnotations() async {
         await clusterManager.removeAll()
         await reloadAnnotations()
@@ -202,7 +206,7 @@ class MapViewModel: ObservableObject {
         let adjustedRadius = baseRadius * zoomFactor
         
         // Clamp the radius to a reasonable range (e.g., between 500m and 50km)
-        return min(max(adjustedRadius, 500), 50000)
+        return min(max(adjustedRadius, 500), 7000) * 0.8
     }
     func reloadAnnotations() async {
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
@@ -259,6 +263,7 @@ class MapViewModel: ObservableObject {
         selectedCuisines = []
         selectedPrice = []
     }
+   
 }
 
 
@@ -266,7 +271,7 @@ class MapViewModel: ObservableObject {
 struct RestaurantMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
-    var restaurant: Restaurant
+    var restaurant: ClusterRestaurant
 }
 
 struct ExampleClusterAnnotation: Identifiable {
@@ -275,6 +280,7 @@ struct ExampleClusterAnnotation: Identifiable {
     var count: Int
     var memberAnnotations: [RestaurantMapAnnotation]
 }
+
 struct LargeClusterAnnotation: Identifiable {
     var id = UUID()
     var coordinate: CLLocationCoordinate2D

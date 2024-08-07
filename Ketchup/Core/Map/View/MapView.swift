@@ -43,13 +43,11 @@ struct MapView: View {
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
                                     RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
                                 }
-                                .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
                             }
                         }
                         ForEach(viewModel.clusters) { cluster in
                             Annotation("", coordinate: cluster.coordinate) {
                                 ClusterCell(cluster: cluster)
-                                    .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
                                     .onTapGesture {
                                         selectedCluster = cluster
                                     }
@@ -58,10 +56,9 @@ struct MapView: View {
                         ForEach(viewModel.largeClusters) { cluster in
                             Annotation("", coordinate: cluster.coordinate) {
                                 NewClusterCell(cluster: cluster)
-                                    .animation(.easeInOut(duration: 0.3), value: viewModel.annotations)
-//                                    .onTapGesture {
-//                                        selectedCluster = cluster
-//                                    }
+                                //                                    .onTapGesture {
+                                //                                        selectedCluster = cluster
+                                //                                    }
                             }
                         }
                         UserAnnotation()
@@ -94,8 +91,6 @@ struct MapView: View {
                         if viewModel.currentZoomLevel == .maxZoomOut {
                             Text("Zoom in to see restaurants")
                                 .modifier(OverlayModifier())
-                        } else if viewModel.restaurants.isEmpty && viewModel.clusters.isEmpty && !viewModel.isLoading {
-                            noRestaurantsView
                         }
                     }
                     .overlay(alignment: .bottomTrailing) {
@@ -110,9 +105,20 @@ struct MapView: View {
                     Spacer()
                 }
                 filtersButton
-                if showRestaurantPreview, let annotation = selectedRestaurant {
-                    restaurantPreviewView(annotation: annotation)
+                VStack{
+                    if viewModel.isLoading {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                LoadingIcon()
+                                    .padding([.bottom, .trailing], 20)
+                            }
+                        }
+                    }
+                    userLocationButton
                 }
+                
             }
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
@@ -152,37 +158,6 @@ struct MapView: View {
         }
     }
     
-    private var noRestaurantsView: some View {
-        VStack {
-            Spacer()
-            Text("No Restaurants Nearby")
-                .modifier(OverlayModifier())
-            Spacer()
-            if !noNearbyRestaurants {
-                Button {
-                    Task {
-                        await viewModel.checkForNearbyRestaurants()
-                        if let restaurant = viewModel.restaurants.first, let coordinates = restaurant.coordinates {
-                            let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
-                            position = .region(region)
-                            Task.detached { await viewModel.reloadAnnotations() }
-                        } else {
-                            noNearbyRestaurants = true
-                        }
-                    }
-                } label: {
-                    Text("Find Nearest Restaurant")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .modifier(StandardButtonModifier(width: 190))
-                }
-                .padding()
-            } else {
-                Text("No Restaurants found in a 1000 mile radius. Change filters to see results!")
-                    .modifier(OverlayModifier())
-                    .padding()
-            }
-        }
-    }
     
     private var userLocationButton: some View {
         VStack {
@@ -238,24 +213,7 @@ struct MapView: View {
             }
         }
     }
-    private func restaurantPreviewView(annotation: RestaurantMapAnnotation) -> some View {
-        MapRestaurantView(restaurant: annotation.restaurant)
-            .overlay(
-                Button {
-                    selectedRestaurant = nil
-                    showRestaurantPreview.toggle()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.custom("MuseoSansRounded-300", size: 20))
-                        .padding()
-                        .foregroundColor(.white)
-                        .shadow(radius: 3)
-                        .padding(.top, 10)
-                        .padding(.leading, 10)
-                },
-                alignment: .topLeading
-            )
-    }
+    
     
     private func clearSelectedListing() {
         selectedRestaurant = nil
@@ -310,8 +268,22 @@ extension MapView {
         } else if diagonalDistance > 50 {   // Zoomed in (city level)
             return 10   // 10 km threshold
         } else {  // Very zoomed in (neighborhood level)
-            return max(diagonalDistance * 0.2, 0.5)  // 20% of diagonal or at least 1 km
+            return max(diagonalDistance * 0.15, 0.5)  // 20% of diagonal or at least 1 km
         }
     }
 }
 
+struct LoadingIcon: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 50, height: 50)
+                .shadow(color: .gray, radius: 2, x: 0, y: 2)
+            
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .red))
+                .scaleEffect(1.5)
+        }
+    }
+}
