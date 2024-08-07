@@ -22,8 +22,16 @@ class MapViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
     @Published var visibleRestaurants: [ClusterRestaurant] = []
     @Published var filters: [String: [Any]] = [:]
-    @Published var selectedCuisines: [String] = []
-    @Published var selectedPrice: [String] = []
+    @Published var selectedCuisines: [String] = []{
+        didSet {
+            updateFilters(radius: calculateRadius())
+        }
+    }
+    @Published var selectedPrice: [String] = []{
+        didSet {
+            updateFilters(radius: calculateRadius())
+        }
+    }
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var selectedCity: String = ""
     @Published var selectedState: String = ""
@@ -47,109 +55,109 @@ class MapViewModel: ObservableObject {
         return currentRegion.span.longitudeDelta > longitudeDeltaToConvertToRestaurant
     }
     private func determineZoomLevel(for region: MKCoordinateRegion) -> ZoomLevel {
-            let span = region.span
-            if span.longitudeDelta > maxZoomOutSpan {
-                return .maxZoomOut
-            } else if span.longitudeDelta > 0.04 {
-                return .region
-            } else if span.longitudeDelta > 0.007 {
-                return .city
-            } else {
-                return .neighborhood
-            }
+        let span = region.span
+        if span.longitudeDelta > maxZoomOutSpan {
+            return .maxZoomOut
+        } else if span.longitudeDelta > 0.04 {
+            return .region
+        } else if span.longitudeDelta > 0.007 {
+            return .city
+        } else {
+            return .neighborhood
         }
+    }
     
- 
+    
     func updateMapState(newRegion: MKCoordinateRegion) {
-            let newZoomLevel = determineZoomLevel(for: newRegion)
+        let newZoomLevel = determineZoomLevel(for: newRegion)
+        
+        fetchTask?.cancel()
+        
+        fetchDebouncer.schedule { [weak self] in
+            guard let self = self else { return }
             
-            fetchTask?.cancel()
-            
-            fetchDebouncer.schedule { [weak self] in
-                guard let self = self else { return }
+            self.fetchTask = Task { @MainActor in
+                if Task.isCancelled { return }
                 
-                self.fetchTask = Task { @MainActor in
-                    if Task.isCancelled { return }
+                let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
+                
+                if shouldFetch {
+                    self.currentRegion = newRegion
+                    self.currentZoomLevel = newZoomLevel
                     
-                    let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
-                    
-                    if shouldFetch {
-                        self.currentRegion = newRegion
-                        self.currentZoomLevel = newZoomLevel
-                        
-                        if self.clusters.isEmpty || newZoomLevel == .maxZoomOut {
-                            await self.fetchFilteredClusters()
-                        } else {
-                            self.updateVisibleData(for: newRegion, zoomLevel: newZoomLevel)
-                        }
-                        
-                        self.lastFetchedRegion = newRegion
+                    if self.clusters.isEmpty || newZoomLevel == .maxZoomOut {
+                        await self.fetchFilteredClusters()
+                    } else {
+                        self.updateVisibleData(for: newRegion, zoomLevel: newZoomLevel)
                     }
+                    
+                    self.lastFetchedRegion = newRegion
                 }
             }
         }
-
-       func fetchFilteredClusters(limit: Int = 0) async {
-           do {
-               isLoading = true
-               await clusterManager.removeAll()
-
-               let radius = calculateRadius()
-               updateFilters(radius: radius)
-
-               if currentZoomLevel == .maxZoomOut {
-                   await removeAnnotations()
-                   isLoading = false
-                   return
-               }
-
-               let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
-                   filters: self.filters,
-                   center: self.currentRegion.center,
-                   radiusInM: radius,
-                   zoomLevel: currentZoomLevel.rawValue,
-                   limit: limit
-               )
-
-               await MainActor.run {
-                   self.allClusters = fetchedClusters
-                   updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
-               }
-
-               isLoading = false
-           } catch {
-               print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
-               isLoading = false
-           }
-       }
-
-       private func updateVisibleData(for region: MKCoordinateRegion, zoomLevel: ZoomLevel) {
-           if zoomLevel == .neighborhood || zoomLevel == .city {
-               // Show individual restaurants
-               visibleRestaurants = allClusters.flatMap { $0.restaurants }
-               largeClusters = []
-           } else {
-               // Show clusters
-               visibleRestaurants = []
-               largeClusters = allClusters.map { cluster in
-                   LargeClusterAnnotation(
-                       id: UUID(),
-                       coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
-                       count: cluster.count,
-                       memberAnnotations: cluster.restaurants
-                   )
-               }
-           }
-
-           updateAnnotations()
-       }
-
+    }
+    
+    func fetchFilteredClusters(limit: Int = 0) async {
+        do {
+            isLoading = true
+            await clusterManager.removeAll()
+            
+            let radius = calculateRadius()
+            updateFilters(radius: radius)
+            
+            if currentZoomLevel == .maxZoomOut {
+                await removeAnnotations()
+                isLoading = false
+                return
+            }
+            
+            let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
+                filters: self.filters,
+                center: self.currentRegion.center,
+                radiusInM: radius,
+                zoomLevel: currentZoomLevel.rawValue,
+                limit: limit
+            )
+            
+            await MainActor.run {
+                self.allClusters = fetchedClusters
+                updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
+            }
+            
+            isLoading = false
+        } catch {
+            print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
+            isLoading = false
+        }
+    }
+    
+    private func updateVisibleData(for region: MKCoordinateRegion, zoomLevel: ZoomLevel) {
+        if zoomLevel == .neighborhood || zoomLevel == .city {
+            // Show individual restaurants
+            visibleRestaurants = allClusters.flatMap { $0.restaurants }
+            largeClusters = []
+        } else {
+            // Show clusters
+            visibleRestaurants = []
+            largeClusters = allClusters.map { cluster in
+                LargeClusterAnnotation(
+                    id: UUID(),
+                    coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
+                    count: cluster.count,
+                    memberAnnotations: cluster.restaurants
+                )
+            }
+        }
+        
+        updateAnnotations()
+    }
+    
     private func updateAnnotations() {
         let restaurantAnnotations = visibleRestaurants.map { restaurant in
             let coordinate = CLLocationCoordinate2D(latitude: restaurant.geoPoint.latitude, longitude: restaurant.geoPoint.longitude)
             return RestaurantMapAnnotation(coordinate: coordinate, restaurant: restaurant)
         }
-
+        
         Task {
             await clusterManager.removeAll()
             await clusterManager.add(restaurantAnnotations)
@@ -157,31 +165,31 @@ class MapViewModel: ObservableObject {
         }
     }
     private func shouldFetchNewData(newRegion: MKCoordinateRegion, newZoomLevel: ZoomLevel) -> Bool {
-           guard let lastFetchedRegion = lastFetchedRegion else {
-               return true // First fetch
-           }
-           
-           // Check if zoom level changed
-           if newZoomLevel != currentZoomLevel {
-               return true
-           }
-           
-           // Check if the map has moved significantly
-           let distanceThreshold = calculateDistanceThreshold(for: newRegion)
-           let distance = calculateDistance(from: lastFetchedRegion.center, to: newRegion.center)
-           
-           return distance >= distanceThreshold
-       }
-    private func calculateDistanceThreshold(for region: MKCoordinateRegion) -> CLLocationDistance {
-            // Adjust this calculation based on your app's requirements
-            return max(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * 0.20 // 25% of the visible region
+        guard let lastFetchedRegion = lastFetchedRegion else {
+            return true // First fetch
         }
         
-        private func calculateDistance(from coord1: CLLocationCoordinate2D, to coord2: CLLocationCoordinate2D) -> CLLocationDistance {
-            let location1 = CLLocation(latitude: coord1.latitude, longitude: coord1.longitude)
-            let location2 = CLLocation(latitude: coord2.latitude, longitude: coord2.longitude)
-            return location1.distance(from: location2)
+        // Check if zoom level changed
+        if newZoomLevel != currentZoomLevel {
+            return true
         }
+        
+        // Check if the map has moved significantly
+        let distanceThreshold = calculateDistanceThreshold(for: newRegion)
+        let distance = calculateDistance(from: lastFetchedRegion.center, to: newRegion.center)
+        
+        return distance >= distanceThreshold
+    }
+    private func calculateDistanceThreshold(for region: MKCoordinateRegion) -> CLLocationDistance {
+        // Adjust this calculation based on your app's requirements
+        return max(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * 0.20 // 25% of the visible region
+    }
+    
+    private func calculateDistance(from coord1: CLLocationCoordinate2D, to coord2: CLLocationCoordinate2D) -> CLLocationDistance {
+        let location1 = CLLocation(latitude: coord1.latitude, longitude: coord1.longitude)
+        let location2 = CLLocation(latitude: coord2.latitude, longitude: coord2.longitude)
+        return location1.distance(from: location2)
+    }
     
     func removeAnnotations() async {
         await clusterManager.removeAll()
@@ -214,17 +222,17 @@ class MapViewModel: ObservableObject {
     }
     private func updateFilters(radius: Double) {
         if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "categoryName")
+            filters.removeValue(forKey: "cuisine")
         } else {
-            filters["categoryName"] = selectedCuisines
+            filters["cuisine"] = selectedCuisines
         }
-
+        
         if selectedLocation.isEmpty {
             filters.removeValue(forKey: "location")
         } else {
             filters["location"] = selectedLocation + [radius]
         }
-
+        
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
         } else {
@@ -263,7 +271,7 @@ class MapViewModel: ObservableObject {
         selectedCuisines = []
         selectedPrice = []
     }
-   
+    
 }
 
 

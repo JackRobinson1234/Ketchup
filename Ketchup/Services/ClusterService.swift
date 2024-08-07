@@ -15,17 +15,19 @@ class ClusterService {
     private init() {}
     
     func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, zoomLevel: String, limit: Int = 0) async throws -> [Cluster] {
-        print("DEBUG: Fetching clusters around center: \(center), with radius: \(radiusInM) meters at zoom level: \(zoomLevel)")
+        print("DEBUG: Fetching clusters around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
         
         let queryBounds = GFUtils.queryBounds(forLocation: center, withRadius: radiusInM)
         let clustersCollection = Firestore.firestore().collection("mapClusters")
         
         let queries = queryBounds.map { bound -> Query in
-            let query = applyFilters(toQuery: clustersCollection
+            var query = clustersCollection
                 .whereField("zoomLevel", isEqualTo: zoomLevel)
                 .order(by: "geoHash")
                 .start(at: [bound.startValue])
-                .end(at: [bound.endValue]), filters: filters)
+                .end(at: [bound.endValue])
+            
+            query = applyFilters(toQuery: query, filters: filters)
             print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
             return query
         }
@@ -38,16 +40,20 @@ class ClusterService {
                         print("DEBUG: Executing query for clusters")
                         let clusters = snapshot.documents.compactMap { document -> Cluster? in
                             do {
-                                let cluster = try document.data(as: Cluster.self)
-                                print("DEBUG: Successfully decoded cluster with id: \(cluster.id)")
-                                return cluster
+                                var cluster = try document.data(as: Cluster.self)
+                                // Apply filtering and adjust cluster
+                                if let adjustedCluster = self.adjustClusterForFilters(cluster, filters: filters) {
+                                    print("DEBUG: Successfully decoded and filtered cluster with id: \(adjustedCluster.id)")
+                                    return adjustedCluster
+                                }
+                                return nil
                             } catch {
                                 print("ERROR: Failed to decode cluster from document \(document.documentID). Error: \(error)")
                                 print("DEBUG: Raw document data: \(document.data())")
                                 return nil
                             }
                         }
-                        print("DEBUG: Fetched \(clusters.count) clusters from bounds")
+                        print("DEBUG: Fetched and filtered \(clusters.count) clusters from bounds")
                         return (clusters, snapshot.documents.count)
                     }
                 }
@@ -58,12 +64,12 @@ class ClusterService {
                     allMatchingDocs.append(contentsOf: documents)
                     totalDocumentCount += count
                 }
-                print("DEBUG: Total clusters fetched: \(allMatchingDocs.count)")
+                print("DEBUG: Total filtered clusters fetched: \(allMatchingDocs.count)")
                 return (allMatchingDocs, totalDocumentCount)
             }
             
             print("Total number of documents fetched: \(totalDocuments)")
-            print("Total number of successfully decoded clusters: \(matchingDocs.count)")
+            print("Total number of successfully decoded and filtered clusters: \(matchingDocs.count)")
             return matchingDocs
         } catch {
             print("ERROR: Failed to fetch clusters with error \(error)")
@@ -71,16 +77,51 @@ class ClusterService {
         }
     }
     
-    func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
+    private func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
         var updatedQuery = query
         for (field, value) in filters {
             if field == "location" {
+                // Location filtering is handled by GeoHash queries
                 continue
             } else {
-                updatedQuery = updatedQuery.whereField(field, in: value)
-                print("DEBUG: Applied filter for field \(field) with values: \(value)")
+                // We'll handle cuisine and price filters in post-processing
+                continue
             }
         }
         return updatedQuery
+    }
+    
+    private func adjustClusterForFilters(_ cluster: Cluster, filters: [String: [Any]]) -> Cluster? {
+        let filteredRestaurants = cluster.restaurants.filter { restaurant in
+            if let cuisines = filters["cuisine"] as? [String], !cuisines.isEmpty {
+                guard let restaurantCuisine = restaurant.cuisine, cuisines.contains(restaurantCuisine) else {
+                    return false
+                }
+            }
+            
+            if let prices = filters["price"] as? [String], !prices.isEmpty {
+                guard let restaurantPrice = restaurant.price, prices.contains(restaurantPrice) else {
+                    return false
+                }
+            }
+            
+            return true
+        }
+        
+        // If no restaurants pass the filter, return nil to exclude this cluster
+        guard !filteredRestaurants.isEmpty else {
+            return nil
+        }
+        
+        // Create a new cluster with filtered restaurants and adjusted count
+        return Cluster(
+            id: cluster.id,
+            center: cluster.center,
+            restaurants: filteredRestaurants,
+            count: filteredRestaurants.count,
+            zoomLevel: cluster.zoomLevel,
+            truncatedGeoHash: cluster.truncatedGeoHash,
+            geoHash: cluster.geoHash
+        )
     }
 }

@@ -42,7 +42,6 @@ struct MapCuisineFilter: View {
                         ForEach(mapViewModel.selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
-                                
                                     .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
