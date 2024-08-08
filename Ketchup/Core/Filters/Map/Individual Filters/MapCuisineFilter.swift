@@ -22,7 +22,7 @@ struct MapCuisineFilter: View {
                 Text("Filter by Cuisine")
                     .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                 Spacer()
             }
             .padding(.leading)
@@ -50,7 +50,7 @@ struct MapCuisineFilter: View {
                                     }
                                 Text(cuisine)
                                     .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(.black)
                             }
                             .padding()
                             .background(Color.white)
@@ -66,7 +66,7 @@ struct MapCuisineFilter: View {
                     Text("No Cuisine Filters Selected")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .bold()
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.black)
                     Spacer()
                 }
                 .padding()
@@ -78,7 +78,7 @@ struct MapCuisineFilter: View {
                     .imageScale(.small)
                     .foregroundStyle(.gray)
                 TextField("Search Cuisines", text: $searchText)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .frame(height:44)
                     .padding(.horizontal)
@@ -100,8 +100,7 @@ struct MapCuisineFilter: View {
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
-                                .foregroundStyle(.gray)
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.black)                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !mapViewModel.selectedCuisines.contains(cuisine) {
@@ -154,7 +153,8 @@ struct MapCuisineFilter: View {
             let lowercasedQuery = query.lowercased()
             let filtered = cuisineCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
-            }).map { $0.capitalized }
+            })
+                //i .map { $0.capitalized }
             return filtered.filter { cuisine in
                 !mapViewModel.selectedCuisines.contains(cuisine)
             }

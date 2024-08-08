@@ -15,7 +15,7 @@ class CommentService {
         do {
             let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
             let comments = try await commentsCollection
-                .order(by: "timestamp", descending: true)
+                .order(by: "timestamp", descending: false)
                 .getDocuments(as: Comment.self)
             let userComments = try await self.fetchCommentUserData(comments: comments)
             return userComments

@@ -437,7 +437,9 @@ struct WrittenFeedCell: View {
                 handleIndexChange(currentIndex)
             }
         }
-     
+        .onDisappear{
+            pauseAllVideos()
+        }
         .onChange(of: currentIndex) { oldValue, newValue in
             pauseAllVideos()
             handleIndexChange(newValue)

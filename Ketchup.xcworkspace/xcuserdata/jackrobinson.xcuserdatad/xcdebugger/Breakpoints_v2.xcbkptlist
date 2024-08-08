@@ -46,8 +46,8 @@
             filePath = "Ketchup/Core/Feed/View/PrimaryFeed/WrittenFeedCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "441"
-            endingLineNumber = "441"
+            startingLineNumber = "443"
+            endingLineNumber = "443"
             landmarkName = "body"
             landmarkType = "24">
             <Locations>
@@ -94,8 +94,8 @@
             filePath = "Ketchup/Core/Feed/View/PrimaryFeed/WrittenFeedCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "572"
-            endingLineNumber = "572"
+            startingLineNumber = "574"
+            endingLineNumber = "574"
             landmarkName = "handleIndexChange(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -110,8 +110,8 @@
             filePath = "Ketchup/Core/Feed/View/PrimaryFeed/WrittenFeedCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "573"
-            endingLineNumber = "573"
+            startingLineNumber = "575"
+            endingLineNumber = "575"
             landmarkName = "handleIndexChange(_:)"
             landmarkType = "7">
          </BreakpointContent>
