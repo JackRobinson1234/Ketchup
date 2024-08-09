@@ -21,10 +21,16 @@ struct Comment: Identifiable, Codable, Equatable, Hashable {
     var mentionedUsers: [PostUser]?
     var likes: Int
     var didLike: Bool
-    
-    
+    var replyTo: ReplyTo?
+    var replyCount: Int
+
+    struct ReplyTo: Codable, Hashable {
+        let commentId: String
+        let username: String
+        let userId: String
+    }
 }
-  
+
 
 // PostUser struct (if not already defined)
 

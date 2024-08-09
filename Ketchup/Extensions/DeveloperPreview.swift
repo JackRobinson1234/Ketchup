@@ -186,7 +186,8 @@ struct DeveloperPreview {
            commentOwnerProfileImageUrl: user.profileImageUrl,
            mentionedUsers: [],
            likes: 0,
-           didLike: false
+           didLike: false,
+           replyCount: 0
        )
        
        static var comments: [Comment] = [
@@ -201,7 +202,8 @@ struct DeveloperPreview {
                commentOwnerProfileImageUrl: user.profileImageUrl,
                mentionedUsers: [],
                likes: 0,
-               didLike: false
+               didLike: false,
+               replyCount: 0
            ),
            .init(
                id: NSUUID().uuidString,
@@ -214,7 +216,8 @@ struct DeveloperPreview {
                commentOwnerProfileImageUrl: users[1].profileImageUrl,
                mentionedUsers: [],
                likes: 0,
-               didLike: false
+               didLike: false,
+               replyCount: 0
            ),
            .init(
                id: NSUUID().uuidString,
@@ -227,7 +230,8 @@ struct DeveloperPreview {
                commentOwnerProfileImageUrl: users[2].profileImageUrl,
                mentionedUsers: [],
                likes: 0,
-               didLike: false
+               didLike: false,
+               replyCount: 0
            )
        ]
 

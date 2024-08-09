@@ -8,43 +8,65 @@ import Foundation
 import Firebase
 
 class CommentService {
-    static let shared = CommentService() // Singleton instance
+    static let shared = CommentService()
     private init() {}
     
     func fetchComments(post: Post) async throws -> [Comment] {
-        let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
-        let comments = try await commentsCollection
-            .order(by: "timestamp", descending: false)
-            .getDocuments(as: Comment.self)
-        return comments
-    }
-    
-    func uploadComment(commentText: String, post: Post, mentionedUsers: [PostUser]) async throws -> Comment? {
-        let ref = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document()
-        guard let currentUid = Auth.auth().currentUser?.uid,
-              let currentUser = await AuthService.shared.userSession else { return nil }
-        
-        let comment = Comment(
-            id: ref.documentID,
-            postOwnerUid: post.user.id,
-            commentText: commentText,
-            postId: post.id,
-            timestamp: Timestamp(),
-            commentOwnerUid: currentUid,
-            commentOwnerUsername: currentUser.username,
-            commentOwnerProfileImageUrl: currentUser.profileImageUrl,
-            mentionedUsers: mentionedUsers,
-            likes: 0,
-            didLike: false
-        )
-        
-        guard let commentData = try? Firestore.Encoder().encode(comment) else {
-            return nil
+           let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
+           let comments = try await commentsCollection
+               .order(by: "timestamp", descending: false)
+               .getDocuments(as: Comment.self)
+           return comments
+       }
+       
+    func uploadComment(commentText: String, post: Post, mentionedUsers: [PostUser], replyTo: Comment? = nil, originalCommentId: String? = nil) async throws -> Comment? {
+            let ref = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document()
+            guard let currentUid = Auth.auth().currentUser?.uid,
+                  let currentUser = await AuthService.shared.userSession else { return nil }
+            
+            var replyToData: Comment.ReplyTo?
+            if let replyTo = replyTo {
+                replyToData = Comment.ReplyTo(
+                    commentId: originalCommentId ?? replyTo.id,
+                    username: replyTo.commentOwnerUsername,
+                    userId: replyTo.commentOwnerUid
+                )
+            }
+            
+            let comment = Comment(
+                id: ref.documentID,
+                postOwnerUid: post.user.id,
+                commentText: commentText,
+                postId: post.id,
+                timestamp: Timestamp(),
+                commentOwnerUid: currentUid,
+                commentOwnerUsername: currentUser.username,
+                commentOwnerProfileImageUrl: currentUser.profileImageUrl,
+                mentionedUsers: mentionedUsers,
+                likes: 0,
+                didLike: false,
+                replyTo: replyToData,
+                replyCount: 0
+            )
+            
+            guard let commentData = try? Firestore.Encoder().encode(comment) else {
+                return nil
+            }
+            
+            try await ref.setData(commentData)
+            
+            if let originalCommentId = originalCommentId ?? replyTo?.id {
+                // Increment the reply count of the original comment
+                try await incrementReplyCount(for: originalCommentId, in: post.id)
+            }
+            
+            return comment
         }
-        
-        try await ref.setData(commentData)
-        return comment
-    }
+       
+       func incrementReplyCount(for commentId: String, in postId: String) async throws {
+           let commentRef = FirestoreConstants.PostsCollection.document(postId).collection("post-comments").document(commentId)
+           try await commentRef.updateData(["replyCount": FieldValue.increment(Int64(1))])
+       }
     
     func deleteComment(comment: Comment, post: Post) async throws {
         let commentRef = FirestoreConstants.PostsCollection.document(post.id)
@@ -57,20 +79,27 @@ class CommentService {
     }
     func likeComment(_ comment: Comment, post: Post) async throws {
             guard let uid = Auth.auth().currentUser?.uid else { return }
-            async let _ = try FirestoreConstants.PostsCollection.document(post.id)
-                .collection("post-comments").document(comment.id)
-                .collection("comment-likes").document(uid).setData([:])
-            async let _ = try FirestoreConstants.UserCollection.document(uid)
+            let commentRef = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document(comment.id)
+            
+            try await commentRef.updateData([
+                "likes": FieldValue.increment(Int64(1)),
+                "didLike": true
+            ])
+            
+            try await FirestoreConstants.UserCollection.document(uid)
                 .collection("user-comment-likes").document(comment.id).setData([:])
         }
         
         func unlikeComment(_ comment: Comment, post: Post) async throws {
-            guard comment.likes > 0 else { return }
             guard let uid = Auth.auth().currentUser?.uid else { return }
-            async let _ = try FirestoreConstants.PostsCollection.document(post.id)
-                .collection("post-comments").document(comment.id)
-                .collection("comment-likes").document(uid).delete()
-            async let _ = try FirestoreConstants.UserCollection.document(uid)
+            let commentRef = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document(comment.id)
+            
+            try await commentRef.updateData([
+                "likes": FieldValue.increment(Int64(-1)),
+                "didLike": false
+            ])
+            
+            try await FirestoreConstants.UserCollection.document(uid)
                 .collection("user-comment-likes").document(comment.id).delete()
         }
         

@@ -2,10 +2,28 @@ import SwiftUI
 
 struct CommentInputView: View {
     @ObservedObject var viewModel: CommentViewModel
-    @FocusState private var fieldIsActive: Bool
+    @FocusState var isInputFocused: Bool
     
     var body: some View {
         VStack {
+            if let replyingTo = viewModel.replyingTo {
+                HStack {
+                    Text("Replying to @\(replyingTo.commentOwnerUsername)")
+                        .font(.custom("MuseoSansRounded-300", size: 12))
+                        .foregroundColor(.gray)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        viewModel.cancelReply()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.horizontal)
+            }
+            
             ZStack(alignment: .trailing) {
                 TextField("Add a comment", text: $viewModel.commentText, axis: .vertical)
                     .padding(10)
@@ -14,19 +32,16 @@ struct CommentInputView: View {
                     .background(Color(.systemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .font(.custom("MuseoSansRounded-300", size: 14))
-                    .focused($fieldIsActive)
+                    .focused($isInputFocused)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.systemGray5), lineWidth: 1)
                     )
-                    .onChange(of: viewModel.commentText) { 
-                        viewModel.checkForTagging()
-                    }
                 
                 Button {
                     Task {
                         await viewModel.uploadComment()
-                        fieldIsActive = false
+                        isInputFocused = false
                     }
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
@@ -35,18 +50,9 @@ struct CommentInputView: View {
                         .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 .padding(.horizontal)
+                .disabled(viewModel.commentText.isEmpty)
             }
             .tint(.black)
-            
-            if viewModel.charLimitReached {
-                Text("Max characters reached")
-                    .foregroundColor(.red)
-                    .font(.custom("MuseoSansRounded-300", size: 10))
-                    .padding(.top, 4)
-            }
         }
     }
 }
-
-
-

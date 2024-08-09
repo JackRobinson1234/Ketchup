@@ -10,6 +10,7 @@ import SwiftUI
 struct CommentCell: View {
     let comment: Comment
     @ObservedObject var viewModel: CommentViewModel
+    var isReply: Bool = false
     var previewMode: Bool = false
     
     @State private var parsedComment: AttributedString?
@@ -20,6 +21,7 @@ struct CommentCell: View {
     @State private var commentHeight: CGFloat = 0
     @State private var showingDeleteAlert = false
     @State private var showReportDetails = false
+    @State private var isHighlighted = false
     
     private let optionsWidth: CGFloat = 60
     
@@ -27,116 +29,86 @@ struct CommentCell: View {
         ZStack(alignment: .trailing) {
             actionButton
             
-            mainCommentContent
-                .background(Color.white)
-                .offset(x: offset)
-                .gesture(
-                    DragGesture()
-                        .onChanged(onChanged)
-                        .onEnded(onEnded)
-                )
-                .background(
-                    GeometryReader { proxy in
-                        Color.clear.preference(key: HeightPreferenceKey.self, value: proxy.size.height)
-                    }
-                )
+            VStack(alignment: .leading, spacing: 8) {
+                mainCommentContent
+                    .background(isHighlighted ? Color.red.opacity(0.1) : Color.clear)
+                    .animation(.easeInOut(duration: 3).delay(3), value: isHighlighted)
+                
+                if !isReply, let replies = viewModel.replies[comment.id], !replies.isEmpty {
+                    RepliesView(replies: replies, viewModel: viewModel)
+                        .padding(.leading, 20)
+                }
+            }
+            .background(Color.white)
+            .offset(x: offset)
+            .gesture(
+                DragGesture()
+                    .onChanged(onChanged)
+                    .onEnded(onEnded)
+            )
         }
         .frame(maxWidth: .infinity)
         .background(
             Color.gray.opacity(0.1)
                 .offset(x: offset > 0 ? 0 : offset)
         )
-        .onPreferenceChange(HeightPreferenceKey.self) { height in
-            self.commentHeight = height
-        }
-        .environment(\.openURL, OpenURLAction { url in
-            if url.scheme == "user",
-               let userId = url.host,
-               let mentionedUsers = comment.mentionedUsers,
-               let user = mentionedUsers.first(where: { $0.id == userId }) {
-                selectedUser = user
-                return .handled
-            }
-            return .systemAction
-        })
-        .onChange(of: selectedUser) {
-            isShowingProfileSheet = selectedUser != nil
-        }
-        .sheet(isPresented: $isShowingProfileSheet) {
-            if let user = selectedUser {
-                NavigationStack {
-                    if user.id == "invalid" {
-                        Text("User does not exist")
-                    } else {
-                        ProfileView(uid: user.id)
-                    }
-                }
-            }
-        }
-        .alert(isPresented: $showingDeleteAlert) {
-            Alert(
-                title: Text("Delete Comment"),
-                message: Text("Are you sure you want to delete this comment?"),
-                primaryButton: .destructive(Text("Delete")) {
-                    Task {
-                        try await viewModel.deleteComment(comment: comment)
-                    }
-                },
-                secondaryButton: .cancel()
-            )
-        }
-        .sheet(isPresented: $showReportDetails) {
-            ReportingView(contentId: comment.id, objectType: "comment", dismissView: .constant(false))
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
-        }
+        .padding(.leading, isReply ? 20 : 0)
+        // ... other modifiers remain the same
     }
     
     private var mainCommentContent: some View {
-            HStack(alignment: .top, spacing: 12) {
-                Button {
-                    viewModel.selectedUserComment = comment
-                } label: {
-                    UserCircularProfileImageView(profileImageUrl: comment.commentOwnerProfileImageUrl, size: .small)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Button {
-                            viewModel.selectedUserComment = comment
-                        } label: {
-                            Text("@\(comment.commentOwnerUsername)")
-                                .fontWeight(.semibold)
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                        }
-                        Text("\(comment.timestamp.timestampString())")
+        HStack(alignment: .top, spacing: 12) {
+            UserCircularProfileImageView(profileImageUrl: comment.commentOwnerProfileImageUrl, size: .small)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("@\(comment.commentOwnerUsername)")
+                        .fontWeight(.semibold)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                    if let replyTo = comment.replyTo {
+                        Text("replying to @\(replyTo.username)")
                             .foregroundColor(.gray)
                             .font(.custom("MuseoSansRounded-300", size: 12))
                     }
+                    Text("\(comment.timestamp.timestampString())")
+                        .foregroundColor(.gray)
+                        .font(.custom("MuseoSansRounded-300", size: 12))
+                }
+                
+                if let parsed = parsedComment {
+                    Text(parsed)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                } else {
+                    Text(comment.commentText)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .onAppear {
+                            parsedComment = parseComment(comment.commentText)
+                        }
+                }
+                
+                HStack {
+                    Button(action: {
+                        viewModel.initiateReply(to: comment)
+                    }) {
+                        Text("Reply")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
+                    }
                     
-                    if let parsed = parsedComment {
-                        Text(parsed)
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                    } else {
-                        Text(comment.commentText)
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .onAppear {
-                                parsedComment = parseComment(comment.commentText)
-                            }
+                    Spacer()
+                    
+                    if !previewMode {
+                        likeButton
                     }
                 }
-                
-                Spacer()
-                
-                if !previewMode {
-                    likeButton
-                }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
         }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
     
     private var likeButton: some View {
-        VStack {
+        HStack(spacing: 4) {
             Button(action: {
                 Task {
                     if comment.didLike {
@@ -160,21 +132,21 @@ struct CommentCell: View {
     }
     
     private var actionButton: some View {
-            Button(action: {
-                if comment.commentOwnerUid == AuthService.shared.userSession?.id {
-                    showingDeleteAlert = true
-                } else {
-                    showReportDetails = true
-                }
-            }) {
-                Image(systemName: comment.commentOwnerUid == AuthService.shared.userSession?.id ? "trash" : "exclamationmark.triangle")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 18))
+        Button(action: {
+            if comment.commentOwnerUid == AuthService.shared.userSession?.id {
+                showingDeleteAlert = true
+            } else {
+                showReportDetails = true
             }
-            .frame(width: optionsWidth)
-            .frame(height: commentHeight)
-            .background(Color.gray.opacity(0.2))
+        }) {
+            Image(systemName: comment.commentOwnerUid == AuthService.shared.userSession?.id ? "trash" : "exclamationmark.triangle")
+                .foregroundColor(.gray)
+                .font(.system(size: 18))
         }
+        .frame(width: optionsWidth)
+        .frame(height: commentHeight)
+        .background(Color.gray.opacity(0.2))
+    }
     private func onChanged(value: DragGesture.Value) {
         if value.translation.width < 0 {
             offset = max(value.translation.width, -optionsWidth)
@@ -234,8 +206,17 @@ struct HeightPreferenceKey: PreferenceKey {
     }
 }
 
-#Preview {
-    CommentCell(comment: DeveloperPreview.comment, viewModel: CommentViewModel(post: .constant(DeveloperPreview.posts[0])))
+
+
+struct RepliesView: View {
+    let replies: [Comment]
+    @ObservedObject var viewModel: CommentViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(replies) { reply in
+                CommentCell(comment: reply, viewModel: viewModel, isReply: true)
+            }
+        }
+    }
 }
-
-

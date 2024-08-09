@@ -5,6 +5,7 @@ struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     let debouncer = Debouncer(delay: 1.0)
+    @FocusState private var isInputFocused: Bool
 
     init(post: Binding<Post>) {
         let viewModel = CommentViewModel(post: post)
@@ -24,50 +25,7 @@ struct CommentsView: View {
                     Divider()
                     VStack(spacing: 24) {
                         if viewModel.isTagging {
-                            Text("Mention Users")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .fontWeight(.bold)
-                                .padding(.top, 10)
-                                .padding(.horizontal)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if !viewModel.filteredTaggedUsers.isEmpty{
-                                ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
-                                    Button(action: {
-                                        let username = user.username
-                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        viewModel.commentText = words.joined(separator: " ") + " "
-                                        viewModel.isTagging = false
-                                    }) {
-                                        UserCell(user: user)
-                                            .padding(.horizontal)
-                                    }
-                                    .contentShape(Rectangle())
-                                }
-                                    
-                                } else {
-                                InfiniteList(searchViewModel.userHits, itemView: { hit in
-                                    Button{
-                                        let username = hit.object.username
-                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        viewModel.commentText = words.joined(separator: " ") + " "
-                                        viewModel.isTagging = false
-                                    } label: {
-                                        UserCell(user: hit.object)
-                                            .padding()
-                                      
-                                    }
-                        
-                                    Divider()
-                                }, noResults: {
-                                    Text("No results found")
-                                        .foregroundStyle(.black)
-                                })
-                                
-                            }
+                            taggedUsersView
                         } else {
                             ForEach(viewModel.comments) { comment in
                                 CommentCell(comment: comment, viewModel: viewModel)
@@ -80,30 +38,17 @@ struct CommentsView: View {
                 
                 HStack(spacing: 12) {
                     UserCircularProfileImageView(profileImageUrl: AuthService.shared.userSession?.profileImageUrl, size: .xSmall)
-                    CommentInputView(viewModel: viewModel)
+                    CommentInputView(viewModel: viewModel, isInputFocused: _isInputFocused)
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
             }
-            .onChange(of: viewModel.commentText){
-                if viewModel.filteredTaggedUsers.isEmpty{
-                    print("Entering 1")
-                    let text = viewModel.checkForAlgoliaTagging()
-                    if !text.isEmpty{
-                        print("Entering 2")
-                        searchViewModel.searchQuery = text
-                        print(text)
-                        Debouncer(delay: 0).schedule{
-                            print("Entering 3")
-                            searchViewModel.notifyQueryChanged()
-                        }
-                    }
-                }
+            .onChange(of: viewModel.commentText) {
+                handleCommentTextChange()
             }
-            .onAppear{
+            .onAppear {
                 viewModel.fetchFollowingUsers()
             }
-
             .overlay {
                 if viewModel.showEmptyView && !viewModel.isTagging {
                     ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
@@ -129,7 +74,65 @@ struct CommentsView: View {
                     }
                 }
             }
+            .onChange(of: viewModel.shouldFocusTextField) { newValue in
+                isInputFocused = newValue
+            }
             .listStyle(PlainListStyle())
         }
+    }
+    
+    private var taggedUsersView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Mention Users")
+                .font(.custom("MuseoSansRounded-300", size: 16))
+                .fontWeight(.bold)
+                .padding(.top, 10)
+                .padding(.horizontal)
+            
+            if !viewModel.filteredTaggedUsers.isEmpty {
+                ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
+                    Button(action: {
+                        handleUserSelection(username: user.username)
+                    }) {
+                        UserCell(user: user)
+                            .padding(.horizontal)
+                    }
+                    .contentShape(Rectangle())
+                }
+            } else {
+                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                    Button {
+                        handleUserSelection(username: hit.object.username)
+                    } label: {
+                        UserCell(user: hit.object)
+                            .padding()
+                    }
+                    Divider()
+                }, noResults: {
+                    Text("No results found")
+                        .foregroundStyle(.black)
+                })
+            }
+        }
+    }
+    
+    private func handleCommentTextChange() {
+        if viewModel.filteredTaggedUsers.isEmpty {
+            let text = viewModel.checkForAlgoliaTagging()
+            if !text.isEmpty {
+                searchViewModel.searchQuery = text
+                Debouncer(delay: 0).schedule {
+                    searchViewModel.notifyQueryChanged()
+                }
+            }
+        }
+    }
+    
+    private func handleUserSelection(username: String) {
+        var words = viewModel.commentText.split(separator: " ").map(String.init)
+        words.removeLast()
+        words.append("@" + username)
+        viewModel.commentText = words.joined(separator: " ") + " "
+        viewModel.isTagging = false
     }
 }
