@@ -4,9 +4,8 @@ import InstantSearchSwiftUI
 struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
-    let debouncer = Debouncer(delay: 1.0)
     @FocusState private var isInputFocused: Bool
-
+    
     init(post: Binding<Post>) {
         let viewModel = CommentViewModel(post: post)
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -15,7 +14,7 @@ struct CommentsView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                if !viewModel.comments.isEmpty && !viewModel.isTagging {
+                if !viewModel.organizedComments.isEmpty && !viewModel.isTagging {
                     Text(viewModel.commentCountText)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .fontWeight(.semibold)
@@ -27,8 +26,8 @@ struct CommentsView: View {
                         if viewModel.isTagging {
                             taggedUsersView
                         } else {
-                            ForEach(viewModel.comments) { comment in
-                                CommentCell(comment: comment, viewModel: viewModel)
+                            ForEach(viewModel.organizedComments, id: \.comment.id) { commentWithReplies in
+                                CommentCell(comment: commentWithReplies.comment, replies: commentWithReplies.replies, viewModel: viewModel, isReply: false)
                             }
                         }
                     }
@@ -55,8 +54,8 @@ struct CommentsView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            .onChange(of: viewModel.comments.count) {
-                viewModel.showEmptyView = viewModel.comments.isEmpty
+            .onChange(of: viewModel.organizedComments.count) {
+                viewModel.showEmptyView = viewModel.organizedComments.isEmpty
             }
             .onAppear {
                 Task { try await viewModel.fetchComments() }

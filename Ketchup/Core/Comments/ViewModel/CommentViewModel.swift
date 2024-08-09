@@ -3,10 +3,8 @@ import Combine
 import SwiftUI
 
 @MainActor
-
 class CommentViewModel: ObservableObject {
-    @Published var comments = [Comment]()
-    @Published var replies: [String: [Comment]] = [:]
+    @Published var organizedComments: [(comment: Comment, replies: [Comment])] = []
     @Published var commentText: String = "" {
         didSet {
             if commentText.count > 300 {
@@ -26,118 +24,148 @@ class CommentViewModel: ObservableObject {
     @Published var taggedUsers: [User] = []
     @Published var filteredTaggedUsers: [User] = []
     @Published var isTagging: Bool = false
-    @Published var replyingTo: Comment?
+    @Published var replyingTo: (comment: Comment, replyToUser: String)?
     @Published var lastAddedCommentId: String?
     @Published var shouldFocusTextField: Bool = false
     
     @Binding var post: Post
     var commentCountText: String {
-        return "\(comments.count) comments"
+        return "\(organizedComments.count) comments"
     }
     
     init(post: Binding<Post>) {
         self._post = post
     }
-    func initiateReply(to comment: Comment) {
-        let originalComment = findOriginalComment(for: comment)
-        replyingTo = comment
-        commentText = "@\(comment.commentOwnerUsername) "
-        shouldFocusTextField = true
-    }
-    private func findOriginalComment(for comment: Comment) -> Comment {
-        if let replyTo = comment.replyTo {
-            return comments.first { $0.id == replyTo.commentId } ?? comment
-        }
-        return comment
-    }
+    func initiateReply(to comment: Comment, replyToUser: String) {
+          replyingTo = (comment, replyToUser)
+          commentText = "@\(replyToUser) "
+          shouldFocusTextField = true
+      }
+
+       func cancelReply() {
+           replyingTo = nil
+           commentText = ""
+           shouldFocusTextField = false
+       }
     
-    func cancelReply() {
-        replyingTo = nil
-        commentText = ""
-        shouldFocusTextField = false
-    }
+    
     
     
     // Fetch comments for the current post
     func fetchComments() async throws {
-        self.comments = try await CommentService.shared.fetchComments(post: post)
-        await checkIfUserLikedComments()
-        organizeReplies()
-    }
+           let fetchedComments = try await CommentService.shared.fetchComments(post: post)
+           await checkIfUserLikedComments(comments: fetchedComments)
+           //organizeComments(fetchedComments)
+           showEmptyView = organizedComments.isEmpty
+       }
     
-    private func organizeReplies() {
-        replies.removeAll()
-        for comment in comments {
-            if let replyTo = comment.replyTo {
-                if replies[replyTo.commentId] == nil {
-                    replies[replyTo.commentId] = []
-                }
-                replies[replyTo.commentId]?.append(comment)
-            }
-        }
-    }
+    private func organizeComments(_ comments: [Comment]) {
+           var topLevelComments: [(comment: Comment, replies: [Comment])] = []
+           var repliesDictionary: [String: [Comment]] = [:]
+
+           for comment in comments {
+               if let replyTo = comment.replyTo {
+                   if repliesDictionary[replyTo.commentId] == nil {
+                       repliesDictionary[replyTo.commentId] = []
+                   }
+                   repliesDictionary[replyTo.commentId]?.append(comment)
+               } else {
+                   topLevelComments.append((comment: comment, replies: []))
+               }
+           }
+
+           for (index, topLevelComment) in topLevelComments.enumerated() {
+               if let replies = repliesDictionary[topLevelComment.comment.id] {
+                   topLevelComments[index].replies = replies.sorted(by: { $0.timestamp < $1.timestamp })
+               }
+           }
+
+           DispatchQueue.main.async {
+               self.organizedComments = topLevelComments.sorted(by: { $0.comment.timestamp > $1.comment.timestamp })
+           }
+       }
+       
     
     // Delete the comment from firebase
+    
     func deleteComment(comment: Comment) async throws {
-        guard let index = comments.firstIndex(of: comment) else {
-            return // Comment not found in the array
+            try await CommentService.shared.deleteComment(comment: comment, post: self.post)
+            
+            DispatchQueue.main.async {
+                if let index = self.organizedComments.firstIndex(where: { $0.comment.id == comment.id }) {
+                    // It's a top-level comment
+                    self.organizedComments.remove(at: index)
+                } else {
+                    // It's a reply
+                    for i in 0..<self.organizedComments.count {
+                        if let replyIndex = self.organizedComments[i].replies.firstIndex(where: { $0.id == comment.id }) {
+                            self.organizedComments[i].replies.remove(at: replyIndex)
+                            break
+                        }
+                    }
+                }
+                self.$post.wrappedValue.commentCount -= 1
+            }
         }
-        try await CommentService.shared.deleteComment(comment: comment, post: self.post)
-        comments.remove(at: index)
-        $post.wrappedValue.commentCount -= 1
-    }
+
     
     // Like a comment
+    
     func like(_ comment: Comment) async {
-            do {
-                try await CommentService.shared.likeComment(comment, post: post)
-                updateCommentLikeStatus(comment, didLike: true, likesChange: 1)
-            } catch {
-                print("DEBUG: Failed to like comment with error \(error.localizedDescription)")
-            }
-        }
+          do {
+              try await CommentService.shared.likeComment(comment, post: post)
+              await MainActor.run {
+                  updateCommentLikeStatus(comment, didLike: true, likesChange: 1)
+              }
+          } catch {
+              print("DEBUG: Failed to like comment with error \(error.localizedDescription)")
+          }
+      }
+      
+      func unlike(_ comment: Comment) async {
+          do {
+              try await CommentService.shared.unlikeComment(comment, post: post)
+              await MainActor.run {
+                  updateCommentLikeStatus(comment, didLike: false, likesChange: -1)
+              }
+          } catch {
+              print("DEBUG: Failed to unlike comment with error \(error.localizedDescription)")
+          }
+      }
         
-        func unlike(_ comment: Comment) async {
-            do {
-                try await CommentService.shared.unlikeComment(comment, post: post)
-                updateCommentLikeStatus(comment, didLike: false, likesChange: -1)
-            } catch {
-                print("DEBUG: Failed to unlike comment with error \(error.localizedDescription)")
-            }
-        }
-        
-        private func updateCommentLikeStatus(_ comment: Comment, didLike: Bool, likesChange: Int) {
-            if let index = comments.firstIndex(where: { $0.id == comment.id }) {
-                comments[index].didLike = didLike
-                comments[index].likes += likesChange
-            } else {
-                for (key, var repliesArray) in replies {
-                    if let replyIndex = repliesArray.firstIndex(where: { $0.id == comment.id }) {
-                        repliesArray[replyIndex].didLike = didLike
-                        repliesArray[replyIndex].likes += likesChange
-                        replies[key] = repliesArray
+    private func updateCommentLikeStatus(_ comment: Comment, didLike: Bool, likesChange: Int) {
+            for i in 0..<organizedComments.count {
+                if organizedComments[i].comment.id == comment.id {
+                    organizedComments[i].comment.didLike = didLike
+                    organizedComments[i].comment.likes += likesChange
+                    break
+                }
+                for j in 0..<organizedComments[i].replies.count {
+                    if organizedComments[i].replies[j].id == comment.id {
+                        organizedComments[i].replies[j].didLike = didLike
+                        organizedComments[i].replies[j].likes += likesChange
                         break
                     }
                 }
             }
         }
     
-    func checkIfUserLikedComments() async {
-        guard !comments.isEmpty else { return }
-        var updatedComments = comments
-        for i in 0..<updatedComments.count {
-            do {
-                let comment = updatedComments[i]
-                let didLike = try await CommentService.shared.checkIfUserLikedComment(comment, post: post)
-                updatedComments[i].didLike = didLike
-            } catch {
-                print("DEBUG: Failed to check if user liked comment")
+    func checkIfUserLikedComments(comments: [Comment]) async {
+            var updatedComments = comments
+            for i in 0..<updatedComments.count {
+                do {
+                    let comment = updatedComments[i]
+                    let didLike = try await CommentService.shared.checkIfUserLikedComment(comment, post: post)
+                    updatedComments[i].didLike = didLike
+                } catch {
+                    print("DEBUG: Failed to check if user liked comment")
+                }
             }
+            
+            organizeComments(updatedComments)
         }
         
-        self.comments = updatedComments
-    }
-    
+        
     func fetchFollowingUsers() {
         Task {
             do {
@@ -235,44 +263,37 @@ class CommentViewModel: ObservableObject {
     }
     
     func uploadComment() async {
-        guard !commentText.isEmpty else { return }
-        
-        do {
-            let mentionedUsers = await parseMentionedUsers(from: commentText)
-            let originalComment = replyingTo.flatMap(findOriginalComment)
+            guard !commentText.isEmpty else { return }
             
-            guard let comment = try await CommentService.shared.uploadComment(
-                commentText: commentText,
-                post: post,
-                mentionedUsers: mentionedUsers,
-                replyTo: replyingTo,
-                originalCommentId: originalComment?.id
-            ) else { return }
-            
-            DispatchQueue.main.async {
-                self.lastAddedCommentId = comment.id
-                if let replyTo = comment.replyTo {
-                    if self.replies[replyTo.commentId] == nil {
-                        self.replies[replyTo.commentId] = []
+            do {
+                let mentionedUsers = await parseMentionedUsers(from: commentText)
+                
+                guard let comment = try await CommentService.shared.uploadComment(
+                    commentText: commentText,
+                    post: post,
+                    mentionedUsers: mentionedUsers,
+                    replyTo: replyingTo?.comment
+                ) else { return }
+                
+                DispatchQueue.main.async {
+                    self.lastAddedCommentId = comment.id
+                    if let replyingTo = self.replyingTo {
+                        if let index = self.organizedComments.firstIndex(where: { $0.comment.id == replyingTo.comment.id }) {
+                            self.organizedComments[index].replies.append(comment)
+                        }
+                    } else {
+                        self.organizedComments.insert((comment: comment, replies: []), at: 0)
                     }
-                    self.replies[replyTo.commentId]?.append(comment)
-                    // Update the reply count of the original comment
-                    if let index = self.comments.firstIndex(where: { $0.id == replyTo.commentId }) {
-                        self.comments[index].replyCount += 1
-                    }
-                } else {
-                    self.comments.append(comment)
+                    self.$post.wrappedValue.commentCount += 1
+                    if self.showEmptyView { self.showEmptyView = false }
+                    self.commentText = ""
+                    self.replyingTo = nil
+                    self.shouldFocusTextField = false
                 }
-                self.$post.wrappedValue.commentCount += 1
-                if self.showEmptyView { self.showEmptyView = false }
-                self.commentText = ""
-                self.replyingTo = nil
-                self.shouldFocusTextField = false
+            } catch {
+                print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
             }
-        } catch {
-            print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
-    }
 }
 
 

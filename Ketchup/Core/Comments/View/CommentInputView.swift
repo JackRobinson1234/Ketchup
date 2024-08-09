@@ -8,7 +8,7 @@ struct CommentInputView: View {
         VStack {
             if let replyingTo = viewModel.replyingTo {
                 HStack {
-                    Text("Replying to @\(replyingTo.commentOwnerUsername)")
+                    Text("Replying to @\(replyingTo.replyToUser)")
                         .font(.custom("MuseoSansRounded-300", size: 12))
                         .foregroundColor(.gray)
                     

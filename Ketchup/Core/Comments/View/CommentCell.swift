@@ -9,9 +9,9 @@ import SwiftUI
 
 struct CommentCell: View {
     let comment: Comment
+    let replies: [Comment]
     @ObservedObject var viewModel: CommentViewModel
-    var isReply: Bool = false
-    var previewMode: Bool = false
+    let isReply: Bool
     
     @State private var parsedComment: AttributedString?
     @State private var selectedUser: PostUser?
@@ -26,18 +26,28 @@ struct CommentCell: View {
     private let optionsWidth: CGFloat = 60
     
     var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            commentContent
+            
+            if !isReply && !replies.isEmpty {
+                ForEach(replies) { reply in
+                    CommentCell(comment: reply, replies: [], viewModel: viewModel, isReply: true)
+                        .padding(.leading, 20)
+                }
+            }
+        }
+    }
+    
+    private var commentContent: some View {
         ZStack(alignment: .trailing) {
-            actionButton
+            if comment.commentOwnerUsername != "Deleted" {
+                actionButton
+            }
             
             VStack(alignment: .leading, spacing: 8) {
                 mainCommentContent
                     .background(isHighlighted ? Color.red.opacity(0.1) : Color.clear)
                     .animation(.easeInOut(duration: 3).delay(3), value: isHighlighted)
-                
-                if !isReply, let replies = viewModel.replies[comment.id], !replies.isEmpty {
-                    RepliesView(replies: replies, viewModel: viewModel)
-                        .padding(.leading, 20)
-                }
             }
             .background(Color.white)
             .offset(x: offset)
@@ -52,60 +62,63 @@ struct CommentCell: View {
             Color.gray.opacity(0.1)
                 .offset(x: offset > 0 ? 0 : offset)
         )
-        .padding(.leading, isReply ? 20 : 0)
-        // ... other modifiers remain the same
     }
     
     private var mainCommentContent: some View {
-        HStack(alignment: .top, spacing: 12) {
-            UserCircularProfileImageView(profileImageUrl: comment.commentOwnerProfileImageUrl, size: .small)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("@\(comment.commentOwnerUsername)")
-                        .fontWeight(.semibold)
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                    if let replyTo = comment.replyTo {
-                        Text("replying to @\(replyTo.username)")
-                            .foregroundColor(.gray)
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                    }
-                    Text("\(comment.timestamp.timestampString())")
-                        .foregroundColor(.gray)
-                        .font(.custom("MuseoSansRounded-300", size: 12))
-                }
-                
-                if let parsed = parsedComment {
-                    Text(parsed)
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                } else {
-                    Text(comment.commentText)
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                        .onAppear {
-                            parsedComment = parseComment(comment.commentText)
-                        }
-                }
-                
-                HStack {
-                    Button(action: {
-                        viewModel.initiateReply(to: comment)
-                    }) {
-                        Text("Reply")
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                    
-                    if !previewMode {
-                        likeButton
-                    }
-                }
-            }
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-    }
+           HStack(alignment: .top, spacing: 12) {
+               if comment.commentOwnerUsername != "Deleted" {
+                   UserCircularProfileImageView(profileImageUrl: comment.commentOwnerProfileImageUrl, size: .small)
+               }
+               
+               VStack(alignment: .leading, spacing: 4) {
+                   if comment.commentOwnerUsername != "Deleted" {
+                       HStack {
+                           Text("@\(comment.commentOwnerUsername)")
+                               .fontWeight(.semibold)
+                               .font(.custom("MuseoSansRounded-300", size: 14))
+                           if isReply, let replyTo = comment.replyTo {
+                               Text("replying to @\(replyTo.username)")
+                                   .foregroundColor(.gray)
+                                   .font(.custom("MuseoSansRounded-300", size: 12))
+                           }
+                           Text("\(comment.timestamp.timestampString())")
+                               .foregroundColor(.gray)
+                               .font(.custom("MuseoSansRounded-300", size: 12))
+                       }
+                   }
+                   
+                   if let parsed = parsedComment {
+                       Text(parsed)
+                           .font(.custom("MuseoSansRounded-300", size: 14))
+                   } else {
+                       Text(comment.commentText)
+                           .font(.custom("MuseoSansRounded-300", size: 14))
+                           .foregroundColor(comment.commentOwnerUsername == "Deleted" ? .gray : .black)
+                           .onAppear {
+                               parsedComment = parseComment(comment.commentText)
+                           }
+                   }
+                   
+                   if comment.commentOwnerUsername != "Deleted" {
+                       HStack {
+                           Button(action: {
+                               viewModel.initiateReply(to: comment, replyToUser: comment.commentOwnerUsername)
+                           }) {
+                               Text("Reply")
+                                   .font(.custom("MuseoSansRounded-300", size: 12))
+                                   .foregroundColor(.gray)
+                           }
+                           
+                           Spacer()
+                           
+                           likeButton
+                       }
+                   }
+               }
+           }
+           .padding(.horizontal)
+           .padding(.vertical, 8)
+       }
     
     private var likeButton: some View {
         HStack(spacing: 4) {
@@ -203,20 +216,5 @@ struct HeightPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
-    }
-}
-
-
-
-struct RepliesView: View {
-    let replies: [Comment]
-    @ObservedObject var viewModel: CommentViewModel
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(replies) { reply in
-                CommentCell(comment: reply, viewModel: viewModel, isReply: true)
-            }
-        }
     }
 }
