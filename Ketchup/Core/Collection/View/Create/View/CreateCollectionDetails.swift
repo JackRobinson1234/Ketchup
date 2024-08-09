@@ -189,7 +189,7 @@ struct TextBox: View {
             ScrollView {
                 ZStack(alignment: .leading) {
                     TextEditor(text: $text)
-                        .foregroundColor(text.isEmpty ? .clear : .primary)
+                        .foregroundColor(text.isEmpty ? .clear : .black)
                         .disabled(true)
                         .frame(maxHeight: .infinity)
                         .multilineTextAlignment(.leading)
@@ -298,7 +298,7 @@ struct EditorView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.primary.opacity(0.8))
+        .background(Color.black.opacity(0.8))
     }
 }
 

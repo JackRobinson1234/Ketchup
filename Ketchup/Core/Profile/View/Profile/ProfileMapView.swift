@@ -161,6 +161,7 @@ struct SinglePostAnnotationView: View {
             }
         } else {
             PostAnnotationView(post: post)
+            
         }
     }
 }

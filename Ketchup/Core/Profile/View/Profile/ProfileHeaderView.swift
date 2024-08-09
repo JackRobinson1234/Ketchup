@@ -39,10 +39,10 @@ struct ProfileHeaderView: View {
                     Text(user.fullname)
                         .font(.custom("MuseoSansRounded-300", size: 20))
                         .fontWeight(.bold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     Text("@\(user.username)")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     
@@ -144,7 +144,7 @@ struct UserStatView: View {
         .opacity(value == 0 ? 0.5 : 1.0)
         .frame(width: UIScreen.main.bounds.width / 4 - 30, alignment: .center)
         .padding(.vertical, 10)
-        .foregroundColor(.primary)
+        .foregroundColor(.black)
     }
 }
 

@@ -12,7 +12,7 @@ extension UINavigationController {
         let backButtonImage = UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
         
         // Customize the appearance of the navigation bar
-        navigationBar.barTintColor = UIColor.primary
+        navigationBar.barTintColor = UIColor.black
         navigationBar.tintColor = UIColor.white
         navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
 

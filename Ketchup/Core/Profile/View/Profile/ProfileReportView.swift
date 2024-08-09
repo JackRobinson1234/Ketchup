@@ -20,7 +20,7 @@ struct ProfileOptionsSheet: View {
                 } label: {
                     Text("Report Profile")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .bold()
                 }
         }

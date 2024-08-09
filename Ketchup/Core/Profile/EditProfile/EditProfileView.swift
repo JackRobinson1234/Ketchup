@@ -85,7 +85,7 @@ struct EditProfileView: View {
                     if viewModel.validUsername == nil && !viewModel.username.isEmpty && viewModel.username != user.username {
                         Text("Checking if username is available...")
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     }
                     //MARK: Available Username
                     else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty && viewModel.username != user.username {

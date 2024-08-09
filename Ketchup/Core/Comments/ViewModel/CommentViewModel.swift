@@ -3,6 +3,7 @@ import Combine
 import SwiftUI
 
 @MainActor
+
 class CommentViewModel: ObservableObject {
     @Published var comments = [Comment]()
     @Published var commentText: String = "" {
@@ -24,12 +25,12 @@ class CommentViewModel: ObservableObject {
     @Published var taggedUsers: [User] = []
     @Published var filteredTaggedUsers: [User] = []
     @Published var isTagging: Bool = false
-
+    
     @Binding var post: Post
     var commentCountText: String {
         return "\(comments.count) comments"
     }
-
+    
     init(post: Binding<Post>) {
         self._post = post
     }
@@ -38,6 +39,7 @@ class CommentViewModel: ObservableObject {
     func fetchComments() async throws {
         do {
             self.comments = try await CommentService.shared.fetchComments(post: post)
+            await checkIfUserLikedComments()
             showEmptyView = comments.isEmpty
         } catch {
             print("DEBUG: Failed to fetch comments with error: \(error.localizedDescription)")
@@ -52,6 +54,51 @@ class CommentViewModel: ObservableObject {
         try await CommentService.shared.deleteComment(comment: comment, post: self.post)
         comments.remove(at: index)
         $post.wrappedValue.commentCount -= 1
+    }
+    
+    // Like a comment
+    func like(_ comment: Comment) async {
+        guard let index = comments.firstIndex(where: { $0.id == comment.id }) else { return }
+        comments[index].didLike = true
+        comments[index].likes += 1
+        
+        do {
+            try await CommentService.shared.likeComment(comment, post: post)
+        } catch {
+            print("DEBUG: Failed to like comment with error \(error.localizedDescription)")
+            comments[index].didLike = false
+            comments[index].likes -= 1
+        }
+    }
+    
+    func unlike(_ comment: Comment) async {
+        guard let index = comments.firstIndex(where: { $0.id == comment.id }) else { return }
+        comments[index].didLike = false
+        comments[index].likes -= 1
+        
+        do {
+            try await CommentService.shared.unlikeComment(comment, post: post)
+        } catch {
+            print("DEBUG: Failed to unlike comment with error \(error.localizedDescription)")
+            comments[index].didLike = true
+            comments[index].likes += 1
+        }
+    }
+    
+    func checkIfUserLikedComments() async {
+        guard !comments.isEmpty else { return }
+        var updatedComments = comments
+        for i in 0..<updatedComments.count {
+            do {
+                let comment = updatedComments[i]
+                let didLike = try await CommentService.shared.checkIfUserLikedComment(comment, post: post)
+                updatedComments[i].didLike = didLike
+            } catch {
+                print("DEBUG: Failed to check if user liked comment")
+            }
+        }
+        
+        self.comments = updatedComments
     }
     
     func fetchFollowingUsers() {
@@ -69,44 +116,44 @@ class CommentViewModel: ObservableObject {
     
     func checkForTagging() {
         let words = commentText.split(separator: " ")
-
+        
         if commentText.last == " " {
             isTagging = false
             filteredTaggedUsers = []
             return
         }
-
+        
         guard let lastWord = words.last, lastWord.hasPrefix("@") else {
             isTagging = false
             filteredTaggedUsers = []
             return
         }
-
+        
         let searchQuery = String(lastWord.dropFirst()).lowercased()
         if searchQuery.isEmpty {
             filteredTaggedUsers = taggedUsers
         } else {
             filteredTaggedUsers = taggedUsers.filter { $0.username.lowercased().contains(searchQuery) }
         }
-
+        
         isTagging = true
     }
     
     func checkForAlgoliaTagging() -> String{
         let words = commentText.split(separator: " ")
-
+        
         if commentText.last == " " {
             isTagging = false
             filteredTaggedUsers = []
             return ""
         }
-
+        
         guard let lastWord = words.last, lastWord.hasPrefix("@") else {
             isTagging = false
             filteredTaggedUsers = []
             return ""
         }
-
+        
         let searchQuery = String(lastWord.dropFirst()).lowercased()
         if searchQuery.isEmpty {
             filteredTaggedUsers = taggedUsers
@@ -116,51 +163,51 @@ class CommentViewModel: ObservableObject {
         isTagging = true
         return searchQuery
     }
-
+    
     func uploadComment() async {
-        guard !commentText.isEmpty else { return }
-        
-        // Extract usernames from comment text and create the taggedUsers dictionary
-        var mentionedUserArray: [PostUser] = []
-        let words = commentText.split(separator: " ")
-        for word in words {
-            if word.hasPrefix("@") {
-                let username = String(word.dropFirst())
-                if let user = taggedUsers.first(where: { $0.username == username }) {
-                    mentionedUserArray.append(PostUser(id: user.id,
-                                                       fullname: user.fullname,
-                                                       profileImageUrl: user.profileImageUrl, 
-                                                       privateMode: user.privateMode,
-                                                       username: user.username))
-                } else {
-                    // Fetch user by username if not found in suggestions
-                    if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
-                        mentionedUserArray.append(PostUser(id: fetchedUser.id,
-                                                           fullname: fetchedUser.fullname,
-                                                           profileImageUrl: fetchedUser.profileImageUrl,
-                                                           privateMode: fetchedUser.privateMode,
-                                                           username: fetchedUser.username))
+            guard !commentText.isEmpty else { return }
+            
+            // Extract usernames from comment text and create the taggedUsers dictionary
+            var mentionedUserArray: [PostUser] = []
+            let words = commentText.split(separator: " ")
+            for word in words {
+                if word.hasPrefix("@") {
+                    let username = String(word.dropFirst())
+                    if let user = taggedUsers.first(where: { $0.username == username }) {
+                        mentionedUserArray.append(PostUser(id: user.id,
+                                                           fullname: user.fullname,
+                                                           profileImageUrl: user.profileImageUrl,
+                                                           privateMode: user.privateMode,
+                                                           username: user.username))
                     } else {
-                        mentionedUserArray.append(PostUser(id: "invalid",
-                                                           fullname: "invalid",
-                                                           profileImageUrl: nil,
-                                                           privateMode: false,
-                                                           username: username))
+                        // Fetch user by username if not found in suggestions
+                        if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
+                            mentionedUserArray.append(PostUser(id: fetchedUser.id,
+                                                               fullname: fetchedUser.fullname,
+                                                               profileImageUrl: fetchedUser.profileImageUrl,
+                                                               privateMode: fetchedUser.privateMode,
+                                                               username: fetchedUser.username))
+                        } else {
+                            mentionedUserArray.append(PostUser(id: "invalid",
+                                                               fullname: "invalid",
+                                                               profileImageUrl: nil,
+                                                               privateMode: false,
+                                                               username: username))
+                        }
                     }
                 }
             }
+            
+            do {
+                guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, mentionedUsers: mentionedUserArray) else { return }
+                commentText = ""
+                comments.append(comment)
+                $post.wrappedValue.commentCount += 1
+                if showEmptyView { showEmptyView.toggle() }
+            } catch {
+                print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
+            }
         }
-        
-        do {
-            guard let comment = try await CommentService.shared.uploadComment(commentText: commentText, post: post, mentionedUsers: mentionedUserArray) else { return }
-            commentText = ""
-            comments.insert(comment, at: 0)
-            $post.wrappedValue.commentCount += 1
-            if showEmptyView { showEmptyView.toggle() }
-        } catch {
-            print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
-        }
-    }
 }
 
 

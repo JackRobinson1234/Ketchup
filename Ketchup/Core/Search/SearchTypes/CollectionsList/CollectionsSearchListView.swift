@@ -30,7 +30,7 @@ struct CollectionsSearchListView: View {
                 Divider()
             }, noResults: {
                 Text("No results found")
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             })
             .sheet(isPresented: $showCollection) {
                     CollectionView(collectionsViewModel: collectionsViewModel)

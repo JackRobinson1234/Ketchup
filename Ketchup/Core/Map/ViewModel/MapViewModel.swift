@@ -60,11 +60,9 @@ class MapViewModel: ObservableObject {
             return .maxZoomOut
         } else if span.longitudeDelta > 0.04 {
             return .region
-        } else if span.longitudeDelta > 0.007 {
+        } else  {
             return .city
-        } else {
-            return .neighborhood
-        }
+        } 
     }
     
     

@@ -24,23 +24,23 @@ struct CollectionListCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(.gray)
                     .lineLimit(1)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                 Text("By \(collection.username)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .lineLimit(1)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                 if let description = collection.description {
                     Text(description)
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .lineLimit(1)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                 }
                 
             }
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding(.horizontal)
         }
         .padding(.horizontal)

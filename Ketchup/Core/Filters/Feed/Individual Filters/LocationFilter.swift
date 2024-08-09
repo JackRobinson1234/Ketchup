@@ -21,7 +21,7 @@ struct LocationFilter: View {
             HStack{
                 VStack(alignment: .leading){
                     Text("Select a Location")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .font(.custom("MuseoSansRounded-300", size: 22))
                         .fontWeight(.semibold)
                     Text("(Max 10)")
@@ -61,7 +61,7 @@ struct LocationFilter: View {
                             HStack{
                                 VStack(alignment: .leading) {
                                     Text(location.title)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.black)
                                     Text(location.subtitle)
                                         .font(.system(.caption))
                                         .foregroundColor(.gray)

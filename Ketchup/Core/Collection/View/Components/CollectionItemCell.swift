@@ -38,7 +38,7 @@ struct CollectionItemCell: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.name)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                     .lineLimit(1)
                 
                 HStack {

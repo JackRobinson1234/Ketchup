@@ -12,60 +12,37 @@ class CommentService {
     private init() {}
     
     func fetchComments(post: Post) async throws -> [Comment] {
-        do {
-            let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
-            let comments = try await commentsCollection
-                .order(by: "timestamp", descending: false)
-                .getDocuments(as: Comment.self)
-            let userComments = try await self.fetchCommentUserData(comments: comments)
-            return userComments
-        } catch {
-            print("error fetching comments")
-        }
-        return []
-    }
-    
-    func fetchCommentUserData(comments: [Comment]) async throws -> [Comment] {
-        var updatedComments = [Comment]()
-        
-        for comment in comments {
-            do {
-                let user = try await UserService.shared.fetchUser(withUid: comment.commentOwnerUid)
-                var updatedComment = comment
-                updatedComment.user = user
-                updatedComments.append(updatedComment)
-            } catch {
-                print("Error fetching user for comment:", error.localizedDescription)
-                // Handle or throw the error as needed
-            }
-        }
-        
-        return updatedComments
+        let commentsCollection = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments")
+        let comments = try await commentsCollection
+            .order(by: "timestamp", descending: false)
+            .getDocuments(as: Comment.self)
+        return comments
     }
     
     func uploadComment(commentText: String, post: Post, mentionedUsers: [PostUser]) async throws -> Comment? {
         let ref = FirestoreConstants.PostsCollection.document(post.id).collection("post-comments").document()
-        guard let currentUid = Auth.auth().currentUser?.uid else { return nil }
+        guard let currentUid = Auth.auth().currentUser?.uid,
+              let currentUser = await AuthService.shared.userSession else { return nil }
         
-        var comment = Comment(
+        let comment = Comment(
             id: ref.documentID,
             postOwnerUid: post.user.id,
             commentText: commentText,
             postId: post.id,
             timestamp: Timestamp(),
             commentOwnerUid: currentUid,
-            mentionedUsers: mentionedUsers
+            commentOwnerUsername: currentUser.username,
+            commentOwnerProfileImageUrl: currentUser.profileImageUrl,
+            mentionedUsers: mentionedUsers,
+            likes: 0,
+            didLike: false
         )
         
         guard let commentData = try? Firestore.Encoder().encode(comment) else {
             return nil
         }
         
-        async let _ = try ref.setData(commentData)
-        
-        if let currentUser = await AuthService.shared.userSession {
-            comment.user = currentUser
-        }
+        try await ref.setData(commentData)
         return comment
     }
     
@@ -78,4 +55,30 @@ class CommentService {
         
         // Optionally, update UI or perform additional tasks after deletion
     }
+    func likeComment(_ comment: Comment, post: Post) async throws {
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            async let _ = try FirestoreConstants.PostsCollection.document(post.id)
+                .collection("post-comments").document(comment.id)
+                .collection("comment-likes").document(uid).setData([:])
+            async let _ = try FirestoreConstants.UserCollection.document(uid)
+                .collection("user-comment-likes").document(comment.id).setData([:])
+        }
+        
+        func unlikeComment(_ comment: Comment, post: Post) async throws {
+            guard comment.likes > 0 else { return }
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            async let _ = try FirestoreConstants.PostsCollection.document(post.id)
+                .collection("post-comments").document(comment.id)
+                .collection("comment-likes").document(uid).delete()
+            async let _ = try FirestoreConstants.UserCollection.document(uid)
+                .collection("user-comment-likes").document(comment.id).delete()
+        }
+        
+        func checkIfUserLikedComment(_ comment: Comment, post: Post) async throws -> Bool {
+            guard let uid = Auth.auth().currentUser?.uid else { return false }
+            let snapshot = try await FirestoreConstants.PostsCollection.document(post.id)
+                .collection("post-comments").document(comment.id)
+                .collection("comment-likes").document(uid).getDocument()
+            return snapshot.exists
+        }
 }

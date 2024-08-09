@@ -68,7 +68,7 @@ struct CaptionEditorView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.primary.opacity(0.8))
+        .background(Color.black.opacity(0.8))
     }
 }
 

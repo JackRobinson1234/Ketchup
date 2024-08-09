@@ -20,17 +20,17 @@ struct RatingSliderGroup: View {
             HStack (alignment: .bottom) {
                 Text(label)
                     .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                 Spacer()
                 HStack(alignment: .bottom){
                     Text(formattedRating)
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     
                     if !isNA {
                         Text("/ 10.0")
                             .font(.custom("MuseoSansRounded-300", size: 16))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                         
                     }
                 }

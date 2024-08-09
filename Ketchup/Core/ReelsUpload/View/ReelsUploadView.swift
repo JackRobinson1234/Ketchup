@@ -182,7 +182,7 @@ struct ReelsUploadView: View {
                         .font(.largeTitle)
                         .foregroundColor(Color("Colors/AccentColor"))
                     Text("Add a restaurant")
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                 }
             } else if let restaurant = uploadViewModel.restaurant {
                 VStack {
@@ -192,20 +192,20 @@ struct ReelsUploadView: View {
                     if let cuisine = restaurant.categoryName, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     } else if let cuisine = restaurant.categoryName {
                         Text(cuisine)
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     } else if let price = restaurant.price {
                         Text(price)
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     }
                     if let address = restaurant.address {
                         Text(address)
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     }
                     Text("Edit")
                         .foregroundStyle(Color("Colors/AccentColor"))
@@ -377,7 +377,7 @@ struct ReelsUploadView: View {
                     Divider()
                 }, noResults: {
                     Text("No results found")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                 })
             }
         }

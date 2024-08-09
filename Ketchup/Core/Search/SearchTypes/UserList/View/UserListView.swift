@@ -28,7 +28,7 @@ struct UserListView: View {
                 Divider()
             }, noResults: {
                 Text("No results found")
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             })
             .fullScreenCover(item: $selectedUser){user in
                 NavigationStack{

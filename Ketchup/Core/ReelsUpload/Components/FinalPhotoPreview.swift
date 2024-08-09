@@ -33,7 +33,7 @@ struct FinalPhotoPreview: View {
                         }
                     }
                 }
-                .background(.primary)
+                .background(.black)
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
             }
         }

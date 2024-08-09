@@ -81,14 +81,13 @@ struct WrittenFeedCell: View {
                         Text("\(post.user.fullname)")
                             .font(.custom("MuseoSansRounded-300", size: 16))
                             .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                             .bold()
                             .multilineTextAlignment(.leading)
                         Text("@\(post.user.username)")
                             .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(Color("Colors/AccentColor"))
                             .multilineTextAlignment(.leading)
-                            .foregroundColor(Color("Colors/AccentColor"))
                         
                     }
                 }

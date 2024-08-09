@@ -101,7 +101,7 @@ struct SecondaryFeedView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 55)
                 .padding(.horizontal, 20)
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding(.bottom, 10)
                 
             } else {

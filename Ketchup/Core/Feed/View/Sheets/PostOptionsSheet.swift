@@ -61,11 +61,11 @@ struct PostOptionsSheet: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 20, height: 20)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .rotationEffect(.degrees(90))
                         Text("Repost")
                             .font(.custom("MuseoSansRounded-500", size: 16))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                     }
                     .padding(.trailing, 10)
                     .disabled(post.user.id == AuthService.shared.userSession?.id)
@@ -77,7 +77,7 @@ struct PostOptionsSheet: View {
                 } label: {
                     Text("Report Post")
                         .font(.custom("MuseoSansRounded-500", size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                 }
             }
         }

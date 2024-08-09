@@ -32,16 +32,18 @@ enum NotificationType: Int, Codable {
     case commentMention
     case postCaptionMention
     case postWentWithMention
-    
+    case commentLike  // New notification type
+
     var notificationMessage: String {
         switch self {
         case .postLike: return " liked one of your posts."
         case .comment: return " commented on one of your posts."
         case .follow: return " started following you."
         case .reviewLike: return " liked your review of "
-        case .commentMention: return " mentioned you in a comment:"
-        case .postCaptionMention: return " mentioned you in a post caption:"
+        case .commentMention: return " mentioned you in a comment: "
+        case .postCaptionMention: return " mentioned you in a post caption: "
         case .postWentWithMention: return " tagged you in a post."
+        case .commentLike: return " liked your comment: "
         }
     }
 }

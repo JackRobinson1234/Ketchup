@@ -100,7 +100,7 @@ struct FiltersView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .imageScale(.small)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.black)
                                 .padding(6)
                                 .overlay(
                                     Circle()

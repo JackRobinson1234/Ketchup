@@ -42,13 +42,13 @@ struct OverallRatingView: View {
                 
                 Text(rating)
                     .font(.custom("MuseoSansRounded-500", size: 18))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
             }
             .frame(width: 50, height: 50)
 
             Text("Overall")
                 .font(.custom("MuseoSansRounded-500", size: 16))
-                .foregroundColor(.primary)
+                .foregroundColor(.black)
         }
     }
 }

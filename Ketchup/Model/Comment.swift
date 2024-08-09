@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 
+
 struct Comment: Identifiable, Codable, Equatable, Hashable {
     let id: String
     let postOwnerUid: String
@@ -15,6 +16,15 @@ struct Comment: Identifiable, Codable, Equatable, Hashable {
     let postId: String
     let timestamp: Timestamp
     let commentOwnerUid: String
-    var user: User?
+    let commentOwnerUsername: String
+    let commentOwnerProfileImageUrl: String?
     var mentionedUsers: [PostUser]?
+    var likes: Int
+    var didLike: Bool
+    
+    
 }
+  
+
+// PostUser struct (if not already defined)
+

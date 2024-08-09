@@ -176,57 +176,61 @@ struct DeveloperPreview {
         ]
     
     static var comment = Comment(
-        id: NSUUID().uuidString,
-        postOwnerUid: "test",
-        commentText: "This is a test comment for preview purposes. Making it extra long to test to see what it will look like if there is a longer caption or anything like that. hajskdfjnaklsdfn",
-        postId: "",
-        timestamp: Timestamp(),
-        commentOwnerUid: "",
-        user: user,
-        mentionedUsers: []
-    )
-    
-    static var comments: [Comment] = [
-        .init(
-            id: NSUUID().uuidString,
-            postOwnerUid: "test",
-            commentText: "This is a test comment for preview purposes",
-            postId: "",
-            timestamp: Timestamp(),
-            commentOwnerUid: "",
-            user: user,
-            mentionedUsers: []
-        ),
-        .init(
-            id: NSUUID().uuidString,
-            postOwnerUid: "test",
-            commentText: "This is another test comment so we have some mock data to work with",
-            postId: "",
-            timestamp: Timestamp(),
-            commentOwnerUid: "",
-            user: users[1],
-            mentionedUsers: []
-        ),
-        .init(
-            id: NSUUID().uuidString,
-            postOwnerUid: "test",
-            commentText: "Final test comment to use in preview ",
-            postId: "",
-            timestamp: Timestamp(),
-            commentOwnerUid: "",
-            user: users[2],
-            mentionedUsers: []
-        )]
-        /*
-    static var notifications: [Notification] = [
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .like, uid: "max-verstappen",  user: users[3]),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton",  user: user),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "fernando-alonso", user: users[2]),
-        .init(id: NSUUID().uuidString, timestamp: Timestamp(), type: .follow, uid: "lewis-hamilton", user: users[1]),
-        .init(id: NSUUID().uuidString, postId: "", timestamp: Timestamp(), type: .comment, uid: "lewis-hamilton", user: user),
-    ]
-      */
+           id: NSUUID().uuidString,
+           postOwnerUid: "test",
+           commentText: "This is a test comment for preview purposes. Making it extra long to test to see what it will look like if there is a longer caption or anything like that. hajskdfjnaklsdfn",
+           postId: "",
+           timestamp: Timestamp(),
+           commentOwnerUid: user.id,
+           commentOwnerUsername: user.username,
+           commentOwnerProfileImageUrl: user.profileImageUrl,
+           mentionedUsers: [],
+           likes: 0,
+           didLike: false
+       )
+       
+       static var comments: [Comment] = [
+           .init(
+               id: NSUUID().uuidString,
+               postOwnerUid: "test",
+               commentText: "This is a test comment for preview purposes",
+               postId: "",
+               timestamp: Timestamp(),
+               commentOwnerUid: user.id,
+               commentOwnerUsername: user.username,
+               commentOwnerProfileImageUrl: user.profileImageUrl,
+               mentionedUsers: [],
+               likes: 0,
+               didLike: false
+           ),
+           .init(
+               id: NSUUID().uuidString,
+               postOwnerUid: "test",
+               commentText: "This is another test comment so we have some mock data to work with",
+               postId: "",
+               timestamp: Timestamp(),
+               commentOwnerUid: users[1].id,
+               commentOwnerUsername: users[1].username,
+               commentOwnerProfileImageUrl: users[1].profileImageUrl,
+               mentionedUsers: [],
+               likes: 0,
+               didLike: false
+           ),
+           .init(
+               id: NSUUID().uuidString,
+               postOwnerUid: "test",
+               commentText: "Final test comment to use in preview ",
+               postId: "",
+               timestamp: Timestamp(),
+               commentOwnerUid: users[2].id,
+               commentOwnerUsername: users[2].username,
+               commentOwnerProfileImageUrl: users[2].profileImageUrl,
+               mentionedUsers: [],
+               likes: 0,
+               didLike: false
+           )
+       ]
+
     static var collections: [Collection] = [
             .init(
                 id: NSUUID().uuidString,

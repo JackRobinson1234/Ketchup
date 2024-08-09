@@ -64,7 +64,7 @@ struct CommentsView: View {
                                     Divider()
                                 }, noResults: {
                                     Text("No results found")
-                                        .foregroundStyle(.primary)
+                                        .foregroundStyle(.black)
                                 })
                                 
                             }
@@ -103,14 +103,7 @@ struct CommentsView: View {
             .onAppear{
                 viewModel.fetchFollowingUsers()
             }
-            .sheet(isPresented: $viewModel.showOptionsSheet) {
-                if let comment = viewModel.selectedComment {
-                    ScrollView {
-                        CommentOptionsSheet(comment: comment, viewModel: viewModel)
-                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
-                    }
-                }
-            }
+
             .overlay {
                 if viewModel.showEmptyView && !viewModel.isTagging {
                     ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")

@@ -154,7 +154,7 @@ struct MapCuisineFilter: View {
             let filtered = cuisineCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
             })
-                //i .map { $0.capitalized }
+            //i .map { $0.capitalized }
             return filtered.filter { cuisine in
                 !mapViewModel.selectedCuisines.contains(cuisine)
             }
@@ -165,5 +165,5 @@ struct MapCuisineFilter: View {
 
 
 #Preview {
-   MapCuisineFilter(mapViewModel: MapViewModel())
+    MapCuisineFilter(mapViewModel: MapViewModel())
 }

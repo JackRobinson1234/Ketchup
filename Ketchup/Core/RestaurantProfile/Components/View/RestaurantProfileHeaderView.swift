@@ -189,7 +189,7 @@ struct RestaurantProfileHeaderView: View {
                                     .foregroundStyle(.gray)
                                 HStack(alignment: .center, spacing: 4) {
                                     
-                                    FeedOverallRatingView(rating: overallRating, font: .primary)
+                                    FeedOverallRatingView(rating: overallRating, font: .black)
                                     
                                     Image(systemName: showRatingDetails ? "chevron.down" : "chevron.right")
                                         .foregroundColor(.gray)
@@ -212,16 +212,16 @@ struct RestaurantProfileHeaderView: View {
                         Text("Average Ratings")
                             .font(.custom("MuseoSansRounded-700", size: 14))
                         if let foodRating = viewModel.foodRating {
-                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
                         }
                         if let atmosphereRating = viewModel.atmosphereRating {
-                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
                         }
                         if let valueRating = viewModel.valueRating {
-                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
                         }
                         if let serviceRating = viewModel.serviceRating {
-                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
                         }
                     }
                     .padding()

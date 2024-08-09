@@ -31,7 +31,7 @@ struct PostListView: View {
                 Divider()
             }, noResults: {
                 Text("No results found")
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             })
             .navigationTitle("Explore")
             .searchable(text: $viewModel.searchQuery,

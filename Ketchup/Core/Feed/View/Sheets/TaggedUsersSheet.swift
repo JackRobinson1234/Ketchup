@@ -30,12 +30,12 @@ struct TaggedUsersSheetView: View {
                                 Text(user.username)
                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                                 Text(user.fullname)
                                     .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                             }
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                             
                             Spacer()
                         }

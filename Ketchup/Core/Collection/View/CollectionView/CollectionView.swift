@@ -47,18 +47,18 @@ struct CollectionView: View {
                             Text(collection.name)
                                 .font(.custom("MuseoSansRounded-300", size: 20))
                                 .bold()
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.black)
                             //MARK: UserName
                             NavigationLink(destination: ProfileView(uid: collection.uid)){
                                 Text("by: @\(collection.username)")
                                     .font(.custom("MuseoSansRounded-300", size: 18))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                             }
                             if let description = collection.description {
                                 VStack{
                                     Text(description)
                                         .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary)
+                                        .foregroundStyle(.black)
                                 }
                                 .frame(width: UIScreen.main.bounds.width * 3 / 4)
                                       
@@ -126,7 +126,7 @@ struct CollectionView: View {
                                     } label: {
                                         Text("Edit")
                                             .padding()
-                                            .foregroundStyle(.primary)
+                                            .foregroundStyle(.black)
                                     }
                                 } else {
                                     Button {
@@ -140,7 +140,7 @@ struct CollectionView: View {
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 6, height: 6)
-                                                .foregroundStyle(.primary)
+                                                .foregroundStyle(.black)
                                             
                                         }
                                     }

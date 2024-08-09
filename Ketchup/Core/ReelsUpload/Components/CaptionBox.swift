@@ -20,7 +20,7 @@ struct CaptionBox: View {
                 ZStack(alignment: .leading) {
                     
                     TextEditor(text: $caption)
-                        .foregroundColor(caption.isEmpty ? .clear : .primary) // Hide text editor text when empty and showing placeholder
+                        .foregroundColor(caption.isEmpty ? .clear : .black) // Hide text editor text when empty and showing placeholder
                         .disabled(true)  // Disables editing directly in this view
                         .frame(maxHeight: .infinity) // Allows for flexible height
                         .multilineTextAlignment(.leading)

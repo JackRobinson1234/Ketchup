@@ -26,7 +26,7 @@ struct MainTabView: View {
                 .tabItem {
                     Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
                         .resizable()
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
                         .padding()
                 }
@@ -41,7 +41,7 @@ struct MainTabView: View {
             MapView()
                 .tabItem {
                     Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
                         .padding()
                 }
@@ -56,7 +56,7 @@ struct MainTabView: View {
             UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .padding()
                 }
                 .onAppear {
@@ -70,7 +70,7 @@ struct MainTabView: View {
             ActivityView()
                 .tabItem {
                     Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                         .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                         .padding()
                 }
@@ -88,7 +88,7 @@ struct MainTabView: View {
                         Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
                     }
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                 }
                 .onAppear {
                     tabBarController.selectedTab = 4
@@ -99,7 +99,7 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
         }
-        .foregroundStyle(.primary)
+        .foregroundStyle(.black)
         .tint(Color("Colors/AccentColor"))
         .onAppear {
             sessionStartTime = Date()

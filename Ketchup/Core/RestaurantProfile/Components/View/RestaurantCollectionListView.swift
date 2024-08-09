@@ -43,13 +43,13 @@ struct RestaurantCollectionListView: View {
                                 
                                 Text("Add \(viewModel.restaurant?.name ?? "") to your collection")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                                     .multilineTextAlignment(.leading)
                             }
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.black)
                                 .padding(.horizontal)
                         }
                         .padding(.horizontal)

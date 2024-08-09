@@ -121,12 +121,12 @@ struct CreateCollectionButton: View {
             VStack(alignment: .leading){
                 Text("Create a New Collection")
                     .font(.custom("MuseoSansRounded-300", size: 16))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             }
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding(.horizontal)
         }
         .padding(.horizontal)

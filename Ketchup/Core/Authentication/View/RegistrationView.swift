@@ -161,7 +161,7 @@ struct RegistrationView: View {
                 if viewModel.validUsername == nil && !viewModel.username.isEmpty{
                     Text("Checking if username is available...")
                         .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                 }
                 else if let validUsername = viewModel.validUsername, validUsername && !viewModel.username.isEmpty{
                     Text("Username Available!")

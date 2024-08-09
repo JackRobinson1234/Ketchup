@@ -23,12 +23,12 @@ struct RestaurantCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                 
                 Text(restaurant.categoryName ?? "Unknown Cuisine")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                 
                 let address = restaurant.address ?? "Unknown Address"
 //                let city = restaurant.city ?? "Unknown City"
@@ -38,15 +38,15 @@ struct RestaurantCell: View {
                 //Text("\(address) \(city), \(state)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(.black)
             
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding([.leading, .trailing])
         
         }

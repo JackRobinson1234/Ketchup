@@ -36,7 +36,7 @@ struct CommentInputView: View {
                 }
                 .padding(.horizontal)
             }
-            .tint(.primary)
+            .tint(.black)
             
             if viewModel.charLimitReached {
                 Text("Max characters reached")
