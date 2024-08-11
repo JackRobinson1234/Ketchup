@@ -89,6 +89,8 @@ struct CommentCell: View {
                         Text("@\(comment.commentOwnerUsername)")
                             .fontWeight(.semibold)
                             .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundColor(.black)
+
                         
                     }
                     if isReply, let replyTo = comment.replyTo {
