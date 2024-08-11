@@ -348,6 +348,7 @@ struct WrittenFeedCell: View {
                     }
                     .sheet(isPresented: $isTaggedSheetPresented) {
                         TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                         
                     }
                 }
@@ -355,42 +356,31 @@ struct WrittenFeedCell: View {
                 HStack(spacing: 15) {
                     Button {
                         handleLikeTapped()
+                        triggerHapticFeedback()
                     } label: {
                         InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                     }
-                    
+
                     Button {
-                        //videoCoordinator.pause()
                         showComments.toggle()
                     } label: {
                         InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                     }
-                    
-                    if viewModel.showBookmarks{
-                        Button {
-                            handleBookmarkTapped()
-                        } label: {
-                            InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
-                        }
-                    }
-                    if viewModel.showBookmarks{
-                        Button {
-                            //videoCoordinator.pause()
-                            showCollections.toggle()
-                        } label: {
-                            InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
-                        }
-                    }
-                    
+
                     Button {
-                        //videoCoordinator.pause()
-                        showShareView.toggle()
+                        handleBookmarkTapped()
+                        triggerHapticFeedback()
                     } label: {
-                        InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
+                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
-                    
+
                     Button {
-                        //videoCoordinator.pause()
+                        showCollections.toggle()
+                    } label: {
+                        InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
+                    }
+
+                    Button {
                         showingOptionsSheet = true
                     } label: {
                         ZStack {

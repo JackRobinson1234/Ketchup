@@ -22,6 +22,7 @@ struct Notification: Identifiable, Codable {
     var text: String?
     var restaurantName: String?
     var restaurantId: String?
+    var commentId: String?
 }
 
 enum NotificationType: Int, Codable {
@@ -32,7 +33,8 @@ enum NotificationType: Int, Codable {
     case commentMention
     case postCaptionMention
     case postWentWithMention
-    case commentLike  // New notification type
+    case commentLike
+    case commentReply
 
     var notificationMessage: String {
         switch self {
@@ -44,6 +46,7 @@ enum NotificationType: Int, Codable {
         case .postCaptionMention: return " mentioned you in a post caption: "
         case .postWentWithMention: return " tagged you in a post."
         case .commentLike: return " liked your comment: "
+        case .commentReply: return " replied to your comment: "
         }
     }
 }

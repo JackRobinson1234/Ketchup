@@ -12,7 +12,7 @@ struct ProfileView: View {
     @StateObject var feedViewModel = FeedViewModel()
     @State private var isLoading = true
     @Environment(\.dismiss) var dismiss
-    @State var profileSection: ProfileSectionEnum
+    
     @State private var showingOptionsSheet = false
     @State var isDragging = false
     @State var dragDirection = "left"
@@ -27,20 +27,21 @@ struct ProfileView: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    if profileSection == .posts {
+                    if profileViewModel.profileSection == .posts {
+                        print("DISMISSING FROM DRAG")
                         dismiss()
                         
-                    } else if profileSection == .bookmarks{
-                        profileSection = .collections
-                    } else if profileSection == .collections{
-                        profileSection = .posts
+                    } else if profileViewModel.profileSection == .bookmarks{
+                        profileViewModel.profileSection = .collections
+                    } else if profileViewModel.profileSection == .collections{
+                        profileViewModel.profileSection = .posts
                     }
                 } else {
                     self.dragDirection = "right"
-                    if profileSection == .posts {
-                        profileSection = .collections
-                    } else if profileSection == .collections{
-                        profileSection = .bookmarks
+                    if profileViewModel.profileSection == .posts {
+                        profileViewModel.profileSection = .collections
+                    } else if profileViewModel.profileSection == .collections{
+                        profileViewModel.profileSection = .bookmarks
                     }
                     self.isDragging = false
                 }
@@ -48,12 +49,11 @@ struct ProfileView: View {
             }
     }
     
-    init(uid: String, profileSection: ProfileSectionEnum = .posts) {
+    init(uid: String) {
         self.uid = uid
         let profileViewModel = ProfileViewModel(uid: uid)
         self._profileViewModel = StateObject(wrappedValue: profileViewModel)
-        self._profileSection = State(initialValue: profileSection)
-        
+
     }
     
     var body: some View {
@@ -72,7 +72,7 @@ struct ProfileView: View {
                 ScrollViewReader{ scrollProxy in
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 2) {
-                            ProfileHeaderView(viewModel: profileViewModel, profileSection: $profileSection, showZoomedProfileImage: $showZoomedProfileImage)
+                            ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
                             if !profileViewModel.user.privateMode {
                                 ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,

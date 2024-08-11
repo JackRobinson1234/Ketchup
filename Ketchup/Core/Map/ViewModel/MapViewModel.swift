@@ -73,7 +73,6 @@ class MapViewModel: ObservableObject {
         
         fetchDebouncer.schedule { [weak self] in
             guard let self = self else { return }
-            
             self.fetchTask = Task { @MainActor in
                 if Task.isCancelled { return }
                 
@@ -216,7 +215,7 @@ class MapViewModel: ObservableObject {
     }
     func reloadAnnotations() async {
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
-        await applyChanges(changes)
+        applyChanges(changes)
     }
     private func updateFilters(radius: Double) {
         if selectedCuisines.isEmpty {

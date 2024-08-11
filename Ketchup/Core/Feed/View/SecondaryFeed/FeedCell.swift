@@ -239,6 +239,7 @@ struct FeedCell: View {
                 .onAppear {
                     pauseAllVideos()
                 }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
     }
     
@@ -503,6 +504,8 @@ struct FeedCell: View {
             
             Button {
                 handleLikeTapped()
+                triggerHapticFeedback()
+
             } label: {
                 InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
             }
@@ -510,6 +513,7 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showComments.toggle()
+
             } label: {
                 InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
             }
@@ -517,6 +521,8 @@ struct FeedCell: View {
             if viewModel.showBookmarks{
                 Button {
                     handleBookmarkTapped()
+                    triggerHapticFeedback()
+
                 } label: {
                     InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                 }
@@ -525,6 +531,7 @@ struct FeedCell: View {
                 Button {
                     //videoCoordinator.pause()
                     showCollections.toggle()
+
                 } label: {
                     InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
                 }
@@ -533,6 +540,7 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showShareView.toggle()
+
             } label: {
                 InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
             }
@@ -540,6 +548,8 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showingOptionsSheet = true
+                
+
             } label: {
                 ZStack {
                     Rectangle()

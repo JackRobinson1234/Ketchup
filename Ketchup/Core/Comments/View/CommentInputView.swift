@@ -11,6 +11,7 @@ struct CommentInputView: View {
                     Text("Replying to @\(replyingTo.replyToUser)")
                         .font(.custom("MuseoSansRounded-300", size: 12))
                         .foregroundColor(.gray)
+                        .accessibilityLabel("Replying to \(replyingTo.replyToUser)")
                     
                     Spacer()
                     
@@ -19,6 +20,7 @@ struct CommentInputView: View {
                     }) {
                         Image(systemName: "xmark")
                             .foregroundColor(.gray)
+                            .accessibilityLabel("Cancel reply")
                     }
                 }
                 .padding(.horizontal)
@@ -35,11 +37,15 @@ struct CommentInputView: View {
                     .focused($isInputFocused)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(.systemGray5), lineWidth: 1)
+                            .stroke(isInputFocused ? Color.blue : Color(.systemGray5), lineWidth: 1)
                     )
+                    .accessibilityLabel("Comment input field")
+                    .accessibilityHint("Add your comment here")
                 
                 Button {
                     Task {
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                        impactFeedback.impactOccurred()
                         await viewModel.uploadComment()
                         isInputFocused = false
                     }
@@ -48,11 +54,13 @@ struct CommentInputView: View {
                         .resizable()
                         .frame(width: 24, height: 24)
                         .foregroundStyle(Color("Colors/AccentColor"))
+                        .accessibilityLabel("Send comment")
                 }
                 .padding(.horizontal)
                 .disabled(viewModel.commentText.isEmpty)
             }
             .tint(.black)
         }
+        .accessibilityElement(children: .combine)
     }
 }

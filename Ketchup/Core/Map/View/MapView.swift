@@ -22,13 +22,14 @@ struct MapView: View {
     @Namespace var mapScope
     @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-    @State private var noNearbyRestaurants = false
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
     @State private var selectedLargeCluster: LargeClusterAnnotation?
     @State private var hasAppeared = false
     @State private var showMoveWarning = false
-    
+    private var noNearbyRestaurants: Bool {
+            viewModel.annotations.isEmpty && viewModel.clusters.isEmpty && viewModel.largeClusters.isEmpty && !viewModel.isLoading
+        }
     init() {
         self._viewModel = StateObject(wrappedValue: MapViewModel())
         self._position = State(initialValue: .userLocation(fallback: .automatic))
@@ -68,7 +69,6 @@ struct MapView: View {
                         viewModel.mapSize = newValue
                     })
                     .onMapCameraChange (frequency: .onEnd){ context in
-                        showMoveWarning = false
                         let newRegion = context.region
                         viewModel.updateMapState(newRegion: newRegion)
                     }
@@ -82,15 +82,14 @@ struct MapView: View {
                         Task.detached { await viewModel.reloadAnnotations() }
                         
                     }
-                    .onAppear {
-                        showMoveWarning = true
-                        Debouncer(delay: 2.0).schedule {
-                            showMoveWarning = false
-                        }
-                    }
+                   
                     .overlay {
                         if viewModel.currentZoomLevel == .maxZoomOut {
                             Text("Zoom in to see restaurants")
+                                .modifier(OverlayModifier())
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                        } else if noNearbyRestaurants {
+                            Text("No restaurants found nearby")
                                 .modifier(OverlayModifier())
                                 .font(.custom("MuseoSansRounded-300", size: 14))
                         }
@@ -238,7 +237,7 @@ struct MapView: View {
             if distance >= distanceThreshold {
                 viewModel.selectedLocation = [center]
                 print("Fetching new restaurants. Distance moved: \(distance) km, Threshold: \(distanceThreshold) km")
-                noNearbyRestaurants = false
+                
                 await viewModel.fetchFilteredClusters()
             } else {
                 print("Skipping fetch. Distance moved: \(distance) km, Threshold: \(distanceThreshold) km")

@@ -10,40 +10,47 @@ import Kingfisher
 struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationsViewModel
     var notification: Notification
-    @State private var isFollowed: Bool = false
-    @State private var showRestaurant = false
-    @State private var selectedRestaurantId: String? = nil
-    @State private var post: Post?
-    @State private var showPost: Bool = false
+    @State var isFollowed: Bool = false
+    @State var showRestaurant = false
+    @State var selectedRestaurantId: String? = nil
+    @State var post: Post?
+    @State var showPost: Bool = false
 
     var body: some View {
         HStack {
-            userProfileImage
-            notificationContent
+            NavigationLink(value: notification.user) {
+                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                notificationContent
+                timestampText
+            }
+            
             Spacer()
+            
             actionButton
         }
         .padding(.horizontal)
         .onAppear(perform: checkFollowStatus)
-        .fullScreenCover(isPresented: $showRestaurant, content: restaurantProfileView)
-        .fullScreenCover(isPresented: $showPost, content: postView)
-    }
-    
-    private var userProfileImage: some View {
-        NavigationLink(value: notification.user) {
-            UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
+        .fullScreenCover(isPresented: Binding(
+            get: { showRestaurant && selectedRestaurantId != nil },
+            set: { showRestaurant = $0 }
+        )) {
+            restaurantProfileView
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { showPost && post != nil },
+            set: { showPost = $0 }
+        )) {
+            postView
         }
     }
     
     private var notificationContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            notificationText
-            timestampText
-        }
-    }
-    
-    private var notificationText: some View {
-        Button(action: handleNotificationTap) {
+        Button {
+            handleNotificationTap()
+        } label: {
             Text(fullNotificationMessage)
                 .font(.custom("MuseoSansRounded-300", size: 16))
                 .foregroundColor(.black)
@@ -51,21 +58,47 @@ struct NotificationCell: View {
         }
     }
     
+    
     private var fullNotificationMessage: AttributedString {
-        var atUsername = AttributedString("@\(notification.username ?? "")")
-        atUsername.foregroundColor = .black
-        atUsername.font = .custom("MuseoSansRounded-300", size: 16).weight(.semibold)
-        
-        var message = AttributedString(notification.type.notificationMessage)
-        message.foregroundColor = .black
-        message.font = .custom("MuseoSansRounded-300", size: 16)
-        
-        var additionalText = AttributedString(notification.type != .postWentWithMention ? (notification.text ?? "") : "")
-        additionalText.foregroundColor = .black
-        additionalText.font = .custom("MuseoSansRounded-300", size: 16)
-        
-        return atUsername + message + additionalText
-    }
+            let username = notification.user?.username ?? ""
+            let message = notification.type.notificationMessage
+            let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
+            
+            let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
+            
+            var result = AttributedString(fullText)
+            result.font = .custom("MuseoSansRounded-300", size: 16)
+            result.foregroundColor = .black
+            
+            // Make the main username bold and black
+            if let usernameRange = result.range(of: "@\(username)") {
+                result[usernameRange].font = .custom("MuseoSansRounded-300", size: 16).weight(.semibold)
+                result[usernameRange].foregroundColor = .black
+            }
+            
+            // Parse and color additional mentions
+            let pattern = "@\\w+"
+            guard let regex = try? NSRegularExpression(pattern: pattern) else {
+                return result
+            }
+            
+            let nsRange = NSRange(fullText.startIndex..., in: fullText)
+            let matches = regex.matches(in: fullText, range: nsRange)
+            
+            for match in matches {
+                guard let range = Range(match.range, in: fullText),
+                      let attributedRange = Range(range, in: result) else { continue }
+                
+                let matchedUsername = String(fullText[range].dropFirst())  // Remove '@' from the matched string
+                
+                // Color in red only if it's not the main username
+                if matchedUsername != username {
+                    result[attributedRange].foregroundColor = .red
+                }
+            }
+            
+            return result
+        }
     
     private var timestampText: some View {
         Text(notification.timestamp.timestampString())
@@ -119,7 +152,12 @@ struct NotificationCell: View {
     }
     
     private func handleNotificationTap() {
-        fetchPostIfNeeded()
+        if let postId = notification.postId {
+            fetchPost(postId: postId)
+        } else if let restaurantId = notification.restaurantId {
+            self.selectedRestaurantId = restaurantId
+            self.showRestaurant = true
+        }
     }
     
     private func handleFollowAction() {
@@ -130,56 +168,58 @@ struct NotificationCell: View {
     }
     
     private func handlePostThumbnailTap() {
-        fetchPostIfNeeded()
+        if let postId = notification.postId {
+            fetchPost(postId: postId)
+        }
     }
     
-    private func fetchPostIfNeeded() {
-        if let postId = notification.postId {
-            Task {
-                self.post = try await PostService.shared.fetchPost(postId: postId)
-                showPost.toggle()
-            }
+    private func fetchPost(postId: String) {
+        Task {
+            print("Fetching post with ID \(postId)")
+            self.post = try await PostService.shared.fetchPost(postId: postId)
+            print("Fetched post: \(String(describing: self.post))")
+            showPost = true
         }
     }
     
     @ViewBuilder
-    private func restaurantProfileView() -> some View {
+    private var restaurantProfileView: some View {
         NavigationStack {
             if let selectedRestaurantId = selectedRestaurantId {
+                let _ = print("Showing RestaurantProfileView for \(selectedRestaurantId)")
                 RestaurantProfileView(restaurantId: selectedRestaurantId)
             }
         }
     }
     
     @ViewBuilder
-    private func postView() -> some View {
+    private var postView: some View {
         NavigationStack {
             if let post = post {
+                let _ = print("Showing FeedView for post: \(post)")
+                let feedViewModel = FeedViewModel(posts: [post])
+                
                 if post.mediaType == .written {
-                    writtenPostView(post)
+                    NavigationView {
+                        WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button(action: { showPost = false }) {
+                                        Image(systemName: "chevron.left")
+                                            .foregroundStyle(.black)
+                                            .background(
+                                                Circle()
+                                                    .fill(Color.gray.opacity(0.5))
+                                                    .frame(width: 30, height: 30)
+                                            )
+                                    }
+                                }
+                            }
+                    }
                 } else {
-                    SecondaryFeedView(viewModel: FeedViewModel(posts: [post]), hideFeedOptions: true)
+                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
                 }
             }
-        }
-    }
-    
-    private func writtenPostView(_ post: Post) -> some View {
-        NavigationView {
-            WrittenFeedCell(viewModel: FeedViewModel(posts: [post]), post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: { showPost = false }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.black)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.5))
-                                        .frame(width: 30, height: 30)
-                                )
-                        }
-                    }
-                }
         }
     }
 }

@@ -72,10 +72,22 @@ class CommentService {
         let commentRef = FirestoreConstants.PostsCollection.document(post.id)
             .collection("post-comments").document(comment.id)
         
-        // Delete the comment document from Firestore
-        try await commentRef.delete()
+        // First, delete all replies to this comment
+        let replies = try await fetchReplies(for: comment, in: post)
+        for reply in replies {
+            try await deleteComment(comment: reply, post: post)
+        }
         
-        // Optionally, update UI or perform additional tasks after deletion
+        // Then delete the comment document itself
+        try await commentRef.delete()
+    }
+    private func fetchReplies(for comment: Comment, in post: Post) async throws -> [Comment] {
+        let commentsCollection = FirestoreConstants.PostsCollection.document(post.id)
+            .collection("post-comments")
+        let snapshot = try await commentsCollection
+            .whereField("replyTo.commentId", isEqualTo: comment.id)
+            .getDocuments()
+        return try snapshot.documents.compactMap { try $0.data(as: Comment.self) }
     }
     func likeComment(_ comment: Comment, post: Post) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }

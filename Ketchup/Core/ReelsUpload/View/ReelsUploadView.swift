@@ -454,6 +454,7 @@ struct ReelsUploadView: View {
     
     var postButton: some View {
         Button {
+            triggerHapticFeedback()
             if writtenReview {
                 uploadViewModel.mediaType = .written
             }

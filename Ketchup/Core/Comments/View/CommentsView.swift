@@ -20,15 +20,29 @@ struct CommentsView: View {
                         .fontWeight(.semibold)
                         .padding(.top, 24)
                 }
-                ScrollView {
-                    Divider()
-                    VStack(spacing: 24) {
-                        if viewModel.isTagging {
-                            taggedUsersView
-                        } else {
-                            ForEach(viewModel.organizedComments, id: \.comment.id) { commentWithReplies in
-                                CommentCell(comment: commentWithReplies.comment, replies: commentWithReplies.replies, viewModel: viewModel, isReply: false)
+                ScrollViewReader { scrollViewProxy in
+                    ScrollView {
+                        Divider()
+                        VStack(spacing: 24) {
+                            if viewModel.isTagging {
+                                taggedUsersView
+                            } else {
+                                ForEach(viewModel.organizedComments, id: \.comment.id) { commentWithReplies in
+                                    CommentCell(comment: commentWithReplies.comment, replies: commentWithReplies.replies, viewModel: viewModel, isReply: false)
+                                        .id(commentWithReplies.comment.id)  // Set the ID for scrolling
+                                }
                             }
+                        }
+                    }
+                    .onChange(of: viewModel.lastAddedCommentId) { commentId in
+                        if let commentId = commentId {
+                            scrollViewProxy.scrollTo(commentId, anchor: .center)
+                        }
+                    }
+                    .onAppear {
+                        Task {
+                            try await viewModel.fetchComments()
+                            
                         }
                     }
                 }
@@ -57,9 +71,7 @@ struct CommentsView: View {
             .onChange(of: viewModel.organizedComments.count) {
                 viewModel.showEmptyView = viewModel.organizedComments.isEmpty
             }
-            .onAppear {
-                Task { try await viewModel.fetchComments() }
-            }
+            
             .navigationDestination(for: Comment.self) { comment in
                 ProfileView(uid: comment.commentOwnerUid)
             }
@@ -79,6 +91,7 @@ struct CommentsView: View {
             .listStyle(PlainListStyle())
         }
     }
+
     
     private var taggedUsersView: some View {
         VStack(alignment: .leading, spacing: 10) {

@@ -50,9 +50,14 @@ struct CollectionView: View {
                                 .foregroundStyle(.black)
                             //MARK: UserName
                             NavigationLink(destination: ProfileView(uid: collection.uid)){
-                                Text("by: @\(collection.username)")
-                                    .font(.custom("MuseoSansRounded-300", size: 18))
-                                    .foregroundStyle(.black)
+                                Text("by: @")
+                                           .font(.custom("MuseoSansRounded-300", size: 18))
+                                           .foregroundStyle(.black)
+                                       +
+                                       Text(collection.username)
+                                           .font(.custom("MuseoSansRounded-500", size: 18))
+                                           .foregroundStyle(.black)
+                                   
                             }
                             if let description = collection.description {
                                 VStack{
