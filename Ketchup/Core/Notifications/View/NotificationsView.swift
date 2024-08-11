@@ -48,6 +48,8 @@ struct NotificationsView: View {
             .navigationDestination(for: User.self, destination: { user in
                 ProfileView(uid: user.id)
             })
+            
+            
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -60,6 +62,7 @@ struct NotificationsView: View {
                     }
                 }
             }
+          
         }
         .gesture(drag)
         .onAppear {

@@ -16,13 +16,14 @@ struct NotificationCell: View {
     @State var post: Post?
     @State var showPost: Bool = false
     @ObservedObject var feedViewModel: FeedViewModel
+
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             NavigationLink(value: notification.user) {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 notificationContent
                 timestampText
             }
@@ -31,7 +32,9 @@ struct NotificationCell: View {
             
             actionButton
         }
-        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .background(Color.white)
         .onAppear(perform: checkFollowStatus)
         .fullScreenCover(isPresented: Binding(
             get: { showRestaurant && selectedRestaurantId != nil },
@@ -52,58 +55,54 @@ struct NotificationCell: View {
             handleNotificationTap()
         } label: {
             Text(fullNotificationMessage)
-                .font(.custom("MuseoSansRounded-300", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 14))
                 .foregroundColor(.black)
                 .multilineTextAlignment(.leading)
+                .lineLimit(2)
         }
     }
     
-    
     private var fullNotificationMessage: AttributedString {
-            let username = notification.user?.username ?? ""
-            let message = notification.type.notificationMessage
-            let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
-            
-            let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
-            
-            var result = AttributedString(fullText)
-            result.font = .custom("MuseoSansRounded-300", size: 16)
-            result.foregroundColor = .black
-            
-            // Make the main username bold and black
-            if let usernameRange = result.range(of: "@\(username)") {
-                result[usernameRange].font = .custom("MuseoSansRounded-300", size: 16).weight(.semibold)
-                result[usernameRange].foregroundColor = .black
-            }
-            
-            // Parse and color additional mentions
-            let pattern = "@\\w+"
-            guard let regex = try? NSRegularExpression(pattern: pattern) else {
-                return result
-            }
-            
-            let nsRange = NSRange(fullText.startIndex..., in: fullText)
-            let matches = regex.matches(in: fullText, range: nsRange)
-            
-            for match in matches {
-                guard let range = Range(match.range, in: fullText),
-                      let attributedRange = Range(range, in: result) else { continue }
-                
-                let matchedUsername = String(fullText[range].dropFirst())  // Remove '@' from the matched string
-                
-                // Color in red only if it's not the main username
-                if matchedUsername != username {
-                    result[attributedRange].foregroundColor = .red
-                }
-            }
-            
+        let username = notification.user?.username ?? ""
+        let message = notification.type.notificationMessage
+        let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
+        
+        let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
+        
+        var result = AttributedString(fullText)
+        result.font = .custom("MuseoSansRounded-300", size: 14)
+        result.foregroundColor = .black
+        
+        if let usernameRange = result.range(of: "@\(username)") {
+            result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)
+        }
+        
+        let pattern = "@\\w+"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return result
         }
+        
+        let nsRange = NSRange(fullText.startIndex..., in: fullText)
+        let matches = regex.matches(in: fullText, range: nsRange)
+        
+        for match in matches {
+            guard let range = Range(match.range, in: fullText),
+                  let attributedRange = Range(range, in: result) else { continue }
+            
+            let matchedUsername = String(fullText[range].dropFirst())
+            
+            if matchedUsername != username {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+            }
+        }
+        
+        return result
+    }
     
     private var timestampText: some View {
         Text(notification.timestamp.timestampString())
             .foregroundColor(.gray)
-            .font(.custom("MuseoSansRounded-300", size: 10))
+            .font(.custom("MuseoSansRounded-300", size: 12))
     }
     
     private var actionButton: some View {
@@ -138,8 +137,8 @@ struct NotificationCell: View {
             KFImage(URL(string: thumbnail))
                 .resizable()
                 .scaledToFill()
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .frame(width: 44, height: 44)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
         }
     }
     

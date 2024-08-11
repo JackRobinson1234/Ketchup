@@ -25,6 +25,19 @@ struct RestaurantProfileHeaderView: View {
     @State private var showRatingDetails = false
     @State private var showSafariView = false
     @State private var showCollections = false
+    @State var showUploadPost = false
+    @StateObject var cameraViewModel: CameraViewModel = CameraViewModel()
+    @StateObject var uploadViewModel: UploadViewModel
+    init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+        self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._scrollPosition = scrollPosition
+        self._scrollTarget = scrollTarget
+        
+        // Initialize uploadViewModel with feedViewModel
+        _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: FeedViewModel()))
+    }
+
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
@@ -115,6 +128,13 @@ struct RestaurantProfileHeaderView: View {
                             }) {
                                 Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
                                     .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
+                                    .font(.system(size: 24))
+                            }
+                            Button{
+                                showUploadPost = true
+                            } label: {
+                                Image(systemName: "plus.circle")
+                                    .foregroundColor(.white)
                                     .font(.system(size: 24))
                             }
                             
@@ -245,6 +265,9 @@ struct RestaurantProfileHeaderView: View {
                 Task {
                     await viewModel.checkBookmarkStatus()
                 }
+            }
+            .fullScreenCover(isPresented: $showUploadPost){
+                CameraView(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
             }
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {
