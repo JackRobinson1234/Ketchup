@@ -15,7 +15,7 @@ struct NotificationCell: View {
     @State var selectedRestaurantId: String? = nil
     @State var post: Post?
     @State var showPost: Bool = false
-
+    @ObservedObject var feedViewModel: FeedViewModel
     var body: some View {
         HStack {
             NavigationLink(value: notification.user) {
@@ -178,7 +178,14 @@ struct NotificationCell: View {
             print("Fetching post with ID \(postId)")
             self.post = try await PostService.shared.fetchPost(postId: postId)
             print("Fetched post: \(String(describing: self.post))")
+            if let post{
+                feedViewModel.posts = [post]
+            }
+            if let commentId = notification.commentId{
+                feedViewModel.selectedCommentId = commentId
+            }
             showPost = true
+        
         }
     }
     
@@ -196,8 +203,7 @@ struct NotificationCell: View {
     private var postView: some View {
         NavigationStack {
             if let post = post {
-                let _ = print("Showing FeedView for post: \(post)")
-                let feedViewModel = FeedViewModel(posts: [post])
+               
                 
                 if post.mediaType == .written {
                     NavigationView {

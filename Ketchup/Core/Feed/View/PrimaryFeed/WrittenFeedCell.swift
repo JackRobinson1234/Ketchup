@@ -417,6 +417,9 @@ struct WrittenFeedCell: View {
             } else if post.mediaType == .video, let firstVideoId = videoCoordinators.first?.0 {
                 currentlyPlayingVideoId = firstVideoId
             }
+            if viewModel.selectedCommentId != nil {
+                showComments = true
+            }
         }
         
         .onChange(of: scrollPosition){
@@ -478,7 +481,7 @@ struct WrittenFeedCell: View {
         
 
         .sheet(isPresented: $showComments) {
-            CommentsView(post: $post)
+            CommentsView(post: $post, feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
                     pauseAllVideos()

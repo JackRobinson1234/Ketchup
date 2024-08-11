@@ -180,7 +180,7 @@ struct FeedCell: View {
         }
         .sheet(isPresented: $showComments) {
     
-            CommentsView(post: $post)
+            CommentsView(post: $post, feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
                     pauseAllVideos()
@@ -771,6 +771,10 @@ struct FeedCell: View {
             
             // Play the first video if it's at index 0
             handleIndexChange(0)
+            if viewModel.selectedCommentId != nil {
+                let _ = print("Should be opening comments")
+                showComments = true
+            }
         }
     }
     

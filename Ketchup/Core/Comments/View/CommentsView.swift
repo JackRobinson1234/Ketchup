@@ -5,10 +5,12 @@ struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     @FocusState private var isInputFocused: Bool
+    @ObservedObject var feedViewModel: FeedViewModel
     
-    init(post: Binding<Post>) {
+    init(post: Binding<Post>, feedViewModel: FeedViewModel) {
         let viewModel = CommentViewModel(post: post)
         self._viewModel = StateObject(wrappedValue: viewModel)
+        self.feedViewModel = feedViewModel
     }
     
     var body: some View {
@@ -29,13 +31,18 @@ struct CommentsView: View {
                             } else {
                                 ForEach(viewModel.organizedComments, id: \.comment.id) { commentWithReplies in
                                     CommentCell(comment: commentWithReplies.comment, replies: commentWithReplies.replies, viewModel: viewModel, isReply: false)
-                                        .id(commentWithReplies.comment.id)  // Set the ID for scrolling
+                                        .id(commentWithReplies.comment.id)
+                                       
                                 }
                             }
                         }
                     }
                     .onChange(of: viewModel.lastAddedCommentId) { commentId in
-                        if let commentId = commentId {
+                            if let commentId = feedViewModel.selectedCommentId {
+                                scrollViewProxy.scrollTo(commentId)
+                                viewModel.highlightComment(commentId)
+                                feedViewModel.selectedCommentId = nil
+                            } else if let commentId = commentId {
                             scrollViewProxy.scrollTo(commentId, anchor: .center)
                         }
                     }
@@ -91,7 +98,7 @@ struct CommentsView: View {
             .listStyle(PlainListStyle())
         }
     }
-
+    
     
     private var taggedUsersView: some View {
         VStack(alignment: .leading, spacing: 10) {
