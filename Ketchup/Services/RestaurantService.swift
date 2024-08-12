@@ -30,7 +30,7 @@ class RestaurantService {
     func fetchRestaurants(withFilters filters: [String: [Any]]? = nil, limit: Int = 1000) async throws -> [Restaurant] {
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
         print("DEBUG: Initial query created with descending order by id")
-
+        
         // Fetch a sample of restaurants to see if any exist in the collection
         let sampleSnapshot = try await query.limit(to: 1).getDocuments()
         let sampleRestaurants = sampleSnapshot.documents.compactMap { document -> Restaurant? in
@@ -42,7 +42,7 @@ class RestaurantService {
             }
         }
         print("DEBUG: Sample restaurants fetched to check existence:", sampleRestaurants.count)
-
+        
         if let filters = filters, !filters.isEmpty {
             print("DEBUG: Filters are provided:", filters)
             
@@ -67,10 +67,10 @@ class RestaurantService {
         } else {
             print("DEBUG: No filters provided or filters are empty")
         }
-
+        
         var allRestaurants: [Restaurant] = []
         var lastDocument: DocumentSnapshot?
-
+        
         repeat {
             var paginatedQuery = query
             if let lastDocument = lastDocument {
@@ -174,73 +174,106 @@ class RestaurantService {
         }
     }
     func createBookmark(for restaurant: Restaurant) async throws {
-                guard let uid = Auth.auth().currentUser?.uid else {
-                    throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-                }
-
-                let bookmark = Bookmark(
-                    id: restaurant.id,
-                    restaurantName: restaurant.name,
-                    restaurantCity: restaurant.city,
-                    restaurantState: restaurant.state,
-                    geoPoint: restaurant.geoPoint,
-                    timestamp: Timestamp(),
-                    image: restaurant.profileImageUrl
-                )
-
-                let bookmarkRef = FirestoreConstants.UserCollection
-                    .document(uid)
-                    .collection("user-bookmarks")
-                    .document(restaurant.id)
-
-                do {
-                    try await bookmarkRef.setData(from: bookmark)
-                    print("Bookmark created successfully for restaurant: \(restaurant.name)")
-                } catch {
-                    print("Error creating bookmark: \(error.localizedDescription)")
-                    throw error
-                }
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
             }
-
-            // MARK: - removeBookmark
-            /// Removes a bookmark for a restaurant
-            /// - Parameter restaurantId: The ID of the restaurant to unbookmark
-            /// - Throws: An error if the bookmark removal fails
-            func removeBookmark(for restaurantId: String) async throws {
-                guard let uid = Auth.auth().currentUser?.uid else {
-                    throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-                }
-
-                let bookmarkRef = FirestoreConstants.UserCollection
-                    .document(uid)
-                    .collection("user-bookmarks")
-                    .document(restaurantId)
-
-                do {
-                    try await bookmarkRef.delete()
-                    print("Bookmark removed successfully for restaurant ID: \(restaurantId)")
-                } catch {
-                    print("Error removing bookmark: \(error.localizedDescription)")
-                    throw error
-                }
+            
+            let db = Firestore.firestore()
+            let batch = db.batch()
+            
+            let bookmark = Bookmark(
+                id: restaurant.id,
+                restaurantName: restaurant.name,
+                restaurantCity: restaurant.city,
+                restaurantState: restaurant.state,
+                geoPoint: restaurant.geoPoint,
+                timestamp: Timestamp(),
+                image: restaurant.profileImageUrl
+            )
+            
+            // User's bookmark
+            let userBookmarkRef = FirestoreConstants.UserCollection
+                .document(uid)
+                .collection("user-bookmarks")
+                .document(restaurant.id)
+            
+            try batch.setData(from: bookmark, forDocument: userBookmarkRef)
+            
+            // Restaurant's bookmark
+            let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+                .document(restaurant.id)
+                .collection("user-bookmarks")
+                .document(uid)
+            
+            let restaurantBookmarkData = [
+                "userId": uid,
+                "timestamp": Timestamp()
+            ] as [String : Any]
+            
+            batch.setData(restaurantBookmarkData, forDocument: restaurantBookmarkRef)
+            
+            do {
+                try await batch.commit()
+                print("Bookmark created successfully for restaurant: \(restaurant.name)")
+            } catch {
+                print("Error creating bookmark: \(error.localizedDescription)")
+                throw error
             }
-
-            // MARK: - isBookmarked
-            /// Checks if a restaurant is bookmarked by the current user
-            /// - Parameter restaurantId: The ID of the restaurant to check
-            /// - Returns: A boolean indicating whether the restaurant is bookmarked
-            /// - Throws: An error if the check fails
-            func isBookmarked(_ restaurantId: String) async throws -> Bool {
-                guard let uid = Auth.auth().currentUser?.uid else {
-                    throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-                }
-
-                let bookmarkRef = FirestoreConstants.UserCollection
-                    .document(uid)
-                    .collection("user-bookmarks")
-                    .document(restaurantId)
-
-                let snapshot = try await bookmarkRef.getDocument()
-                return snapshot.exists
-            }
+        }
+    
+    // MARK: - removeBookmark
+    /// Removes a bookmark for a restaurant
+    /// - Parameter restaurantId: The ID of the restaurant to unbookmark
+    /// - Throws: An error if the bookmark removal fails
+    func removeBookmark(for restaurantId: String) async throws {
+           guard let uid = Auth.auth().currentUser?.uid else {
+               throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+           }
+           
+           let db = Firestore.firestore()
+           let batch = db.batch()
+           
+           // Remove from user's bookmarks
+           let userBookmarkRef = FirestoreConstants.UserCollection
+               .document(uid)
+               .collection("user-bookmarks")
+               .document(restaurantId)
+           
+           batch.deleteDocument(userBookmarkRef)
+           
+           // Remove from restaurant's bookmarks
+           let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+               .document(restaurantId)
+               .collection("restaurant-bookmarks")
+               .document(uid)
+           
+           batch.deleteDocument(restaurantBookmarkRef)
+           
+           do {
+               try await batch.commit()
+               print("Bookmark removed successfully for restaurant ID: \(restaurantId)")
+           } catch {
+               print("Error removing bookmark: \(error.localizedDescription)")
+               throw error
+           }
+       }
+    
+    // MARK: - isBookmarked
+    /// Checks if a restaurant is bookmarked by the current user
+    /// - Parameter restaurantId: The ID of the restaurant to check
+    /// - Returns: A boolean indicating whether the restaurant is bookmarked
+    /// - Throws: An error if the check fails
+    func isBookmarked(_ restaurantId: String) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        let bookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(restaurantId)
+        
+        let snapshot = try await bookmarkRef.getDocument()
+        return snapshot.exists
+    }
 }

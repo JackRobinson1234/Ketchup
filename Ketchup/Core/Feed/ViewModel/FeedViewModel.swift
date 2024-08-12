@@ -469,7 +469,7 @@ extension FeedViewModel {
     
     func unbookmark(_ post: Post) async {
         do {
-            try await PostService.shared.unbookmarkRestaurant(restaurantId: post.restaurant.id)
+            try await PostService.shared.unbookmarkFromPost(post)
             
             // Update all posts with the same restaurant.id
             updateBookmarkStatus(for: post.restaurant.id, isBookmarked: false)
@@ -485,21 +485,36 @@ extension FeedViewModel {
             }
         }
     }
+    func checkIfUserBookmarkedPost(_ post: Post) async -> Bool {
+          guard let uid = Auth.auth().currentUser?.uid else { return false }
+          
+          do {
+              let bookmarkRef = FirestoreConstants.PostsCollection
+                  .document(post.id)
+                  .collection("post-bookmarks")
+                  .document(uid)
+              
+              let snapshot = try await bookmarkRef.getDocument()
+              return snapshot.exists
+          } catch {
+              print("DEBUG: Failed to check if user bookmarked post with error \(error.localizedDescription)")
+              return false
+          }
+      }
     
-    func checkIfUserBookmarkedRestaurants() async {
-        guard !posts.isEmpty else { return }
-        var copy = posts
-        for i in 0..<copy.count {
-            do {
-                let post = copy[i]
-                let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
-                copy[i].didBookmark = isBookmarked
-            } catch {
-                print("DEBUG: Failed to check if user bookmarked restaurant")
-            }
-        }
-        
-        posts = copy
-    }
-    
+//    func checkIfUserBookmarkedRestaurants() async {
+//        guard !posts.isEmpty else { return }
+//        var copy = posts
+//        for i in 0..<copy.count {
+//            do {
+//                let post = copy[i]
+//                let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
+//                copy[i].didBookmark = isBookmarked
+//            } catch {
+//                print("DEBUG: Failed to check if user bookmarked restaurant")
+//            }
+//        }
+//        
+//        posts = copy
+//    }
 }

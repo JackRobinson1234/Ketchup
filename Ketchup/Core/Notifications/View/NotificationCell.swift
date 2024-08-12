@@ -69,16 +69,38 @@ struct NotificationCell: View {
         }
     }
     
-    private var fullNotificationMessage: AttributedString {
-        let username = notification.user?.username ?? ""
-        let message = notification.type.notificationMessage
-        let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
-        
-        let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
-        
-        var result = AttributedString(fullText)
-        result.font = .custom("MuseoSansRounded-300", size: 14)
-        result.foregroundColor = .black
+    
+        private var fullNotificationMessage: AttributedString {
+                let username = notification.user?.username ?? ""
+                var message = ""
+                
+                switch notification.type {
+                case .postBookmark:
+                    if let restaurantName = notification.restaurantName {
+                        message = " created a bookmark from your post of \(restaurantName)"
+                    } else {
+                        message = " bookmarked your post"
+                    }
+                default:
+                    message = notification.type.notificationMessage
+                }
+                
+                let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
+                
+                let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
+                
+                var result = AttributedString(fullText)
+                result.font = .custom("MuseoSansRounded-300", size: 14)
+                result.foregroundColor = .black
+                
+                if let usernameRange = result.range(of: "@\(username)") {
+                    result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)
+                }
+                
+                if let restaurantName = notification.restaurantName,
+                   let restaurantRange = result.range(of: "\"\(restaurantName)\"") {
+                    result[restaurantRange].font = .custom("MuseoSansRounded-700", size: 14)
+                }
         
         if let usernameRange = result.range(of: "@\(username)") {
             result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)

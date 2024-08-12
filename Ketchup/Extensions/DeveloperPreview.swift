@@ -139,6 +139,7 @@ struct DeveloperPreview {
                 caption: "Check out this delicious dish!",
                 likes: 141,
                 commentCount: 20,
+                bookmarkCount: 0,
                 repostCount: 10,
                 thumbnailUrl: "https://picsum.photos/400/500",
                 timestamp: Timestamp(),

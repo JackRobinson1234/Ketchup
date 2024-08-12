@@ -371,7 +371,7 @@ struct WrittenFeedCell: View {
                         handleBookmarkTapped()
                         triggerHapticFeedback()
                     } label: {
-                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
+                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark",count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
 
                     Button {
@@ -405,8 +405,8 @@ struct WrittenFeedCell: View {
         .onAppear {
             if checkLikes {
                 Task {
-                    await viewModel.checkIfUserLikedPosts()
-                    await viewModel.checkIfUserBookmarkedRestaurants()
+                    post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                    post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
                 }
             }
             isCurrentVideoPlaying = false
@@ -665,8 +665,11 @@ struct WrittenFeedCell: View {
     private func handleBookmarkTapped() {
         Task {
             if post.didBookmark {
+                post.bookmarkCount -= 1
                 await viewModel.unbookmark(post)
+                
             } else {
+                post.bookmarkCount += 1
                 await viewModel.bookmark(post)
             }
         }

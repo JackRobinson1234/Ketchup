@@ -50,6 +50,7 @@ struct UploadService {
                 caption: caption,
                 likes: 0,
                 commentCount: 0,
+                bookmarkCount: 0,
                 repostCount: 0,
                 thumbnailUrl: thumbnailUrl,
                 timestamp: Timestamp(),

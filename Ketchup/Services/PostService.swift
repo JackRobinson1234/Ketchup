@@ -330,7 +330,37 @@ extension PostService {
     func bookmarkRestaurant(from post: Post) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
-        let bookmark = Bookmark(
+        let db = Firestore.firestore()
+        let batch = db.batch()
+        
+        // Create a bookmark document in the restaurant's post-bookmarks collection
+        let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+            .document(post.restaurant.id)
+            .collection("user-bookmarks")
+            .document(uid)
+        
+        let bookmark = [
+            "userId": uid,
+            "timestamp": Timestamp()
+        ] as [String : Any]
+        
+        batch.setData(bookmark, forDocument: restaurantBookmarkRef)
+        
+        // Create a bookmark document in the post's post-bookmarks collection
+        let postBookmarkRef = FirestoreConstants.PostsCollection
+            .document(post.id)
+            .collection("post-bookmarks")
+            .document(uid)
+        
+        batch.setData(bookmark, forDocument: postBookmarkRef)
+       
+        // Add the bookmark to the user's bookmarks collection
+        let userBookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(post.restaurant.id)
+        
+        let userBookmark = Bookmark(
             id: post.restaurant.id,
             restaurantName: post.restaurant.name,
             restaurantCity: post.restaurant.city,
@@ -340,35 +370,66 @@ extension PostService {
             image: post.restaurant.profileImageUrl
         )
         
-        do {
-            try FirestoreConstants.UserCollection
-                .document(uid)
-                .collection("user-bookmarks")
-                .document(post.restaurant.id)
-                .setData(from: bookmark)
-        } catch {
-            print("Error bookmarking restaurant: \(error.localizedDescription)")
-            throw error
-        }
+        try batch.setData(from: userBookmark, forDocument: userBookmarkRef)
+        
+        // Commit the batch
+        try await batch.commit()
     }
+
+    func unbookmarkFromPost(_ post: Post) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        let batch = db.batch()
+        
+        // Remove the bookmark document from the restaurant's post-bookmarks collection
+        let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+            .document(post.restaurant.id)
+            .collection("user-bookmarks")
+            .document(uid)
+        
+        batch.deleteDocument(restaurantBookmarkRef)
+        
+        // Remove the bookmark document from the post's post-bookmarks collection
+        let postBookmarkRef = FirestoreConstants.PostsCollection
+            .document(post.id)
+            .collection("post-bookmarks")
+            .document(uid)
+        
+        batch.deleteDocument(postBookmarkRef)
+        
+        
+        // Remove the bookmark from the user's bookmarks collection
+        let userBookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(post.restaurant.id)
+        
+        batch.deleteDocument(userBookmarkRef)
+        
+        // Commit the batch
+        try await batch.commit()
+    }
+    
+    
     
     // MARK: - unbookmarkRestaurant
     /// Removes a restaurant from the user's bookmarks
     /// - Parameter restaurantId: ID of the restaurant to be unbookmarked
-    func unbookmarkRestaurant(restaurantId: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        do {
-            try await FirestoreConstants.UserCollection
-                .document(uid)
-                .collection("user-bookmarks")
-                .document(restaurantId)
-                .delete()
-        } catch {
-            print("Error unbookmarking restaurant: \(error.localizedDescription)")
-            throw error
-        }
-    }
+//    func unbookmarkRestaurant(restaurantId: String) async throws {
+//        guard let uid = Auth.auth().currentUser?.uid else { return }
+//        
+//        do {
+//            try await FirestoreConstants.UserCollection
+//                .document(uid)
+//                .collection("user-bookmarks")
+//                .document(restaurantId)
+//                .delete()
+//        } catch {
+//            print("Error unbookmarking restaurant: \(error.localizedDescription)")
+//            throw error
+//        }
+//    }
     
     // MARK: - checkIfUserBookmarkedRestaurant
     /// Checks if the current user has bookmarked a specific restaurant

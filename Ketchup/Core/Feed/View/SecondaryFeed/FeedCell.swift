@@ -524,7 +524,7 @@ struct FeedCell: View {
                     triggerHapticFeedback()
 
                 } label: {
-                    InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
+                    InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                 }
             }
             if viewModel.showBookmarks{
@@ -768,6 +768,7 @@ struct FeedCell: View {
         if checkLikes {
             Task {
                 post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
             }
         }
         
@@ -817,8 +818,11 @@ struct FeedCell: View {
         Task {
             if post.didBookmark {
                 await viewModel.unbookmark(post)
+                post.bookmarkCount -= 1
             } else {
                 await viewModel.bookmark(post)
+                post.bookmarkCount += 1
+
             }
         }
     }

@@ -20,6 +20,7 @@ struct Post: Identifiable, Codable {
     var likes: Int
     var commentCount: Int
     var repostCount: Int
+    var bookmarkCount: Int
     var thumbnailUrl: String
     var timestamp: Timestamp?
     var user: PostUser
@@ -54,6 +55,7 @@ struct Post: Identifiable, Codable {
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
         self.repostCount = try container.decode(Int.self, forKey: .repostCount)
+        self.bookmarkCount = try container.decodeIfPresent(Int.self, forKey: .bookmarkCount) ?? 0  // Default to 0 if not present
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
@@ -80,6 +82,7 @@ struct Post: Identifiable, Codable {
         caption: String,
         likes: Int,
         commentCount: Int,
+        bookmarkCount: Int,
         repostCount: Int,
         thumbnailUrl: String,
         timestamp: Timestamp?,
@@ -105,6 +108,7 @@ struct Post: Identifiable, Codable {
         self.caption = caption
         self.likes = likes
         self.commentCount = commentCount
+        self.bookmarkCount = bookmarkCount
         self.repostCount = repostCount
         self.thumbnailUrl = thumbnailUrl
         self.timestamp = timestamp

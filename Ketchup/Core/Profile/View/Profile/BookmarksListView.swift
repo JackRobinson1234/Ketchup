@@ -143,7 +143,7 @@ class BookmarksViewModel: ObservableObject {
     
     func deleteBookmark(_ bookmark: Bookmark) async {
         do {
-            try await PostService.shared.unbookmarkRestaurant(restaurantId: bookmark.id)
+            try await RestaurantService.shared.removeBookmark(for: bookmark.id)
             if let index = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
                 bookmarks.remove(at: index)
             }
