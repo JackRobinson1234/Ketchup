@@ -474,9 +474,9 @@ class CollectionsViewModel: ObservableObject {
     }
 
     
-    func fetchUserLikedCollections(user: User) async {
+    func fetchUserLikedCollections(userId: String) async {
         do {
-            let likedCollections = try await CollectionService.shared.fetchUserLikedCollections(user: user)
+            let likedCollections = try await CollectionService.shared.fetchUserLikedCollections(userId: userId)
             await MainActor.run {
                 self.collections = likedCollections
             }

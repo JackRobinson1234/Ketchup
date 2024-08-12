@@ -192,10 +192,10 @@ class CollectionService {
         return snapshot.exists
     }
     
-    func fetchUserLikedCollections(user: User) async throws -> [Collection] {
+    func fetchUserLikedCollections(userId: String) async throws -> [Collection] {
         let querySnapshot = try await FirestoreConstants
             .UserCollection
-            .document(user.id)
+            .document(userId)
             .collection("user-collection-likes")
             .getDocuments()
         let collectionIds = querySnapshot.documents.map { $0.documentID }

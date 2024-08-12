@@ -566,21 +566,28 @@ struct FeedCell: View {
         }
     }
     private func handleIndexChange(_ index: Int) {
-            pauseAllVideos()
-            
-            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                let mediaItem = mixedMediaUrls[index]
-                if mediaItem.type == .video {
-                    currentlyPlayingVideoId = mediaItem.id
-                    playVideo(id: mediaItem.id)
-                }
-            } else if post.mediaType == .video && index == 0 {
-                if let firstVideoId = videoCoordinators.first?.0 {
-                    currentlyPlayingVideoId = firstVideoId
-                    playVideo(id: firstVideoId)
-                }
-            }
-        }
+          pauseAllVideos()
+          
+          if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+              // Ensure the index is within bounds
+              let safeIndex = min(max(index, 0), mixedMediaUrls.count - 1)
+              let mediaItem = mixedMediaUrls[safeIndex]
+              
+              if mediaItem.type == .video {
+                  currentlyPlayingVideoId = mediaItem.id
+                  playVideo(id: mediaItem.id)
+              } else {
+                  currentlyPlayingVideoId = nil
+              }
+          } else if post.mediaType == .video {
+              if let firstVideoId = videoCoordinators.first?.0 {
+                  currentlyPlayingVideoId = firstVideoId
+                  playVideo(id: firstVideoId)
+              }
+          } else {
+              currentlyPlayingVideoId = nil
+          }
+      }
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
         ZStack {
             if mediaItem.type == .photo {

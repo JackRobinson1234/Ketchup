@@ -86,6 +86,7 @@ struct CollectionView: View {
                                 
                             }
                             LikeButton(collection: collection, viewModel: collectionsViewModel)
+                                .padding(.vertical, 2)
 
                             // MARK: Grid View
                             HStack(spacing: 0) {
@@ -93,7 +94,6 @@ struct CollectionView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 50, height: 20)
-                                
                                     .onTapGesture {
                                         withAnimation {
                                             self.currentSection = .grid
