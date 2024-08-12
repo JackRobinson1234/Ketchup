@@ -14,7 +14,18 @@ struct CollectionListCell: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         HStack{
-            CollageImage(collection: collection, width: size)
+            if let cover = collection.coverImageUrl {
+                CollageImage(tempImageUrls: [cover], width: size)
+            } else if let tempImageUrls = collection.tempImageUrls {
+                CollageImage(tempImageUrls: tempImageUrls, width: size)
+            } else {
+                Image(systemName: "folder")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(.black)
+                      
+            }
             VStack(alignment: .leading){
                 Text(collection.name)
                     .font(.custom("MuseoSansRounded-300", size: 18))

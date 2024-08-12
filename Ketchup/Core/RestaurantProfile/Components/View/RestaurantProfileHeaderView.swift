@@ -131,6 +131,8 @@ struct RestaurantProfileHeaderView: View {
                                     .font(.system(size: 24))
                             }
                             Button{
+                                uploadViewModel.restaurant = viewModel.restaurant
+                                uploadViewModel.fromRestaurantProfile = true
                                 showUploadPost = true
                             } label: {
                                 Image(systemName: "plus.circle")
@@ -155,9 +157,9 @@ struct RestaurantProfileHeaderView: View {
                                 .padding(8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray, lineWidth: 1)
+                                        .stroke(Color.black, lineWidth: 1)
                                 )
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .font(.custom("MuseoSansRounded-500", size: 16))
                                 .foregroundStyle(.black)
                         }
                         .sheet(isPresented: $showSafariView) {
@@ -171,9 +173,9 @@ struct RestaurantProfileHeaderView: View {
                                 .padding(8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray, lineWidth: 1)
+                                        .stroke(Color.black, lineWidth: 1)
                                 )
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .font(.custom("MuseoSansRounded-500", size: 16))
                                 .foregroundStyle(.black)
                         }
                         .sheet(isPresented: $showSafariView) {
@@ -188,9 +190,9 @@ struct RestaurantProfileHeaderView: View {
                             .padding(8)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(Color.black, lineWidth: 1)
                             )
-                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 16))
                             .foregroundStyle(.black)
                     }
                     
@@ -203,10 +205,11 @@ struct RestaurantProfileHeaderView: View {
                                 showRatingDetails.toggle()
                             }
                         } label: {
-                            VStack(alignment: .leading, spacing: 2){
+                            VStack(alignment: .leading, spacing: 4){
                                 Text("Average")
                                     .font(.custom("MuseoSansRounded-500", size: 12))
                                     .foregroundStyle(.gray)
+                                    
                                 HStack(alignment: .center, spacing: 4) {
                                     
                                     FeedOverallRatingView(rating: overallRating, font: .black)
@@ -260,6 +263,19 @@ struct RestaurantProfileHeaderView: View {
                 
                 RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
+            }
+            .overlay{
+                if uploadViewModel.showSuccessMessage {
+                                successOverlay
+                                    .transition(.opacity)
+                                    .onAppear {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                            withAnimation {
+                                                uploadViewModel.showSuccessMessage = false
+                                            }
+                                        }
+                                    }
+                            }
             }
             .onAppear {
                 Task {
@@ -323,5 +339,31 @@ struct RestaurantProfileHeaderView: View {
         }
         
         return nil
+    }
+    private var successOverlay: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack {
+                    Image(systemName: "checkmark")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(.red)
+                    Text("Post Uploaded")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding(.top, 5)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 4) // Optional: add a shadow for better visibility
+                Spacer()
+            }
+            Spacer()
+        }
+        .padding()
     }
 }

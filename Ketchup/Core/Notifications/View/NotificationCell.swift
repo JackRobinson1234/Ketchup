@@ -16,7 +16,7 @@ struct NotificationCell: View {
     @State var post: Post?
     @State var showPost: Bool = false
     @ObservedObject var feedViewModel: FeedViewModel
-
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         HStack(spacing: 12) {
             NavigationLink(value: notification.user) {
@@ -47,6 +47,13 @@ struct NotificationCell: View {
             set: { showPost = $0 }
         )) {
             postView
+        }
+        .fullScreenCover(item: $collectionsViewModel.selectedCollection) { collection in
+            CollectionView(collectionsViewModel: collectionsViewModel)
+                .onDisappear{
+                    collectionsViewModel.selectedCollection = nil
+                }
+            
         }
     }
     
@@ -111,6 +118,8 @@ struct NotificationCell: View {
                 followButton
             } else if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
                 postThumbnailButton(postThumbnail)
+            } else if let collectionImages = notification.collectionCoverImage {
+                collectionButton(collectionImages)
             }
         }
     }
@@ -141,7 +150,12 @@ struct NotificationCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         }
     }
-    
+    private func collectionButton(_ thumbnail: [String]) -> some View {
+        Button(action: handleCollectionTap) {
+            CollageImage(tempImageUrls: thumbnail, width: 44)
+                
+        }
+    }
     private func checkFollowStatus() {
         if notification.type == .follow {
             Task {
@@ -156,6 +170,8 @@ struct NotificationCell: View {
         } else if let restaurantId = notification.restaurantId {
             self.selectedRestaurantId = restaurantId
             self.showRestaurant = true
+        } else if notification.collectionId != nil {
+            handleCollectionTap()
         }
     }
     
@@ -165,7 +181,13 @@ struct NotificationCell: View {
             self.isFollowed.toggle()
         }
     }
-    
+    private func handleCollectionTap() {
+        if let collectionId = notification.collectionId {
+            Task {
+                collectionsViewModel.selectedCollection = try await CollectionService.shared.fetchCollection(withId: collectionId)
+            }
+        }
+    }
     private func handlePostThumbnailTap() {
         if let postId = notification.postId {
             fetchPost(postId: postId)
@@ -187,7 +209,21 @@ struct NotificationCell: View {
         
         }
     }
-    
+    private func fetchCollection(collectionId: String) {
+        Task {
+            print("Fetching collection with ID \(collectionId)")
+            
+            print("Fetched post: \(String(describing: self.post))")
+            if let post{
+                feedViewModel.posts = [post]
+            }
+            if let commentId = notification.commentId{
+                feedViewModel.selectedCommentId = commentId
+            }
+            showPost = true
+        
+        }
+    }
     @ViewBuilder
     private var restaurantProfileView: some View {
         NavigationStack {

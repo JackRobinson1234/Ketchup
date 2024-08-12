@@ -75,7 +75,7 @@ struct AddNotesView: View {
                     viewModel.dismissListView = true
                     dismiss()
                 } label: {
-                    Text("Add Item")
+                    Text("Add Restaurant")
                         .modifier(StandardButtonModifier(width: 250))
                 }
                 

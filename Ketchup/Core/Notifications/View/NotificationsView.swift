@@ -12,6 +12,8 @@ struct NotificationsView: View {
     @State var dragDirection = "left"
     @State var isDragging = false
     @StateObject var feedViewModel = FeedViewModel()
+    @StateObject var collectionsViewModel = CollectionsViewModel()
+    
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)
             .onChanged { _ in self.isDragging = true }
@@ -29,7 +31,7 @@ struct NotificationsView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.notifications) { notification in
-                        NotificationCell(viewModel: viewModel, notification: notification, feedViewModel: feedViewModel)
+                        NotificationCell(viewModel: viewModel, notification: notification, feedViewModel: feedViewModel, collectionsViewModel: collectionsViewModel)
                             .padding(.top)
                     }
                 }

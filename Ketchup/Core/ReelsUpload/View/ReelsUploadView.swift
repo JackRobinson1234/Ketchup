@@ -207,9 +207,11 @@ struct ReelsUploadView: View {
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundStyle(.black)
                     }
-                    Text("Edit")
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.custom("MuseoSansRounded-300", size: 10))
+                    if !uploadViewModel.fromRestaurantProfile {
+                        Text("Edit")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                    }
                 }
             } else if let request = uploadViewModel.restaurantRequest {
                 VStack {
@@ -227,6 +229,7 @@ struct ReelsUploadView: View {
                 }
             }
         }
+        .disabled(uploadViewModel.fromRestaurantProfile)
     }
     
     var mixedMediaPreview: some View {
@@ -469,7 +472,9 @@ struct ReelsUploadView: View {
                     uploadViewModel.reset()
                     cameraViewModel.reset()
                     uploadViewModel.dismissAll = true
-                    tabBarController.selectedTab = 0
+                    if !uploadViewModel.fromRestaurantProfile{
+                        tabBarController.selectedTab = 0
+                    }
                 }
             }
         } label: {

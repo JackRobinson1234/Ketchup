@@ -23,6 +23,8 @@ struct Notification: Identifiable, Codable {
     var restaurantName: String?
     var restaurantId: String?
     var commentId: String?
+    var collectionId: String?
+    var collectionCoverImage: [String]?
 }
 
 enum NotificationType: Int, Codable {
@@ -35,6 +37,7 @@ enum NotificationType: Int, Codable {
     case postWentWithMention
     case commentLike
     case commentReply
+    case collectionLike
 
     var notificationMessage: String {
         switch self {
@@ -47,6 +50,7 @@ enum NotificationType: Int, Codable {
         case .postWentWithMention: return " tagged you in a post."
         case .commentLike: return " liked your comment: "
         case .commentReply: return " replied to your comment: "
+        case .collectionLike: return " liked your collection: "
         }
     }
 }

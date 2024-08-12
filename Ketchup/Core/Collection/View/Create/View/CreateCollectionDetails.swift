@@ -95,7 +95,7 @@ struct CreateCollectionDetails: View {
                             }
                         } label: {
                             if collectionsViewModel.post != nil || collectionsViewModel.restaurant != nil {
-                                Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Item")
+                                Text(collectionsViewModel.isLoading ? "" : "Create Collection + Add Restaurant")
                                     .modifier(StandardButtonModifier())
                                     .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
                                     .overlay {

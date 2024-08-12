@@ -45,7 +45,11 @@ struct HorizontalCollectionScrollView: View {
                                 showCollection.toggle()
                             } label: {
                                 VStack{
-                                    CollageImage(collection: collection, width: 160)
+                                    if let cover = collection.coverImageUrl {
+                                        CollageImage(tempImageUrls: [cover], width: 160)
+                                    } else if let tempImageUrls = collection.tempImageUrls {
+                                        CollageImage(tempImageUrls: tempImageUrls, width: 160)
+                                    }
                                     Text(collection.name)
                                         .font(.custom("MuseoSansRounded-700", size: 14))
                                         .lineLimit(2)

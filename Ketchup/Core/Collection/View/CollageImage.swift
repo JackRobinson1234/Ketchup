@@ -8,7 +8,7 @@
 import SwiftUI
 import Kingfisher
 struct CollageImage: View {
-    let collection: Collection?
+    let tempImageUrls: [String]?
     let width: CGFloat
     
     private let outerSpacing: CGFloat = 2 // Space around the edges
@@ -16,16 +16,7 @@ struct CollageImage: View {
 
     var body: some View {
         GeometryReader { geometry in
-            if let collection = collection {
-                if let coverImageUrl = collection.coverImageUrl {
-                    // Prioritize the cover image if it exists
-                    KFImage(URL(string: coverImageUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: width, height: width)
-                        .clipShape(Rectangle())
-                        .cornerRadius(12)
-                } else if let tempUrls = collection.tempImageUrls, !tempUrls.isEmpty {
+           if let tempUrls = tempImageUrls, !tempUrls.isEmpty {
                     if tempUrls.count < 4 {
                         KFImage(URL(string: tempUrls[0]))
                             .resizable()
@@ -79,13 +70,7 @@ struct CollageImage: View {
                     .clipShape(Rectangle())
                     .cornerRadius(12)
                 }
-            } else {
-                // Placeholder when collection is nil
-                Color.gray.opacity(0.3)
-                    .frame(width: width, height: width)
-                    .clipShape(Rectangle())
-                    .cornerRadius(12)
-            }
+             
         }
         .frame(width: width, height: width)
     }
