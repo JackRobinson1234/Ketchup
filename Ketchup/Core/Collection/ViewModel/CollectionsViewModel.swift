@@ -310,7 +310,7 @@ class CollectionsViewModel: ObservableObject {
         self.notes = ""
         self.editItems = []
         self.restaurantRequest = nil
-
+        
     }
     //MARK: clearEdits
     /// resets the variables to the original selectedCollection that hasn't been updated
@@ -407,6 +407,82 @@ class CollectionsViewModel: ObservableObject {
         // Clear the selectedCollection
         selectedCollection = nil
         resetViewModel()
+    }
+    func like(_ collection: Collection) async {
+        if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+            collections[index].didLike = true
+            collections[index].likes += 1
+        }
+        if var selectedCollection{
+            selectedCollection.likes += 1
+            selectedCollection.didLike = true
+            self.selectedCollection = selectedCollection
+        }
+        do {
+            try await CollectionService.shared.likeCollection(collection)
+        } catch {
+            print("DEBUG: Failed to like collection with error \(error.localizedDescription)")
+            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                collections[index].didLike = false
+                collections[index].likes -= 1
+            }
+            if var selectedCollection{
+                selectedCollection.likes -= 1
+                selectedCollection.didLike = false
+                self.selectedCollection = selectedCollection
+            }
+        }
+    }
+    
+    func unlike(_ collection: Collection) async {
+        if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+            collections[index].didLike = false
+            collections[index].likes -= 1
+        }
+        if var selectedCollection{
+            selectedCollection.likes -= 1
+            selectedCollection.didLike = false
+            self.selectedCollection = selectedCollection
+        }
+        
+        do {
+            try await CollectionService.shared.unlikeCollection(collection)
+        } catch {
+            print("DEBUG: Failed to unlike collection with error \(error.localizedDescription)")
+            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                collections[index].didLike = true
+                collections[index].likes += 1
+            }
+            if var selectedCollection{
+                selectedCollection.likes += 1
+                selectedCollection.didLike = true
+                self.selectedCollection = selectedCollection
+            }
+        }
+    }
+    func checkIfUserLikedCollection() async {
+        do{
+            if var selectedCollection{
+                selectedCollection.didLike = try await CollectionService.shared.checkIfUserLikedCollection(selectedCollection)
+                self.selectedCollection = selectedCollection
+                
+            }
+        } catch {
+            print("failed to check if user liked collection")
+        }
+       
+    }
+
+    
+    func fetchUserLikedCollections(userId: String) async {
+        do {
+            let likedCollections = try await CollectionService.shared.fetchUserLikedCollections(userId: userId)
+            await MainActor.run {
+                self.collections = likedCollections
+            }
+        } catch {
+            print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
+        }
     }
 }
 

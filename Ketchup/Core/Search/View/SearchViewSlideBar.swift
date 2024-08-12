@@ -64,7 +64,7 @@ struct UnderlineTextModifier: ViewModifier {
                         .frame(height: 10) // Adjust the height of the spacer to control the distance between the image and the underline bar
                     Rectangle()
                         .frame(height: 2)
-                        .foregroundColor(isSelected ? .primary : .clear)
+                        .foregroundColor(isSelected ? .black : .clear)
                 }
             )
     }

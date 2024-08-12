@@ -85,7 +85,7 @@ struct EditNotesView: View {
             .cornerRadius(10)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.primary.opacity(0.8))
+        .background(Color.black.opacity(0.8))
         .onAppear {
             if let itemNotes = item?.notes {
                 notes = itemNotes

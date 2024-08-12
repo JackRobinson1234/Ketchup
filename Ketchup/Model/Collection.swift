@@ -24,6 +24,8 @@ struct Collection: Identifiable, Codable, Hashable {
     var privateMode: Bool
     var profileImageUrl: String?
     var tempImageUrls: [String]?
+    var likes: Int
+    var didLike: Bool = false
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -36,15 +38,14 @@ struct Collection: Identifiable, Codable, Hashable {
         self.uid = try container.decode(String.self, forKey: .uid)
         self.coverImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.restaurantCount = try container.decode(Int.self, forKey: .restaurantCount)
-        
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.tempImageUrls = try container.decodeIfPresent([String].self, forKey: .tempImageUrls)
-       
+        self.likes = try container.decode(Int.self, forKey: .likes)
         
     }
     
-    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int,  privateMode: Bool, profileImageUrl: String? = nil, tempImageUrls: [String]? = nil) {
+    init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int,  privateMode: Bool, profileImageUrl: String? = nil, tempImageUrls: [String]? = nil, likes: Int = 0) {
         self.id = id
         self.name = name
         self.timestamp = timestamp
@@ -57,6 +58,8 @@ struct Collection: Identifiable, Codable, Hashable {
         self.privateMode = privateMode
         self.profileImageUrl = profileImageUrl
         self.tempImageUrls = tempImageUrls
+        self.likes = likes
+
     }
     mutating func updatetempImageUrls(with item: CollectionItem) {
             if tempImageUrls == nil {
@@ -85,12 +88,9 @@ struct CollectionItem: Codable, Hashable, Identifiable {
     var postUserFullname: String?
     var postUserId: String?
     //restaurant post type Specific
-    
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?
     var privateMode: Bool
-    
     var notes: String?
-    
 }

@@ -45,7 +45,7 @@ struct RepostView: View {
                                             .foregroundColor(.white)
                                             .font(.custom("MuseoSansRounded-300", size: 10))
                                             .bold()
-                                            .shadow(color: .primary, radius: 2, x: 0, y: 1)
+                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
                                     
                                     
                                 }

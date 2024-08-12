@@ -99,7 +99,7 @@ struct MapRestaurantView: View {
                     .modifier(StandardButtonModifier(width: 150))
                     
             }
-            .foregroundColor(.primary)
+            .foregroundColor(.black)
             .font(.custom("MuseoSansRounded-300", size: 10))
             .padding([.horizontal, .bottom])
         }

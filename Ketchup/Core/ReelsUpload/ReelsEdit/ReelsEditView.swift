@@ -95,20 +95,20 @@ struct ReelsEditView: View {
             if let cuisine = post.restaurant.cuisine, let price = post.restaurant.price {
                 Text("\(cuisine), \(price)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             } else if let cuisine = post.restaurant.cuisine {
                 Text(cuisine)
                     .font(.custom("MuseoSansRounded-300", size: 10))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             } else if let price = post.restaurant.price {
                 Text(price)
                     .font(.custom("MuseoSansRounded-300", size: 10))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             }
             if let address = post.restaurant.address {
                 Text(address)
                     .font(.custom("MuseoSansRounded-300", size: 10))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             }
         }
     }

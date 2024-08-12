@@ -14,7 +14,18 @@ struct CollectionListCell: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     var body: some View {
         HStack{
-            CollageImage(collection: collection, width: size)
+            if let cover = collection.coverImageUrl {
+                CollageImage(tempImageUrls: [cover], width: size)
+            } else if let tempImageUrls = collection.tempImageUrls {
+                CollageImage(tempImageUrls: tempImageUrls, width: size)
+            } else {
+                Image(systemName: "folder")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(.black)
+                      
+            }
             VStack(alignment: .leading){
                 Text(collection.name)
                     .font(.custom("MuseoSansRounded-300", size: 18))
@@ -24,23 +35,23 @@ struct CollectionListCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(.gray)
                     .lineLimit(1)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                 Text("By \(collection.username)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .lineLimit(1)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
                 if let description = collection.description {
                     Text(description)
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .lineLimit(1)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                 }
                 
             }
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding(.horizontal)
         }
         .padding(.horizontal)

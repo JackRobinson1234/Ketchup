@@ -104,7 +104,7 @@ struct UploadFlowRestaurantSelector: View {
                         }
                     }) {
                         Image(systemName: "xmark")
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                     }
                 }
             }

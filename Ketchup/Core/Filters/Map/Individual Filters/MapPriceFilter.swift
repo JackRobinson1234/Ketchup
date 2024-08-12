@@ -20,7 +20,7 @@ struct MapPriceFilter: View {
                 Text("Filter by Price")
                     .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                 Spacer()
             }
             .padding(.leading)
@@ -48,7 +48,7 @@ struct MapPriceFilter: View {
                                     }
                                 Text(price)
                                     .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(.black)
                             }
                             .padding()
                             .background(Color.white)
@@ -63,7 +63,7 @@ struct MapPriceFilter: View {
                 HStack{
                     Text("No Price Filters Selected")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.black)
                         .bold()
                     Spacer()
                 }
@@ -76,7 +76,7 @@ struct MapPriceFilter: View {
                     HStack{
                         ForEach(filteredPrice, id: \.self) { price in
                             Text(price)
-                                .foregroundStyle(.gray)
+                                .foregroundStyle(.black)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {

@@ -34,7 +34,7 @@ struct ActivityCell: View {
                     
                     Text("@\(activity.username)")
                         .font(.custom("MuseoSansRounded-700", size: 14))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .lineLimit(1)
                 }
             }
@@ -63,7 +63,7 @@ struct ActivityCell: View {
             }
         }
         .font(.custom("MuseoSansRounded-300", size: 13))
-        .foregroundColor(.primary)
+        .foregroundColor(.black)
         .lineLimit(3)
         .multilineTextAlignment(.leading)
     }
@@ -138,7 +138,7 @@ struct ActivityCell: View {
 extension Text {
     func activityCellFontStyle() -> Text {
         self.font(.custom("MuseoSansRounded-300", size: 14))
-            .foregroundColor(.primary)
+            .foregroundColor(.black)
     }
 }
 

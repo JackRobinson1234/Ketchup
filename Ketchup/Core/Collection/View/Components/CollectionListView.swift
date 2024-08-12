@@ -40,7 +40,7 @@ struct CollectionListView: View {
                                     .scaledToFit()
                                     .frame(width: 25, height: 25)
                                 
-                                Text("Add Item")
+                                Text("Add Restaurant")
                                     .font(.custom("MuseoSansRounded-500", size: 16))
                                     .foregroundStyle(Color("Colors/AccentColor"))
                                 Spacer()

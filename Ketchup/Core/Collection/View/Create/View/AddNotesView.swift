@@ -75,7 +75,7 @@ struct AddNotesView: View {
                     viewModel.dismissListView = true
                     dismiss()
                 } label: {
-                    Text("Add Item")
+                    Text("Add Restaurant")
                         .modifier(StandardButtonModifier(width: 250))
                 }
                 
@@ -86,7 +86,7 @@ struct AddNotesView: View {
             .cornerRadius(10)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.primary.opacity(0.8))
+        .background(Color.black.opacity(0.8))
     }
     
 }

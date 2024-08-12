@@ -4,74 +4,52 @@ import InstantSearchSwiftUI
 struct CommentsView: View {
     @StateObject var viewModel: CommentViewModel
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
-    let debouncer = Debouncer(delay: 1.0)
-
-    init(post: Binding<Post>) {
+    @FocusState private var isInputFocused: Bool
+    @ObservedObject var feedViewModel: FeedViewModel
+    
+    init(post: Binding<Post>, feedViewModel: FeedViewModel) {
         let viewModel = CommentViewModel(post: post)
         self._viewModel = StateObject(wrappedValue: viewModel)
+        self.feedViewModel = feedViewModel
     }
     
     var body: some View {
         NavigationStack {
             VStack {
-                if !viewModel.comments.isEmpty && !viewModel.isTagging {
+                if !viewModel.organizedComments.isEmpty && !viewModel.isTagging {
                     Text(viewModel.commentCountText)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .fontWeight(.semibold)
                         .padding(.top, 24)
                 }
-                ScrollView {
-                    Divider()
-                    VStack(spacing: 24) {
-                        if viewModel.isTagging {
-                            Text("Mention Users")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .fontWeight(.bold)
-                                .padding(.top, 10)
-                                .padding(.horizontal)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if !viewModel.filteredTaggedUsers.isEmpty{
-                                ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
-                                    Button(action: {
-                                        let username = user.username
-                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        viewModel.commentText = words.joined(separator: " ") + " "
-                                        viewModel.isTagging = false
-                                    }) {
-                                        UserCell(user: user)
-                                            .padding(.horizontal)
-                                    }
-                                    .contentShape(Rectangle())
+                ScrollViewReader { scrollViewProxy in
+                    ScrollView {
+                        Divider()
+                        VStack(spacing: 24) {
+                            if viewModel.isTagging {
+                                taggedUsersView
+                            } else {
+                                ForEach(viewModel.organizedComments, id: \.comment.id) { commentWithReplies in
+                                    CommentCell(comment: commentWithReplies.comment, replies: commentWithReplies.replies, viewModel: viewModel, isReply: false)
+                                        .id(commentWithReplies.comment.id)
+                                       
                                 }
-                                    
-                                } else {
-                                InfiniteList(searchViewModel.userHits, itemView: { hit in
-                                    Button{
-                                        let username = hit.object.username
-                                        var words = viewModel.commentText.split(separator: " ").map(String.init)
-                                        words.removeLast()
-                                        words.append("@" + username)
-                                        viewModel.commentText = words.joined(separator: " ") + " "
-                                        viewModel.isTagging = false
-                                    } label: {
-                                        UserCell(user: hit.object)
-                                            .padding()
-                                      
-                                    }
-                        
-                                    Divider()
-                                }, noResults: {
-                                    Text("No results found")
-                                        .foregroundStyle(.primary)
-                                })
-                                
                             }
-                        } else {
-                            ForEach(viewModel.comments) { comment in
-                                CommentCell(comment: comment, viewModel: viewModel)
-                            }
+                        }
+                    }
+                    .onChange(of: viewModel.lastAddedCommentId) { commentId in
+                            if let commentId = feedViewModel.selectedCommentId {
+                                scrollViewProxy.scrollTo(commentId)
+                                viewModel.highlightComment(commentId)
+                                feedViewModel.selectedCommentId = nil
+                            } else if let commentId = commentId {
+                            scrollViewProxy.scrollTo(commentId, anchor: .center)
+                        }
+                    }
+                    .onAppear {
+                        Task {
+                            try await viewModel.fetchComments()
+                            
                         }
                     }
                 }
@@ -80,36 +58,16 @@ struct CommentsView: View {
                 
                 HStack(spacing: 12) {
                     UserCircularProfileImageView(profileImageUrl: AuthService.shared.userSession?.profileImageUrl, size: .xSmall)
-                    CommentInputView(viewModel: viewModel)
+                    CommentInputView(viewModel: viewModel, isInputFocused: _isInputFocused)
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
             }
-            .onChange(of: viewModel.commentText){
-                if viewModel.filteredTaggedUsers.isEmpty{
-                    print("Entering 1")
-                    let text = viewModel.checkForAlgoliaTagging()
-                    if !text.isEmpty{
-                        print("Entering 2")
-                        searchViewModel.searchQuery = text
-                        print(text)
-                        Debouncer(delay: 0).schedule{
-                            print("Entering 3")
-                            searchViewModel.notifyQueryChanged()
-                        }
-                    }
-                }
+            .onChange(of: viewModel.commentText) {
+                handleCommentTextChange()
             }
-            .onAppear{
+            .onAppear {
                 viewModel.fetchFollowingUsers()
-            }
-            .sheet(isPresented: $viewModel.showOptionsSheet) {
-                if let comment = viewModel.selectedComment {
-                    ScrollView {
-                        CommentOptionsSheet(comment: comment, viewModel: viewModel)
-                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
-                    }
-                }
             }
             .overlay {
                 if viewModel.showEmptyView && !viewModel.isTagging {
@@ -117,12 +75,10 @@ struct CommentsView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            .onChange(of: viewModel.comments.count) {
-                viewModel.showEmptyView = viewModel.comments.isEmpty
+            .onChange(of: viewModel.organizedComments.count) {
+                viewModel.showEmptyView = viewModel.organizedComments.isEmpty
             }
-            .onAppear {
-                Task { try await viewModel.fetchComments() }
-            }
+            
             .navigationDestination(for: Comment.self) { comment in
                 ProfileView(uid: comment.commentOwnerUid)
             }
@@ -136,7 +92,66 @@ struct CommentsView: View {
                     }
                 }
             }
+            .onChange(of: viewModel.shouldFocusTextField) { newValue in
+                isInputFocused = newValue
+            }
             .listStyle(PlainListStyle())
         }
+    }
+    
+    
+    private var taggedUsersView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Mention Users")
+                .font(.custom("MuseoSansRounded-300", size: 16))
+                .fontWeight(.bold)
+                .padding(.top, 10)
+                .padding(.horizontal)
+            
+            if !viewModel.filteredTaggedUsers.isEmpty {
+                ForEach(viewModel.filteredTaggedUsers, id: \.id) { user in
+                    Button(action: {
+                        handleUserSelection(username: user.username)
+                    }) {
+                        UserCell(user: user)
+                            .padding(.horizontal)
+                    }
+                    .contentShape(Rectangle())
+                }
+            } else {
+                InfiniteList(searchViewModel.userHits, itemView: { hit in
+                    Button {
+                        handleUserSelection(username: hit.object.username)
+                    } label: {
+                        UserCell(user: hit.object)
+                            .padding()
+                    }
+                    Divider()
+                }, noResults: {
+                    Text("No results found")
+                        .foregroundStyle(.black)
+                })
+            }
+        }
+    }
+    
+    private func handleCommentTextChange() {
+        if viewModel.filteredTaggedUsers.isEmpty {
+            let text = viewModel.checkForAlgoliaTagging()
+            if !text.isEmpty {
+                searchViewModel.searchQuery = text
+                Debouncer(delay: 0).schedule {
+                    searchViewModel.notifyQueryChanged()
+                }
+            }
+        }
+    }
+    
+    private func handleUserSelection(username: String) {
+        var words = viewModel.commentText.split(separator: " ").map(String.init)
+        words.removeLast()
+        words.append("@" + username)
+        viewModel.commentText = words.joined(separator: " ") + " "
+        viewModel.isTagging = false
     }
 }

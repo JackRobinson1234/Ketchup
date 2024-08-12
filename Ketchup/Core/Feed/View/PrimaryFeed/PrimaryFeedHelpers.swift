@@ -87,16 +87,16 @@ struct RatingsView: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 10) {
                     if let foodRating = post.foodRating {
-                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
                     }
                     if let atmosphereRating = post.atmosphereRating {
-                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
                     }
                     if let valueRating = post.valueRating {
-                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
                     }
                     if let serviceRating = post.serviceRating {
-                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                        RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
                     }
                 }
                 .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))
@@ -107,7 +107,7 @@ struct RatingsView: View {
 
 struct FeedOverallRatingView: View {
     let rating: Double?
-    var font: Color? = .primary
+    var font: Color? = .black
     
     var body: some View {
         if let rating = rating {

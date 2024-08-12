@@ -25,6 +25,19 @@ struct RestaurantProfileHeaderView: View {
     @State private var showRatingDetails = false
     @State private var showSafariView = false
     @State private var showCollections = false
+    @State var showUploadPost = false
+    @StateObject var cameraViewModel: CameraViewModel = CameraViewModel()
+    @StateObject var uploadViewModel: UploadViewModel
+    init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+        self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._scrollPosition = scrollPosition
+        self._scrollTarget = scrollTarget
+        
+        // Initialize uploadViewModel with feedViewModel
+        _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: FeedViewModel()))
+    }
+
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
@@ -117,6 +130,15 @@ struct RestaurantProfileHeaderView: View {
                                     .foregroundColor(viewModel.isBookmarked ? Color("Colors/AccentColor") : .white)
                                     .font(.system(size: 24))
                             }
+                            Button{
+                                uploadViewModel.restaurant = viewModel.restaurant
+                                uploadViewModel.fromRestaurantProfile = true
+                                showUploadPost = true
+                            } label: {
+                                Image(systemName: "plus.circle")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 24))
+                            }
                             
                         }
                         .padding(.trailing, 16)
@@ -135,9 +157,9 @@ struct RestaurantProfileHeaderView: View {
                                 .padding(8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray, lineWidth: 1)
+                                        .stroke(Color.black, lineWidth: 1)
                                 )
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .font(.custom("MuseoSansRounded-500", size: 16))
                                 .foregroundStyle(.black)
                         }
                         .sheet(isPresented: $showSafariView) {
@@ -151,9 +173,9 @@ struct RestaurantProfileHeaderView: View {
                                 .padding(8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray, lineWidth: 1)
+                                        .stroke(Color.black, lineWidth: 1)
                                 )
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .font(.custom("MuseoSansRounded-500", size: 16))
                                 .foregroundStyle(.black)
                         }
                         .sheet(isPresented: $showSafariView) {
@@ -168,9 +190,9 @@ struct RestaurantProfileHeaderView: View {
                             .padding(8)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(Color.black, lineWidth: 1)
                             )
-                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 16))
                             .foregroundStyle(.black)
                     }
                     
@@ -183,13 +205,14 @@ struct RestaurantProfileHeaderView: View {
                                 showRatingDetails.toggle()
                             }
                         } label: {
-                            VStack(alignment: .leading, spacing: 2){
+                            VStack(alignment: .leading, spacing: 4){
                                 Text("Average")
                                     .font(.custom("MuseoSansRounded-500", size: 12))
                                     .foregroundStyle(.gray)
+                                    
                                 HStack(alignment: .center, spacing: 4) {
                                     
-                                    FeedOverallRatingView(rating: overallRating, font: .primary)
+                                    FeedOverallRatingView(rating: overallRating, font: .black)
                                     
                                     Image(systemName: showRatingDetails ? "chevron.down" : "chevron.right")
                                         .foregroundColor(.gray)
@@ -212,16 +235,16 @@ struct RestaurantProfileHeaderView: View {
                         Text("Average Ratings")
                             .font(.custom("MuseoSansRounded-700", size: 14))
                         if let foodRating = viewModel.foodRating {
-                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
                         }
                         if let atmosphereRating = viewModel.atmosphereRating {
-                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
                         }
                         if let valueRating = viewModel.valueRating {
-                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
                         }
                         if let serviceRating = viewModel.serviceRating {
-                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .primary)
+                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
                         }
                     }
                     .padding()
@@ -241,10 +264,26 @@ struct RestaurantProfileHeaderView: View {
                 RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
                                               scrollTarget: $scrollTarget)
             }
+            .overlay{
+                if uploadViewModel.showSuccessMessage {
+                                successOverlay
+                                    .transition(.opacity)
+                                    .onAppear {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                            withAnimation {
+                                                uploadViewModel.showSuccessMessage = false
+                                            }
+                                        }
+                                    }
+                            }
+            }
             .onAppear {
                 Task {
                     await viewModel.checkBookmarkStatus()
                 }
+            }
+            .fullScreenCover(isPresented: $showUploadPost){
+                CameraView(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
             }
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {
@@ -300,5 +339,31 @@ struct RestaurantProfileHeaderView: View {
         }
         
         return nil
+    }
+    private var successOverlay: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack {
+                    Image(systemName: "checkmark")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(.red)
+                    Text("Post Uploaded")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding(.top, 5)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 4) // Optional: add a shadow for better visibility
+                Spacer()
+            }
+            Spacer()
+        }
+        .padding()
     }
 }

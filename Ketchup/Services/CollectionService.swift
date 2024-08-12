@@ -53,53 +53,53 @@ class CollectionService {
     //MARK: addItemToCollection
     /// Adds item to the collection Id that is already attached
     /// - Parameter collectionItem: item to be added to the item.collectionID colecton
-        // ... existing code ...
-
-        func addItemToCollection(collectionItem: CollectionItem) async throws {
-            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
-            let subCollectionRef = collectionRef.collection("items")
-            
-            guard let itemData = try? Firestore.Encoder().encode(collectionItem) else {
-                print("not encoding collection item right")
-                return
-            }
-            
-            let query = subCollectionRef.whereField("id", isEqualTo: collectionItem.id)
-            let querySnapshot = try await query.getDocuments()
-            
-            if querySnapshot.documents.isEmpty {
-                try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(1))])
-                
-                // Update tempImageUrls
-                var collection = try await collectionRef.getDocument(as: Collection.self)
-                collection.updatetempImageUrls(with: collectionItem)
-                if let urls = collection.tempImageUrls {
-                    try await collectionRef.updateData(["tempImageUrls": urls])
-                }
-            }
-            
-            try await subCollectionRef.document(collectionItem.id).setData(itemData)
+    // ... existing code ...
+    
+    func addItemToCollection(collectionItem: CollectionItem) async throws {
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
+        let subCollectionRef = collectionRef.collection("items")
+        
+        guard let itemData = try? Firestore.Encoder().encode(collectionItem) else {
+            print("not encoding collection item right")
+            return
         }
+        
+        let query = subCollectionRef.whereField("id", isEqualTo: collectionItem.id)
+        let querySnapshot = try await query.getDocuments()
+        
+        if querySnapshot.documents.isEmpty {
+            try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(1))])
+            
+            // Update tempImageUrls
+            var collection = try await collectionRef.getDocument(as: Collection.self)
+            collection.updatetempImageUrls(with: collectionItem)
+            if let urls = collection.tempImageUrls {
+                try await collectionRef.updateData(["tempImageUrls": urls])
+            }
+        }
+        
+        try await subCollectionRef.document(collectionItem.id).setData(itemData)
+    }
     
     // MARK: removeItemFromCollection
     /// - Parameter collectionItem: item to be deleted
     func removeItemFromCollection(collectionItem: CollectionItem) async throws {
-            let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
-            let subCollectionRef = collectionRef.collection("items").document(collectionItem.id)
-            
-            // Delete the item document from the subcollection
-            try await subCollectionRef.delete()
-            try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
-            
-            // Update tempImageUrls
-            var collection = try await collectionRef.getDocument(as: Collection.self)
-            collection.removeCoverImageUrl(for: collectionItem)
-            if let urls = collection.tempImageUrls {
-                try await collectionRef.updateData(["tempImageUrls": urls])
-            } else {
-                try await collectionRef.updateData(["tempImageUrls": FieldValue.delete()])
-            }
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionItem.collectionId)
+        let subCollectionRef = collectionRef.collection("items").document(collectionItem.id)
+        
+        // Delete the item document from the subcollection
+        try await subCollectionRef.delete()
+        try await collectionRef.updateData(["restaurantCount": FieldValue.increment(Int64(-1))])
+        
+        // Update tempImageUrls
+        var collection = try await collectionRef.getDocument(as: Collection.self)
+        collection.removeCoverImageUrl(for: collectionItem)
+        if let urls = collection.tempImageUrls {
+            try await collectionRef.updateData(["tempImageUrls": urls])
+        } else {
+            try await collectionRef.updateData(["tempImageUrls": FieldValue.delete()])
         }
+    }
     //MARK: uploadCollection
     /// Uploads a new Collection to firebase
     /// - Parameters:
@@ -141,8 +141,8 @@ class CollectionService {
         try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
         print("Collection deleted successfully.")
     }
-
-
+    
+    
     func fetchRestaurantCollections(restaurantId: String) async throws -> [Collection] {
         var fetchedCollections: [Collection] = []
         let collectionIds = try await FirestoreConstants.RestaurantCollection.document(restaurantId).collection("collections").getDocuments()
@@ -158,17 +158,56 @@ class CollectionService {
         return fetchedCollections
     }
     func fetchPaginatedCollections(lastDocument: QueryDocumentSnapshot?, limit: Int) async throws -> (collections: [Collection], lastDocument: QueryDocumentSnapshot?) {
-            var query = FirestoreConstants.CollectionsCollection
+        var query = FirestoreConstants.CollectionsCollection
             .whereField("restaurantCount", isGreaterThan: 0)
-                .order(by: "timestamp", descending: true)
-                .limit(to: limit)
-            
-            if let lastDocument = lastDocument {
-                query = query.start(afterDocument: lastDocument)
-            }
-            
-            let snapshot = try await query.getDocuments()
-            let collections = try snapshot.documents.compactMap { try $0.data(as: Collection.self) }
-            return (collections, snapshot.documents.last)
+            .order(by: "timestamp", descending: true)
+            .limit(to: limit)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
         }
+        
+        let snapshot = try await query.getDocuments()
+        let collections = try snapshot.documents.compactMap { try $0.data(as: Collection.self) }
+        return (collections, snapshot.documents.last)
+    }
+    func likeCollection(_ collection: Collection) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        async let _ = try FirestoreConstants.CollectionsCollection.document(collection.id).collection("collection-likes").document(uid).setData([:])
+        async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-collection-likes").document(collection.id).setData([:])
+    }
+    
+    func unlikeCollection(_ collection: Collection) async throws {
+        guard collection.likes > 0 else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        async let _ = try FirestoreConstants.CollectionsCollection.document(collection.id).collection("collection-likes").document(uid).delete()
+        async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-collection-likes").document(collection.id).delete()
+        
+
+    }
+    
+    func checkIfUserLikedCollection(_ collection: Collection) async throws -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        let snapshot = try await FirestoreConstants.UserCollection.document(uid).collection("user-collection-likes").document(collection.id).getDocument()
+        return snapshot.exists
+    }
+    
+    func fetchUserLikedCollections(userId: String) async throws -> [Collection] {
+        let querySnapshot = try await FirestoreConstants
+            .UserCollection
+            .document(userId)
+            .collection("user-collection-likes")
+            .getDocuments()
+        let collectionIds = querySnapshot.documents.map { $0.documentID }
+        var likedCollections: [Collection] = []
+        for collectionId in collectionIds {
+            do {
+                let collection = try await self.fetchCollection(withId: collectionId)
+                likedCollections.append(collection)
+            } catch {
+                print("Error fetching collection with id \(collectionId): \(error.localizedDescription)")
+            }
+        }
+        return likedCollections
+    }
 }

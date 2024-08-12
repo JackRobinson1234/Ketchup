@@ -99,7 +99,7 @@ struct BookmarkItemCell: View {
             VStack(alignment: .leading) {
                 Text(bookmark.restaurantName)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                     .lineLimit(1)
                 
                 if let city = bookmark.restaurantCity, let state = bookmark.restaurantState {

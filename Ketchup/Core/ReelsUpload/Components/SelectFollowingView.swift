@@ -77,7 +77,7 @@ struct SelectFollowingView: View {
                             Divider()
                         }, noResults: {
                             Text("No results found")
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.black)
                         })
                     }
                 }
@@ -88,7 +88,7 @@ struct SelectFollowingView: View {
                 dismiss()
             }) {
                 Image(systemName: "chevron.left")
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
             })
         
         .onAppear(perform: fetchFollowingUsers)

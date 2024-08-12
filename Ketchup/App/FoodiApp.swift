@@ -161,12 +161,11 @@ struct KetchupApp: App {
     private func configureNavigationBarAppearance() {
         let appearance = UINavigationBarAppearance()
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "MuseoSansRounded-1000", size: 20)!
+            .font: UIFont(name: "MuseoSansRounded-900", size: 20)!
         ]
         appearance.largeTitleTextAttributes = attributes
         appearance.titleTextAttributes = attributes
-        appearance.configureWithTransparentBackground()
-        
+        appearance.backgroundColor = UIColor.white
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().compactAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance

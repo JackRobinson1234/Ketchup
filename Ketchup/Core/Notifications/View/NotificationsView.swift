@@ -11,6 +11,8 @@ struct NotificationsView: View {
     @StateObject var viewModel = NotificationsViewModel(service: NotificationService())
     @State var dragDirection = "left"
     @State var isDragging = false
+    @StateObject var feedViewModel = FeedViewModel()
+    @StateObject var collectionsViewModel = CollectionsViewModel()
     
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)
@@ -29,7 +31,7 @@ struct NotificationsView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.notifications) { notification in
-                        NotificationCell(viewModel: viewModel, notification: notification)
+                        NotificationCell(viewModel: viewModel, notification: notification, feedViewModel: feedViewModel, collectionsViewModel: collectionsViewModel)
                             .padding(.top)
                     }
                 }
@@ -48,6 +50,8 @@ struct NotificationsView: View {
             .navigationDestination(for: User.self, destination: { user in
                 ProfileView(uid: user.id)
             })
+            
+            
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -60,6 +64,7 @@ struct NotificationsView: View {
                     }
                 }
             }
+          
         }
         .gesture(drag)
         .onAppear {

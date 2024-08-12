@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ClusterRestaurantListView: View {
-    let restaurants: [Restaurant]
+    let restaurants: [ClusterRestaurant]
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -27,17 +27,25 @@ struct ClusterRestaurantListView: View {
 }
 
 struct RestaurantRowView: View {
-    let restaurant: Restaurant
+    let restaurant: ClusterRestaurant
 
     var body: some View {
         HStack {
-            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .small)
+            RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
             VStack(alignment: .leading) {
                 Text(restaurant.name)
                     .font(.headline)
-                Text(restaurant.categoryName ?? "")
+                    .font(.custom("MuseoSansRounded-300", size: 18))
+                Text(restaurant.cuisine ?? "")
                     .font(.subheadline)
                     .foregroundColor(.gray)
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                if let price = restaurant.price {
+                    Text(price)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                }
             }
         }
     }

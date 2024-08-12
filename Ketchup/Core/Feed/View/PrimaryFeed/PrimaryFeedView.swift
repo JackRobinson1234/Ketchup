@@ -76,7 +76,7 @@ struct PrimaryFeedView: View {
                         .refreshable {
                             await refreshFeed()
                         }
-                        .safeAreaPadding(.top, 90)
+                        .safeAreaPadding(.top, 100)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
@@ -101,9 +101,16 @@ struct PrimaryFeedView: View {
                             Button {
                                 showSearchView.toggle()
                             } label: {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 27))
-                                    .frame(width: 60)
+                                VStack{
+                                    
+                                    Image(systemName: "magnifyingglass")
+                                        .font(.system(size: 27))
+                                        .frame(width: 60)
+                                    Text("Search")
+                                        .foregroundStyle(.gray)
+                                        
+                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                }
                             }
                             Spacer()
                             Button{
@@ -118,25 +125,33 @@ struct PrimaryFeedView: View {
                             Button {
                                 showFilters.toggle()
                             } label: {
+                                VStack{
                                 ZStack {
-                                    Image(systemName: "slider.horizontal.3")
-                                        .imageScale(.large)
-                                        .shadow(radius: 4)
-                                        .font(.system(size: 23))
-                                    if filtersViewModel.hasNonLocationFilters {
-                                        Circle()
-                                            .fill(Color("Colors/AccentColor"))
-                                            .frame(width: 12, height: 12)
-                                            .offset(x: 12, y: 12)
+                                    
+                                        Image(systemName: "slider.horizontal.3")
+                                            .imageScale(.large)
+                                            .shadow(radius: 4)
+                                            .font(.system(size: 23))
+                                        if filtersViewModel.hasNonLocationFilters {
+                                            Circle()
+                                                .fill(Color("Colors/AccentColor"))
+                                                .frame(width: 12, height: 12)
+                                                .offset(x: 12, y: 12)
+                                        }
+                                        
                                     }
+                                    Text("Filters")
+                                        .foregroundStyle(.gray)
+                                       
+                                        .font(.custom("MuseoSansRounded-500", size: 10))
                                 }
                                 .frame(width: 60)
                             }
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, 20)
-                        .foregroundStyle(.primary)
-                        .padding(.bottom, 10)
+                        .foregroundStyle(.black)
+                      
                         HStack(spacing: 40) {
                             Button {
                                 if canSwitchTab {
@@ -152,7 +167,7 @@ struct PrimaryFeedView: View {
                                 }
                             } label: {
                                 Text("Following")
-                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                    .font(.custom("MuseoSansRounded-500", size: 18))
                                     .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
                                     .padding(.bottom, 5)
                                     .overlay(
@@ -178,7 +193,7 @@ struct PrimaryFeedView: View {
                                 }
                             } label: {
                                 Text("Discover")
-                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                    .font(.custom("MuseoSansRounded-500", size: 18))
                                     .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
                                     .padding(.bottom, 5)
                                     .overlay(

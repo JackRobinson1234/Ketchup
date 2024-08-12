@@ -19,7 +19,6 @@ struct ProfileMapView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var newFeedViewModel = FeedViewModel()
     @State var selectedCluster: PostClusterAnnotation?
-    
     // Filter posts to exclude those with restaurant IDs starting with "construction"
     var filteredPosts: [Post] {
         feedViewModel.posts.filter { !$0.restaurant.id.starts(with: "construction") }
@@ -33,16 +32,16 @@ struct ProfileMapView: View {
     
     var body: some View {
         if !filteredPosts.isEmpty {
-            Map(initialPosition: .automatic) {
+            Map(initialPosition: .region(viewModel.initialUSRegion)) {
                 ForEach(viewModel.annotations, id: \.self) { item in
-                                        Annotation(item.post.restaurant.name, coordinate: item.coordinate) {
-                                            Button {
-                                                print("DEBUG: Single post annotation tapped")
-                                                selectedWrittenPost = item.post
-                                            } label: {
-                                                SinglePostAnnotationView(post: item.post)
-                                            }
-                                        }
+                    Annotation(item.post.restaurant.name, coordinate: item.coordinate) {
+                        Button {
+                            print("DEBUG: Single post annotation tapped")
+                            selectedWrittenPost = item.post
+                        } label: {
+                            SinglePostAnnotationView(post: item.post)
+                        }
+                    }
                 }
                 ForEach(viewModel.clusters) { cluster in
                     Annotation("", coordinate: cluster.coordinate) {
@@ -57,15 +56,20 @@ struct ProfileMapView: View {
             }
             
             .readSize(onChange: { newValue in
+                print("DEBUG: Map size changed to \(newValue)")
                 viewModel.mapSize = newValue
+                print(newValue)
             })
-            .onAppear{
+            .onAppear {
+                print("DEBUG: ProfileMapView appeared")
                 viewModel.setPosts(posts: filteredPosts)
             }
             .onMapCameraChange { context in
+                print("DEBUG: Map camera changing - Center: \(context.region.center), Span: \(context.region.span)")
                 viewModel.currentRegion = context.region
             }
             .onMapCameraChange(frequency: .onEnd) { context in
+                print("DEBUG: Map camera change ended")
                 Task.detached { await viewModel.reloadAnnotations() }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
@@ -83,7 +87,7 @@ struct ProfileMapView: View {
                     updateOriginalFeedViewModel()
                 }
             }
-           
+            
             .fullScreenCover(item: $selectedPost) { post in
                 NavigationStack {
                     SecondaryFeedView(viewModel: newFeedViewModel, hideFeedOptions: true, titleText: "Posts")
@@ -126,22 +130,7 @@ struct ProfileMapView: View {
     }
 }
 
-struct MultiPostAnnotationView: View {
-    let count: Int
-    
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 40, height: 40)
-                .shadow(radius: 2)
-            
-            Text("\(count)")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.black)
-        }
-    }
-}
+
 
 struct SinglePostAnnotationView: View {
     let post: Post
@@ -161,6 +150,7 @@ struct SinglePostAnnotationView: View {
             }
         } else {
             PostAnnotationView(post: post)
+            
         }
     }
 }
@@ -220,7 +210,7 @@ struct PostAnnotationView: View {
                         .scaledToFill()
                         .frame(width: 40, height: 40)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
-                        
+                    
                 } else {
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.gray.opacity(0.3))
@@ -238,30 +228,44 @@ class ProfileMapViewModel: ObservableObject {
     var annotations: [PostMapAnnotation] = []
     var clusters: [PostClusterAnnotation] = []
     var mapSize: CGSize = .zero
-    @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
+    let initialUSRegion = MKCoordinateRegion(
+           center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
+           span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60)
+       )
+    @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(
+           center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
+           span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60)
+       )
     func setPosts(posts: [Post]) {
+        print("DEBUG: Setting posts - Count: \(posts.count)")
         annotations = []
         clusters = []
         self.posts = posts
-        let postAnnotations: [PostMapAnnotation] = self.posts.compactMap {post in
+        let postAnnotations: [PostMapAnnotation] = self.posts.compactMap { post in
             if let coordinates = post.coordinates {
                 return PostMapAnnotation(coordinate: coordinates, post: post)
             } else {
+                print("DEBUG: Post without coordinates - ID: \(post.id)")
                 return nil
             }
         }
-
-        Task{
+        
+        print("DEBUG: Created \(postAnnotations.count) annotations")
+        
+        Task {
             await clusterManager.add(postAnnotations)
+            print("DEBUG: Added annotations to cluster manager")
             await reloadAnnotations()
         }
-
     }
+    
     func reloadAnnotations() async {
-        async let changes = clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
-        await applyChanges(changes)
+        print("DEBUG: Reloading annotations - Map size: \(mapSize), Region center: \(currentRegion.center)")
+        let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
+        print("DEBUG: Cluster manager reload complete")
+        applyChanges(changes)
     }
-    @MainActor
+    
     private func applyChanges(_ difference: ClusterManager<PostMapAnnotation>.Difference) {
         for removal in difference.removals {
             switch removal {
@@ -284,8 +288,6 @@ class ProfileMapViewModel: ObservableObject {
                 ))
             }
         }
-        print(annotations.count)
-        print(clusters.count)
     }
 }
 struct PostMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {

@@ -44,7 +44,7 @@ struct CurrentUserProfileView: View {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 2) {
                                 //MARK: Profile Header
-                                ProfileHeaderView(viewModel: profileViewModel, profileSection: $currentProfileSection, showZoomedProfileImage: $showZoomedProfileImage)
+                                ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
                                     .padding(.top)
                                 //MARK: Slide bar
                                 ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
@@ -68,7 +68,7 @@ struct CurrentUserProfileView: View {
                                 showSettings.toggle()
                             } label: {
                                 Image(systemName: "gearshape")
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
                             }
                         }
 
@@ -82,8 +82,7 @@ struct CurrentUserProfileView: View {
                                 ZStack {
                                     Image(systemName: "bell")
                                         .font(.custom("MuseoSansRounded-300", size: 18))
-                                        .foregroundColor(.primary)
-                                        .padding()
+                                        .foregroundColor(.black)
 
                                     if  profileViewModel.user.notificationAlert > 0 {
                                         Circle()
@@ -94,7 +93,7 @@ struct CurrentUserProfileView: View {
                                 }
                             }
                             .font(.custom("MuseoSansRounded-300", size: 18))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                         }
                     }
 

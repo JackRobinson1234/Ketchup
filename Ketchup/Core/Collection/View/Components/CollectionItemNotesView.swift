@@ -21,7 +21,7 @@ struct ItemNotesView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 10)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.black)
                                 .padding()
                             
                         }
@@ -58,7 +58,7 @@ struct ItemNotesView: View {
             
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.primary.opacity(0.5))
+        .background(Color.black.opacity(0.5))
     }
 }
 

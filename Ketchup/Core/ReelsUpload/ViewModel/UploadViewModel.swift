@@ -44,7 +44,8 @@ class UploadViewModel: ObservableObject {
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
     @Published var thumbnailImage: UIImage?
     @Published var dismissAll: Bool = false
-    
+    @Published var fromRestaurantProfile = true
+    @Published var showSuccessMessage = false
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
@@ -217,7 +218,10 @@ class UploadViewModel: ObservableObject {
         uploadSuccess = true
         feedViewModel.showPostAlert = true
         feedViewModel.posts.insert(post, at: 0)
-        currentUserFeedViewModel.posts.insert(post, at: 0)
+        if !fromRestaurantProfile{
+            currentUserFeedViewModel.posts.insert(post, at: 0)
+        }
+        showSuccessMessage = true
     }
 
     private func handleUploadFailure(error: Error) {

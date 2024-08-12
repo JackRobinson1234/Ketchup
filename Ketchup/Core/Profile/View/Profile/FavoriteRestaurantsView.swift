@@ -27,7 +27,7 @@ struct FavoriteRestaurantsView: View {
                                 .font(.custom("MuseoSansRounded-500", size: 10))
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.black)
                             
                         }
                         

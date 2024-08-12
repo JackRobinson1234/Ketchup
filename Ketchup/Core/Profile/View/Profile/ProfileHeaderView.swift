@@ -14,12 +14,10 @@ struct ProfileHeaderView: View {
     @State private var userFavorites: [FavoriteRestaurant]? = []
     @State var showFollowersList: Bool = false
     @State var showFollowingList: Bool = false
-    @Binding var profileSection: ProfileSectionEnum
     @Binding var showZoomedProfileImage: Bool
     
-    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = [], profileSection: Binding<ProfileSectionEnum>, showZoomedProfileImage: Binding<Bool>) {
+    init(showEditProfile: Bool = false, viewModel: ProfileViewModel, userFavorites: [FavoriteRestaurant] = [], showZoomedProfileImage: Binding<Bool>) {
         self.viewModel = viewModel
-        self._profileSection = profileSection
         self._showZoomedProfileImage = showZoomedProfileImage
         self.userFavorites = viewModel.user.favorites
     }
@@ -27,7 +25,7 @@ struct ProfileHeaderView: View {
     var body: some View {
         let user = viewModel.user
         let frameWidth = UIScreen.main.bounds.width / 3 - 15
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
             HStack(alignment: .bottom) {
                 Spacer()
                 UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
@@ -39,10 +37,10 @@ struct ProfileHeaderView: View {
                     Text(user.fullname)
                         .font(.custom("MuseoSansRounded-300", size: 20))
                         .fontWeight(.bold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     Text("@\(user.username)")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     
@@ -96,16 +94,20 @@ struct ProfileHeaderView: View {
                     UserStatView(value: user.stats.following, title: "Following")
                 }
                 Button {
-                    profileSection = .posts
+                    viewModel.profileSection = .posts
                 } label: {
                     UserStatView(value: user.stats.posts, title: "Posts")
                 }
                 Button {
-                    profileSection = .collections
+                    viewModel.profileSection = .collections
                 } label: {
                     UserStatView(value: user.stats.collections, title: "Collections")
                 }
             }
+            Text("Favorites")
+                .font(.custom("MuseoSansRounded-700", size: 14))
+                .foregroundStyle(.black)
+            
             if user.privateMode == false || user.isCurrentUser {
                 FavoriteRestaurantsView(user: user, favorites: user.favorites)
             }
@@ -144,7 +146,7 @@ struct UserStatView: View {
         .opacity(value == 0 ? 0.5 : 1.0)
         .frame(width: UIScreen.main.bounds.width / 4 - 30, alignment: .center)
         .padding(.vertical, 10)
-        .foregroundColor(.primary)
+        .foregroundColor(.black)
     }
 }
 

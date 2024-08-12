@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ScrollFeedOverallRatingView: View {
     let rating: Double?
-    var font: Color? = .primary
+    var font: Color? = .black
     var body: some View {
         
         if let rating = rating {

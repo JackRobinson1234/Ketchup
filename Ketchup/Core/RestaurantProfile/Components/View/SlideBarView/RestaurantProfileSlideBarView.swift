@@ -131,7 +131,7 @@ struct UnderlineImageModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .foregroundStyle(isSelected ? Color("Colors/AccentColor") : .primary)
+            .foregroundStyle(isSelected ? Color("Colors/AccentColor") : .black)
             .overlay(
                 VStack {
                     Spacer()

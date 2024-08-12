@@ -41,35 +41,59 @@ struct CollectionView: View {
                 ScrollView(showsIndicators: false){
                     if let collection = collectionsViewModel.selectedCollection {
                         VStack{
+                            
                             //MARK: Cover Image
-                           CollageImage(collection: collection, width: 200)
+                            HStack(alignment: .bottom){
+                                if let cover = collection.coverImageUrl {
+                                    CollageImage(tempImageUrls: [cover], width: 200)
+                                } else if let tempImageUrls = collection.tempImageUrls {
+                                    CollageImage(tempImageUrls: tempImageUrls, width: 200)
+                                } else {
+                                    Image(systemName: "folder")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 200, height: 200)
+                                        .foregroundStyle(.black)
+                                }
+                            
+                            }
+                               
                             //MARK: Title
-                            Text(collection.name)
-                                .font(.custom("MuseoSansRounded-300", size: 20))
-                                .bold()
-                                .foregroundStyle(.primary)
+                            HStack{
+                                Text(collection.name)
+                                    .font(.custom("MuseoSansRounded-300", size: 20))
+                                    .bold()
+                                    .foregroundStyle(.black)
+                            }
                             //MARK: UserName
                             NavigationLink(destination: ProfileView(uid: collection.uid)){
-                                Text("by: @\(collection.username)")
+                                Text("by: @")
                                     .font(.custom("MuseoSansRounded-300", size: 18))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.black)
+                                +
+                                Text(collection.username)
+                                    .font(.custom("MuseoSansRounded-500", size: 18))
+                                    .foregroundStyle(.black)
+                                
                             }
-                            if let description = collection.description {
+                            if let description = collection.description, !description.isEmpty {
                                 VStack{
                                     Text(description)
                                         .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundStyle(.primary)
+                                        .foregroundStyle(.black)
                                 }
                                 .frame(width: UIScreen.main.bounds.width * 3 / 4)
-                                      
+                                
                             }
+                            LikeButton(collection: collection, viewModel: collectionsViewModel)
+                                .padding(.vertical, 2)
+
                             // MARK: Grid View
                             HStack(spacing: 0) {
                                 Image(systemName: currentSection == .grid ? "square.grid.2x2.fill" : "square.grid.2x2")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 50, height: 20)
-                                
                                     .onTapGesture {
                                         withAnimation {
                                             self.currentSection = .grid
@@ -126,7 +150,7 @@ struct CollectionView: View {
                                     } label: {
                                         Text("Edit")
                                             .padding()
-                                            .foregroundStyle(.primary)
+                                            .foregroundStyle(.black)
                                     }
                                 } else {
                                     Button {
@@ -140,7 +164,7 @@ struct CollectionView: View {
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 6, height: 6)
-                                                .foregroundStyle(.primary)
+                                                .foregroundStyle(.black)
                                             
                                         }
                                     }
@@ -155,32 +179,58 @@ struct CollectionView: View {
                         .focused($isNotesFocused) // Connects the focus state to the editor view
                         .onAppear {
                             isNotesFocused = true // Automatically focuses the TextEditor when it appears
-                    }
+                        }
                 }
                 
             }
+            .onAppear{
+                Task{
+                    await collectionsViewModel.checkIfUserLikedCollection()
+                }
+            }
             .gesture(drag)
-                    .sheet(isPresented: $showEditCollection) {
-                        EditCollectionView(collectionsViewModel: collectionsViewModel)
-                            .onDisappear {
-                                if collectionsViewModel.dismissCollectionView {
-                                    collectionsViewModel.dismissCollectionView = false
-                                    dismiss()
-                                }
-                            
-                            }
-                    }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
-                    .sheet(isPresented: $showingOptionsSheet) {
-                        if let selectedCollection = collectionsViewModel.selectedCollection {
-                            CollectionOptionsSheet(collection: selectedCollection)
-                                .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+            .sheet(isPresented: $showEditCollection) {
+                EditCollectionView(collectionsViewModel: collectionsViewModel)
+                    .onDisappear {
+                        if collectionsViewModel.dismissCollectionView {
+                            collectionsViewModel.dismissCollectionView = false
+                            dismiss()
                         }
+                        
                     }
-                
+            }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
+            .sheet(isPresented: $showingOptionsSheet) {
+                if let selectedCollection = collectionsViewModel.selectedCollection {
+                    CollectionOptionsSheet(collection: selectedCollection)
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
+                }
+            }
+            
             
         }
     }
 }
-#Preview {
-    CollectionView(collectionsViewModel: CollectionsViewModel())
+
+struct LikeButton: View {
+    let collection: Collection
+    @ObservedObject var viewModel: CollectionsViewModel
+    
+    var body: some View {
+        Button(action: {
+            Task {
+                if collection.didLike {
+                    await viewModel.unlike(collection)
+                } else {
+                    await viewModel.like(collection)
+                }
+            }
+        }) {
+            HStack(spacing: 1){
+                Image(systemName: collection.didLike ? "heart.fill" : "heart")
+                    .foregroundColor(collection.didLike ? .red : .gray)
+                Text("\(collection.likes)")
+                    .foregroundColor(.gray)
+            }
+        }
+    }
 }

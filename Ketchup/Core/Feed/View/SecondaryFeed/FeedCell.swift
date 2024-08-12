@@ -180,7 +180,7 @@ struct FeedCell: View {
         }
         .sheet(isPresented: $showComments) {
     
-            CommentsView(post: $post)
+            CommentsView(post: $post, feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
                     pauseAllVideos()
@@ -239,6 +239,7 @@ struct FeedCell: View {
                 .onAppear {
                     pauseAllVideos()
                 }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
     }
     
@@ -503,6 +504,8 @@ struct FeedCell: View {
             
             Button {
                 handleLikeTapped()
+                triggerHapticFeedback()
+
             } label: {
                 InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
             }
@@ -510,6 +513,7 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showComments.toggle()
+
             } label: {
                 InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
             }
@@ -517,6 +521,8 @@ struct FeedCell: View {
             if viewModel.showBookmarks{
                 Button {
                     handleBookmarkTapped()
+                    triggerHapticFeedback()
+
                 } label: {
                     InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                 }
@@ -525,6 +531,7 @@ struct FeedCell: View {
                 Button {
                     //videoCoordinator.pause()
                     showCollections.toggle()
+
                 } label: {
                     InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
                 }
@@ -533,6 +540,7 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showShareView.toggle()
+
             } label: {
                 InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
             }
@@ -540,6 +548,8 @@ struct FeedCell: View {
             Button {
                 //videoCoordinator.pause()
                 showingOptionsSheet = true
+                
+
             } label: {
                 ZStack {
                     Rectangle()
@@ -556,21 +566,28 @@ struct FeedCell: View {
         }
     }
     private func handleIndexChange(_ index: Int) {
-            pauseAllVideos()
-            
-            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                let mediaItem = mixedMediaUrls[index]
-                if mediaItem.type == .video {
-                    currentlyPlayingVideoId = mediaItem.id
-                    playVideo(id: mediaItem.id)
-                }
-            } else if post.mediaType == .video && index == 0 {
-                if let firstVideoId = videoCoordinators.first?.0 {
-                    currentlyPlayingVideoId = firstVideoId
-                    playVideo(id: firstVideoId)
-                }
-            }
-        }
+          pauseAllVideos()
+          
+          if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+              // Ensure the index is within bounds
+              let safeIndex = min(max(index, 0), mixedMediaUrls.count - 1)
+              let mediaItem = mixedMediaUrls[safeIndex]
+              
+              if mediaItem.type == .video {
+                  currentlyPlayingVideoId = mediaItem.id
+                  playVideo(id: mediaItem.id)
+              } else {
+                  currentlyPlayingVideoId = nil
+              }
+          } else if post.mediaType == .video {
+              if let firstVideoId = videoCoordinators.first?.0 {
+                  currentlyPlayingVideoId = firstVideoId
+                  playVideo(id: firstVideoId)
+              }
+          } else {
+              currentlyPlayingVideoId = nil
+          }
+      }
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
         ZStack {
             if mediaItem.type == .photo {
@@ -761,6 +778,10 @@ struct FeedCell: View {
             
             // Play the first video if it's at index 0
             handleIndexChange(0)
+            if viewModel.selectedCommentId != nil {
+                let _ = print("Should be opening comments")
+                showComments = true
+            }
         }
     }
     

@@ -100,7 +100,7 @@ struct FiltersView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .imageScale(.small)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.black)
                                 .padding(6)
                                 .overlay(
                                     Circle()
@@ -147,7 +147,7 @@ struct CollapsedPickerView: View {
         VStack {
             HStack {
                 Text(title)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                 Spacer()
                 if count == 0 {
                     Text(emptyDescription)
@@ -155,14 +155,14 @@ struct CollapsedPickerView: View {
                 } else if count == 1 {
                     if title != "Post Type" {
                         Text("1 \(singularDescription)")
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(.black)
                     } else {
                         Text(singularDescription)
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(.black)
                     }
                 } else {
                     Text("\(count) \(pluralDescription)")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.black)
                 }
             }
             .fontWeight(.semibold)

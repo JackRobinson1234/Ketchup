@@ -39,7 +39,6 @@ class FeedViewModel: ObservableObject {
     @Published var currentTime: Double = 0.0
     @Published var isDragging = false
     @Published var startingPostId: String
-    @Published var earlyPosts: [Post]
     @Published var hasMorePosts: Bool = true
     @Published var showPostAlert: Bool = false
     @Published var showRepostAlert: Bool = false
@@ -61,11 +60,14 @@ class FeedViewModel: ObservableObject {
         }
     }
     @Published var showBookmarks = true
-    init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true) {
+    @Published var selectedCommentId: String?
+    
+
+    
+    init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true, selectedCommentId: String? = nil) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         self.startingPostId = startingPostId
-        self.earlyPosts = earlyPosts
         self.showBookmarks = showBookmarks
     }
     private func handleTabChange() async {
@@ -499,4 +501,5 @@ extension FeedViewModel {
         
         posts = copy
     }
+    
 }

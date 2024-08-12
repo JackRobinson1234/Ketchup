@@ -11,7 +11,7 @@ struct OverlayModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(.custom("MuseoSansRounded-300", size: 16))
-            .foregroundColor(.primary)
+            .foregroundColor(.black)
             .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 8)

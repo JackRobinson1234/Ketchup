@@ -22,7 +22,7 @@ struct CuisineFilter: View {
                 Text("Filter by Cuisine")
                     .font(.custom("MuseoSansRounded-300", size: 22))
                     .fontWeight(.semibold)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                 Spacer()
             }
             .padding(.leading)
@@ -50,7 +50,7 @@ struct CuisineFilter: View {
                                     }
                                 Text(cuisine)
                                     .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(.black)
                             }
                             .padding()
                             .background(Color.white)
@@ -64,7 +64,7 @@ struct CuisineFilter: View {
             } else {
                 HStack{
                     Text("No Cuisine Filters Selected")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(.black)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .bold()
                     Spacer()
@@ -100,8 +100,7 @@ struct CuisineFilter: View {
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
                             Text(cuisine)
-                                .foregroundStyle(.gray)
-                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.black)                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
                                         if !filtersViewModel.selectedCuisines.contains(cuisine) {
@@ -120,16 +119,14 @@ struct CuisineFilter: View {
                 /// if maximum filters are selected, display this message
             } else if filtersViewModel.selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
-                    .foregroundStyle(.gray)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .foregroundStyle(.black)                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .padding()
             }
             
             /// if the search doesn't return any results
             else if filteredCuisines.isEmpty {
                 Text("No cuisines matching \"\(searchText)\" found")
-                    .foregroundStyle(.gray)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .foregroundStyle(.black)                    .font(.custom("MuseoSansRounded-300", size: 16))
                     .padding()
             }
             
@@ -152,7 +149,8 @@ struct CuisineFilter: View {
             let lowercasedQuery = query.lowercased()
             let filtered = cuisineCategories.filter({
                 $0.lowercased().contains(lowercasedQuery)
-            }).map { $0.capitalized }
+            })
+                //.map { $0.capitalized }
             return filtered.filter { cuisine in
                 !filtersViewModel.selectedCuisines.contains(cuisine)
             }

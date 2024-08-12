@@ -44,7 +44,7 @@ struct ReportingView: View {
                         .focused($fieldIsActive)
                     
                     Text("Characters remaining: \(150 - customReason.count)")
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .onChange(of: customReason) {oldValue, newValue in
                                if newValue.count > 50 {

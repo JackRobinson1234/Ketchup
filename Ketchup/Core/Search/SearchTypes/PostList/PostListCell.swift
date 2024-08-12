@@ -26,28 +26,28 @@ struct PostListCell: View {
                     Text(restaurant.name)
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .fontWeight(.semibold)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                     Text("by \(post.user.fullname)")
                         .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                     if let cuisine = restaurant.cuisine {
                         Text(cuisine)
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     }
                     let city = restaurant.city ?? ""
                     let state = restaurant.state ?? ""
                     Text("\(city), \(state)")
                         .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.black)
                 }
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 
             
             Spacer()
             //MARK: Right Arrow
             Image(systemName: "chevron.right")
-                .foregroundStyle(.primary)
+                .foregroundStyle(.black)
                 .padding([.leading, .trailing])
         }
     }

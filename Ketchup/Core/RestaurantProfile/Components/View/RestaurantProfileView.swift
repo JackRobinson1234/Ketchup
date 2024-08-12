@@ -54,7 +54,6 @@ struct RestaurantProfileView: View {
     var body: some View {
         if isLoading {
             ProgressView("Loading...")
-               
                 .gesture(drag)
                 .onAppear {
                     Task {
