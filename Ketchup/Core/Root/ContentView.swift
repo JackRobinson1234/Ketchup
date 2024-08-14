@@ -23,8 +23,8 @@ struct ContentView: View {
                         checkInitialNavigation()
                     }
 
-            } else if viewModel.userSession == nil {
-                LoginView()
+            } else {
+                WelcomeView()
                     .customFont()
             }
         }
@@ -34,15 +34,6 @@ struct ContentView: View {
         if let initialTab = UserDefaults.standard.object(forKey: "initialTab") as? Int {
             NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])
             UserDefaults.standard.removeObject(forKey: "initialTab")
-// If you want to change tabs
-//            print("Found initial tab: \(initialTab)")
-//            DispatchQueue.main.async {
-//                self.tabBarController.selectedTab = initialTab
-//                print("Tab set to: \(self.tabBarController.selectedTab)")
-//                showNotifications = true
-//                UserDefaults.standard.removeObject(forKey: "initialTab")
-//            }
         }
     }
 }
-

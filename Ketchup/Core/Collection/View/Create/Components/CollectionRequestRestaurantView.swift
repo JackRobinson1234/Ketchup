@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseFirestoreInternal
 import FirebaseAuth
-
+import Firebase
 struct CollectionAddRestaurantView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var collectionsViewModel: CollectionsViewModel

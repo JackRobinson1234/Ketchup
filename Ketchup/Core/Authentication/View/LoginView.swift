@@ -21,7 +21,6 @@ struct LoginView: View {
         //self._viewModel = StateObject(wrappedValue: LoginViewModel())
         self.reAuthDelete = reAuthDelete
     }
-    
     var body: some View {
         NavigationStack {
             VStack {
@@ -40,8 +39,9 @@ struct LoginView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200)
+                    
                 }
-                
+                    
                 //MARK: Enter Email
                 VStack {
                     TextField("Enter your email", text: $viewModel.email)

@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestoreInternal
+import Firebase
 struct Bookmark: Identifiable, Codable, Equatable, Hashable {
     let id: String
     var restaurantName: String

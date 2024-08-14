@@ -58,23 +58,38 @@ struct EditProfileView: View {
                 //MARK: Edit username
                 VStack {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                         .onChange(of: viewModel.username) { oldValue, newValue in
-                            //lowercase and no space
-                            viewModel.username = viewModel.username.trimmingCharacters(in: .whitespaces).lowercased()
-                            //limits characters
-                            if newValue.count > 25 {
-                                viewModel.username = String(newValue.prefix(25))
-                            }
-                            //for the debouncer to wait
-                            viewModel.validUsername = nil
-                            if !viewModel.username.isEmpty {
-                                usernameDebouncer.schedule {
-                                    Task {
-                                        try await viewModel.checkIfUsernameAvailable()
-                                    }
-                                }
-                            }
-                        }
+                               // Remove any characters that are not allowed
+                               let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._")
+                               viewModel.username = newValue.filter { char in
+                                   char.unicodeScalars.allSatisfy { allowedCharacters.contains($0) }
+                               }
+                               
+                               // Convert to lowercase
+                               viewModel.username = viewModel.username.lowercased()
+                               
+                               // Remove leading and trailing periods
+                               viewModel.username = viewModel.username.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+                               
+                               // Limit to 30 characters (Instagram's limit)
+                               if viewModel.username.count > 25 {
+                                   viewModel.username = String(viewModel.username.prefix(25))
+                               }
+                               
+                               // Reset validation state
+                               viewModel.validUsername = nil
+                               
+                               // Check availability if not empty
+                               if !viewModel.username.isEmpty {
+                                   usernameDebouncer.schedule {
+                                       Task {
+                                           try await viewModel.checkIfUsernameAvailable()
+                                       }
+                                   }
+                               }
+                           }
                     
                     //MARK: Username availability
                     if viewModel.username.count == 30 {

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import FirebaseFirestoreInternal
 import FirebaseAuth
+import Firebase
 class ReportService {
     static let shared = ReportService() // Singleton instance
     private init() {}

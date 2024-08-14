@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import FirebaseFirestoreInternal
+import Firebase
 struct ActivityCell: View {
     var activity: Activity
     @ObservedObject var viewModel: ActivityViewModel

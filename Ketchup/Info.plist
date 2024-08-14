@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>Ketchup.Ketchup</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -10,6 +14,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.921618733326-fs9hmge8ng0ge0egpp91giejm3on1jsi</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>app-1-921618733326-ios-a2a8f2ec66b16406355f5f</string>
 			</array>
 		</dict>
 	</array>
@@ -43,11 +55,5 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
-	<key>UIUserInterfaceStyle</key>
-	<string>Light</string>
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>Ketchup.Ketchup</string>
-    </array>
 </dict>
 </plist>

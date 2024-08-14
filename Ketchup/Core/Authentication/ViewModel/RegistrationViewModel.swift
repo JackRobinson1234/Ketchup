@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import SwiftUI
 import FirebaseAuth
+
 @MainActor
 class RegistrationViewModel: ObservableObject {
     @Published var email = ""
@@ -37,8 +38,8 @@ class RegistrationViewModel: ObservableObject {
                 fullname: fullname
             )
             isAuthenticating = false
-        } catch {
-            let authErrorCode = AuthErrorCode.Code(rawValue: (error as NSError).code)
+        } catch let error as NSError {
+            let authErrorCode = AuthErrorCode(rawValue: error.code)
             showAlert = true
             isAuthenticating = false
             authError = AuthError(authErrorCode: authErrorCode ?? .userNotFound)

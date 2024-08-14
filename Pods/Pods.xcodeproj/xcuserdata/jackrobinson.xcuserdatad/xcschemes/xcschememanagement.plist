@@ -219,6 +219,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>PhoneNumberKit-PhoneNumberKitPrivacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>PhoneNumberKit.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Ketchup-KetchupUITests.xcscheme</key>
 		<dict>
 			<key>isShown</key>

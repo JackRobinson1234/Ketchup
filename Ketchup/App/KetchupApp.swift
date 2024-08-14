@@ -11,6 +11,7 @@ import AVFAudio
 import Kingfisher
 import Firebase
 import FirebaseMessaging
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     let gcmMessageIDKey = "gcm.Message_ID"
@@ -72,6 +73,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+        Auth.auth().setAPNSToken(deviceToken, type: .prod)
+        
     }
     
     func application(_ application: UIApplication,
@@ -87,6 +90,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if Auth.auth().canHandleNotification(userInfo) {
+            completionHandler(.noData)
+            return
+        }
         Messaging.messaging().appDidReceiveMessage(userInfo)
         handleNotificationAction(userInfo: userInfo)
         completionHandler(.noData)
@@ -185,6 +192,7 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
+        
         if let windowScene = scene as? UIWindowScene {
             setupSecondaryOverlayWindow(in: windowScene)
         }
