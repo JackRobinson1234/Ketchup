@@ -60,7 +60,7 @@ class PhoneAuthViewModel: ObservableObject {
     func startPhoneVerification() {
         isAuthenticating = true
         ///DELETE BEFORE PRODUCTION
-        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+        //Auth.auth().settings?.isAppVerificationDisabledForTesting = true
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
             DispatchQueue.main.async {
                 UserDefaults.standard.set(verificationID, forKey: "authVerificationID")

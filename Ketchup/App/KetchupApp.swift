@@ -90,13 +90,23 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print("Received remote notification: \(userInfo)")
+        
         if Auth.auth().canHandleNotification(userInfo) {
             completionHandler(.noData)
             return
         }
         Messaging.messaging().appDidReceiveMessage(userInfo)
-        handleNotificationAction(userInfo: userInfo)
-        completionHandler(.noData)
+        
+        if let aps = userInfo["aps"] as? [String: AnyObject], aps["content-available"] as? Int == 1 {
+            print("Silent notification received.")
+            // Handle silent notification here
+            completionHandler(.newData)
+        } else {
+            // Handle normal notification or foreground display
+            handleNotificationAction(userInfo: userInfo)
+            completionHandler(.noData)
+        }
     }
 }
 
