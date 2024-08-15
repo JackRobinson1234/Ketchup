@@ -12,6 +12,7 @@ import Kingfisher
 import Firebase
 import FirebaseMessaging
 import FirebaseAuth
+import FirebaseFirestoreInternal
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     let gcmMessageIDKey = "gcm.Message_ID"
@@ -31,13 +32,25 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     private func setupNotifications(_ application: UIApplication) {
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
-        application.registerForRemoteNotifications()
-        fetchFCMToken()
+            print("Setting up notifications...")
+            UNUserNotificationCenter.current().delegate = self
+            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+            UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+                if granted {
+                    print("Notification authorization granted")
+                    DispatchQueue.main.async {
+                        print("Registering for remote notifications...")
+                        application.registerForRemoteNotifications()
+                    }
+                } else {
+                    print("Notification authorization denied")
+                    if let error = error {
+                        print("Authorization error: \(error.localizedDescription)")
+                    }
+                }
+            }
         resetBadgeCount()
-    }
+        }
     
     private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
@@ -71,11 +84,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
-        Auth.auth().setAPNSToken(deviceToken, type: .prod)
-        
-    }
+                        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+           print("Successfully registered for remote notifications with token:")
+           Messaging.messaging().apnsToken = deviceToken
+           Auth.auth().setAPNSToken(deviceToken, type: .sandbox)
+           print("FETCHING FCM TOKEN")
+           fetchFCMToken()
+       }
     
     func application(_ application: UIApplication,
                      configurationForConnecting connectingSceneSession: UISceneSession,
@@ -90,23 +105,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print("Received remote notification: \(userInfo)")
-        
         if Auth.auth().canHandleNotification(userInfo) {
             completionHandler(.noData)
             return
         }
         Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        if let aps = userInfo["aps"] as? [String: AnyObject], aps["content-available"] as? Int == 1 {
-            print("Silent notification received.")
-            // Handle silent notification here
-            completionHandler(.newData)
-        } else {
-            // Handle normal notification or foreground display
-            handleNotificationAction(userInfo: userInfo)
-            completionHandler(.noData)
-        }
+        handleNotificationAction(userInfo: userInfo)
+        completionHandler(.noData)
     }
 }
 

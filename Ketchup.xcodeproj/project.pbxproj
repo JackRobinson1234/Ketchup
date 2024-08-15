@@ -767,7 +767,6 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				F8628A6F2C501BD6000B046B /* NewUploadFlow */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
@@ -975,13 +974,6 @@
 				F84FE2942B6A55F800144F01 /* AuthError.swift */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		F8628A6F2C501BD6000B046B /* NewUploadFlow */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = NewUploadFlow;
 			sourceTree = "<group>";
 		};
 		F8631E2F2BD6DC7100A48565 /* CollectionsList */ = {
@@ -2229,6 +2221,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Ketchup/Preview Content\"";
 				DEVELOPMENT_TEAM = 265SP7QQT7;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
@@ -2278,6 +2271,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Ketchup/Preview Content\"";
 				DEVELOPMENT_TEAM = 265SP7QQT7;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
