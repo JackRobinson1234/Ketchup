@@ -11,9 +11,10 @@ import SwiftUI
 @MainActor
 class ContentViewModel: ObservableObject {
     @Published var userSession: User?
-    private var cancellables = Set<AnyCancellable>()
-    @State var isLoading = true
+    @Published var isLoading = true
     
+    private var cancellables = Set<AnyCancellable>()
+
     init() {
         Task {
             try await AuthService.shared.updateUserSession()
@@ -21,12 +22,17 @@ class ContentViewModel: ObservableObject {
         }
         setupSubscribers()
     }
+
     @MainActor
     func setupSubscribers() {
         AuthService.shared.$userSession.sink { [weak self] session in
-                self?.userSession = session
-               
-            }
-            .store(in: &cancellables)
+            self?.userSession = session
         }
+        .store(in: &cancellables)
+    }
+
+    var isProfileComplete: Bool {
+        // Check if userSession is complete. Here we assume `hasCompletedProfile` is part of the User model.
+        return userSession?.hasCompletedSetup ?? false
+    }
 }

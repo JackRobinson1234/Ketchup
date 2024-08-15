@@ -37,9 +37,6 @@ struct MainTabView: View {
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-                .onAppear{
-                    AuthService.shared.signout()
-                }
             
             MapView()
                 .tabItem {

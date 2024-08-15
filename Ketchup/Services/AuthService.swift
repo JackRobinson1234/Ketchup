@@ -33,7 +33,9 @@ class AuthService {
             self.userSession = userDocument
         } catch {
             print("Error updating user session:", error.localizedDescription)
-            throw error
+            self.userSession = nil
+            //throw error
+            
         }
     }
     
@@ -69,6 +71,89 @@ class AuthService {
             throw error
         }
     }
+    
+    func updateFirestoreUser(
+        id: String,
+        username: String? = nil,
+        fullname: String? = nil,
+        birthday: Date? = nil,
+        location: Location? = nil,
+        phoneNumber: String? = nil
+    ) async throws -> User {
+        let userRef = FirestoreConstants.UserCollection.document(id)
+        
+        var updatedUserData: [String: Any] = [:]
+
+        if let username = username, !username.isEmpty {
+            updatedUserData["username"] = username
+        }
+        
+        if let fullname = fullname, !fullname.isEmpty {
+            updatedUserData["fullname"] = fullname
+        }
+        
+        if let phoneNumber = phoneNumber {
+            updatedUserData["phoneNumber"] = phoneNumber
+        }
+        
+        if let birthday = birthday {
+            updatedUserData["birthday"] = Timestamp(date: birthday)
+        }
+
+        if let location = location {
+            updatedUserData["location"] = try Firestore.Encoder().encode(location)
+        }
+        
+        updatedUserData["hasCompletedSetup"] = true // Assuming profile setup is completed
+
+        do {
+            try await userRef.setData(updatedUserData, merge: true)
+            print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
+
+            let updatedUser = try await userRef.getDocument(as: User.self)
+            self.userSession = updatedUser
+
+            return updatedUser
+        } catch {
+            print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func createFirestoreUser(
+           id: String,
+           email: String,
+           username: String,
+           fullname: String = "",
+           birthday: Date? = nil,
+           location: Location? = nil,
+           phoneNumber: String? = nil,
+           privateMode: Bool = false
+       ) async throws -> User {
+           let user = User(
+               id: id,
+               username: username,
+               fullname: fullname,
+               phoneNumber: phoneNumber,
+               profileImageUrl: nil,
+               privateMode: privateMode,
+               notificationAlert: 0,
+               location: location,
+               birthday: birthday,
+               hasCompletedSetup: false // Set this to false for incomplete profiles
+           )
+           
+           let userData = try Firestore.Encoder().encode(user)
+           
+           do {
+               try await FirestoreConstants.UserCollection.document(id).setData(userData)
+               print("DEBUG: Successfully created user document in Firestore with ID: \(id)")
+               return user
+           } catch {
+               print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
+               throw error
+           }
+       }
     //MARK: sendResetPasswordLink
     func sendResetPasswordLink(toEmail email: String) async throws {
         try await Auth.auth().sendPasswordReset(withEmail: email)

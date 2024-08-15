@@ -86,7 +86,7 @@ struct LocationSelectionView: View {
             
             Button(action: {
                 selectedLocation = localSelectedLocation
-                registrationViewModel.updateLocation(localSelectedLocation)
+                registrationViewModel.location = localSelectedLocation
                 print("User Details:")
                     print("Phone Number: \(registrationViewModel.phoneNumber)")
                     print("Username: \(registrationViewModel.username)")
@@ -97,6 +97,9 @@ struct LocationSelectionView: View {
                         print("Location: nil")
                     }
                     print("Full Name: \(registrationViewModel.fullname)")
+                Task{
+                    try await registrationViewModel.updateUser()
+                }
             }) {
                 Text("Save Location + Create Profile")
                     .font(.custom("MuseoSansRounded-500", size: 20))

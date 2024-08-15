@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 import PhoneNumberKit
+@MainActor
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber = ""
     @Published var verificationCode: String = ""
@@ -72,40 +73,66 @@ class PhoneAuthViewModel: ObservableObject {
                 }
             }
         }
+        
     }
 
     func verifyCode() {
-        if self.verificationID == nil{
-            let verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
-        }
-        guard let verificationID = verificationID else {
-            showAlert(title: "Error", message: "Verification ID is missing. Please try again.")
-            return
-        }
+           let verificationID = self.verificationID ?? UserDefaults.standard.string(forKey: "authVerificationID")
+           
+           guard let verificationID = verificationID else {
+               showAlert(title: "Error", message: "Verification ID is missing. Please try again.")
+               return
+           }
 
-        guard verificationCode.count == 6 else {
-            showAlert(title: "Invalid Code", message: "Please enter a 6-digit verification code.")
-            return
-        }
+           guard verificationCode.count == 6 else {
+               showAlert(title: "Invalid Code", message: "Please enter a 6-digit verification code.")
+               return
+           }
 
-        isAuthenticating = true
-        let credential = PhoneAuthProvider.provider().credential(
-            withVerificationID: verificationID,
-            verificationCode: verificationCode
-        )
+           isAuthenticating = true
+           let credential = PhoneAuthProvider.provider().credential(
+               withVerificationID: verificationID,
+               verificationCode: verificationCode
+           )
 
-        Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
-            DispatchQueue.main.async {
-                self?.isAuthenticating = false
-                if let error = error {
-                    self?.handleError(error)
-                    self?.clearVerificationCode()
-                } else {
-                    self?.shouldNavigateToUsernameSelection = true
-                }
-            }
-        }
-    }
+           if let currentUser = Auth.auth().currentUser {
+               // If a user is already signed in, link the phone number to their existing account
+               currentUser.link(with: credential) { [weak self] (authResult, error) in
+                   DispatchQueue.main.async {
+                       self?.isAuthenticating = false
+                       if let error = error {
+                           self?.handleError(error)
+                           self?.clearVerificationCode()
+                       } else {
+                           // Successfully linked the phone number
+                           Task {
+                               await self?.updateUserWithPhoneNumber()
+                           }
+                       }
+                   }
+               }
+           } else {
+               // If no user is signed in, proceed with phone number sign-in
+               Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
+                   DispatchQueue.main.async {
+                       self?.isAuthenticating = false
+                       if let error = error {
+                           self?.handleError(error)
+                           self?.clearVerificationCode()
+                       } else {
+                           // Sign-in successful, Auth.auth().currentUser is now set
+                          
+                           Task {
+                               try await AuthService.shared.updateUserSession()
+                               if AuthService.shared.userSession == nil {
+                                   await self?.createBasicUser()
+                               }
+                           }
+                       }
+                   }
+               }
+           }
+       }
     func clearVerificationCode() {
         verificationCode = ""
     }
@@ -131,7 +158,50 @@ class PhoneAuthViewModel: ObservableObject {
             showAlert(title: "Error", message: error.localizedDescription)
         }
     }
+    
+    private func createBasicUser() async {
+            guard let user = Auth.auth().currentUser else { return }
 
+            do {
+                let randomUsername = try await AuthService.shared.generateRandomUsername(prefix: "user")
+                let newUser = try await AuthService.shared.createFirestoreUser(
+                    id: user.uid,
+                    email: user.email ?? "",
+                    username: randomUsername,
+                    fullname: "",
+                    phoneNumber: self.phoneNumber,
+                    privateMode: false
+                )
+                Task{
+                    try await AuthService.shared.updateUserSession()
+                }
+                //self.shouldNavigateToUsernameSelection = true
+            } catch {
+                print("Error creating basic user: \(error.localizedDescription)")
+                showAlert(title: "Error", message: "Failed to create user. Please try again.")
+            }
+        }
+    private func updateUserWithPhoneNumber() async {
+        do {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
+
+            // Update the user's phone number in Firestore
+            try await AuthService.shared.updateFirestoreUser(
+                id: userID,
+                phoneNumber: self.phoneNumber
+            )
+            
+            Task {
+                try await AuthService.shared.updateUserSession()
+            }
+
+            // Navigate to the next step or show a success message
+            self.shouldNavigateToUsernameSelection = true
+        } catch {
+            print("Error updating user with phone number: \(error.localizedDescription)")
+            showAlert(title: "Error", message: "Failed to update user. Please try again.")
+        }
+    }
     private func showAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message

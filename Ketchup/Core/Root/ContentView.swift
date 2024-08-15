@@ -12,17 +12,25 @@ import FirebaseAuth
 struct ContentView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
+    
     var body: some View {
         Group {
-            if Auth.auth().currentUser != nil {
-                MainTabView()
-                    .environmentObject(viewModel)
-                    .environmentObject(tabBarController)
-                    .customFont()
-                    .onAppear {
-                        checkInitialNavigation()
-                    }
-
+            if viewModel.isLoading {
+                ProgressView() // Show a loading indicator while checking session
+            } else if let user = viewModel.userSession {
+                if viewModel.isProfileComplete {
+                    MainTabView()
+                        .environmentObject(viewModel)
+                        .environmentObject(tabBarController)
+                        .customFont()
+                        .onAppear {
+                            checkInitialNavigation()
+                        }
+                } else if user.phoneNumber != nil{
+                    UsernameSelectionView()
+                } else {
+                    PhoneAuthView()
+                }
             } else {
                 WelcomeView()
                     .customFont()
@@ -37,3 +45,5 @@ struct ContentView: View {
         }
     }
 }
+
+

@@ -8,11 +8,11 @@
 import FirebaseAuth
 import FirebaseFirestoreInternal
 import Firebase
-struct User: Identifiable, Codable, Hashable {
+struct User: Codable, Identifiable, Hashable {
     let id: String
     var username: String
     var fullname: String
-    var phoneNumber: String?  // Optional phone number
+    var phoneNumber: String?
     var profileImageUrl: String?
     var isFollowed = false
     var stats: UserStats
@@ -20,14 +20,17 @@ struct User: Identifiable, Codable, Hashable {
     var privateMode: Bool
     var notificationAlert: Int = 0
     var location: Location?
-    var birthday: Date?  // New birthday property
+    var birthday: Date?
+    
+    // New property with default value of false
+    var hasCompletedSetup: Bool = false
 
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup
     }
     
     init(from decoder: Decoder) throws {
@@ -50,9 +53,12 @@ struct User: Identifiable, Codable, Hashable {
         } else {
             self.birthday = nil
         }
+
+        // Decode new hasCompletedSetup property, defaulting to false if not present
+        self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
     }
     
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil) {
+    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false) {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -70,6 +76,7 @@ struct User: Identifiable, Codable, Hashable {
         self.notificationAlert = notificationAlert
         self.location = location
         self.birthday = birthday
+        self.hasCompletedSetup = hasCompletedSetup
     }
     
     func encode(to encoder: Encoder) throws {
@@ -90,6 +97,8 @@ struct User: Identifiable, Codable, Hashable {
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
+        // Encode new hasCompletedSetup property
+        try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
     }
 }
 
