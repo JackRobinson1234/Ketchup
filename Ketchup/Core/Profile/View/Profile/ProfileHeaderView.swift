@@ -43,7 +43,11 @@ struct ProfileHeaderView: View {
                         .foregroundColor(.black)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                    
+                    if let location = user.location, let city = location.city, let state = location.state {
+                        Text("\(city), \(state)")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundColor(.black)
+                    }
                     if user.isCurrentUser {
                         Button {
                             showEditProfile.toggle()

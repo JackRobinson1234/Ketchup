@@ -98,12 +98,6 @@ struct PhoneAuthView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-//            .onAppear{
-//                Task{
-//                    try await  AuthService.shared.signout()
-//                }
-//            }
-            
         }
     }
 }

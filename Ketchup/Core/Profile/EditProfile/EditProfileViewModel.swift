@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import FirebaseFirestoreInternal
 @MainActor
 class EditProfileViewModel: ObservableObject {
     @Published var user: User
@@ -33,12 +34,14 @@ class EditProfileViewModel: ObservableObject {
     @Published var croppedImage: UIImage?
     
     @Published var uiImage: UIImage?
-                
+    @Published var location: Location?
     init(user: User) {
         self.user = user
         self.fullname = user.fullname
         self.username = user.username
         self.favoritesPreview = user.favorites
+        self.location = user.location
+
     }
     
     @MainActor
@@ -64,7 +67,7 @@ class EditProfileViewModel: ObservableObject {
     @MainActor
     func updateUserData() async throws {
         var data: [String: Any] = [:]
-
+        
         if let croppedImage = croppedImage {
             try? await updateProfileImage(croppedImage)
             data["profileImageUrl"] = user.profileImageUrl
@@ -86,6 +89,14 @@ class EditProfileViewModel: ObservableObject {
             data["favorites"] = cleanedData
         }
         
+        if let location = location, location != user.location {
+            user.location = location
+            data["location"] = [
+                "city": location.city ?? "",
+                "state": location.state ?? "",
+                "geoPoint": GeoPoint(latitude: location.geoPoint?.latitude ?? 0, longitude: location.geoPoint?.longitude ?? 0)
+            ]
+        }
         try await FirestoreConstants.UserCollection.document(user.id).updateData(data)
         AuthService.shared.userSession = self.user
     }

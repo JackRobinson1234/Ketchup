@@ -18,6 +18,9 @@ struct EditProfileView: View {
     @StateObject private var viewModel: EditProfileViewModel
     @Binding var user: User
     @Environment(\.dismiss) var dismiss
+    @State private var showLocationEdit = false
+    @State private var showCancelAlert = false
+     @State private var hasChanges = false
     var usernameDebouncer = Debouncer(delay: 2.0)
     
     init(user: Binding<User>) {
@@ -139,7 +142,31 @@ struct EditProfileView: View {
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
-                    
+                    Button(action: {
+                        showLocationEdit = true
+                    }) {
+                        HStack {
+                            Text("Location")
+                                .padding(.leading, 8)
+                                .frame(width: 100, alignment: .leading)
+                            
+                            VStack(alignment: .leading) {
+                                if let location = viewModel.location {
+                                    Text("\(location.city ?? ""), \(location.state ?? "")")
+                                } else {
+                                    Text("Add location")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundStyle(Color("Colors/AccentColor"))
+                                }
+                                Divider()
+                            }
+                        }
+                        
+                    }
+                    .sheet(isPresented: $showLocationEdit) {
+                        EditLocationView(editProfileViewModel: viewModel)
+                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                    }
                     editFavoritesView(user: user, editProfileViewModel: viewModel)
                         .padding()
                 }
@@ -147,31 +174,58 @@ struct EditProfileView: View {
                 Spacer()
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        Task {
-                            try await viewModel.updateUserData()
-                            dismiss()
-                        }
-                    }
-                    .disabled(!formIsValid)
-                    .opacity(formIsValid ? 1 : 0.5)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .fontWeight(.semibold)
+                         ToolbarItem(placement: .navigationBarLeading) {
+                             Button("Cancel") {
+                                 if hasChanges {
+                                     showCancelAlert = true
+                                 } else {
+                                     dismiss()
+                                 }
+                             }
+                             .font(.custom("MuseoSansRounded-300", size: 16))
+                         }
+                         
+                         ToolbarItem(placement: .navigationBarTrailing) {
+                             Button("Save") {
+                                 Task {
+                                     try await viewModel.updateUserData()
+                                     dismiss()
+                                 }
+                             }
+                             .disabled(!formIsValid)
+                             .opacity(formIsValid ? 1 : 0.5)
+                             .font(.custom("MuseoSansRounded-300", size: 16))
+                             .fontWeight(.semibold)
+                         }
+                     }
+                     .onReceive(viewModel.$user, perform: { user in
+                         self.user = user
+                     })
+                     .onChange(of: viewModel.username) { _, _ in checkForChanges() }
+                     .onChange(of: viewModel.fullname) { _, _ in checkForChanges() }
+                     .onChange(of: viewModel.location) { _, _ in checkForChanges() }
+                     .onChange(of: viewModel.favoritesPreview) { _, _ in checkForChanges() }
+                     .onChange(of: viewModel.croppedImage) { _, _ in checkForChanges() }
+                     .alert(isPresented: $showCancelAlert) {
+                         Alert(
+                             title: Text("Discard Changes?"),
+                             message: Text("You have unsaved changes. Are you sure you want to discard them?"),
+                             primaryButton: .destructive(Text("Discard")) {
+                                 dismiss()
+                             },
+                             secondaryButton: .cancel()
+                         )
+                     }
+                     .navigationTitle("Edit Profile")
+                     .navigationBarTitleDisplayMode(.inline)
+                 }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    dismissKeyboard()
                 }
             }
-            .onReceive(viewModel.$user, perform: { user in
-                self.user = user
-            })
-            .navigationTitle("Edit Profile")
-            .navigationBarTitleDisplayMode(.inline)
         }
         .fullScreenCover(isPresented: $viewModel.showingImageCropper) {
             let configuration = SwiftyCropConfiguration(
@@ -192,16 +246,27 @@ struct EditProfileView: View {
             }
         }
     }
+    private func checkForChanges() {
+            hasChanges = viewModel.username != user.username ||
+                         viewModel.fullname != user.fullname ||
+                         viewModel.location != user.location ||
+                         viewModel.favoritesPreview != user.favorites ||
+                         viewModel.croppedImage != nil
+        }
 }
 
 extension EditProfileView: AuthenticationFormProtocol {
     var formIsValid: Bool {
-        if let validUsername = viewModel.validUsername {
-            return !viewModel.fullname.isEmpty && validUsername
-        } else {
-            return false
+            guard let validUsername = viewModel.validUsername else {
+                return false
+            }
+            
+            let hasValidUsername = !viewModel.username.isEmpty && validUsername
+            let hasFullName = !viewModel.fullname.isEmpty
+            let hasLocation = viewModel.location != nil
+            
+            return hasValidUsername && hasFullName && hasLocation
         }
-    }
 }
 
 struct EditProfileRowView: View {

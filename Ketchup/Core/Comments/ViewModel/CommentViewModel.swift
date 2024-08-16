@@ -86,7 +86,7 @@ class CommentViewModel: ObservableObject {
         
         for (index, topLevelComment) in topLevelComments.enumerated() {
             if let replies = repliesDictionary[topLevelComment.comment.id] {
-                topLevelComments[index].replies = replies.sorted(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
+                topLevelComments[index].replies = replies.sorted(by: { $0.timestamp.dateValue() < $1.timestamp.dateValue() })
             }
         }
         

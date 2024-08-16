@@ -21,7 +21,7 @@ struct LoginView: View {
         self.reAuthDelete = reAuthDelete
     }
     var body: some View {
-        NavigationStack {
+      
             VStack {
                 Spacer()
                 // logo image
@@ -171,19 +171,19 @@ struct LoginView: View {
                 if let reAuthDelete = reAuthDelete, !reAuthDelete {
                     Divider()
                     //MARK: RegistrationView
-                    NavigationLink {
-                        RegistrationView()
-                            .navigationBarBackButtonHidden()
-                    } label: {
-                        HStack(spacing: 3) {
-                            Text("Don't have an account?")
-                            Text("Sign Up")
-                                .fontWeight(.semibold)
-                        }
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                    }
-                    .padding(.vertical, 16)
+//                    NavigationLink {
+//                        RegistrationView()
+//                            .navigationBarBackButtonHidden()
+//                    } label: {
+//                        HStack(spacing: 3) {
+//                            Text("Don't have an account?")
+//                            Text("Sign Up")
+//                                .fontWeight(.semibold)
+//                        }
+//                        .foregroundStyle(Color("Colors/AccentColor"))
+//                        .font(.custom("MuseoSansRounded-300", size: 16))
+//                    }
+//                    .padding(.vertical, 16)
                 }
             }
             /// Keeps the UI Timer running on the forgot password
@@ -201,7 +201,7 @@ struct LoginView: View {
                     }
                 }
             }
-        }
+        
     }
 }
 

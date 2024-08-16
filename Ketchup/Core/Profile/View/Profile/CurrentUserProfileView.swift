@@ -162,8 +162,3 @@ struct CurrentUserProfileView: View {
         }
     }
 }
-
-
-
-
-

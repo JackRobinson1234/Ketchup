@@ -74,7 +74,8 @@ struct WelcomeView: View {
                             
                             // Login option
                             HStack {
-                                Text("Already have an account?")
+                                
+                                Text("Beta user before 8/16?")
                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                 
                                 Button(action: {
