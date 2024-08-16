@@ -456,6 +456,9 @@ struct FeedCell: View {
                             .foregroundColor(Color("Colors/AccentColor"))
                     }
                 }
+                .onChange(of: post.caption) {
+                    parsedCaption = parseCaption(post.caption)
+                }
             }
             
             
@@ -870,16 +873,6 @@ struct FeedCell: View {
     
 }
 
-
-#Preview {
-    FeedCell(
-        post: .constant(DeveloperPreview.posts[0]),
-        viewModel: FeedViewModel(),
-        scrollPosition: .constant(""),
-        pauseVideo: .constant(true),
-        hideFeedOptions: true
-    )
-}
 
 struct IndexIndicatorView: View {
     var currentIndex: Int

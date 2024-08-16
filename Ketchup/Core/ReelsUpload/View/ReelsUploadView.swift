@@ -83,7 +83,6 @@ struct ReelsUploadView: View {
                             
                         }
                         
-                        
                         if !isVideoExpanded {
                             Divider()
                             
@@ -162,8 +161,6 @@ struct ReelsUploadView: View {
                             isPresented: $showingWarningAlert,
                             titleVisibility: .visible) {
             Button("Yes, go back", role: .destructive) {
-                //uploadViewModel.reset()
-                //cameraViewModel.reset()
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }

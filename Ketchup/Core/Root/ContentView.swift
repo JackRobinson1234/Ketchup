@@ -16,7 +16,18 @@ struct ContentView: View {
     var body: some View {
         Group {
             if viewModel.isLoading {
-                ProgressView() // Show a loading indicator while checking session
+                VStack(spacing: 10) {
+                    Image("SkipFill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150, height: 150)
+                    // Remove background
+                    
+                    Image("KetchupTextRed")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200)
+                }
             } else if let user = viewModel.userSession {
                 if viewModel.isProfileComplete {
                     MainTabView()

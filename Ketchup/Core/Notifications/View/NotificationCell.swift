@@ -65,7 +65,6 @@ struct NotificationCell: View {
                 .font(.custom("MuseoSansRounded-300", size: 14))
                 .foregroundColor(.black)
                 .multilineTextAlignment(.leading)
-                .lineLimit(2)
         }
     }
     

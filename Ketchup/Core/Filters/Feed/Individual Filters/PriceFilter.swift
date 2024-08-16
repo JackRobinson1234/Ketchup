@@ -108,6 +108,4 @@ struct PriceFilter: View {
         }
     }
 
-#Preview {
-    PriceFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
-}
+

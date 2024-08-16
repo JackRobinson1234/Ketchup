@@ -443,6 +443,9 @@ struct WrittenFeedCell: View {
                 handleIndexChange(currentIndex)
             }
         }
+        .onChange(of: post.caption) {
+            parsedCaption = parseCaption(post.caption)
+        }
         .environment(\.openURL, OpenURLAction { url in
             if url.scheme == "user",
                let userId = url.host,

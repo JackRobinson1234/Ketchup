@@ -27,7 +27,7 @@ enum PostDisplayMode: String, CaseIterable {
 struct ProfileSlideBar: View {
     @ObservedObject var viewModel: ProfileViewModel
     @StateObject var collectionsViewModel: CollectionsViewModel
-    @ObservedObject var feedViewModel = FeedViewModel()
+    @ObservedObject var feedViewModel: FeedViewModel
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media

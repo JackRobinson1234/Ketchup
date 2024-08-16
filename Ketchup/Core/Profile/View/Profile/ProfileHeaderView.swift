@@ -26,7 +26,7 @@ struct ProfileHeaderView: View {
         let user = viewModel.user
         let frameWidth = UIScreen.main.bounds.width / 3 - 15
         VStack(spacing: 6) {
-            HStack(alignment: .bottom) {
+            HStack(alignment: .top) {
                 Spacer()
                 UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
                     .frame(width: frameWidth)
