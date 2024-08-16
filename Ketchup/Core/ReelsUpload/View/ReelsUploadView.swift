@@ -466,12 +466,13 @@ struct ReelsUploadView: View {
                     
                     let overallRating = calculateOverallRating()
                     await uploadViewModel.uploadPost()
-                    uploadViewModel.reset()
-                    cameraViewModel.reset()
-                    uploadViewModel.dismissAll = true
                     if !uploadViewModel.fromRestaurantProfile{
                         tabBarController.selectedTab = 0
                     }
+                    uploadViewModel.reset()
+                    cameraViewModel.reset()
+                    uploadViewModel.dismissAll = true
+                    
                 }
             }
         } label: {
