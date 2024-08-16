@@ -87,27 +87,31 @@ struct LocationSelectionView: View {
             Button(action: {
                 selectedLocation = localSelectedLocation
                 registrationViewModel.location = localSelectedLocation
-                print("User Details:")
-                    print("Phone Number: \(registrationViewModel.phoneNumber)")
-                    print("Username: \(registrationViewModel.username)")
-                    print("Birthday: \(registrationViewModel.birthday ?? Date())")
-                if let location = registrationViewModel.location, let geoPoint = location.geoPoint {
-                        print("Location: City: \(location.city ?? ""), State: \(location.state ?? ""), GeoPoint: \(geoPoint.latitude), \(geoPoint.longitude)")
-                    } else {
-                        print("Location: nil")
-                    }
-                    print("Full Name: \(registrationViewModel.fullname)")
+               
                 Task{
                     try await registrationViewModel.updateUser()
                 }
             }) {
-                Text("Save Location + Create Profile")
-                    .font(.custom("MuseoSansRounded-500", size: 20))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
-                    .cornerRadius(25)
+                if let userSession = AuthService.shared.userSession, userSession.birthday == nil {
+                        Text("Save Location + Update Profile")
+                            .font(.custom("MuseoSansRounded-500", size: 20))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                            .cornerRadius(25)
+                    } else {
+                        Text("Save Location + Create Profile")
+                            .font(.custom("MuseoSansRounded-500", size: 20))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                            .cornerRadius(25)
+                    
+                }
+                
+                        
             }
             .disabled(localSelectedLocation == nil)
         }

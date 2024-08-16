@@ -9,10 +9,11 @@ import Foundation
 import SwiftUI
 import PhoneNumberKit
 import Combine
+import FirebaseAuth
 struct PhoneAuthView: View {
     @StateObject private var viewModel = PhoneAuthViewModel()
     @Environment(\.dismiss) var dismiss
-    @StateObject var registrationViewModel = UserRegistrationViewModel()
+    //@StateObject var registrationViewModel = UserRegistrationViewModel()
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
@@ -20,6 +21,11 @@ struct PhoneAuthView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200)
+                if let userSession = AuthService.shared.userSession {
+                    Text("Hey @\(userSession.username), we're updating our sign in flow! Don't worry- this will be linked to your existing account")
+                        .font(.custom("MuseoSansRounded-500", size: 20))
+
+                }
                 
                 Text("First, What's your phone number?")
                     .font(.custom("MuseoSansRounded-700", size: 26))
@@ -83,7 +89,7 @@ struct PhoneAuthView: View {
             })
             .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $viewModel.isShowingVerificationView) {
-                PhoneVerificationView(viewModel: viewModel, registrationViewModel: registrationViewModel)
+                PhoneVerificationView(viewModel: viewModel)
             }
             .alert(isPresented: $viewModel.showAlert) {
                 Alert(
@@ -92,9 +98,12 @@ struct PhoneAuthView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .onChange(of: viewModel.phoneNumber) { newValue in
-                registrationViewModel.phoneNumber = newValue
-            }
+//            .onAppear{
+//                Task{
+//                    try await  AuthService.shared.signout()
+//                }
+//            }
+            
         }
     }
 }

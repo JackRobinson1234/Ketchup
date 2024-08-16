@@ -94,9 +94,8 @@ class PhoneAuthViewModel: ObservableObject {
                withVerificationID: verificationID,
                verificationCode: verificationCode
            )
-
+        print("PHONE NUMBER 3:", self.phoneNumber)
            if let currentUser = Auth.auth().currentUser {
-               // If a user is already signed in, link the phone number to their existing account
                currentUser.link(with: credential) { [weak self] (authResult, error) in
                    DispatchQueue.main.async {
                        self?.isAuthenticating = false
@@ -164,11 +163,12 @@ class PhoneAuthViewModel: ObservableObject {
 
             do {
                 let randomUsername = try await AuthService.shared.generateRandomUsername(prefix: "user")
+                print("PHONE NUMBER 1:", self.phoneNumber)
                 let newUser = try await AuthService.shared.createFirestoreUser(
                     id: user.uid,
-                    email: user.email ?? "",
                     username: randomUsername,
                     fullname: "",
+                    birthday: Date(),
                     phoneNumber: self.phoneNumber,
                     privateMode: false
                 )
@@ -186,9 +186,11 @@ class PhoneAuthViewModel: ObservableObject {
             guard let userID = Auth.auth().currentUser?.uid else { return }
 
             // Update the user's phone number in Firestore
+            print("PHONE NUMBER 2:", self.phoneNumber)
             try await AuthService.shared.updateFirestoreUser(
                 id: userID,
-                phoneNumber: self.phoneNumber
+                phoneNumber: self.phoneNumber,
+                hasCompletedSetup: false
             )
             
             Task {

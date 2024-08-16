@@ -11,7 +11,10 @@ struct PhoneVerificationView: View {
     @ObservedObject var viewModel: PhoneAuthViewModel
     @Environment(\.dismiss) var dismiss
     @FocusState private var isInputFocused: Bool
-    @ObservedObject var registrationViewModel: UserRegistrationViewModel
+    //@ObservedObject var registrationViewModel: UserRegistrationViewModel
+    
+    @State private var timeRemaining = 60
+    @State private var timer: Timer?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -51,6 +54,7 @@ struct PhoneVerificationView: View {
                             viewModel.verificationCode = String(newValue.prefix(6))
                         }
                         if newValue.count == 6 {
+                            isInputFocused = false  // Dismiss keyboard
                             viewModel.verifyCode()
                         }
                     }
@@ -61,6 +65,24 @@ struct PhoneVerificationView: View {
                 .font(.caption)
                 .foregroundColor(.gray)
             
+            HStack {
+                Text("Resend code in \(timeRemaining)s")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                Button(action: {
+                    if timeRemaining == 0 {
+                        resendCode()
+                    }
+                }) {
+                    Text("Resend")
+                        .foregroundColor(timeRemaining == 0 ? .blue : .gray)
+                }
+                .disabled(timeRemaining > 0)
+            }
+            
             Spacer()
         }
         .padding()
@@ -68,9 +90,7 @@ struct PhoneVerificationView: View {
             Image(systemName: "chevron.left")
                 .foregroundColor(.black)
         })
-        .navigationDestination(isPresented: $viewModel.shouldNavigateToUsernameSelection) {
-            UsernameSelectionView(registrationViewModel: registrationViewModel)
-        }
+       
         .navigationBarBackButtonHidden(true)
         .alert(isPresented: $viewModel.showAlert) {
             Alert(
@@ -81,6 +101,31 @@ struct PhoneVerificationView: View {
         }
         .onAppear {
             isInputFocused = true
+            startTimer()
         }
+        .onDisappear {
+            stopTimer()
+        }
+    }
+    
+    private func startTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            if timeRemaining > 0 {
+                timeRemaining -= 1
+            } else {
+                stopTimer()
+            }
+        }
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func resendCode() {
+        viewModel.startPhoneVerification()
+        timeRemaining = 60
+        startTimer()
     }
 }

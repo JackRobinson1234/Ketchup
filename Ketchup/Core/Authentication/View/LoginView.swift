@@ -18,7 +18,6 @@ struct LoginView: View {
     var maxLoginAttempts = 6
     var reAuthDelete: Bool?
     init(reAuthDelete: Bool? = false) {
-        //self._viewModel = StateObject(wrappedValue: LoginViewModel())
         self.reAuthDelete = reAuthDelete
     }
     var body: some View {

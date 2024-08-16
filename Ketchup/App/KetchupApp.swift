@@ -69,7 +69,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
         }
     }
-    
+    func updateUserLastActive() async {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let lastActive = Date()
+        let userRef = FirestoreConstants.UserCollection.document(userId)
+        do {
+            try await userRef.updateData(["lastActive": Timestamp(date: lastActive)])
+            print("DEBUG: Successfully updated lastActive timestamp.")
+        } catch {
+            print("DEBUG: Failed to update lastActive timestamp with error: \(error.localizedDescription)")
+        }
+    }
     private func setupAudioSession() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])

@@ -116,6 +116,15 @@ struct UsernameSelectionView: View {
             .navigationDestination(isPresented: $viewModel.navigateToBirthdaySelection) {
                 BirthdaySelectorView(selectedBirthday: $viewModel.selectedBirthday, registrationViewModel:registrationViewModel)
             }
+            .onAppear{
+                if let userSession = AuthService.shared.userSession{
+                    if userSession.birthday == nil {
+                        registrationViewModel.username = nil
+                        registrationViewModel.fullname = nil
+                        viewModel.navigateToBirthdaySelection = true
+                    }
+                }
+            }
         }
     }
 }

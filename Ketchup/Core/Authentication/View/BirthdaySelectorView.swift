@@ -69,8 +69,13 @@ struct BirthdaySelectorView: View {
             registrationViewModel.birthday = newValue
         }
         .navigationBarItems(leading: Button(action: { dismiss() }) {
-            Image(systemName: "chevron.left")
-                .foregroundColor(.black)
+            if let userSession = AuthService.shared.userSession, userSession.birthday == nil {
+                   
+                }
+             else {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.black)
+            }
         })
     }
     

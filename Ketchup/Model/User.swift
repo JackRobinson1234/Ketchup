@@ -22,15 +22,17 @@ struct User: Codable, Identifiable, Hashable {
     var location: Location?
     var birthday: Date?
     
-    // New property with default value of false
+    // New properties with default values
     var hasCompletedSetup: Bool = false
+    var createdAt: Date?
+    var lastActive: Date?
 
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive
     }
     
     init(from decoder: Decoder) throws {
@@ -56,9 +58,23 @@ struct User: Codable, Identifiable, Hashable {
 
         // Decode new hasCompletedSetup property, defaulting to false if not present
         self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
+
+        // Decode new createdAt property
+        if let createdAtTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .createdAt) {
+            self.createdAt = createdAtTimestamp.dateValue()
+        } else {
+            self.createdAt = nil
+        }
+
+        // Decode new lastActive property
+        if let lastActiveTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastActive) {
+            self.lastActive = lastActiveTimestamp.dateValue()
+        } else {
+            self.lastActive = nil
+        }
     }
     
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false) {
+    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil) {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -77,6 +93,8 @@ struct User: Codable, Identifiable, Hashable {
         self.location = location
         self.birthday = birthday
         self.hasCompletedSetup = hasCompletedSetup
+        self.createdAt = createdAt
+        self.lastActive = lastActive
     }
     
     func encode(to encoder: Encoder) throws {
@@ -97,8 +115,19 @@ struct User: Codable, Identifiable, Hashable {
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
+
         // Encode new hasCompletedSetup property
         try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
+
+        // Encode new createdAt property
+        if let createdAt = createdAt {
+            try container.encode(Timestamp(date: createdAt), forKey: .createdAt)
+        }
+
+        // Encode new lastActive property
+        if let lastActive = lastActive {
+            try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
+        }
     }
 }
 

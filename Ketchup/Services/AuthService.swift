@@ -78,7 +78,8 @@ class AuthService {
         fullname: String? = nil,
         birthday: Date? = nil,
         location: Location? = nil,
-        phoneNumber: String? = nil
+        phoneNumber: String? = nil,
+        hasCompletedSetup: Bool
     ) async throws -> User {
         let userRef = FirestoreConstants.UserCollection.document(id)
         
@@ -92,7 +93,7 @@ class AuthService {
             updatedUserData["fullname"] = fullname
         }
         
-        if let phoneNumber = phoneNumber {
+        if let phoneNumber = phoneNumber, !phoneNumber.isEmpty {
             updatedUserData["phoneNumber"] = phoneNumber
         }
         
@@ -103,8 +104,11 @@ class AuthService {
         if let location = location {
             updatedUserData["location"] = try Firestore.Encoder().encode(location)
         }
+        updatedUserData["createdAt"] = Timestamp(date: Date())
+        updatedUserData["lastActive"] = Timestamp(date: Date())
         
-        updatedUserData["hasCompletedSetup"] = true // Assuming profile setup is completed
+        updatedUserData["hasCompletedSetup"] = hasCompletedSetup
+        // Assuming profile setup is completed
 
         do {
             try await userRef.setData(updatedUserData, merge: true)
@@ -121,39 +125,40 @@ class AuthService {
     }
     
     func createFirestoreUser(
-           id: String,
-           email: String,
-           username: String,
-           fullname: String = "",
-           birthday: Date? = nil,
-           location: Location? = nil,
-           phoneNumber: String? = nil,
-           privateMode: Bool = false
-       ) async throws -> User {
-           let user = User(
-               id: id,
-               username: username,
-               fullname: fullname,
-               phoneNumber: phoneNumber,
-               profileImageUrl: nil,
-               privateMode: privateMode,
-               notificationAlert: 0,
-               location: location,
-               birthday: birthday,
-               hasCompletedSetup: false // Set this to false for incomplete profiles
-           )
-           
-           let userData = try Firestore.Encoder().encode(user)
-           
-           do {
-               try await FirestoreConstants.UserCollection.document(id).setData(userData)
-               print("DEBUG: Successfully created user document in Firestore with ID: \(id)")
-               return user
-           } catch {
-               print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
-               throw error
-           }
-       }
+        id: String,
+        username: String,
+        fullname: String = "",
+        birthday: Date? = nil,
+        location: Location? = nil,
+        phoneNumber: String? = nil,
+        privateMode: Bool = false
+    ) async throws -> User {
+        // Get the current date for createdAt and lastActive
+        let user = User(
+            id: id,
+            username: username,
+            fullname: fullname,
+            phoneNumber: phoneNumber,
+            profileImageUrl: nil,
+            privateMode: privateMode,
+            notificationAlert: 0,
+            location: location,
+            birthday: birthday,
+            hasCompletedSetup: false // Set this to false for incomplete profiles
+              // Set the lastActive timestamp
+        )
+        
+        let userData = try Firestore.Encoder().encode(user)
+        
+        do {
+            try await FirestoreConstants.UserCollection.document(id).setData(userData)
+            print("DEBUG: Successfully created user document in Firestore with ID: \(id)")
+            return user
+        } catch {
+            print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
     //MARK: sendResetPasswordLink
     func sendResetPasswordLink(toEmail email: String) async throws {
         try await Auth.auth().sendPasswordReset(withEmail: email)

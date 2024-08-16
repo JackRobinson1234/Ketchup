@@ -9,12 +9,10 @@ import Foundation
 import Firebase
 import FirebaseFirestore
 class UserRegistrationViewModel: ObservableObject {
-    @Published var phoneNumber: String = ""
     @Published var username: String?
     @Published var birthday: Date?
     @Published var location: Location?
     @Published var fullname: String?
-
     func updateUser() async throws {
         guard let userID = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "UserRegistration", code: 0, userInfo: [NSLocalizedDescriptionKey: "No authenticated user found"])
@@ -26,7 +24,7 @@ class UserRegistrationViewModel: ObservableObject {
                 fullname: fullname,
                 birthday: birthday,
                 location: location,
-                phoneNumber: phoneNumber
+                hasCompletedSetup: true
             )
             
             print("Successfully updated user: \(updatedUser)")
