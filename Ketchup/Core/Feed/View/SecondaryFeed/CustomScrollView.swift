@@ -14,8 +14,12 @@ struct CustomHorizontalScrollView<Content: View>: View {
     let itemWidth: CGFloat
     @GestureState private var translation: CGFloat = 0
     @State private var offset: CGFloat = 0
+    @State private var draggingOffset: CGFloat = 0
     var onDismiss: (() -> Void)?
     let initialIndex: Int
+    
+    // New state to track if we're in dismiss gesture
+    @State private var isDismissing: Bool = false
 
     init(@ViewBuilder content: () -> Content, currentIndex: Binding<Int>, itemCount: Int, itemWidth: CGFloat, initialIndex: Int, onDismiss: (() -> Void)? = nil) {
         self.content = content()
@@ -30,47 +34,46 @@ struct CustomHorizontalScrollView<Content: View>: View {
         GeometryReader { geometry in
             content
                 .frame(width: geometry.size.width * CGFloat(itemCount), alignment: .leading)
-                .offset(x: -CGFloat(currentIndex) * itemWidth + clampedOffset)
+                .offset(x: -CGFloat(currentIndex) * itemWidth + offset + draggingOffset)
+                .animation(.interactiveSpring(), value: offset)
                 .gesture(
                     DragGesture()
                         .updating($translation) { value, state, _ in
-                            if currentIndex < itemCount - 1 || value.translation.width > 0 {
+                            if !isDismissing {
                                 state = value.translation.width
                             }
                         }
                         .onChanged { value in
-                            if currentIndex < itemCount - 1 || value.translation.width > 0 {
-                                offset = value.translation.width
+                            if !isDismissing {
+                                draggingOffset = value.translation.width
+                                
+                                // Check for dismiss gesture
+                                if currentIndex == 0 && value.translation.width > 50 && abs(value.translation.width) > abs(value.translation.height) {
+                                    isDismissing = true
+                                    onDismiss?()
+                                }
                             }
                         }
                         .onEnded { value in
-                            let dragThreshold: CGFloat = itemWidth / 2
-                            let draggedDistance = value.predictedEndTranslation.width
+                            if !isDismissing {
+                                let dragThreshold: CGFloat = itemWidth / 3
+                                let draggedDistance = value.predictedEndTranslation.width
 
-                            if currentIndex == 0 && draggedDistance > 50 && abs(draggedDistance) > abs(value.translation.height) {
-                                offset = geometry.size.width
-                                onDismiss?()
-                            } else if currentIndex < itemCount - 1 || draggedDistance > 0 {
-                                if draggedDistance > dragThreshold {
-                                    currentIndex = max(0, currentIndex - 1)
-                                } else if draggedDistance < -dragThreshold && currentIndex < itemCount - 1 {
-                                    currentIndex = min(itemCount - 1, currentIndex + 1)
+                                withAnimation(.interactiveSpring()) {
+                                    if draggedDistance > dragThreshold && currentIndex > 0 {
+                                        currentIndex -= 1
+                                    } else if draggedDistance < -dragThreshold && currentIndex < itemCount - 1 {
+                                        currentIndex += 1
+                                    }
+                                    offset = 0
+                                    draggingOffset = 0
                                 }
                             }
-                            offset = 0
                         }
                 )
         }
         .onAppear {
             currentIndex = initialIndex
-        }
-    }
-
-    private var clampedOffset: CGFloat {
-        if currentIndex == itemCount - 1 {
-            return min(0, offset + translation)
-        } else {
-            return offset + translation
         }
     }
 }

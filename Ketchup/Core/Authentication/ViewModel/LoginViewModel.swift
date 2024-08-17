@@ -39,8 +39,8 @@ class LoginViewModel: ObservableObject {
         do {
             try await AuthService.shared.login(withEmail: email, password: password)
             isAuthenticating = false
-        } catch {
-            let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
+        } catch let error as NSError{
+            let authError = AuthErrorCode(rawValue: error.code)
             self.showAlert = true
             isAuthenticating = false
             self.authError = AuthError(authErrorCode: authError ?? .userNotFound)
@@ -80,8 +80,8 @@ class LoginViewModel: ObservableObject {
         do {
             try await AuthService.shared.reAuth(withEmail: email, password: password)
             isAuthenticating = false
-        } catch {
-            let authError = AuthErrorCode.Code(rawValue: (error as NSError).code)
+        } catch let error as NSError{
+            let authError = AuthErrorCode(rawValue: error.code)
             self.showReAuthAlert = true
             isAuthenticating = false
             self.authError = AuthError(authErrorCode: authError ?? .userNotFound)

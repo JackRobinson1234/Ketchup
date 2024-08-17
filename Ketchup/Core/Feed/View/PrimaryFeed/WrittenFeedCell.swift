@@ -273,6 +273,7 @@ struct WrittenFeedCell: View {
                         VStack(alignment: .leading) {
                             Text(post.restaurant.name)
                                 .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundStyle(.black)
                                 .bold()
                             Text("\(post.restaurant.city ?? ""), \(post.restaurant.state ?? "")")
                                 .font(.custom("MuseoSansRounded-300", size: 14))
@@ -442,6 +443,9 @@ struct WrittenFeedCell: View {
             } else {
                 handleIndexChange(currentIndex)
             }
+        }
+        .onChange(of: post.caption) {
+            parsedCaption = parseCaption(post.caption)
         }
         .environment(\.openURL, OpenURLAction { url in
             if url.scheme == "user",

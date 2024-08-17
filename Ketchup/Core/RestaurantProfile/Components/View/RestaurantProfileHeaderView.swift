@@ -10,7 +10,6 @@ import Kingfisher
 import MapKit
 import SafariServices
 
-
 struct RestaurantProfileHeaderView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var feedViewModel: FeedViewModel

@@ -59,7 +59,7 @@ struct ProfileView: View {
     var body: some View {
         if isLoading {
             // Loading screen
-            ProgressView("Loading...")
+            FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
                         await profileViewModel.fetchUser()

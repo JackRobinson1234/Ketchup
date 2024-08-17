@@ -175,9 +175,7 @@ struct LocationFilter: View {
     
 } // End Struct
 
-#Preview{
-    LocationFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
-}
+
 //MARK: ViewModel
 /// Taken from "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
 class MapSearch : NSObject, ObservableObject {

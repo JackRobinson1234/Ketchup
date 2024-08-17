@@ -20,7 +20,7 @@ struct ActivityView: View {
         NavigationStack {
             VStack {
                 if isLoading {
-                    ProgressView()
+                    FastCrossfadeFoodImageView()
                         .onAppear {
                             Task {
                                 viewModel.user = AuthService.shared.userSession
@@ -82,13 +82,13 @@ struct ActivityView: View {
                                                 }
                                         }
                                         if viewModel.isLoadingMore {
-                                            ProgressView()
+                                            FastCrossfadeFoodImageView()
                                         }
                                     }
                                     .padding(.horizontal)
                                 }
                             } else if viewModel.isFetching {
-                                ProgressView()
+                                FastCrossfadeFoodImageView()
                             } else {
                                 Text("No activity from your friends yet.")
                                     .font(.custom("MuseoSansRounded-300", size: 16))

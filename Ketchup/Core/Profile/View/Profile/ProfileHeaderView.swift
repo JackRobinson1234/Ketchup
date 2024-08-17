@@ -26,7 +26,7 @@ struct ProfileHeaderView: View {
         let user = viewModel.user
         let frameWidth = UIScreen.main.bounds.width / 3 - 15
         VStack(spacing: 6) {
-            HStack(alignment: .bottom) {
+            HStack(alignment: .top) {
                 Spacer()
                 UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
                     .frame(width: frameWidth)
@@ -40,10 +40,14 @@ struct ProfileHeaderView: View {
                         .foregroundColor(.black)
                     Text("@\(user.username)")
                         .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("Colors/AccentColor"))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                    
+                    if let location = user.location, let city = location.city, let state = location.state {
+                        Text("\(city), \(state)")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundColor(.black)
+                    }
                     if user.isCurrentUser {
                         Button {
                             showEditProfile.toggle()

@@ -49,7 +49,8 @@ struct FeedCell: View {
     let mediaWidth = UIScreen.main.bounds.width
     @State private var currentIndex: Int = 0
     var checkLikes: Bool
-    
+    @State private var selectedUser: PostUser?
+        @State private var isShowingProfileSheet = false
     var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
         guard !ratings.isEmpty else { return nil }
@@ -241,6 +242,13 @@ struct FeedCell: View {
                 }
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
+        .sheet(isPresented: $isShowingProfileSheet) {
+                    if let user = selectedUser {
+                        NavigationStack {
+                            ProfileView(uid: user.id)
+                        }
+                    }
+                }
     }
     
     private func videoControlButtons(for videoId: String) -> some View {
@@ -367,25 +375,33 @@ struct FeedCell: View {
             // Overall rating
             
             Button(action: {
-                withAnimation(.spring()) { expandCaption.toggle() }
-            }) {
-                VStack(alignment: .leading, spacing: 7){
-                    if let parsed = parsedCaption {
-                        Text(parsed)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .lineLimit(expandCaption ? 50 : 1)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .multilineTextAlignment(.leading)
-                    } else {
-                        Text(post.caption)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .onAppear {
-                                parsedCaption = parseCaption(post.caption)
-                            }
-                            .lineLimit(expandCaption ? 50 : 1)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .multilineTextAlignment(.leading)
-                    }
+                           withAnimation(.spring()) { expandCaption.toggle() }
+                       }) {
+                           VStack(alignment: .leading, spacing: 7){
+                               if let parsed = parsedCaption {
+                                   Text(parsed)
+                                       .font(.custom("MuseoSansRounded-300", size: 16))
+                                       .lineLimit(expandCaption ? 50 : 1)
+                                       .multilineTextAlignment(.leading)
+                                       .environment(\.openURL, OpenURLAction { url in
+                                           if url.scheme == "user",
+                                              let userId = url.host,
+                                              let user = post.captionMentions.first(where: { $0.id == userId }) {
+                                               selectedUser = user
+                                               isShowingProfileSheet = true
+                                               return .handled
+                                           }
+                                           return .systemAction
+                                       })
+                               } else {
+                                   Text(post.caption)
+                                       .font(.custom("MuseoSansRounded-300", size: 16))
+                                       .onAppear {
+                                           parsedCaption = parseCaption(post.caption)
+                                       }
+                                       .lineLimit(expandCaption ? 50 : 1)
+                                       .multilineTextAlignment(.leading)
+                               }
                     
                     
                     if !expandCaption {
@@ -455,6 +471,9 @@ struct FeedCell: View {
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundColor(Color("Colors/AccentColor"))
                     }
+                }
+                .onChange(of: post.caption) {
+                    parsedCaption = parseCaption(post.caption)
                 }
             }
             
@@ -656,31 +675,32 @@ struct FeedCell: View {
         }
     }
     private func parseCaption(_ input: String) -> AttributedString {
-        var result = AttributedString(input)
-        let pattern = "@\\w+"
-        
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            var result = AttributedString(input)
+            let pattern = "@\\w+"
+            
+            guard let regex = try? NSRegularExpression(pattern: pattern) else {
+                return result
+            }
+            
+            let nsRange = NSRange(input.startIndex..., in: input)
+            let matches = regex.matches(in: input, range: nsRange)
+            
+            for match in matches.reversed() {
+                guard let range = Range(match.range, in: input) else { continue }
+                
+                let fullMatch = String(input[range])
+                let username = String(fullMatch.dropFirst()) // Remove @ from username
+                
+                if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+                   let attributedRange = Range(range, in: result) {
+                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                    result[attributedRange].link = URL(string: "user://\(user.id)")
+                }
+            }
+            
             return result
         }
-        
-        let nsRange = NSRange(input.startIndex..., in: input)
-        let matches = regex.matches(in: input, range: nsRange)
-        
-        for match in matches.reversed() {
-            guard let range = Range(match.range, in: input) else { continue }
-            
-            let fullMatch = String(input[range])
-            let username = String(fullMatch.dropFirst()) // Remove @ from username
-            
-            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
-               let attributedRange = Range(range, in: result) {
-                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
-                result[attributedRange].link = URL(string: "user://\(user.id)")
-            }
-        }
-        
-        return result
-    }
+
     private func handleLikeTapped() {
         Task {
             didLike ? await viewModel.unlike(post) : await viewModel.like(post)
@@ -871,16 +891,6 @@ struct FeedCell: View {
 }
 
 
-#Preview {
-    FeedCell(
-        post: .constant(DeveloperPreview.posts[0]),
-        viewModel: FeedViewModel(),
-        scrollPosition: .constant(""),
-        pauseVideo: .constant(true),
-        hideFeedOptions: true
-    )
-}
-
 struct IndexIndicatorView: View {
     var currentIndex: Int
     var totalCount: Int
@@ -902,4 +912,3 @@ struct IndexIndicatorView: View {
         }
     }
 }
-

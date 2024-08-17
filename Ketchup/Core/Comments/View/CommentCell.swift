@@ -85,7 +85,6 @@ struct CommentCell: View {
                     Button {
                         viewModel.selectedUserComment = comment
                     }  label: {
-                        
                         Text("@\(comment.commentOwnerUsername)")
                             .fontWeight(.semibold)
                             .font(.custom("MuseoSansRounded-300", size: 14))

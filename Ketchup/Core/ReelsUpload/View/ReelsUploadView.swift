@@ -83,7 +83,6 @@ struct ReelsUploadView: View {
                             
                         }
                         
-                        
                         if !isVideoExpanded {
                             Divider()
                             
@@ -162,8 +161,6 @@ struct ReelsUploadView: View {
                             isPresented: $showingWarningAlert,
                             titleVisibility: .visible) {
             Button("Yes, go back", role: .destructive) {
-                //uploadViewModel.reset()
-                //cameraViewModel.reset()
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -469,12 +466,13 @@ struct ReelsUploadView: View {
                     
                     let overallRating = calculateOverallRating()
                     await uploadViewModel.uploadPost()
-                    uploadViewModel.reset()
-                    cameraViewModel.reset()
-                    uploadViewModel.dismissAll = true
                     if !uploadViewModel.fromRestaurantProfile{
                         tabBarController.selectedTab = 0
                     }
+                    uploadViewModel.reset()
+                    cameraViewModel.reset()
+                    uploadViewModel.dismissAll = true
+                    
                 }
             }
         } label: {

@@ -9,6 +9,7 @@ import Foundation
 import FirebaseDatabase
 import SwiftUI
 import FirebaseFirestoreInternal
+import Firebase
 struct Report: Codable {
     let id: String
     let contentId: String

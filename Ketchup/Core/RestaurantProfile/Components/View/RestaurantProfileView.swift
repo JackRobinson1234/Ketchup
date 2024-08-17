@@ -53,7 +53,7 @@ struct RestaurantProfileView: View {
     
     var body: some View {
         if isLoading {
-            ProgressView("Loading...")
+            FastCrossfadeFoodImageView()
                 .gesture(drag)
                 .onAppear {
                     Task {

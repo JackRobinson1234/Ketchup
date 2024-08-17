@@ -94,6 +94,3 @@ struct RepostView: View {
 }
 
 
-#Preview {
-    RepostView(viewModel: FeedViewModel(), post: DeveloperPreview.posts[0])
-}

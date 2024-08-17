@@ -88,6 +88,9 @@ struct RestaurantProfileSlideBarView: View {
                     Picker("Post Display Mode", selection: $restaurantPostDisplayMode) {
                         ForEach(RestaurantPostDisplayMode.allCases, id: \.self) { mode in
                             Text(mode.rawValue).tag(mode)
+                                .foregroundStyle(.black)
+                                
+                            
                                
                         }
                     }
@@ -95,7 +98,10 @@ struct RestaurantProfileSlideBarView: View {
                     HStack {
                         Text(restaurantPostDisplayMode.rawValue)
                             .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundStyle(.black)
+
                         Image(systemName: "chevron.down")
+                            .foregroundStyle(.black)
                     }
                     .cornerRadius(8)
                 }

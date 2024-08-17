@@ -31,6 +31,7 @@ struct CollectionListCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 18))
                     .bold()
                     .lineLimit(1)
+                    .foregroundStyle(.black)
                 itemCountText(for: collection)
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(.gray)

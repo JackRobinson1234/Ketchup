@@ -30,7 +30,7 @@ struct CurrentUserProfileView: View {
         ZStack {
             if isLoading {
                 // Loading screen
-                ProgressView("Loading...")
+                FastCrossfadeFoodImageView()
                     .onAppear {
                         Task {
                             await profileViewModel.fetchCurrentUser()
@@ -162,8 +162,3 @@ struct CurrentUserProfileView: View {
         }
     }
 }
-
-
-
-
-

@@ -1,0 +1,39 @@
+//
+//  UserRegistrtationViewModel.swift
+//  Ketchup
+//
+//  Created by Jack Robinson on 8/14/24.
+//
+
+import Foundation
+import Firebase
+import FirebaseFirestore
+class UserRegistrationViewModel: ObservableObject {
+    @Published var username: String?
+    @Published var birthday: Date?
+    @Published var location: Location?
+    @Published var fullname: String?
+    func updateUser() async throws {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "UserRegistration", code: 0, userInfo: [NSLocalizedDescriptionKey: "No authenticated user found"])
+        }
+        do {
+            let updatedUser = try await AuthService.shared.updateFirestoreUser(
+                id: userID,
+                username: username,
+                fullname: fullname,
+                birthday: birthday,
+                location: location,
+                hasCompletedSetup: true
+            )
+            
+            print("Successfully updated user: \(updatedUser)")
+            
+            // Update the user session
+            try await AuthService.shared.updateUserSession()
+        } catch {
+            print("Failed to update user: \(error.localizedDescription)")
+            throw error
+        }
+    }
+}

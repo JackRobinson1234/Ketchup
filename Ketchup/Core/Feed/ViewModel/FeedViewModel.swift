@@ -154,7 +154,6 @@ class FeedViewModel: ObservableObject {
             if user.username != "ketchup_media"{
                 
                 self.posts = try await PostService.shared.fetchUserPosts(user: user)
-                //                feedViewModel.posts = posts
             }
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
@@ -448,10 +447,10 @@ extension FeedViewModel {
     func updatePost(_ updatedPost: Post) {
         if let index = posts.firstIndex(where: { $0.id == updatedPost.id }) {
             print("FOUND INDEX")
+            print("updatedPost", updatedPost.caption)
             posts[index] = updatedPost
-            print(updatedPost.overallRating)
         } else {
-            print("Couldn't find Index")
+            
         }
     }
 }
@@ -501,20 +500,4 @@ extension FeedViewModel {
               return false
           }
       }
-    
-//    func checkIfUserBookmarkedRestaurants() async {
-//        guard !posts.isEmpty else { return }
-//        var copy = posts
-//        for i in 0..<copy.count {
-//            do {
-//                let post = copy[i]
-//                let isBookmarked = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: post.restaurant.id)
-//                copy[i].didBookmark = isBookmarked
-//            } catch {
-//                print("DEBUG: Failed to check if user bookmarked restaurant")
-//            }
-//        }
-//        
-//        posts = copy
-//    }
 }

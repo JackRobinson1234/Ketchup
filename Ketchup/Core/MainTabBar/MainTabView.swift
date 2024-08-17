@@ -130,6 +130,7 @@ struct MainTabView: View {
                 startTracking(tab: tabBarController.selectedTab)
             }
         }
+        
     }
     
     private func startTracking(tab: Int) {

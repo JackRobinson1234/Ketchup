@@ -109,7 +109,7 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $needsReauth) {
-                LoginView(reAuthDelete: true)
+                PhoneAuthView(isDelete: true)
             }
            
             .toolbar {

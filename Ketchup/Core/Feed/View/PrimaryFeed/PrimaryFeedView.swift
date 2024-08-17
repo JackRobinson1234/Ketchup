@@ -38,7 +38,7 @@ struct PrimaryFeedView: View {
     
     var body: some View {
         if isLoading && viewModel.posts.isEmpty {
-            ProgressView("Loading...")
+            FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
                         try await viewModel.fetchInitialPosts()
@@ -58,7 +58,7 @@ struct PrimaryFeedView: View {
                                     
                                 }
                                 if viewModel.isLoadingMoreContent {
-                                    ProgressView()
+                                    FastCrossfadeFoodImageView()
                                         .padding()
                                 }
                                 Rectangle()

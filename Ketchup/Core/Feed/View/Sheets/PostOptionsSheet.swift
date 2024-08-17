@@ -115,6 +115,5 @@ struct PostOptionsSheet: View {
                 dismiss()
             }
         }
-        
     }
 }

@@ -131,9 +131,7 @@ struct FiltersView: View {
     }
 }
 
-#Preview {
-    FiltersView(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
-}
+
 
 //MARK: CollapsedPickerView
 struct CollapsedPickerView: View {

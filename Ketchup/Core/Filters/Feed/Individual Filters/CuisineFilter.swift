@@ -159,7 +159,3 @@ struct CuisineFilter: View {
 }
 
 
-
-#Preview {
-    CuisineFilter(filtersViewModel: FiltersViewModel(feedViewModel: FeedViewModel()))
-}

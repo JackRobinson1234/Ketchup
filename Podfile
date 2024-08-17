@@ -15,6 +15,7 @@ pod 'Kingfisher', '~> 7.0'
 pod 'GoogleSignIn'
 pod 'GoogleSignInSwiftSupport'
 pod 'Firebase/Messaging'
+pod 'PhoneNumberKit'
 
   target 'KetchupTests' do
     inherit! :search_paths

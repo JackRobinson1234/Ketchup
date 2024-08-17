@@ -123,8 +123,7 @@ struct ExpandedImageView: View {
             Color.black.edgesIgnoringSafeArea(.all)
             
             if isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                FastCrossfadeFoodImageView()
                     .scaleEffect(1.5)
             }
             
