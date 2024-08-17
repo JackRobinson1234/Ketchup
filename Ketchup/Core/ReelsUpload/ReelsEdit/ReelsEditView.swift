@@ -60,6 +60,7 @@ struct ReelsEditView: View {
                         tagUsersButton
                         Divider()
                         ratingsView
+                            .accentColor(Color("Colors/AccentColor"))
                         Divider()
                         saveButton
                     }
@@ -82,12 +83,16 @@ struct ReelsEditView: View {
             )
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button {
                         if hasUnsavedChanges {
                             showAlert = true
                         } else {
                             dismiss()
                         }
+                    } label: {
+                        Text("Cancel")
+                            .foregroundStyle(.black)
+                            .font(.custom("MuseoSansRounded-300", size: 14))
                     }
                 }
             }
@@ -224,6 +229,7 @@ struct ReelsEditView: View {
             RatingSliderGroup(label: "Atmosphere", rating: $tempAtmosphereRating, isNA: $editViewModel.isAtmosphereNA)
             RatingSliderGroup(label: "Value", rating: $tempValueRating, isNA: $editViewModel.isValueNA)
             RatingSliderGroup(label: "Service", rating: $tempServiceRating, isNA: $editViewModel.isServiceNA)
+            
         }
     }
     private var restaurantInfoView: some View {

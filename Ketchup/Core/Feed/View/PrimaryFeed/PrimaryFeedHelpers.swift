@@ -126,6 +126,8 @@ struct FeedOverallRatingView: View {
                     
                     Text(String(format: "%.1f", rating))
                         .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundStyle(.black)
+
                 }
                 .frame(width: 40, height: 40)
             }

@@ -16,18 +16,26 @@ struct ContentView: View {
     var body: some View {
         Group {
             if viewModel.isLoading {
-                VStack(spacing: 10) {
-                    Image("SkipFill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 150, height: 150)
-                    // Remove background
-                    
-                    Image("KetchupTextRed")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200)
+                ZStack{
+                    FallingFoodView(isStatic: true)
+                    VStack(spacing: 10) {
+                        Spacer()
+                        Image("SkipFill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 150)
+                        
+                        Image("KetchupTextRed")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200)
+                        ProgressView()
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                        Spacer()
+                        Spacer()
+                    }
                 }
+               
             } else if let user = viewModel.userSession {
                 if viewModel.isProfileComplete {
                     MainTabView()

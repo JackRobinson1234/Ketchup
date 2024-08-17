@@ -20,7 +20,7 @@ struct ActivityView: View {
         NavigationStack {
             VStack {
                 if isLoading {
-                    ProgressView()
+                    FastCrossfadeFoodImageView()
                         .onAppear {
                             Task {
                                 viewModel.user = AuthService.shared.userSession

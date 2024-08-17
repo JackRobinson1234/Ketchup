@@ -5,7 +5,7 @@
 //  Created by Jack Robinson on 8/12/24.
 //
 import SwiftUI
-
+import Combine
 struct WelcomeView: View {
     @State private var showRegistration = false
     @State private var showLogin = false
@@ -35,9 +35,11 @@ struct WelcomeView: View {
                             HStack {
                                 Text("Review Restaurants ")
                                     .font(.custom("MuseoSansRounded-500", size: 18))
+                                    .foregroundStyle(.black)
                                 +
                                 Text("With Friends!")
                                     .font(.custom("MuseoSansRounded-700", size: 18))
+                                    .foregroundStyle(.black)
                             }
                             
                             .padding()
@@ -46,12 +48,7 @@ struct WelcomeView: View {
                             
                         }
                         
-                        
-                        //.padding(.horizontal, 15)
-                        //.padding(.vertical, 20)
-                        //                    .background(Color.white)
-                        //                    .cornerRadius(5)
-                        // .shadow(color: Color.black.opacity(0.1), radius: 10)
+            
                         
                         
                         Spacer()
@@ -108,46 +105,59 @@ struct WelcomeView: View {
 }
 
 struct FallingFoodView: View {
-    @State private var foodParticles = [FoodParticle]()
+    @StateObject private var viewModel: FallingFoodViewModel
     
-    let timer = Timer.publish(every: 0.005, on: .main, in: .common).autoconnect()
+    init(isStatic: Bool = false) {
+        _viewModel = StateObject(wrappedValue: FallingFoodViewModel(isStatic: isStatic))
+    }
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                ForEach(foodParticles) { particle in
+                ForEach(viewModel.foodParticles) { particle in
                     particle.view
                         .position(particle.position)
                         .rotationEffect(.degrees(particle.rotation))
-                        .animation(.linear(duration: 0.01), value: particle.position)
                 }
             }
             .onAppear {
-                let particleCount = 24
-                let immediateParticles = 5 // Number of particles to drop immediately
-                let totalDuration = 10.0 // Total time to stagger remaining particles
-                
-                // Add the first few particles immediately
-                for _ in 0..<immediateParticles {
-                    foodParticles.append(FoodParticle(screenSize: geometry.size))
-                }
-                
-                // Stagger the remaining particles
-                for i in immediateParticles..<particleCount {
-                    let delay = (totalDuration / Double(particleCount - immediateParticles)) * Double(i - immediateParticles)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        foodParticles.append(FoodParticle(screenSize: geometry.size))
-                    }
-                }
+                viewModel.initializeParticles(screenSize: geometry.size)
             }
-            .onReceive(timer) { _ in
-                for i in 0..<foodParticles.count {
-                    if foodParticles[i].position.y > geometry.size.height {
-                        foodParticles[i] = FoodParticle(screenSize: geometry.size)
-                    } else {
-                        foodParticles[i].position.y += foodParticles[i].speed
-                    }
-                }
+            .onReceive(viewModel.timer) { _ in
+                viewModel.updateParticles(screenSize: geometry.size)
+            }
+        }
+    }
+}
+
+class FallingFoodViewModel: ObservableObject {
+    @Published var foodParticles = [FoodParticle]()
+    let timer: Publishers.Autoconnect<Timer.TimerPublisher>
+    let isStatic: Bool
+    
+    init(isStatic: Bool) {
+        self.isStatic = isStatic
+        self.timer = Timer.publish(every: isStatic ? 1 : 0.016, on: .main, in: .common).autoconnect()
+    }
+    
+    func initializeParticles(screenSize: CGSize) {
+        let particleCount = 24
+        if isStatic{
+            let particleCount = 50
+        }
+        foodParticles = (0..<particleCount).map { _ in
+            FoodParticle(screenSize: screenSize, initiallyDistributed: true, isStatic: isStatic)
+        }
+    }
+    
+    func updateParticles(screenSize: CGSize) {
+        guard !isStatic else { return }
+        
+        for i in 0..<foodParticles.count {
+            if foodParticles[i].position.y > screenSize.height {
+                foodParticles[i] = FoodParticle(screenSize: screenSize, initiallyDistributed: false, isStatic: isStatic)
+            } else {
+                foodParticles[i].position.y += foodParticles[i].speed
             }
         }
     }
@@ -161,14 +171,21 @@ struct FoodParticle: Identifiable {
     var rotation: Double
     let view: AnyView
     
-    init(screenSize: CGSize) {
-        let validWidth = max(screenSize.width, 1) // Ensure the width is at least 1 to avoid an empty range
+    init(screenSize: CGSize, initiallyDistributed: Bool, isStatic: Bool) {
+        let validWidth = max(screenSize.width, 1)
+        let validHeight = max(screenSize.height, 1)
         
-        position = CGPoint(x: CGFloat.random(in: 0..<validWidth),
-                           y: -20)
+        if initiallyDistributed {
+            position = CGPoint(x: CGFloat.random(in: 0..<validWidth),
+                               y: CGFloat.random(in: 0..<validHeight))
+        } else {
+            position = CGPoint(x: CGFloat.random(in: 0..<validWidth),
+                               y: -20)
+        }
+        
         size = CGFloat.random(in: 40...50)
-        speed = CGFloat.random(in: 0.15...0.4)
-        rotation = Double.random(in: -15...15)
+        speed = isStatic ? 0 : CGFloat.random(in: 0.15...0.4)
+        rotation = isStatic ? 0 : Double.random(in: -15...15)
         
         let shape = Int.random(in: 0...6)
         let color = Color.red

@@ -25,6 +25,7 @@
 		F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */; };
 		F83F40382C6C4E86006BCEE9 /* PhoneVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83F40372C6C4E86006BCEE9 /* PhoneVerificationView.swift */; };
 		F83F403A2C6C5948006BCEE9 /* UsernameSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83F40392C6C5948006BCEE9 /* UsernameSelectionView.swift */; };
+		F83F5B162C7017C300FB4434 /* FastCrossfadeFoodImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83F5B152C7017C300FB4434 /* FastCrossfadeFoodImageView.swift */; };
 		F840698F2C6AEAD300C31433 /* PhoneAuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F840698E2C6AEAD300C31433 /* PhoneAuthViewModel.swift */; };
 		F84069912C6AEAF200C31433 /* PhoneAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84069902C6AEAF200C31433 /* PhoneAuthView.swift */; };
 		F84069932C6AEBF000C31433 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84069922C6AEBF000C31433 /* WelcomeView.swift */; };
@@ -296,6 +297,7 @@
 		F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCollectionListView.swift; sourceTree = "<group>"; };
 		F83F40372C6C4E86006BCEE9 /* PhoneVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneVerificationView.swift; sourceTree = "<group>"; };
 		F83F40392C6C5948006BCEE9 /* UsernameSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSelectionView.swift; sourceTree = "<group>"; };
+		F83F5B152C7017C300FB4434 /* FastCrossfadeFoodImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastCrossfadeFoodImageView.swift; sourceTree = "<group>"; };
 		F840698E2C6AEAD300C31433 /* PhoneAuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthViewModel.swift; sourceTree = "<group>"; };
 		F84069902C6AEAF200C31433 /* PhoneAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthView.swift; sourceTree = "<group>"; };
 		F84069922C6AEBF000C31433 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -811,6 +813,7 @@
 				F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */,
 				F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */,
 				F85CDD4C2C078BDC00BD834F /* UISliderView.swift */,
+				F83F5B152C7017C300FB4434 /* FastCrossfadeFoodImageView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1868,6 +1871,7 @@
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
 				F8A50A922C3F46C200B9A7C9 /* ReelsEditView.swift in Sources */,
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
+				F83F5B162C7017C300FB4434 /* FastCrossfadeFoodImageView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
 				F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */,

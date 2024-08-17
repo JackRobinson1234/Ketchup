@@ -97,7 +97,7 @@ struct ProfileSlideBar: View {
                     .frame(maxWidth: .infinity)
             }
             .padding()
-            .padding(.bottom, 22)
+            .padding(.bottom, 16)
 
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
@@ -112,7 +112,9 @@ struct ProfileSlideBar: View {
                         HStack {
                             Text(postDisplayMode.rawValue)
                                 .font(.custom("MuseoSansRounded-500", size: 16))
+                                .foregroundStyle(.black)
                             Image(systemName: "chevron.down")
+                                .foregroundStyle(.black)
                         }
                         .cornerRadius(8)
                     }
