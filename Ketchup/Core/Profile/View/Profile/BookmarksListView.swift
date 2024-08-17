@@ -17,7 +17,7 @@ struct BookmarksListView: View {
     var body: some View {
         VStack {
             if viewModel.isLoading {
-                ProgressView()
+                FastCrossfadeFoodImageView()
             } else if viewModel.bookmarks.isEmpty {
                 Text("No bookmarks yet")
                     .foregroundColor(.secondary)

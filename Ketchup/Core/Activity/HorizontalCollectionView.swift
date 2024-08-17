@@ -68,7 +68,7 @@ struct HorizontalCollectionScrollView: View {
                         }
                     }
                     if viewModel.isLoading {
-                        ProgressView()
+                        FastCrossfadeFoodImageView()
                     }
                 }
                 .padding(.horizontal)

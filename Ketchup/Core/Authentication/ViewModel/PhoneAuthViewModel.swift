@@ -23,11 +23,14 @@ class PhoneAuthViewModel: ObservableObject {
     @Published var alertMessage = ""
     @Published var showAlert = false
     @Published var shouldNavigateToUsernameSelection = false
+    @Published var isDelete: Bool = false
     private var cancellables = Set<AnyCancellable>()
     private let phoneNumberKit = PhoneNumberKit()
     private let debounceDuration: TimeInterval = 0.5
-
-    init() {
+    @Published var deletionSuccessful: Bool = false
+    
+    init(isDelete: Bool = false) {
+           self.isDelete = isDelete
         setupPhoneNumberValidation()
     }
 
@@ -94,7 +97,48 @@ class PhoneAuthViewModel: ObservableObject {
                withVerificationID: verificationID,
                verificationCode: verificationCode
            )
-        print("PHONE NUMBER 3:", self.phoneNumber)
+
+           if isDelete {
+               reauthenticateAndDelete(with: credential)
+           } else {
+               authenticateOrLinkPhone(with: credential)
+           }
+       }
+
+       private func reauthenticateAndDelete(with credential: AuthCredential) {
+           guard let user = Auth.auth().currentUser else {
+               showAlert(title: "Error", message: "No user is currently signed in.")
+               return
+           }
+
+           user.reauthenticate(with: credential) { [weak self] _, error in
+               if let error = error {
+                   self?.handleError(error)
+               } else {
+                   self?.deleteAccount()
+               }
+           }
+       }
+
+       private func deleteAccount() {
+           guard let user = Auth.auth().currentUser else { return }
+
+           user.delete { [weak self] error in
+               if let error = error {
+                   self?.handleError(error)
+               } else {
+                   DispatchQueue.main.async {
+                       self?.deletionSuccessful = true
+                       self?.showAlert(title: "Account Deleted", message: "Your account has been successfully deleted.")
+                   }
+               }
+           }
+           Task{
+               try await AuthService.shared.updateUserSession()
+           }
+       }
+
+       private func authenticateOrLinkPhone(with credential: AuthCredential) {
            if let currentUser = Auth.auth().currentUser {
                currentUser.link(with: credential) { [weak self] (authResult, error) in
                    DispatchQueue.main.async {
@@ -103,7 +147,6 @@ class PhoneAuthViewModel: ObservableObject {
                            self?.handleError(error)
                            self?.clearVerificationCode()
                        } else {
-                           // Successfully linked the phone number
                            Task {
                                await self?.updateUserWithPhoneNumber()
                            }
@@ -111,7 +154,6 @@ class PhoneAuthViewModel: ObservableObject {
                    }
                }
            } else {
-               // If no user is signed in, proceed with phone number sign-in
                Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
                    DispatchQueue.main.async {
                        self?.isAuthenticating = false
@@ -119,8 +161,6 @@ class PhoneAuthViewModel: ObservableObject {
                            self?.handleError(error)
                            self?.clearVerificationCode()
                        } else {
-                           // Sign-in successful, Auth.auth().currentUser is now set
-                          
                            Task {
                                try await AuthService.shared.updateUserSession()
                                if AuthService.shared.userSession == nil {
@@ -132,6 +172,27 @@ class PhoneAuthViewModel: ObservableObject {
                }
            }
        }
+
+       private func handleError(_ error: Error) {
+           print("Detailed error: \(error)")
+           if let errCode = AuthErrorCode(rawValue: error._code) {
+               print("Firebase Auth Error Code: \(errCode.rawValue)")
+               switch errCode {
+               case .invalidVerificationCode:
+                   showAlert(title: "Invalid Code", message: "The verification code entered is incorrect.")
+               case .invalidPhoneNumber:
+                   showAlert(title: "Invalid Phone Number", message: "The phone number is invalid. Please check and try again.")
+               case .tooManyRequests:
+                   showAlert(title: "Too Many Attempts", message: "Too many unsuccessful attempts. Please try again later.")
+               case .requiresRecentLogin:
+                   showAlert(title: "Re-authentication Required", message: "Please sign in again to delete your account.")
+               default:
+                   showAlert(title: "Authentication Error", message: "An error occurred: \(error.localizedDescription)")
+               }
+           } else {
+               showAlert(title: "Error", message: error.localizedDescription)
+           }
+       }
     func clearVerificationCode() {
         verificationCode = ""
     }
@@ -139,24 +200,7 @@ class PhoneAuthViewModel: ObservableObject {
         showAlert(title: "Invalid Phone Number", message: "Please enter a valid phone number before submitting.")
     }
 
-    private func handleError(_ error: Error) {
-        print("Detailed error: \(error)")
-        if let errCode = AuthErrorCode(rawValue: error._code) {
-            print("Firebase Auth Error Code: \(errCode.rawValue)")
-            switch errCode {
-            case .invalidVerificationCode:
-                showAlert(title: "Invalid Code", message: "The verification code entered is incorrect.")
-            case .invalidPhoneNumber:
-                showAlert(title: "Invalid Phone Number", message: "The phone number is invalid. Please check and try again.")
-            case .tooManyRequests:
-                showAlert(title: "Too Many Attempts", message: "Too many unsuccessful attempts. Please try again later.")
-            default:
-                showAlert(title: "Authentication Error", message: "An error occurred: \(error.localizedDescription)")
-            }
-        } else {
-            showAlert(title: "Error", message: error.localizedDescription)
-        }
-    }
+   
     
     private func createBasicUser() async {
             guard let user = Auth.auth().currentUser else { return }

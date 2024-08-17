@@ -60,7 +60,7 @@ struct CollectionsListView: View {
         VStack {
             if viewModel.isLoading {
                 // Loading screen
-                ProgressView("Loading...")
+                FastCrossfadeFoodImageView()
                     .toolbar(.hidden, for: .tabBar)
             } else {
                 //MARK: Add Collection Button

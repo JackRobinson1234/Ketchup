@@ -27,6 +27,10 @@ struct Collection: Identifiable, Codable, Hashable {
     var likes: Int
     var didLike: Bool = false
     
+    enum CodingKeys: String, CodingKey {
+        case id, name, uid, username, fullname, timestamp, description, coverImageUrl, restaurantCount, privateMode, profileImageUrl, tempImageUrls, likes
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -41,8 +45,7 @@ struct Collection: Identifiable, Codable, Hashable {
         self.privateMode = try container.decode(Bool.self, forKey: .privateMode)
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .coverImageUrl)
         self.tempImageUrls = try container.decodeIfPresent([String].self, forKey: .tempImageUrls)
-        self.likes = try container.decode(Int.self, forKey: .likes)
-        
+        self.likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
     }
     
     init(id: String, name: String, timestamp: Timestamp? = nil, description: String? = nil, username: String, fullname: String, uid: String, coverImageUrl: String? = nil, restaurantCount: Int,  privateMode: Bool, profileImageUrl: String? = nil, tempImageUrls: [String]? = nil, likes: Int = 0) {
@@ -59,24 +62,24 @@ struct Collection: Identifiable, Codable, Hashable {
         self.profileImageUrl = profileImageUrl
         self.tempImageUrls = tempImageUrls
         self.likes = likes
-
     }
-    mutating func updatetempImageUrls(with item: CollectionItem) {
-            if tempImageUrls == nil {
-                tempImageUrls = []
-            }
-            if tempImageUrls!.count < 4, let image = item.image {
-                tempImageUrls!.append(image)
-            }
-        }
 
-        mutating func removeCoverImageUrl(for item: CollectionItem) {
-            guard var urls = tempImageUrls else { return }
-            if let image = item.image, let index = urls.firstIndex(of: image) {
-                urls.remove(at: index)
-                tempImageUrls = urls.isEmpty ? nil : urls
-            }
+    mutating func updatetempImageUrls(with item: CollectionItem) {
+        if tempImageUrls == nil {
+            tempImageUrls = []
         }
+        if tempImageUrls!.count < 4, let image = item.image {
+            tempImageUrls!.append(image)
+        }
+    }
+
+    mutating func removeCoverImageUrl(for item: CollectionItem) {
+        guard var urls = tempImageUrls else { return }
+        if let image = item.image, let index = urls.firstIndex(of: image) {
+            urls.remove(at: index)
+            tempImageUrls = urls.isEmpty ? nil : urls
+        }
+    }
 }
 
 struct CollectionItem: Codable, Hashable, Identifiable {

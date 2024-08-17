@@ -30,9 +30,15 @@ struct BirthdaySelectorView: View {
                 .font(.custom("MuseoSansRounded-500", size: 14))
                 .foregroundColor(.gray)
             
-            DatePicker("", selection: $tempBirthday, in: ...Date(), displayedComponents: .date)
+            DatePicker("", selection: $tempBirthday, displayedComponents: .date)
                 .datePickerStyle(WheelDatePickerStyle())
                 .frame(maxHeight: 400)
+            
+            if !isUserOldEnough(birthday: tempBirthday) {
+                Text("You must be at least \(minimumAge) years old.")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundColor(.red)
+            }
             
             Spacer()
             
@@ -49,9 +55,10 @@ struct BirthdaySelectorView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color("Colors/AccentColor"))
+                    .background(isUserOldEnough(birthday: tempBirthday) ? Color("Colors/AccentColor") : Color.gray)
                     .cornerRadius(25)
             }
+            .disabled(!isUserOldEnough(birthday: tempBirthday))
         }
         .padding()
         .navigationBarBackButtonHidden(true)
@@ -71,8 +78,7 @@ struct BirthdaySelectorView: View {
         .navigationBarItems(leading: Button(action: { dismiss() }) {
             if let userSession = AuthService.shared.userSession, userSession.birthday == nil {
                    
-                }
-             else {
+            } else {
                 Image(systemName: "chevron.left")
                     .foregroundColor(.black)
             }

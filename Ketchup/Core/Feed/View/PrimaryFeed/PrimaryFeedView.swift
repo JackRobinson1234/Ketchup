@@ -58,7 +58,7 @@ struct PrimaryFeedView: View {
                                     
                                 }
                                 if viewModel.isLoadingMoreContent {
-                                    ProgressView()
+                                    FastCrossfadeFoodImageView()
                                         .padding()
                                 }
                                 Rectangle()

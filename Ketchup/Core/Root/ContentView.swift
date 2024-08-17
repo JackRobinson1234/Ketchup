@@ -29,13 +29,12 @@ struct ContentView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 200)
-                        ProgressView()
+                        FastCrossfadeFoodImageView()
                             .foregroundStyle(Color("Colors/AccentColor"))
                         Spacer()
                         Spacer()
                     }
                 }
-               
             } else if let user = viewModel.userSession {
                 if viewModel.isProfileComplete {
                     MainTabView()
@@ -56,7 +55,6 @@ struct ContentView: View {
             }
         }
     }
-
     private func checkInitialNavigation() {
         if let initialTab = UserDefaults.standard.object(forKey: "initialTab") as? Int {
             NotificationCenter.default.post(name: .navigateToProfile, object: nil, userInfo: ["tab": 4])

@@ -295,7 +295,7 @@ struct ReelsEditView: View {
                 .modifier(StandardButtonModifier(width: 90))
                 .overlay {
                     if editViewModel.isLoading {
-                        ProgressView()
+                       ProgressView()
                             .tint(.white)
                     }
                 }

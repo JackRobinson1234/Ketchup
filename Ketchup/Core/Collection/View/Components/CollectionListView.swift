@@ -17,7 +17,7 @@ struct CollectionListView: View {
 
     var body: some View {
         if isLoading {
-            ProgressView()
+            FastCrossfadeFoodImageView()
                 .onAppear {
                     print("FETCHING ITEMS")
                     Task {

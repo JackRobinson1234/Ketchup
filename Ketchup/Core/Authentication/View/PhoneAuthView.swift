@@ -11,8 +11,12 @@ import PhoneNumberKit
 import Combine
 import FirebaseAuth
 struct PhoneAuthView: View {
-    @StateObject private var viewModel = PhoneAuthViewModel()
+    @StateObject private var viewModel: PhoneAuthViewModel
     @Environment(\.dismiss) var dismiss
+    var isDelete: Bool = false
+    init(isDelete: Bool = false) {
+            _viewModel = StateObject(wrappedValue: PhoneAuthViewModel(isDelete: isDelete))
+        }
     //@StateObject var registrationViewModel = UserRegistrationViewModel()
     var body: some View {
         NavigationStack {
@@ -21,10 +25,11 @@ struct PhoneAuthView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200)
-                if let userSession = AuthService.shared.userSession {
+                if isDelete {
+                    deleteAccountMessage
+                } else if let userSession = AuthService.shared.userSession {
                     Text("Hey @\(userSession.username), we're updating our sign in flow! Don't worry- this will be linked to your existing account")
                         .font(.custom("MuseoSansRounded-500", size: 20))
-
                 }
                 
                 Text("First, What's your phone number?")
@@ -70,8 +75,8 @@ struct PhoneAuthView: View {
                             .foregroundStyle(viewModel.isPhoneNumberValid ? .white : .black)
 
                         if viewModel.isAuthenticating {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                           ProgressView()
+                                
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -100,4 +105,18 @@ struct PhoneAuthView: View {
             }
         }
     }
+    private var deleteAccountMessage: some View {
+           VStack(alignment: .leading, spacing: 10) {
+               Text("Account Deletion Confirmation")
+                   .font(.custom("MuseoSansRounded-700", size: 22))
+                   .foregroundColor(.red)
+               
+               Text("For your security, we need to re-authenticate your account before proceeding with deletion. Please enter your phone number to receive a verification code.")
+                   .font(.custom("MuseoSansRounded-500", size: 16))
+                   .foregroundColor(.gray)
+           }
+           .padding()
+           .background(Color.red.opacity(0.1))
+           .cornerRadius(10)
+       }
 }

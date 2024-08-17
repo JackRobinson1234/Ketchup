@@ -97,7 +97,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
            print("Successfully registered for remote notifications with token:")
            Messaging.messaging().apnsToken = deviceToken
-           Auth.auth().setAPNSToken(deviceToken, type: .sandbox)
+           Auth.auth().setAPNSToken(deviceToken, type: .prod)
            print("FETCHING FCM TOKEN")
            fetchFCMToken()
        }

@@ -186,7 +186,7 @@ struct RegistrationView: View {
                     .modifier(StandardButtonModifier())
                     .overlay {
                         if viewModel.isAuthenticating {
-                            ProgressView()
+                           ProgressView()
                                 .tint(.white)
                         }
                     }

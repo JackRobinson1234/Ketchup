@@ -41,7 +41,7 @@ struct NotificationsView: View {
             .refreshable { await viewModel.fetchNotifications() }
             .overlay {
                 if viewModel.isLoading {
-                    ProgressView()
+                    FastCrossfadeFoodImageView()
                 } else if viewModel.showEmptyView {
                     ContentUnavailableView("No notifications to show", systemImage: "bubble.middle.bottom")
                         .foregroundStyle(.gray)

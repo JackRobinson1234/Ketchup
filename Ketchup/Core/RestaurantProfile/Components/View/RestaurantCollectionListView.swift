@@ -18,7 +18,7 @@ struct RestaurantCollectionListView: View {
         VStack{
             if isLoading {
                 // Loading screen
-                ProgressView("Loading...")
+                FastCrossfadeFoodImageView()
                     .toolbar(.hidden, for: .tabBar)
                     .onAppear {
                         Task {

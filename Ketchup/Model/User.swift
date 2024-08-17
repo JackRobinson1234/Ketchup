@@ -149,4 +149,5 @@ struct Location: Codable, Hashable {
     var city: String?
     var state: String?
     var geoPoint: GeoPoint?
+    var _geoLoc: geoLoc?
 }

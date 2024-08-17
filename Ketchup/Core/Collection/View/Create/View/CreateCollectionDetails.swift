@@ -110,7 +110,7 @@ struct CreateCollectionDetails: View {
                                     .opacity(collectionsViewModel.editTitle.isEmpty ? 0.5 : 1.0)
                                     .overlay {
                                         if collectionsViewModel.isLoading {
-                                            ProgressView()
+                                           ProgressView()
                                                 .tint(.white)
                                         }
                                     }
