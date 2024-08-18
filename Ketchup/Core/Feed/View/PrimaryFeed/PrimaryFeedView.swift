@@ -269,9 +269,7 @@ struct PrimaryFeedView: View {
                     .background(Color.white)
                 }
                 .overlay {
-                    if viewModel.isInitialLoading{
-                        FastCrossfadeFoodImageView()
-                    } else if viewModel.showEmptyView {
+                    if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
