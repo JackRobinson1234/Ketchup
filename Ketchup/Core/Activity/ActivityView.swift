@@ -32,11 +32,11 @@ struct ActivityView: View {
                     
                 } else {
                     ScrollView(showsIndicators: false){
-                        Button{
-                            showContacts = true
-                        } label: {
-                            Text("Contacts")
-                        }
+//                        Button{
+//                            showContacts = true
+//                        } label: {
+//                            Text("Contacts")
+//                        }
                         VStack {
                             // MARK: Buttons
                             
