@@ -103,7 +103,28 @@ class UserService {
             }
             return try document.data(as: User.self)
         }
-    
+    func fetchUsers(byPhoneNumbers phoneNumbers: [String]) async throws -> [User] {
+            let usersCollection = Firestore.firestore().collection("users")
+            
+            // Split phone numbers into chunks to avoid exceeding Firestore's query limit
+            let chunkSize = 10 // Firestore allows up to 10 equality clauses in a compound query
+            let phoneNumberChunks = phoneNumbers.chunked(into: chunkSize)
+            
+            var allUsers: [User] = []
+            
+            for chunk in phoneNumberChunks {
+                let query = usersCollection.whereField("phoneNumber", in: chunk)
+                let querySnapshot = try await query.getDocuments()
+                
+                let users = querySnapshot.documents.compactMap { document -> User? in
+                    try? document.data(as: User.self)
+                }
+                
+                allUsers.append(contentsOf: users)
+            }
+            
+            return allUsers
+        }
 }
 
 // MARK: - Following
@@ -188,3 +209,10 @@ extension UserService {
 }
 
 
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
+}

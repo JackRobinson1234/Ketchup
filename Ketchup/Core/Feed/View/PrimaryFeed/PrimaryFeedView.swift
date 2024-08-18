@@ -108,7 +108,7 @@ struct PrimaryFeedView: View {
                                         .frame(width: 60)
                                     Text("Search")
                                         .foregroundStyle(.gray)
-                                        
+                                    
                                         .font(.custom("MuseoSansRounded-500", size: 10))
                                 }
                             }
@@ -126,8 +126,8 @@ struct PrimaryFeedView: View {
                                 showFilters.toggle()
                             } label: {
                                 VStack{
-                                ZStack {
-                                    
+                                    ZStack {
+                                        
                                         Image(systemName: "slider.horizontal.3")
                                             .imageScale(.large)
                                             .shadow(radius: 4)
@@ -142,7 +142,7 @@ struct PrimaryFeedView: View {
                                     }
                                     Text("Filters")
                                         .foregroundStyle(.gray)
-                                       
+                                    
                                         .font(.custom("MuseoSansRounded-500", size: 10))
                                 }
                                 .frame(width: 60)
@@ -151,7 +151,7 @@ struct PrimaryFeedView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, 20)
                         .foregroundStyle(.black)
-                      
+                        
                         HStack(spacing: 40) {
                             Button {
                                 if canSwitchTab {
@@ -269,7 +269,9 @@ struct PrimaryFeedView: View {
                     .background(Color.white)
                 }
                 .overlay {
-                    if viewModel.showEmptyView {
+                    if viewModel.isInitialLoading{
+                        FastCrossfadeFoodImageView()
+                    } else if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }

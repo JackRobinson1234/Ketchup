@@ -85,6 +85,7 @@
         <key>NSLocationWhenInUseUsageDescription</key>
         <string>We use your location to provide personalized content and services based on where you are.</string>
         
-        
+        <key>NSContactsUsageDescription</key>
+        <string>This app requires access to your contacts to find your friends.</string>
     </dict>
 </plist>

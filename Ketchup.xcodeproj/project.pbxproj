@@ -19,6 +19,8 @@
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
+		F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2C2C719BA7001F296F /* ContactsView.swift */; };
+		F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
 		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
@@ -291,6 +293,8 @@
 		F81D30E52BB72FFC008673E6 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
+		F82BFF2C2C719BA7001F296F /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
+		F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModel.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
 		F83380F32C28B31E0056C973 /* CustomFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
@@ -597,6 +601,23 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
+		F82BFF2B2C719B98001F296F /* Contacts */ = {
+			isa = PBXGroup;
+			children = (
+				F82BFF2E2C719C0C001F296F /* ContactsViewModel */,
+				F82BFF2C2C719BA7001F296F /* ContactsView.swift */,
+			);
+			path = Contacts;
+			sourceTree = "<group>";
+		};
+		F82BFF2E2C719C0C001F296F /* ContactsViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */,
+			);
+			path = ContactsViewModel;
+			sourceTree = "<group>";
+		};
 		F832F9752BCE1D0A00EE7336 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -773,6 +794,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F82BFF2B2C719B98001F296F /* Contacts */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
@@ -1895,6 +1917,7 @@
 				F8E66ACF2C3896E400F55DF0 /* FeedLocationFilter.swift in Sources */,
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
+				F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */,
 				F8628A712C501BFD000B046B /* YPImagePicker.swift in Sources */,
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
@@ -2064,6 +2087,7 @@
 				F871CE102BCE00B1003C9BE8 /* AddItemCollectionButton.swift in Sources */,
 				F8631E352BD6E49E00A48565 /* PostListCell.swift in Sources */,
 				F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */,
+				F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */,
 				F83F40382C6C4E86006BCEE9 /* PhoneVerificationView.swift in Sources */,
 				F8B69F1E2C6C66800084AE68 /* LocationSelectorView.swift in Sources */,
 			);

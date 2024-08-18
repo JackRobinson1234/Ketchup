@@ -44,7 +44,7 @@ class UploadViewModel: ObservableObject {
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
     @Published var thumbnailImage: UIImage?
     @Published var dismissAll: Bool = false
-    @Published var fromRestaurantProfile = true
+    @Published var fromRestaurantProfile = false
     @Published var showSuccessMessage = false
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
