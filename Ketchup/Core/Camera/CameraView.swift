@@ -33,10 +33,11 @@ struct CameraView: View {
                 VStack(spacing: 0) {
                     // Main content area
                     ZStack {
-                        if cameraViewModel.audioOrVideoPermissionsDenied {
-                            PermissionDeniedView()
-                        } else {
-                            if cameraViewModel.selectedCamTab == 1 {
+                        
+                        if cameraViewModel.selectedCamTab == 1 {
+                            if cameraViewModel.audioOrVideoPermissionsDenied {
+                                PermissionDeniedView()
+                            } else {
                                 CameraPreview(cameraViewModel: cameraViewModel, size: geometry.size)
                                     .environmentObject(cameraViewModel)
                                     .onAppear {
@@ -69,12 +70,13 @@ struct CameraView: View {
                                         PhotoCameraControls(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
                                     }
                                 }
-                            } else if cameraViewModel.selectedCamTab == 0 {
+                                
+                            }
+                        } else if cameraViewModel.selectedCamTab == 0 {
                                 ImagePicker(isPresented: $isImagePickerPresented, uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                             } else if cameraViewModel.selectedCamTab == 3 {
                                 ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
                             }
-                        }
                         
                         topControls
                             .padding(.top, geometry.safeAreaInsets.top)

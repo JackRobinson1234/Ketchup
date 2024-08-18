@@ -104,7 +104,7 @@ struct WrittenFeedCell: View {
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
                 VStack {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack {
+                        HStack {
                             ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
                                 VStack {
                                     Button {

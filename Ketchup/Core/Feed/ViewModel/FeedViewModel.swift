@@ -61,6 +61,7 @@ class FeedViewModel: ObservableObject {
     }
     @Published var showBookmarks = true
     @Published var selectedCommentId: String?
+    @Published var isInitialLoading: Bool = false
     
 
     
@@ -170,7 +171,9 @@ class FeedViewModel: ObservableObject {
     }
     func fetchPosts(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async {
         if Task.isCancelled { return }
-        
+        if isInitialLoad{
+            isInitialLoading = true
+        }
         await MainActor.run {
             if !hasMorePosts {
                 print("Doesn't have any more posts")
@@ -180,6 +183,8 @@ class FeedViewModel: ObservableObject {
             if isInitialLoad {
                 lastDocument = nil
             }
+            
+            self.isLoading = true // Set loading to true
         }
         
         do {
@@ -192,7 +197,9 @@ class FeedViewModel: ObservableObject {
             for (key, value) in updatedFilters {
                 query = query.whereField(key, in: value)
             }
-            
+            if selectedTab != .following{
+                query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
+            }
             if selectedTab == .following {
                 let followingBatch = Array(followingUsers.prefix(30))
                 if followingBatch.isEmpty {
@@ -200,6 +207,7 @@ class FeedViewModel: ObservableObject {
                         self.posts = []
                         self.showEmptyView = true
                         self.hasMorePosts = false
+                        self.isLoading = false // Set loading to false
                     }
                     return
                 }
@@ -216,6 +224,17 @@ class FeedViewModel: ObservableObject {
             let snapshot = try await query.getDocuments()
             if Task.isCancelled { return }
             var newPosts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            if newPosts.isEmpty {
+                await MainActor.run {
+                    self.hasMorePosts = false
+                    if isInitialLoad {
+                        self.posts = []
+                    }
+                    self.showEmptyView = self.posts.isEmpty
+                    self.isInitialLoading = false // Set loading to false
+                }
+                return
+            }
             
             // Check if user liked and bookmarked the new posts
             for i in 0..<newPosts.count {
@@ -240,9 +259,13 @@ class FeedViewModel: ObservableObject {
                     self.hasMorePosts = newPosts.count >= self.pageSize
                 }
                 self.showEmptyView = self.posts.isEmpty
+                self.isInitialLoading = false // Set loading to false
             }
         } catch {
             print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+            await MainActor.run {
+                self.isInitialLoading = false // Set loading to false in case of error
+            }
         }
     }
     func fetchRestaurantPosts(restaurant: Restaurant) async throws{

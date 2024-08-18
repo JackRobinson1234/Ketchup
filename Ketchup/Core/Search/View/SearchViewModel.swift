@@ -26,7 +26,7 @@ final class SearchViewModel: ObservableObject {
     
     init(initialSearchConfig: SearchModelConfig) {
         self.searchConfig = initialSearchConfig
-        self.restaurantItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "restaurants")
+        self.restaurantItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "restaurants2")
         self.collectionsItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "collections")
         self.usersItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "users")
         

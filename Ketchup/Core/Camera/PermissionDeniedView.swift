@@ -23,14 +23,12 @@ struct PermissionDeniedView: View {
                 .foregroundColor(.white)
                 .opacity(0.8)
                 .padding()
-            
             Button(action: {
                 openAppSettings()
             }) {
                 Text("Open Settings")
                     .foregroundColor(Color("Colors/AccentColor"))
             }
-            
             Spacer()
         }
     }

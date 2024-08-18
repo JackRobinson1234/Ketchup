@@ -26,9 +26,6 @@ struct SearchView: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    //                    if !searchSlideBar {
-                    //                        dismiss()
-                    //                    } else {
                     if viewModel.searchConfig == .restaurants {
                         dismiss()
                     } else if viewModel.searchConfig == .users{

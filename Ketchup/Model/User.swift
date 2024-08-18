@@ -129,6 +129,7 @@ struct User: Codable, Identifiable, Hashable {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
     }
+    
 }
 
 // Other structs remain unchanged

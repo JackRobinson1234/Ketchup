@@ -15,6 +15,7 @@ struct ActivityView: View {
     @State var isTransitioning = false
     @StateObject var viewModel = ActivityViewModel()
     @State var showSearchView: Bool = false
+    @State var showContacts: Bool = false
     @Namespace private var animation
     var body: some View {
         NavigationStack {
@@ -31,6 +32,11 @@ struct ActivityView: View {
                     
                 } else {
                     ScrollView(showsIndicators: false){
+//                        Button{
+//                            showContacts = true
+//                        } label: {
+//                            Text("Contacts")
+//                        }
                         VStack {
                             // MARK: Buttons
                             
@@ -104,6 +110,9 @@ struct ActivityView: View {
                         Task {
                             try? await viewModel.fetchInitialActivities()
                         }
+                    }
+                    .sheet(isPresented: $showContacts) {
+                        ContactsView()
                     }
                     .sheet(item: $viewModel.post){ post in
                         NavigationStack{

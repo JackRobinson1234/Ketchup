@@ -22,7 +22,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     // New fields
     let additionalInfo: AdditionalInfo?
     let categories: [String]?
-    let cid: Int?
     let containsMenuImage: Bool?
     let countryCode: String?
     let googleFoodUrl: String?
@@ -48,7 +47,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     // New mergedCategories field
     var mergedCategories: [String]?
     var ratingStats: RatingStats?
-
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -64,12 +63,14 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
         self._geoloc = try container.decodeIfPresent(geoLoc.self, forKey: ._geoloc)
-        self.stats = try container.decode(RestaurantStats.self, forKey: .stats)
+        self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats) ?? {
+            print("Warning: stats could not be decoded. Assigning default value with postCount 0 and collectionCount 0")
+            return RestaurantStats(postCount: 0, collectionCount: 0)
+        }()
         
         // Decoding new fields
         self.additionalInfo = try container.decodeIfPresent(AdditionalInfo.self, forKey: .additionalInfo)
         self.categories = try container.decodeIfPresent([String].self, forKey: .categories)
-        self.cid = try container.decodeIfPresent(Int.self, forKey: .cid)
         self.containsMenuImage = try container.decodeIfPresent(Bool.self, forKey: .containsMenuImage)
         self.countryCode = try container.decodeIfPresent(String.self, forKey: .countryCode)
         self.googleFoodUrl = try container.decodeIfPresent(String.self, forKey: .googleFoodUrl)
@@ -91,7 +92,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
                 if hasAllKeys {
                     self.popularTimesHistogram = try PopularTimesHistogram(from: container.superDecoder(forKey: .popularTimesHistogram))
                 } else {
-                   // print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
+                    // print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
                     self.popularTimesHistogram = nil
                 }
             } else {
@@ -113,7 +114,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.mergedCategories = try container.decodeIfPresent([String].self, forKey: .mergedCategories)
         self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats)
         self.ratingStats = try container.decodeIfPresent(RatingStats.self, forKey: .ratingStats)
-
+        
     }
     
     init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil) {
@@ -133,7 +134,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.stats = stats
         self.additionalInfo = additionalInfo
         self.categories = categories
-        self.cid = cid
         self.containsMenuImage = containsMenuImage
         self.countryCode = countryCode
         self.googleFoodUrl = googleFoodUrl
@@ -158,7 +158,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.stats = stats
         self.mergedCategories = mergedCategories
         self.ratingStats = ratingStats
-
+        
     }
     
     var coordinates: CLLocationCoordinate2D? {
@@ -276,11 +276,11 @@ struct PeopleAlsoSearch: Codable, Hashable {
 
 struct PopularTimesHistogram: Codable, Hashable {
     let mo, tu, we, th, fr, sa, su: [PopularTimeItem]?
-
+    
     enum CodingKeys: String, CodingKey {
         case mo, tu, we, th, fr, sa, su
     }
-
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
