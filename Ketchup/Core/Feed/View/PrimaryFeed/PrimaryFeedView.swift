@@ -27,7 +27,7 @@ struct PrimaryFeedView: View {
     @State private var isRefreshing = false
     @State private var canSwitchTab = true
     @EnvironmentObject var tabBarController: TabBarController
-    
+    @State private var showAddFriends = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -52,6 +52,13 @@ struct PrimaryFeedView: View {
                     ScrollViewReader { scrollProxy in
                         ScrollView(showsIndicators: false) {
                             LazyVStack {
+                                if viewModel.selectedTab == .following {
+                                    Button{
+                                        showAddFriends = true
+                                    } label: {
+                                        SkipButton()
+                                    }
+                                }
                                 ForEach($viewModel.posts) { post in
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
@@ -92,7 +99,7 @@ struct PrimaryFeedView: View {
                             }
                         }
                     }
-                    .background(Color("Colors/HingeGray"))
+                    .background(.white)
                     Color.white
                         .frame(height: 140)
                         .edgesIgnoringSafeArea(.top)
@@ -269,9 +276,7 @@ struct PrimaryFeedView: View {
                     .background(Color.white)
                 }
                 .overlay {
-                    if viewModel.isInitialLoading{
-                        FastCrossfadeFoodImageView()
-                    } else if viewModel.showEmptyView {
+                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
@@ -344,6 +349,12 @@ struct PrimaryFeedView: View {
                 }
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
+                }
+                .onChange(of: showAddFriends) { oldValue, newValue in
+                    pauseVideo = newValue
+                }
+                .sheet(isPresented: $showAddFriends) {
+                    ContactsView()
                 }
             }
         }
@@ -419,5 +430,28 @@ struct ConditionalSafeAreaPadding: ViewModifier {
 extension View {
     func conditionalSafeAreaPadding(_ condition: Bool, padding: CGFloat) -> some View {
         self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
+    }
+}
+
+struct SkipButton: View {
+    var body: some View {
+        VStack{
+            Divider()
+            HStack{
+                Image("Skip")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30)
+                Text("Find your friends!")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundStyle(.black)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.gray)
+                    .padding(.horizontal)
+            }
+            .padding(.horizontal)
+            Divider()
+        }
     }
 }

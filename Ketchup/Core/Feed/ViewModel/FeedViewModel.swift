@@ -163,7 +163,7 @@ class FeedViewModel: ObservableObject {
     func fetchUserLikedPosts(user: User) async throws {
         do {
             self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
-            //                feedViewModel.posts = likedPosts
+           
         } catch {
             print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }

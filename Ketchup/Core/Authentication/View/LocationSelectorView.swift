@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import FirebaseFirestoreInternal
+import Contacts
 
 struct LocationSelectionView: View {
     @Environment(\.dismiss) var dismiss
@@ -27,7 +28,7 @@ struct LocationSelectionView: View {
             Text("Select Your Location")
                 .font(.custom("MuseoSansRounded-700", size: 26))
                 .foregroundColor(.black)
-          
+            
             if showSearchBar {
                 HStack {
                     Image(systemName: "magnifyingglass")
@@ -39,7 +40,7 @@ struct LocationSelectionView: View {
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(10)
-            
+                
                 if !mapSearch.searchTerm.isEmpty {
                     List(mapSearch.locationResults.prefix(5), id: \.self) { location in
                         Button(action: {
@@ -87,31 +88,32 @@ struct LocationSelectionView: View {
             Button(action: {
                 selectedLocation = localSelectedLocation
                 registrationViewModel.location = localSelectedLocation
-               
+                
                 Task{
                     try await registrationViewModel.updateUser()
+                    requestContactsPermissionAndSync()
                 }
             }) {
                 if let userSession = AuthService.shared.userSession, userSession.birthday == nil {
-                        Text("Save Location + Update Profile")
-                            .font(.custom("MuseoSansRounded-500", size: 20))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
-                            .cornerRadius(25)
-                    } else {
-                        Text("Save Location + Create Profile")
-                            .font(.custom("MuseoSansRounded-500", size: 20))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
-                            .cornerRadius(25)
+                    Text("Save Location + Update Profile")
+                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                        .cornerRadius(25)
+                } else {
+                    Text("Save Location + Create Profile")
+                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                        .cornerRadius(25)
                     
                 }
                 
-                        
+                
             }
             .disabled(localSelectedLocation == nil)
         }
@@ -148,6 +150,20 @@ struct LocationSelectionView: View {
                     self.showSearchBar = false
                     self.mapSearch.searchTerm = ""
                     self.isFocused = false
+                }
+            }
+        }
+    }
+    private func requestContactsPermissionAndSync() {
+        let store = CNContactStore()
+        store.requestAccess(for: .contacts) { granted, error in
+            if granted {
+                print("Contacts access granted")
+                ContactService.shared.syncDeviceContacts()
+            } else {
+                print("Contacts access denied")
+                if let error = error {
+                    print("Error requesting contacts access: \(error.localizedDescription)")
                 }
             }
         }

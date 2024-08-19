@@ -32,31 +32,28 @@ struct ActivityView: View {
                     
                 } else {
                     ScrollView(showsIndicators: false){
-                        Button{
-                            showContacts = true
-                        } label: {
-                            Text("Contacts")
-                        }
+                        
+                    
                         VStack {
                             // MARK: Buttons
                             HStack{
-                                Image("Skip")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 40)
                                 Image("KetchupTextRed")
                                     .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 110)
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 17)
                             }
-                            
-                            Divider()
+                            Button{
+                                showContacts = true
+                            } label: {
+                                SkipButton()
+                            }
                             HorizontalCollectionScrollView()
                                 .padding(.bottom)
                             // MARK: Activity List
                             HStack(alignment: .top){
                                 Text("Following Activity")
                                     .font(.custom("MuseoSansRounded-700", size: 25))
+                                    .foregroundStyle(.black)
                                 Spacer()
                                 Button{
                                     showSearchView.toggle()
@@ -171,4 +168,3 @@ struct ActivityView: View {
         }
     }
 }
-

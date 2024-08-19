@@ -37,6 +37,9 @@ struct ContactsView: View {
             .onAppear {
                 checkContactsPermissionAndSync()
             }
+            .onChange(of: ContactService.shared.isSyncing){
+                self.isSyncingContacts = ContactService.shared.isSyncing
+            }
             .alert(item: Binding<AlertItem?>(
                 get: { viewModel.error.map { AlertItem(error: $0) } },
                 set: { _ in viewModel.error = nil }
@@ -141,6 +144,7 @@ struct ContactsView: View {
         }
     }
     private func checkContactsPermissionAndSync() {
+        self.isSyncingContacts = ContactService.shared.isSyncing
            let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
            if authorizationStatus == .denied || authorizationStatus == .restricted {
                isContactsPermissionDenied = true
