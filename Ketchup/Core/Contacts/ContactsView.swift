@@ -98,13 +98,12 @@ struct ContactRow: View {
     @State var contact: Contact
     @State private var isFollowed: Bool
     @State private var isCheckingFollowStatus: Bool = false
-    @State private var hasCheckedFollowStatus: Bool = false
+    @State private var hasCheckedFollowStatus: Bool = false  // New state to track if we've checked the status
 
     init(viewModel: ContactsViewModel, contact: Contact) {
         self.viewModel = viewModel
         self._contact = State(initialValue: contact)
         self._isFollowed = State(initialValue: contact.isFollowed ?? false)
-        self._hasCheckedFollowStatus = State(initialValue: contact.isFollowedStatusChecked)
     }
     
     var body: some View {
@@ -114,12 +113,12 @@ struct ContactRow: View {
             }
             
             VStack(alignment: .leading, spacing: 2) {
-                Text( contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                Text(contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
+                    .font(.custom("MuseoSansRounded-500", size: 16))
                     .foregroundStyle(.black)
                 
                 if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
-                    if let username = contact.user?.fullname {
+                    if let username = contact.user?.username {
                         Text("@\(username)")
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
@@ -149,8 +148,6 @@ struct ContactRow: View {
         .onAppear(perform: checkFollowStatus)
     }
     
-    
-    
     private var locationText: some View {
         Text(locationString)
             .font(.system(size: 12))
@@ -168,18 +165,19 @@ struct ContactRow: View {
             return "Location not available"
         }
     }
+    
     private func checkFollowStatus() {
-        guard let userId = contact.user?.id, !hasCheckedFollowStatus else { return }
+        guard let userId = contact.user?.id,
+              let hasExistingAccount = contact.hasExistingAccount,
+              hasExistingAccount,
+              !hasCheckedFollowStatus else { return }
+        
         isCheckingFollowStatus = true
         Task {
             do {
                 isFollowed = try await viewModel.checkIfUserIsFollowed(contact: contact)
                 isCheckingFollowStatus = false
                 hasCheckedFollowStatus = true
-                // Update the contact in the ViewModel to persist this check
-                await MainActor.run {
-                    viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
-                }
             } catch {
                 print("Error checking follow status: \(error.localizedDescription)")
                 isCheckingFollowStatus = false
@@ -197,10 +195,7 @@ struct ContactRow: View {
                     try await viewModel.follow(userId: userId)
                 }
                 isFollowed.toggle()
-                // Update the contact in the ViewModel
-                await MainActor.run {
-                    viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
-                }
+                viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
             } catch {
                 print("Failed to follow/unfollow: \(error.localizedDescription)")
             }

@@ -15,7 +15,6 @@ struct Contact: Codable, Identifiable, Hashable {
     var isFollowed: Bool?
     var user: User?
     var deviceContactName: String?
-    var isFollowedStatusChecked: Bool = false  // New property to track if we've checked the follow status
 
     enum CodingKeys: String, CodingKey {
         case phoneNumber, userCount, hasExistingAccount, isFollowed

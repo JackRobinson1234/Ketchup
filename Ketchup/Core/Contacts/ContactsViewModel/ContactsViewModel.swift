@@ -156,49 +156,51 @@ class ContactsViewModel: ObservableObject {
 
   
     func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
-        guard let userId = contact.user?.id else { return false }
-        
-        if contact.isFollowedStatusChecked {
-            return contact.isFollowed ?? false
-        }
-        
-        let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
-        
-        // Update the contact in the contacts array
-        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
-            DispatchQueue.main.async {
-                self.contacts[index].isFollowed = isFollowed
-                self.contacts[index].isFollowedStatusChecked = true
-            }
-        }
-        
-        return isFollowed
-    }
-    func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+           guard let userId = contact.user?.id else { return false }
+           
+           // If we've already checked the follow status, return the stored value
+           if let isFollowed = contact.isFollowed {
+               return isFollowed
+           }
+           
+           // If we haven't checked yet, fetch the status from the server
+           let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
+           
+           // Update the contact in the contacts array
            if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
-               contacts[index].isFollowed = isFollowed
-               contacts[index].isFollowedStatusChecked = true
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
+               }
+           }
+           
+           return isFollowed
+       }
+
+       func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
+               }
            }
        }
-    func follow(userId: String) async throws {
-        try await userService.follow(uid: userId)
-        updateFollowStatus(for: userId, isFollowed: true)
-    }
-    
-    func unfollow(userId: String) async throws {
-        try await userService.unfollow(uid: userId)
-        updateFollowStatus(for: userId, isFollowed: false)
-    }
-    
-    private func updateFollowStatus(for userId: String, isFollowed: Bool) {
-        if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
-            DispatchQueue.main.async {
-                self.contacts[index].isFollowed = isFollowed
-                self.contacts[index].isFollowedStatusChecked = true
-            }
-        }
-    }
-    
+
+       func follow(userId: String) async throws {
+           try await userService.follow(uid: userId)
+           updateFollowStatus(for: userId, isFollowed: true)
+       }
+       
+       func unfollow(userId: String) async throws {
+           try await userService.unfollow(uid: userId)
+           updateFollowStatus(for: userId, isFollowed: false)
+       }
+       
+       private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+           if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
+               }
+           }
+       }
     func inviteContact(_ contact: Contact) {
         let message = "Hey! Join me on our app. It's great!"
         let sms = "sms:\(contact.phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
