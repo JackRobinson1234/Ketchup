@@ -13,19 +13,22 @@ import FirebaseAuth
 import FirebaseFirestoreInternal
 
 class ContactsViewModel: ObservableObject {
-    @Published var contacts: [MergedContact] = []
+    @Published var contacts: [Contact] = []
     @Published var isLoading = false
     @Published var error: Error?
     @Published var hasMoreContacts = true
     
     private let userService = UserService.shared
-    private let contactStore = CNContactStore()
     private let pageSize = 20
     private var lastDocument: DocumentSnapshot?
-    private var deviceContacts: [String: CNContact] = [:] // Phone number to CNContact
+    private let phoneNumberKit = PhoneNumberKit()
+    private let contactStore = CNContactStore()
+    private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
     
+    private var existingAccountContactsFetched = false
+
     func fetchContacts() {
-        guard !isLoading && hasMoreContacts else { return }
+        guard !isLoading else { return }
         isLoading = true
         
         Task {
@@ -33,18 +36,27 @@ class ContactsViewModel: ObservableObject {
                 if deviceContacts.isEmpty {
                     try await loadDeviceContacts()
                 }
-                let (newContacts, lastDoc) = try await fetchContactsFromFirebase()
-                let mergedContacts = newContacts.map { firebaseContact in
-                    MergedContact(
-                        firebaseContact: firebaseContact,
-                        deviceContact: deviceContacts[firebaseContact.phoneNumber]
-                    )
-                }
-                DispatchQueue.main.async {
-                    self.contacts.append(contentsOf: mergedContacts)
-                    self.lastDocument = lastDoc
-                    self.hasMoreContacts = newContacts.count == self.pageSize
-                    self.isLoading = false
+                
+                if !existingAccountContactsFetched {
+                    let existingContacts = try await fetchExistingAccountContacts()
+                    let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
+                    let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
+                    
+                    DispatchQueue.main.async {
+                        self.contacts = matchedExistingContacts
+                        self.existingAccountContactsFetched = true
+                        self.isLoading = false
+                    }
+                } else if hasMoreContacts {
+                    let (newContacts, lastDoc) = try await fetchContactsToInvite()
+                    let matchedNewContacts = matchWithDeviceContacts(newContacts)
+                    
+                    DispatchQueue.main.async {
+                        self.contacts.append(contentsOf: matchedNewContacts)
+                        self.lastDocument = lastDoc
+                        self.hasMoreContacts = newContacts.count == self.pageSize
+                        self.isLoading = false
+                    }
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -55,25 +67,30 @@ class ContactsViewModel: ObservableObject {
         }
     }
     
-    private func loadDeviceContacts() async throws {
-        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
-        let request = CNContactFetchRequest(keysToFetch: keys)
-        try contactStore.enumerateContacts(with: request) { contact, _ in
-            for phoneNumber in contact.phoneNumbers {
-                if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
-                    self.deviceContacts[formattedNumber] = contact
-                }
-            }
+    private func fetchExistingAccountContacts() async throws -> [Contact] {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let db = Firestore.firestore()
+        let query = db.collection("users").document(userId).collection("contacts")
+            .whereField("hasExistingAccount", isEqualTo: true)
+        
+        let snapshot = try await query.getDocuments()
+        
+        return snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
         }
     }
     
-    private func fetchContactsFromFirebase() async throws -> ([FirebaseContact], DocumentSnapshot?) {
+    private func fetchContactsToInvite() async throws -> ([Contact], DocumentSnapshot?) {
         guard let userId = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
         }
         
         let db = Firestore.firestore()
         var query = db.collection("users").document(userId).collection("contacts")
+            //.whereField("hasExistingAccount", isEqualTo: false)
             .order(by: "userCount", descending: true)
             .limit(to: pageSize)
         
@@ -83,19 +100,109 @@ class ContactsViewModel: ObservableObject {
         
         let snapshot = try await query.getDocuments()
         
-        let contacts = snapshot.documents.compactMap { document -> FirebaseContact? in
-            try? document.data(as: FirebaseContact.self)
+        let contacts = snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
         }
         
         return (contacts, snapshot.documents.last)
     }
     
-    private func formatPhoneNumber(_ phoneNumber: String) -> String? {
-        // Implement phone number formatting logic here
-        // This should match the format used in Firebase
-        return phoneNumber // Placeholder implementation
+    private func loadDeviceContacts() async throws {
+        let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+        let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
+        try await contactStore.enumerateContacts(with: request) { contact, _ in
+            for phoneNumber in contact.phoneNumbers {
+                if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
+                    let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespacesAndNewlines)
+                    self.deviceContacts[formattedNumber] = name
+                }
+            }
+        }
     }
     
+    private func formatPhoneNumber(_ phoneNumber: String) -> String? {
+        do {
+            let parsedNumber = try phoneNumberKit.parse(phoneNumber)
+            let number = phoneNumberKit.format(parsedNumber, toType: .international)
+            return number
+        } catch {
+            print("Error parsing phone number: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    private func fetchUserDetailsForContacts(_ contacts: [Contact]) async throws -> [Contact] {
+        var updatedContacts = contacts
+        
+        for i in 0..<updatedContacts.count {
+            if let user = try await userService.fetchUser(withPhoneNumber: updatedContacts[i].phoneNumber) {
+                updatedContacts[i].user = user
+            }
+        }
+        
+        return updatedContacts
+    }
+    
+    private func matchWithDeviceContacts(_ contacts: [Contact]) -> [Contact] {
+        return contacts.map { contact in
+            var updatedContact = contact
+            if let name = deviceContacts[contact.phoneNumber] {
+                updatedContact.deviceContactName = name
+            }
+            return updatedContact
+        }
+    }
+    func syncDeviceContacts() {
+           Task {
+               do {
+                   let contacts = try await loadAllDeviceContacts()
+                   await MainActor.run {
+                       self.syncContacts(contacts)
+                   }
+               } catch {
+                   await MainActor.run {
+                       self.error = error
+                       print("Failed to load device contacts: \(error.localizedDescription)")
+                   }
+               }
+           }
+       }
+
+       private func loadAllDeviceContacts() async throws -> [CNContact] {
+           let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+           let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
+           var allContacts: [CNContact] = []
+           try contactStore.enumerateContacts(with: request) { contact, _ in
+               allContacts.append(contact)
+           }
+           return allContacts
+       }
+    func syncContacts(_ contacts: [CNContact]) {
+           guard let userId = Auth.auth().currentUser?.uid else { return }
+
+           // Prepare Contact objects to sync
+           let contactsToSync: [Contact] = contacts.compactMap { contact in
+               guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
+                     let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
+                   return nil
+               }
+
+               return Contact(phoneNumber: formattedPhoneNumber)
+           }
+
+           // Use ContactService to sync contacts
+           ContactService.shared.syncUserContacts(userId: userId, contacts: contactsToSync) { result in
+               switch result {
+               case .success():
+                   print("Contacts synced successfully.")
+               case .failure(let error):
+                   DispatchQueue.main.async {
+                       self.error = error
+                       print("Failed to sync contacts: \(error.localizedDescription)")
+                   }
+               }
+           }
+       }
     func follow(userId: String) async throws {
         try await userService.follow(uid: userId)
     }
@@ -108,7 +215,7 @@ class ContactsViewModel: ObservableObject {
         return try await userService.checkIfUserIsFollowed(uid: userId)
     }
     
-    func inviteContact(_ contact: MergedContact) {
+    func inviteContact(_ contact: Contact) {
         let message = "Hey! Join me on our app. It's great!"
         let sms = "sms:\(contact.phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
         if let url = URL(string: sms) {
@@ -116,42 +223,43 @@ class ContactsViewModel: ObservableObject {
         }
     }
 }
+//    private func syncContacts(_ contacts: [CNContact]) {
+//            guard let userId = Auth.auth().currentUser?.uid else { return }
+//            
+//            let contactsToSync: [Contact] = contacts.compactMap { contact in
+//                guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
+//                      let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
+//                    return nil
+//                }
+//                
+//                // Use the phoneNumber as the id to ensure uniqueness
+//                return Contact(id: formattedPhoneNumber, phoneNumber: formattedPhoneNumber)
+//            }
+//            
+//            let db = Firestore.firestore()
+//            let batch = db.batch()
+//            let userContactsRef = db.collection("users").document(userId).collection("contacts")
+//            
+//            for contact in contactsToSync {
+//                let contactRef = userContactsRef.document(contact.id)
+//                batch.setData([
+//                    "id": contact.id,
+//                    "phoneNumber": contact.phoneNumber,
+//                    "userCount": contact.userCount,
+//                    "hasExistingAccount": contact.hasExistingAccount ?? false,
+//                    "isFollowed": contact.isFollowed ?? false
+//                ], forDocument: contactRef, merge: true)
+//            }
+//            
+//            batch.commit { error in
+//                if let error = error {
+//                    print("Failed to sync contacts: \(error.localizedDescription)")
+//                } else {
+//                    print("Contacts synced successfully.")
+//                }
+//            }
+//        }
 
-struct FirebaseContact: Codable, Identifiable {
-    let id: String
-    let phoneNumber: String
-    let userCount: Int
-    let hasExistingAccount: Bool
-    var user: User?
-}
-
-struct MergedContact: Identifiable {
-    let id: String
-    let phoneNumber: String
-    let userCount: Int
-    let hasExistingAccount: Bool
-    var user: User?
-    let deviceContact: CNContact?
-    
-    init(firebaseContact: FirebaseContact, deviceContact: CNContact?) {
-        self.id = firebaseContact.id
-        self.phoneNumber = firebaseContact.phoneNumber
-        self.userCount = firebaseContact.userCount
-        self.hasExistingAccount = firebaseContact.hasExistingAccount
-        self.user = firebaseContact.user
-        self.deviceContact = deviceContact
-    }
-    
-    var displayName: String {
-        if let deviceContact = deviceContact {
-            return "\(deviceContact.givenName) \(deviceContact.familyName)".trimmingCharacters(in: .whitespaces)
-        } else if let username = user?.username {
-            return username
-        } else {
-            return phoneNumber
-        }
-    }
-}
     
 //    private func syncContacts(_ contacts: [CNContact]) {
 //        guard let userId = Auth.auth().currentUser?.uid else { return }

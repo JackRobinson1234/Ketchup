@@ -8,36 +8,36 @@ import SwiftUI
 import Contacts
 import ContactsUI
 
-
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
     @State private var searchText = ""
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                if viewModel.contacts.isEmpty && !viewModel.isLoading {
-                    emptyView
-                } else {
-                    contactsList
+            NavigationView {
+                ZStack {
+                    if viewModel.contacts.isEmpty && !viewModel.isLoading {
+                        emptyView
+                    } else {
+                        contactsList
+                    }
                 }
-            }
-            .navigationTitle("Contacts on App")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search contacts")
-            .onAppear {
-                if viewModel.contacts.isEmpty {
-                    viewModel.fetchContacts()
+                .navigationTitle("Contacts on App")
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $searchText, prompt: "Search contacts")
+                .onAppear {
+                    viewModel.syncDeviceContacts() 
+                    if viewModel.contacts.isEmpty {
+                        viewModel.fetchContacts()
+                    }
                 }
-            }
-            .alert(item: Binding<AlertItem?>(
-                get: { viewModel.error.map { AlertItem(error: $0) } },
-                set: { _ in viewModel.error = nil }
-            )) { alertItem in
-                Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
+                .alert(item: Binding<AlertItem?>(
+                    get: { viewModel.error.map { AlertItem(error: $0) } },
+                    set: { _ in viewModel.error = nil }
+                )) { alertItem in
+                    Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
+                }
             }
         }
-    }
     
     private var emptyView: some View {
         VStack {
@@ -58,27 +58,36 @@ struct ContactsView: View {
     }
     
     private var contactsList: some View {
-        List {
-            ForEach(filteredContacts) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
-            }
-            if viewModel.hasMoreContacts {
-                ProgressView()
-                    .onAppear {
-                        viewModel.fetchContacts()
+            List {
+                    ForEach(filteredContacts.filter { $0.hasExistingAccount == true }) { contact in
+                        ContactRow(viewModel: viewModel, contact: contact)
                     }
+                
+                
+                
+                   /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
+                ForEach(filteredContacts.filter { $0.hasExistingAccount != true }) { contact in
+                        ContactRow(viewModel: viewModel, contact: contact)
+                    }
+                    
+                    if viewModel.hasMoreContacts {
+                        ProgressView()
+                            .onAppear {
+                                viewModel.fetchContacts()
+                            }
+                    }
+                
             }
+            .listStyle(PlainListStyle())
         }
-        .listStyle(PlainListStyle())
-    }
     
-    private var filteredContacts: [MergedContact] {
+    private var filteredContacts: [Contact] {
         if searchText.isEmpty {
             return viewModel.contacts
         } else {
             return viewModel.contacts.filter { contact in
-                contact.displayName.lowercased().contains(searchText.lowercased()) ||
-                contact.phoneNumber.contains(searchText)
+                contact.phoneNumber.contains(searchText) ||
+                (contact.user?.username.lowercased().contains(searchText.lowercased()) ?? false)
             }
         }
     }
@@ -86,18 +95,30 @@ struct ContactsView: View {
 
 struct ContactRow: View {
     @ObservedObject var viewModel: ContactsViewModel
-    let contact: MergedContact
-    @State private var isFollowed: Bool = false
+    let contact: Contact
+    @State private var isFollowed: Bool
     @State private var isCheckingFollowStatus: Bool = false
+    
+    init(viewModel: ContactsViewModel, contact: Contact) {
+        self.viewModel = viewModel
+        self.contact = contact
+        self._isFollowed = State(initialValue: contact.isFollowed ?? false)
+    }
     
     var body: some View {
         HStack(spacing: 12) {
-            Text(contact.displayName)
-                .font(.system(size: 16, weight: .medium))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(contact.deviceContactName ?? contact.user?.username ?? contact.phoneNumber)
+                    .font(.system(size: 16, weight: .medium))
+                
+                Text("\(contact.userCount) friends on Ketchup")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
             
             Spacer()
             
-            if contact.hasExistingAccount {
+            if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
                 if isCheckingFollowStatus {
                     ProgressView()
                         .scaleEffect(0.7)
@@ -115,15 +136,16 @@ struct ContactRow: View {
     private var followButton: some View {
         Button(action: handleFollowAction) {
             Text(isFollowed ? "Following" : "Follow")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(isFollowed ? .blue : .white)
-                .padding(.horizontal, 16)
+                .font(.custom("MuseoSansRounded-300", size: 16))
+                .fontWeight(.semibold)
+                .frame(width: 110)
                 .padding(.vertical, 8)
-                .background(isFollowed ? Color.clear : Color.blue)
-                .clipShape(Capsule())
+                .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
+                .background(isFollowed ? Color.clear : Color.red)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(
-                    Capsule()
-                        .stroke(Color.blue, lineWidth: isFollowed ? 1 : 0)
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
                 )
         }
     }
@@ -131,15 +153,16 @@ struct ContactRow: View {
     private var inviteButton: some View {
         Button(action: { viewModel.inviteContact(contact) }) {
             Text("Invite")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.blue)
-                .padding(.horizontal, 16)
+                .font(.custom("MuseoSansRounded-300", size: 16))
+                .fontWeight(.semibold)
+                .frame(width: 110)
                 .padding(.vertical, 8)
+                .foregroundColor(Color("Colors/AccentColor"))
                 .background(Color.clear)
-                .clipShape(Capsule())
+                .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(
-                    Capsule()
-                        .stroke(Color.blue, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color("Colors/AccentColor"), lineWidth: 1)
                 )
         }
     }

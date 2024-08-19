@@ -11,7 +11,8 @@ import FirebaseAuth
 class ContactService {
     
     private let db = Firestore.firestore()
-    
+    static let shared = ContactService() // Singleton instance
+    private init() {}
     /// Syncs the user's contacts with the backend and updates the global contacts list.
     func syncUserContacts(userId: String, contacts: [Contact], completion: @escaping (Result<Void, Error>) -> Void) {
         let userContactsRef = db.collection("users").document(userId).collection("contacts")

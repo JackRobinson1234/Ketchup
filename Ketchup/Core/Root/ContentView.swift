@@ -52,6 +52,7 @@ struct ContentView: View {
             } else {
                 WelcomeView()
                     .customFont()
+                    //.onAppear{AuthService.shared.signout()}
             }
         }
     }
