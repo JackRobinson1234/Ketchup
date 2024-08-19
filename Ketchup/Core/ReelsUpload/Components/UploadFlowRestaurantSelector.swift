@@ -37,11 +37,12 @@ struct UploadFlowRestaurantSelector: View {
                     VStack {
                         Text("Can't find the restaurant you're looking for?")
                             .foregroundStyle(.gray)
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                        Text("Request a Restaurant")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                        Text("Add a New Restaurant")
                             .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
                     }
+                    .padding(.top, 5)
                 }
                 
                 InfiniteList(viewModel.hits, itemView: { hit in
