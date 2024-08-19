@@ -7,6 +7,7 @@
 import SwiftUI
 import Contacts
 import ContactsUI
+import Kingfisher
 
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
@@ -25,7 +26,6 @@ struct ContactsView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $searchText, prompt: "Search contacts")
                 .onAppear {
-                    viewModel.syncDeviceContacts() 
                     if viewModel.contacts.isEmpty {
                         viewModel.fetchContacts()
                     }
@@ -95,25 +95,41 @@ struct ContactsView: View {
 
 struct ContactRow: View {
     @ObservedObject var viewModel: ContactsViewModel
-    let contact: Contact
+    @State var contact: Contact
     @State private var isFollowed: Bool
     @State private var isCheckingFollowStatus: Bool = false
-    
+    @State private var hasCheckedFollowStatus: Bool = false
+
     init(viewModel: ContactsViewModel, contact: Contact) {
         self.viewModel = viewModel
-        self.contact = contact
+        self._contact = State(initialValue: contact)
         self._isFollowed = State(initialValue: contact.isFollowed ?? false)
+        self._hasCheckedFollowStatus = State(initialValue: contact.isFollowedStatusChecked)
     }
     
     var body: some View {
         HStack(spacing: 12) {
+            if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
+                UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
+            }
+            
             VStack(alignment: .leading, spacing: 2) {
-                Text(contact.deviceContactName ?? contact.user?.username ?? contact.phoneNumber)
-                    .font(.system(size: 16, weight: .medium))
+                Text( contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .foregroundStyle(.black)
                 
-                Text("\(contact.userCount) friends on Ketchup")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
+                    if let username = contact.user?.fullname {
+                        Text("@\(username)")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
+                    locationText
+                } else {
+                    Text("\(contact.userCount) friends on Ketchup")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                }
             }
             
             Spacer()
@@ -131,6 +147,64 @@ struct ContactRow: View {
         }
         .padding(.vertical, 8)
         .onAppear(perform: checkFollowStatus)
+    }
+    
+    
+    
+    private var locationText: some View {
+        Text(locationString)
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
+    }
+    
+    private var locationString: String {
+        if let city = contact.user?.location?.city, let state = contact.user?.location?.state {
+            return "\(city), \(state)"
+        } else if let city = contact.user?.location?.city {
+            return city
+        } else if let state = contact.user?.location?.state {
+            return state
+        } else {
+            return "Location not available"
+        }
+    }
+    private func checkFollowStatus() {
+        guard let userId = contact.user?.id, !hasCheckedFollowStatus else { return }
+        isCheckingFollowStatus = true
+        Task {
+            do {
+                isFollowed = try await viewModel.checkIfUserIsFollowed(contact: contact)
+                isCheckingFollowStatus = false
+                hasCheckedFollowStatus = true
+                // Update the contact in the ViewModel to persist this check
+                await MainActor.run {
+                    viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
+                }
+            } catch {
+                print("Error checking follow status: \(error.localizedDescription)")
+                isCheckingFollowStatus = false
+            }
+        }
+    }
+    
+    private func handleFollowAction() {
+        guard let userId = contact.user?.id else { return }
+        Task {
+            do {
+                if isFollowed {
+                    try await viewModel.unfollow(userId: userId)
+                } else {
+                    try await viewModel.follow(userId: userId)
+                }
+                isFollowed.toggle()
+                // Update the contact in the ViewModel
+                await MainActor.run {
+                    viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
+                }
+            } catch {
+                print("Failed to follow/unfollow: \(error.localizedDescription)")
+            }
+        }
     }
     
     private var followButton: some View {
@@ -160,44 +234,9 @@ struct ContactRow: View {
                 .foregroundColor(Color("Colors/AccentColor"))
                 .background(Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color("Colors/AccentColor"), lineWidth: 1)
-                )
-        }
-    }
-    
-    private func checkFollowStatus() {
-        guard let userId = contact.user?.id else { return }
-        isCheckingFollowStatus = true
-        Task {
-            do {
-                isFollowed = try await viewModel.checkIfUserIsFollowed(userId: userId)
-                isCheckingFollowStatus = false
-            } catch {
-                print("Error checking follow status: \(error.localizedDescription)")
-                isCheckingFollowStatus = false
-            }
-        }
-    }
-    
-    private func handleFollowAction() {
-        guard let userId = contact.user?.id else { return }
-        Task {
-            do {
-                if isFollowed {
-                    try await viewModel.unfollow(userId: userId)
-                } else {
-                    try await viewModel.follow(userId: userId)
-                }
-                isFollowed.toggle()
-            } catch {
-                print("Failed to follow/unfollow: \(error.localizedDescription)")
-            }
         }
     }
 }
-
 struct AlertItem: Identifiable {
     let id = UUID()
     let error: Error

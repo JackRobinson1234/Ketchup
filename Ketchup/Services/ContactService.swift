@@ -7,12 +7,20 @@
 
 import FirebaseFirestore
 import FirebaseAuth
+import Contacts
+import PhoneNumberKit
 
 class ContactService {
     
     private let db = Firestore.firestore()
     static let shared = ContactService() // Singleton instance
     private init() {}
+    private let contactStore = CNContactStore()
+    private let phoneNumberKit = PhoneNumberKit()
+    @Published var error: Error?
+    var isFollowedStatusChecked: Bool = false  
+
+
     /// Syncs the user's contacts with the backend and updates the global contacts list.
     func syncUserContacts(userId: String, contacts: [Contact], completion: @escaping (Result<Void, Error>) -> Void) {
         let userContactsRef = db.collection("users").document(userId).collection("contacts")
@@ -84,6 +92,67 @@ class ContactService {
                 }
                 completion(.success(userIds))
             }
+        }
+    }
+    func syncDeviceContacts() {
+           Task {
+               do {
+                   let contacts = try await loadAllDeviceContacts()
+                   await MainActor.run {
+                       self.syncContacts(contacts)
+                   }
+               } catch {
+                   await MainActor.run {
+                       self.error = error
+                       print("Failed to load device contacts: \(error.localizedDescription)")
+                   }
+               }
+           }
+       }
+
+       private func loadAllDeviceContacts() async throws -> [CNContact] {
+           let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+           let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
+           var allContacts: [CNContact] = []
+           try contactStore.enumerateContacts(with: request) { contact, _ in
+               allContacts.append(contact)
+           }
+           return allContacts
+       }
+    func syncContacts(_ contacts: [CNContact]) {
+           guard let userId = Auth.auth().currentUser?.uid else { return }
+
+           // Prepare Contact objects to sync
+           let contactsToSync: [Contact] = contacts.compactMap { contact in
+               guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
+                     let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
+                   return nil
+               }
+
+               return Contact(phoneNumber: formattedPhoneNumber)
+           }
+
+           // Use ContactService to sync contacts
+           ContactService.shared.syncUserContacts(userId: userId, contacts: contactsToSync) { result in
+               switch result {
+               case .success():
+                   print("Contacts synced successfully.")
+               case .failure(let error):
+                   DispatchQueue.main.async {
+                       self.error = error
+                       print("Failed to sync contacts: \(error.localizedDescription)")
+                   }
+               }
+           }
+       }
+    private func formatPhoneNumber(_ phoneNumber: String) -> String? {
+        do {
+            let parsedNumber = try phoneNumberKit.parse(phoneNumber)
+            let number = phoneNumberKit.format(parsedNumber, toType: .international)
+            return number
+        } catch {
+            print("Error parsing phone number: \(error.localizedDescription)")
+            return nil
         }
     }
 }

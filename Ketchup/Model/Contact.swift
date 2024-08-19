@@ -15,10 +15,10 @@ struct Contact: Codable, Identifiable, Hashable {
     var isFollowed: Bool?
     var user: User?
     var deviceContactName: String?
+    var isFollowedStatusChecked: Bool = false  // New property to track if we've checked the follow status
 
     enum CodingKeys: String, CodingKey {
         case phoneNumber, userCount, hasExistingAccount, isFollowed
-        // Note: 'id' is not included here as we'll set it to the phoneNumber
     }
     
     init(id: String = UUID().uuidString, phoneNumber: String, userCount: Int = 0, hasExistingAccount: Bool? = nil, isFollowed: Bool? = nil) {
@@ -32,7 +32,6 @@ struct Contact: Codable, Identifiable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        // Use phoneNumber as the id
         self.phoneNumber = try container.decode(String.self, forKey: .phoneNumber)
         self.id = self.phoneNumber
         
@@ -47,7 +46,6 @@ struct Contact: Codable, Identifiable, Hashable {
         try container.encode(userCount, forKey: .userCount)
         try container.encodeIfPresent(hasExistingAccount, forKey: .hasExistingAccount)
         try container.encodeIfPresent(isFollowed, forKey: .isFollowed)
-        // Note: We don't encode 'id' separately as it's the same as phoneNumber
     }
 }
 

@@ -152,67 +152,51 @@ class ContactsViewModel: ObservableObject {
             return updatedContact
         }
     }
-    func syncDeviceContacts() {
-           Task {
-               do {
-                   let contacts = try await loadAllDeviceContacts()
-                   await MainActor.run {
-                       self.syncContacts(contacts)
-                   }
-               } catch {
-                   await MainActor.run {
-                       self.error = error
-                       print("Failed to load device contacts: \(error.localizedDescription)")
-                   }
-               }
-           }
-       }
+  
 
-       private func loadAllDeviceContacts() async throws -> [CNContact] {
-           let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
-           let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
-           var allContacts: [CNContact] = []
-           try contactStore.enumerateContacts(with: request) { contact, _ in
-               allContacts.append(contact)
-           }
-           return allContacts
-       }
-    func syncContacts(_ contacts: [CNContact]) {
-           guard let userId = Auth.auth().currentUser?.uid else { return }
-
-           // Prepare Contact objects to sync
-           let contactsToSync: [Contact] = contacts.compactMap { contact in
-               guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
-                     let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
-                   return nil
-               }
-
-               return Contact(phoneNumber: formattedPhoneNumber)
-           }
-
-           // Use ContactService to sync contacts
-           ContactService.shared.syncUserContacts(userId: userId, contacts: contactsToSync) { result in
-               switch result {
-               case .success():
-                   print("Contacts synced successfully.")
-               case .failure(let error):
-                   DispatchQueue.main.async {
-                       self.error = error
-                       print("Failed to sync contacts: \(error.localizedDescription)")
-                   }
-               }
+  
+    func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
+        guard let userId = contact.user?.id else { return false }
+        
+        if contact.isFollowedStatusChecked {
+            return contact.isFollowed ?? false
+        }
+        
+        let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
+        
+        // Update the contact in the contacts array
+        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+            DispatchQueue.main.async {
+                self.contacts[index].isFollowed = isFollowed
+                self.contacts[index].isFollowedStatusChecked = true
+            }
+        }
+        
+        return isFollowed
+    }
+    func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+               contacts[index].isFollowed = isFollowed
+               contacts[index].isFollowedStatusChecked = true
            }
        }
     func follow(userId: String) async throws {
         try await userService.follow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: true)
     }
     
     func unfollow(userId: String) async throws {
         try await userService.unfollow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: false)
     }
     
-    func checkIfUserIsFollowed(userId: String) async throws -> Bool {
-        return try await userService.checkIfUserIsFollowed(uid: userId)
+    private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+        if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
+            DispatchQueue.main.async {
+                self.contacts[index].isFollowed = isFollowed
+                self.contacts[index].isFollowedStatusChecked = true
+            }
+        }
     }
     
     func inviteContact(_ contact: Contact) {
@@ -223,157 +207,3 @@ class ContactsViewModel: ObservableObject {
         }
     }
 }
-//    private func syncContacts(_ contacts: [CNContact]) {
-//            guard let userId = Auth.auth().currentUser?.uid else { return }
-//            
-//            let contactsToSync: [Contact] = contacts.compactMap { contact in
-//                guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
-//                      let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
-//                    return nil
-//                }
-//                
-//                // Use the phoneNumber as the id to ensure uniqueness
-//                return Contact(id: formattedPhoneNumber, phoneNumber: formattedPhoneNumber)
-//            }
-//            
-//            let db = Firestore.firestore()
-//            let batch = db.batch()
-//            let userContactsRef = db.collection("users").document(userId).collection("contacts")
-//            
-//            for contact in contactsToSync {
-//                let contactRef = userContactsRef.document(contact.id)
-//                batch.setData([
-//                    "id": contact.id,
-//                    "phoneNumber": contact.phoneNumber,
-//                    "userCount": contact.userCount,
-//                    "hasExistingAccount": contact.hasExistingAccount ?? false,
-//                    "isFollowed": contact.isFollowed ?? false
-//                ], forDocument: contactRef, merge: true)
-//            }
-//            
-//            batch.commit { error in
-//                if let error = error {
-//                    print("Failed to sync contacts: \(error.localizedDescription)")
-//                } else {
-//                    print("Contacts synced successfully.")
-//                }
-//            }
-//        }
-
-    
-//    private func syncContacts(_ contacts: [CNContact]) {
-//        guard let userId = Auth.auth().currentUser?.uid else { return }
-//        
-//        // Prepare Contact objects to sync
-//        let contactsToSync: [Contact] = contacts.compactMap { contact in
-//            guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
-//                  let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
-//                return nil
-//            }
-//            
-//            return Contact(phoneNumber: formattedPhoneNumber)
-//        }
-//        
-//        // Use ContactService to sync contacts
-//        contactService.syncUserContacts(userId: userId, contacts: contactsToSync) { result in
-//            switch result {
-//            case .success():
-//                print("Contacts synced successfully.")
-//            case .failure(let error):
-//                DispatchQueue.main.async {
-//                    self.error = error
-//                    print("Failed to sync contacts: \(error.localizedDescription)")
-//                }
-//            }
-//        }
-//    }
-//    
-//    func checkFirebaseUsers(for contacts: [CNContact]) {
-//        let phoneNumbers = contacts.flatMap { contact in
-//            contact.phoneNumbers.compactMap { phoneNumber in
-//                formatPhoneNumber(phoneNumber.value.stringValue)
-//            }
-//        }
-//        
-//        Task {
-//            do {
-//                let users = try await userService.fetchUsers(byPhoneNumbers: phoneNumbers)
-//                DispatchQueue.main.async {
-//                    self.updateFirebaseUsers(users)
-//                    self.sortContacts()
-//                    self.isLoading = false
-//                    self.showEmptyView = self.contacts.isEmpty
-//                }
-//            } catch {
-//                DispatchQueue.main.async {
-//                    self.isLoading = false
-//                    self.error = error
-//                    print("Failed to fetch Firebase users: \(error.localizedDescription)")
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func updateFirebaseUsers(_ users: [User]) {
-//        for user in users {
-//            if let contact = contacts.first(where: { contact in
-//                contact.phoneNumbers.contains { phoneNumber in
-//                    formatPhoneNumber(phoneNumber.value.stringValue) == user.phoneNumber
-//                }
-//            }) {
-//                firebaseUsers[contact.identifier] = user
-//            }
-//        }
-//    }
-//    
-//    private func formatPhoneNumber(_ phoneNumber: String) -> String? {
-//        do {
-//            let parsedNumber = try phoneNumberKit.parse(phoneNumber)
-//            let number = phoneNumberKit.format(parsedNumber, toType: .international)
-//            // Format to match Firebase storage format
-//            return number
-//        } catch {
-//            print("Error parsing phone number: \(error.localizedDescription)")
-//            return nil
-//        }
-//    }
-//    
-//    private func sortContacts() {
-//        contacts.sort { contact1, contact2 in
-//            let isUser1 = firebaseUsers[contact1.identifier] != nil
-//            let isUser2 = firebaseUsers[contact2.identifier] != nil
-//            
-//            if isUser1 && !isUser2 {
-//                return true
-//            } else if !isUser1 && isUser2 {
-//                return false
-//            } else {
-//                return contact1.givenName.lowercased() < contact2.givenName.lowercased()
-//            }
-//        }
-//        
-//        objectWillChange.send()
-//    }
-//    
-//    func follow(userId: String) async throws {
-//        try await userService.follow(uid: userId)
-//    }
-//    
-//    func unfollow(userId: String) async throws {
-//        try await userService.unfollow(uid: userId)
-//    }
-//    
-//    func checkIfUserIsFollowed(userId: String) async throws -> Bool {
-//        return try await userService.checkIfUserIsFollowed(uid: userId)
-//    }
-//    
-//    func inviteContact(_ contact: CNContact) {
-//        if let phoneNumber = contact.phoneNumbers.first?.value.stringValue {
-//            let message = "Hey! Join me on our app. It's great!"
-//            let sms = "sms:\(phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-//            if let url = URL(string: sms) {
-//                UIApplication.shared.open(url)
-//            }
-//        }
-//    }
-//}
