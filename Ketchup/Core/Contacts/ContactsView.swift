@@ -8,7 +8,6 @@ import SwiftUI
 import Contacts
 import ContactsUI
 
-import Contacts
 
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
@@ -62,12 +61,45 @@ struct ContactsView: View {
     
     private var contactsList: some View {
         List {
-            ForEach(filteredContacts, id: \.identifier) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
+            // Section for contacts already on the app
+            if !filteredFirebaseUsers.isEmpty {
+                ForEach(filteredFirebaseUsers, id: \.identifier) { contact in
+                    ContactRow(viewModel: viewModel, contact: contact)
+                }
+            }
+            // Section for contacts not on the app
+            if !filteredNonFirebaseContacts.isEmpty {
+                ForEach(filteredNonFirebaseContacts, id: \.identifier) { contact in
+                    ContactRow(viewModel: viewModel, contact: contact)
+                }
             }
         }
         .listStyle(PlainListStyle())
     }
+    private var filteredFirebaseUsers: [CNContact] {
+        if searchText.isEmpty {
+            return viewModel.contacts.filter { viewModel.firebaseUsers[$0.identifier] != nil }
+        } else {
+            return viewModel.contacts.filter { contact in
+                let name = "\(contact.givenName) \(contact.familyName)"
+                return name.lowercased().contains(searchText.lowercased()) &&
+                viewModel.firebaseUsers[contact.identifier] != nil
+            }
+        }
+    }
+
+    private var filteredNonFirebaseContacts: [CNContact] {
+        if searchText.isEmpty {
+            return viewModel.contacts.filter { viewModel.firebaseUsers[$0.identifier] == nil }
+        } else {
+            return viewModel.contacts.filter { contact in
+                let name = "\(contact.givenName) \(contact.familyName)"
+                return name.lowercased().contains(searchText.lowercased()) &&
+                       viewModel.firebaseUsers[contact.identifier] == nil
+            }
+        }
+    }
+
     
     private var filteredContacts: [CNContact] {
         if searchText.isEmpty {
@@ -86,7 +118,6 @@ struct ContactRow: View {
     let contact: CNContact
     @State private var isFollowed: Bool = false
     @State private var isCheckingFollowStatus: Bool = false
-    
     var body: some View {
         HStack(spacing: 12) {
             Text(contact.givenName + " " + contact.familyName)

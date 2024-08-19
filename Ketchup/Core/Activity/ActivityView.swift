@@ -32,14 +32,13 @@ struct ActivityView: View {
                     
                 } else {
                     ScrollView(showsIndicators: false){
-//                        Button{
-//                            showContacts = true
-//                        } label: {
-//                            Text("Contacts")
-//                        }
+                        Button{
+                            showContacts = true
+                        } label: {
+                            Text("Contacts")
+                        }
                         VStack {
                             // MARK: Buttons
-                            
                             HStack{
                                 Image("Skip")
                                     .resizable()
@@ -66,14 +65,14 @@ struct ActivityView: View {
                                         Image(systemName: "magnifyingglass")
                                             .resizable()
                                             .scaledToFit()
-                                            
+                                        
                                         Text("Find Friends")
                                             .font(.custom("MuseoSansRounded-300", size: 12))
                                     }
                                     .frame(height: 40)
                                     .foregroundStyle(.gray)
                                 }
-                            
+                                
                             }
                             .padding(.horizontal)
                             if !viewModel.followingActivity.isEmpty {

@@ -176,6 +176,8 @@
 		F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */; };
 		F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */; };
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
+		F89342052C72C08000E313AC /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89342042C72C08000E313AC /* Contact.swift */; };
+		F89342072C72CA9000E313AC /* ContactService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89342062C72CA9000E313AC /* ContactService.swift */; };
 		F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */; };
 		F89DF2122C581F0200A90E0D /* UploadFlowRestaurantSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */; };
 		F89F28722BE3163C00E670E0 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28712BE3163C00E670E0 /* Activity.swift */; };
@@ -454,6 +456,8 @@
 		F88E0B332B6CA11900EC159B /* StandardTextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardTextFieldModifier.swift; sourceTree = "<group>"; };
 		F88E0B382B6CA37000EC159B /* RestaurantProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileHeaderView.swift; sourceTree = "<group>"; };
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
+		F89342042C72C08000E313AC /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
+		F89342062C72CA9000E313AC /* ContactService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactService.swift; sourceTree = "<group>"; };
 		F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRequestRestaurantView.swift; sourceTree = "<group>"; };
 		F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadFlowRestaurantSelector.swift; sourceTree = "<group>"; };
 		F89F28712BE3163C00E670E0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
@@ -755,6 +759,7 @@
 				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
 				F846F45B2BFBF708009D1303 /* ReviewService.swift */,
 				F88C32932C604160004CF72E /* ClusterService.swift */,
+				F89342062C72CA9000E313AC /* ContactService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -762,6 +767,7 @@
 		F84FE2782B6A53E200144F01 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				F89342042C72C08000E313AC /* Contact.swift */,
 				F800296C2BC2595600818A4A /* SelectableCategories */,
 				F88E0A372B6A5D8D00EC159B /* Comment.swift */,
 				F88E0B162B6B0AE700EC159B /* Post.swift */,
@@ -1876,6 +1882,7 @@
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
 				F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */,
 				F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */,
+				F89342052C72C08000E313AC /* Contact.swift in Sources */,
 				F8B69F222C6D4E0F0084AE68 /* BirthdaySelectorView.swift in Sources */,
 				F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */,
 				F871B0062B8AA16400E4EB5F /* NavigationLazyView.swift in Sources */,
@@ -1975,6 +1982,7 @@
 				F8BFEC292C5C82FE00812232 /* LockScreenView.swift in Sources */,
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
 				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
+				F89342072C72CA9000E313AC /* ContactService.swift in Sources */,
 				F86868702C34811000F6CE56 /* ClusterRestaurantListView.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
 				F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */,
