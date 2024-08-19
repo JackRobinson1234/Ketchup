@@ -11,12 +11,15 @@ import ContactsUI
 import PhoneNumberKit
 import FirebaseAuth
 import FirebaseFirestoreInternal
+import MessageUI
 
 class ContactsViewModel: ObservableObject {
     @Published var contacts: [Contact] = []
     @Published var isLoading = false
     @Published var error: Error?
     @Published var hasMoreContacts = true
+    @Published var isShowingMessageComposer = false
+    @Published var messageRecipient: String?
     
     private let userService = UserService.shared
     private let pageSize = 20
@@ -202,10 +205,38 @@ class ContactsViewModel: ObservableObject {
            }
        }
     func inviteContact(_ contact: Contact) {
-        let message = "Hey! Join me on our app. It's great!"
-        let sms = "sms:\(contact.phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-        if let url = URL(string: sms) {
-            UIApplication.shared.open(url)
+            self.messageRecipient = contact.phoneNumber
+            self.isShowingMessageComposer = true
+        }
+}
+struct ContactMessageComposeView: UIViewControllerRepresentable {
+    @Binding var isShowing: Bool
+    let recipient: String
+    let body: String
+    
+    func makeUIViewController(context: Context) -> MFMessageComposeViewController {
+        let controller = MFMessageComposeViewController()
+        controller.messageComposeDelegate = context.coordinator
+        controller.recipients = [recipient]
+        controller.body = body
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
+        var parent: ContactMessageComposeView
+        
+        init(_ parent: ContactMessageComposeView) {
+            self.parent = parent
+        }
+        
+        func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+            parent.isShowing = false
         }
     }
 }

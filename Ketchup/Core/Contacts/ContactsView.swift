@@ -8,42 +8,91 @@ import SwiftUI
 import Contacts
 import ContactsUI
 import Kingfisher
+import MessageUI
 
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
     @State private var searchText = ""
-    
+    @State private var isContactsPermissionDenied = false // State to track if permission is denied
+    @State private var isSyncingContacts = false
     var body: some View {
-            NavigationView {
-                ZStack {
-                    if viewModel.contacts.isEmpty && !viewModel.isLoading {
-                        emptyView
-                    } else {
-                        contactsList
+        NavigationView {
+            ZStack {
+                if isSyncingContacts {
+                    VStack{
+                        FastCrossfadeFoodImageView()
+                        Text("Loading contacts- this might take up to a minute")
                     }
-                }
-                .navigationTitle("Contacts on App")
-                .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: $searchText, prompt: "Search contacts")
-                .onAppear {
-                    if viewModel.contacts.isEmpty {
-                        viewModel.fetchContacts()
-                    }
-                }
-                .alert(item: Binding<AlertItem?>(
-                    get: { viewModel.error.map { AlertItem(error: $0) } },
-                    set: { _ in viewModel.error = nil }
-                )) { alertItem in
-                    Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
+                } else if isContactsPermissionDenied {
+                    deniedPermissionView
+                } else if viewModel.contacts.isEmpty && !viewModel.isLoading {
+                    emptyView
+                } else {
+                    contactsList
                 }
             }
+            .navigationTitle("Contacts on Ketchup")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search contacts")
+            .onAppear {
+                checkContactsPermissionAndSync()
+            }
+            .alert(item: Binding<AlertItem?>(
+                get: { viewModel.error.map { AlertItem(error: $0) } },
+                set: { _ in viewModel.error = nil }
+            )) { alertItem in
+                Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
+            }
+            .sheet(isPresented: $viewModel.isShowingMessageComposer) {
+                if let username = AuthService.shared.userSession?.username{
+                    if MFMessageComposeViewController.canSendText() {
+                        ContactMessageComposeView(
+                            isShowing: $viewModel.isShowingMessageComposer,
+                            recipient: viewModel.messageRecipient ?? "",
+                            body: "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+                        )
+                    }
+                } else {
+                    Text("This device cannot send text messages")
+                }
+            }
+            
         }
-    
+    }
+    private var deniedPermissionView: some View {
+        VStack {
+            Image("Skip")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
+            Text("Contacts Permission Denied")
+                .font(.title2)
+                .foregroundColor(.gray)
+                .padding(.top)
+            Text("Please allow access to your contacts in Settings to find your friends on Ketchup.")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.top, 4)
+            Button(action: openSettings) {
+                Text("Go to Settings")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color("Colors/AccentColor"))
+                    .cornerRadius(8)
+                    .padding(.top, 20)
+            }
+        }
+        .padding()
+    }
     private var emptyView: some View {
         VStack {
-            Image(systemName: "person.crop.circle.badge.xmark")
-                .font(.system(size: 64))
-                .foregroundColor(.gray)
+            Image("Skip")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
             Text("No Contacts Found on App")
                 .font(.title2)
                 .foregroundColor(.gray)
@@ -58,28 +107,28 @@ struct ContactsView: View {
     }
     
     private var contactsList: some View {
-            List {
-                    ForEach(filteredContacts.filter { $0.hasExistingAccount == true }) { contact in
-                        ContactRow(viewModel: viewModel, contact: contact)
-                    }
-                
-                
-                
-                   /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
-                ForEach(filteredContacts.filter { $0.hasExistingAccount != true }) { contact in
-                        ContactRow(viewModel: viewModel, contact: contact)
-                    }
-                    
-                    if viewModel.hasMoreContacts {
-                        ProgressView()
-                            .onAppear {
-                                viewModel.fetchContacts()
-                            }
-                    }
-                
+        List {
+            ForEach(filteredContacts.filter { $0.hasExistingAccount == true }) { contact in
+                ContactRow(viewModel: viewModel, contact: contact)
             }
-            .listStyle(PlainListStyle())
+            
+            
+            
+            /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
+            ForEach(filteredContacts.filter { $0.hasExistingAccount != true }) { contact in
+                ContactRow(viewModel: viewModel, contact: contact)
+            }
+            
+            if viewModel.hasMoreContacts {
+                ProgressView()
+                    .onAppear {
+                        viewModel.fetchContacts()
+                    }
+            }
+            
         }
+        .listStyle(PlainListStyle())
+    }
     
     private var filteredContacts: [Contact] {
         if searchText.isEmpty {
@@ -91,6 +140,44 @@ struct ContactsView: View {
             }
         }
     }
+    private func checkContactsPermissionAndSync() {
+           let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+           if authorizationStatus == .denied || authorizationStatus == .restricted {
+               isContactsPermissionDenied = true
+           } else if authorizationStatus == .notDetermined {
+               CNContactStore().requestAccess(for: .contacts) { granted, _ in
+                   DispatchQueue.main.async {
+                       isContactsPermissionDenied = !granted
+                       if granted {
+                           startContactSync()
+                       }
+                   }
+               }
+           } else if authorizationStatus == .authorized {
+               startContactSync()
+           }
+       }
+       
+       private func startContactSync() {
+           if AuthService.shared.userSession?.hasContactsSynced == false {
+               isSyncingContacts = true
+               ContactService.shared.syncDeviceContacts()
+               Task {
+                   try await Task.sleep(nanoseconds: 5 * 1_000_000_000) // Wait 5 seconds
+                   DispatchQueue.main.async {
+                       isSyncingContacts = false
+                   }
+                   viewModel.fetchContacts()
+               }
+           } else {
+               viewModel.fetchContacts()
+           }
+       }
+    private func openSettings() {
+        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+        }
+    }
 }
 
 struct ContactRow: View {
@@ -98,7 +185,8 @@ struct ContactRow: View {
     @State var contact: Contact
     @State private var isFollowed: Bool
     @State private var isCheckingFollowStatus: Bool = false
-    @State private var hasCheckedFollowStatus: Bool = false  // New state to track if we've checked the status
+    @State private var hasCheckedFollowStatus: Bool = false
+    @State private var isShowingProfile: Bool = false // Local state for showing the profile
 
     init(viewModel: ContactsViewModel, contact: Contact) {
         self.viewModel = viewModel
@@ -109,15 +197,37 @@ struct ContactRow: View {
     var body: some View {
         HStack(spacing: 12) {
             if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
-                UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
+                Button(action: {
+                    isShowingProfile = true
+                }) {
+                    UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
+                }
+                .fullScreenCover(isPresented: $isShowingProfile) {
+                    if let userId = contact.user?.id {
+                        NavigationStack {
+                            ProfileView(uid: userId)
+                        }
+                    }
+                }
             }
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundStyle(.black)
-                
                 if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
+                    Button(action: {
+                        isShowingProfile = true
+                    }) {
+                        Text(contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundStyle(.black)
+                    }
+                    .fullScreenCover(isPresented: $isShowingProfile) {
+                        if let userId = contact.user?.id {
+                            NavigationStack {
+                                ProfileView(uid: userId)
+                            }
+                        }
+                    }
+                    
                     if let username = contact.user?.username {
                         Text("@\(username)")
                             .font(.system(size: 12))
@@ -125,6 +235,10 @@ struct ContactRow: View {
                     }
                     locationText
                 } else {
+                    Text(contact.deviceContactName ?? contact.phoneNumber)
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundStyle(.black)
+                    
                     Text("\(contact.userCount) friends on Ketchup")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
