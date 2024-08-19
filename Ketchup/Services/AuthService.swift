@@ -14,7 +14,6 @@ import GoogleSignInSwift
 
 @MainActor
 class AuthService {
-    
     static let shared = AuthService()
     @Published var userSession: User?
     private init() {}
@@ -55,11 +54,8 @@ class AuthService {
         }
     }
     
-    
-    
     //MARK: Create User (With Email)
     func createUser(email: String, password: String, username: String, fullname: String) async throws {
-        
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             let user = User(id: result.user.uid, username: username, fullname: fullname, privateMode: false)
@@ -84,7 +80,7 @@ class AuthService {
         let userRef = FirestoreConstants.UserCollection.document(id)
         
         var updatedUserData: [String: Any] = [:]
-
+        
         if let username = username, !username.isEmpty {
             updatedUserData["username"] = username
         }
@@ -100,7 +96,7 @@ class AuthService {
         if let birthday = birthday {
             updatedUserData["birthday"] = Timestamp(date: birthday)
         }
-
+        
         if let location = location {
             updatedUserData["location"] = try Firestore.Encoder().encode(location)
         }
@@ -109,14 +105,14 @@ class AuthService {
         
         updatedUserData["hasCompletedSetup"] = hasCompletedSetup
         // Assuming profile setup is completed
-
+        
         do {
             try await userRef.setData(updatedUserData, merge: true)
             print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
-
+            
             let updatedUser = try await userRef.getDocument(as: User.self)
             self.userSession = updatedUser
-
+            
             return updatedUser
         } catch {
             print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
@@ -145,7 +141,7 @@ class AuthService {
             location: location,
             birthday: birthday,
             hasCompletedSetup: false // Set this to false for incomplete profiles
-              // Set the lastActive timestamp
+            // Set the lastActive timestamp
         )
         
         let userData = try Firestore.Encoder().encode(user)
@@ -174,7 +170,7 @@ class AuthService {
             fatalError("No client ID found in Firebase Configuration")
         }
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                let window = windowScene.windows.first,
+              let window = windowScene.windows.first,
               let rootViewController = window.rootViewController else {
             print("There is no root view controller")
             return
@@ -182,7 +178,7 @@ class AuthService {
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
         do {
-            let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) 
+            let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
             let user = userAuthentication.user
             guard let idToken = user.idToken else {
                 throw AuthenticationError.tokenError(message: "ID token missing")
@@ -201,20 +197,20 @@ class AuthService {
             //Creates user in firestore if the user doesnt exist then updates the user session
             let userRef = FirestoreConstants.UserCollection.document(firebaseUser.uid)
             do {
-              let document = try await userRef.getDocument()
-              if document.exists {
-                  try await updateUserSession()
-                  return
-              }
+                let document = try await userRef.getDocument()
+                if document.exists {
+                    try await updateUserSession()
+                    return
+                }
                 else {
-                  let randomUsername = try await generateRandomUsername(prefix: givenName)
-                  let user = User(id: firebaseUser.uid, username: randomUsername, fullname: fullName ?? "", privateMode: false)
-                  let userData = try Firestore.Encoder().encode(user)
-                  try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
-                  try await updateUserSession()
-              }
+                    let randomUsername = try await generateRandomUsername(prefix: givenName)
+                    let user = User(id: firebaseUser.uid, username: randomUsername, fullname: fullName ?? "", privateMode: false)
+                    let userData = try Firestore.Encoder().encode(user)
+                    try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
+                    try await updateUserSession()
+                }
             } catch {
-              print("Error getting document: \(error)")
+                print("Error getting document: \(error)")
             }
         } catch {
             print(error.localizedDescription)
@@ -257,33 +253,33 @@ class AuthService {
         }
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
-       // do {
-            let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
-            let user = userAuthentication.user
-            guard let idToken = user.idToken else {
-                throw AuthenticationError.tokenError(message: "ID token missing")
-            }
-            let accessToken = user.accessToken
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken.tokenString,
-                                                           accessToken: accessToken.tokenString)
-            ///Reauthenticates user if bool is true and exists function
-            do {
-                try await Auth.auth().currentUser?.reauthenticate(with: credential)
-                // Reauthentication successful
-                try await deleteAccount()
-                return false
-                
-            } catch {
-                print("Reauthentication with Google failed: \(error.localizedDescription)")
-                return false
-                // Handle reauthentication failure here, such as showing an alert to the user
-               
-                
-            }
-//        } catch {
-//            print(error.localizedDescription)
-//            //self.authError = AuthError(authErrorCode: error.localizedDescription)
-//        }
+        // do {
+        let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+        let user = userAuthentication.user
+        guard let idToken = user.idToken else {
+            throw AuthenticationError.tokenError(message: "ID token missing")
+        }
+        let accessToken = user.accessToken
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken.tokenString,
+                                                       accessToken: accessToken.tokenString)
+        ///Reauthenticates user if bool is true and exists function
+        do {
+            try await Auth.auth().currentUser?.reauthenticate(with: credential)
+            // Reauthentication successful
+            try await deleteAccount()
+            return false
+            
+        } catch {
+            print("Reauthentication with Google failed: \(error.localizedDescription)")
+            return false
+            // Handle reauthentication failure here, such as showing an alert to the user
+            
+            
+        }
+        //        } catch {
+        //            print(error.localizedDescription)
+        //            //self.authError = AuthError(authErrorCode: error.localizedDescription)
+        //        }
         //try await deleteAccount()
     }
     //MARK: reAuth

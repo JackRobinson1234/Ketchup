@@ -13,7 +13,7 @@ struct Contact: Codable, Identifiable, Hashable {
     var userCount: Int
     var hasExistingAccount: Bool?  // Optional parameter to indicate if the contact has an existing account
     var isFollowed: Bool?  // Optional parameter to indicate if the contact is followed by the current user
-    
+    var user: User?
     enum CodingKeys: String, CodingKey {
         case id, phoneNumber, userCount, hasExistingAccount, isFollowed
     }

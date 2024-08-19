@@ -16,9 +16,7 @@ struct ContactsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else if viewModel.contacts.isEmpty {
+                if viewModel.contacts.isEmpty && !viewModel.isLoading {
                     emptyView
                 } else {
                     contactsList
@@ -61,53 +59,26 @@ struct ContactsView: View {
     
     private var contactsList: some View {
         List {
-            // Section for contacts already on the app
-            if !filteredFirebaseUsers.isEmpty {
-                ForEach(filteredFirebaseUsers, id: \.identifier) { contact in
-                    ContactRow(viewModel: viewModel, contact: contact)
-                }
+            ForEach(filteredContacts) { contact in
+                ContactRow(viewModel: viewModel, contact: contact)
             }
-            // Section for contacts not on the app
-            if !filteredNonFirebaseContacts.isEmpty {
-                ForEach(filteredNonFirebaseContacts, id: \.identifier) { contact in
-                    ContactRow(viewModel: viewModel, contact: contact)
-                }
+            if viewModel.hasMoreContacts {
+                ProgressView()
+                    .onAppear {
+                        viewModel.fetchContacts()
+                    }
             }
         }
         .listStyle(PlainListStyle())
     }
-    private var filteredFirebaseUsers: [CNContact] {
-        if searchText.isEmpty {
-            return viewModel.contacts.filter { viewModel.firebaseUsers[$0.identifier] != nil }
-        } else {
-            return viewModel.contacts.filter { contact in
-                let name = "\(contact.givenName) \(contact.familyName)"
-                return name.lowercased().contains(searchText.lowercased()) &&
-                viewModel.firebaseUsers[contact.identifier] != nil
-            }
-        }
-    }
-
-    private var filteredNonFirebaseContacts: [CNContact] {
-        if searchText.isEmpty {
-            return viewModel.contacts.filter { viewModel.firebaseUsers[$0.identifier] == nil }
-        } else {
-            return viewModel.contacts.filter { contact in
-                let name = "\(contact.givenName) \(contact.familyName)"
-                return name.lowercased().contains(searchText.lowercased()) &&
-                       viewModel.firebaseUsers[contact.identifier] == nil
-            }
-        }
-    }
-
     
-    private var filteredContacts: [CNContact] {
+    private var filteredContacts: [MergedContact] {
         if searchText.isEmpty {
             return viewModel.contacts
         } else {
             return viewModel.contacts.filter { contact in
-                let name = "\(contact.givenName) \(contact.familyName)"
-                return name.lowercased().contains(searchText.lowercased())
+                contact.displayName.lowercased().contains(searchText.lowercased()) ||
+                contact.phoneNumber.contains(searchText)
             }
         }
     }
@@ -115,22 +86,23 @@ struct ContactsView: View {
 
 struct ContactRow: View {
     @ObservedObject var viewModel: ContactsViewModel
-    let contact: CNContact
+    let contact: MergedContact
     @State private var isFollowed: Bool = false
     @State private var isCheckingFollowStatus: Bool = false
+    
     var body: some View {
         HStack(spacing: 12) {
-            Text(contact.givenName + " " + contact.familyName)
+            Text(contact.displayName)
                 .font(.system(size: 16, weight: .medium))
             
             Spacer()
             
-            if let user = viewModel.firebaseUsers[contact.identifier] {
+            if contact.hasExistingAccount {
                 if isCheckingFollowStatus {
                     ProgressView()
                         .scaleEffect(0.7)
                 } else {
-                    followButton(for: user)
+                    followButton
                 }
             } else {
                 inviteButton
@@ -140,7 +112,7 @@ struct ContactRow: View {
         .onAppear(perform: checkFollowStatus)
     }
     
-    private func followButton(for user: User) -> some View {
+    private var followButton: some View {
         Button(action: handleFollowAction) {
             Text(isFollowed ? "Following" : "Follow")
                 .font(.system(size: 14, weight: .semibold))
@@ -173,11 +145,11 @@ struct ContactRow: View {
     }
     
     private func checkFollowStatus() {
-        guard let user = viewModel.firebaseUsers[contact.identifier] else { return }
+        guard let userId = contact.user?.id else { return }
         isCheckingFollowStatus = true
         Task {
             do {
-                isFollowed = try await viewModel.checkIfUserIsFollowed(userId: user.id)
+                isFollowed = try await viewModel.checkIfUserIsFollowed(userId: userId)
                 isCheckingFollowStatus = false
             } catch {
                 print("Error checking follow status: \(error.localizedDescription)")
@@ -187,13 +159,13 @@ struct ContactRow: View {
     }
     
     private func handleFollowAction() {
-        guard let user = viewModel.firebaseUsers[contact.identifier] else { return }
+        guard let userId = contact.user?.id else { return }
         Task {
             do {
                 if isFollowed {
-                    try await viewModel.unfollow(userId: user.id)
+                    try await viewModel.unfollow(userId: userId)
                 } else {
-                    try await viewModel.follow(userId: user.id)
+                    try await viewModel.follow(userId: userId)
                 }
                 isFollowed.toggle()
             } catch {
