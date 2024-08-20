@@ -9,150 +9,236 @@ import SwiftUI
 import Contacts
 import ContactsUI
 import PhoneNumberKit
+import FirebaseAuth
+import FirebaseFirestoreInternal
+import MessageUI
 
 class ContactsViewModel: ObservableObject {
-    @Published var contacts: [CNContact] = []
-    @Published var firebaseUsers: [String: User] = [:]
+    @Published var contacts: [Contact] = []
     @Published var isLoading = false
-    @Published var showEmptyView = false
     @Published var error: Error?
-
+    @Published var hasMoreContacts = true
+    @Published var isShowingMessageComposer = false
+    @Published var messageRecipient: String?
+    
     private let userService = UserService.shared
-    private let contactStore = CNContactStore()
+    private let pageSize = 20
+    private var lastDocument: DocumentSnapshot?
     private let phoneNumberKit = PhoneNumberKit()
+    private let contactStore = CNContactStore()
+    private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
+    
+    private var existingAccountContactsFetched = false
 
     func fetchContacts() {
         guard !isLoading else { return }
         isLoading = true
-
-        contactStore.requestAccess(for: .contacts) { [weak self] granted, error in
-            guard let self = self else { return }
-            if granted {
-                self.loadContacts()
-            } else {
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.showEmptyView = true
-                    self.error = error ?? NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "Permission denied to access contacts."])
-                }
-            }
-        }
-    }
-
-    private func loadContacts() {
-        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
-        let request = CNContactFetchRequest(keysToFetch: keys)
-        request.sortOrder = .userDefault
-        do {
-            var allContacts: [CNContact] = []
-            try contactStore.enumerateContacts(with: request) { contact, _ in
-                allContacts.append(contact)
-            }
-            self.contacts = allContacts
-            self.checkFirebaseUsers(for: allContacts)
-        } catch {
-            DispatchQueue.main.async {
-                self.isLoading = false
-                self.error = error
-                print("Failed to fetch contacts: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    func checkFirebaseUsers(for contacts: [CNContact]) {
-        let phoneNumbers = contacts.flatMap { contact in
-            contact.phoneNumbers.compactMap { phoneNumber in
-                formatPhoneNumber(phoneNumber.value.stringValue)
-            }
-        }
-
+        
         Task {
             do {
-                let users = try await userService.fetchUsers(byPhoneNumbers: phoneNumbers)
-                DispatchQueue.main.async {
-                    self.updateFirebaseUsers(users)
-                    self.sortContacts()
-                    self.isLoading = false
-                    self.showEmptyView = self.contacts.isEmpty
+                if deviceContacts.isEmpty {
+                    try await loadDeviceContacts()
+                }
+                
+                if !existingAccountContactsFetched {
+                    let existingContacts = try await fetchExistingAccountContacts()
+                    let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
+                    let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
+                    
+                    DispatchQueue.main.async {
+                        self.contacts = matchedExistingContacts
+                        self.existingAccountContactsFetched = true
+                        self.isLoading = false
+                    }
+                } else if hasMoreContacts {
+                    let (newContacts, lastDoc) = try await fetchContactsToInvite()
+                    let matchedNewContacts = matchWithDeviceContacts(newContacts)
+                    
+                    DispatchQueue.main.async {
+                        self.contacts.append(contentsOf: matchedNewContacts)
+                        self.lastDocument = lastDoc
+                        self.hasMoreContacts = newContacts.count == self.pageSize
+                        self.isLoading = false
+                    }
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.isLoading = false
                     self.error = error
-                    print("Failed to fetch Firebase users: \(error.localizedDescription)")
+                    self.isLoading = false
                 }
             }
         }
     }
-
-    private func updateFirebaseUsers(_ users: [User]) {
-        for user in users {
-            if let contact = contacts.first(where: { contact in
-                contact.phoneNumbers.contains { phoneNumber in
-                    formatPhoneNumber(phoneNumber.value.stringValue) == user.phoneNumber
+    
+    private func fetchExistingAccountContacts() async throws -> [Contact] {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let db = Firestore.firestore()
+        let query = db.collection("users").document(userId).collection("contacts")
+            .whereField("hasExistingAccount", isEqualTo: true)
+        
+        let snapshot = try await query.getDocuments()
+        
+        return snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
+        }
+    }
+    
+    private func fetchContactsToInvite() async throws -> ([Contact], DocumentSnapshot?) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let db = Firestore.firestore()
+        var query = db.collection("users").document(userId).collection("contacts")
+            //.whereField("hasExistingAccount", isEqualTo: false)
+            .order(by: "userCount", descending: true)
+            .limit(to: pageSize)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
+        let snapshot = try await query.getDocuments()
+        
+        let contacts = snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
+        }
+        
+        return (contacts, snapshot.documents.last)
+    }
+    
+    private func loadDeviceContacts() async throws {
+        let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+        let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
+        try await contactStore.enumerateContacts(with: request) { contact, _ in
+            for phoneNumber in contact.phoneNumbers {
+                if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
+                    let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespacesAndNewlines)
+                    self.deviceContacts[formattedNumber] = name
                 }
-            }) {
-                firebaseUsers[contact.identifier] = user
             }
         }
     }
-
-   
-
-
+    
     private func formatPhoneNumber(_ phoneNumber: String) -> String? {
         do {
             let parsedNumber = try phoneNumberKit.parse(phoneNumber)
             let number = phoneNumberKit.format(parsedNumber, toType: .international)
-            // Format to match Firebase storage format
             return number
         } catch {
             print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }
-    private func sortContacts() {
-           contacts.sort { contact1, contact2 in
-               let isUser1 = firebaseUsers[contact1.identifier] != nil
-               let isUser2 = firebaseUsers[contact2.identifier] != nil
-               
-               if isUser1 && !isUser2 {
-                   return true
-               } else if !isUser1 && isUser2 {
-                   return false
-               } else {
-                   return contact1.givenName.lowercased() < contact2.givenName.lowercased()
+    
+    private func fetchUserDetailsForContacts(_ contacts: [Contact]) async throws -> [Contact] {
+        var updatedContacts = contacts
+        
+        for i in 0..<updatedContacts.count {
+            if let user = try await userService.fetchUser(withPhoneNumber: updatedContacts[i].phoneNumber) {
+                updatedContacts[i].user = user
+            }
+        }
+        
+        return updatedContacts
+    }
+    
+    private func matchWithDeviceContacts(_ contacts: [Contact]) -> [Contact] {
+        return contacts.map { contact in
+            var updatedContact = contact
+            if let name = deviceContacts[contact.phoneNumber] {
+                updatedContact.deviceContactName = name
+            }
+            return updatedContact
+        }
+    }
+  
+
+  
+    func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
+           guard let userId = contact.user?.id else { return false }
+           
+           // If we've already checked the follow status, return the stored value
+           if let isFollowed = contact.isFollowed {
+               return isFollowed
+           }
+           
+           // If we haven't checked yet, fetch the status from the server
+           let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
+           
+           // Update the contact in the contacts array
+           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
                }
            }
            
-           // Filter out contacts that are not on the app
-           contacts = contacts.filter { contact in
-               firebaseUsers[contact.identifier] != nil
-           }
-           
-           objectWillChange.send()
+           return isFollowed
        }
 
+       func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
+               }
+           }
+       }
 
-   
+       func follow(userId: String) async throws {
+           try await userService.follow(uid: userId)
+           updateFollowStatus(for: userId, isFollowed: true)
+       }
+       
+       func unfollow(userId: String) async throws {
+           try await userService.unfollow(uid: userId)
+           updateFollowStatus(for: userId, isFollowed: false)
+       }
+       
+       private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+           if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
+               DispatchQueue.main.async {
+                   self.contacts[index].isFollowed = isFollowed
+               }
+           }
+       }
+    func inviteContact(_ contact: Contact) {
+            self.messageRecipient = contact.phoneNumber
+            self.isShowingMessageComposer = true
+        }
+}
 
-    func follow(userId: String) async throws {
-        try await userService.follow(uid: userId)
-    }
-    func unfollow(userId: String) async throws {
-        try await userService.unfollow(uid: userId)
-    }
 
-    func checkIfUserIsFollowed(userId: String) async throws -> Bool {
-        return try await userService.checkIfUserIsFollowed(uid: userId)
+struct ContactMessageComposeView: UIViewControllerRepresentable {
+    @Binding var isShowing: Bool
+    let recipient: String
+    let body: String
+    
+    func makeUIViewController(context: Context) -> MFMessageComposeViewController {
+        let controller = MFMessageComposeViewController()
+        controller.messageComposeDelegate = context.coordinator
+        controller.recipients = [recipient]
+        controller.body = body
+        return controller
     }
-    func inviteContact(_ contact: CNContact) {
-        if let phoneNumber = contact.phoneNumbers.first?.value.stringValue {
-            let message = "Hey! Join me on our app. It's great!"
-            let sms = "sms:\(phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-            if let url = URL(string: sms) {
-                UIApplication.shared.open(url)
-            }
+    
+    func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
+        var parent: ContactMessageComposeView
+        
+        init(_ parent: ContactMessageComposeView) {
+            self.parent = parent
+        }
+        
+        func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+            parent.isShowing = false
         }
     }
 }

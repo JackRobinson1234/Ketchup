@@ -21,20 +21,18 @@ struct User: Codable, Identifiable, Hashable {
     var notificationAlert: Int = 0
     var location: Location?
     var birthday: Date?
-    
-    // New properties with default values
     var hasCompletedSetup: Bool = false
     var createdAt: Date?
     var lastActive: Date?
-
+    var hasContactsSynced: Bool = false // New property
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
-    
+
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced // Updated CodingKeys
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -55,26 +53,29 @@ struct User: Codable, Identifiable, Hashable {
         } else {
             self.birthday = nil
         }
-
+        
         // Decode new hasCompletedSetup property, defaulting to false if not present
         self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
-
+        
         // Decode new createdAt property
         if let createdAtTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .createdAt) {
             self.createdAt = createdAtTimestamp.dateValue()
         } else {
             self.createdAt = nil
         }
-
+        
         // Decode new lastActive property
         if let lastActiveTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastActive) {
             self.lastActive = lastActiveTimestamp.dateValue()
         } else {
             self.lastActive = nil
         }
+
+        // Decode new hasContactsSynced property, defaulting to false if not present
+        self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
     }
-    
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil) {
+
+    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil, hasContactsSynced: Bool = false) {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -95,8 +96,9 @@ struct User: Codable, Identifiable, Hashable {
         self.hasCompletedSetup = hasCompletedSetup
         self.createdAt = createdAt
         self.lastActive = lastActive
+        self.hasContactsSynced = hasContactsSynced
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -115,21 +117,23 @@ struct User: Codable, Identifiable, Hashable {
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
-
+        
         // Encode new hasCompletedSetup property
         try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
-
+        
         // Encode new createdAt property
         if let createdAt = createdAt {
             try container.encode(Timestamp(date: createdAt), forKey: .createdAt)
         }
-
+        
         // Encode new lastActive property
         if let lastActive = lastActive {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
+        
+        // Encode new hasContactsSynced property
+        try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
     }
-    
 }
 
 // Other structs remain unchanged

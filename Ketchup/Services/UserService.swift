@@ -125,6 +125,19 @@ class UserService {
             
             return allUsers
         }
+    func fetchUser(withPhoneNumber phoneNumber: String) async throws -> User? {
+            let usersRef = Firestore.firestore().collection("users")
+            let query = usersRef.whereField("phoneNumber", isEqualTo: phoneNumber).limit(to: 1)
+            
+            let snapshot = try await query.getDocuments()
+            
+            guard let document = snapshot.documents.first else {
+                // No user found with this phone number
+                return nil
+            }
+            
+            return try document.data(as: User.self)
+        }
 }
 
 // MARK: - Following

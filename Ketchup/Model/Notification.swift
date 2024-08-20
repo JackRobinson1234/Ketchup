@@ -38,7 +38,8 @@ enum NotificationType: Int, Codable {
     case commentLike
     case commentReply
     case collectionLike
-    case postBookmark  // New case for bookmark notifications
+    case postBookmark
+    case newUser  // New case for new user notifications
 
     var notificationMessage: String {
         switch self {
@@ -52,7 +53,8 @@ enum NotificationType: Int, Codable {
         case .commentLike: return " liked your comment: "
         case .commentReply: return " replied to your comment: "
         case .collectionLike: return " liked your collection: "
-        case .postBookmark: return " bookmarked your post."  // New message for bookmark notifications
+        case .postBookmark: return " bookmarked your post."
+        case .newUser: return " joined Ketchup!"
         }
     }
 }
