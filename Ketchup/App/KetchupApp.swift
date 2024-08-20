@@ -134,18 +134,23 @@ extension AppDelegate: MessagingDelegate {
     }
     
     private func saveTokenToFirestore(token: String) {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
-        let db = Firestore.firestore()
-        db.collection("users").document(userId).collection("devices").document(deviceId).setData([
-            "fcmToken": token,
-            "lastUpdated": FieldValue.serverTimestamp()
-        ]) { error in
-            if let error = error {
-                print("Error saving token: \(error)")
-            } else {
-                print("Token saved successfully")
+        if let userId = Auth.auth().currentUser?.uid {
+            let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
+            let db = Firestore.firestore()
+            db.collection("users").document(userId).collection("devices").document(deviceId).setData([
+                "fcmToken": token,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ]) { error in
+                if let error = error {
+                    print("Error saving token: \(error)")
+                } else {
+                    print("Token saved successfully")
+                }
             }
+        } else {
+            // Save the token locally until the user signs in
+            UserDefaults.standard.set(token, forKey: "fcmToken")
+            print("Token saved locally")
         }
     }
 }

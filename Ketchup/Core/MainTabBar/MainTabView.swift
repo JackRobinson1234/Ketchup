@@ -129,6 +129,9 @@ struct MainTabView: View {
                 startTracking(tab: tabBarController.selectedTab)
             }
         }
+        .sheet(isPresented: $tabBarController.showContacts){
+            ContactsView()
+        }
         
     }
     

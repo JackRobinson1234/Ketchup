@@ -54,13 +54,7 @@ struct PrimaryFeedView: View {
                     ScrollViewReader { scrollProxy in
                         ScrollView(showsIndicators: false) {
                             LazyVStack {
-                                if viewModel.selectedTab == .following {
-                                    Button{
-                                        showAddFriends = true
-                                    } label: {
-                                        SkipButton()
-                                    }
-                                }
+                               
                                 ForEach($viewModel.posts) { post in
                                     WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                         .id(post.id)
@@ -463,25 +457,4 @@ extension View {
     }
 }
 
-struct SkipButton: View {
-    var body: some View {
-        VStack{
-            Divider()
-            HStack{
-                Image("Skip")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30)
-                Text("Find your friends!")
-                    .font(.custom("MuseoSansRounded-500", size: 14))
-                    .foregroundStyle(.black)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.gray)
-                    .padding(.horizontal)
-            }
-            .padding(.horizontal)
-            Divider()
-        }
-    }
-}
+

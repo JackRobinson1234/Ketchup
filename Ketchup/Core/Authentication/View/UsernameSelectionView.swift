@@ -8,12 +8,14 @@
 import SwiftUI
 import FirebaseFirestoreInternal
 import FirebaseAuth
+import Contacts
 
 struct UsernameSelectionView: View {
     @StateObject private var viewModel = UsernameSelectionViewModel()
     @Environment(\.dismiss) private var dismiss
     @StateObject var registrationViewModel: UserRegistrationViewModel = UserRegistrationViewModel()
-    
+    @State private var isContactsPermissionDenied = false
+
     var body: some View {
         NavigationStack{
             VStack(alignment: .leading, spacing: 20) {
@@ -124,6 +126,35 @@ struct UsernameSelectionView: View {
                         viewModel.navigateToBirthdaySelection = true
                     }
                 }
+            }
+            .onAppear {
+                checkContactsPermissionAndSync()
+            }
+            
+        }
+    }
+    private func checkContactsPermissionAndSync() {
+        let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+        if authorizationStatus == .denied || authorizationStatus == .restricted {
+            isContactsPermissionDenied = true
+        } else if authorizationStatus == .notDetermined {
+            CNContactStore().requestAccess(for: .contacts) { granted, _ in
+                DispatchQueue.main.async {
+                    isContactsPermissionDenied = !granted
+                    if granted {
+                        startContactSync()
+                    }
+                }
+            }
+        } else if authorizationStatus == .authorized {
+            startContactSync()
+        }
+    }
+    
+    private func startContactSync() {
+        if AuthService.shared.userSession?.hasContactsSynced == false {
+            Task {
+                try await ContactService.shared.syncDeviceContacts()
             }
         }
     }

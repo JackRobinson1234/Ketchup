@@ -9,7 +9,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import Contacts
 import PhoneNumberKit
-
+import SwiftUI
 class ContactService {
     static let shared = ContactService()
     private let db = Firestore.firestore()
@@ -21,7 +21,7 @@ class ContactService {
     @Published var isSyncing: Bool = false
     @Published var syncProgress: Float = 0.0
     @Published var hasSynced: Bool = false
-    
+
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     
     private init() {

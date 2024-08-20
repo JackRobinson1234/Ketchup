@@ -12,6 +12,7 @@ class TabBarController: ObservableObject {
     @Published var visibility: Visibility = .visible
     @Published var scrollToTop = false
     private var cancellable: AnyCancellable?
+    @Published var showContacts = false
     init() {
         listenForTabSelection()
     }

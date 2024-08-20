@@ -10,71 +10,128 @@ import FirebaseAuth
 import SwiftUI
 @MainActor
 class ProfileUserListViewModel: ObservableObject {
-    //@State var searchText = ""
     @Published var users = [User]()
+    @Published var isLoading = false
+    @Published var hasMoreUsers = true
+    @Published var error: Error?
+    
     private let config: UserListConfig
-    private var userLastDoc: QueryDocumentSnapshot?
+    private var lastDocument: QueryDocumentSnapshot?
+    private let limit = 20
+    private let userService = UserService.shared
+    
     init(config: UserListConfig) {
         self.config = config
-        fetchUsers(forConfig: config)
+        fetchUsers()
     }
-    //MARK: fetchUsers(forConfig:)
-    /// called from the init, calls the correct function depending on which list you want
-    /// - Parameter config: UserListConfig that specifies which kind of list to display
-    func fetchUsers(forConfig config: UserListConfig) {
+    
+    func fetchUsers() {
+        guard !isLoading, hasMoreUsers else { return }
+        isLoading = true
+        
         Task {
-            switch config {
-            case .followers(let uid):
-                try await fetchFollowerUsers(forUid: uid)
-            case .following(let uid):
-                try await fetchFollowingUsers(forUid: uid)
-            case .likes(let postId):
-                try await fetchPostLikesUsers(forPostId: postId)
-                
+            do {
+                let (newUsers, lastDoc) = try await fetchUsersForConfig()
+                await MainActor.run {
+                    self.users.append(contentsOf: newUsers)
+                    self.lastDocument = lastDoc
+                    self.hasMoreUsers = newUsers.count == self.limit
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error
+                    self.isLoading = false
+                }
             }
         }
     }
-    //MARK: fetchPostLikesUsers
-    /// fetches which users liked a certain post
-    /// - Parameter postId: <#postId description#>
-    private func fetchPostLikesUsers(forPostId postId: String) async throws {
-        let snapshot = try await FirestoreConstants.PostsCollection.document(postId).collection("post-likes").getDocuments()
-        try await fetchUsers(snapshot)
-    }
-
-    private func fetchFollowerUsers(forUid uid: String) async throws {
-        let snapshot = try await FirestoreConstants.FollowersCollection.document(uid).collection("user-followers").getDocuments()
-        try await fetchUsers(snapshot)
-    }
-
-    private func fetchFollowingUsers(forUid uid: String) async throws {
-        let snapshot = try await FirestoreConstants.FollowingCollection.document(uid).collection("user-following").getDocuments()
-        try await fetchUsers(snapshot)
-    }
-
-    private func fetchUsers(_ snapshot: QuerySnapshot) async throws {
-        try await withThrowingTaskGroup(of: User.self) { group in
+    
+    private func fetchUsersForConfig() async throws -> ([User], QueryDocumentSnapshot?) {
+        let query = configureQuery()
+        let snapshot = try await query.getDocuments()
+        
+        let users = try await withThrowingTaskGroup(of: User?.self) { group in
             for document in snapshot.documents {
                 group.addTask {
-                    try await UserService.shared.fetchUser(withUid: document.documentID)
+                    try? await self.userService.fetchUser(withUid: document.documentID)
                 }
             }
             
+            var fetchedUsers = [User]()
             for try await user in group {
-                users.append(user)
+                if let user = user {
+                    fetchedUsers.append(user)
+                }
+            }
+            return fetchedUsers
+        }
+        
+        return (users, snapshot.documents.last)
+    }
+    
+    private func configureQuery() -> Query {
+        var query: Query
+        switch config {
+        case .followers(let uid):
+            query = FirestoreConstants.FollowersCollection.document(uid).collection("user-followers")
+        case .following(let uid):
+            query = FirestoreConstants.FollowingCollection.document(uid).collection("user-following")
+        case .likes(let postId):
+            query = FirestoreConstants.PostsCollection.document(postId).collection("post-likes")
+        }
+        
+        query = query.limit(to: limit)
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
+        return query
+    }
+    
+    func checkIfUserIsFollowed(user: User) async throws -> Bool {
+        // If we've already checked the follow status, return the stored value
+      
+        
+        // If we haven't checked yet, fetch the status from the server
+        let isFollowed = try await userService.checkIfUserIsFollowed(uid: user.id)
+        
+        // Update the user in the users array
+        if let index = users.firstIndex(where: { $0.id == user.id }) {
+            DispatchQueue.main.async {
+                self.users[index].isFollowed = isFollowed
+            }
+        }
+        
+        return isFollowed
+    }
+    
+    func updateUserFollowStatus(user: User, isFollowed: Bool) {
+        if let index = users.firstIndex(where: { $0.id == user.id }) {
+            DispatchQueue.main.async {
+                self.users[index].isFollowed = isFollowed
             }
         }
     }
-
-    func filteredUsers(_ query: String) -> [User] {
-        let lowercasedQuery = query.lowercased()
-        return users.filter { user in
-            user.fullname.lowercased().contains(lowercasedQuery) ||
-            user.username.lowercased().contains(lowercasedQuery)
+    
+    func follow(userId: String) async throws {
+        try await userService.follow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: true)
+    }
+    
+    func unfollow(userId: String) async throws {
+        try await userService.unfollow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: false)
+    }
+    
+    private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+        if let index = users.firstIndex(where: { $0.id == userId }) {
+            DispatchQueue.main.async {
+                self.users[index].isFollowed = isFollowed
+            }
         }
     }
 }
-
 enum UserListConfig: Hashable {
     case followers(uid: String)
     case following(uid: String)

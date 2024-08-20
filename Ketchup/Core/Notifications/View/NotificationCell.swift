@@ -27,9 +27,7 @@ struct NotificationCell: View {
                 notificationContent
                 timestampText
             }
-            
             Spacer()
-            
             actionButton
         }
         .padding(.vertical, 8)
@@ -135,7 +133,7 @@ struct NotificationCell: View {
     
     private var actionButton: some View {
         Group {
-            if notification.type == .follow {
+            if notification.type == .follow || notification.type == .newUser {
                 followButton
             } else if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
                 postThumbnailButton(postThumbnail)
@@ -178,7 +176,7 @@ struct NotificationCell: View {
         }
     }
     private func checkFollowStatus() {
-        if notification.type == .follow {
+        if notification.type == .follow || notification.type == .newUser {
             Task {
                 self.isFollowed = await viewModel.checkIfUserIsFollowed(userId: notification.uid)
             }

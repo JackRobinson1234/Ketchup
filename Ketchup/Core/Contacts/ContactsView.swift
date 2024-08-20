@@ -13,13 +13,14 @@ import MessageUI
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
     @State private var searchText = ""
-    @State private var isContactsPermissionDenied = false // State to track if permission is denied
+    @State private var isContactsPermissionDenied = false
     @State private var isSyncingContacts = false
+    @State private var showMessageComposer = false
     var body: some View {
         NavigationView {
             ZStack {
                 if ContactService.shared.isSyncing {
-                    VStack{
+                    VStack {
                         FastCrossfadeFoodImageView()
                         Text("Loading contacts- please check in soon")
                     }
@@ -31,8 +32,7 @@ struct ContactsView: View {
                     contactsList
                 }
             }
-
-            .navigationTitle("Contacts on Ketchup")
+            .navigationTitle("Friends on Ketchup")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "Search contacts")
             .onAppear {
@@ -44,22 +44,20 @@ struct ContactsView: View {
             )) { alertItem in
                 Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
             }
-            .sheet(isPresented: $viewModel.isShowingMessageComposer) {
-                if let username = AuthService.shared.userSession?.username{
-                    if MFMessageComposeViewController.canSendText() {
-                        ContactMessageComposeView(
-                            isShowing: $viewModel.isShowingMessageComposer,
-                            recipient: viewModel.messageRecipient ?? "",
-                            body: "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
-                        )
-                    }
+            .sheet(isPresented: $showMessageComposer) {
+                if MFMessageComposeViewController.canSendText() {
+                    ContactMessageComposeView(
+                        isShowing: $showMessageComposer,
+                        recipient: "",
+                        body: inviteMessage
+                    )
                 } else {
                     Text("This device cannot send text messages")
                 }
             }
-            
         }
     }
+    
     private var deniedPermissionView: some View {
         VStack {
             Image("Skip")
@@ -85,9 +83,11 @@ struct ContactsView: View {
                     .cornerRadius(8)
                     .padding(.top, 20)
             }
+            inviteButton
         }
         .padding()
     }
+    
     private var emptyView: some View {
         VStack {
             Image("Skip")
@@ -104,16 +104,75 @@ struct ContactsView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(.top, 4)
+            inviteButton
         }
     }
     
+    private var inviteButton: some View {
+        Button(action: {
+            showMessageComposer = true
+        }) {
+            Text("Invite Friends")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color("Colors/AccentColor"))
+                .cornerRadius(8)
+                .padding(.top, 20)
+        }
+    }
+    
+    private var inviteMessage: String {
+        if let username = AuthService.shared.userSession?.username {
+            return "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+        } else {
+            return "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
+        }
+    }
+    
+    // Other view components (contactsList, filteredContacts) remain unchanged
+    
+    private func checkContactsPermissionAndSync() {
+        let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+        if authorizationStatus == .denied || authorizationStatus == .restricted {
+            isContactsPermissionDenied = true
+        } else if authorizationStatus == .notDetermined {
+            CNContactStore().requestAccess(for: .contacts) { granted, _ in
+                DispatchQueue.main.async {
+                    isContactsPermissionDenied = !granted
+                    if granted {
+                        startContactSync()
+                    }
+                }
+            }
+        } else if authorizationStatus == .authorized {
+            startContactSync()
+        }
+    }
+    
+    private func startContactSync() {
+        if AuthService.shared.userSession?.hasContactsSynced == false {
+            isSyncingContacts = true
+            Task {
+                try await ContactService.shared.syncDeviceContacts()
+                viewModel.fetchContacts()
+                isSyncingContacts = false
+            }
+        } else {
+            viewModel.fetchContacts()
+        }
+    }
+    
+    private func openSettings() {
+        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+        }
+    }
     private var contactsList: some View {
         List {
             ForEach(filteredContacts.filter { $0.hasExistingAccount == true }) { contact in
                 ContactRow(viewModel: viewModel, contact: contact)
             }
-            
-            
             
             /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
             ForEach(filteredContacts.filter { $0.hasExistingAccount == false || $0.hasExistingAccount == nil }) { contact in
@@ -139,41 +198,6 @@ struct ContactsView: View {
                 contact.phoneNumber.contains(searchText) ||
                 (contact.user?.username.lowercased().contains(searchText.lowercased()) ?? false)
             }
-        }
-    }
-    private func checkContactsPermissionAndSync() {
-           let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
-           if authorizationStatus == .denied || authorizationStatus == .restricted {
-               isContactsPermissionDenied = true
-           } else if authorizationStatus == .notDetermined {
-               CNContactStore().requestAccess(for: .contacts) { granted, _ in
-                   DispatchQueue.main.async {
-                       isContactsPermissionDenied = !granted
-                       if granted {
-                           startContactSync()
-                       }
-                   }
-               }
-           } else if authorizationStatus == .authorized {
-               startContactSync()
-           }
-       }
-       
-       private func startContactSync() {
-           if AuthService.shared.userSession?.hasContactsSynced == false {
-               isSyncingContacts = true
-               Task {
-                   try await ContactService.shared.syncDeviceContacts()
-                   viewModel.fetchContacts()
-                   isSyncingContacts = false
-               }
-           } else {
-               viewModel.fetchContacts()
-           }
-       }
-    private func openSettings() {
-        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
     }
 }
@@ -329,6 +353,8 @@ struct ContactRow: View {
                         .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
                 )
         }
+        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())  // Ensures only the button area is tappable
     }
     
     private var inviteButton: some View {
@@ -342,6 +368,8 @@ struct ContactRow: View {
                 .background(Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
         }
+        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())  // Ensures only the button area is tappable
     }
 }
 struct AlertItem: Identifiable {
