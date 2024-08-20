@@ -410,55 +410,56 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
                            let imageUrl = (restaurant["imageUrls"] as? [String])?.first,
                            let category = restaurant["categoryName"] as? String {
 
-                            HStack(spacing: 12) {
-                                AsyncImage(url: URL(string: imageUrl)) { image in
-                                    image.resizable()
-                                        .scaledToFill()
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(Circle())
-                                } placeholder: {
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(width: 50, height: 50)
-                                }
-
-                                VStack(alignment: .leading) {
-                                    Text(title)
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .fontWeight(.semibold)
-                                        .multilineTextAlignment(.leading)
-                                        .foregroundColor(.black)
-
-                                    Text(category)
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                        .multilineTextAlignment(.leading)
-                                        .foregroundColor(.black)
-
-                                    Text(address)
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                        .multilineTextAlignment(.leading)
-                                        .foregroundColor(.black)
-                                }
-                                .foregroundStyle(.black)
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.black)
-                                    .padding([.leading, .trailing])
-                            }
-                            .padding()
-                            .background(
-                                selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
-                                    ? Color("Colors/AccentColor").opacity(0.2)
-                                    : Color.clear
-                            )
-                            .onTapGesture {
+                            Button(action: {
                                 if selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address {
                                     selectedRestaurant = nil
                                 } else {
                                     selectedRestaurant = restaurant
                                 }
+                            }) {
+                                HStack(spacing: 12) {
+                                    AsyncImage(url: URL(string: imageUrl)) { image in
+                                        image.resizable()
+                                            .scaledToFill()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                    } placeholder: {
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 50, height: 50)
+                                    }
+
+                                    VStack(alignment: .leading) {
+                                        Text(title)
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .fontWeight(.semibold)
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundColor(.black)
+
+                                        Text(category)
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundColor(.black)
+
+                                        Text(address)
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundColor(.black)
+                                    }
+                                    .foregroundStyle(.black)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.black)
+                                        .padding([.leading, .trailing])
+                                }
+                                .padding()
+                                .background(
+                                    selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
+                                        ? Color("Colors/AccentColor").opacity(0.2)
+                                        : Color.clear
+                                )
                             }
                         }
                     }
