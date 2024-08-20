@@ -75,7 +75,59 @@ struct ActivityView: View {
                     .sheet(isPresented: $showContacts) {
                         ContactsView()
                     }
-                    // Other sheet modifiers remain unchanged
+                    .sheet(item: $viewModel.post){ post in
+                        NavigationStack{
+                            if let post = viewModel.post {
+                                let feedViewModel = FeedViewModel(posts: [post])
+                                SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                            }
+                        }
+                    }
+                    .sheet(item: $viewModel.collection) { collection in
+                        if let collection = viewModel.collection, let user = viewModel.user {
+                            CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
+                        }
+                    }
+                    .sheet(isPresented: $viewModel.showRestaurant){
+                        if let selectedRestaurantId = viewModel.selectedRestaurantId {
+                            NavigationStack{
+                                RestaurantProfileView(restaurantId: selectedRestaurantId)
+                            }
+                        }
+                    }
+                    .sheet(isPresented: $viewModel.showUserProfile) {
+                        if let selectedUid = viewModel.selectedUid {
+                            NavigationStack{
+                                ProfileView(uid: selectedUid)
+                                    .navigationDestination(for: PostUser.self) { user in
+                                        ProfileView(uid: user.id)
+                                    }
+                                    .navigationDestination(for: PostRestaurant.self) { restaurant in
+                                        RestaurantProfileView(restaurantId: restaurant.id)
+                                    }
+                            }
+                        }
+                    }
+                    .sheet(item: $viewModel.writtenPost) { post in
+                        NavigationStack {
+                            ScrollView {
+                                if let post = viewModel.writtenPost {
+                                    let feedViewModel = FeedViewModel(posts: [post])
+                                    WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
+                                }
+                            }
+                            .modifier(BackButtonModifier())
+                            .navigationDestination(for: PostRestaurant.self) { restaurant in
+                                RestaurantProfileView(restaurantId: restaurant.id)
+                            }
+                        }
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
+                    }
+                    .navigationDestination(for: Activity.self) {activity in
+                        if let id = activity.restaurantId{
+                            RestaurantProfileView(restaurantId: id)
+                        }
+                    }
                 }
             }
         }

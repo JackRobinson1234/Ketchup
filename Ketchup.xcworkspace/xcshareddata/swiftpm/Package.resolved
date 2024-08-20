@@ -1,5 +1,4 @@
 {
-  "originHash" : "3af51dd7eab24dca3c01091a050ac1faf74dfbfa11079940adc791ce40ee2686",
   "pins" : [
     {
       "identity" : "algoliasearch-client-swift",
@@ -15,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sukov/CachingPlayerItem",
       "state" : {
-        "revision" : "613ee44cac1e4fd97a58d1b98c8a79ddd17e27cb",
-        "version" : "1.0.8"
+        "revision" : "4fd9bfc4b79f5aca434e1a7020606a28ef442d41",
+        "version" : "1.1.3"
       }
     },
     {
@@ -33,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/algolia/instantsearch-ios",
       "state" : {
-        "revision" : "b000a23b5016511e1df93f242ffdcd1456751010",
-        "version" : "7.26.2"
+        "revision" : "a413df32897a841601f42e875fc6abe08b7ea293",
+        "version" : "7.26.3"
       }
     },
     {
@@ -67,7 +66,7 @@
     {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log",
+      "location" : "https://github.com/apple/swift-log.git",
       "state" : {
         "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
         "version" : "1.6.1"
@@ -88,7 +87,7 @@
       "location" : "https://github.com/benedom/SwiftyCrop",
       "state" : {
         "branch" : "master",
-        "revision" : "24a67bf73595994ccf4b60cdad0021b37ca45c45"
+        "revision" : "f3189b74d49db138c9a4a9982314172fff8f9251"
       }
     },
     {
@@ -101,5 +100,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

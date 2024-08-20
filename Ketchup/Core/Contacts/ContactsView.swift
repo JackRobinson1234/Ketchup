@@ -9,6 +9,7 @@ import Contacts
 import ContactsUI
 import Kingfisher
 import MessageUI
+import FirebaseAuth
 
 struct ContactsView: View {
     @StateObject private var viewModel = ContactsViewModel()
@@ -16,6 +17,8 @@ struct ContactsView: View {
     @State private var isContactsPermissionDenied = false
     @State private var isSyncingContacts = false
     @State private var showMessageComposer = false
+    @State private var showCopiedAlert = false
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -32,6 +35,10 @@ struct ContactsView: View {
                     contactsList
                 }
             }
+            .alert(isPresented: $showCopiedAlert) {
+                Alert(title: Text("Copied!"), message: Text("Invite link copied to clipboard"), dismissButton: .default(Text("OK")))
+            }
+            .navigationBarItems(trailing: copyInviteLinkButton)
             .navigationTitle("Friends on Ketchup")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "Search contacts")
@@ -57,7 +64,27 @@ struct ContactsView: View {
             }
         }
     }
-    
+    private var copyInviteLinkButton: some View {
+            Button(action: copyInviteLink) {
+                VStack{
+                    Image(systemName: "link")
+                        .foregroundColor(Color("Colors/AccentColor"))
+                    if !showCopiedAlert{
+                        Text("Copy Link")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundStyle(.black)
+                    } else {
+                        Text("Copied!")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundStyle(.black)
+                    }
+                }
+            }
+        }
+    private func copyInviteLink() {
+            UIPasteboard.general.string = inviteMessage
+            showCopiedAlert = true
+        }
     private var deniedPermissionView: some View {
         VStack {
             Image("Skip")
@@ -124,9 +151,9 @@ struct ContactsView: View {
     
     private var inviteMessage: String {
         if let username = AuthService.shared.userSession?.username {
-            return "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+            return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
         } else {
-            return "Hey! Sharing an invite to the beta for Ketchup - a social restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
+            return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
         }
     }
     
@@ -273,7 +300,7 @@ struct ContactRow: View {
                 if isCheckingFollowStatus {
                     ProgressView()
                         .scaleEffect(0.7)
-                } else {
+                } else if contact.user?.id != Auth.auth().currentUser?.uid {
                     followButton
                 }
             } else {
