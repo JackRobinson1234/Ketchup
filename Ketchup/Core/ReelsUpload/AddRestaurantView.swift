@@ -377,134 +377,138 @@ struct AddRestaurantView: View {
     }
 }
 
-struct ConfirmRestaurantView: View {
+struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     let scrapedRestaurants: [[String: Any]]
-    @Binding var selectedRestaurant: [String: Any]?
-    var name: String
-    var city: String
-    var state: String
-    @ObservedObject var uploadViewModel: UploadViewModel
-    let dismiss: () -> Void
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                
-                Button {
-                    dismiss()
-                } label: {
-                    VStack {
-                        Text("Still not what you're looking for?")
-                            .foregroundStyle(.gray)
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                        Text("Continue with post")
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                    }
-                }
-                .padding(.top, 8)
-                
-                List(scrapedRestaurants.indices, id: \.self) { index in
-                    let restaurant = scrapedRestaurants[index]
-                    if let title = restaurant["title"] as? String,
-                       let address = restaurant["address"] as? String,
-                       let imageUrl = (restaurant["imageUrls"] as? [String])?.first,
-                       let category = restaurant["categoryName"] as? String {
-
-                        HStack(spacing: 12) {
-                            AsyncImage(url: URL(string: imageUrl)) { image in
-                                image.resizable()
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                Circle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(width: 50, height: 50)
-                            }
-
-                            VStack(alignment: .leading) {
-                                Text(title)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .fontWeight(.semibold)
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.black)
-
-                                Text(category)
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.black)
-
-                                Text(address)
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.black)
-                            }
-                            .foregroundStyle(.black)
-
-                            Spacer()
-
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.black)
-                                .padding([.leading, .trailing])
-                        }
-                        .padding()
-                        .background(
-                            selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
-                                ? Color("Colors/AccentColor").opacity(0.2)
-                                : Color.clear
-                        )
-                        .onTapGesture {
-                            if selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address {
-                                selectedRestaurant = nil
-                            } else {
-                                selectedRestaurant = restaurant
-                            }
-                        }
-                    }
-                }
-                
-                Button(action: {
-                    if let selectedRestaurant = selectedRestaurant {
-                        let cleanedRestaurant = cleanRestaurantData(restaurant: selectedRestaurant)
-                        uploadRestaurantToFirebase(restaurantData: cleanedRestaurant)
-                    }
-                    dismiss()
-                }) {
-                    Text("Confirm")
-                        .fontWeight(.semibold)
-                        .modifier(OutlineConfirmButtonModifier(width: 300))
-                        .opacity(selectedRestaurant == nil ? 0.2 : 1.0)
-                }
-                .disabled(selectedRestaurant == nil)
-                .padding()
-                
-            }
-            .navigationBarTitle("Confirm Restaurant", displayMode: .inline)
-            .navigationBarItems(leading: Button("Cancel") {
-                dismiss()
-            })
-        }
-    }
-    
-    func uploadRestaurantToFirebase(restaurantData: [String: Any]) {
-        let newDocRef = FirestoreConstants.RestaurantCollection.document()
-        var restaurantDataWithId = restaurantData
-        restaurantDataWithId["id"] = newDocRef.documentID
+        @Binding var selectedRestaurant: [String: Any]?
+        var name: String
+        var city: String
+        var state: String
+        @ObservedObject var uploadViewModel: T
+        let dismiss: () -> Void
         
-        newDocRef.setData(restaurantDataWithId, merge: true) { error in
-            if let error = error {
-                print("Error uploading restaurant: \(error.localizedDescription)")
-            } else {
-                print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
-                // Optionally update the view model or dismiss the view
-                if let updatedRestaurant = mapToRestaurant(from: restaurantDataWithId) {
-                    uploadViewModel.restaurant = updatedRestaurant
+        var body: some View {
+            NavigationView {
+                VStack {
+                    Button {
+                        dismiss()
+                    } label: {
+                        VStack {
+                            Text("Still not what you're looking for?")
+                                .foregroundStyle(.gray)
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                            Text("Continue with post")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                        }
+                    }
+                    .padding(.top, 8)
+                    
+                    List(scrapedRestaurants.indices, id: \.self) { index in
+                        let restaurant = scrapedRestaurants[index]
+                        if let title = restaurant["title"] as? String,
+                           let address = restaurant["address"] as? String,
+                           let imageUrl = (restaurant["imageUrls"] as? [String])?.first,
+                           let category = restaurant["categoryName"] as? String {
+
+                            HStack(spacing: 12) {
+                                AsyncImage(url: URL(string: imageUrl)) { image in
+                                    image.resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: 50, height: 50)
+                                }
+
+                                VStack(alignment: .leading) {
+                                    Text(title)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .fontWeight(.semibold)
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
+
+                                    Text(category)
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
+
+                                    Text(address)
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
+                                }
+                                .foregroundStyle(.black)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.black)
+                                    .padding([.leading, .trailing])
+                            }
+                            .padding()
+                            .background(
+                                selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
+                                    ? Color("Colors/AccentColor").opacity(0.2)
+                                    : Color.clear
+                            )
+                            .onTapGesture {
+                                if selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address {
+                                    selectedRestaurant = nil
+                                } else {
+                                    selectedRestaurant = restaurant
+                                }
+                            }
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let selectedRestaurant = selectedRestaurant {
+                            let cleanedRestaurant = cleanRestaurantData(restaurant: selectedRestaurant)
+                            uploadRestaurantToFirebase(restaurantData: cleanedRestaurant)
+                        }
+                        dismiss()
+                    }) {
+                        Text("Confirm")
+                            .fontWeight(.semibold)
+                            .modifier(OutlineConfirmButtonModifier(width: 300))
+                            .opacity(selectedRestaurant == nil ? 0.2 : 1.0)
+                    }
+                    .disabled(selectedRestaurant == nil)
+                    .padding()
+                    
                 }
-                dismiss()
+                .navigationBarTitle("Confirm Restaurant", displayMode: .inline)
+                .navigationBarItems(leading: Button("Cancel") {
+                    dismiss()
+                })
             }
         }
-    }
+        
+        func uploadRestaurantToFirebase(restaurantData: [String: Any]) {
+            let newDocRef = FirestoreConstants.RestaurantCollection.document()
+            var restaurantDataWithId = restaurantData
+            restaurantDataWithId["id"] = newDocRef.documentID
+            
+            newDocRef.setData(restaurantDataWithId, merge: true) { error in
+                if let error = error {
+                    print("Error uploading restaurant: \(error.localizedDescription)")
+                } else {
+                    print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
+                    if let updatedRestaurant = mapToRestaurant(from: restaurantDataWithId) {
+                        uploadViewModel.restaurant = updatedRestaurant
+                        if let collectionsViewModel = uploadViewModel as? CollectionsViewModel {
+                            let collectionItem = collectionsViewModel.convertRestaurantToCollectionItem(restaurant: updatedRestaurant)
+                            Task {
+                                try await collectionsViewModel.addItemToCollection(collectionItem: collectionItem)
+                            }
+                        }
+                    }
+                    dismiss()
+                }
+            }
+        }
     
     func cleanRestaurantData(restaurant: [String: Any]) -> [String: Any] {
         // Specify the keys to keep, equivalent to the `keep_columns` in your Python script
@@ -712,3 +716,14 @@ struct OutlineConfirmButtonModifier: ViewModifier {
             .cornerRadius(8)
     }
 }
+
+
+protocol RestaurantUploadable: ObservableObject {
+    var restaurantRequest: RestaurantRequest? { get set }
+    var restaurant: Restaurant? { get set }
+    
+    // Add any other common properties or methods needed by ConfirmRestaurantView
+}
+
+extension UploadViewModel: RestaurantUploadable {}
+extension CollectionsViewModel: RestaurantUploadable {}
