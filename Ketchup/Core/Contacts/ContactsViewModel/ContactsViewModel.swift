@@ -209,6 +209,8 @@ class ContactsViewModel: ObservableObject {
             self.isShowingMessageComposer = true
         }
 }
+
+
 struct ContactMessageComposeView: UIViewControllerRepresentable {
     @Binding var isShowing: Bool
     let recipient: String

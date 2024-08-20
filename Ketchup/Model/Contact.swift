@@ -35,7 +35,7 @@ struct Contact: Codable, Identifiable, Hashable {
         self.id = self.phoneNumber
         
         self.userCount = try container.decodeIfPresent(Int.self, forKey: .userCount) ?? 0
-        self.hasExistingAccount = try container.decodeIfPresent(Bool.self, forKey: .hasExistingAccount)
+        self.hasExistingAccount = try container.decodeIfPresent(Bool.self, forKey: .hasExistingAccount) ?? false
         self.isFollowed = try container.decodeIfPresent(Bool.self, forKey: .isFollowed)
     }
     

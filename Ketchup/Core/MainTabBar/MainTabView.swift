@@ -19,7 +19,6 @@ struct MainTabView: View {
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
     
-    
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)

@@ -18,10 +18,10 @@ struct ContactsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if isSyncingContacts {
+                if ContactService.shared.isSyncing {
                     VStack{
                         FastCrossfadeFoodImageView()
-                        Text("Loading contacts- this might take up to a minute")
+                        Text("Loading contacts- please check in soon")
                     }
                 } else if isContactsPermissionDenied {
                     deniedPermissionView
@@ -31,14 +31,12 @@ struct ContactsView: View {
                     contactsList
                 }
             }
+
             .navigationTitle("Contacts on Ketchup")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "Search contacts")
             .onAppear {
                 checkContactsPermissionAndSync()
-            }
-            .onChange(of: ContactService.shared.isSyncing){
-                self.isSyncingContacts = ContactService.shared.isSyncing
             }
             .alert(item: Binding<AlertItem?>(
                 get: { viewModel.error.map { AlertItem(error: $0) } },
@@ -118,7 +116,7 @@ struct ContactsView: View {
             
             
             /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
-            ForEach(filteredContacts.filter { $0.hasExistingAccount != true }) { contact in
+            ForEach(filteredContacts.filter { $0.hasExistingAccount == false || $0.hasExistingAccount == nil }) { contact in
                 ContactRow(viewModel: viewModel, contact: contact)
             }
             
@@ -144,7 +142,6 @@ struct ContactsView: View {
         }
     }
     private func checkContactsPermissionAndSync() {
-        self.isSyncingContacts = ContactService.shared.isSyncing
            let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
            if authorizationStatus == .denied || authorizationStatus == .restricted {
                isContactsPermissionDenied = true
@@ -165,13 +162,10 @@ struct ContactsView: View {
        private func startContactSync() {
            if AuthService.shared.userSession?.hasContactsSynced == false {
                isSyncingContacts = true
-               ContactService.shared.syncDeviceContacts()
                Task {
-                   try await Task.sleep(nanoseconds: 5 * 1_000_000_000) // Wait 5 seconds
-                   DispatchQueue.main.async {
-                       isSyncingContacts = false
-                   }
+                   try await ContactService.shared.syncDeviceContacts()
                    viewModel.fetchContacts()
+                   isSyncingContacts = false
                }
            } else {
                viewModel.fetchContacts()

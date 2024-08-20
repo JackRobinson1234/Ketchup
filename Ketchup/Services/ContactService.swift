@@ -11,113 +11,68 @@ import Contacts
 import PhoneNumberKit
 
 class ContactService {
-    
+    static let shared = ContactService()
     private let db = Firestore.firestore()
-    static let shared = ContactService() // Singleton instance
-    private init() {}
     private let contactStore = CNContactStore()
     private let phoneNumberKit = PhoneNumberKit()
+    private let batchSize = 50
+    
     @Published var error: Error?
-    var isFollowedStatusChecked: Bool = false
-    @Published var isSyncing: Bool = false // Track if sync is in progress
+    @Published var isSyncing: Bool = false
+    @Published var syncProgress: Float = 0.0
+    @Published var hasSynced: Bool = false
     
-    /// Syncs the user's contacts with the backend and updates the global contacts list.
-    func syncUserContacts(userId: String, contacts: [Contact], completion: @escaping (Result<Void, Error>) -> Void) {
-        let userContactsRef = db.collection("users").document(userId).collection("contacts")
-        let batch = db.batch()
-        
-        contacts.forEach { contact in
-            // Update or add the contact in the user's contact subcollection
-            let userContactRef = userContactsRef.document(contact.phoneNumber)
-            batch.setData([
-                "phoneNumber": contact.phoneNumber,
-                "userCount": contact.userCount
-            ], forDocument: userContactRef)
-        }
-        
-        // Commit the batch
-        batch.commit { error in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                // Optionally update the `hasContactsSynced` and `contactsSyncedOn` fields in the user's document
-                let userRef = self.db.collection("users").document(userId)
-                userRef.updateData([
-                    "hasContactsSynced": true,
-                    "contactsSyncedOn": Timestamp(date: Date())
-                ]) { error in
-                    if let error = error {
-                        completion(.failure(error))
-                    } else {
-                        completion(.success(()))
-                    }
-                }
-            }
-        }
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    
+    private init() {
+        checkSyncStatus()
     }
-    func fetchUserContacts(userId: String, completion: @escaping (Result<[Contact], Error>) -> Void) {
-        let userContactsRef = db.collection("users").document(userId).collection("contacts")
+    
+    private func checkSyncStatus() {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
         
-        userContactsRef.getDocuments { (snapshot, error) in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                var contacts: [Contact] = []
-                snapshot?.documents.forEach { document in
-                    if let contact = try? document.data(as: Contact.self) {
-                        contacts.append(contact)
-                    }
-                }
-                completion(.success(contacts))
+        db.collection("users").document(userId).getDocument { [weak self] (document, error) in
+            if let document = document, document.exists {
+                self?.hasSynced = document.data()?["hasContactsSynced"] as? Bool ?? false
             }
         }
     }
     
-    /// Fetches all users who have a specific contact by phone number.
-    func fetchUsersForContact(phoneNumber: String, completion: @escaping (Result<[String], Error>) -> Void) {
-        let globalContactUserIdsRef = db.collection("globalContacts").document(phoneNumber).collection("userIds")
-        
-        globalContactUserIdsRef.getDocuments { (snapshot, error) in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                var userIds: [String] = []
-                snapshot?.documents.forEach { document in
-                    let userId = document.documentID
-                    userIds.append(userId)
-                }
-                completion(.success(userIds))
-            }
-        }
-    }
-    
-    /// Syncs device contacts. Prevents multiple simultaneous sync operations.
     func syncDeviceContacts() {
-        // Check if a sync is already in progress
-        guard !isSyncing else {
-            print("Sync is already in progress.")
+        guard !isSyncing && !hasSynced else {
+            print("Sync is not needed or is already in progress.")
             return
         }
         
         isSyncing = true
+        syncProgress = 0.0
+        
+        startBackgroundTask()
+        
         Task {
             do {
-                let contacts = try await loadAllDeviceContacts()
+                let contacts = try await loadDeviceContacts()
+                await syncContactsBatched(contacts)
+                
                 await MainActor.run {
-                    self.syncContacts(contacts)
+                    self.isSyncing = false
+                    self.syncProgress = 1.0
+                    self.hasSynced = true
+                    print("Contact sync completed")
                 }
             } catch {
                 await MainActor.run {
                     self.error = error
-                    print("Failed to load device contacts: \(error.localizedDescription)")
+                    self.isSyncing = false
+                    print("Failed to sync contacts: \(error.localizedDescription)")
                 }
             }
-            // Reset the sync status once the operation is complete
-            isSyncing = false
+            
+            endBackgroundTask()
         }
     }
     
-    private func loadAllDeviceContacts() async throws -> [CNContact] {
+    private func loadDeviceContacts() async throws -> [CNContact] {
         let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
         let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
         var allContacts: [CNContact] = []
@@ -127,41 +82,78 @@ class ContactService {
         return allContacts
     }
     
-    func syncContacts(_ contacts: [CNContact]) {
+    private func syncContactsBatched(_ contacts: [CNContact]) async {
         guard let userId = Auth.auth().currentUser?.uid else { return }
         
-        // Prepare Contact objects to sync
-        let contactsToSync: [Contact] = contacts.compactMap { contact in
-            guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
-                  let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
-                return nil
+        let totalBatches = Int(ceil(Double(contacts.count) / Double(batchSize)))
+        
+        for batchIndex in 0..<totalBatches {
+            let start = batchIndex * batchSize
+            let end = min(start + batchSize, contacts.count)
+            let contactsBatch = Array(contacts[start..<end])
+            
+            let contactsToSync: [Contact] = contactsBatch.compactMap { contact in
+                guard let phoneNumber = contact.phoneNumbers.first?.value.stringValue,
+                      let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
+                    return nil
+                }
+                return Contact(phoneNumber: formattedPhoneNumber)
             }
             
-            return Contact(phoneNumber: formattedPhoneNumber)
+            do {
+                try await syncUserContacts(userId: userId, contacts: contactsToSync)
+                await MainActor.run {
+                    self.syncProgress = Float(batchIndex + 1) / Float(totalBatches)
+                }
+            } catch {
+                print("Error syncing batch \(batchIndex + 1): \(error.localizedDescription)")
+            }
+            
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds delay between batches
+        }
+    }
+    
+    private func syncUserContacts(userId: String, contacts: [Contact]) async throws {
+        let userContactsRef = db.collection("users").document(userId).collection("contacts")
+        let batch = db.batch()
+        
+        for contact in contacts {
+            let userContactRef = userContactsRef.document(contact.phoneNumber)
+            batch.setData([
+                "phoneNumber": contact.phoneNumber,
+                "userCount": contact.userCount
+            ], forDocument: userContactRef)
         }
         
-        // Use ContactService to sync contacts
-        syncUserContacts(userId: userId, contacts: contactsToSync) { result in
-            switch result {
-            case .success():
-                print("Contacts synced successfully.")
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self.error = error
-                    print("Failed to sync contacts: \(error.localizedDescription)")
-                }
-            }
-        }
+        try await batch.commit()
+        
+        let userRef = db.collection("users").document(userId)
+        try await userRef.updateData([
+            "hasContactsSynced": true,
+            "contactsSyncedOn": Timestamp(date: Date())
+        ])
     }
     
     private func formatPhoneNumber(_ phoneNumber: String) -> String? {
         do {
             let parsedNumber = try phoneNumberKit.parse(phoneNumber)
-            let number = phoneNumberKit.format(parsedNumber, toType: .international)
-            return number
+            return phoneNumberKit.format(parsedNumber, toType: .international)
         } catch {
             print("Error parsing phone number: \(error.localizedDescription)")
             return nil
+        }
+    }
+    
+    private func startBackgroundTask() {
+        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.endBackgroundTask()
+        }
+    }
+    
+    private func endBackgroundTask() {
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
         }
     }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 import AVKit
 import Combine
+import Contacts
 
 struct PrimaryFeedView: View {
     @StateObject var viewModel: FeedViewModel
@@ -28,6 +29,7 @@ struct PrimaryFeedView: View {
     @State private var canSwitchTab = true
     @EnvironmentObject var tabBarController: TabBarController
     @State private var showAddFriends = false
+    @State private var isContactsPermissionDenied = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -275,8 +277,9 @@ struct PrimaryFeedView: View {
                     }
                     .background(Color.white)
                 }
+                
                 .overlay {
-                     if viewModel.showEmptyView {
+                    if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
@@ -356,10 +359,37 @@ struct PrimaryFeedView: View {
                 .sheet(isPresented: $showAddFriends) {
                     ContactsView()
                 }
+                .onAppear {
+                    checkContactsPermissionAndSync()
+                }
             }
         }
     }
+    private func checkContactsPermissionAndSync() {
+        let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+        if authorizationStatus == .denied || authorizationStatus == .restricted {
+            isContactsPermissionDenied = true
+        } else if authorizationStatus == .notDetermined {
+            CNContactStore().requestAccess(for: .contacts) { granted, _ in
+                DispatchQueue.main.async {
+                    isContactsPermissionDenied = !granted
+                    if granted {
+                        startContactSync()
+                    }
+                }
+            }
+        } else if authorizationStatus == .authorized {
+            startContactSync()
+        }
+    }
     
+    private func startContactSync() {
+        if AuthService.shared.userSession?.hasContactsSynced == false {
+            Task {
+                try await ContactService.shared.syncDeviceContacts()
+            }
+        }
+    }
     private func refreshFeed() async {
         isRefreshing = true
         do {
