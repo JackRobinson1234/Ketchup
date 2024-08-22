@@ -121,7 +121,9 @@ class ContactService {
             let userContactRef = userContactsRef.document(contact.phoneNumber)
             batch.setData([
                 "phoneNumber": contact.phoneNumber,
-                "userCount": contact.userCount
+                "userCount": contact.userCount,
+                "hasExistingAccount": false
+
             ], forDocument: userContactRef)
         }
         
@@ -129,7 +131,6 @@ class ContactService {
         
         let userRef = db.collection("users").document(userId)
         try await userRef.updateData([
-            "hasExistingAccount": false,
             "hasContactsSynced": true,
             "contactsSyncedOn": Timestamp(date: Date())
         ])
