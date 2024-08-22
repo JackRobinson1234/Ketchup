@@ -277,9 +277,9 @@ struct NotificationCell: View {
                             }
                     }
                 } else {
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true)
+                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
                 }
             }
-        }
+        } 
     }
 }

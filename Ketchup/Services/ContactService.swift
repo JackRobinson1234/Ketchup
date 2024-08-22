@@ -129,13 +129,14 @@ class ContactService {
         
         let userRef = db.collection("users").document(userId)
         try await userRef.updateData([
+            "hasExistingAccount": false,
             "hasContactsSynced": true,
             "contactsSyncedOn": Timestamp(date: Date())
         ])
     }
     
     private func formatPhoneNumber(_ phoneNumber: String) -> String? {
-        do {
+        do { 
             let parsedNumber = try phoneNumberKit.parse(phoneNumber)
             return phoneNumberKit.format(parsedNumber, toType: .international)
         } catch {

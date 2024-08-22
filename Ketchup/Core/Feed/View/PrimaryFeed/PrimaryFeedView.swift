@@ -39,7 +39,7 @@ struct PrimaryFeedView: View {
     }
     
     var body: some View {
-        if isLoading && viewModel.posts.isEmpty {
+        if isLoading && viewModel.posts.isEmpty { 
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
@@ -54,25 +54,28 @@ struct PrimaryFeedView: View {
                     ScrollViewReader { scrollProxy in
                         ScrollView(showsIndicators: false) {
                             LazyVStack {
-                               
-                                ForEach($viewModel.posts) { post in
-                                    WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
-                                        .id(post.id)
-                                    
-                                }
-                                if viewModel.isLoadingMoreContent {
+                                if viewModel.isInitialLoading {
                                     FastCrossfadeFoodImageView()
-                                        .padding()
-                                }
-                                Rectangle()
-                                    .foregroundStyle(.clear)
-                                    .onAppear {
-                                        if let last = viewModel.posts.last {
-                                            Task {
-                                                await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                } else {
+                                    ForEach($viewModel.posts) { post in
+                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                                            .id(post.id)
+                                        
+                                    }
+                                    if viewModel.isLoadingMoreContent {
+                                        FastCrossfadeFoodImageView()
+                                            .padding()
+                                    }
+                                    Rectangle()
+                                        .foregroundStyle(.clear)
+                                        .onAppear {
+                                            if let last = viewModel.posts.last {
+                                                Task {
+                                                    await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
+                                                }
                                             }
                                         }
-                                    }
+                                }
                             }
                             .scrollTargetLayout()
                         }
@@ -91,6 +94,15 @@ struct PrimaryFeedView: View {
                             if let post = viewModel.posts.first {
                                 withAnimation(.smooth) {
                                     scrollProxy.scrollTo(post.id, anchor: .center)
+                                }
+                            }
+                        }
+                        .onChange(of: viewModel.isInitialLoading){
+                            if !viewModel.isInitialLoading{
+                                if let post = viewModel.posts.first {
+                                    withAnimation(.smooth) {
+                                        scrollProxy.scrollTo(post.id, anchor: .center)
+                                    }
                                 }
                             }
                         }
@@ -456,5 +468,3 @@ extension View {
         self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
     }
 }
-
-

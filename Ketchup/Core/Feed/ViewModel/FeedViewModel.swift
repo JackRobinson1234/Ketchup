@@ -55,7 +55,9 @@ class FeedViewModel: ObservableObject {
     @Published var selectedTab: FeedTab = .discover {
         didSet {
             Task {
+                isInitialLoading = true
                 await handleTabChange()
+                isInitialLoading = false
             }
         }
     }
@@ -72,84 +74,115 @@ class FeedViewModel: ObservableObject {
         self.showBookmarks = showBookmarks
     }
     private func handleTabChange() async {
-        await MainActor.run {
+        
+            resetFeedState()
+            do {
+                if selectedTab == .following {
+                    await fetchFollowingUsers()
+                }
+                var newPosts = try await fetchPostsPage(withFilters: self.filters, isInitialLoad: true)
+                await checkPostInteractions(for: &newPosts)
+                handleFetchedPosts(newPosts, isInitialLoad: true)
+            } catch {
+                print("Error handling tab change: \(error)")
+            }
+        }
+    @MainActor
+    func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
+            resetFeedState(filters: filters)
+            
+            do {
+                var newPosts = try await fetchPostsPage(withFilters: filters, isInitialLoad: true)
+                await checkPostInteractions(for: &newPosts)
+                handleFetchedPosts(newPosts, isInitialLoad: true)
+            } catch {
+                print("Error fetching initial posts: \(error)")
+            }
+        }
+    
+    private func resetFeedState(filters: [String: [Any]]? = nil) {
             isLoading = true
-            posts.removeAll()
             lastDocument = nil
             hasMorePosts = true
+            self.filters = filters
+            lastFetched = 0
         }
-        
-        do {
-            if selectedTab == .following {
-                await fetchFollowingUsers()
-            }
-            
-            await fetchPosts(withFilters: self.filters, isInitialLoad: true)
-        } catch {
-            print("Error handling tab change: \(error)")
-        }
-        
-        await MainActor.run {
-            isLoading = false
-        }
-    }
-    @MainActor
-    func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async throws {
-        self.isLoading = true
-        //self.posts.removeAll()
-        self.hasMorePosts = true
-        self.filters = filters
-        self.lastDocument = nil
-        self.lastFetched = 0  // Reset the threshold
-        
-        if selectedTab == .following {
-            await fetchFollowingUsers()
-        }
-        
-        await fetchPosts(withFilters: filters, isInitialLoad: true)
-        self.isLoading = false
-    }
-    
-    private func cancelExistingFetchAndStartNew() {
-        fetchTask?.cancel()
-        fetchTask = Task {
-            do {
-                self.isLoading = true
-                self.posts.removeAll()
-                self.lastDocument = nil
-                try await fetchInitialPosts(withFilters: self.filters)
-            } catch {
-                print("Error fetching posts: \(error)")
-            }
-            self.isLoading = false
-        }
-    }
     
     func fetchMorePosts() async {
-        guard !isFetching else { return }
-        isFetching = true
-        await fetchPosts(withFilters: self.filters, isInitialLoad: false)
-        isFetching = false
-    }
-    
-    private func fetchFollowingUsers() async {
-        do {
-            let userIds = try await UserService.shared.fetchFollowingUserIds()
+            guard shouldFetchMorePosts(currentPost: posts.last?.id) else { return }
             
-            // Ensure we're on the main thread when updating published properties
-            await MainActor.run {
-                self.followingUsers = userIds
-                print("Following users count: \(self.followingUsers.count)")
+            isFetching = true
+            do {
+                var newPosts = try await fetchPostsPage(withFilters: self.filters)
+                await checkPostInteractions(for: &newPosts)
+                handleFetchedPosts(newPosts, isInitialLoad: false)
+            } catch {
+                print("Error fetching more posts: \(error)")
             }
-        } catch {
-            print("Error fetching following users: \(error)")
+            isFetching = false
+        }
+    private func shouldFetchMorePosts(currentPost: String?) -> Bool {
+            guard let currentPost = currentPost, !posts.isEmpty else { return false }
+            guard !isFetching, hasMorePosts else { return false }
             
-            // Ensure we're on the main thread when updating published properties
-            await MainActor.run {
+            if let currentIndex = posts.firstIndex(where: { $0.id == currentPost }) {
+                let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
+                return currentIndex >= thresholdIndex && currentIndex > lastFetched
+            }
+            return false
+        }
+    private func fetchPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
+           var updatedFilters = filters ?? [:]
+           updatedFilters["user.privateMode"] = [false]
+           
+           let db = Firestore.firestore()
+           var query: Query = db.collection("posts")
+           
+           for (key, value) in updatedFilters {
+               query = query.whereField(key, in: value)
+           }
+
+           if selectedTab != .following {
+               query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
+           }
+
+           if selectedTab == .following {
+               let followingBatch = Array(followingUsers.prefix(30))
+               if followingBatch.isEmpty { return [] }
+               query = query.whereField("user.id", in: followingBatch)
+           }
+           
+           query = query.order(by: "timestamp", descending: true)
+               .limit(to: pageSize)
+           
+           if let lastDocument = lastDocument {
+               query = query.start(afterDocument: lastDocument)
+           }
+           
+           let snapshot = try await query.getDocuments()
+           self.lastDocument = snapshot.documents.last
+           return snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+       }
+        
+    private func handleFetchedPosts(_ newPosts: [Post], isInitialLoad: Bool) {
+            if isInitialLoad {
+                posts = newPosts
+            } else {
+                posts.append(contentsOf: newPosts)
+            }
+            hasMorePosts = newPosts.count >= pageSize
+            showEmptyView = posts.isEmpty
+            isInitialLoading = false
+        }
+    private func fetchFollowingUsers() async {
+            do {
+                let userIds = try await UserService.shared.fetchFollowingUserIds()
+                self.followingUsers = userIds
+            } catch {
+                print("Error fetching following users: \(error)")
                 self.followingUsers = []
             }
         }
-    }
     func fetchUserPosts(user: User) async throws {
         do {
             if user.username != "ketchup_media"{
@@ -465,6 +498,16 @@ extension FeedViewModel {
             AuthService.shared.userSession?.stats.posts += 1
         }
     }
+    private func checkPostInteractions(for posts: inout [Post]) async {
+            for i in 0..<posts.count {
+                do {
+                    posts[i].didLike = try await PostService.shared.checkIfUserLikedPost(posts[i])
+                    posts[i].didBookmark = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: posts[i].restaurant.id)
+                } catch {
+                    print("DEBUG: Failed to check if user liked or bookmarked post \(posts[i].id)")
+                }
+            }
+        }
 }
 extension FeedViewModel {
     func updatePost(_ updatedPost: Post) {

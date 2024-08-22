@@ -50,7 +50,7 @@ struct FeedCell: View {
     @State private var currentIndex: Int = 0
     var checkLikes: Bool
     @State private var selectedUser: PostUser?
-        @State private var isShowingProfileSheet = false
+    @State private var isShowingProfileSheet = false
     var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
         guard !ratings.isEmpty else { return nil }
@@ -95,7 +95,6 @@ struct FeedCell: View {
                     }
                 } else {
                     self.dragDirection = "right"
-                   
                 }
                 self.isDragging = false
             }
@@ -123,19 +122,17 @@ struct FeedCell: View {
                         initialIndex: viewModel.startingImageIndex,
                         onDismiss: { dismiss() }
                     )
-                    .onAppear{viewModel.startingImageIndex = 0}
+                    .onAppear { viewModel.startingImageIndex = 0 }
                     .frame(height: mediaHeight)
-                    .overlay(alignment: .top){IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)}
+                    .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count) }
 
                 } else if post.mediaType == .video {
-                    ForEach(videoCoordinators, id: \.0) { mediaItemId, coordinator in
+                    ForEach(videoCoordinators.prefix(1), id: \.0) { mediaItemId, coordinator in
                         singleMediaItemView(coordinator: coordinator)
                     }
                 } else if post.mediaType == .photo {
-                    if post.mediaUrls.count > 1 {
-                        mediaScrollView(items: post.mediaUrls.map { MixedMediaItem(id: UUID().uuidString, url: $0, type: .photo)})
-                    } else {
-                        singleMediaItemView(imageURL: post.mediaUrls[0])
+                    if !post.mediaUrls.isEmpty {
+                        mediaScrollView(items: post.mediaUrls.map { MixedMediaItem(id: UUID().uuidString, url: $0, type: .photo) })
                     }
                 }
                 Spacer(minLength: 0)
@@ -158,7 +155,7 @@ struct FeedCell: View {
                 isCurrentVideoPlaying = true
             }
         }
-        .onChange(of: scrollPosition){
+        .onChange(of: scrollPosition) {
             if scrollPosition != post.id {
                 pauseAllVideos()
             } else {
@@ -172,15 +169,14 @@ struct FeedCell: View {
         .onDisappear {
             pauseAllVideos()
         }
-        .onChange(of: pauseVideo){
-            if pauseVideo{
+        .onChange(of: pauseVideo) {
+            if pauseVideo {
                 pauseAllVideos()
             } else {
                 handleIndexChange(currentIndex)
             }
         }
         .sheet(isPresented: $showComments) {
-    
             CommentsView(post: $post, feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
@@ -191,7 +187,6 @@ struct FeedCell: View {
                 }
         }
         .sheet(isPresented: $showShareView) {
-            
             ShareView(post: post, currentImageIndex: currentImageIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onAppear {
@@ -223,8 +218,8 @@ struct FeedCell: View {
                 }
         }
         .onChange(of: currentIndex) { oldValue, newValue in
-                   handleIndexChange(newValue)
-               }
+            handleIndexChange(newValue)
+        }
         .overlay(
             GeometryReader { geometry in
                 VStack {
@@ -243,12 +238,12 @@ struct FeedCell: View {
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
         .sheet(isPresented: $isShowingProfileSheet) {
-                    if let user = selectedUser {
-                        NavigationStack {
-                            ProfileView(uid: user.id)
-                        }
-                    }
+            if let user = selectedUser {
+                NavigationStack {
+                    ProfileView(uid: user.id)
                 }
+            }
+        }
     }
     
     private func videoControlButtons(for videoId: String) -> some View {
@@ -273,6 +268,7 @@ struct FeedCell: View {
             }
         }
     }
+    
     private var taggedUsersButton: some View {
         Group {
             if !post.taggedUsers.isEmpty {
@@ -288,6 +284,7 @@ struct FeedCell: View {
             }
         }
     }
+    
     private func mediaScrollView(items: [MixedMediaItem]) -> some View {
         CustomHorizontalScrollView(
             content: {
@@ -303,16 +300,14 @@ struct FeedCell: View {
             initialIndex: viewModel.startingImageIndex,
             onDismiss: { dismiss() }
         )
-        .onAppear{
-           viewModel.startingImageIndex = 0
-        }
+        .onAppear { viewModel.startingImageIndex = 0 }
         .frame(height: mediaHeight)
         .overlay(alignment: .top) {
             IndexIndicatorView(currentIndex: currentIndex, totalCount: items.count)
                 .padding(.top, 8)
         }
     }
-
+    
     private var captionAndRatingsBox: some View {
         VStack(alignment: .leading, spacing: 7) {
             
@@ -329,13 +324,13 @@ struct FeedCell: View {
                             .font(.custom("MuseoSansRounded-300", size: 18))
                             .bold()
                             .multilineTextAlignment(.leading)
-                            .minimumScaleFactor(0.5) // Add this line
-                            .lineLimit(1) // Ensure single-line
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                     }
                     Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                        .minimumScaleFactor(0.5) // Add this line
+                        .minimumScaleFactor(0.5)
                         .lineLimit(1)
-                        .font(.custom("MuseoSansRounded-300", size: 14))// Ensure single-line
+                        .font(.custom("MuseoSansRounded-300", size: 14))
                     NavigationLink(value: post.user) {
                         Text("by \(post.user.fullname)")
                             .font(.custom("MuseoSansRounded-300", size: 14))
@@ -343,8 +338,8 @@ struct FeedCell: View {
                             .foregroundStyle(Color("Colors/AccentColor"))
                             .bold()
                             .multilineTextAlignment(.leading)
-                            .minimumScaleFactor(0.5) // Add this line
-                            .lineLimit(1) // Ensure single-line
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                     }
                     .disabled(post.user.username == "ketchup_media")
                 }
@@ -363,53 +358,43 @@ struct FeedCell: View {
                                 .animation(.easeInOut(duration: 0.3), value: expandCaption)
                         }
                     }
-                }  
+                }
             }
             
-            
-            
-            
-            
-            // Overall rating
-            
             Button(action: {
-                           withAnimation(.spring()) { expandCaption.toggle() }
-                       }) {
-                           VStack(alignment: .leading, spacing: 7){
-                               if let parsed = parsedCaption {
-                                   Text(parsed)
-                                       .font(.custom("MuseoSansRounded-300", size: 16))
-                                       .lineLimit(expandCaption ? 50 : 1)
-                                       .multilineTextAlignment(.leading)
-                                       .environment(\.openURL, OpenURLAction { url in
-                                           if url.scheme == "user",
-                                              let userId = url.host,
-                                              let user = post.captionMentions.first(where: { $0.id == userId }) {
-                                               selectedUser = user
-                                               isShowingProfileSheet = true
-                                               return .handled
-                                           }
-                                           return .systemAction
-                                       })
-                               } else {
-                                   Text(post.caption)
-                                       .font(.custom("MuseoSansRounded-300", size: 16))
-                                       .onAppear {
-                                           parsedCaption = parseCaption(post.caption)
-                                       }
-                                       .lineLimit(expandCaption ? 50 : 1)
-                                       .multilineTextAlignment(.leading)
-                               }
-                    
+                withAnimation(.spring()) { expandCaption.toggle() }
+            }) {
+                VStack(alignment: .leading, spacing: 7) {
+                    if let parsed = parsedCaption {
+                        Text(parsed)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .lineLimit(expandCaption ? 50 : 1)
+                            .multilineTextAlignment(.leading)
+                            .environment(\.openURL, OpenURLAction { url in
+                                if url.scheme == "user",
+                                   let userId = url.host,
+                                   let user = post.captionMentions.first(where: { $0.id == userId }) {
+                                    selectedUser = user
+                                    isShowingProfileSheet = true
+                                    return .handled
+                                }
+                                return .systemAction
+                            })
+                    } else {
+                        Text(post.caption)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .onAppear {
+                                parsedCaption = parseCaption(post.caption)
+                            }
+                            .lineLimit(expandCaption ? 50 : 1)
+                            .multilineTextAlignment(.leading)
+                    }
                     
                     if !expandCaption {
                         Text("See more...")
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundColor(Color("Colors/AccentColor"))
-                        
-                    }
-                    else {
-                        // Other ratings
+                    } else {
                         if !post.taggedUsers.isEmpty {
                             Button(action: {
                                 isTaggedSheetPresented.toggle()
@@ -419,12 +404,10 @@ struct FeedCell: View {
                                         .font(.custom("MuseoSansRounded-300", size: 16))
                                         .bold()
                                     
-                                    // Display profile images of the first three tagged users
                                     ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
                                         UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
                                     }
                                     
-                                    // If there are more than three users, display the count of additional users
                                     if post.taggedUsers.count > 3 {
                                         VStack {
                                             Spacer()
@@ -439,7 +422,6 @@ struct FeedCell: View {
                             }
                             .padding(.vertical, 3)
                         }
-                        
                         
                         VStack(alignment: .leading, spacing: 5) {
                             if let foodRating = post.foodRating {
@@ -456,14 +438,11 @@ struct FeedCell: View {
                             }
                         }
                         
-                        
                         if let timestamp = post.timestamp {
                             Text(getTimeElapsedString(from: timestamp))
                                 .font(.custom("MuseoSansRounded-300", size: 10))
                                 .foregroundColor(.black)
                         }
-                        
-                        
                         
                         Text("See less...")
                             .font(.custom("MuseoSansRounded-300", size: 10))
@@ -474,8 +453,6 @@ struct FeedCell: View {
                     parsedCaption = parseCaption(post.caption)
                 }
             }
-            
-            
         }
         .padding(.horizontal)
         .padding(.top, 10)
@@ -484,7 +461,6 @@ struct FeedCell: View {
         .background(Color("Colors/HingeGray"))
         .frame(width: UIScreen.main.bounds.width)
     }
-
     
     private func togglePlayPause() {
         if let currentVideoId = currentlyPlayingVideoId,
@@ -509,64 +485,50 @@ struct FeedCell: View {
         if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
             return coordinator.1
         }
-        // If not found, create a new one (this should be rare)
         let newCoordinator = VideoPlayerCoordinator()
         videoCoordinators.append((mediaItemId, newCoordinator))
         return newCoordinator
     }
     
-
     private var actionButtons: some View {
         HStack(spacing: 25) {
-            
             Button {
                 handleLikeTapped()
                 triggerHapticFeedback()
-
             } label: {
                 InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
             }
             
             Button {
-                //videoCoordinator.pause()
                 showComments.toggle()
-
             } label: {
                 InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
             }
             
-            if viewModel.showBookmarks{
+            if viewModel.showBookmarks {
                 Button {
                     handleBookmarkTapped()
                     triggerHapticFeedback()
-
                 } label: {
                     InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                 }
             }
-            if viewModel.showBookmarks{
+            if viewModel.showBookmarks {
                 Button {
-                    //videoCoordinator.pause()
                     showCollections.toggle()
-
                 } label: {
                     InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
                 }
             }
             
             Button {
-                //videoCoordinator.pause()
                 showShareView.toggle()
-
             } label: {
                 InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 22)
             }
             
             Button {
-                //videoCoordinator.pause()
                 showingOptionsSheet = true
-                
-
             } label: {
                 ZStack {
                     Rectangle()
@@ -579,32 +541,32 @@ struct FeedCell: View {
                         .foregroundColor(.gray)
                 }
             }
-            
         }
     }
+    
     private func handleIndexChange(_ index: Int) {
-          pauseAllVideos()
-          
-          if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-              // Ensure the index is within bounds
-              let safeIndex = min(max(index, 0), mixedMediaUrls.count - 1)
-              let mediaItem = mixedMediaUrls[safeIndex]
-              
-              if mediaItem.type == .video {
-                  currentlyPlayingVideoId = mediaItem.id
-                  playVideo(id: mediaItem.id)
-              } else {
-                  currentlyPlayingVideoId = nil
-              }
-          } else if post.mediaType == .video {
-              if let firstVideoId = videoCoordinators.first?.0 {
-                  currentlyPlayingVideoId = firstVideoId
-                  playVideo(id: firstVideoId)
-              }
-          } else {
-              currentlyPlayingVideoId = nil
-          }
-      }
+        pauseAllVideos()
+        
+        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
+            let safeIndex = min(max(index, 0), mixedMediaUrls.count - 1)
+            let mediaItem = mixedMediaUrls[safeIndex]
+            
+            if mediaItem.type == .video {
+                currentlyPlayingVideoId = mediaItem.id
+                playVideo(id: mediaItem.id)
+            } else {
+                currentlyPlayingVideoId = nil
+            }
+        } else if post.mediaType == .video {
+            if let firstVideoId = videoCoordinators.first?.0 {
+                currentlyPlayingVideoId = firstVideoId
+                playVideo(id: firstVideoId)
+            }
+        } else {
+            currentlyPlayingVideoId = nil
+        }
+    }
+    
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
         ZStack {
             if mediaItem.type == .photo {
@@ -635,31 +597,30 @@ struct FeedCell: View {
     
     @ViewBuilder
     private func singleMediaItemView(coordinator: VideoPlayerCoordinator? = nil, imageURL: String? = nil) -> some View {
-            ZStack {
-                if let coordinator = coordinator {
-                    ZoomableVideoPlayer(videoCoordinator: coordinator)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                       
-                } else if let imageURL = imageURL {
-                    ZoomableImage(imageURL: imageURL)
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
-                       
-                }
-                
-                VStack {
+        ZStack {
+            if let coordinator = coordinator {
+                ZoomableVideoPlayer(videoCoordinator: coordinator)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
+            } else if let imageURL = imageURL {
+                ZoomableImage(imageURL: imageURL)
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
+            }
+            
+            VStack {
+                Spacer()
+                HStack {
                     Spacer()
-                    HStack {
-                        Spacer()
-                        if coordinator != nil, let videoId = videoCoordinators.first(where: { $0.1 === coordinator })?.0 {
-                            videoControlButtons(for: videoId)
-                        }
-                        taggedUsersButton
+                    if coordinator != nil, let videoId = videoCoordinators.first(where: { $0.1 === coordinator })?.0 {
+                        videoControlButtons(for: videoId)
                     }
-                    .padding()
+                    taggedUsersButton
                 }
+                .padding()
             }
         }
+    }
+    
     private var heartOverlay: some View {
         ZStack {
             if showHeartOverlay {
@@ -672,33 +633,34 @@ struct FeedCell: View {
             }
         }
     }
+    
     private func parseCaption(_ input: String) -> AttributedString {
-            var result = AttributedString(input)
-            let pattern = "@\\w+"
-            
-            guard let regex = try? NSRegularExpression(pattern: pattern) else {
-                return result
-            }
-            
-            let nsRange = NSRange(input.startIndex..., in: input)
-            let matches = regex.matches(in: input, range: nsRange)
-            
-            for match in matches.reversed() {
-                guard let range = Range(match.range, in: input) else { continue }
-                
-                let fullMatch = String(input[range])
-                let username = String(fullMatch.dropFirst()) // Remove @ from username
-                
-                if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
-                   let attributedRange = Range(range, in: result) {
-                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
-                    result[attributedRange].link = URL(string: "user://\(user.id)")
-                }
-            }
-            
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return result
         }
-
+        
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst())
+            
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
+            }
+        }
+        
+        return result
+    }
+    
     private func handleLikeTapped() {
         Task {
             didLike ? await viewModel.unlike(post) : await viewModel.like(post)
@@ -738,49 +700,6 @@ struct FeedCell: View {
             }
         }
     }
-    private var combinedOverlay: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                HStack(spacing: 15) {
-                    if post.mediaType == .video || (post.mediaType == .mixed && currentVideoId != nil) {
-                        Button(action: {
-                            togglePlayPause()
-                        }) {
-                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 0)
-                        }
-                        Button(action: {
-                            toggleMute()
-                        }) {
-                            Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 0)
-                        }
-                    }
-                    if !post.taggedUsers.isEmpty {
-                        Button {
-                            isTaggedSheetPresented.toggle()
-                        } label: {
-                            Image(systemName: "person.2.circle.fill")
-                                .symbolRenderingMode(.palette)
-                                .foregroundStyle(.white, .red)
-                                .font(.system(size: 30))
-                                .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 0)
-                        }
-                    }
-                }
-            }
-            .padding()
-        }
-    }
-    
     
     private func handleOnAppear() {
         if checkLikes {
@@ -795,15 +714,12 @@ struct FeedCell: View {
                 coordinator.player.isMuted = viewModel.isMuted
             }
             
-            // Play the first video if it's at index 0
             handleIndexChange(0)
             if viewModel.selectedCommentId != nil {
-                let _ = print("Should be opening comments")
                 showComments = true
             }
         }
     }
-    
     
     private func playVideo(id: String) {
         if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
@@ -812,6 +728,7 @@ struct FeedCell: View {
             currentVideoId = id
         }
     }
+    
     private func pauseVideo(id: String) {
         if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
             coordinator.pause()
@@ -821,16 +738,12 @@ struct FeedCell: View {
         }
     }
     
-    
-    
-    
     private func pauseAllVideos() {
         for (_, coordinator) in videoCoordinators {
             coordinator.pause()
         }
         isCurrentVideoPlaying = false
     }
-    
     
     private func handleBookmarkTapped() {
         Task {
@@ -840,10 +753,10 @@ struct FeedCell: View {
             } else {
                 await viewModel.bookmark(post)
                 post.bookmarkCount += 1
-
             }
         }
     }
+    
     private var taggedUsersOverlay: some View {
         Group {
             if !post.taggedUsers.isEmpty {
@@ -866,7 +779,6 @@ struct FeedCell: View {
         }
     }
     
-    
     private var imageIndexIndicator: some View {
         Group {
             if post.mediaUrls.count > 1 {
@@ -881,13 +793,10 @@ struct FeedCell: View {
                     .padding(.top, 30)
                     Spacer()
                 }
-                
             }
         }
     }
-    
 }
-
 
 struct IndexIndicatorView: View {
     var currentIndex: Int
