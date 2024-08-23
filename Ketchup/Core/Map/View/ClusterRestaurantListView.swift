@@ -17,12 +17,16 @@ struct ClusterRestaurantListView: View {
                 NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                     RestaurantRowView(restaurant: restaurant)
                 }
+                .listRowBackground(Color.clear) // Ensures the row has no background
             }
-            .navigationTitle("Clustered Restaurants")
+            .listStyle(PlainListStyle()) // Removes default styling from the List
+            .background(Color.clear) // Makes sure the List's background is clear
+            .navigationTitle("Restaurants")
             .navigationBarItems(trailing: Button("Close") {
                 dismiss()
             })
         }
+        .background(Color.clear) // Ensures the NavigationView's background is clear
     }
 }
 
@@ -34,19 +38,18 @@ struct RestaurantRowView: View {
             RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
             VStack(alignment: .leading) {
                 Text(restaurant.name)
-                    .font(.headline)
-                    .font(.custom("MuseoSansRounded-300", size: 18))
+                    .font(.custom("MuseoSansRounded-500", size: 18))
+                    .foregroundColor(.primary) // Default to primary text color
                 Text(restaurant.cuisine ?? "")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
                     .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.secondary) // Default to secondary text color
                 if let price = restaurant.price {
                     Text(price)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
                         .font(.custom("MuseoSansRounded-300", size: 14))
+                        .foregroundColor(.secondary) // Default to secondary text color
                 }
             }
         }
+        .background(Color.clear) // Ensures the row has no background color
     }
 }

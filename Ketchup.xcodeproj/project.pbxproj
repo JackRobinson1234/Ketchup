@@ -32,7 +32,6 @@
 		F84069912C6AEAF200C31433 /* PhoneAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84069902C6AEAF200C31433 /* PhoneAuthView.swift */; };
 		F84069932C6AEBF000C31433 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84069922C6AEBF000C31433 /* WelcomeView.swift */; };
 		F846F4532BFBD534009D1303 /* Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4522BFBD534009D1303 /* Review.swift */; };
-		F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F45B2BFBF708009D1303 /* ReviewService.swift */; };
 		F846F4642BFD16F3009D1303 /* CommentOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */; };
 		F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F846F4702BFF97A9009D1303 /* ClusterCell.swift */; };
 		F84A61E12C2D0A6200FBEC2F /* SecondaryFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */; };
@@ -308,7 +307,6 @@
 		F84069902C6AEAF200C31433 /* PhoneAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthView.swift; sourceTree = "<group>"; };
 		F84069922C6AEBF000C31433 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		F846F4522BFBD534009D1303 /* Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Review.swift; sourceTree = "<group>"; };
-		F846F45B2BFBF708009D1303 /* ReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewService.swift; sourceTree = "<group>"; };
 		F846F4632BFD16F3009D1303 /* CommentOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentOptionsSheet.swift; sourceTree = "<group>"; };
 		F846F4702BFF97A9009D1303 /* ClusterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterCell.swift; sourceTree = "<group>"; };
 		F84A61E02C2D0A6100FBEC2F /* SecondaryFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryFeed.swift; sourceTree = "<group>"; };
@@ -757,7 +755,6 @@
 				F871CE022BCDBF56003C9BE8 /* CollectionService.swift */,
 				F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */,
 				F8FB35632BEFDC0E0079DE6D /* ReportService.swift */,
-				F846F45B2BFBF708009D1303 /* ReviewService.swift */,
 				F88C32932C604160004CF72E /* ClusterService.swift */,
 				F89342062C72CA9000E313AC /* ContactService.swift */,
 			);
@@ -1958,7 +1955,6 @@
 				F84FE2982B6A564F00144F01 /* AuthServiceProtocol.swift in Sources */,
 				F88E0ADC2B6B079100EC159B /* SearchView.swift in Sources */,
 				F88E0AD22B6B06C600EC159B /* RestaurantViewModel.swift in Sources */,
-				F846F45C2BFBF708009D1303 /* ReviewService.swift in Sources */,
 				F89DF2122C581F0200A90E0D /* UploadFlowRestaurantSelector.swift in Sources */,
 				F88E0A3A2B6A5E2C00EC159B /* CommentService.swift in Sources */,
 				F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */,

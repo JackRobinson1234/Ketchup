@@ -119,7 +119,22 @@ class AuthService {
             throw error
         }
     }
-    
+    func createContactAlertUser(
+        user: User
+    ) async throws  {
+        // Get the current date for createdAt and lastActive
+        
+        let userData = try Firestore.Encoder().encode(user)
+        
+        do {
+            try await FirestoreConstants.alertCollection.document(user.id).setData(userData)
+            print("DEBUG: Successfully created Contact user document in Firestore with ID: \(user.id)")
+            
+        } catch {
+            print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
     func createFirestoreUser(
         id: String,
         username: String,

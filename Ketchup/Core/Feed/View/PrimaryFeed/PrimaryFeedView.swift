@@ -30,6 +30,13 @@ struct PrimaryFeedView: View {
     @EnvironmentObject var tabBarController: TabBarController
     @State private var showAddFriends = false
     @State private var isContactsPermissionDenied = false
+    @State private var hideTopUI = false
+    @State private var lastScrollOffset: CGFloat = 0
+    @State private var debounceTask: Task<Void, Never>? = nil
+    private let scrollThreshold: CGFloat = 20 // Minimum scroll change to trigger updates
+    private let debounceDelay: TimeInterval = 0.2
+    @State private var topBarHeight: CGFloat = 150 // Default height
+
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -39,7 +46,7 @@ struct PrimaryFeedView: View {
     }
     
     var body: some View {
-        if isLoading && viewModel.posts.isEmpty { 
+        if isLoading && viewModel.posts.isEmpty {
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
@@ -53,6 +60,27 @@ struct PrimaryFeedView: View {
                 ZStack(alignment: .top) {
                     ScrollViewReader { scrollProxy in
                         ScrollView(showsIndicators: false) {
+                            GeometryReader { geometry in
+                                Color.clear
+                                    .frame(height: 0) // GeometryReader only needs a small frame
+                                    .onAppear {
+                                        let initialOffset = geometry.frame(in: .global).minY
+                                        viewModel.initialOffset = initialOffset
+                                        lastScrollOffset = initialOffset
+                                    }
+                                    .onChange(of: geometry.frame(in: .global).minY) { newValue in
+                                        let scrollOffset = newValue - (viewModel.initialOffset ?? 0)
+                                        let scrollDifference = scrollOffset - lastScrollOffset
+                                        
+                                        // Trigger only when significant scroll change happens
+                                        if abs(scrollDifference) > scrollThreshold {
+                                            debounceTask?.cancel()
+                                            debounceTask = Task { [scrollOffset] in
+                                                await debounceScrollUpdate(scrollOffset, scrollDifference)
+                                            }
+                                        }
+                                    }
+                            }
                             LazyVStack {
                                 if viewModel.isInitialLoading {
                                     FastCrossfadeFoodImageView()
@@ -82,7 +110,7 @@ struct PrimaryFeedView: View {
                         .refreshable {
                             await refreshFeed()
                         }
-                        .safeAreaPadding(.top, 100)
+                        .safeAreaPadding(.top, 110)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
@@ -108,9 +136,18 @@ struct PrimaryFeedView: View {
                         }
                     }
                     .background(.white)
-                    Color.white
-                        .frame(height: 140)
+                    
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(height: topBarHeight)
+                        .clipShape(
+                            RoundedCorner(radius: 20, corners: [.bottomLeft, .bottomRight])
+                        )
+                        .shadow(color: Color.gray.opacity(0.1), radius: 2, x: 0, y: 2)
+                        .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
+                    
+
                     VStack(spacing: 0){
                         HStack(spacing: 0) {
                             Button {
@@ -166,85 +203,99 @@ struct PrimaryFeedView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, 20)
                         .foregroundStyle(.black)
-                        
-                        HStack(spacing: 40) {
-                            Button {
-                                if canSwitchTab {
-                                    withAnimation(.easeInOut(duration: 0.5)) {
-                                        viewModel.selectedTab = .following
-                                    }
-                                    canSwitchTab = false
-                                    
-                                    // Re-enable switching after a delay
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        canSwitchTab = true
-                                    }
-                                }
-                            } label: {
-                                Text("Following")
-                                    .font(.custom("MuseoSansRounded-500", size: 18))
-                                    .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                    .padding(.bottom, 5)
-                                    .overlay(
-                                        Rectangle()
-                                            .frame(height: 2)
-                                            .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                            .offset(y: 12)
-                                    )
-                            }
-                            .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                        if !hideTopUI{
                             
-                            Button {
-                                if canSwitchTab {
-                                    withAnimation(.easeInOut(duration: 0.5)) {
-                                        viewModel.selectedTab = .discover
+                            HStack(spacing: 40) {
+                                Button {
+                                    if canSwitchTab {
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            viewModel.selectedTab = .following
+                                        }
+                                        canSwitchTab = false
+                                        
+                                        // Re-enable switching after a delay
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            canSwitchTab = true
+                                        }
                                     }
-                                    canSwitchTab = false
-                                    
-                                    // Re-enable switching after a delay
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        canSwitchTab = true
-                                    }
+                                } label: {
+                                    Text("Following")
+                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
                                 }
-                            } label: {
-                                Text("Discover")
-                                    .font(.custom("MuseoSansRounded-500", size: 18))
-                                    .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                    .padding(.bottom, 5)
-                                    .overlay(
-                                        Rectangle()
-                                            .frame(height: 2)
-                                            .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                            .offset(y: 12)
-                                    )
+                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                                
+                                Button {
+                                    if canSwitchTab {
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            viewModel.selectedTab = .discover
+                                        }
+                                        canSwitchTab = false
+                                        
+                                        // Re-enable switching after a delay
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            canSwitchTab = true
+                                        }
+                                    }
+                                } label: {
+                                    Text("Discover")
+                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
+                                }
+                                .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                             }
-                            .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
-                        }
-                        .padding(.bottom, 6)
-                        Button {
-                            showLocationFilter.toggle()
-                        } label: {
-                            HStack {
-                                if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
-                                    if let cities = cityFilter.value as? [String], !cities.isEmpty {
-                                        if cities.count > 1 {
-                                            HStack (spacing: 1){
-                                                Image(systemName: "location")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
-                                                Text("\(cities[0]) +\(cities.count - 1) more")
-                                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                                    .foregroundStyle(.gray)
-                                                Image(systemName: "chevron.down")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
+                            .padding(.bottom, 6)
+                            Button {
+                                showLocationFilter.toggle()
+                            } label: {
+                                HStack {
+                                    if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
+                                        if let cities = cityFilter.value as? [String], !cities.isEmpty {
+                                            if cities.count > 1 {
+                                                HStack (spacing: 1){
+                                                    Image(systemName: "location")
+                                                        .foregroundStyle(.gray)
+                                                        .font(.caption)
+                                                    Text("\(cities[0]) +\(cities.count - 1) more")
+                                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                                        .foregroundStyle(.gray)
+                                                    Image(systemName: "chevron.down")
+                                                        .foregroundStyle(.gray)
+                                                        .font(.caption)
+                                                }
+                                            } else {
+                                                HStack(spacing: 1) {
+                                                    Image(systemName: "location")
+                                                        .foregroundStyle(.gray)
+                                                        .font(.caption)
+                                                    Text(cities[0])
+                                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                                        .foregroundStyle(.gray)
+                                                    Image(systemName: "chevron.down")
+                                                        .foregroundStyle(.gray)
+                                                        .font(.caption)
+                                                }
                                             }
                                         } else {
                                             HStack(spacing: 1) {
                                                 Image(systemName: "location")
                                                     .foregroundStyle(.gray)
                                                     .font(.caption)
-                                                Text(cities[0])
+                                                Text("Any Location")
                                                     .font(.custom("MuseoSansRounded-300", size: 16))
                                                     .foregroundStyle(.gray)
                                                 Image(systemName: "chevron.down")
@@ -265,25 +316,11 @@ struct PrimaryFeedView: View {
                                                 .font(.caption)
                                         }
                                     }
-                                } else {
-                                    HStack(spacing: 1) {
-                                        Image(systemName: "location")
-                                            .foregroundStyle(.gray)
-                                            .font(.caption)
-                                        Text("Any Location")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .foregroundStyle(.gray)
-                                        Image(systemName: "chevron.down")
-                                            .foregroundStyle(.gray)
-                                            .font(.caption)
-                                    }
                                 }
                             }
                         }
                     }
-                    .background(Color.white)
                 }
-                
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
@@ -317,6 +354,8 @@ struct PrimaryFeedView: View {
                                 await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
                             }
                             viewModel.updateCache(scrollPosition: newPostId)
+                            
+                        } else {
                         }
                     }
                 }
@@ -404,6 +443,28 @@ struct PrimaryFeedView: View {
             print("Error refreshing: \(error)")
         }
         isRefreshing = false
+    }
+    private func debounceScrollUpdate(_ scrollOffset: CGFloat, _ scrollDifference: CGFloat) async {
+        try? await Task.sleep(nanoseconds: UInt64(debounceDelay * 1_000_000_000))
+        DispatchQueue.main.async {
+            if scrollDifference > 0 {
+                // Scrolling up
+                withAnimation(.easeInOut(duration: 0.3)) {
+                hideTopUI = false
+                
+                    topBarHeight = 150
+                }
+            } else if scrollDifference < -60 {
+                // Scrolling down
+                withAnimation(.easeInOut(duration: 0.3)) {
+                hideTopUI = true
+               
+        
+                    topBarHeight = 95
+                }
+            }
+            lastScrollOffset = scrollOffset
+        }
     }
 }
 

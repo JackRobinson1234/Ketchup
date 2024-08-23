@@ -28,7 +28,7 @@ class UserRegistrationViewModel: ObservableObject {
             )
             
             print("Successfully updated user: \(updatedUser)")
-            
+            try await AuthService.shared.createContactAlertUser(user: updatedUser)
             // Update the user session
             try await AuthService.shared.updateUserSession()
         } catch {

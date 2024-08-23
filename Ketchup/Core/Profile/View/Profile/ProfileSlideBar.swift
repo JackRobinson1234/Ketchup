@@ -102,38 +102,15 @@ struct ProfileSlideBar: View {
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
                 VStack {
-                    Menu {
-                        Picker("Post Display Mode", selection: $postDisplayMode) {
-                            ForEach(PostDisplayMode.allCases, id: \.self) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(postDisplayMode.rawValue)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                                .foregroundStyle(.black)
-                            Image(systemName: "chevron.down")
-                                .foregroundStyle(.black)
-                        }
-                        .cornerRadius(8)
-                    }
-                    if isKetchupMediaUser && (postDisplayMode == .all || postDisplayMode == .media) {
+                   
+                    if isKetchupMediaUser {
                         Text("This user has too many posts to view")
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
-                        switch postDisplayMode {
-                        case .all:
-                            ProfileFeedView(
-                                viewModel: feedViewModel,
-                                scrollPosition: $scrollPosition,
-                                scrollTarget: $scrollTarget
-                            )
-                        case .media:
-                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true)
-                        }
+                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                        
                     }
                 }
             }

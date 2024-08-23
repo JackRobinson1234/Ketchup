@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 enum Section {
     case posts, collections, stats
 }
@@ -19,16 +17,16 @@ enum RestaurantPostDisplayMode: String, CaseIterable {
 struct RestaurantProfileSlideBarView: View {
     @ObservedObject var viewModel: RestaurantViewModel
     @ObservedObject var feedViewModel: FeedViewModel
-    @State private var restaurantPostDisplayMode: RestaurantPostDisplayMode = .media
+    @State private var restaurantPostDisplayMode: PostDisplayMode = .media
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
-
+    
     init(viewModel: RestaurantViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
-           self.viewModel = viewModel
+        self.viewModel = viewModel
         self.feedViewModel = feedViewModel
-           self._scrollPosition = scrollPosition
-           self._scrollTarget = scrollTarget
-       }
+        self._scrollPosition = scrollPosition
+        self._scrollTarget = scrollTarget
+    }
     var body: some View {
         //MARK: Selecting Images
         VStack{
@@ -73,9 +71,9 @@ struct RestaurantProfileSlideBarView: View {
                     .modifier(UnderlineImageModifier(isSelected: currentSection == .collections))
                     .frame(maxWidth: .infinity)
                 
-               
-
-
+                
+                
+                
             }
         }
         .padding()
@@ -84,40 +82,8 @@ struct RestaurantProfileSlideBarView: View {
         // MARK: Section Logic
         if viewModel.currentSection == .posts {
             VStack {
-                Menu {
-                    Picker("Post Display Mode", selection: $restaurantPostDisplayMode) {
-                        ForEach(RestaurantPostDisplayMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
-                                .foregroundStyle(.black)
-                                
-                            
-                               
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(restaurantPostDisplayMode.rawValue)
-                            .font(.custom("MuseoSansRounded-500", size: 16))
-                            .foregroundStyle(.black)
-
-                        Image(systemName: "chevron.down")
-                            .foregroundStyle(.black)
-                    }
-                    .cornerRadius(8)
-                }
-                .padding([.bottom, .horizontal])
-                
-                switch restaurantPostDisplayMode {
-                case .all:
-                    ProfileFeedView(
-                        viewModel: feedViewModel,
-                        scrollPosition: $scrollPosition,
-                        scrollTarget: $scrollTarget
-                    )
-                case .media:
-                    if let name = viewModel.restaurant?.name {
-                        PostGridView(feedViewModel: feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false)
-                    }
+                if let name = viewModel.restaurant?.name {
+                    PostGridView(feedViewModel: feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
                 }
             }
         }
@@ -127,14 +93,13 @@ struct RestaurantProfileSlideBarView: View {
         
         if viewModel.currentSection == .stats {
             RestaurantStatsView(restaurant: viewModel.restaurant!)
-            // You'll replace this with your actual restaurant stats view once it's built
         }
     }
 }
 
 struct UnderlineImageModifier: ViewModifier {
     var isSelected: Bool
-
+    
     func body(content: Content) -> some View {
         content
             .foregroundStyle(isSelected ? Color("Colors/AccentColor") : .black)
@@ -150,8 +115,3 @@ struct UnderlineImageModifier: ViewModifier {
     }
 }
 
-
-//
-//#Preview {
-//    RestaurantProfileSlideBarView(currentSection: .constant(.reviews), viewModel: RestaurantViewModel(restaurantId: "test"))
-//}

@@ -120,7 +120,9 @@ struct FeedCell: View {
                         itemCount: mixedMediaUrls.count,
                         itemWidth: mediaWidth,
                         initialIndex: viewModel.startingImageIndex,
-                        onDismiss: { dismiss() }
+                        onDismiss: { 
+                            viewModel.initialPrimaryScrollPosition = scrollPosition
+                            dismiss() }
                     )
                     .onAppear { viewModel.startingImageIndex = 0 }
                     .frame(height: mediaHeight)

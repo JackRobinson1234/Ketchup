@@ -225,7 +225,7 @@ struct CommentCell: View {
             }
         }) {
             Image(systemName: comment.commentOwnerUid == AuthService.shared.userSession?.id ? "trash" : "exclamationmark.triangle")
-                .foregroundColor(isSwiped ? .white : .gray)  // Icon color changes to white when swiped
+                .foregroundColor(.gray)  // Icon color changes to white when swiped
                 .font(.system(size: 18))
         }
         .frame(width: optionsWidth)

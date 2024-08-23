@@ -64,7 +64,8 @@ class FeedViewModel: ObservableObject {
     @Published var showBookmarks = true
     @Published var selectedCommentId: String?
     @Published var isInitialLoading: Bool = false
-    
+    @Published var initialOffset: CGFloat?
+
 
     
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true, selectedCommentId: String? = nil) {

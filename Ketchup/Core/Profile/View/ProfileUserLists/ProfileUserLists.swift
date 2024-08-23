@@ -38,7 +38,7 @@ struct ProfileUserLists: View {
             }
         }
     }
-    
+
     private var emptyView: some View {
         VStack {
             Image("Skip")
@@ -113,7 +113,7 @@ struct UserRow: View {
                     }
                 }
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(PlainButtonStyle()) // Remove chevron and keep the row tappable
             
             Spacer()
             
@@ -196,4 +196,4 @@ struct UserRow: View {
         .buttonStyle(PlainButtonStyle())
         .contentShape(Rectangle())  // Ensures only the button area is tappable
     }
-}
+} 
