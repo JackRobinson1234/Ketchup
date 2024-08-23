@@ -47,7 +47,7 @@ struct AddRestaurantView: View {
                         VStack {
                             FastCrossfadeFoodImageView()
                                 .padding(5)
-                            Text("Gathering restaurant data, this may take a minute or two.")
+                            Text("Gathering restaurant data, this may take 30 seconds.")
                         }
                     }
                     
@@ -168,31 +168,16 @@ struct AddRestaurantView: View {
     }
 
     func startActorRun(name: String, city: String, state: String, completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
-        let actorId = "compass~crawler-google-places"
+        let actorId = "compass~google-maps-extractor"
         let url = URL(string: "https://api.apify.com/v2/acts/\(actorId)/runs?token=apify_api_Q2H4ps9lrqxTVJ18aQFmevTFJBsR2y2kE8Xq")!
         
         let requestData: [String: Any] = [
             //"categoryFilterWords": ["restaurant", "bar", "cafe"],
             "searchStringsArray": ["\(name), \(city), \(state)"],
             "deeperCityScrape": true,
-            "includeWebResults": false,
             "language": "en",
             "maxCrawledPlacesPerSearch": 3,
-            "maxImages": 1,
-            "maxQuestions": 0,
-            "maxReviews": 0,
-            "onlyDataFromSearchPage": false,
-            "reviewsSort": "highestRanking",
-            "scrapeDirectories": true,
-            "scrapeImageAuthors": false,
-            "scrapeResponseFromOwnerText": true,
-            "scrapeReviewId": true,
-            "scrapeReviewUrl": true,
-            "scrapeReviewerId": true,
-            "scrapeReviewerName": true,
-            "scrapeReviewerUrl": true,
-            "skipClosedPlaces": false,
-            "reviewsFilterString": "",
+            "skipClosedPlaces": true,
             "searchMatching": "all",
             "placeMinimumStars": "",
         ]
@@ -267,7 +252,7 @@ struct AddRestaurantView: View {
                       return
                     } else {
                         print("Run is still in progress...")
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             self.pollRunStatus(runId: runId, completion: completion)
                         }
                     }
@@ -407,7 +392,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
                         let restaurant = scrapedRestaurants[index]
                         if let title = restaurant["title"] as? String,
                            let address = restaurant["address"] as? String,
-                           let imageUrl = (restaurant["imageUrls"] as? [String])?.first,
+                           let imageUrl = restaurant["imageUrl"] as? String,
                            let category = restaurant["categoryName"] as? String {
 
                             Button(action: {
@@ -513,13 +498,14 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     
     func cleanRestaurantData(restaurant: [String: Any]) -> [String: Any] {
         // Specify the keys to keep, equivalent to the `keep_columns` in your Python script
+        print("in clean func")
         let keepKeys: Set<String> = [
             "name", "bio", "categoryName", "categories", "subCategories", "reviewsTags", "price",
             "address", "neighborhood", "street", "city", "postalCode", "state", "countryCode", "location",
             "plusCode", "parentPlaceUrl", "locatedIn", "website", "phone", "additionalInfo", "url", "menuUrl",
             "reserveTableUrl", "googleFoodUrl", "tableReservationLinks", "orderBy", "permanentlyClosed",
             "temporarilyClosed", "openingHours", "updatesFromCustomers", "peopleAlsoSearch",
-            "popularTimesHistogram", "imageUrls", "scrapedAt", "cid", "profileImageUrl", "geoPoint",
+            "popularTimesHistogram", "imageUrl", "scrapedAt", "cid", "profileImageUrl", "geoPoint",
             "geoHash", "matchingId", "stats", "mergedCategories"
         ]
         
@@ -556,10 +542,10 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         if let subCategories = cleanedRestaurant["subCategories"] as? [String] {
             cleanedRestaurant["subCategories"] = cleanImageCategories(categories: subCategories)
         }
-        
+
         // Create profile photo URL
-        if let imageUrls = cleanedRestaurant["imageUrls"] as? [String] {
-            cleanedRestaurant["profileImageUrl"] = getFirstImageUrl(imageUrls: imageUrls)
+        if let imageUrl = cleanedRestaurant["imageUrl"] as? String {
+            cleanedRestaurant["profileImageUrl"] = imageUrl
         }
         
         // Initialize stats
@@ -590,9 +576,6 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         return categories.filter { !dropWords.contains($0) }
     }
     
-    func getFirstImageUrl(imageUrls: [String]) -> String? {
-        return imageUrls.first
-    }
     
     func mergeCategories(data: [String: Any]) -> [String] {
         var mergedSet = Set<String>()

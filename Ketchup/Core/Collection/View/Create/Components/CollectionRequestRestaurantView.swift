@@ -70,7 +70,7 @@ struct CollectionAddRestaurantView: View {
                         VStack {
                             FastCrossfadeFoodImageView()
                                 .padding(5)
-                            Text("Gathering restaurant data, this may take a minute or two.")
+                            Text("Gathering restaurant data, this may take 30 seconds.")
                         }
                     }
                     
@@ -199,31 +199,16 @@ struct CollectionAddRestaurantView: View {
 
 
     func startActorRun(name: String, city: String, state: String, completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
-        let actorId = "compass~crawler-google-places"
+        let actorId = "compass~google-maps-extractor"
         let url = URL(string: "https://api.apify.com/v2/acts/\(actorId)/runs?token=apify_api_Q2H4ps9lrqxTVJ18aQFmevTFJBsR2y2kE8Xq")!
         
         let requestData: [String: Any] = [
             //"categoryFilterWords": ["restaurant", "bar", "cafe"],
             "searchStringsArray": ["\(name), \(city), \(state)"],
             "deeperCityScrape": true,
-            "includeWebResults": false,
             "language": "en",
             "maxCrawledPlacesPerSearch": 3,
-            "maxImages": 1,
-            "maxQuestions": 0,
-            "maxReviews": 0,
-            "onlyDataFromSearchPage": false,
-            "reviewsSort": "highestRanking",
-            "scrapeDirectories": true,
-            "scrapeImageAuthors": false,
-            "scrapeResponseFromOwnerText": true,
-            "scrapeReviewId": true,
-            "scrapeReviewUrl": true,
-            "scrapeReviewerId": true,
-            "scrapeReviewerName": true,
-            "scrapeReviewerUrl": true,
-            "skipClosedPlaces": false,
-            "reviewsFilterString": "",
+            "skipClosedPlaces": true,
             "searchMatching": "all",
             "placeMinimumStars": "",
         ]
@@ -298,7 +283,7 @@ struct CollectionAddRestaurantView: View {
                       return
                     } else {
                         print("Run is still in progress...")
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             self.pollRunStatus(runId: runId, completion: completion)
                         }
                     }
