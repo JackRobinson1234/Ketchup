@@ -42,7 +42,6 @@ struct SecondaryFeedView: View {
                                         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                                         .ignoresSafeArea(.all)
                                         .containerRelativeFrame([.horizontal, .vertical])
-                                    
                                     FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
                                 }
                                 .ignoresSafeArea(.all)
@@ -64,7 +63,6 @@ struct SecondaryFeedView: View {
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
-                        
                         if let scrollPosition = scrollPosition{
                             viewModel.initialPrimaryScrollPosition = scrollPosition
                             print("Assigning SCROLL", scrollPosition)
