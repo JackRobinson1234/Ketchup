@@ -364,137 +364,178 @@ struct AddRestaurantView: View {
 
 struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     let scrapedRestaurants: [[String: Any]]
-        @Binding var selectedRestaurant: [String: Any]?
-        var name: String
-        var city: String
-        var state: String
-        @ObservedObject var uploadViewModel: T
-        let dismiss: () -> Void
-        
-        var body: some View {
-            NavigationView {
-                VStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        VStack {
-                            Text("Still not what you're looking for?")
-                                .foregroundStyle(.gray)
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                            Text("Continue with post")
-                                .foregroundStyle(Color("Colors/AccentColor"))
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                        }
+    @Binding var selectedRestaurant: [String: Any]?
+    var name: String
+    var city: String
+    var state: String
+    @ObservedObject var uploadViewModel: T
+    let dismiss: () -> Void
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                Button {
+                    dismiss()
+                } label: {
+                    VStack {
+                        Text("Still not what you're looking for?")
+                            .foregroundStyle(.gray)
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                        Text("Continue with post")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
                     }
-                    .padding(.top, 8)
-                    
-                    List(scrapedRestaurants.indices, id: \.self) { index in
-                        let restaurant = scrapedRestaurants[index]
-                        if let title = restaurant["title"] as? String,
-                           let address = restaurant["address"] as? String,
-                           let imageUrl = restaurant["imageUrl"] as? String,
-                           let category = restaurant["categoryName"] as? String {
-
-                            Button(action: {
-                                if selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address {
-                                    selectedRestaurant = nil
-                                } else {
-                                    selectedRestaurant = restaurant
+                }
+                .padding(.top, 8)
+                
+                List(scrapedRestaurants.indices, id: \.self) { index in
+                    let restaurant = scrapedRestaurants[index]
+                    if let title = restaurant["title"] as? String,
+                       let address = restaurant["address"] as? String,
+                       let imageUrl = restaurant["imageUrl"] as? String,
+                       let category = restaurant["categoryName"] as? String {
+                        
+                        Button(action: {
+                            if selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address {
+                                selectedRestaurant = nil
+                            } else {
+                                selectedRestaurant = restaurant
+                            }
+                        }) {
+                            HStack(spacing: 12) {
+                                AsyncImage(url: URL(string: imageUrl)) { image in
+                                    image.resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: 50, height: 50)
                                 }
-                            }) {
-                                HStack(spacing: 12) {
-                                    AsyncImage(url: URL(string: imageUrl)) { image in
-                                        image.resizable()
-                                            .scaledToFill()
-                                            .frame(width: 50, height: 50)
-                                            .clipShape(Circle())
-                                    } placeholder: {
-                                        Circle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(width: 50, height: 50)
-                                    }
-
-                                    VStack(alignment: .leading) {
-                                        Text(title)
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .fontWeight(.semibold)
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundColor(.black)
-
-                                        Text(category)
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundColor(.black)
-
-                                        Text(address)
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundColor(.black)
-                                    }
-                                    .foregroundStyle(.black)
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
+                                
+                                VStack(alignment: .leading) {
+                                    Text(title)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .fontWeight(.semibold)
+                                        .multilineTextAlignment(.leading)
                                         .foregroundColor(.black)
-                                        .padding([.leading, .trailing])
+                                    
+                                    Text(category)
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
+                                    
+                                    Text(address)
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
                                 }
-                                .padding()
-                                .background(
-                                    selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
-                                        ? Color("Colors/AccentColor").opacity(0.2)
-                                        : Color.clear
-                                )
+                                .foregroundStyle(.black)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.black)
+                                    .padding([.leading, .trailing])
                             }
+                            .padding()
+                            .background(
+                                selectedRestaurant?["title"] as? String == title && selectedRestaurant?["address"] as? String == address
+                                ? Color("Colors/AccentColor").opacity(0.2)
+                                : Color.clear
+                            )
                         }
                     }
-                    
-                    Button(action: {
-                        if let selectedRestaurant = selectedRestaurant {
-                            let cleanedRestaurant = cleanRestaurantData(restaurant: selectedRestaurant)
-                            uploadRestaurantToFirebase(restaurantData: cleanedRestaurant)
-                        }
-                        dismiss()
-                    }) {
-                        Text("Confirm")
-                            .fontWeight(.semibold)
-                            .modifier(OutlineConfirmButtonModifier(width: 300))
-                            .opacity(selectedRestaurant == nil ? 0.2 : 1.0)
-                    }
-                    .disabled(selectedRestaurant == nil)
-                    .padding()
-                    
                 }
-                .navigationBarTitle("Confirm Restaurant", displayMode: .inline)
-                .navigationBarItems(leading: Button("Cancel") {
-                    dismiss()
-                })
+                
+                Button(action: {
+                    if let selectedRestaurant = selectedRestaurant {
+                        let cleanedRestaurant = cleanRestaurantData(restaurant: selectedRestaurant)
+                        uploadRestaurantToFirebase(restaurantData: cleanedRestaurant)
+                    }
+                }) {
+                    Text("Confirm")
+                        .fontWeight(.semibold)
+                        .modifier(OutlineConfirmButtonModifier(width: 300))
+                        .opacity(selectedRestaurant == nil ? 0.2 : 1.0)
+                }
+                .disabled(selectedRestaurant == nil)
+                .padding()
+                
             }
+            .navigationBarTitle("Confirm Restaurant", displayMode: .inline)
+            .navigationBarItems(leading: Button("Cancel") {
+                dismiss()
+            })
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Notification"),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+
+        }
+    }
+    
+    func uploadRestaurantToFirebase(restaurantData: [String: Any]) {
+        guard let matchingId = restaurantData["matchingId"] as? String else {
+            print("Matching ID is missing, cannot proceed.")
+            return
         }
         
-        func uploadRestaurantToFirebase(restaurantData: [String: Any]) {
-            let newDocRef = FirestoreConstants.RestaurantCollection.document()
-            var restaurantDataWithId = restaurantData
-            restaurantDataWithId["id"] = newDocRef.documentID
+        let query = FirestoreConstants.RestaurantCollection
+            .whereField("matchingId", isEqualTo: matchingId)
+        
+        query.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Error querying Firestore: \(error.localizedDescription)")
+                return
+            }
             
-            newDocRef.setData(restaurantDataWithId, merge: true) { error in
-                if let error = error {
-                    print("Error uploading restaurant: \(error.localizedDescription)")
-                } else {
-                    print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
-                    if let updatedRestaurant = mapToRestaurant(from: restaurantDataWithId) {
-                        uploadViewModel.restaurant = updatedRestaurant
-                        if let collectionsViewModel = uploadViewModel as? CollectionsViewModel {
-                            let collectionItem = collectionsViewModel.convertRestaurantToCollectionItem(restaurant: updatedRestaurant)
-                            Task {
-                                try await collectionsViewModel.addItemToCollection(collectionItem: collectionItem)
+            if let snapshot = snapshot, let document = snapshot.documents.first {
+                // Restaurant with the same matchingId already exists
+                DispatchQueue.main.async {
+                    print("MATCHING ID FOUND: Using Existing Restaurant")
+                    if let existingRestaurant = self.mapToRestaurant(from: document.data()) {
+                        self.uploadViewModel.restaurant = existingRestaurant
+                        // Dismiss the view after setting the existing restaurant
+                        self.dismiss()
+                    }
+                }
+            } else {
+                // No existing restaurant found, proceed with upload
+                let newDocRef = FirestoreConstants.RestaurantCollection.document()
+                var restaurantDataWithId = restaurantData
+                restaurantDataWithId["id"] = newDocRef.documentID
+                
+                newDocRef.setData(restaurantDataWithId, merge: true) { error in
+                    if let error = error {
+                        print("Error uploading restaurant: \(error.localizedDescription)")
+                    } else {
+                        print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
+                        if let updatedRestaurant = self.mapToRestaurant(from: restaurantDataWithId) {
+                            self.uploadViewModel.restaurant = updatedRestaurant
+                            if let collectionsViewModel = self.uploadViewModel as? CollectionsViewModel {
+                                let collectionItem = collectionsViewModel.convertRestaurantToCollectionItem(restaurant: updatedRestaurant)
+                                Task {
+                                    try await collectionsViewModel.addItemToCollection(collectionItem: collectionItem)
+                                }
                             }
                         }
+                        // Dismiss the view after successful upload
+                        self.dismiss()
                     }
-                    dismiss()
                 }
             }
         }
+    }
+
+
+    
     
     func cleanRestaurantData(restaurant: [String: Any]) -> [String: Any] {
         // Specify the keys to keep, equivalent to the `keep_columns` in your Python script
@@ -542,7 +583,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         if let subCategories = cleanedRestaurant["subCategories"] as? [String] {
             cleanedRestaurant["subCategories"] = cleanImageCategories(categories: subCategories)
         }
-
+        
         // Create profile photo URL
         if let imageUrl = cleanedRestaurant["imageUrl"] as? String {
             cleanedRestaurant["profileImageUrl"] = imageUrl
@@ -569,7 +610,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         // Return only the keys that are in keepKeys
         return cleanedRestaurant.filter { keepKeys.contains($0.key) }
     }
-
+    
     
     func cleanImageCategories(categories: [String]) -> [String] {
         let dropWords = ["All", "Latest", "Vibe", "By owner", "Street View & 360°", "Menu", "Videos", "Food & drink"]
@@ -596,8 +637,8 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     }
     
     func calculateGeoHash(geoPoint: GeoPoint) -> String {
-            return GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
-        }
+        return GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
+    }
     
     func generateMatchingId(name: String, location: [String: Double]) -> String {
         let cleanedName = name.replacingOccurrences(of: "[^a-zA-Z0-9]", with: "", options: .regularExpression)
@@ -608,7 +649,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         let multiplier = pow(10.0, Double(decimalPlaces))
         return Foundation.round(value * multiplier) / multiplier
     }
-
+    
     let categoriesToExclude = [
         "Eyebrow Bar", "Supermarket"
     ]
@@ -620,14 +661,14 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
             return nil
         }
         print("Extracted name: \(name)")
-
+        
         // Create RestaurantStats directly
         let statsDict = data["stats"] as? [String: Int] ?? [:]
         print("Extracted statsDict: \(statsDict)")
         
         let stats = RestaurantStats(postCount: statsDict["postCount"] ?? 0, collectionCount: statsDict["collectionCount"] ?? 0)
         print("Created stats: \(stats)")
-
+        
         let geoPoint: GeoPoint?
         if let location = data["location"] as? [String: Double], let lat = location["lat"], let lng = location["lng"] {
             geoPoint = GeoPoint(latitude: lat, longitude: lng)
@@ -636,7 +677,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
             geoPoint = nil
             print("GeoPoint is nil")
         }
-
+        
         // Constructing the Restaurant object without the id
         let restaurant = Restaurant(
             id: data["id"] as? String ?? "placeholderId",
@@ -681,7 +722,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         )
         return restaurant
     }
-
+    
     
     
 }
