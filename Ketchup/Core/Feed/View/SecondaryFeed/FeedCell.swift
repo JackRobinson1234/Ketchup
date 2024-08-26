@@ -102,8 +102,6 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            Color("Colors/HingeGray")
-                .ignoresSafeArea()
             
             VStack() {
                 Spacer()
@@ -120,13 +118,17 @@ struct FeedCell: View {
                         itemCount: mixedMediaUrls.count,
                         itemWidth: mediaWidth,
                         initialIndex: viewModel.startingImageIndex,
-                        onDismiss: { 
+                        onDismiss: {
                             viewModel.initialPrimaryScrollPosition = scrollPosition
-                            dismiss() }
+                            dismiss()
+                        }
                     )
                     .onAppear { viewModel.startingImageIndex = 0 }
                     .frame(height: mediaHeight)
-                    .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count) }
+                    .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
+                    }
+                    
+                    
 
                 } else if post.mediaType == .video {
                     ForEach(videoCoordinators.prefix(1), id: \.0) { mediaItemId, coordinator in
@@ -314,7 +316,22 @@ struct FeedCell: View {
         VStack(alignment: .leading, spacing: 7) {
             
             actionButtons
-            
+                
+            if post.repost {
+                HStack(spacing: 1){
+                    Image(systemName: "arrow.2.squarepath")
+                        .foregroundStyle(.black)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                    Text("reposted")
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.black)
+                        
+                        
+                }
+            }
+                       
+                
             HStack {
                 let restaurant = post.restaurant
                 NavigationLink(value: restaurant) {

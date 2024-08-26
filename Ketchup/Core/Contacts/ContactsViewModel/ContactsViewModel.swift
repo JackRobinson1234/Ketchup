@@ -19,96 +19,135 @@ class ContactsViewModel: ObservableObject {
     @Published var error: Error?
     @Published var hasMoreContacts = true
     @Published var isShowingMessageComposer = false
+    @Published var isLoadingExistingUsers = false
     @Published var messageRecipient: String?
     
     private let userService = UserService.shared
     private let pageSize = 20
     private var lastDocument: DocumentSnapshot?
+    private var lastNewDocument: DocumentSnapshot?
+    private var lastExistingDocument: DocumentSnapshot?
+
     private let phoneNumberKit = PhoneNumberKit()
     private let contactStore = CNContactStore()
     private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
-    
+    private var currentPage = 0
     private var existingAccountContactsFetched = false
-
-    func fetchContacts() {
-        guard !isLoading else { return }
-        isLoading = true
-        
-        Task {
-            do {
-                if deviceContacts.isEmpty {
-                    try await loadDeviceContacts()
-                }
-                
-                if !existingAccountContactsFetched {
-                    let existingContacts = try await fetchExistingAccountContacts()
-                    let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
-                    let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
-                    
-                    DispatchQueue.main.async {
-                        self.contacts = matchedExistingContacts
-                        self.existingAccountContactsFetched = true
-                        self.isLoading = false
-                    }
-                } else if hasMoreContacts {
-                    let (newContacts, lastDoc) = try await fetchContactsToInvite()
-                    let matchedNewContacts = matchWithDeviceContacts(newContacts)
-                    
-                    DispatchQueue.main.async {
-                        self.contacts.append(contentsOf: matchedNewContacts)
-                        self.lastDocument = lastDoc
-                        self.hasMoreContacts = newContacts.count == self.pageSize
-                        self.isLoading = false
-                    }
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.error = error
-                    self.isLoading = false
-                }
+    private var shouldFetchExistingUsers: Bool
+    private var existingContacts: [Contact] = []
+       private var newContacts: [Contact] = []
+    private var currentExistingPage = 0
+       private var currentNewPage = 0
+       private var hasMoreExistingContacts = true
+       private var hasMoreNewContacts = true
+    init(shouldFetchExistingUsers: Bool = true) {
+        self.shouldFetchExistingUsers = shouldFetchExistingUsers
+    }
+    @MainActor
+    var inviteMessage: String {
+            if let username = AuthService.shared.userSession?.username {
+                return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+            } else {
+                return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
             }
         }
-    }
-    
-    private func fetchExistingAccountContacts() async throws -> [Contact] {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
-        }
-        
-        let db = Firestore.firestore()
-        let query = db.collection("users").document(userId).collection("contacts")
-            .whereField("hasExistingAccount", isEqualTo: true)
-        
-        let snapshot = try await query.getDocuments()
-        
-        return snapshot.documents.compactMap { document -> Contact? in
-            try? document.data(as: Contact.self)
-        }
-    }
-    
-    private func fetchContactsToInvite() async throws -> ([Contact], DocumentSnapshot?) {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
-        }
-        
-        let db = Firestore.firestore()
-        var query = db.collection("users").document(userId).collection("contacts")
-            //.whereField("hasExistingAccount", isEqualTo: false)
-            .order(by: "userCount", descending: true)
-            .limit(to: pageSize)
-        
-        if let lastDocument = lastDocument {
-            query = query.start(afterDocument: lastDocument)
-        }
-        
-        let snapshot = try await query.getDocuments()
-        
-        let contacts = snapshot.documents.compactMap { document -> Contact? in
-            try? document.data(as: Contact.self)
-        }
-        
-        return (contacts, snapshot.documents.last)
-    }
+    func fetchContacts() {
+          guard !isLoading else { return }
+          isLoading = true
+          
+          Task {
+              do {
+                  if deviceContacts.isEmpty {
+                      try await loadDeviceContacts()
+                  }
+                  
+                  if hasMoreExistingContacts && shouldFetchExistingUsers {
+                      await MainActor.run { self.isLoadingExistingUsers = true }
+                      let (existingContacts, lastDoc) = try await fetchExistingAccountContacts()
+                      let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
+                      let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
+                      
+                      await MainActor.run {
+                          self.contacts.append(contentsOf: matchedExistingContacts)
+                          self.lastExistingDocument = lastDoc
+                          self.hasMoreExistingContacts = existingContacts.count == self.pageSize
+                          self.currentExistingPage += 1
+                          self.isLoading = false
+                          self.isLoadingExistingUsers = false
+                      }
+                  } else if hasMoreNewContacts {
+                      let (newContacts, lastDoc) = try await fetchContactsToInvite()
+                      let matchedNewContacts = matchWithDeviceContacts(newContacts)
+                      
+                      await MainActor.run {
+                          self.contacts.append(contentsOf: matchedNewContacts)
+                          self.lastNewDocument = lastDoc
+                          self.hasMoreNewContacts = newContacts.count == self.pageSize
+                          self.currentNewPage += 1
+                          self.isLoading = false
+                      }
+                  } else {
+                      await MainActor.run {
+                          self.hasMoreContacts = false
+                          self.isLoading = false
+                      }
+                  }
+              } catch {
+                  await MainActor.run {
+                      self.error = error
+                      self.isLoading = false
+                      self.isLoadingExistingUsers = false
+                  }
+              }
+          }
+      }
+       
+       private func fetchExistingAccountContacts() async throws -> ([Contact], DocumentSnapshot?) {
+           guard let userId = Auth.auth().currentUser?.uid else {
+               throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+           }
+           
+           let db = Firestore.firestore()
+           var query = db.collection("users").document(userId).collection("contacts")
+               .whereField("hasExistingAccount", isEqualTo: true)
+               .limit(to: pageSize)
+           
+           if let lastExistingDocument = lastExistingDocument {
+               query = query.start(afterDocument: lastExistingDocument)
+           }
+           
+           let snapshot = try await query.getDocuments()
+           
+           let contacts = snapshot.documents.compactMap { document -> Contact? in
+               try? document.data(as: Contact.self)
+           }
+           
+           return (contacts, snapshot.documents.last)
+       }
+       
+       private func fetchContactsToInvite() async throws -> ([Contact], DocumentSnapshot?) {
+           guard let userId = Auth.auth().currentUser?.uid else {
+               throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+           }
+           
+           let db = Firestore.firestore()
+           var query = db.collection("users").document(userId).collection("contacts")
+               .whereField("hasExistingAccount", isEqualTo: false)
+               .order(by: "userCount", descending: true)
+               .limit(to: pageSize)
+           
+           if let lastNewDocument = lastNewDocument {
+               query = query.start(afterDocument: lastNewDocument)
+           }
+           
+           let snapshot = try await query.getDocuments()
+           
+           let contacts = snapshot.documents.compactMap { document -> Contact? in
+               try? document.data(as: Contact.self)
+           }
+           
+           return (contacts, snapshot.documents.last)
+       }
     
     private func loadDeviceContacts() async throws {
         let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
@@ -155,59 +194,58 @@ class ContactsViewModel: ObservableObject {
             return updatedContact
         }
     }
-  
-
-  
+    
+    
+    
     func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
-           guard let userId = contact.user?.id else { return false }
-           
-           // If we've already checked the follow status, return the stored value
-           if let isFollowed = contact.isFollowed {
-               return isFollowed
-           }
-           
-           // If we haven't checked yet, fetch the status from the server
-           let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
-           
-           // Update the contact in the contacts array
-           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
-               DispatchQueue.main.async {
-                   self.contacts[index].isFollowed = isFollowed
-               }
-           }
-           
-           return isFollowed
-       }
-
-       func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
-           if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
-               DispatchQueue.main.async {
-                   self.contacts[index].isFollowed = isFollowed
-               }
-           }
-       }
-
-       func follow(userId: String) async throws {
-           try await userService.follow(uid: userId)
-           updateFollowStatus(for: userId, isFollowed: true)
-       }
-       
-       func unfollow(userId: String) async throws {
-           try await userService.unfollow(uid: userId)
-           updateFollowStatus(for: userId, isFollowed: false)
-       }
-       
-       private func updateFollowStatus(for userId: String, isFollowed: Bool) {
-           if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
-               DispatchQueue.main.async {
-                   self.contacts[index].isFollowed = isFollowed
-               }
-           }
-       }
-    func inviteContact(_ contact: Contact) {
-            self.messageRecipient = contact.phoneNumber
-            self.isShowingMessageComposer = true
+        guard let userId = contact.user?.id else { return false }
+        
+        // If we've already checked the follow status, return the stored value
+        if let isFollowed = contact.isFollowed {
+            return isFollowed
         }
+        // If we haven't checked yet, fetch the status from the server
+        let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
+        
+        // Update the contact in the contacts array
+        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+            DispatchQueue.main.async {
+                self.contacts[index].isFollowed = isFollowed
+            }
+        }
+        
+        return isFollowed
+    }
+    
+    func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+            DispatchQueue.main.async {
+                self.contacts[index].isFollowed = isFollowed
+            }
+        }
+    }
+    
+    func follow(userId: String) async throws {
+        try await userService.follow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: true)
+    }
+    
+    func unfollow(userId: String) async throws {
+        try await userService.unfollow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: false)
+    }
+    
+    private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+        if let index = contacts.firstIndex(where: { $0.user?.id == userId }) {
+            DispatchQueue.main.async {
+                self.contacts[index].isFollowed = isFollowed
+            }
+        }
+    }
+    func inviteContact(_ contact: Contact) {
+        self.messageRecipient = contact.phoneNumber
+        self.isShowingMessageComposer = true
+    }
 }
 
 

@@ -17,7 +17,7 @@ struct ActivityView: View {
     @State var showSearchView: Bool = false
     @State var showContacts: Bool = false
     @Namespace private var animation
-    
+    @State var shouldShowExistingUsersOnContacts: Bool = false
     var body: some View {
         NavigationStack {
             VStack {
@@ -43,6 +43,7 @@ struct ActivityView: View {
                                     .frame(width: 60, height: 17)
                             }
                             Button{
+                                shouldShowExistingUsersOnContacts = false
                                 showContacts = true
                             } label: {
                                 SkipButton()
@@ -73,7 +74,7 @@ struct ActivityView: View {
                         SearchView(initialSearchConfig: .users)
                     }
                     .sheet(isPresented: $showContacts) {
-                        ContactsView()
+                        ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts)
                     }
                     .sheet(item: $viewModel.post){ post in
                         NavigationStack{
@@ -139,9 +140,10 @@ struct ActivityView: View {
                 Text("Friends on Ketchup")
                     .font(.custom("MuseoSansRounded-700", size: 25))
                     .foregroundStyle(.black)
-                    
+                
                 Spacer()
                 Button(action: {
+                    shouldShowExistingUsersOnContacts = true
                     showContacts = true
                 }) {
                     

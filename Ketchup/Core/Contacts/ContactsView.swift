@@ -12,13 +12,17 @@ import MessageUI
 import FirebaseAuth
 
 struct ContactsView: View {
-    @StateObject private var viewModel = ContactsViewModel()
+    @StateObject private var viewModel: ContactsViewModel
     @State private var searchText = ""
     @State private var isContactsPermissionDenied = false
     @State private var isSyncingContacts = false
     @State private var showMessageComposer = false
     @State private var showCopiedAlert = false
-
+    
+    init(shouldFetchExistingUsers: Bool = true) {
+        _viewModel = StateObject(wrappedValue: ContactsViewModel(shouldFetchExistingUsers: shouldFetchExistingUsers))
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -29,10 +33,17 @@ struct ContactsView: View {
                     }
                 } else if isContactsPermissionDenied {
                     deniedPermissionView
-                } else if viewModel.contacts.isEmpty && !viewModel.isLoading {
+                } else if viewModel.contacts.isEmpty && !viewModel.isLoading && !viewModel.isLoadingExistingUsers {
                     emptyView
                 } else {
-                    contactsList
+                    VStack {
+                        
+                        contactsList
+                        if viewModel.isLoadingExistingUsers {
+                            FastCrossfadeFoodImageView()
+                            
+                        }
+                    }
                 }
             }
             .alert(isPresented: $showCopiedAlert) {
@@ -55,7 +66,7 @@ struct ContactsView: View {
                 if MFMessageComposeViewController.canSendText() {
                     ContactMessageComposeView(
                         isShowing: $showMessageComposer,
-                        recipient: "",
+                        recipient: viewModel.messageRecipient ?? "",
                         body: inviteMessage
                     )
                 } else {
@@ -64,27 +75,43 @@ struct ContactsView: View {
             }
         }
     }
-    private var copyInviteLinkButton: some View {
-            Button(action: copyInviteLink) {
-                VStack{
-                    Image(systemName: "link")
-                        .foregroundColor(Color("Colors/AccentColor"))
-                    if !showCopiedAlert{
-                        Text("Copy Link")
-                            .font(.custom("MuseoSansRounded-500", size: 12))
-                            .foregroundStyle(.black)
-                    } else {
-                        Text("Copied!")
-                            .font(.custom("MuseoSansRounded-500", size: 12))
-                            .foregroundStyle(.black)
+    
+    private var contactsList: some View {
+        List {
+            ForEach(filteredContacts) { contact in
+                ContactRow(viewModel: viewModel, contact: contact)
+            }
+            
+            if viewModel.hasMoreContacts {
+                ProgressView()
+                    .onAppear {
+                        viewModel.fetchContacts()
                     }
+            }
+        }
+        .listStyle(PlainListStyle())
+    }
+    private var copyInviteLinkButton: some View {
+        Button(action: copyInviteLink) {
+            VStack{
+                Image(systemName: "link")
+                    .foregroundColor(Color("Colors/AccentColor"))
+                if !showCopiedAlert{
+                    Text("Copy Link")
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundStyle(.black)
+                } else {
+                    Text("Copied!")
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundStyle(.black)
                 }
             }
         }
+    }
     private func copyInviteLink() {
-            UIPasteboard.general.string = inviteMessage
-            showCopiedAlert = true
-        }
+        UIPasteboard.general.string = inviteMessage
+        showCopiedAlert = true
+    }
     private var deniedPermissionView: some View {
         VStack {
             Image("Skip")
@@ -195,27 +222,7 @@ struct ContactsView: View {
             UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
     }
-    private var contactsList: some View {
-        List {
-            ForEach(filteredContacts.filter { $0.hasExistingAccount == true }) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
-            }
-            
-            /* ForEach(filteredContacts.filter { $0.hasExistingAccount == false }) {*/
-            ForEach(filteredContacts.filter { $0.hasExistingAccount == false || $0.hasExistingAccount == nil }) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
-            }
-            
-            if viewModel.hasMoreContacts {
-                ProgressView()
-                    .onAppear {
-                        viewModel.fetchContacts()
-                    }
-            }
-            
-        }
-        .listStyle(PlainListStyle())
-    }
+    
     
     private var filteredContacts: [Contact] {
         if searchText.isEmpty {
@@ -236,7 +243,8 @@ struct ContactRow: View {
     @State private var isCheckingFollowStatus: Bool = false
     @State private var hasCheckedFollowStatus: Bool = false
     @State private var isShowingProfile: Bool = false // Local state for showing the profile
-
+    @State private var isShowingMessageComposer = false
+    
     init(viewModel: ContactsViewModel, contact: Contact) {
         self.viewModel = viewModel
         self._contact = State(initialValue: contact)
@@ -309,6 +317,17 @@ struct ContactRow: View {
         }
         .padding(.vertical, 8)
         .onAppear(perform: checkFollowStatus)
+        .sheet(isPresented: $isShowingMessageComposer) {
+            if MFMessageComposeViewController.canSendText() {
+                ContactMessageComposeView(
+                    isShowing: $isShowingMessageComposer,
+                    recipient: contact.phoneNumber,
+                    body: viewModel.inviteMessage
+                )
+            } else {
+                Text("This device cannot send text messages")
+            }
+        }
     }
     
     private var locationText: some View {
@@ -385,7 +404,9 @@ struct ContactRow: View {
     }
     
     private var inviteButton: some View {
-        Button(action: { viewModel.inviteContact(contact) }) {
+        Button(action: {
+            isShowingMessageComposer = true
+        }) {
             Text("Invite")
                 .font(.custom("MuseoSansRounded-300", size: 16))
                 .fontWeight(.semibold)
@@ -396,7 +417,7 @@ struct ContactRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .buttonStyle(PlainButtonStyle())
-        .contentShape(Rectangle())  // Ensures only the button area is tappable
+        .contentShape(Rectangle())
     }
 }
 struct AlertItem: Identifiable {
