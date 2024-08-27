@@ -55,9 +55,8 @@ struct ImagePicker: View {
     @ObservedObject var cameraViewModel: CameraViewModel
     
     var body: some View {
-     
-            VStack {
-                if isPresented{
+        VStack {
+            if isPresented {
                 YPImagePickerSwiftUI(
                     isPresented: $isPresented,
                     uploadViewModel: uploadViewModel,
@@ -84,25 +83,28 @@ struct ImagePicker: View {
                         config.video.libraryTimeLimit = 60.0
                         config.video.minimumTimeLimit = 3.0
                         config.gallery.hidesRemoveButton = true
-
                         return config
                     }()
                 )
             }
         }
-            .onAppear {
-                        let attributes = [NSAttributedString.Key.font: UIFont(name: "MuseoSansRounded-300", size: 16)]
-                UINavigationBar.appearance().titleTextAttributes = attributes as [NSAttributedString.Key : Any] // Title fonts
-                UIBarButtonItem.appearance().setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
-                UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black ] // Title color
-                UINavigationBar.appearance().tintColor = .black // Left. bar buttons
-                    }
-            .edgesIgnoringSafeArea(.bottom)
-            .fullScreenCover(isPresented: $uploadViewModel.navigateToUpload) {
-                    ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                .onDisappear{isPresented = true}
-            }
-        
+        .onAppear {
+            dismissKeyboard()
+            
+            let attributes = [NSAttributedString.Key.font: UIFont(name: "MuseoSansRounded-300", size: 16)]
+            UINavigationBar.appearance().titleTextAttributes = attributes as [NSAttributedString.Key: Any] // Title fonts
+            UIBarButtonItem.appearance().setTitleTextAttributes(attributes as [NSAttributedString.Key: Any], for: .normal)
+            UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black] // Title color
+            UINavigationBar.appearance().tintColor = .black // Left bar buttons
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .fullScreenCover(isPresented: $uploadViewModel.navigateToUpload) {
+            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                .onDisappear { isPresented = true }
+        }
+    }
+    
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
-

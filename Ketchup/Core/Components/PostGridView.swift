@@ -42,7 +42,7 @@ struct PostGridView: View {
                 ForEach(feedViewModel.posts) { post in
                     Button {
                         feedViewModel.startingPostId = post.id
-                        if post.mediaType == .written || (post.mixedMediaUrls?.isEmpty ?? true) {
+                        if post.mediaType == .written || ((post.mixedMediaUrls?.isEmpty ?? true) && post.mediaUrls.isEmpty) {
                             selectedWrittenPost = post
                         } else {
                             selectedPost = post

@@ -36,7 +36,7 @@ struct PrimaryFeedView: View {
     private let scrollThreshold: CGFloat = 20 // Minimum scroll change to trigger updates
     private let debounceDelay: TimeInterval = 0.2
     @State private var topBarHeight: CGFloat = 150 // Default height
-
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -147,7 +147,7 @@ struct PrimaryFeedView: View {
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
                     
-
+                    
                     VStack(spacing: 0){
                         HStack(spacing: 0) {
                             Button {
@@ -450,22 +450,23 @@ struct PrimaryFeedView: View {
             if scrollDifference > 0 {
                 // Scrolling up
                 withAnimation(.easeInOut(duration: 0.3)) {
-                hideTopUI = false
-                
+                    hideTopUI = false
+                    
                     topBarHeight = 150
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
                 withAnimation(.easeInOut(duration: 0.3)) {
-                hideTopUI = true
-               
-        
+                    hideTopUI = true
+                    
+                    
                     topBarHeight = 95
                 }
             }
             lastScrollOffset = scrollOffset
         }
     }
+    
 }
 
 struct SuccessMessageOverlay: View {

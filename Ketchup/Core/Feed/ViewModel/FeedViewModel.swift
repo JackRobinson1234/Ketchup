@@ -311,56 +311,13 @@ class FeedViewModel: ObservableObject {
         }
     }
     func updateCache(scrollPosition: String?) {
-        guard !posts.isEmpty, let scrollPosition = scrollPosition else {
-            print("Posts array is empty or scroll position is nil")
-            return
-        }
-        
-        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            print("Current index not found in posts array")
-            return
-        }
-        
-        print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
-        
-        let startIndex = min(currentIndex + 1, posts.count - 1)
-        let endIndex = min(currentIndex + 6, posts.count)
-        
-        guard startIndex < endIndex else {
-            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-            return
-        }
-        
-        let postsToPreload = Array(posts[startIndex..<endIndex])
-        
-        print("Preloading \(postsToPreload.count) posts")
-        
-        DispatchQueue.global().async {
-            for post in postsToPreload {
-                Task {
-                    if post.mediaType == .video {
-                        if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
-                            print("Running prefetch for video")
-                            VideoPrefetcher.shared.prefetchPosts([post])
-                        }
-                    } else if post.mediaType == .photo {
-                        let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
-                        prefetcher.start()
-                    }
-                    
-                    if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
-                        let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
-                        prefetcher.start()
-                    }
-                    
-                    if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
-                        let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
-                        prefetcher.start()
-                    }
-                }
-            }
-        }
-    }
+           guard !posts.isEmpty, let scrollPosition = scrollPosition,
+                 let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+               return
+           }
+
+           ContentPrefetcher.shared.prefetchContent(for: posts, currentIndex: currentIndex)
+       }
 }
 
 extension FeedViewModel {
@@ -567,4 +524,99 @@ extension FeedViewModel {
               return false
           }
       }
+}
+class ContentPrefetcher {
+    static let shared = ContentPrefetcher()
+    private let prefetchQueue = OperationQueue()
+    private var currentPrefetchOperations: [String: Operation] = [:]
+
+    private init() {
+        prefetchQueue.maxConcurrentOperationCount = 3
+    }
+
+    func prefetchContent(for posts: [Post], currentIndex: Int) {
+        // Cancel any existing operations
+        cancelAllPrefetchOperations()
+
+        // Ensure currentIndex is within bounds
+        guard currentIndex >= 0 && currentIndex < posts.count else {
+            print("Error: Current index out of bounds")
+            return
+        }
+
+        // Determine the range of posts to prefetch
+        let startIndex = currentIndex + 1
+        let endIndex = min(startIndex + 5, posts.count - 1)
+
+        // Ensure startIndex is less than or equal to endIndex
+        guard startIndex <= endIndex else {
+            print("No more posts to prefetch")
+            return
+        }
+
+        for i in startIndex...endIndex {
+            guard i < posts.count else {
+                print("Warning: Attempted to access post beyond array bounds")
+                break
+            }
+
+            let post = posts[i]
+            let operation = BlockOperation { [weak self] in
+                self?.prefetchPost(post)
+            }
+            currentPrefetchOperations[post.id] = operation
+            prefetchQueue.addOperation(operation)
+        }
+    }
+
+    private func prefetchPost(_ post: Post) {
+        switch post.mediaType {
+        case .video:
+            VideoPrefetcher.shared.prefetchPosts([post])
+        case .photo, .mixed:
+            prefetchImages(for: post)
+        case .written:
+            // No media to prefetch for written posts
+            break
+        }
+
+        prefetchProfileImages(for: post)
+    }
+
+    private func prefetchImages(for post: Post) {
+        let urls = post.mixedMediaUrls?.compactMap { URL(string: $0.url) } ??
+                   post.mediaUrls.compactMap { URL(string: $0) }
+        
+        if urls.isEmpty {
+            print("Warning: No valid image URLs found for post \(post.id)")
+            return
+        }
+
+        let prefetcher = ImagePrefetcher(urls: urls)
+        prefetcher.start()
+    }
+
+    private func prefetchProfileImages(for post: Post) {
+        if let userProfileImageURL = URL(string: post.user.profileImageUrl ?? "") {
+            let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
+            prefetcher.start()
+        }
+
+        if let restaurantProfileImageURL = URL(string: post.restaurant.profileImageUrl ?? "") {
+            let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
+            prefetcher.start()
+        }
+    }
+
+    func cancelAllPrefetchOperations() {
+        prefetchQueue.cancelAllOperations()
+        currentPrefetchOperations.removeAll()
+    }
+
+    func cancelPrefetchOperation(for postId: String) {
+        if let operation = currentPrefetchOperations[postId] {
+            operation.cancel()
+            currentPrefetchOperations.removeValue(forKey: postId)
+        }
+    }
 }

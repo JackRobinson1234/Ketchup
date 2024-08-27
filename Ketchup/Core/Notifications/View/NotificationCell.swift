@@ -15,11 +15,15 @@ struct NotificationCell: View {
     @State var selectedRestaurantId: String? = nil
     @State var post: Post?
     @State var showPost: Bool = false
+    @State var showUserProfile = false // New state variable
     @ObservedObject var feedViewModel: FeedViewModel
     @ObservedObject var collectionsViewModel: CollectionsViewModel
+    
     var body: some View {
         HStack(spacing: 12) {
-            NavigationLink(value: notification.user) {
+            Button(action: {
+                showUserProfile = true
+            }) {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
             }
             
@@ -34,6 +38,13 @@ struct NotificationCell: View {
         .padding(.horizontal, 16)
         .background(Color.white)
         .onAppear(perform: checkFollowStatus)
+        .fullScreenCover(isPresented: $showUserProfile) {
+            if let user = notification.user {
+                NavigationStack{
+                    ProfileView(uid: user.id)
+                }
+            }
+        }
         .fullScreenCover(isPresented: Binding(
             get: { showRestaurant && selectedRestaurantId != nil },
             set: { showRestaurant = $0 }
@@ -51,8 +62,8 @@ struct NotificationCell: View {
                 .onDisappear{
                     collectionsViewModel.selectedCollection = nil
                 }
-            
         }
+    
     }
     
     private var notificationContent: some View {
@@ -191,6 +202,8 @@ struct NotificationCell: View {
             self.showRestaurant = true
         } else if notification.collectionId != nil {
             handleCollectionTap()
+        } else {
+            showUserProfile = true
         }
     }
     
