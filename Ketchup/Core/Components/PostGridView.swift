@@ -42,7 +42,7 @@ struct PostGridView: View {
                 ForEach(feedViewModel.posts) { post in
                     Button {
                         feedViewModel.startingPostId = post.id
-                        if post.mediaType == .written {
+                        if post.mediaType == .written || ((post.mixedMediaUrls?.isEmpty ?? true) && post.mediaUrls.isEmpty) {
                             selectedWrittenPost = post
                         } else {
                             selectedPost = post
@@ -56,10 +56,24 @@ struct PostGridView: View {
                                     .frame(width: width, height: 160)
                                     .cornerRadius(cornerRadius)
                                     .clipped()
+                                    .overlay(
+                                        VStack(alignment: .leading) {
+                                            HStack {
+                                                Spacer()
+                                                if post.repost {
+                                                    Image(systemName: "arrow.2.squarepath")
+                                                        .foregroundStyle(.white)
+                                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                                }
+                                            }
+                                            Spacer()
+                                        }
+                                    )
                             } else {
                                 VStack {
                                     if let profileImageUrl = post.restaurant.profileImageUrl {
                                         RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .large)
+                                        
                                     }
                                     if !post.caption.isEmpty {
                                         Image(systemName: "line.3.horizontal")
@@ -115,6 +129,7 @@ struct PostGridView: View {
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
                 }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
         } else {
             HStack {

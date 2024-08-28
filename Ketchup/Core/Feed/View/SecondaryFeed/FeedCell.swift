@@ -102,32 +102,37 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            Color("Colors/HingeGray")
-                .ignoresSafeArea()
             
             VStack() {
                 Spacer()
                 if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                    CustomHorizontalScrollView(
-                        content: {
-                            HStack(spacing: 0) {
-                                ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                    mediaItemView(for: mediaItem)
+                    
+                        CustomHorizontalScrollView(
+                            content: {
+                                HStack(spacing: 0) {
+                                    ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                        mediaItemView(for: mediaItem)
+                                    }
                                 }
+                            },
+                            currentIndex: $currentIndex,
+                            itemCount: mixedMediaUrls.count,
+                            itemWidth: mediaWidth,
+                            initialIndex: viewModel.startingImageIndex,
+                            onDismiss: {
+                                viewModel.initialPrimaryScrollPosition = scrollPosition
+                                dismiss()
                             }
-                        },
-                        currentIndex: $currentIndex,
-                        itemCount: mixedMediaUrls.count,
-                        itemWidth: mediaWidth,
-                        initialIndex: viewModel.startingImageIndex,
-                        onDismiss: { 
-                            viewModel.initialPrimaryScrollPosition = scrollPosition
-                            dismiss() }
-                    )
-                    .onAppear { viewModel.startingImageIndex = 0 }
-                    .frame(height: mediaHeight)
-                    .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count) }
-
+                        )
+                        .onAppear { viewModel.startingImageIndex = 0 }
+                        .frame(height: mediaHeight)
+                        .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
+                        }
+                        .onTapGesture{
+                            withAnimation(.spring()) { expandCaption.toggle() }
+                        }
+                        
+                    
                 } else if post.mediaType == .video {
                     ForEach(videoCoordinators.prefix(1), id: \.0) { mediaItemId, coordinator in
                         singleMediaItemView(coordinator: coordinator)
@@ -314,7 +319,22 @@ struct FeedCell: View {
         VStack(alignment: .leading, spacing: 7) {
             
             actionButtons
-            
+                
+            if post.repost {
+                HStack(spacing: 1){
+                    Image(systemName: "arrow.2.squarepath")
+                        .foregroundStyle(.black)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                    Text("reposted")
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.black)
+                        
+                        
+                }
+            }
+                       
+                
             HStack {
                 let restaurant = post.restaurant
                 NavigationLink(value: restaurant) {

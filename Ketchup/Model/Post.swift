@@ -49,13 +49,13 @@ struct Post: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.mediaType = try container.decode(MediaType.self, forKey: .mediaType)
-        self.mediaUrls = try container.decode([String].self, forKey: .mediaUrls)
+        self.mediaUrls = try container.decodeIfPresent([String].self, forKey: .mediaUrls) ?? []  // Default to empty array if not present
         self.mixedMediaUrls = try container.decodeIfPresent([MixedMediaItem].self, forKey: .mixedMediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
         self.commentCount = try container.decode(Int.self, forKey: .commentCount)
         self.repostCount = try container.decode(Int.self, forKey: .repostCount)
-        self.bookmarkCount = try container.decodeIfPresent(Int.self, forKey: .bookmarkCount) ?? 0  // Default to 0 if not present
+        self.bookmarkCount = try container.decodeIfPresent(Int.self, forKey: .bookmarkCount) ?? 0
         self.thumbnailUrl = try container.decode(String.self, forKey: .thumbnailUrl)
         self.timestamp = try container.decodeIfPresent(Timestamp.self, forKey: .timestamp)
         self.user = try container.decode(PostUser.self, forKey: .user)
@@ -77,7 +77,7 @@ struct Post: Identifiable, Codable {
     init(
         id: String,
         mediaType: MediaType,
-        mediaUrls: [String],
+        mediaUrls: [String] = [],  // Default to empty array
         mixedMediaUrls: [MixedMediaItem]? = nil,
         caption: String,
         likes: Int,

@@ -64,7 +64,9 @@ class FiltersViewModel: ObservableObject {
         ///Dietary checking if there are any selected
         print("Filters", filters)
         do{
+            feedViewModel.isInitialLoading = true
             try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+            feedViewModel.isInitialLoading = false
         } catch {
             print("Error")
         }
@@ -87,20 +89,5 @@ class FiltersViewModel: ObservableObject {
         filters = [:]
     }
     
-//    func disableFilters() {
-//        if !selectedLocation.isEmpty || !selectedPrice.isEmpty || atHomeChecked == false {
-//            disableAtHomeFilters = true
-//            restaurantChecked = true
-//            atHomeChecked = false
-//        } else {
-//            disableAtHomeFilters = false
-//        }
-//        if !selectedDietary.isEmpty || !selectedCookingTime.isEmpty || restaurantChecked == false {
-//            disableRestaurantFilters = true
-//            restaurantChecked = false
-//            atHomeChecked = true
-//        } else {
-//            disableRestaurantFilters = false
-//        }
-//    }
+
 }

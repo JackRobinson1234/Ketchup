@@ -311,56 +311,56 @@ class FeedViewModel: ObservableObject {
         }
     }
     func updateCache(scrollPosition: String?) {
-        guard !posts.isEmpty, let scrollPosition = scrollPosition else {
-            print("Posts array is empty or scroll position is nil")
-            return
-        }
-        
-        guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            print("Current index not found in posts array")
-            return
-        }
-        
-        print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
-        
-        let startIndex = min(currentIndex + 1, posts.count - 1)
-        let endIndex = min(currentIndex + 6, posts.count)
-        
-        guard startIndex < endIndex else {
-            print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
-            return
-        }
-        
-        let postsToPreload = Array(posts[startIndex..<endIndex])
-        
-        print("Preloading \(postsToPreload.count) posts")
-        
-        DispatchQueue.global().async {
-            for post in postsToPreload {
-                Task {
-                    if post.mediaType == .video {
-                        if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
-                            print("Running prefetch for video")
-                            VideoPrefetcher.shared.prefetchPosts([post])
+            guard !posts.isEmpty, let scrollPosition = scrollPosition else {
+                print("Posts array is empty or scroll position is nil")
+                return
+            }
+            
+            guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
+                print("Current index not found in posts array")
+                return
+            }
+            
+            print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
+            
+            let startIndex = min(currentIndex + 1, posts.count - 1)
+            let endIndex = min(currentIndex + 6, posts.count)
+            
+            guard startIndex < endIndex else {
+                print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+                return
+            }
+            
+            let postsToPreload = Array(posts[startIndex..<endIndex])
+            
+            print("Preloading \(postsToPreload.count) posts")
+            
+            DispatchQueue.global().async {
+                for post in postsToPreload {
+                    Task {
+                        if post.mediaType == .video {
+                            if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
+                                print("Running prefetch for video")
+                                VideoPrefetcher.shared.prefetchPosts([post])
+                            }
+                        } else if post.mediaType == .photo {
+                            let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
+                            prefetcher.start()
                         }
-                    } else if post.mediaType == .photo {
-                        let prefetcher = ImagePrefetcher(urls: post.mediaUrls.compactMap { URL(string: $0) })
-                        prefetcher.start()
-                    }
-                    
-                    if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
-                        let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
-                        prefetcher.start()
-                    }
-                    
-                    if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
-                        let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
-                        prefetcher.start()
+                        
+                        if let profileImageUrl = post.user.profileImageUrl, let userProfileImageURL = URL(string: profileImageUrl) {
+                            let prefetcher = ImagePrefetcher(urls: [userProfileImageURL])
+                            prefetcher.start()
+                        }
+                        
+                        if let profileImageURL = post.restaurant.profileImageUrl, let restaurantProfileImageURL = URL(string: profileImageURL) {
+                            let prefetcher = ImagePrefetcher(urls: [restaurantProfileImageURL])
+                            prefetcher.start()
+                        }
                     }
                 }
             }
         }
-    }
 }
 
 extension FeedViewModel {

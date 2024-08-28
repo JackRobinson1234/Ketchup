@@ -22,7 +22,7 @@ struct ProfileView: View {
     private let uid: String
     var drag: some Gesture {
         
-        DragGesture(minimumDistance: 5)
+        DragGesture(minimumDistance: 15)
             .onChanged { _ in self.isDragging = true }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {

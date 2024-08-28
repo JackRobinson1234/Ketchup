@@ -18,6 +18,7 @@ class CoordinatorWrapper: NSObject {
     }
 }
 
+
 class VideoPrefetcher {
     static let shared = VideoPrefetcher()
     private var preloadedPlayerItems: NSCache<NSString, VideoPlayerCoordinator> = NSCache()
@@ -61,35 +62,58 @@ class VideoPrefetcher {
     }
     
     func prefetchPosts(_ posts: [Post]) {
+        // Dispatch prefetching to a background queue
         queue.async { [weak self] in
             guard let self = self else { return }
+            
+            // Dispatch each post's prefetching to the background queue
+            let group = DispatchGroup()
+            
             for post in posts {
-                self.prefetchMediaItems(for: post)
-            }
-        }
-    }
-    
-    private func prefetchMediaItems(for post: Post) {
-        if let mixedMediaUrls = post.mixedMediaUrls {
-            for mediaItem in mixedMediaUrls where mediaItem.type == .video {
-                if preloadedPlayerItems.object(forKey: mediaItem.id as NSString) == nil {
-                    prepareMediaItem(mediaItem, postId: post.id)
+                group.enter()
+                self.prefetchMediaItems(for: post) {
+                    group.leave()
                 }
             }
-        } else if post.mediaType == .video, let url = post.mediaUrls.first {
-            let defaultMediaItem = MixedMediaItem(id: "default", url: url, type: .video)
-            if preloadedPlayerItems.object(forKey: "default" as NSString) == nil {
-                prepareMediaItem(defaultMediaItem, postId: post.id)
+            group.notify(queue: DispatchQueue.main) {
             }
         }
     }
-    
-    private func prepareMediaItem(_ mediaItem: MixedMediaItem, postId: String) {
+
+    private func prefetchMediaItems(for post: Post, completion: @escaping () -> Void) {
+        // Dispatch the work to a background queue
+        queue.async { [weak self] in
+            guard let self = self else { completion(); return }
+            
+            if let mixedMediaUrls = post.mixedMediaUrls {
+                for mediaItem in mixedMediaUrls where mediaItem.type == .video {
+                    if self.preloadedPlayerItems.object(forKey: mediaItem.id as NSString) == nil {
+                        self.prepareMediaItem(mediaItem, postId: post.id, completion: completion)
+                    } else {
+                        completion()
+                    }
+                }
+            } else if post.mediaType == .video, let url = post.mediaUrls.first {
+                let defaultMediaItem = MixedMediaItem(id: "default", url: url, type: .video)
+                if self.preloadedPlayerItems.object(forKey: "default" as NSString) == nil {
+                    self.prepareMediaItem(defaultMediaItem, postId: post.id, completion: completion)
+                } else {
+                    completion()
+                }
+            }
+        }
+    }
+
+    private func prepareMediaItem(_ mediaItem: MixedMediaItem, postId: String, completion: @escaping () -> Void) {
         let coordinator = VideoPlayerCoordinator()
+        
         if let videoURL = URL(string: mediaItem.url) {
             coordinator.prefetch(url: videoURL, mediaItemId: mediaItem.id) { [weak self] in
                 self?.preloadedPlayerItems.setObject(coordinator, forKey: mediaItem.id as NSString)
+                completion()
             }
+        } else {
+            completion()
         }
     }
 }

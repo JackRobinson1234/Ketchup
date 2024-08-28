@@ -110,6 +110,8 @@
 		F87987472C56F451007BAAB4 /* ZoomableViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87987462C56F451007BAAB4 /* ZoomableViews.swift */; };
 		F87987492C56F48D007BAAB4 /* ScrollOverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87987482C56F48D007BAAB4 /* ScrollOverallRatingView.swift */; };
 		F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */; };
+		F87D33E62C7EA46100E5A962 /* FallingFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87D33E52C7EA46100E5A962 /* FallingFoodView.swift */; };
+		F87D33E82C7EA56500E5A962 /* PostUploadedSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87D33E72C7EA56500E5A962 /* PostUploadedSuccessView.swift */; };
 		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
 		F88322072C3DE8B0006744D2 /* RatingSliderGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */; };
 		F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322082C3DE8EA006744D2 /* OverallRatingView.swift */; };
@@ -390,6 +392,8 @@
 		F87987462C56F451007BAAB4 /* ZoomableViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableViews.swift; sourceTree = "<group>"; };
 		F87987482C56F48D007BAAB4 /* ScrollOverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollOverallRatingView.swift; sourceTree = "<group>"; };
 		F879874A2C56F4B6007BAAB4 /* ClearCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearCircle.swift; sourceTree = "<group>"; };
+		F87D33E52C7EA46100E5A962 /* FallingFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallingFoodView.swift; sourceTree = "<group>"; };
+		F87D33E72C7EA56500E5A962 /* PostUploadedSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostUploadedSuccessView.swift; sourceTree = "<group>"; };
 		F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingSliderGroup.swift; sourceTree = "<group>"; };
 		F88322082C3DE8EA006744D2 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
 		F88C32932C604160004CF72E /* ClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterService.swift; sourceTree = "<group>"; };
@@ -802,7 +806,6 @@
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
-				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F8901C842BA4369500FBE778 /* VideoPlayer */,
 				F84FE27D2B6A54BC00144F01 /* Comments */,
@@ -855,6 +858,7 @@
 		F84FE27E2B6A54D700144F01 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
+				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE2922B6A55E200144F01 /* Protocols */,
 				F84FE28F2B6A55D200144F01 /* ViewModel */,
 				F84FE28E2B6A55CC00144F01 /* View */,
@@ -974,6 +978,8 @@
 				F83F40392C6C5948006BCEE9 /* UsernameSelectionView.swift */,
 				F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */,
 				F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */,
+				F87D33E52C7EA46100E5A962 /* FallingFoodView.swift */,
+				F87D33E72C7EA56500E5A962 /* PostUploadedSuccessView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2015,6 +2021,7 @@
 				F8FB35672BF03AB20079DE6D /* Reporting View.swift in Sources */,
 				F846F4712BFF97A9009D1303 /* ClusterCell.swift in Sources */,
 				F88E0B1F2B6B0B6B00EC159B /* PostService.swift in Sources */,
+				F87D33E62C7EA46100E5A962 /* FallingFoodView.swift in Sources */,
 				F8FB35642BEFDC0E0079DE6D /* ReportService.swift in Sources */,
 				F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */,
 				F8CC219C2BD5876F00B4B329 /* ReelsUploadView.swift in Sources */,
@@ -2041,6 +2048,7 @@
 				F8631E422BD883C700A48565 /* FacetsView.swift in Sources */,
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
 				F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */,
+				F87D33E82C7EA56500E5A962 /* PostUploadedSuccessView.swift in Sources */,
 				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,

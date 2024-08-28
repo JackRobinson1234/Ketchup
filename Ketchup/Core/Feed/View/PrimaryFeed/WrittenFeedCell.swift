@@ -29,7 +29,6 @@ struct WrittenFeedCell: View {
     }
     @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
     
-    @State var configured = false
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
@@ -106,42 +105,40 @@ struct WrittenFeedCell: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                if index < mixedMediaUrls.count { // Safety check
-                                    VStack {
-                                        Button {
-                                            viewModel.startingImageIndex = index
-                                            viewModel.startingPostId = post.id
-                                            selectedPost = post
-                                        } label: {
-                                            if mediaItem.type == .photo {
-                                                KFImage(URL(string: mediaItem.url))
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fill)
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        if mediaItem.type == .photo {
+                                            KFImage(URL(string: mediaItem.url))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: mediaWidth, height: mediaHeight)
+                                                .clipped()
+                                                .cornerRadius(10)
+                                        } else if mediaItem.type == .video {
+                                            ZStack {
+                                                VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
                                                     .frame(width: mediaWidth, height: mediaHeight)
-                                                    .clipped()
                                                     .cornerRadius(10)
-                                            } else if mediaItem.type == .video {
-                                                ZStack {
-                                                    VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
-                                                        .frame(width: mediaWidth, height: mediaHeight)
-                                                        .cornerRadius(10)
-                                                        .id(mediaItem.id)
-                                                    
-                                                    if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
-                                                        Image(systemName: "play.circle.fill")
-                                                            .resizable()
-                                                            .frame(width: 50, height: 50)
-                                                            .foregroundColor(.white)
-                                                            .opacity(0.8)
-                                                    }
+                                                    .id(mediaItem.id)
+                                                
+                                                if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
+                                                    Image(systemName: "play.circle.fill")
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                        .foregroundColor(.white)
+                                                        .opacity(0.8)
                                                 }
                                             }
                                         }
                                     }
-                                    .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                        content
-                                            .opacity(phase.isIdentity ? 1.0 : 0.8)
-                                    }
+                                }
+                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                    content
+                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
                                 }
                             }
                         }
@@ -227,25 +224,23 @@ struct WrittenFeedCell: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack {
                             ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
-                                if index < post.mediaUrls.count { // Safety check
-                                    VStack {
-                                        Button {
-                                            viewModel.startingImageIndex = index
-                                            viewModel.startingPostId = post.id
-                                            selectedPost = post
-                                        } label: {
-                                            KFImage(URL(string: url))
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: mediaWidth, height: mediaHeight)
-                                                .clipped()
-                                                .cornerRadius(10)
-                                        }
+                                VStack {
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        KFImage(URL(string: url))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: mediaWidth, height: mediaHeight)
+                                            .clipped()
+                                            .cornerRadius(10)
                                     }
-                                    .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                        content
-                                            .opacity(phase.isIdentity ? 1.0 : 0.8)
-                                    }
+                                }
+                                .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                    content
+                                        .opacity(phase.isIdentity ? 1.0 : 0.8)
                                 }
                             }
                         }
@@ -360,8 +355,8 @@ struct WrittenFeedCell: View {
                 
                 HStack(spacing: 15) {
                     Button {
-                        handleLikeTapped()
                         triggerHapticFeedback()
+                        handleLikeTapped()
                     } label: {
                         InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                     }
@@ -373,10 +368,10 @@ struct WrittenFeedCell: View {
                     }
 
                     Button {
-                        handleBookmarkTapped()
                         triggerHapticFeedback()
+                        handleBookmarkTapped()
                     } label: {
-                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
+                        InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark",count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
 
                     Button {
@@ -427,22 +422,24 @@ struct WrittenFeedCell: View {
             }
         }
         
-        .onChange(of: scrollPosition) { newValue in
+        .onChange(of: scrollPosition){
             if scrollPosition != post.id {
                 pauseAllVideos()
             } else {
                 handleIndexChange(currentIndex)
             }
         }
-        .onDisappear {
+        .onDisappear{
             pauseAllVideos()
         }
         .onChange(of: currentIndex) { oldValue, newValue in
-            pauseAllVideos()
-            handleIndexChange(newValue)
+            if newValue >= 0 && newValue < (post.mixedMediaUrls?.count ?? 0) {
+                pauseAllVideos()
+                handleIndexChange(newValue)
+            }
         }
-        .onChange(of: pauseVideo) { newValue in
-            if pauseVideo {
+        .onChange(of: pauseVideo){
+            if pauseVideo{
                 pauseAllVideos()
             } else {
                 handleIndexChange(currentIndex)
@@ -478,6 +475,15 @@ struct WrittenFeedCell: View {
                 }
             }
         }
+//        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+//            if let newValue = newValue,
+//               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+//                pauseAllVideos()
+//                coordinator.play()
+//                isCurrentVideoPlaying = true
+//            }
+//        }
+        
 
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post, feedViewModel: viewModel)
@@ -520,7 +526,7 @@ struct WrittenFeedCell: View {
                     handleIndexChange(currentIndex)
                 }
         }
-        .onChange(of: selectedPost) { newValue in
+        .onChange(of: selectedPost) {
             if selectedPost != nil {
                 //videoCoordinator.pause()
             }
@@ -541,31 +547,30 @@ struct WrittenFeedCell: View {
                 }
             }
         )
+
         
-        .onDisappear {
+                .onDisappear {
+                   pauseAllVideos()
+                }
+                .fullScreenCover(isPresented: $showUserProfile) {
+                    NavigationStack {
+                        ProfileView(uid: post.user.id)
+                    }
+                }
+    }
+    private func handleVisibleMediaChange(oldValue: String?, newValue: String?) {
             pauseAllVideos()
-        }
-        .fullScreenCover(isPresented: $showUserProfile) {
-            NavigationStack {
-                ProfileView(uid: post.user.id)
+            
+            if let newValue = newValue,
+               let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
+               mediaItem.type == .video {
+                playVideo(id: newValue)
             }
         }
-    }
-    
-    private func handleVisibleMediaChange(oldValue: String?, newValue: String?) {
-        pauseAllVideos()
-        
-        if let newValue = newValue,
-           let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
-           mediaItem.type == .video {
-            playVideo(id: newValue)
-        }
-    }
-
     private func handleIndexChange(_ index: Int) {
         pauseAllVideos()
         if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-            if index < mixedMediaUrls.count {
+            if index >= 0 && index < mixedMediaUrls.count {
                 let mediaItem = mixedMediaUrls[index]
                 if mediaItem.type == .video {
                     currentlyPlayingVideoId = mediaItem.id
@@ -579,7 +584,6 @@ struct WrittenFeedCell: View {
             }
         }
     }
-
     private func pauseAllVideos() {
         for (_, coordinator) in videoCoordinators {
             coordinator.pause()
@@ -593,40 +597,40 @@ struct WrittenFeedCell: View {
             if isCurrentVideoPlaying {
                 coordinator.pause()
             } else {
-                coordinator.play()
-            }
-            isCurrentVideoPlaying.toggle()
-        }
-    }
+                   coordinator.play()
+               }
+               isCurrentVideoPlaying.toggle()
+           }
+       }
     
     private func toggleMute() {
-        viewModel.isMuted.toggle()
-        for (_, coordinator) in videoCoordinators {
-            coordinator.player.isMuted = viewModel.isMuted
-        }
-    }
+           viewModel.isMuted.toggle()
+           for (_, coordinator) in videoCoordinators {
+               coordinator.player.isMuted = viewModel.isMuted
+           }
+       }
     
     private func playVideo(id: String) {
-        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
-            coordinator.play()
-            isCurrentVideoPlaying = true
-            currentlyPlayingVideoId = id
-        }
-    }
-
-    private func pauseVideo(id: String) {
-        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
-            coordinator.pause()
-            if currentlyPlayingVideoId == id {
-                isCurrentVideoPlaying = false
+            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+                coordinator.play()
+                isCurrentVideoPlaying = true
+                currentlyPlayingVideoId = id
             }
         }
-    }
+    private func pauseVideo(id: String) {
+            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+                coordinator.pause()
+                if currentlyPlayingVideoId == id {
+                    isCurrentVideoPlaying = false
+                }
+            }
+        }
+    
+    
     
     private var isPlaying: Bool {
         videoCoordinators.first?.1.player.timeControlStatus == .playing
     }
-
     private func getVideoCoordinator(for mediaItemId: String) -> VideoPlayerCoordinator {
         if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
             return coordinator.1
@@ -636,7 +640,6 @@ struct WrittenFeedCell: View {
         videoCoordinators.append((mediaItemId, newCoordinator))
         return newCoordinator
     }
-
     private func parseCaption(_ input: String) -> AttributedString {
         var result = AttributedString(input)
         let pattern = "@\\w+"
@@ -679,7 +682,6 @@ struct WrittenFeedCell: View {
     
     private func handleLikeTapped() {
         Task {
-            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
             if didLike {
                 withAnimation {
                     showHeartOverlay = true
@@ -690,16 +692,17 @@ struct WrittenFeedCell: View {
                     }
                 }
             }
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
         }
     }
     
     private func handleDoubleTap() {
         if !didLike {
             Task {
-                await viewModel.like(post)
                 withAnimation {
                     showHeartOverlay = true
                 }
+                await viewModel.like(post)
                 Debouncer(delay: 1.0).schedule {
                     withAnimation {
                         showHeartOverlay = false

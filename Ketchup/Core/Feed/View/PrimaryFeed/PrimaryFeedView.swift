@@ -36,7 +36,7 @@ struct PrimaryFeedView: View {
     private let scrollThreshold: CGFloat = 20 // Minimum scroll change to trigger updates
     private let debounceDelay: TimeInterval = 0.2
     @State private var topBarHeight: CGFloat = 150 // Default height
-
+    @State var showPostSuccess = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -110,6 +110,15 @@ struct PrimaryFeedView: View {
                         .refreshable {
                             await refreshFeed()
                         }
+                        .onAppear{
+                            if viewModel.showPostAlert{
+                                withAnimation(.easeInOut(duration: 1.0)) {
+                                    showPostSuccess = true
+                                    viewModel.showPostAlert = false
+                                }
+                                triggerHapticFeedback()
+                            }
+                        }
                         .safeAreaPadding(.top, 110)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
@@ -147,7 +156,7 @@ struct PrimaryFeedView: View {
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
                     
-
+                    
                     VStack(spacing: 0){
                         HStack(spacing: 0) {
                             Button {
@@ -320,22 +329,44 @@ struct PrimaryFeedView: View {
                             }
                         }
                     }
+                    if showPostSuccess {
+                        ZStack {
+                            FallingFoodView(isStatic: false)
+                                .transition(.opacity)
+                                .opacity(showPostSuccess ? 1 : 0) // Set opacity based on the condition
+                                .animation(.easeInOut(duration: 1.0), value: showPostSuccess) // Animate opacity changes
+                                .onAppear {
+                                    triggerHapticFeedback() 
+                                    viewModel.showEmptyView = false
+                                    Debouncer(delay: 5.0).schedule {
+                                        withAnimation(.easeInOut(duration: 1.0)) {
+                                            showPostSuccess = false // Trigger fade-out animation
+                                        }
+                                    }
+                                }
+                            
+                            VStack{
+                                Image("Skip")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 150, height: 150)
+                                Text("Review Uploaded!")
+                                    .foregroundColor(.black)
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                
+                            }
+                            .background(Color.white.opacity(0.7))
+                            .cornerRadius(10)
+                            .shadow(radius: 10)
+                        }
+                    }
                 }
                 .overlay {
                     if viewModel.showEmptyView {
                         ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                             .foregroundStyle(Color("Colors/AccentColor"))
                     }
-                    if viewModel.showPostAlert {
-                        SuccessMessageOverlay(text: "Post Uploaded!")
-                            .transition(.opacity)
-                            .onAppear {
-                                viewModel.showEmptyView = false
-                                Debouncer(delay: 2.0).schedule {
-                                    viewModel.showPostAlert = false
-                                }
-                            }
-                    }
+                    
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
                             .transition(.opacity)
@@ -372,14 +403,7 @@ struct PrimaryFeedView: View {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-                .onChange(of: viewModel.showPostAlert) { oldValue, newValue in
-                    if newValue {
-                        showSuccessMessage = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                            showSuccessMessage = false
-                        }
-                    }
-                }
+
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
                         SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
@@ -450,22 +474,23 @@ struct PrimaryFeedView: View {
             if scrollDifference > 0 {
                 // Scrolling up
                 withAnimation(.easeInOut(duration: 0.3)) {
-                hideTopUI = false
-                
-                    topBarHeight = 150
+                    hideTopUI = false
+                    
+                    topBarHeight = 160
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
                 withAnimation(.easeInOut(duration: 0.3)) {
-                hideTopUI = true
-               
-        
-                    topBarHeight = 95
+                    hideTopUI = true
+                    
+                    
+                    topBarHeight = 105
                 }
             }
             lastScrollOffset = scrollOffset
         }
     }
+    
 }
 
 struct SuccessMessageOverlay: View {

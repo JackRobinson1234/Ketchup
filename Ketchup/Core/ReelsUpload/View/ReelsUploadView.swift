@@ -27,13 +27,13 @@ struct ReelsUploadView: View {
     @State private var currentMediaIndex = 0
     private let maxCharacters = 25
     private let spacing: CGFloat = 20
-     private var width: CGFloat {
-         (UIScreen.main.bounds.width - (spacing * 2)) / 3
-     }
-     
-     private var expandedWidth: CGFloat {
-         UIScreen.main.bounds.width * 5/6
-     }
+    private var width: CGFloat {
+        (UIScreen.main.bounds.width - (spacing * 2)) / 3
+    }
+    
+    private var expandedWidth: CGFloat {
+        UIScreen.main.bounds.width * 5/6
+    }
     
     @Namespace private var animationNamespace
     @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
@@ -230,72 +230,72 @@ struct ReelsUploadView: View {
     }
     
     var mixedMediaPreview: some View {
-            VStack(spacing: 8) {
-                if !uploadViewModel.mixedMediaItems.isEmpty {
-                    TabView(selection: $currentMediaIndex) {
-                        ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
-                            let item = uploadViewModel.mixedMediaItems[index]
-                            Group {
-                                if item.type == .photo {
-                                    if let image = item.localMedia as? UIImage {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                    } else {
-                                        Color.gray // Placeholder
-                                    }
-                                } else if item.type == .video {
-                                    VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
-                                        videoPlayers[index] = player
-                                    }
+        VStack(spacing: 8) {
+            if !uploadViewModel.mixedMediaItems.isEmpty {
+                TabView(selection: $currentMediaIndex) {
+                    ForEach(0..<uploadViewModel.mixedMediaItems.count, id: \.self) { index in
+                        let item = uploadViewModel.mixedMediaItems[index]
+                        Group {
+                            if item.type == .photo {
+                                if let image = item.localMedia as? UIImage {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                } else {
+                                    Color.gray // Placeholder
+                                }
+                            } else if item.type == .video {
+                                VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
+                                    videoPlayers[index] = player
                                 }
                             }
-                            .frame(width: isVideoExpanded ? expandedWidth : width,
-                                   height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
-                            .cornerRadius(10)
-                            .clipped()
-                            .tag(index)
                         }
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                    .frame(width: isVideoExpanded ? expandedWidth : width,
-                           height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
-                    
-                    if uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
-                        VideoControlButtons(
-                            isPlaying: $isPlaying,
-                            volume: $volume,
-                            onPlayPause: {
-                                videoPlayers[currentMediaIndex]?.togglePlayPause()
-                            },
-                            onVolumeToggle: {
-                                videoPlayers[currentMediaIndex]?.toggleVolume()
-                            }
-                        )
-                        .frame(width: isVideoExpanded ? expandedWidth : width)
-                    }
-                    
-                    if uploadViewModel.mixedMediaItems.count > 1 {
-                        Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
-                            .font(.caption)
-                            .padding(.top, 5)
-                    }
-                } else {
-                    Rectangle()
-                        .fill(Color.gray)
-                        .frame(width: width, height: width * 6/5)
+                        .frame(width: isVideoExpanded ? expandedWidth : width,
+                               height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
                         .cornerRadius(10)
+                        .clipped()
+                        .tag(index)
+                    }
                 }
-            }
-            .onTapGesture {
-                withAnimation(.spring()) {
-                    isVideoExpanded.toggle()
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                .frame(width: isVideoExpanded ? expandedWidth : width,
+                       height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
+                
+                if uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
+                    VideoControlButtons(
+                        isPlaying: $isPlaying,
+                        volume: $volume,
+                        onPlayPause: {
+                            videoPlayers[currentMediaIndex]?.togglePlayPause()
+                        },
+                        onVolumeToggle: {
+                            videoPlayers[currentMediaIndex]?.toggleVolume()
+                        }
+                    )
+                    .frame(width: isVideoExpanded ? expandedWidth : width)
                 }
+                
+                if uploadViewModel.mixedMediaItems.count > 1 {
+                    Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
+                        .font(.caption)
+                        .padding(.top, 5)
+                }
+            } else {
+                Rectangle()
+                    .fill(Color.gray)
+                    .frame(width: width, height: width * 6/5)
+                    .cornerRadius(10)
             }
         }
-
-  
-
+        .onTapGesture {
+            withAnimation(.spring()) {
+                isVideoExpanded.toggle()
+            }
+        }
+    }
+    
+    
+    
     
     var captionEditor: some View {
         VStack {
