@@ -410,7 +410,7 @@ struct ContactRow: View {
             Text("Invite")
                 .font(.custom("MuseoSansRounded-300", size: 16))
                 .fontWeight(.semibold)
-                .frame(width: 110)
+               
                 .padding(.vertical, 8)
                 .foregroundColor(Color("Colors/AccentColor"))
                 .background(Color.clear)

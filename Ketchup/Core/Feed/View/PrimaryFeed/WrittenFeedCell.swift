@@ -355,8 +355,8 @@ struct WrittenFeedCell: View {
                 
                 HStack(spacing: 15) {
                     Button {
-                        handleLikeTapped()
                         triggerHapticFeedback()
+                        handleLikeTapped()
                     } label: {
                         InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                     }
@@ -368,8 +368,8 @@ struct WrittenFeedCell: View {
                     }
 
                     Button {
-                        handleBookmarkTapped()
                         triggerHapticFeedback()
+                        handleBookmarkTapped()
                     } label: {
                         InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark",count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
@@ -682,7 +682,6 @@ struct WrittenFeedCell: View {
     
     private func handleLikeTapped() {
         Task {
-            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
             if didLike {
                 withAnimation {
                     showHeartOverlay = true
@@ -693,16 +692,17 @@ struct WrittenFeedCell: View {
                     }
                 }
             }
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
         }
     }
     
     private func handleDoubleTap() {
         if !didLike {
             Task {
-                await viewModel.like(post)
                 withAnimation {
                     showHeartOverlay = true
                 }
+                await viewModel.like(post)
                 Debouncer(delay: 1.0).schedule {
                     withAnimation {
                         showHeartOverlay = false

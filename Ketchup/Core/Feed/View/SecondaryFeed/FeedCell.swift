@@ -106,30 +106,33 @@ struct FeedCell: View {
             VStack() {
                 Spacer()
                 if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                    CustomHorizontalScrollView(
-                        content: {
-                            HStack(spacing: 0) {
-                                ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                    mediaItemView(for: mediaItem)
+                    
+                        CustomHorizontalScrollView(
+                            content: {
+                                HStack(spacing: 0) {
+                                    ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                        mediaItemView(for: mediaItem)
+                                    }
                                 }
+                            },
+                            currentIndex: $currentIndex,
+                            itemCount: mixedMediaUrls.count,
+                            itemWidth: mediaWidth,
+                            initialIndex: viewModel.startingImageIndex,
+                            onDismiss: {
+                                viewModel.initialPrimaryScrollPosition = scrollPosition
+                                dismiss()
                             }
-                        },
-                        currentIndex: $currentIndex,
-                        itemCount: mixedMediaUrls.count,
-                        itemWidth: mediaWidth,
-                        initialIndex: viewModel.startingImageIndex,
-                        onDismiss: {
-                            viewModel.initialPrimaryScrollPosition = scrollPosition
-                            dismiss()
+                        )
+                        .onAppear { viewModel.startingImageIndex = 0 }
+                        .frame(height: mediaHeight)
+                        .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
                         }
-                    )
-                    .onAppear { viewModel.startingImageIndex = 0 }
-                    .frame(height: mediaHeight)
-                    .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
-                    }
+                        .onTapGesture{
+                            withAnimation(.spring()) { expandCaption.toggle() }
+                        }
+                        
                     
-                    
-
                 } else if post.mediaType == .video {
                     ForEach(videoCoordinators.prefix(1), id: \.0) { mediaItemId, coordinator in
                         singleMediaItemView(coordinator: coordinator)

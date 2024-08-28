@@ -36,6 +36,7 @@ class PhoneAuthViewModel: ObservableObject {
     }
     
     private func setupPhoneNumberValidation() {
+    
         $phoneNumber
             .debounce(for: .seconds(debounceDuration), scheduler: RunLoop.main)
             .sink { [weak self] number in
@@ -66,6 +67,8 @@ class PhoneAuthViewModel: ObservableObject {
         
         isAuthenticating = true
         ///DELETE BEFORE PRODUCTION
+       
+
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
             DispatchQueue.main.async {
                 UserDefaults.standard.set(verificationID, forKey: "authVerificationID")

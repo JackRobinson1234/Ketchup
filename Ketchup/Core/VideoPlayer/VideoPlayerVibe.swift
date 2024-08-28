@@ -18,116 +18,104 @@ class CoordinatorWrapper: NSObject {
     }
 }
 
+
 class VideoPrefetcher {
     static let shared = VideoPrefetcher()
-     private var preloadedPlayerItems: NSCache<NSString, VideoPlayerCoordinator> = NSCache()
-     private var prefetchingStatus: [String: Bool] = [:]
-     private let queue = DispatchQueue(label: "video.prefetcher.queue", attributes: .concurrent)
-     private let semaphore = DispatchSemaphore(value: 3) 
+    private var preloadedPlayerItems: NSCache<NSString, VideoPlayerCoordinator> = NSCache()
+    private let queue = DispatchQueue(label: "video.prefetcher.queue", attributes: .concurrent)
+
     private init() {}
 
     func getPlayerItems(for post: Post) -> [(String, VideoPlayerCoordinator)] {
-            var result: [(String, VideoPlayerCoordinator)] = []
-
-            if let mixedMediaUrls = post.mixedMediaUrls {
-                for mediaItem in mixedMediaUrls where mediaItem.type == .video {
-                    let coordinator = getOrCreateCoordinator(for: mediaItem, postId: post.id)
-                    result.append((mediaItem.id, coordinator))
-                }
-            } else if post.mediaType == .video, let url = post.mediaUrls.first {
-                let coordinator = getOrCreateCoordinator(for: MixedMediaItem(id: "default", url: url, type: .video), postId: post.id)
-                result.append(("default", coordinator))
-            }
-
-            return result
-        }
-    
-    private func getOrCreateCoordinator(for mediaItem: MixedMediaItem, postId: String) -> VideoPlayerCoordinator {
-            let key = mediaItem.id as NSString
-
-            if let existingCoordinator = preloadedPlayerItems.object(forKey: key) {
-                return existingCoordinator
-            } else {
-                let newCoordinator = VideoPlayerCoordinator()
-                preloadedPlayerItems.setObject(newCoordinator, forKey: key)
-
-                if prefetchingStatus[mediaItem.id] == true {
-                    // Video is currently being prefetched
-                    newCoordinator.prefetching = true
-                } else if prefetchingStatus[mediaItem.id] == nil {
-                    // Video hasn't been prefetched yet, start prefetching
-                    prefetchingStatus[mediaItem.id] = true
-                    prefetch(url: URL(string: mediaItem.url), mediaItemId: mediaItem.id)
-                }
-
-                return newCoordinator
-            }
-        }
-    
-    func prefetchPosts(_ posts: [Post]) {
-        queue.async { [weak self] in
-            guard let self = self else { return }
-            for post in posts {
-                self.prefetchMediaItems(for: post)
-            }
-        }
-    }
-    
-    private func prefetchMediaItems(for post: Post) {
+        var result: [(String, VideoPlayerCoordinator)] = []
+        
         if let mixedMediaUrls = post.mixedMediaUrls {
             for mediaItem in mixedMediaUrls where mediaItem.type == .video {
-                if preloadedPlayerItems.object(forKey: mediaItem.id as NSString) == nil {
-                    prefetch(url: URL(string: mediaItem.url), mediaItemId: mediaItem.id)
-                }
+                let coordinator = getOrCreateCoordinator(for: mediaItem, postId: post.id)
+                result.append((mediaItem.id, coordinator))
             }
         } else if post.mediaType == .video, let url = post.mediaUrls.first {
-            let defaultMediaItem = MixedMediaItem(id: "default", url: url, type: .video)
-            if preloadedPlayerItems.object(forKey: "default" as NSString) == nil {
-                prefetch(url: URL(string: defaultMediaItem.url), mediaItemId: defaultMediaItem.id)
+            let coordinator = getOrCreateCoordinator(for: MixedMediaItem(id: "default", url: url, type: .video), postId: post.id)
+            result.append(("default", coordinator))
+        }
+        
+        return result
+    }
+    
+    private func getOrCreateCoordinator(for mediaItem: MixedMediaItem, postId: String) -> VideoPlayerCoordinator {
+        let key = mediaItem.id as NSString
+        
+        if let existingCoordinator = preloadedPlayerItems.object(forKey: key) {
+            return existingCoordinator
+        } else {
+            let newCoordinator = VideoPlayerCoordinator()
+            preloadedPlayerItems.setObject(newCoordinator, forKey: key)
+            
+            if let videoURL = URL(string: mediaItem.url) {
+                newCoordinator.prefetch(url: videoURL, mediaItemId: mediaItem.id) {
+                    // Prefetch completed
+                }
             }
+            
+            return newCoordinator
         }
     }
     
-    private func prefetch(url: URL?, mediaItemId: String) {
-           guard let url = url else { return }
+    func prefetchPosts(_ posts: [Post]) {
+        // Dispatch prefetching to a background queue
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Dispatch each post's prefetching to the background queue
+            let group = DispatchGroup()
+            
+            for post in posts {
+                group.enter()
+                self.prefetchMediaItems(for: post) {
+                    group.leave()
+                }
+            }
+            group.notify(queue: DispatchQueue.main) {
+            }
+        }
+    }
 
-           queue.async {
-               self.semaphore.wait() // Wait if there are already 3 prefetch tasks running
+    private func prefetchMediaItems(for post: Post, completion: @escaping () -> Void) {
+        // Dispatch the work to a background queue
+        queue.async { [weak self] in
+            guard let self = self else { completion(); return }
+            
+            if let mixedMediaUrls = post.mixedMediaUrls {
+                for mediaItem in mixedMediaUrls where mediaItem.type == .video {
+                    if self.preloadedPlayerItems.object(forKey: mediaItem.id as NSString) == nil {
+                        self.prepareMediaItem(mediaItem, postId: post.id, completion: completion)
+                    } else {
+                        completion()
+                    }
+                }
+            } else if post.mediaType == .video, let url = post.mediaUrls.first {
+                let defaultMediaItem = MixedMediaItem(id: "default", url: url, type: .video)
+                if self.preloadedPlayerItems.object(forKey: "default" as NSString) == nil {
+                    self.prepareMediaItem(defaultMediaItem, postId: post.id, completion: completion)
+                } else {
+                    completion()
+                }
+            }
+        }
+    }
 
-               Task.detached(priority: .utility) { [weak self] in
-                   defer {
-                       self?.semaphore.signal() // Signal semaphore after task completion
-                       self?.prefetchingStatus[mediaItemId] = false
-                   }
-
-                   do {
-                       var saveFilePath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-                       saveFilePath.appendPathComponent(mediaItemId)
-                       saveFilePath.appendPathExtension("mp4")
-
-                       guard let coordinator = self?.preloadedPlayerItems.object(forKey: mediaItemId as NSString) else {
-                           print("Coordinator not found for mediaItemId: \(mediaItemId)")
-                           return
-                       }
-
-                       if FileManager.default.fileExists(atPath: saveFilePath.path) {
-                           print("Using cached file for mediaItemId: \(mediaItemId)")
-                           coordinator.prefetch(url: url, mediaItemId: mediaItemId) {
-                               coordinator.configurePlayer()
-                           }
-                       } else {
-                           print("Downloading file for mediaItemId: \(mediaItemId)")
-                           coordinator.prefetch(url: url, mediaItemId: mediaItemId) {
-                               coordinator.configurePlayer()
-                           }
-                       }
-
-                   } catch {
-                       print("File path error for mediaItemId \(mediaItemId): \(error)")
-                   }
-               }
-           }
-       }
+    private func prepareMediaItem(_ mediaItem: MixedMediaItem, postId: String, completion: @escaping () -> Void) {
+        let coordinator = VideoPlayerCoordinator()
+        
+        if let videoURL = URL(string: mediaItem.url) {
+            coordinator.prefetch(url: videoURL, mediaItemId: mediaItem.id) { [weak self] in
+                self?.preloadedPlayerItems.setObject(coordinator, forKey: mediaItem.id as NSString)
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
 }
 
 struct VideoPlayerView: UIViewControllerRepresentable {
