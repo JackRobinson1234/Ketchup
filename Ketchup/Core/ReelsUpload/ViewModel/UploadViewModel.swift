@@ -40,6 +40,7 @@ class UploadViewModel: ObservableObject {
     @Published var isAtmosphereNA: Bool = false
     @Published var isValueNA: Bool = false
     @Published var isFoodNA: Bool = false
+    @Published var isOverallNA: Bool = false
     @Published var MixedImages: [UIImage]?
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
     @Published var thumbnailImage: UIImage?

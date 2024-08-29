@@ -8,6 +8,7 @@
 
 import Firebase
 import SwiftUI
+import FirebaseFirestoreInternal
 
 struct UploadService {
     static let shared = UploadService() // Singleton instance

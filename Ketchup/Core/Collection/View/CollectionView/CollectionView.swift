@@ -34,16 +34,15 @@ struct CollectionView: View {
                 }
             }
     }
+    
     var body: some View {
-        //MARK: Selecting Images
-        NavigationStack{
-            ZStack{
-                ScrollView(showsIndicators: false){
+        NavigationStack {
+            ZStack {
+                ScrollView(showsIndicators: false) {
                     if let collection = collectionsViewModel.selectedCollection {
-                        VStack{
-                            
-                            //MARK: Cover Image
-                            HStack(alignment: .bottom){
+                        VStack {
+                            // MARK: Cover Image
+                            HStack(alignment: .bottom) {
                                 if let cover = collection.coverImageUrl {
                                     CollageImage(tempImageUrls: [cover], width: 200)
                                 } else if let tempImageUrls = collection.tempImageUrls {
@@ -55,40 +54,52 @@ struct CollectionView: View {
                                         .frame(width: 200, height: 200)
                                         .foregroundStyle(.black)
                                 }
-                            
                             }
-                               
-                            //MARK: Title
-                            HStack{
+                            
+                            // MARK: Title
+                            HStack {
                                 Text(collection.name)
                                     .font(.custom("MuseoSansRounded-300", size: 20))
                                     .bold()
                                     .foregroundStyle(.black)
                             }
-                            //MARK: UserName
-                            NavigationLink(destination: ProfileView(uid: collection.uid)){
-                                Text("by: @")
-                                    .font(.custom("MuseoSansRounded-300", size: 18))
-                                    .foregroundStyle(.black)
-                                +
-                                Text(collection.username)
-                                    .font(.custom("MuseoSansRounded-500", size: 18))
-                                    .foregroundStyle(.black)
+                            
+                            // MARK: Username and Invite Button
+                            HStack {
+                                NavigationLink(destination: ProfileView(uid: collection.uid)) {
+                                    Text("by: @")
+                                        .font(.custom("MuseoSansRounded-300", size: 18))
+                                        .foregroundStyle(.black)
+                                    +
+                                    Text(collection.username)
+                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                        .foregroundStyle(.black)
+                                }
                                 
+                                // If the current user owns the collection, show the plus circle icon
+                                if let currentUser = Auth.auth().currentUser?.uid, currentUser == collection.uid {
+                                    NavigationLink(destination: CollectionInviteUserList(collectionsViewModel: collectionsViewModel)) {
+                                        Image(systemName: "plus.circle")
+                                            .font(.system(size: 20))
+                                            .foregroundStyle(.black)
+                                            .padding(.leading, 4)
+                                    }
+                                }
                             }
+                            
                             if let description = collection.description, !description.isEmpty {
-                                VStack{
+                                VStack {
                                     Text(description)
                                         .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundStyle(.black)
                                 }
                                 .frame(width: UIScreen.main.bounds.width * 3 / 4)
-                                
                             }
+                            
                             LikeButton(collection: collection, viewModel: collectionsViewModel)
                                 .padding(.vertical, 2)
-
-                            // MARK: Grid View
+                            
+                            // MARK: Grid and Map View Toggle
                             HStack(spacing: 0) {
                                 Image(systemName: currentSection == .grid ? "square.grid.2x2.fill" : "square.grid.2x2")
                                     .resizable()
@@ -102,12 +113,10 @@ struct CollectionView: View {
                                     .modifier(UnderlineImageModifier(isSelected: currentSection == .grid))
                                     .frame(maxWidth: .infinity)
                                 
-                                //MARK: Location View
                                 Image(systemName: currentSection == .map ? "location.fill" : "location")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 50, height: 22)
-                                
                                     .onTapGesture {
                                         withAnimation {
                                             self.currentSection = .map
@@ -117,12 +126,11 @@ struct CollectionView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             .padding()
+                            
                             // MARK: Section Logic
                             if currentSection == .map {
                                 CollectionMapView(collectionsViewModel: collectionsViewModel)
-                                
-                            }
-                            if currentSection == .grid {
+                            } else if currentSection == .grid {
                                 CollectionListView(collectionsViewModel: collectionsViewModel)
                             }
                         }
@@ -136,15 +144,16 @@ struct CollectionView: View {
                                         .foregroundStyle(.white)
                                         .background(
                                             Circle()
-                                                .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                                .frame(width: 30, height: 30) // Adjust the size as needed
+                                                .fill(Color.gray.opacity(0.5))
+                                                .frame(width: 30, height: 30)
                                         )
                                         .padding()
                                 }
                             }
-                            //MARK: Edit
+                            
+                            // MARK: Edit Button
                             ToolbarItem(placement: .topBarTrailing) {
-                                if let currentUser = Auth.auth().currentUser?.uid, let uid = collectionsViewModel.selectedCollection?.uid, uid == currentUser {
+                                if let currentUser = Auth.auth().currentUser?.uid, currentUser == collection.uid {
                                     Button {
                                         showEditCollection.toggle()
                                     } label: {
@@ -156,7 +165,7 @@ struct CollectionView: View {
                                     Button {
                                         showingOptionsSheet = true
                                     } label: {
-                                        ZStack{
+                                        ZStack {
                                             Rectangle()
                                                 .fill(.clear)
                                                 .frame(width: 18, height: 14)
@@ -165,7 +174,6 @@ struct CollectionView: View {
                                                 .scaledToFill()
                                                 .frame(width: 6, height: 6)
                                                 .foregroundStyle(.black)
-                                            
                                         }
                                     }
                                 }
@@ -173,18 +181,18 @@ struct CollectionView: View {
                         }
                     }
                 }
-                //MARK: Notes View
+                
+                // MARK: Notes View
                 if let item = collectionsViewModel.notesPreview {
-                    ItemNotesView(item: item, viewModel: collectionsViewModel )
-                        .focused($isNotesFocused) // Connects the focus state to the editor view
+                    ItemNotesView(item: item, viewModel: collectionsViewModel)
+                        .focused($isNotesFocused)
                         .onAppear {
-                            isNotesFocused = true // Automatically focuses the TextEditor when it appears
+                            isNotesFocused = true
                         }
                 }
-                
             }
-            .onAppear{
-                Task{
+            .onAppear {
+                Task {
                     await collectionsViewModel.checkIfUserLikedCollection()
                 }
             }
@@ -196,21 +204,17 @@ struct CollectionView: View {
                             collectionsViewModel.dismissCollectionView = false
                             dismiss()
                         }
-                        
                     }
-            }// if the collection is deleted in the edit collection view, navigate back to the collectionListview
+            }
             .sheet(isPresented: $showingOptionsSheet) {
                 if let selectedCollection = collectionsViewModel.selectedCollection {
                     CollectionOptionsSheet(collection: selectedCollection)
                         .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
                 }
             }
-            
-            
         }
     }
 }
-
 struct LikeButton: View {
     let collection: Collection
     @ObservedObject var viewModel: CollectionsViewModel

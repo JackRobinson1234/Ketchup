@@ -183,7 +183,7 @@ class CollectionService {
         async let _ = try FirestoreConstants.CollectionsCollection.document(collection.id).collection("collection-likes").document(uid).delete()
         async let _ = try FirestoreConstants.UserCollection.document(uid).collection("user-collection-likes").document(collection.id).delete()
         
-
+        
     }
     
     func checkIfUserLikedCollection(_ collection: Collection) async throws -> Bool {
@@ -209,5 +209,39 @@ class CollectionService {
             }
         }
         return likedCollections
+    }
+    func inviteUserToCollection(
+        collectionId: String,
+        collectionName: String,
+        collectionCoverImageUrl: String?,
+        inviterUid: String,
+        inviterUsername: String,
+        inviterProfileImageUrl: String?,
+        tempImageUrls: [String]?,
+        inviteeUid: String
+    ) async throws {
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId)
+        
+        // Step 1: Update the pendingInvitations in the collection
+        try await collectionRef.updateData([
+            "pendingInvitations": FieldValue.arrayUnion([inviteeUid])
+        ])
+        
+        // Step 2: Create the invite document in the user's subcollection
+        let invite = CollectionInvite(
+            id: nil,
+            collectionId: collectionId,
+            collectionName: collectionName,
+            collectionCoverImageUrl: collectionCoverImageUrl,
+            inviterUid: inviterUid,
+            inviterUsername: inviterUsername,
+            inviterProfileImageUrl: inviterProfileImageUrl,
+            status: .pending,
+            timestamp: Timestamp(),
+            tempImageUrls: tempImageUrls
+        )
+        
+        let inviteRef = FirestoreConstants.UserCollection.document(inviteeUid).collection("collection-invites").document()
+        try await inviteRef.setData(from: invite)
     }
 }

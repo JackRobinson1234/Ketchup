@@ -41,6 +41,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var notesPreview: CollectionItem?
     @Published var editItems: [CollectionItem] = []
     @Published var restaurantRequest: RestaurantRequest?
+    @Published var invites: [CollectionInvite] = []
     private var lastDocument: QueryDocumentSnapshot?
     private let limit = 10
     private var hasMoreCollections = true
@@ -470,9 +471,9 @@ class CollectionsViewModel: ObservableObject {
         } catch {
             print("failed to check if user liked collection")
         }
-       
+        
     }
-
+    
     
     func fetchUserLikedCollections(userId: String) async {
         do {
@@ -484,5 +485,31 @@ class CollectionsViewModel: ObservableObject {
             print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
         }
     }
+    
+    func inviteUserToCollection(inviteeUid: String) async throws {
+        guard let selectedCollection = self.selectedCollection else { return }
+        
+        // Delegate Firebase operations to the service layer
+        try await CollectionService.shared.inviteUserToCollection(
+            collectionId: selectedCollection.id,
+            collectionName: selectedCollection.name,
+            collectionCoverImageUrl: selectedCollection.coverImageUrl,
+            inviterUid: selectedCollection.uid,
+            inviterUsername: selectedCollection.username,
+            inviterProfileImageUrl: selectedCollection.profileImageUrl,
+            tempImageUrls: selectedCollection.tempImageUrls,
+            inviteeUid: inviteeUid
+        )
+        
+        // Update the local collection object
+        if !selectedCollection.pendingInvitations.contains(inviteeUid) {
+            var updatedCollection = selectedCollection
+            updatedCollection.pendingInvitations.append(inviteeUid)
+            
+            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                collections[index] = updatedCollection
+            }
+            self.selectedCollection = updatedCollection
+        }
+    }
 }
-

@@ -1,5 +1,4 @@
 {
-  "originHash" : "3af51dd7eab24dca3c01091a050ac1faf74dfbfa11079940adc791ce40ee2686",
   "pins" : [
     {
       "identity" : "algoliasearch-client-swift",
@@ -67,7 +66,7 @@
     {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log",
+      "location" : "https://github.com/apple/swift-log.git",
       "state" : {
         "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
         "version" : "1.6.1"
@@ -101,5 +100,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

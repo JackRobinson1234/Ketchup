@@ -8,7 +8,6 @@ import SwiftUI
 import AVKit
 import AVFoundation
 import InstantSearchSwiftUI
-
 struct ReelsUploadView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var uploadViewModel: UploadViewModel
@@ -386,6 +385,7 @@ struct ReelsUploadView: View {
     var ratingsSection: some View {
         VStack(spacing: 10) {
             OverallRatingView(rating: calculateOverallRating())
+//            RatingSliderGroup(label: "Overall", rating: $uploadViewModel.overallRating, isNA: .constant(false), showNAButton: false)
             RatingSliderGroup(label: "Food", rating: $uploadViewModel.foodRating, isNA: $uploadViewModel.isFoodNA)
             RatingSliderGroup(label: "Atmosphere", rating: $uploadViewModel.atmosphereRating, isNA: $uploadViewModel.isAtmosphereNA)
             RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating, isNA: $uploadViewModel.isValueNA)
