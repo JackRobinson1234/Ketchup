@@ -64,7 +64,7 @@ struct ProfileHeaderView: View {
                                         .stroke(Color("Colors/AccentColor"), lineWidth: 1)
                                 }
                         }
-                    } else {
+                    } else if user.id != "6nLYduH5e0RtMvjhediR7GkaI003"{
                         Button {
                             handleFollowTapped()
                         } label: {

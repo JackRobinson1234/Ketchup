@@ -7,6 +7,8 @@
 
 import AVFoundation
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestoreInternal
 
 @MainActor
 class RestaurantViewModel: ObservableObject {
@@ -23,7 +25,8 @@ class RestaurantViewModel: ObservableObject {
     @Published var atmosphereRating: Double?
     @Published var valueRating: Double?
     @Published var serviceRating: Double?
-    
+    @Published var friendsWhoPosted: [PostUser] = []
+
     init(restaurantId: String) {
         self.restaurantId = restaurantId
         // DEBUG: see if you can delete this
@@ -128,6 +131,35 @@ class RestaurantViewModel: ObservableObject {
                     print("Error toggling bookmark: \(error.localizedDescription)")
                 }
             }
+    func fetchFriendsWhoPosted() async {
+           guard let currentUserID = Auth.auth().currentUser?.uid,
+                 let restaurant = restaurant else { return }
+           
+           do {
+               let followingPostsRef = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
+               let query = followingPostsRef
+                   .whereField("restaurant.id", isEqualTo: restaurant.id)
+               
+               let snapshot = try await query.getDocuments()
+               
+               let users = snapshot.documents.compactMap { document -> PostUser? in
+                   let data = document.data()
+                   guard let userDict = data["user"] as? [String: Any],
+                         let id = userDict["id"] as? String,
+                         let fullname = userDict["fullname"] as? String,
+                         let username = userDict["username"] as? String,
+                         let privateMode = userDict["privateMode"] as? Bool else {
+                       return nil
+                   }
+                   let profileImageUrl = userDict["profileImageUrl"] as? String
+                   return PostUser(id: id, fullname: fullname, profileImageUrl: profileImageUrl, privateMode: privateMode, username: username)
+               }
+               
+               self.friendsWhoPosted = Array(Set(users))  // Remove duplicates
+           } catch {
+               print("Error fetching friends who posted: \(error.localizedDescription)")
+           }
+       }
 }
 // MARK: - Posts
 

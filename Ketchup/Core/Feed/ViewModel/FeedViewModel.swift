@@ -302,14 +302,34 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
-        do {
-            self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
-        } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            
+//    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
+//        do {
+//            self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
+//        } catch {
+//            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+//            
+//        }
+//    }
+    func fetchRestaurantPosts(restaurant: Restaurant, friendIds: [String]) async throws {
+            do {
+                // First, fetch the current user's friends
+                guard let currentUserId = Auth.auth().currentUser?.uid else { throw NSError(domain: "FeedViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "No current user"]) }
+               // let friendIds = try await UserService.shared.fetchUserFriends(uid: currentUserId)
+
+                // Fetch posts from friends
+                let friendsPosts = try await PostService.shared.fetchFriendsPosts(for: restaurant, friendIds: friendIds)
+
+                // Fetch remaining posts
+                let remainingPosts = try await PostService.shared.fetchRemainingRestaurantPosts(for: restaurant, excluding: friendIds)
+
+                // Combine and update the posts
+                DispatchQueue.main.async {
+                    self.posts = friendsPosts + remainingPosts
+                }
+            } catch {
+                print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            }
         }
-    }
     func updateCache(scrollPosition: String?) {
             guard !posts.isEmpty, let scrollPosition = scrollPosition else {
                 print("Posts array is empty or scroll position is nil")

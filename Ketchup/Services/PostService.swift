@@ -410,8 +410,34 @@ extension PostService {
         // Commit the batch
         try await batch.commit()
     }
-    
-    
+    func fetchFriendsPosts(for restaurant: Restaurant, friendIds: [String]) async throws -> [Post] {
+        guard !friendIds.isEmpty else {
+               print("Error: friendIds array is empty.")
+               return [] // Return an empty array or handle the case as appropriate
+           }
+            let posts = try await FirestoreConstants.PostsCollection
+                .whereField("restaurant.id", isEqualTo: restaurant.id)
+                .whereField("user.id", in: friendIds)
+                .order(by: "timestamp", descending: true)
+                .getDocuments(as: Post.self)
+            return posts
+        }
+
+    func fetchRemainingRestaurantPosts(for restaurant: Restaurant, excluding friendIds: [String]) async throws -> [Post] {
+        // Fetch all posts related to the restaurant
+        var posts: [Post] = try await FirestoreConstants.PostsCollection
+            .whereField("restaurant.id", isEqualTo: restaurant.id)
+            .whereField("user.privateMode", isEqualTo: false)
+            .order(by: "timestamp", descending: true)
+            .getDocuments(as: Post.self)
+        
+        // Filter out posts from users in the friendIds list
+        if !friendIds.isEmpty {
+            posts = posts.filter { !friendIds.contains($0.user.id) }
+        }
+        
+        return posts
+    }
     
     // MARK: - unbookmarkRestaurant
     /// Removes a restaurant from the user's bookmarks
