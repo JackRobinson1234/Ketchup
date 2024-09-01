@@ -28,7 +28,14 @@ class CollectionService {
             .getDocuments(as: Collection.self)
         return collections
     }
-    
+    func fetchCollectionsWhereUserIsCollaborator(user: String) async throws -> [Collection] {
+           let collections = try await FirestoreConstants
+               .CollectionsCollection
+               .whereField("collaborators", arrayContains: user)
+               .order(by: "timestamp", descending: true)
+               .getDocuments(as: Collection.self)
+           return collections
+       }
     func fetchCollection(withId id: String) async throws -> Collection {
         let collectionRef = FirestoreConstants.CollectionsCollection.document(id)
         let collection = try await collectionRef.getDocument(as: Collection.self)
@@ -229,7 +236,7 @@ class CollectionService {
         
         // Step 2: Create the invite document in the user's subcollection
         let invite = CollectionInvite(
-            id: nil,
+            id: collectionId,
             collectionId: collectionId,
             collectionName: collectionName,
             collectionCoverImageUrl: collectionCoverImageUrl,
@@ -241,7 +248,123 @@ class CollectionService {
             tempImageUrls: tempImageUrls
         )
         
-        let inviteRef = FirestoreConstants.UserCollection.document(inviteeUid).collection("collection-invites").document()
+        let inviteRef = FirestoreConstants.UserCollection.document(inviteeUid).collection("collection-invites").document(collectionId)
         try await inviteRef.setData(from: invite)
+    }
+    func fetchCollaborationInvites() async throws -> [CollectionInvite] {
+            guard let userId = Auth.auth().currentUser?.uid else { return [] }
+            let invitesRef = FirestoreConstants.UserCollection.document(userId).collection("collection-invites")
+            let invites = try await invitesRef.getDocuments(as: CollectionInvite.self)
+            return invites
+        }
+
+       
+       // Reject an invite to collaborate on a collection
+       
+    func acceptInvite(collectionId: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId)
+        let userRef = FirestoreConstants.UserCollection.document(userId)
+        
+        // Start a Firestore transaction to ensure atomic updates
+        try await Firestore.firestore().runTransaction { transaction, errorPointer in
+            // Update collaborators in the collection document
+            transaction.updateData([
+                "collaborators": FieldValue.arrayUnion([userId]),
+                "pendingInvitations": FieldValue.arrayRemove([userId])
+            ], forDocument: collectionRef)
+            
+            // Increment the user's collection stat by 1
+            transaction.updateData([
+                "stats.collections": FieldValue.increment(Int64(1))
+            ], forDocument: userRef)
+            
+            
+           return nil
+        }
+        
+        // Remove invite from user's invites
+        let inviteRef = FirestoreConstants.UserCollection.document(userId).collection("collection-invites").document(collectionId)
+        try await inviteRef.delete()
+        await MainActor.run {
+            AuthService.shared.userSession?.inviteCount -= 1
+            AuthService.shared.userSession?.stats.collections += 1
+        }
+    }
+    
+    func rejectInvite(collectionId: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId)
+        
+        // Remove user from pendingInvitations in the collection document
+        try await collectionRef.updateData([
+            "pendingInvitations": FieldValue.arrayRemove([userId])
+        ])
+        
+        // Remove invite from user's invites
+        let inviteRef = FirestoreConstants.UserCollection.document(userId).collection("collection-invites").document(collectionId)
+        try await inviteRef.delete()
+        await MainActor.run {
+            AuthService.shared.userSession?.inviteCount -= 1
+        }
+    }
+    func removeSelfAsCollaborator(collectionId: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+
+        let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId)
+        let userRef = FirestoreConstants.UserCollection.document(userId)
+
+        // Start a Firestore transaction to ensure atomic updates
+        try await Firestore.firestore().runTransaction { (transaction, errorPointer) -> Any? in
+            do {
+                // Get the current collection data
+                let collectionSnapshot = try transaction.getDocument(collectionRef)
+                guard var collectionData = collectionSnapshot.data(),
+                      var collaborators = collectionData["collaborators"] as? [String] else {
+                    throw NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch collection data"])
+                }
+
+                // Check if the user is actually a collaborator
+                guard collaborators.contains(userId) else {
+                    throw NSError(domain: "CollaborationError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User is not a collaborator of this collection"])
+                }
+
+                // Remove the user from the collaborators list
+                collaborators.removeAll { $0 == userId }
+
+                // Update the collection document
+                transaction.updateData([
+                    "collaborators": collaborators
+                ], forDocument: collectionRef)
+
+                // Decrement the user's collection stat by 1
+                transaction.updateData([
+                    "stats.collections": FieldValue.increment(Int64(-1))
+                ], forDocument: userRef)
+
+                return nil
+            } catch {
+                errorPointer?.pointee = error as NSError
+                return nil
+            }
+        }
+
+        // Update local user object
+        await MainActor.run {
+            if var currentUser = AuthService.shared.userSession {
+                currentUser.stats.collections -= 1
+                AuthService.shared.userSession = currentUser
+            }
+        }
+
+        print("Successfully removed self as collaborator from collection: \(collectionId)")
     }
 }

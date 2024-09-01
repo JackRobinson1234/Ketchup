@@ -22,10 +22,14 @@ struct CollaborationInvitesView: View {
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .padding()
                 } else {
-                    List(viewModel.invites) { invite in
-                        CollaborationInviteCell(invite: invite, viewModel: viewModel)
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(viewModel.invites) { invite in
+                                CollaborationInviteCell(invite: invite, viewModel: viewModel)
+                                    .padding(.vertical, 4)
+                            }
+                        }
                     }
-                    .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle("Collaboration Invites")
@@ -48,34 +52,43 @@ struct CollaborationInvitesView: View {
         }
     }
 }
-
 struct CollaborationInviteCell: View {
     let invite: CollectionInvite
     @ObservedObject var viewModel: CollectionsViewModel
-    
+    @State private var showCollection: Bool = false
+    @State private var showRejectAlert: Bool = false
+
     var body: some View {
+        VStack{
         HStack {
             // Reuse the CollectionListCell UI for displaying the invite
-            CollectionListCell(
-                collection: Collection(
-                    id: invite.collectionId,
-                    name: invite.collectionName,
-                    uid: invite.inviterUid,
-                    username: invite.inviterUsername,
-                    fullname: "", // You can include the full name if available
-                    timestamp: invite.timestamp,
-                    coverImageUrl: invite.collectionCoverImageUrl,
-                    restaurantCount: 0, // Assuming you want to show a placeholder value here
-                    privateMode: false,
-                    profileImageUrl: invite.inviterProfileImageUrl,
-                    tempImageUrls: invite.tempImageUrls ?? [],
-                    likes: 0, // Placeholder for likes count
-                    collaborators: [],
-                    pendingInvitations: []
-                ),
-                collectionsViewModel: viewModel
-            )
-            
+            Button {
+                Task {
+                    viewModel.selectedCollection = try await CollectionService.shared.fetchCollection(withId: invite.collectionId)
+                    showCollection = true
+                }
+            } label: {
+                CollectionListCell(
+                    collection: Collection(
+                        id: invite.collectionId,
+                        name: invite.collectionName,
+                        timestamp: invite.timestamp,
+                        description: "",
+                        username: invite.inviterUsername,
+                        fullname: "",
+                        uid: "",
+                        coverImageUrl: invite.collectionCoverImageUrl,
+                        restaurantCount: 0,
+                        privateMode: false,
+                        profileImageUrl: invite.inviterProfileImageUrl,
+                        tempImageUrls: invite.tempImageUrls,
+                        likes: 0,
+                        collaborators: [],
+                        pendingInvitations: []
+                    ),
+                    collectionsViewModel: viewModel, showChevron: false
+                )
+            }
             Spacer()
             
             // Accept Button
@@ -93,9 +106,7 @@ struct CollaborationInviteCell: View {
             
             // Reject Button
             Button(action: {
-                Task {
-                    await viewModel.rejectInvite(invite)
-                }
+                showRejectAlert = true
             }) {
                 Image(systemName: "x.circle.fill")
                     .resizable()
@@ -103,7 +114,22 @@ struct CollaborationInviteCell: View {
                     .foregroundStyle(.red)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.trailing)
+        .fullScreenCover(isPresented: $showCollection) {
+            CollectionView(collectionsViewModel: viewModel)
+        }
+        .alert("Reject Invitation", isPresented: $showRejectAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reject", role: .destructive) {
+                Task {
+                    await viewModel.rejectInvite(invite)
+                }
+            }
+        } message: {
+            Text("Are you sure you want to reject the invitation to collaborate on '\(invite.collectionName)'? This action cannot be undone.")
+        }
+        Divider()
+    }
     }
 }
 

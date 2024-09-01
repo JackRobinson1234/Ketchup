@@ -26,7 +26,7 @@ enum PostDisplayMode: String, CaseIterable {
 
 struct ProfileSlideBar: View {
     @ObservedObject var viewModel: ProfileViewModel
-    @StateObject var collectionsViewModel: CollectionsViewModel
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     @ObservedObject var feedViewModel: FeedViewModel
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
@@ -36,10 +36,10 @@ struct ProfileSlideBar: View {
         return viewModel.user.username == "ketchup_media"
     }
 
-    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    init(viewModel: ProfileViewModel, collectionsViewModel: CollectionsViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
+        self.collectionsViewModel =  collectionsViewModel
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
     }

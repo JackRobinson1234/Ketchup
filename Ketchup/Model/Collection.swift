@@ -213,8 +213,4 @@ struct CollectionInvite: Identifiable, Codable {
         self.tempImageUrls = tempImageUrls
     }
 }
-enum InviteStatus: Int, Codable {
-    case pending
-    case accepted
-    case denied
-}
+

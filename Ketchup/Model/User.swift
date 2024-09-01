@@ -24,13 +24,15 @@ struct User: Codable, Identifiable, Hashable {
     var hasCompletedSetup: Bool = false
     var createdAt: Date?
     var lastActive: Date?
-    var hasContactsSynced: Bool = false // New property
+    var hasContactsSynced: Bool = false
+    var inviteCount: Int = 0 // New property with default value
+
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, inviteCount // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -47,35 +49,53 @@ struct User: Codable, Identifiable, Hashable {
         self.notificationAlert = try container.decodeIfPresent(Int.self, forKey: .notificationAlert) ?? 0
         self.location = try container.decodeIfPresent(Location.self, forKey: .location)
         
-        // Decode new birthday property
+        // Decode birthday property
         if let birthdayTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .birthday) {
             self.birthday = birthdayTimestamp.dateValue()
         } else {
             self.birthday = nil
         }
         
-        // Decode new hasCompletedSetup property, defaulting to false if not present
+        // Decode hasCompletedSetup property
         self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
         
-        // Decode new createdAt property
+        // Decode createdAt property
         if let createdAtTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .createdAt) {
             self.createdAt = createdAtTimestamp.dateValue()
         } else {
             self.createdAt = nil
         }
         
-        // Decode new lastActive property
+        // Decode lastActive property
         if let lastActiveTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastActive) {
             self.lastActive = lastActiveTimestamp.dateValue()
         } else {
             self.lastActive = nil
         }
 
-        // Decode new hasContactsSynced property, defaulting to false if not present
+        // Decode hasContactsSynced property
         self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
+        
+        // Decode inviteCount property, defaulting to 0 if not present
+        self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
     }
 
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil, hasContactsSynced: Bool = false) {
+    init(
+        id: String,
+        username: String,
+        fullname: String,
+        phoneNumber: String? = nil,
+        profileImageUrl: String? = nil,
+        privateMode: Bool,
+        notificationAlert: Int = 0,
+        location: Location? = nil,
+        birthday: Date? = nil,
+        hasCompletedSetup: Bool = false,
+        createdAt: Date? = nil,
+        lastActive: Date? = nil,
+        hasContactsSynced: Bool = false,
+        inviteCount: Int = 0 // Default value
+    ) {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -97,6 +117,7 @@ struct User: Codable, Identifiable, Hashable {
         self.createdAt = createdAt
         self.lastActive = lastActive
         self.hasContactsSynced = hasContactsSynced
+        self.inviteCount = inviteCount
     }
 
     func encode(to encoder: Encoder) throws {
@@ -113,26 +134,29 @@ struct User: Codable, Identifiable, Hashable {
         try container.encode(notificationAlert, forKey: .notificationAlert)
         try container.encodeIfPresent(location, forKey: .location)
         
-        // Encode new birthday property
+        // Encode birthday property
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
         
-        // Encode new hasCompletedSetup property
+        // Encode hasCompletedSetup property
         try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
         
-        // Encode new createdAt property
+        // Encode createdAt property
         if let createdAt = createdAt {
             try container.encode(Timestamp(date: createdAt), forKey: .createdAt)
         }
         
-        // Encode new lastActive property
+        // Encode lastActive property
         if let lastActive = lastActive {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
         
-        // Encode new hasContactsSynced property
+        // Encode hasContactsSynced property
         try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
+        
+        // Encode inviteCount property
+        try container.encode(inviteCount, forKey: .inviteCount)
     }
 }
 

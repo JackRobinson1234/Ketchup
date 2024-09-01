@@ -22,7 +22,7 @@ struct CollectionView: View {
     @FocusState private var isNotesFocused: Bool
     @State var isDragging = false
     @State var dragDirection = "left"
-    
+    @State var showUserList = false
     var drag: some Gesture {
         DragGesture(minimumDistance: 14 )
             .onChanged { _ in self.isDragging = true }
@@ -34,7 +34,7 @@ struct CollectionView: View {
                 }
             }
     }
-    
+    @State private var showCollaboratorsList = false
     var body: some View {
         NavigationStack {
             ZStack {
@@ -62,30 +62,37 @@ struct CollectionView: View {
                                     .font(.custom("MuseoSansRounded-300", size: 20))
                                     .bold()
                                     .foregroundStyle(.black)
+                                
+                                if isCollaborator(for: collection) {
+                                    Image(systemName: "link")
+                                        .foregroundColor(.red)
+                                }
                             }
                             
                             // MARK: Username and Invite Button
-                            HStack {
+                            HStack(spacing: 0) {
+                                Text("by: ")
+                                    .font(.custom("MuseoSansRounded-300", size: 18))
+                                    .foregroundStyle(.black)
+                                
                                 NavigationLink(destination: ProfileView(uid: collection.uid)) {
-                                    Text("by: @")
-                                        .font(.custom("MuseoSansRounded-300", size: 18))
-                                        .foregroundStyle(.black)
-                                    +
-                                    Text(collection.username)
+                                    Text("@\(collection.username)")
                                         .font(.custom("MuseoSansRounded-500", size: 18))
                                         .foregroundStyle(.black)
                                 }
                                 
-                                // If the current user owns the collection, show the plus circle icon
-                                if let currentUser = Auth.auth().currentUser?.uid, currentUser == collection.uid {
-                                    NavigationLink(destination: CollectionInviteUserList(collectionsViewModel: collectionsViewModel)) {
-                                        Image(systemName: "plus.circle")
-                                            .font(.system(size: 20))
-                                            .foregroundStyle(.black)
-                                            .padding(.leading, 4)
+                                if !collection.collaborators.isEmpty {
+                                    Button(action: {
+                                        showCollaboratorsList = true
+                                    }) {
+                                        Text(" + \(collection.collaborators.count) \(pluralText(for: collection.collaborators.count, singular: "other", plural: "others"))")
+                                            .font(.custom("MuseoSansRounded-300", size: 18))
+                                            .foregroundStyle(.gray)
                                     }
                                 }
+                                // If the current user owns the collection, show the plus circle icon
                             }
+                            
                             
                             if let description = collection.description, !description.isEmpty {
                                 VStack {
@@ -98,7 +105,22 @@ struct CollectionView: View {
                             
                             LikeButton(collection: collection, viewModel: collectionsViewModel)
                                 .padding(.vertical, 2)
-                            
+                            if let currentUser = Auth.auth().currentUser?.uid, currentUser == collection.uid {
+                                    Button {
+                                        showUserList = true
+                                    } label: {
+                                        HStack(spacing: 0){
+                                            Image(systemName: "plus.circle")
+                                                .font(.system(size: 14))
+                                                .foregroundStyle(.gray)
+                                            
+                                            
+                                            Text(" Add Collaborators")
+                                                .font(.custom("MuseoSansRounded-500", size: 14))
+                                                .foregroundStyle(.gray)
+                                        }
+                                }
+                            }
                             // MARK: Grid and Map View Toggle
                             HStack(spacing: 0) {
                                 Image(systemName: currentSection == .grid ? "square.grid.2x2.fill" : "square.grid.2x2")
@@ -153,7 +175,8 @@ struct CollectionView: View {
                             
                             // MARK: Edit Button
                             ToolbarItem(placement: .topBarTrailing) {
-                                if let currentUser = Auth.auth().currentUser?.uid, currentUser == collection.uid {
+                                if let currentUser = Auth.auth().currentUser?.uid,
+                                   (currentUser == collection.uid || collection.collaborators.contains(currentUser)) {
                                     Button {
                                         showEditCollection.toggle()
                                     } label: {
@@ -189,6 +212,7 @@ struct CollectionView: View {
                         .onAppear {
                             isNotesFocused = true
                         }
+                        
                 }
             }
             .onAppear {
@@ -206,15 +230,33 @@ struct CollectionView: View {
                         }
                     }
             }
+            .sheet(isPresented: $showCollaboratorsList) {
+                if let collection = collectionsViewModel.selectedCollection {
+                    CollaboratorsListView(collaboratorIds: collection.collaborators)
+                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                }
+            }
+            
             .sheet(isPresented: $showingOptionsSheet) {
                 if let selectedCollection = collectionsViewModel.selectedCollection {
                     CollectionOptionsSheet(collection: selectedCollection)
                         .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
                 }
             }
+            .fullScreenCover(isPresented: $showUserList) {
+                CollectionInviteUserList(collectionsViewModel: collectionsViewModel)
+            }
         }
     }
+    private func isCollaborator(for collection: Collection) -> Bool {
+           return !collection.collaborators.isEmpty
+       }
+    private func pluralText(for count: Int, singular: String, plural: String) -> String {
+        return count == 1 ? singular : plural
+    }
+    
 }
+
 struct LikeButton: View {
     let collection: Collection
     @ObservedObject var viewModel: CollectionsViewModel
@@ -235,6 +277,158 @@ struct LikeButton: View {
                 Text("\(collection.likes)")
                     .foregroundColor(.gray)
             }
+        }
+    }
+}
+class CollaboratorsListViewModel: ObservableObject {
+    @Published var collaborators: [User] = []
+    @Published var isLoading = false
+    @Published var error: Error?
+    @Published var selectedUser: User?
+
+    func fetchCollaborators(collaboratorIds: [String]) {
+        isLoading = true
+        collaborators = [] // Clear existing collaborators
+
+        Task {
+            do {
+                for id in collaboratorIds {
+                    let user = try await UserService.shared.fetchUser(withUid: id)
+                    await MainActor.run {
+                        self.collaborators.append(user)
+                    }
+                }
+                await MainActor.run {
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+}
+
+struct CollaboratorsListView: View {
+    @StateObject private var viewModel = CollaboratorsListViewModel()
+    @State private var searchText = ""
+    let collaboratorIds: [String]
+    @Environment(\.dismiss) private var dismiss
+    @State private var showUserProfile = false
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                if viewModel.isLoading {
+                    ProgressView("Loading Collaborators...")
+                        .progressViewStyle(CircularProgressViewStyle())
+                } else if viewModel.collaborators.isEmpty {
+                    emptyView
+                } else {
+                    collaboratorList
+                }
+            }
+            .navigationTitle("Collaborators")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search collaborators")
+            .navigationBarItems(trailing: Button("Done") {
+                dismiss()
+            })
+        }
+        .onAppear {
+            viewModel.fetchCollaborators(collaboratorIds: collaboratorIds)
+        }
+        .alert(item: Binding<AlertItem?>(
+            get: { viewModel.error.map { AlertItem(error: $0) } },
+            set: { _ in viewModel.error = nil }
+        )) { alertItem in
+            Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
+        }
+        .fullScreenCover(item: $viewModel.selectedUser) { user in
+            NavigationStack{
+                ProfileView(uid: user.id)
+            }
+        }
+    }
+
+    private var emptyView: some View {
+        VStack {
+            Image("Skip")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
+            Text("No Collaborators Found")
+                .font(.title2)
+                .foregroundColor(.gray)
+                .padding(.top)
+        }
+    }
+
+    private var collaboratorList: some View {
+        List {
+            ForEach(filteredCollaborators) { user in
+                CollaboratorRow(user: user)
+                    .onTapGesture {
+                        viewModel.selectedUser = user
+                    }
+            }
+        }
+        .listStyle(PlainListStyle())
+    }
+
+    private var filteredCollaborators: [User] {
+        if searchText.isEmpty {
+            return viewModel.collaborators
+        } else {
+            return viewModel.collaborators.filter { user in
+                user.username.lowercased().contains(searchText.lowercased()) ||
+                user.fullname.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
+}
+
+struct CollaboratorRow: View {
+    let user: User
+
+    var body: some View {
+        HStack(spacing: 12) {
+            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .small)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(user.fullname)
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .foregroundStyle(.black)
+
+                Text("@\(user.username)")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+
+                locationText
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 8)
+    }
+
+    private var locationText: some View {
+        Text(locationString)
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
+    }
+
+    private var locationString: String {
+        if let city = user.location?.city, let state = user.location?.state {
+            return "\(city), \(state)"
+        } else if let city = user.location?.city {
+            return city
+        } else if let state = user.location?.state {
+            return state
+        } else {
+            return "Location not available"
         }
     }
 }

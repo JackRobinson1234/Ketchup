@@ -88,16 +88,33 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     func fetchCollections(user: String) async {
-        isLoading = true
-        print("fetching Collections")
-        do {
-            self.collections = try await CollectionService.shared.fetchCollections(user: user)
-            isLoading = false
-        } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            isLoading = false
-        }
-    }
+          isLoading = true
+          print("fetching Collections")
+          do {
+              // Fetch collections created by the user
+              let userCollections = try await CollectionService.shared.fetchCollections(user: user)
+
+              // Fetch collections where the user is a collaborator
+              let collaboratorCollections = try await CollectionService.shared.fetchCollectionsWhereUserIsCollaborator(user: user)
+
+              // Combine both sets of collections
+              var allCollections = userCollections + collaboratorCollections
+              
+              // Sort collections by timestamp in descending order
+              allCollections.sort(by: {
+                  ($0.timestamp ?? Timestamp(date: Date.distantPast)).dateValue() >
+                  ($1.timestamp ?? Timestamp(date: Date.distantPast)).dateValue()
+              })
+              
+              // Update the collections array with the sorted result
+              self.collections = allCollections
+              
+              isLoading = false
+          } catch {
+              print("DEBUG: Failed to fetch collections with error: \(error.localizedDescription)")
+              isLoading = false
+          }
+      }
     func fetchItems() async throws{
         if let selectedCollection{
             let fetchedItems = try await CollectionService.shared.fetchItems(collection: selectedCollection)
@@ -108,29 +125,32 @@ class CollectionsViewModel: ObservableObject {
     /// Adds an item to selectedCollection and on firebase. Updates the selectedCollection variable as well, which is what is actually displayed for the user to reduce networking, Also updates the collections array to reduce networking.
     /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(collectionItem: CollectionItem) async throws {
-        guard var selectedCollection = self.selectedCollection else { return }
-        
-        var item = collectionItem
-        item.collectionId = selectedCollection.id
-        item.notes = notes
-        self.notes = ""
-        
-        try await CollectionService.shared.addItemToCollection(collectionItem: item)
-        
-        if !self.items.contains(item) {
-            self.items.append(item)
-            selectedCollection.restaurantCount += 1
-            selectedCollection.updatetempImageUrls(with: item)
-            
-            // Update the collections array
-            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                collections[index] = selectedCollection
-            }
-            
-            // Update the published selectedCollection
-            self.selectedCollection = selectedCollection
-        }
-    }
+           guard var selectedCollection = self.selectedCollection else { return }
+           guard let currentUser = AuthService.shared.userSession else { return }
+
+           var item = collectionItem
+           item.collectionId = selectedCollection.id
+           item.notes = notes
+           item.addedByUid = currentUser.id
+           item.addedByUsername = currentUser.username
+           self.notes = ""
+
+           try await CollectionService.shared.addItemToCollection(collectionItem: item)
+
+           if !self.items.contains(item) {
+               self.items.append(item)
+               selectedCollection.restaurantCount += 1
+               selectedCollection.updatetempImageUrls(with: item)
+
+               // Update the collections array
+               if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                   collections[index] = selectedCollection
+               }
+
+               // Update the published selectedCollection
+               self.selectedCollection = selectedCollection
+           }
+       }
     //MARK: addPostToCollection
     /// adds self.post as a CollectionItem to selectedCollection on Firebase
     func addPostToCollection() async throws{
@@ -510,6 +530,92 @@ class CollectionsViewModel: ObservableObject {
                 collections[index] = updatedCollection
             }
             self.selectedCollection = updatedCollection
+        }
+    }
+    func fetchCollaborationInvites() async {
+            isLoading = true
+            do {
+                self.invites = try await CollectionService.shared.fetchCollaborationInvites()
+            } catch {
+                print("Failed to fetch invites: \(error)")
+            }
+        isLoading = false
+    }
+    func acceptInvite(_ invite: CollectionInvite) async {
+        do {
+            // Accept the invite on the server
+            try await CollectionService.shared.acceptInvite(collectionId: invite.collectionId)
+            
+            // Remove the invite from the local list
+            invites.removeAll { $0.id == invite.id }
+            
+            // Fetch the full collection details
+            let acceptedCollection = try await CollectionService.shared.fetchCollection(withId: invite.collectionId)
+            await MainActor.run {
+                // Add the new collection to the list
+                insertCollection(acceptedCollection)
+                
+            }
+        } catch {
+            print("Failed to accept invite: \(error)")
+        }
+    }
+
+    private func insertCollection(_ newCollection: Collection) {
+        // Find the correct position to insert the new collection based on its timestamp
+        let index = collections.firstIndex { collection in
+            guard let newTimestamp = newCollection.timestamp,
+                  let existingTimestamp = collection.timestamp else {
+                return false
+            }
+            return newTimestamp.dateValue() > existingTimestamp.dateValue()
+        } ?? collections.endIndex
+        
+        // Insert the new collection at the correct position
+        collections.insert(newCollection, at: index)
+    }
+        
+        // Reject an invite to collaborate on a collection
+        func rejectInvite(_ invite: CollectionInvite) async {
+            do {
+                try await CollectionService.shared.rejectInvite(collectionId: invite.collectionId)
+                invites.removeAll { $0.id == invite.id }
+            } catch {
+                print("Failed to reject invite: \(error)")
+            }
+    }
+    func removeSelfAsCollaborator() async {
+        guard let collection = selectedCollection else {
+            print("No collection selected")
+            return
+        }
+        
+        do {
+            try await CollectionService.shared.removeSelfAsCollaborator(collectionId: collection.id)
+            
+            // Update the selectedCollection
+            if var updatedCollection = selectedCollection {
+                updatedCollection.collaborators.removeAll { $0 == AuthService.shared.userSession?.id }
+                selectedCollection = updatedCollection
+            }
+            
+            // Update the collections array
+            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                collections.remove(at: index)
+            }
+            
+            // Reset the selectedCollection if it's the one we just left
+         
+            
+            // Update the user's collection count locally
+            
+            
+            print("Successfully removed self as collaborator from collection: \(collection.id)")
+            
+            
+        } catch {
+            print("Failed to remove self as collaborator: \(error.localizedDescription)")
+            // Here you might want to show an error message to the user
         }
     }
 }

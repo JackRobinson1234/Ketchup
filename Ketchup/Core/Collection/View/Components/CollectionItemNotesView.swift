@@ -59,6 +59,9 @@ struct ItemNotesView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.5))
+        .onTapGesture {
+            viewModel.notesPreview = nil
+        }
     }
 }
 

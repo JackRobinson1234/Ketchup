@@ -19,6 +19,7 @@ struct ProfileView: View {
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
+    @StateObject var collectionsViewModel = CollectionsViewModel()
     private let uid: String
     var drag: some Gesture {
         
@@ -74,7 +75,7 @@ struct ProfileView: View {
                         VStack(spacing: 2) {
                             ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
                             if !profileViewModel.user.privateMode {
-                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
+                                ProfileSlideBar(viewModel: profileViewModel, collectionsViewModel: collectionsViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             } else {

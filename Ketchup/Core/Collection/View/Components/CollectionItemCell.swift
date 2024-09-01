@@ -24,7 +24,7 @@ struct CollectionItemCell: View {
                     .frame(width: 56, height: 56)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
             } else {
-                Image(systemName: "music.note")
+                Image(systemName: "fork.knife")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)
@@ -41,15 +41,29 @@ struct CollectionItemCell: View {
                     .foregroundColor(.black)
                     .lineLimit(1)
                 
-                HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    // Location information
                     if let city = item.city, let state = item.state {
                         Text("\(city), \(state)")
-                    } else if let name = item.postUserFullname {
-                        Text("by @\(name)")
                     } else if let city = item.city {
                         Text(city)
                     } else if let state = item.state {
                         Text(state)
+                    } else if let name = item.postUserFullname {
+                        Text("by @\(name)")
+                    }
+                    
+                    // Added by information with collaborator indicator
+                    if let addedByUid = item.addedByUid,
+                       addedByUid != viewModel.selectedCollection?.uid, let addedByUsername = item.addedByUsername {
+                        HStack(spacing: 2) {
+                            Text("Added by @\(addedByUsername)")
+                            Image(systemName: "link")
+                                .foregroundColor(.red)
+                                .font(.system(size: 10))
+                        }
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
                     }
                 }
                 .font(.system(size: 14))
@@ -60,11 +74,11 @@ struct CollectionItemCell: View {
             Spacer()
             
             // Notes icon (if applicable and not in preview mode)
-            Button{
+            Button {
                 viewModel.notesPreview = item
             } label: {
                 if let notes = item.notes, !notes.isEmpty, !previewMode {
-                    VStack{
+                    VStack {
                         Image(systemName: "square.and.pencil")
                             .resizable()
                             .scaledToFit()
@@ -73,7 +87,6 @@ struct CollectionItemCell: View {
                         Text("notes")
                             .foregroundStyle(Color("Colors/AccentColor"))
                             .font(.custom("MuseoSansRounded-300", size: 10))
-                            
                     }
                 }
             }
@@ -83,11 +96,3 @@ struct CollectionItemCell: View {
         .frame(height: 72)
     }
 }
-
-
-
-#Preview {
-    CollectionItemCell(item: DeveloperPreview.items[0], viewModel: CollectionsViewModel())
-}
-
-

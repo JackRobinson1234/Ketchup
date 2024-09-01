@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 struct CurrentUserProfileView: View {
     @StateObject var profileViewModel: ProfileViewModel
     @State var currentProfileSection: ProfileSectionEnum
@@ -18,12 +19,13 @@ struct CurrentUserProfileView: View {
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
     @ObservedObject var feedViewModel: FeedViewModel
-
+    @StateObject var collectionsViewModel = CollectionsViewModel()
     init(currentProfileSection: ProfileSectionEnum = .posts,  feedViewModel: FeedViewModel) {
         let viewModel = ProfileViewModel(uid: "")
         self._profileViewModel = StateObject(wrappedValue: viewModel)
         self._currentProfileSection = State(initialValue: currentProfileSection)
         self.feedViewModel = feedViewModel
+
     }
     
     var body: some View {
@@ -47,7 +49,7 @@ struct CurrentUserProfileView: View {
                                 ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
                                     .padding(.top)
                                 //MARK: Slide bar
-                                ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
+                                ProfileSlideBar(viewModel: profileViewModel, collectionsViewModel: collectionsViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget)
                             }
@@ -108,6 +110,13 @@ struct CurrentUserProfileView: View {
                             Task {
                                 try await profileViewModel.refreshCurrentUser()
                                 try await feedViewModel.fetchUserPosts(user: profileViewModel.user)
+                            }
+                        } else if profileViewModel.profileSection == .collections{
+                            Task {
+                                try await profileViewModel.refreshCurrentUser()
+                                if let user = Auth.auth().currentUser?.uid {
+                                    await collectionsViewModel.fetchCollections(user: user)
+                                }
                             }
                         }
                     }

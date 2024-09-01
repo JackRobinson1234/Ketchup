@@ -29,7 +29,9 @@ struct CollectionListView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     // Add Item Button (if user owns the collection)
-                    if collectionsViewModel.selectedCollection?.uid == Auth.auth().currentUser?.uid {
+                    if let currentUserID = Auth.auth().currentUser?.uid,
+                       let selectedCollection = collectionsViewModel.selectedCollection,
+                       selectedCollection.uid == currentUserID || selectedCollection.collaborators.contains(currentUserID) == true{
                         Button(action: {
                             showAddItem.toggle()
                         }) {
