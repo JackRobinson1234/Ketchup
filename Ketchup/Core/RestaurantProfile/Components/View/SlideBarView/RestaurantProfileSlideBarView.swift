@@ -83,7 +83,7 @@ struct RestaurantProfileSlideBarView: View {
         if viewModel.currentSection == .posts {
             VStack {
                 if let name = viewModel.restaurant?.name {
-                    PostGridView(feedViewModel: feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                    PostGridView(feedViewModel: feedViewModel, feedTitleText: "User Posts of \(name)", showNames: false, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget, friendIds: viewModel.friendsWhoPosted.map { $0.id })
                 }
             }
         }

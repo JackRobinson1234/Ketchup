@@ -29,14 +29,16 @@ struct PostGridView: View {
     @State var selectedWrittenPost: Post?
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
+    private let friendIds: [String]
 
-    init(feedViewModel: FeedViewModel, feedTitleText: String?, showNames: Bool, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
-        self.feedViewModel = feedViewModel
-        self.feedTitleText = feedTitleText
-        self.showNames = showNames
-        self._scrollPosition = scrollPosition
-        self._scrollTarget = scrollTarget
-    }
+        init(feedViewModel: FeedViewModel, feedTitleText: String?, showNames: Bool, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, friendIds: [String] = []) {
+            self.feedViewModel = feedViewModel
+            self.feedTitleText = feedTitleText
+            self.showNames = showNames
+            self._scrollPosition = scrollPosition
+            self._scrollTarget = scrollTarget
+            self.friendIds = friendIds
+        }
 
     var body: some View {
         if !feedViewModel.posts.isEmpty {
@@ -91,9 +93,31 @@ struct PostGridView: View {
                             }
                             
                             VStack(alignment: .leading) {
+                                if !friendIds.isEmpty && friendIds.contains(post.user.id) {
+                                    HStack{
+                                        HStack(spacing: 1){
+                                            Image(systemName: "person.2.fill")
+                                                .font(.system(size: 10))
+                                                .foregroundColor(.white)
+                                                .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                            
+                                            Text("@\(post.user.username)")
+                                                .lineLimit(2)
+                                                .truncationMode(.tail)
+                                                .foregroundColor(.white)
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .bold()
+                                                .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                .multilineTextAlignment(.leading)
+                                                .minimumScaleFactor(0.5)
+                                        }
+                                        Spacer()
+                                    }
+                                }
                                 Spacer()
-                                HStack (alignment: .bottom){
+                                HStack(alignment: .bottom) {
                                     if showNames {
+                                
                                         Text("\(post.restaurant.name)")
                                             .lineLimit(2)
                                             .truncationMode(.tail)
@@ -104,21 +128,22 @@ struct PostGridView: View {
                                             .multilineTextAlignment(.leading)
                                             .minimumScaleFactor(0.5)
                                     }
-                                    Spacer()
-                                    Text(calculateOverallRating(for: post))
-                                        .lineLimit(2)
-                                        .truncationMode(.tail)
-                                        .foregroundColor(.white)
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                        .bold()
-                                        .shadow(color: .black, radius: 2, x: 0, y: 1)
-                                        .multilineTextAlignment(.leading)
-                                        .minimumScaleFactor(0.5)
+                                        
+                                        Spacer()
+                                        Text(calculateOverallRating(for: post))
+                                            .lineLimit(2)
+                                            .truncationMode(.tail)
+                                            .foregroundColor(.white)
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .bold()
+                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                            .multilineTextAlignment(.leading)
+                                            .minimumScaleFactor(0.5)
+                                    }
                                 }
+                                .padding(4)
                             }
-                            .padding(4)
                         }
-                    }
                 }
             }
             .padding(spacing / 2)

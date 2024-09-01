@@ -411,18 +411,33 @@ extension PostService {
         try await batch.commit()
     }
     func fetchFriendsPosts(for restaurant: Restaurant, friendIds: [String]) async throws -> [Post] {
-        guard !friendIds.isEmpty else {
-               print("Error: friendIds array is empty.")
-               return [] // Return an empty array or handle the case as appropriate
-           }
-            let posts = try await FirestoreConstants.PostsCollection
-                .whereField("restaurant.id", isEqualTo: restaurant.id)
-                .whereField("user.id", in: friendIds)
-                .order(by: "timestamp", descending: true)
-                .getDocuments(as: Post.self)
-            return posts
-        }
+         guard !friendIds.isEmpty else {
+             print("Error: friendIds array is empty.")
+             return [] // Return an empty array or handle the case as appropriate
+         }
 
+         let batchSize = 30
+         var allPosts: [Post] = []
+
+         for i in stride(from: 0, to: friendIds.count, by: batchSize) {
+             let end = min(i + batchSize, friendIds.count)
+             let batch = Array(friendIds[i..<end])
+
+             let posts = try await FirestoreConstants.PostsCollection
+                 .whereField("restaurant.id", isEqualTo: restaurant.id)
+                 .whereField("user.id", in: batch)
+                 .order(by: "timestamp", descending: true)
+                 .getDocuments(as: Post.self)
+
+             allPosts.append(contentsOf: posts)
+         }
+
+         // Sort all posts by timestamp descending
+         allPosts.sort { $0.timestamp ?? Timestamp() > $1.timestamp ?? Timestamp() }
+
+         return allPosts
+     }
+    
     func fetchRemainingRestaurantPosts(for restaurant: Restaurant, excluding friendIds: [String]) async throws -> [Post] {
         // Fetch all posts related to the restaurant
         var posts: [Post] = try await FirestoreConstants.PostsCollection
