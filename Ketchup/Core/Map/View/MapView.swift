@@ -11,25 +11,39 @@ import ClusterMap
 import ClusterMapSwiftUI
 
 struct MapView: View {
-    @StateObject var viewModel: MapViewModel
+    @StateObject var viewModel: MapViewModel = MapViewModel()
+    @StateObject var followingViewModel = FollowingPostsMapViewModel()
     @State var position: MapCameraPosition
     @State private var selectedRestaurant: RestaurantMapAnnotation?
+    @State private var selectedGroupedPost: GroupedPostMapAnnotation?
     @State private var showRestaurantPreview = false
     @State private var inSearchView: Bool = false
     @State private var isSearchPresented: Bool = false
     @State private var isFiltersPresented: Bool = false
     @State var isLoading = true
     @Namespace var mapScope
-    @State var lastFetchedLocation: CLLocation = CLLocation(latitude: 0, longitude: 0)
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
-    @State private var selectedLargeCluster: LargeClusterAnnotation?
+    @State private var selectedFollowingCluster: GroupedPostClusterAnnotation?
     @State private var hasAppeared = false
     @State private var showMoveWarning = false
+    @State private var showFollowingPosts = false
+    
     private var noNearbyRestaurants: Bool {
-            viewModel.annotations.isEmpty && viewModel.clusters.isEmpty && viewModel.largeClusters.isEmpty && !viewModel.isLoading
+        if showFollowingPosts {
+            return followingViewModel.annotations.isEmpty && followingViewModel.clusters.isEmpty && !followingViewModel.isLoading
+        } else {
+            return viewModel.annotations.isEmpty && viewModel.clusters.isEmpty && viewModel.largeClusters.isEmpty && !viewModel.isLoading
         }
+    }
+    private var isZoomedOutTooFar: Bool {
+        if showFollowingPosts {
+            return followingViewModel.currentZoomLevel == .maxZoomOut
+        } else {
+            return viewModel.currentZoomLevel == .maxZoomOut
+        }
+    }
     init() {
         self._viewModel = StateObject(wrappedValue: MapViewModel())
         self._position = State(initialValue: .userLocation(fallback: .automatic))
@@ -40,41 +54,67 @@ struct MapView: View {
             ZStack(alignment: .bottom) {
                 GeometryReader { geometryProxy in
                     Map(position: $position, scope: mapScope) {
-                        ForEach(viewModel.annotations, id: \.self) { item in
-                            Annotation(item.restaurant.name, coordinate: item.coordinate) {
-                                NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
-                                    RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+                        if showFollowingPosts {
+                            ForEach(followingViewModel.annotations, id: \.self) { item in
+                                Annotation(item.restaurant.name, coordinate: item.coordinate) {
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
+                                        GroupedPostAnnotationView(groupedPost: item)
+                                    }
                                 }
                             }
-                        }
-                        ForEach(viewModel.clusters) { cluster in
-                            Annotation("", coordinate: cluster.coordinate) {
-                                ClusterCell(cluster: cluster)
-                                    .onTapGesture {
-                                        selectedCluster = cluster
-                                    }
+                            ForEach(followingViewModel.clusters) { cluster in
+                                Annotation("", coordinate: cluster.coordinate) {
+                                    GroupedPostClusterCell(cluster: cluster)
+                                        .onTapGesture {
+                                            selectedFollowingCluster = cluster
+                                        }
+                                }
                             }
-                        }
-                        ForEach(viewModel.largeClusters) { cluster in
-                            Annotation("", coordinate: cluster.coordinate) {
-                                NewClusterCell(cluster: cluster)
-                                    .onTapGesture {
-                                        selectedLargeCluster = cluster
+                        } else {
+                            ForEach(viewModel.annotations, id: \.self) { item in
+                                Annotation(item.restaurant.name, coordinate: item.coordinate) {
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
+                                        RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
                                     }
+                                }
+                            }
+                            ForEach(viewModel.clusters) { cluster in
+                                Annotation("", coordinate: cluster.coordinate) {
+                                    ClusterCell(cluster: cluster)
+                                        .onTapGesture {
+                                            selectedCluster = cluster
+                                        }
+                                }
+                            }
+                            ForEach(viewModel.largeClusters) { cluster in
+                                Annotation("", coordinate: cluster.coordinate) {
+                                    NewClusterCell(cluster: cluster)
+                                        .onTapGesture {
+                                            // Handle large cluster tap
+                                        }
+                                }
                             }
                         }
                         UserAnnotation()
                     }
                     .readSize(onChange: { newValue in
                         viewModel.mapSize = newValue
+                        followingViewModel.mapSize = newValue
                     })
-                    .onMapCameraChange (frequency: .onEnd){ context in
+                    .onMapCameraChange { context in
                         let newRegion = context.region
-                        viewModel.updateMapState(newRegion: newRegion)
+                        if showFollowingPosts {
+                            followingViewModel.updateMapState(newRegion: newRegion)
+                        } else {
+                            viewModel.updateMapState(newRegion: newRegion)
+                        }
                     }
                     .onMapCameraChange(frequency: .onEnd) { context in
-                        
-                        Task.detached { await viewModel.reloadAnnotations() }
+                        if !showFollowingPosts{
+                            Task.detached { await viewModel.reloadAnnotations() }
+                        } else {
+                            Task.detached { await followingViewModel.reloadAnnotations() }
+                        }
                         
                     }
                     .onChange(of: isFiltersPresented) {
@@ -82,47 +122,67 @@ struct MapView: View {
                         Task.detached { await viewModel.reloadAnnotations() }
                         
                     }
-                   
                     .overlay {
-                        if viewModel.currentZoomLevel == .maxZoomOut {
-                            Text("Zoom in to see restaurants")
-                                .modifier(OverlayModifier())
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                        } else if noNearbyRestaurants {
-                            Text("No restaurants found nearby")
-                                .modifier(OverlayModifier())
-                                .font(.custom("MuseoSansRounded-300", size: 14))
+                        if showFollowingPosts {
+                            if followingViewModel.currentZoomLevel == .maxZoomOut {
+                                Text("Zoom in to see posts")
+                                    .modifier(OverlayModifier())
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                            } else if noNearbyRestaurants {
+                                Text("No posts found nearby")
+                                    .modifier(OverlayModifier())
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                            }
+                        } else {
+                            if viewModel.currentZoomLevel == .maxZoomOut {
+                                Text("Zoom in to see restaurants")
+                                    .modifier(OverlayModifier())
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                            } else if noNearbyRestaurants {
+                                Text("No restaurants found nearby")
+                                    .modifier(OverlayModifier())
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                            }
                         }
                     }
                     .overlay(alignment: .bottomTrailing) {
                         userLocationButton
                     }
                     .mapScope(mapScope)
+                    
                     .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
-             
-                filtersButton
-                VStack{
-                    if viewModel.isLoading {
-                        VStack {
+                
+                VStack {
+                    HStack{
+                        VerticalToggleView(showFollowingPosts: $showFollowingPosts)
+                                               .padding()
+                    
+                    Spacer()
+                    
+                    filtersButton
+                }
+                Spacer()
+                }
+                
+                
+                if (showFollowingPosts ? followingViewModel.isLoading : viewModel.isLoading) {
+                    VStack {
+                        Spacer()
+                        HStack {
                             Spacer()
-                            HStack {
-                                Spacer()
-                                LoadingIcon()
-                                    .padding([.bottom, .trailing], 20)
-                                    .padding(.bottom, 50)
-                            }
+                            LoadingIcon()
+                                .padding([.bottom, .trailing], 20)
+                                .padding(.bottom, 50)
                         }
                     }
                 }
-                
-                
             }
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
             }
-            .sheet(item: $selectedLargeCluster) { cluster in
-                ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
+            .sheet(item: $selectedFollowingCluster) { cluster in
+                GroupedPostClusterListView(groupedPosts: cluster.memberAnnotations)
             }
             .onAppear {
                 if !hasAppeared {
@@ -228,27 +288,42 @@ struct MapView: View {
     }
     
     private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
-        if viewModel.currentZoomLevel == .maxZoomOut {
-            return // Don't fetch if zoomed out too far
-        }
-        let distanceThreshold = calculateDistanceThreshold(for: viewModel.currentRegion)
-        if let lastLocation = viewModel.selectedLocation.first {
-            let distance = calculateDistanceInKilometers(from: lastLocation, to: center)
-            if distance >= distanceThreshold {
-                viewModel.selectedLocation = [center]
-                print("Fetching new restaurants. Distance moved: \(distance) km, Threshold: \(distanceThreshold) km")
-                
-                await viewModel.fetchFilteredClusters()
+        if showFollowingPosts {
+            // Use the same logic for fetching posts
+            if followingViewModel.currentZoomLevel == .maxZoomOut {
+                return
+            }
+            
+            let distanceThreshold = MapUtils.calculateDistanceThreshold(for: followingViewModel.currentRegion)
+            if let lastLocation = followingViewModel.selectedLocation.first {
+                let distance = MapUtils.calculateDistance(from: lastLocation, to: center)
+                if distance >= distanceThreshold {
+                    followingViewModel.selectedLocation = [center]
+                    await followingViewModel.fetchFollowingPosts()
+                }
             } else {
-                print("Skipping fetch. Distance moved: \(distance) km, Threshold: \(distanceThreshold) km")
+                followingViewModel.selectedLocation = [center]
+                await followingViewModel.fetchFollowingPosts()
             }
         } else {
-            print("Fetching initial restaurants")
-            viewModel.selectedLocation = [center]
-            await viewModel.fetchFilteredClusters()
+            // Use the existing fetchRestaurantsInView logic for the regular view
+            if viewModel.currentZoomLevel == .maxZoomOut {
+                return
+            }
+            
+            let distanceThreshold = MapUtils.calculateDistanceThreshold(for: viewModel.currentRegion)
+            if let lastLocation = viewModel.selectedLocation.first {
+                let distance = MapUtils.calculateDistance(from: lastLocation, to: center)
+                if distance >= distanceThreshold {
+                    viewModel.selectedLocation = [center]
+                    await viewModel.fetchFilteredClusters()
+                }
+            } else {
+                viewModel.selectedLocation = [center]
+                await viewModel.fetchFilteredClusters()
+            }
         }
     }
-    
     private func calculateDistanceInKilometers(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D) -> Double {
         let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
         let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
@@ -293,5 +368,172 @@ struct LoadingIcon: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: .red))
                 .scaleEffect(1.5)
         }
+    }
+}
+//struct SimplifiedPostClusterCell: View {
+//    var cluster: SimplifiedPostClusterAnnotation
+//
+//    var body: some View {
+//        ZStack {
+//            Circle()
+//                .fill(Color.white)
+//                .frame(width: 40, height: 40)
+//                .overlay(
+//                    Circle()
+//                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
+//                )
+//            Text("\(cluster.count)")
+//                .foregroundColor(.black)
+//                .font(.custom("MuseoSansRounded-700", size: 14))
+//        }
+//    }
+//}
+
+struct SimplifiedPostClusterListView: View {
+    let posts: [SimplifiedPost]
+    
+    var body: some View {
+        NavigationView {
+            List(posts) { post in
+                NavigationLink(destination: RestaurantProfileView(restaurantId: post.restaurant.id)) {
+                    HStack {
+                        AsyncImage(url: URL(string: post.thumbnailUrl)) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } placeholder: {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 50, height: 50)
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text(post.restaurant.name)
+                                .font(.headline)
+                            Text(post.user.fullname)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Posts")
+        }
+    }
+}
+struct GroupedPostAnnotationView: View {
+    let groupedPost: GroupedPostMapAnnotation
+    
+    var body: some View {
+        ZStack {
+            RestaurantCircularProfileImageView(imageUrl: groupedPost.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text("\(groupedPost.userCount)")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(4)
+                        .background(Color("Colors/AccentColor"))
+                        .clipShape(Circle())
+                }
+            }
+        }
+        .frame(width: 44, height: 44)
+    }
+}
+
+struct GroupedPostClusterCell: View {
+    var cluster: GroupedPostClusterAnnotation
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 40, height: 40)
+                .overlay(
+                    Circle()
+                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
+                )
+            Text("\(cluster.count)")
+                .foregroundColor(.black)
+                .font(.custom("MuseoSansRounded-700", size: 14))
+        }
+    }
+}
+
+struct GroupedPostClusterListView: View {
+    let groupedPosts: [GroupedPostMapAnnotation]
+    
+    var body: some View {
+        NavigationView {
+            List(groupedPosts) { groupedPost in
+                NavigationLink(destination: RestaurantProfileView(restaurantId: groupedPost.restaurant.id)) {
+                    HStack {
+                        AsyncImage(url: URL(string: groupedPost.restaurant.profileImageUrl ?? "")) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } placeholder: {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 50, height: 50)
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text(groupedPost.restaurant.name)
+                                .font(.headline)
+                            Text("\(groupedPost.postCount) posts by \(groupedPost.userCount) users")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Restaurants")
+        }
+    }
+}
+struct VerticalToggleView: View {
+    @Binding var showFollowingPosts: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: {
+                withAnimation {
+                    showFollowingPosts = false
+                }
+            }) {
+                Image(systemName: "building.2")
+                    .foregroundColor(showFollowingPosts ? .gray : .white)
+                    .frame(width: 44, height: 44)
+            }
+            
+            Button(action: {
+                withAnimation {
+                    showFollowingPosts = true
+                }
+            }) {
+                Image(systemName: "person.2")
+                    .foregroundColor(showFollowingPosts ? .white : .gray)
+                    .frame(width: 44, height: 44)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 22)
+                .fill(Color.gray.opacity(0.2))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color("Colors/AccentColor"))
+                .frame(height: 44)
+                .offset(y: showFollowingPosts ? 44 : 0)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .animation(.spring(), value: showFollowingPosts)
     }
 }

@@ -36,9 +36,15 @@ struct RatingSlider: View {
     let label: String
     let isOverall: Bool
     let fontColor: Color
+    var friendsRating: Double? = nil
     
     var formattedRating: String {
         return String(format: "%.1f", rating)
+    }
+    
+    var friendsRatingPosition: CGFloat? {
+        guard let friendsRating = friendsRating else { return nil }
+        return CGFloat(friendsRating / 10.0)
     }
     
     var body: some View {
@@ -50,15 +56,25 @@ struct RatingSlider: View {
             
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
+                    // Background bar
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(height: 2)
                         .cornerRadius(1)
                     
+                    // Filled bar for the actual rating
                     Rectangle()
                         .fill(Color("Colors/AccentColor"))
                         .frame(width: (rating / 10.0) * geometry.size.width, height: 2)
                         .cornerRadius(1)
+                    
+                    // Black vertical dash for friends' rating
+                    if let friendsRatingPosition = friendsRatingPosition {
+                        Rectangle()
+                            .fill(Color.black)
+                            .frame(width: 2, height: 10)
+                            .position(x: friendsRatingPosition * geometry.size.width, y: geometry.size.height / 2)
+                    }
                 }
                 .frame(maxHeight: .infinity)
             }

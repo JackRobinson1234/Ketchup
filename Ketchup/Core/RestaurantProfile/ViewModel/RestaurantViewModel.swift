@@ -26,7 +26,7 @@ class RestaurantViewModel: ObservableObject {
     @Published var valueRating: Double?
     @Published var serviceRating: Double?
     @Published var friendsWhoPosted: [PostUser] = []
-
+    
     init(restaurantId: String) {
         self.restaurantId = restaurantId
         // DEBUG: see if you can delete this
@@ -50,7 +50,7 @@ class RestaurantViewModel: ObservableObject {
             print("DEBUG: Restaurant already exists, not fetching")
         }
     }
-
+    
     private func calculateRatings(from ratingStats: RatingStats?) {
         print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
         guard let ratingStats = ratingStats else {
@@ -92,7 +92,7 @@ class RestaurantViewModel: ObservableObject {
         
         print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
     }
-
+    
     private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
         guard let category = category,
               let totalCount = category.totalCount,
@@ -110,56 +110,56 @@ class RestaurantViewModel: ObservableObject {
         }
     }
     func checkBookmarkStatus() async {
-                guard let restaurant = restaurant else { return }
-                do {
-                    isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
-                } catch {
-                    print("Error checking bookmark status: \(error.localizedDescription)")
-                }
+        guard let restaurant = restaurant else { return }
+        do {
+            isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
+        } catch {
+            print("Error checking bookmark status: \(error.localizedDescription)")
+        }
+    }
+    
+    func toggleBookmark() async {
+        guard let restaurant = restaurant else { return }
+        do {
+            if isBookmarked {
+                try await RestaurantService.shared.removeBookmark(for: restaurant.id)
+            } else {
+                try await RestaurantService.shared.createBookmark(for: restaurant)
             }
-
-            func toggleBookmark() async {
-                guard let restaurant = restaurant else { return }
-                do {
-                    if isBookmarked {
-                        try await RestaurantService.shared.removeBookmark(for: restaurant.id)
-                    } else {
-                        try await RestaurantService.shared.createBookmark(for: restaurant)
-                    }
-                    isBookmarked.toggle()
-                } catch {
-                    print("Error toggling bookmark: \(error.localizedDescription)")
-                }
-            }
+            isBookmarked.toggle()
+        } catch {
+            print("Error toggling bookmark: \(error.localizedDescription)")
+        }
+    }
     func fetchFriendsWhoPosted() async {
-           guard let currentUserID = Auth.auth().currentUser?.uid,
-                 let restaurant = restaurant else { return }
-           
-           do {
-               let followingPostsRef = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
-               let query = followingPostsRef
-                   .whereField("restaurant.id", isEqualTo: restaurant.id)
-               
-               let snapshot = try await query.getDocuments()
-               
-               let users = snapshot.documents.compactMap { document -> PostUser? in
-                   let data = document.data()
-                   guard let userDict = data["user"] as? [String: Any],
-                         let id = userDict["id"] as? String,
-                         let fullname = userDict["fullname"] as? String,
-                         let username = userDict["username"] as? String,
-                         let privateMode = userDict["privateMode"] as? Bool else {
-                       return nil
-                   }
-                   let profileImageUrl = userDict["profileImageUrl"] as? String
-                   return PostUser(id: id, fullname: fullname, profileImageUrl: profileImageUrl, privateMode: privateMode, username: username)
-               }
-               
-               self.friendsWhoPosted = Array(Set(users))  // Remove duplicates
-           } catch {
-               print("Error fetching friends who posted: \(error.localizedDescription)")
-           }
-       }
+        guard let currentUserID = Auth.auth().currentUser?.uid,
+              let restaurant = restaurant else { return }
+        
+        do {
+            let followingPostsRef = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
+            let query = followingPostsRef
+                .whereField("restaurant.id", isEqualTo: restaurant.id)
+            
+            let snapshot = try await query.getDocuments()
+            
+            let users = snapshot.documents.compactMap { document -> PostUser? in
+                let data = document.data()
+                guard let userDict = data["user"] as? [String: Any],
+                      let id = userDict["id"] as? String,
+                      let fullname = userDict["fullname"] as? String,
+                      let username = userDict["username"] as? String,
+                      let privateMode = userDict["privateMode"] as? Bool else {
+                    return nil
+                }
+                let profileImageUrl = userDict["profileImageUrl"] as? String
+                return PostUser(id: id, fullname: fullname, profileImageUrl: profileImageUrl, privateMode: privateMode, username: username)
+            }
+            
+            self.friendsWhoPosted = Array(Set(users))  // Remove duplicates
+        } catch {
+            print("Error fetching friends who posted: \(error.localizedDescription)")
+        }
+    }
 }
 // MARK: - Posts
 

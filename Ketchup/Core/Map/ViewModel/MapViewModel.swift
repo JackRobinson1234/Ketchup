@@ -33,8 +33,6 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
-    @Published var selectedCity: String = ""
-    @Published var selectedState: String = ""
     @Published var annotations: [RestaurantMapAnnotation] = []
     @Published var clusters: [ExampleClusterAnnotation] = []
     @Published var largeClusters: [LargeClusterAnnotation] = []

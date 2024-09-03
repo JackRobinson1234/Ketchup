@@ -27,6 +27,7 @@ struct RestaurantProfileHeaderView: View {
     @State var showUploadPost = false
     @StateObject var cameraViewModel: CameraViewModel = CameraViewModel()
     @StateObject var uploadViewModel: UploadViewModel
+    @State var showFriendsList = false
     init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -233,17 +234,25 @@ struct RestaurantProfileHeaderView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Average Ratings")
                             .font(.custom("MuseoSansRounded-700", size: 14))
+                        
+                        // Food Rating with Friends' Rating
                         if let foodRating = viewModel.foodRating {
-                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
+                            RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black, friendsRating: feedViewModel.friendsFoodRating)
                         }
+                        
+                        // Atmosphere Rating with Friends' Rating
                         if let atmosphereRating = viewModel.atmosphereRating {
-                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
+                            RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black, friendsRating: feedViewModel.friendsAtmosphereRating)
                         }
+                        
+                        // Value Rating with Friends' Rating
                         if let valueRating = viewModel.valueRating {
-                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
+                            RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black, friendsRating: feedViewModel.friendsValueRating)
                         }
+                        
+                        // Service Rating with Friends' Rating
                         if let serviceRating = viewModel.serviceRating {
-                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
+                            RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black, friendsRating: feedViewModel.friendsServiceRating)
                         }
                     }
                     .padding()
@@ -259,38 +268,40 @@ struct RestaurantProfileHeaderView: View {
                 //                }
                 //.padding()
                 if !viewModel.friendsWhoPosted.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Eaten at by your friends")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .foregroundColor(.gray)
-                        
-                        HStack(spacing: -10) {
-                            ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
-                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white, lineWidth: 2)
-                                    )
+                    Button{
+                        showFriendsList = true
+                    } label: {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Eaten at by your friends")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .foregroundColor(.gray)
+                            HStack(spacing: -10) {
+                                ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
+                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 2)
+                                        )
+                                }
+                                
+                                if viewModel.friendsWhoPosted.count > 3 {
+                                    Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 10)
+                                }
                             }
                             
-                            if viewModel.friendsWhoPosted.count > 3 {
-                                Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
-                                    .font(.custom("MuseoSansRounded-300", size: 12))
-                                    .foregroundColor(.gray)
-                                    .padding(.leading, 10)
-                            }
+                            
                         }
-                        Text("See Posts")
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-
+                        .padding(.horizontal)
+                        .padding(.top, 8)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
                 } else {
                     Text("No reviews from friends")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .foregroundColor(.gray)
+                        .padding(.leading, 10)
                 }
                 Divider()
                     .padding(.top)
@@ -309,6 +320,10 @@ struct RestaurantProfileHeaderView: View {
                                         }
                                     }
                             }
+            }
+            .sheet(isPresented: $showFriendsList) {
+                TaggedUsersSheetView(taggedUsers: viewModel.friendsWhoPosted, title: "Friends who have eaten here")
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
             .onAppear {
                 Task {
