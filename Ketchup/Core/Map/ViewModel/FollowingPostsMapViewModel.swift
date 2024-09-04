@@ -28,12 +28,12 @@ class FollowingPostsMapViewModel: ObservableObject {
     @Published var filters: [String: [Any]] = [:]
     @Published var selectedCuisines: [String] = []{
         didSet {
-            updateFilters(radius: calculateRadius())
+            updateFilters()
         }
     }
     @Published var selectedPrice: [String] = []{
         didSet {
-            updateFilters(radius: calculateRadius())
+            updateFilters()
         }
     }
     @Published var lastFetchedRegion: MKCoordinateRegion?
@@ -132,12 +132,12 @@ class FollowingPostsMapViewModel: ObservableObject {
         if determineZoomLevel(for: currentRegion) == .maxZoomOut {
             return
         }
+        
         do {
+            updateFilters()
             isLoading = true
             await clusterManager.removeAll()
-            
             // Define filters if needed
-            let filters: [String: [Any]] = [:]  // Adjust as necessary
             
             // Calculate the radius based on the current region
             let radiusInM = calculateRadius()
@@ -149,7 +149,6 @@ class FollowingPostsMapViewModel: ObservableObject {
                 radiusInM: radiusInM,
                 zoomLevel: currentZoomLevel.rawValue
             )
-            
             await MainActor.run {
                 self.visiblePosts = posts
                 let groupedPosts = Dictionary(grouping: visiblePosts) { $0.restaurant.id }
@@ -173,13 +172,13 @@ class FollowingPostsMapViewModel: ObservableObject {
                 //self.updateAnnotations()
                 self.selectedLocation = [self.currentRegion.center]
             }
-            
             isLoading = false
         } catch {
             print("ERROR: Failed to fetch following posts: \(error.localizedDescription)")
             isLoading = false
         }
     }
+    
     private func calculateRadius() -> Double {
         let mapWidth = mapSize.width
         let mapHeight = mapSize.height
@@ -202,10 +201,7 @@ class FollowingPostsMapViewModel: ObservableObject {
         return min(max(adjustedRadius, 500), 5000) * 0.8
     }
     private func updateAnnotations() {
-
-            
             Task {
-
                 await reloadAnnotations()
             }
         }
@@ -239,24 +235,18 @@ class FollowingPostsMapViewModel: ObservableObject {
         }
         
     }
-    private func updateFilters(radius: Double) {
+    private func updateFilters() {
         if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "cuisine")
+            filters.removeValue(forKey: "restaurant.cuisine")
         } else {
-            filters["cuisine"] = selectedCuisines
+            filters["restaurant.cuisine"] = selectedCuisines
         }
-        
-        if selectedLocation.isEmpty {
-            filters.removeValue(forKey: "location")
-        } else {
-            filters["location"] = selectedLocation + [radius]
-        }
-        
         if selectedPrice.isEmpty {
-            filters.removeValue(forKey: "price")
+            filters.removeValue(forKey: "restaurant.price")
         } else {
-            filters["price"] = selectedPrice
+            filters["restaurant.price"] = selectedPrice
         }
+        print("updatedFilters", filters)
     }
    
 }

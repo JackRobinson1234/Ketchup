@@ -10,7 +10,8 @@ import SwiftUI
 struct MapCuisineFilter: View {
     @State private var filteredCuisines: [String] = cuisineCategories
     @State private var searchText = ""
-    @ObservedObject var mapViewModel: MapViewModel
+    @Binding var selectedCuisines: [String]
+
     
     ///Maximum # of filters allowed to select
     @State private var maximumSelections: Int = 10
@@ -36,16 +37,16 @@ struct MapCuisineFilter: View {
             .padding(.leading)
             //MARK: Selected Cuisines
             /// Selected cuisines from the list to be filtered by
-            if !mapViewModel.selectedCuisines.isEmpty{
+            if !selectedCuisines.isEmpty{
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(mapViewModel.selectedCuisines, id: \.self) { cuisine in
+                        ForEach(selectedCuisines, id: \.self) { cuisine in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            mapViewModel.selectedCuisines.removeAll(where: { $0 == cuisine })
+                                            selectedCuisines.removeAll(where: { $0 == cuisine })
                                         }
                                     }
                                 Text(cuisine)
@@ -95,7 +96,7 @@ struct MapCuisineFilter: View {
                     .foregroundStyle(Color(.systemGray4)))
             //MARK: Selection Options
             /// If there are no selections and they haven't reached the maximum # of selections
-            if !filteredCuisines.isEmpty && mapViewModel.selectedCuisines.count < maximumSelections{
+            if !filteredCuisines.isEmpty && selectedCuisines.count < maximumSelections{
                 ScrollView(.horizontal){
                     HStack{
                         ForEach(filteredCuisines, id: \.self) { cuisine in
@@ -103,8 +104,8 @@ struct MapCuisineFilter: View {
                                 .foregroundStyle(.black)                                .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !mapViewModel.selectedCuisines.contains(cuisine) {
-                                            mapViewModel.selectedCuisines.insert(cuisine, at: 0)}
+                                        if !selectedCuisines.contains(cuisine) {
+                                            selectedCuisines.insert(cuisine, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -117,7 +118,7 @@ struct MapCuisineFilter: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 /// if maximum filters are selected, display this message
-            } else if mapViewModel.selectedCuisines.count >= maximumSelections {
+            } else if selectedCuisines.count >= maximumSelections {
                 Text("Maximum filters selected (max \(maximumSelections)")
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .padding()
@@ -134,7 +135,7 @@ struct MapCuisineFilter: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: mapViewModel.selectedCuisines) {oldValue, newValue in
+        .onChange(of: selectedCuisines) {oldValue, newValue in
             filteredCuisines = filteredCuisine(searchText)
         }
         .onAppear{
@@ -148,7 +149,7 @@ struct MapCuisineFilter: View {
     func filteredCuisine(_ query: String) -> [String] {
         if query.isEmpty{
             return cuisineCategories.filter { cuisine in
-                !mapViewModel.selectedCuisines.contains(cuisine)}
+                !selectedCuisines.contains(cuisine)}
         } else {
             let lowercasedQuery = query.lowercased()
             let filtered = cuisineCategories.filter({
@@ -156,7 +157,7 @@ struct MapCuisineFilter: View {
             })
             //i .map { $0.capitalized }
             return filtered.filter { cuisine in
-                !mapViewModel.selectedCuisines.contains(cuisine)
+                !selectedCuisines.contains(cuisine)
             }
         }
     }
@@ -164,6 +165,3 @@ struct MapCuisineFilter: View {
 
 
 
-#Preview {
-    MapCuisineFilter(mapViewModel: MapViewModel())
-}

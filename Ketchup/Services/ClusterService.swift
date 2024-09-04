@@ -191,7 +191,7 @@ class ClusterService {
                 // Location filtering is handled by GeoHash queries
                 continue
             } else {
-                // We'll handle cuisine and price filters in post-processing
+                updatedQuery = updatedQuery.whereField(field, in: value)
                 continue
             }
         }

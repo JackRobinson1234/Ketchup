@@ -200,7 +200,7 @@ struct MapView: View {
                 )
             }
             .fullScreenCover(isPresented: $isFiltersPresented) {
-                MapFiltersView(mapViewModel: viewModel)
+                MapFiltersView(mapViewModel: viewModel, followingPostsMapViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
             }
             .mapStyle(.standard(elevation: .realistic))
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -240,7 +240,7 @@ struct MapView: View {
                             
                             Image(systemName: "magnifyingglass")
                                 .imageScale(.large)
-                                .font(.system(size: 20))
+                                .font(.title3)
                                 .foregroundStyle(.black)
                             
                             
@@ -273,7 +273,7 @@ struct MapView: View {
                             ZStack {
                                 Image(systemName: "slider.horizontal.3")
                                     .imageScale(.large)
-                                    .font(.system(size: 20))
+                                    .font(.title3)
                                     .foregroundStyle(.black)
                                 if viewModel.filters.count > 1 {
                                     Circle()
@@ -314,6 +314,7 @@ struct MapView: View {
                 }
             }
         }
+        .animation(.spring(), value: inSearchView)
     }
     
     private func handleToggleChange() {

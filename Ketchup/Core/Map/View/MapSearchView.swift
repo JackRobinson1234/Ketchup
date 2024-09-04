@@ -14,7 +14,6 @@ struct MapSearchView: View {
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
     var autoCompleteNumber: Int = 4
-    
     var body: some View {
         // MARK: Title
         VStack{
@@ -29,23 +28,34 @@ struct MapSearchView: View {
                 }
                 .frame(height: 44)
                 .padding(.horizontal)
-                .background(Color.white)
-                .cornerRadius(8)
+                
                 Button{
                     inSearchView = false
                 } label: {
                     Text("Cancel")
-                        .foregroundStyle(.blue)
-                        .bold()
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.custom("MuseoSansRounded-500", size: 14))
+                        .padding(.horizontal)
+                       
                 }
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        dismissKeyboard()
+                    }
+                }
+            }
+            .background(Color.white)
+            .cornerRadius(8)
             // MARK: Auto-complete results
             if isFocused == false {
                 VStack{
                     ForEach(mapSearch.locationResults.prefix(autoCompleteNumber), id: \.self) { location in
                         Button {
                             reverseGeo(location: location)
-                            print("test", location)
+                     
                         } label: {
                             HStack{
                                 VStack(alignment: .leading) {
@@ -62,6 +72,7 @@ struct MapSearchView: View {
                         Divider()
                     }
                 }
+                .padding(.top)
                 .background(.white)
                 .cornerRadius(8)
 

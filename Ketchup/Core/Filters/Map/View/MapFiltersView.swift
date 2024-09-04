@@ -13,58 +13,65 @@ struct MapFiltersView: View {
     @State private var selectedOption: MapFiltersViewOptions = .cuisine
     @State private var cuisineText = ""
     @ObservedObject var mapViewModel: MapViewModel
-    
-    init(mapViewModel: MapViewModel) {
+    @ObservedObject var followingPostsMapViewModel: FollowingPostsMapViewModel
+    @State var selectedPrice: [String] = []
+    @State var selectedCuisines: [String] = []
+    @Binding var showFollowingPosts: Bool
+    init(mapViewModel: MapViewModel,followingPostsMapViewModel: FollowingPostsMapViewModel, showFollowingPosts: Binding<Bool> ) {
         self.mapViewModel = mapViewModel
+        self.followingPostsMapViewModel = followingPostsMapViewModel
+        _selectedPrice = State(initialValue: mapViewModel.selectedPrice)
+        _selectedCuisines = State(initialValue: mapViewModel.selectedCuisines)
+        self._showFollowingPosts = showFollowingPosts
     }
     
     var body: some View {
         NavigationStack {
-                //MARK: Cuisine
-                VStack{
-                    Button{
-                        mapViewModel.clearFilters()
-                    } label: {
-                        Text("Remove all filters")
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                    }
-                    
-                    if selectedOption == .cuisine {
-                        VStack(alignment: .leading){
-                            MapCuisineFilter(mapViewModel: mapViewModel)
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 260))
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}}
-                    }
-                    else {
-                        CollapsedPickerView(title: "Cuisine", emptyDescription: "Filter by Cuisine", count: mapViewModel.selectedCuisines.count, singularDescription: "Cuisine Selected", pluralDescription: "Cuisines Selected")
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .cuisine}
-                            }
-                    }
+            //MARK: Cuisine
+            VStack{
+                Button{
+                    mapViewModel.clearFilters()
+                } label: {
+                    Text("Remove all filters")
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
                 
-                //MARK: Price
-                VStack{
-                    if selectedOption == .price {
-                        VStack(alignment: .leading){
-                            MapPriceFilter(mapViewModel: mapViewModel)
-                        }
-                        .modifier(CollapsibleFilterViewModifier(frame: 210))
-                        .onTapGesture(count:2){
-                            withAnimation(.snappy){ selectedOption = .noneSelected}}
+                if selectedOption == .cuisine {
+                    VStack(alignment: .leading){
+                        MapCuisineFilter(selectedCuisines: $selectedCuisines)
                     }
-                    else {
-                        /// "Filter Price" if no options selected
-                        CollapsedPickerView(title: "Price", emptyDescription: "Filter by Price", count: mapViewModel.selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
-                            .onTapGesture{
-                                withAnimation(.snappy){ selectedOption = .price}
-                            }
-                    }
+                    .modifier(CollapsibleFilterViewModifier(frame: 260))
+                    .onTapGesture(count:2){
+                        withAnimation(.snappy){ selectedOption = .noneSelected}}
                 }
-                //MARK: Dietary Restrictions
-                
+                else {
+                    CollapsedPickerView(title: "Cuisine", emptyDescription: "Filter by Cuisine", count: selectedCuisines.count, singularDescription: "Cuisine Selected", pluralDescription: "Cuisines Selected")
+                        .onTapGesture{
+                            withAnimation(.snappy){ selectedOption = .cuisine}
+                        }
+                }
+            }
+            
+            //MARK: Price
+            VStack{
+                if selectedOption == .price {
+                    VStack(alignment: .leading){
+                        MapPriceFilter(selectedPrice: $selectedPrice)
+                    }
+                    .modifier(CollapsibleFilterViewModifier(frame: 210))
+                    .onTapGesture(count:2){
+                        withAnimation(.snappy){ selectedOption = .noneSelected}}
+                }
+                else {
+                    /// "Filter Price" if no options selected
+                    CollapsedPickerView(title: "Price", emptyDescription: "Filter by Price", count: selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
+                        .onTapGesture{
+                            withAnimation(.snappy){ selectedOption = .price}
+                        }
+                }
+            }
+            //MARK: Dietary Restrictions
+            
             Spacer()
             //MARK: Navigation Title
                 .navigationTitle("Add Filters")
@@ -101,15 +108,23 @@ struct MapFiltersView: View {
     }
     //MARK: saveFilters
     private func saveFilters() {
-        Task {
-            await mapViewModel.fetchFilteredClusters()
+        mapViewModel.selectedPrice = selectedPrice
+        followingPostsMapViewModel.selectedPrice = selectedPrice
+        mapViewModel.selectedCuisines = selectedCuisines
+        followingPostsMapViewModel.selectedCuisines = selectedCuisines
+        if showFollowingPosts{
+            Task {
+                await  followingPostsMapViewModel.fetchFollowingPosts()
+            }
+        } else {
+            Task {
+                await mapViewModel.fetchFilteredClusters()
+            }
         }
     }
 }
 
-#Preview {
-    MapFiltersView(mapViewModel: MapViewModel())
-}
+
 
 //MARK: Filter Options Enum
 enum MapFiltersViewOptions{

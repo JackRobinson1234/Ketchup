@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct MapPriceFilter: View {
-    @ObservedObject var mapViewModel: MapViewModel
-    
-    /// will get assigned when .onAppear is called
+    @Binding var selectedPrice: [String]
     @State private var filteredPrice: [String] = []
     
     var body: some View {
@@ -34,16 +32,16 @@ struct MapPriceFilter: View {
             
             //MARK: Selected prices
             /// Selected Prices from the list that have been selected
-            if !mapViewModel.selectedPrice.isEmpty {
+            if !selectedPrice.isEmpty {
                 ScrollView(.horizontal){
                     HStack{
-                        ForEach(mapViewModel.selectedPrice, id: \.self) { price in
+                        ForEach(selectedPrice, id: \.self) { price in
                             HStack {
                                 Image(systemName: "xmark")
                                     .foregroundColor(Color("Colors/AccentColor"))
                                     .onTapGesture {
                                         withAnimation(.snappy) {
-                                            mapViewModel.selectedPrice.removeAll(where: { $0 == price })
+                                            selectedPrice.removeAll(where: { $0 == price })
                                         }
                                     }
                                 Text(price)
@@ -71,7 +69,7 @@ struct MapPriceFilter: View {
             }
             //MARK: Price Options
             /// If there are still price options available
-            if mapViewModel.selectedPrice.count <= 3 {
+            if selectedPrice.count <= 3 {
                 ScrollView(.horizontal){
                     HStack{
                         ForEach(filteredPrice, id: \.self) { price in
@@ -80,8 +78,8 @@ struct MapPriceFilter: View {
                                 .font(.custom("MuseoSansRounded-300", size: 16))
                                 .onTapGesture {
                                     withAnimation(.snappy) {
-                                        if !mapViewModel.selectedPrice.contains(price) {
-                                            mapViewModel.selectedPrice.insert(price, at: 0)}
+                                        if !selectedPrice.contains(price) {
+                                            selectedPrice.insert(price, at: 0)}
                                     }
                                 }
                                 .padding()
@@ -96,7 +94,7 @@ struct MapPriceFilter: View {
             
             }
         }
-        .onChange(of: mapViewModel.selectedPrice) {oldValue, newValue in
+        .onChange(of: selectedPrice) {oldValue, newValue in
             filteredPrice = filteredPrices()
         }
         .onAppear{
@@ -106,10 +104,7 @@ struct MapPriceFilter: View {
     func filteredPrices() -> [String] {
             let priceOptions = ["$", "$$", "$$$", "$$$$"]
             return priceOptions.filter { price in
-                !mapViewModel.selectedPrice.contains(price)}
+                !selectedPrice.contains(price)}
         }
     }
 
-#Preview {
-    MapPriceFilter(mapViewModel: MapViewModel())
-}
