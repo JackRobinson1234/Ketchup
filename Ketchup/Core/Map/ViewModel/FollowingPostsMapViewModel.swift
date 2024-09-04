@@ -150,7 +150,25 @@ class FollowingPostsMapViewModel: ObservableObject {
             
             await MainActor.run {
                 self.visiblePosts = posts
-                self.updateAnnotations()
+                let groupedPosts = Dictionary(grouping: visiblePosts) { $0.restaurant.id }
+                let groupedAnnotations = groupedPosts.compactMap { (restaurantId, posts) -> GroupedPostMapAnnotation? in
+                    guard let firstPost = posts.first,
+                          let coordinate = firstPost.coordinates else { return nil }
+                    let uniqueUserCount = Set(posts.map { $0.user.id }).count
+                    return GroupedPostMapAnnotation(
+                        coordinate: coordinate,
+                        restaurant: firstPost.restaurant,
+                        postCount: posts.count,
+                        userCount: uniqueUserCount,
+                        posts: posts
+                    )
+                }
+                Task {
+                    await clusterManager.removeAll()
+                    await clusterManager.add(groupedAnnotations)
+                    await reloadAnnotations()
+                }
+                //self.updateAnnotations()
                 self.selectedLocation = [self.currentRegion.center]
             }
             
@@ -182,23 +200,23 @@ class FollowingPostsMapViewModel: ObservableObject {
         return min(max(adjustedRadius, 500), 5000) * 0.8
     }
     private func updateAnnotations() {
-            let groupedPosts = Dictionary(grouping: visiblePosts) { $0.restaurant.id }
-            let groupedAnnotations = groupedPosts.compactMap { (restaurantId, posts) -> GroupedPostMapAnnotation? in
-                guard let firstPost = posts.first,
-                      let coordinate = firstPost.coordinates else { return nil }
-                let uniqueUserCount = Set(posts.map { $0.user.id }).count
-                return GroupedPostMapAnnotation(
-                    coordinate: coordinate,
-                    restaurant: firstPost.restaurant,
-                    postCount: posts.count,
-                    userCount: uniqueUserCount,
-                    posts: posts
-                )
-            }
+//            let groupedPosts = Dictionary(grouping: visiblePosts) { $0.restaurant.id }
+//            let groupedAnnotations = groupedPosts.compactMap { (restaurantId, posts) -> GroupedPostMapAnnotation? in
+//                guard let firstPost = posts.first,
+//                      let coordinate = firstPost.coordinates else { return nil }
+//                let uniqueUserCount = Set(posts.map { $0.user.id }).count
+//                return GroupedPostMapAnnotation(
+//                    coordinate: coordinate,
+//                    restaurant: firstPost.restaurant,
+//                    postCount: posts.count,
+//                    userCount: uniqueUserCount,
+//                    posts: posts
+//                )
+//            }
             
             Task {
-                await clusterManager.removeAll()
-                await clusterManager.add(groupedAnnotations)
+//                await clusterManager.removeAll()
+//                await clusterManager.add(groupedAnnotations)
                 await reloadAnnotations()
             }
         }

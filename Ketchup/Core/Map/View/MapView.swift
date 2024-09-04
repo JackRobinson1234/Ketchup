@@ -101,18 +101,14 @@ struct MapView: View {
                         viewModel.mapSize = newValue
                         followingViewModel.mapSize = newValue
                     })
-                    .onMapCameraChange { context in
-                        let newRegion = context.region
-                        if showFollowingPosts {
-                            followingViewModel.updateMapState(newRegion: newRegion)
-                        } else {
-                            viewModel.updateMapState(newRegion: newRegion)
-                        }
-                    }
+                   
                     .onMapCameraChange(frequency: .onEnd) { context in
+                        let newRegion = context.region
                         if !showFollowingPosts{
+                            viewModel.updateMapState(newRegion: newRegion)
                             Task.detached { await viewModel.reloadAnnotations() }
                         } else {
+                            followingViewModel.updateMapState(newRegion: newRegion)
                             Task.detached { await followingViewModel.reloadAnnotations() }
                         }
                         
@@ -154,15 +150,20 @@ struct MapView: View {
                 }
                 
                 VStack {
-                    HStack{
-                        VerticalToggleView(showFollowingPosts: $showFollowingPosts)
-                                               .padding()
-                    
+                    HStack(alignment: .bottom){
+                        Rectangle()
+                            .frame(width: 60, height: 4)
+                            .foregroundStyle(.clear)
+                            .padding(.leading, 25)
+                        Spacer()
+                        VerticalToggleView(showFollowingPosts: $showFollowingPosts) {
+                                                    handleToggleChange()
+                                                }
+                        Spacer()
+                        
+                        filtersButton
+                    }
                     Spacer()
-                    
-                    filtersButton
-                }
-                Spacer()
                 }
                 
                 
@@ -216,6 +217,7 @@ struct MapView: View {
             .mapStyle(.standard(elevation: .realistic))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .edgesIgnoringSafeArea(.top)
+            
         }
     }
     
@@ -239,38 +241,46 @@ struct MapView: View {
     }
     
     private var filtersButton: some View {
-        VStack {
+        VStack{
             if !inSearchView {
-                HStack {
-                    Spacer()
-                    Button {
-                        isFiltersPresented.toggle()
-                    } label: {
-                        VStack{
-                            ZStack {
-                                Image(systemName: "slider.horizontal.3")
-                                    .imageScale(.large)
-                                    .shadow(color: viewModel.filters.isEmpty ? Color.black : Color.black, radius: 4)
-                                    .font(.system(size: 23))
-                                if viewModel.filters.count > 1 {
-                                    Circle()
-                                        .fill(Color("Colors/AccentColor"))
-                                        .frame(width: 12, height: 12)
-                                        .offset(x: 12, y: 12)
-                                }
+                Button {
+                    isFiltersPresented.toggle()
+                } label: {
+                    VStack{
+                        ZStack {
+                            Image(systemName: "slider.horizontal.3")
+                                .imageScale(.large)
+                                .font(.system(size: 23))
+                                .foregroundStyle(.black)
+                            if viewModel.filters.count > 1 {
+                                Circle()
+                                    .fill(Color("Colors/AccentColor"))
+                                    .frame(width: 12, height: 12)
+                                    .offset(x: 12, y: 12)
                             }
-                            Text("Filters")
-                                .foregroundStyle(.white)
-                                .shadow(color: Color.black , radius: 4)
-                                .font(.custom("MuseoSansRounded-700", size: 12))
-                            
                         }
+                        Text("Filters")
+                            .foregroundStyle(.gray)
+                        
+                            .font(.custom("MuseoSansRounded-500", size: 10))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        
                     }
+                    .frame(width: 50, height: 50)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.white)
+                            .shadow(color: Color.gray, radius: 1)
+                    )
+                   
+
                 }
-                .padding(32)
-                .padding(.top, 20)
-                .foregroundStyle(.white)
-                Spacer()
+                //.shadow(color: Color.black, radius: 1)
+                .padding(.trailing, 25)
+                .padding(.top, 60)
+                
+                
             } else {
                 VStack {
                     MapSearchView(cameraPosition: $position, inSearchView: $inSearchView)
@@ -280,9 +290,29 @@ struct MapView: View {
                 }
             }
         }
+        
+        
     }
     
-    
+    private func handleToggleChange() {
+           Task {
+//               if showFollowingPosts {
+//                   // Switching to Following Posts view
+//                   await followingViewModel.fetchFollowingPosts()
+//               } else {
+//                   // Switching to All Restaurants view
+//                   await viewModel.fetchFilteredClusters()
+//               }
+               // Ensure the map is updated with the new data
+               await MainActor.run {
+                   if showFollowingPosts {
+                       followingViewModel.updateMapState(newRegion: viewModel.currentRegion)
+                   } else {
+                       viewModel.updateMapState(newRegion: followingViewModel.currentRegion)
+                   }
+               }
+           }
+       }
     private func clearSelectedListing() {
         selectedRestaurant = nil
     }
@@ -370,24 +400,7 @@ struct LoadingIcon: View {
         }
     }
 }
-//struct SimplifiedPostClusterCell: View {
-//    var cluster: SimplifiedPostClusterAnnotation
-//
-//    var body: some View {
-//        ZStack {
-//            Circle()
-//                .fill(Color.white)
-//                .frame(width: 40, height: 40)
-//                .overlay(
-//                    Circle()
-//                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
-//                )
-//            Text("\(cluster.count)")
-//                .foregroundColor(.black)
-//                .font(.custom("MuseoSansRounded-700", size: 14))
-//        }
-//    }
-//}
+
 
 struct SimplifiedPostClusterListView: View {
     let posts: [SimplifiedPost]
@@ -425,42 +438,74 @@ struct SimplifiedPostClusterListView: View {
 struct GroupedPostAnnotationView: View {
     let groupedPost: GroupedPostMapAnnotation
     
+    private func calculateOverallRating(for post: SimplifiedPost) -> Double? {
+        let ratings = [post.serviceRating, post.atmosphereRating, post.valueRating, post.foodRating]
+        let validRatings = ratings.compactMap { $0 }
+        guard !validRatings.isEmpty else { return nil }
+        return validRatings.reduce(0, +) / Double(validRatings.count)
+    }
+    
+    private var averageRating: String {
+        let overallRatings = groupedPost.posts.compactMap { calculateOverallRating(for: $0) }
+        guard !overallRatings.isEmpty else { return "N/A" }
+        let average = overallRatings.reduce(0, +) / Double(overallRatings.count)
+        return String(format: "%.1f", average)
+    }
+    
     var body: some View {
-        ZStack {
-            RestaurantCircularProfileImageView(imageUrl: groupedPost.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
-            
-            VStack {
-                Spacer()
-                HStack {
+        VStack(spacing: 2) {
+            ZStack {
+                RestaurantCircularProfileImageView(imageUrl: groupedPost.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text(averageRating)
+                            .font(.custom("MuseoSansRounded-700", size: 11))
+                            .foregroundColor(.black)
+                            .padding(2)
+                            .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(.white)
+                                .shadow(color: Color.gray, radius: 1)
+                            )
+                    }
                     Spacer()
-                    Text("\(groupedPost.userCount)")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(Color("Colors/AccentColor"))
-                        .clipShape(Circle())
                 }
             }
+            .frame(width: 50, height: 50)
+            
+            HStack(spacing: 1) {
+                Image(systemName: "person.2")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white)
+                Text("\(groupedPost.posts.count)")
+                    .font(.custom("MuseoSansRounded-500", size: 10))
+                    .foregroundColor(.white)
+            }
+            .padding(3)
+            .background(Color("Colors/AccentColor"))
+            .clipShape(Capsule())
         }
-        .frame(width: 44, height: 44)
     }
 }
 
+
+
 struct GroupedPostClusterCell: View {
     var cluster: GroupedPostClusterAnnotation
-    
     var body: some View {
         ZStack {
             Circle()
                 .fill(Color.white)
-                .frame(width: 40, height: 40)
+                .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
                         .stroke(Color("Colors/AccentColor"), lineWidth: 2)
                 )
             Text("\(cluster.count)")
                 .foregroundColor(.black)
-                .font(.custom("MuseoSansRounded-700", size: 14))
+                .font(.custom("MuseoSansRounded-300", size: 10))
         }
     }
 }
@@ -500,40 +545,77 @@ struct GroupedPostClusterListView: View {
 }
 struct VerticalToggleView: View {
     @Binding var showFollowingPosts: Bool
+    let cornerSize: CGFloat = 12
+    var onToggle: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            Button(action: {
-                withAnimation {
-                    showFollowingPosts = false
+        HStack(spacing: 1) {
+            VStack {
+                Button {
+                    withAnimation {
+                        showFollowingPosts = false
+                        onToggle()
+                    }
+                } label: {
+                    VStack(spacing: 0) {
+                        Image(systemName: "building.2")
+                            .font(.title3)
+                            .foregroundColor(showFollowingPosts ? .black : .white)
+                         
+                        
+                        Text("All")
+                            .font(.custom("MuseoSansRounded-500", size: 10))
+                            .foregroundColor(showFollowingPosts ? .gray : .white)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                           
+                    }
+                    .frame(width: 50, height: 50)
+                    .background(showFollowingPosts ? Color.clear : Color.red)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerSize))
+                  
+                    
                 }
-            }) {
-                Image(systemName: "building.2")
-                    .foregroundColor(showFollowingPosts ? .gray : .white)
-                    .frame(width: 44, height: 44)
+                .disabled(!showFollowingPosts)
             }
+            .padding(.trailing, 8)
             
-            Button(action: {
-                withAnimation {
-                    showFollowingPosts = true
+            VStack {
+                Button {
+                    withAnimation {
+                        showFollowingPosts = true
+                        onToggle()
+                    }
+                } label: {
+                    VStack(spacing: 1) {
+                        Image(systemName: "person.2")
+                            .font(.title3)
+                            .foregroundColor(showFollowingPosts ? .white : .black)
+                           
+                        
+                        Text("Friends")
+                            .font(.custom("MuseoSansRounded-500", size: 10))                        .foregroundColor(showFollowingPosts ? .white : .gray)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+
+                    }
+                    .frame(width: 50, height: 50)
+                    .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(showFollowingPosts ? Color.red : Color.clear)
+                        .shadow(color: Color.gray, radius: 1)
+                    )
+                   
                 }
-            }) {
-                Image(systemName: "person.2")
-                    .foregroundColor(showFollowingPosts ? .white : .gray)
-                    .frame(width: 44, height: 44)
+                .disabled(showFollowingPosts)
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 22)
-                .fill(Color.gray.opacity(0.2))
+            RoundedRectangle(cornerRadius: cornerSize)
+                .fill(.white)
+                .shadow(color: Color.gray, radius: 1)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color("Colors/AccentColor"))
-                .frame(height: 44)
-                .offset(y: showFollowingPosts ? 44 : 0)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 22))
-        .animation(.spring(), value: showFollowingPosts)
+       
+
     }
 }
