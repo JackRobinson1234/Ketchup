@@ -111,8 +111,8 @@ struct MapView: View {
                             followingViewModel.updateMapState(newRegion: newRegion)
                             Task.detached { await followingViewModel.reloadAnnotations() }
                         }
-                        
                     }
+                    
                     .onChange(of: isFiltersPresented) {
                         
                         Task.detached { await viewModel.reloadAnnotations() }
@@ -149,22 +149,10 @@ struct MapView: View {
                     .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
                 
-                VStack {
-                    HStack(alignment: .bottom){
-                        Rectangle()
-                            .frame(width: 60, height: 4)
-                            .foregroundStyle(.clear)
-                            .padding(.leading, 25)
-                        Spacer()
-                        VerticalToggleView(showFollowingPosts: $showFollowingPosts) {
-                                                    handleToggleChange()
-                                                }
-                        Spacer()
+             
                         
-                        filtersButton
-                    }
-                    Spacer()
-                }
+                        topRow
+                   
                 
                 
                 if (showFollowingPosts ? followingViewModel.isLoading : viewModel.isLoading) {
@@ -240,45 +228,81 @@ struct MapView: View {
         .padding([.bottom, .trailing], 20)
     }
     
-    private var filtersButton: some View {
+    private var topRow: some View {
+        
         VStack{
             if !inSearchView {
-                Button {
-                    isFiltersPresented.toggle()
-                } label: {
-                    VStack{
-                        ZStack {
-                            Image(systemName: "slider.horizontal.3")
+                HStack(alignment: .bottom){
+                    Button {
+                        inSearchView.toggle()
+                    } label: {
+                        VStack{
+                            
+                            Image(systemName: "magnifyingglass")
                                 .imageScale(.large)
-                                .font(.system(size: 23))
+                                .font(.system(size: 20))
                                 .foregroundStyle(.black)
-                            if viewModel.filters.count > 1 {
-                                Circle()
-                                    .fill(Color("Colors/AccentColor"))
-                                    .frame(width: 12, height: 12)
-                                    .offset(x: 12, y: 12)
-                            }
+                            
+                            
+                            Text("Search")
+                                .foregroundStyle(.gray)
+                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            
                         }
-                        Text("Filters")
-                            .foregroundStyle(.gray)
+                        .frame(width: 50, height: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.white)
+                                .shadow(color: Color.gray, radius: 1)
+                        )
                         
-                            .font(.custom("MuseoSansRounded-500", size: 10))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
                         
                     }
-                    .frame(width: 50, height: 50)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.white)
-                            .shadow(color: Color.gray, radius: 1)
-                    )
-                   
-
+                    Spacer()
+                    VerticalToggleView(showFollowingPosts: $showFollowingPosts) {
+                        handleToggleChange()
+                    }
+                    Spacer()
+                    
+                    Button {
+                        isFiltersPresented.toggle()
+                    } label: {
+                        VStack{
+                            ZStack {
+                                Image(systemName: "slider.horizontal.3")
+                                    .imageScale(.large)
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(.black)
+                                if viewModel.filters.count > 1 {
+                                    Circle()
+                                        .fill(Color("Colors/AccentColor"))
+                                        .frame(width: 12, height: 12)
+                                        .offset(x: 12, y: 12)
+                                }
+                            }
+                            Text("Filters")
+                                .foregroundStyle(.gray)
+                            
+                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            
+                        }
+                        .frame(width: 50, height: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.white)
+                                .shadow(color: Color.gray, radius: 1)
+                        )
+                        
+                        
+                    }
                 }
-                //.shadow(color: Color.black, radius: 1)
-                .padding(.trailing, 25)
+                .padding(.horizontal, 25)
                 .padding(.top, 60)
+                Spacer()
                 
                 
             } else {
@@ -290,8 +314,6 @@ struct MapView: View {
                 }
             }
         }
-        
-        
     }
     
     private func handleToggleChange() {
@@ -456,6 +478,7 @@ struct GroupedPostAnnotationView: View {
         VStack(spacing: 2) {
             ZStack {
                 RestaurantCircularProfileImageView(imageUrl: groupedPost.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+                    .frame(width: 50, height: 50)
                 
                 VStack {
                     HStack {
@@ -465,30 +488,35 @@ struct GroupedPostAnnotationView: View {
                             .foregroundColor(.black)
                             .padding(2)
                             .background(
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(.white)
-                                .shadow(color: Color.gray, radius: 1)
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(.white)
+                                    .shadow(color: Color.gray, radius: 1)
                             )
                     }
                     Spacer()
                 }
+                
+                VStack {
+                    Spacer()
+                    HStack(spacing: 1) {
+                        Image(systemName: "person.2")
+                            .font(.system(size: 10))
+                            .foregroundColor(.white)
+                        Text("\(groupedPost.posts.count)")
+                            .font(.custom("MuseoSansRounded-500", size: 10))
+                            .foregroundColor(.white)
+                    }
+                    .padding(3)
+                    .background(Color("Colors/AccentColor"))
+                    .clipShape(Capsule())
+                    .padding(.bottom, -8) // Shift it slightly lower
+                }
             }
-            .frame(width: 50, height: 50)
-            
-            HStack(spacing: 1) {
-                Image(systemName: "person.2")
-                    .font(.system(size: 10))
-                    .foregroundColor(.white)
-                Text("\(groupedPost.posts.count)")
-                    .font(.custom("MuseoSansRounded-500", size: 10))
-                    .foregroundColor(.white)
-            }
-            .padding(3)
-            .background(Color("Colors/AccentColor"))
-            .clipShape(Capsule())
         }
+        .padding(.bottom,5)
     }
 }
+
 
 
 
@@ -578,7 +606,7 @@ struct VerticalToggleView: View {
                 }
                 .disabled(!showFollowingPosts)
             }
-            .padding(.trailing, 8)
+            .padding(.trailing, 4)
             
             VStack {
                 Button {
