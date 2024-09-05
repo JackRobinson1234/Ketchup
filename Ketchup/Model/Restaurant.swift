@@ -19,7 +19,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var bio: String?
     let _geoloc: geoLoc?
     var stats: RestaurantStats?
-    // New fields
     let additionalInfo: AdditionalInfo?
     let categories: [String]?
     let containsMenuImage: Bool?
@@ -160,7 +159,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.ratingStats = ratingStats
         
     }
-    
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
@@ -181,26 +179,49 @@ struct RestaurantStats: Codable, Hashable {
 }
 
 struct AdditionalInfo: Codable, Hashable {
-    let accessibility: [AccessibilityItem]?
-    let amenities: [AmenityItem]?
-    let atmosphere: [AtmosphereItem]?
-    let children: [ChildrenItem]?
-    let crowd: [CrowdItem]?
-    let diningOptions: [DiningOptionItem]?
-    let highlights: [HighlightItem]?
-    let offerings: [OfferingItem]?
-    let payments: [PaymentItem]?
-    let planning: [PlanningItem]?
-    let popularFor: [PopularForItem]?
-    let serviceOptions: [ServiceOptionItem]?
+    let accessibility: [InfoItem]?
+    let amenities: [InfoItem]?
+    let atmosphere: [InfoItem]?
+    let crowd: [InfoItem]?
+    let diningOptions: [InfoItem]?
+    let payments: [InfoItem]?
+    let pets: [InfoItem]?
+    let popularFor: [InfoItem]?
+    let serviceOptions: [InfoItem]?
+    
+    enum CodingKeys: String, CodingKey {
+        case accessibility = "Accessibility"
+        case amenities = "Amenities"
+        case atmosphere = "Atmosphere"
+        case crowd = "Crowd"
+        case diningOptions = "Dining options"
+        case payments = "Payments"
+        case pets = "Pets"
+        case popularFor = "Popular for"
+        case serviceOptions = "Service options"
+    }
 }
 
-struct AccessibilityItem: Codable, Hashable, InfoItem {
+struct InfoItem: Codable, Hashable {
+    let name: String
+    let value: Bool
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let dict = try container.decode([String: Bool].self)
+        guard let (key, value) = dict.first else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Empty dictionary"))
+        }
+        self.name = key
+        self.value = value
+    }
+}
+struct AccessibilityItem: Codable, Hashable{
     let name: String?
     let value: Bool?
 }
 
-struct AmenityItem: Codable, Hashable, InfoItem {
+struct AmenityItem: Codable, Hashable {
     let name: String?
     let value: Bool?
 }
@@ -278,23 +299,7 @@ struct PopularTimesHistogram: Codable, Hashable {
     let mo, tu, we, th, fr, sa, su: [PopularTimeItem]?
     
     enum CodingKeys: String, CodingKey {
-        case mo, tu, we, th, fr, sa, su
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        func decodeDay(_ key: CodingKeys) -> [PopularTimeItem] {
-            (try? container.decodeIfPresent([PopularTimeItem].self, forKey: key)) ?? []
-        }
-        
-        mo = decodeDay(.mo)
-        tu = decodeDay(.tu)
-        we = decodeDay(.we)
-        th = decodeDay(.th)
-        fr = decodeDay(.fr)
-        sa = decodeDay(.sa)
-        su = decodeDay(.su)
+        case mo = "Mo", tu = "Tu", we = "We", th = "Th", fr = "Fr", sa = "Sa", su = "Su"
     }
 }
 struct PopularTimeItem: Codable, Hashable {
@@ -306,10 +311,7 @@ struct ReviewTag: Codable, Hashable {
     let count: Int?
     let title: String?
 }
-protocol InfoItem {
-    var name: String? { get }
-    var value: Bool? { get }
-}
+
 
 struct RatingCounts: Codable, Hashable {
     var overallRatings: [Double: Int] = [:]

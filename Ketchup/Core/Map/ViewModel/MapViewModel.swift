@@ -64,7 +64,7 @@ class MapViewModel: ObservableObject {
     }
     
     
-    func updateMapState(newRegion: MKCoordinateRegion) {
+    func updateMapState(newRegion: MKCoordinateRegion, shouldAutoFetch: Bool = false) {
         let newZoomLevel = determineZoomLevel(for: newRegion)
         
         fetchTask?.cancel()
@@ -76,7 +76,7 @@ class MapViewModel: ObservableObject {
                 
                 let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
                 
-                if shouldFetch {
+                if shouldFetch || shouldAutoFetch{
                     self.currentRegion = newRegion
                     self.currentZoomLevel = newZoomLevel
                     
@@ -105,7 +105,9 @@ class MapViewModel: ObservableObject {
                 isLoading = false
                 return
             }
-            
+            if determineZoomLevel(for: currentRegion) == .maxZoomOut {
+                return
+            }
             let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
                 filters: self.filters,
                 center: self.currentRegion.center,

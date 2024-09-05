@@ -121,7 +121,7 @@ struct MapRestaurantView: View {
     }
 }
 
-        
-#Preview {
-    MapRestaurantView(restaurant: DeveloperPreview.restaurants[0])
-}
+//        
+//#Preview {
+//    MapRestaurantView(restaurant: DeveloperPreview.restaurants[0])
+//}

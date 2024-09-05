@@ -196,13 +196,10 @@ struct RestaurantStatsView: View {
                         infoGroup(title: "Accessibility", items: additionalInfo.accessibility)
                         infoGroup(title: "Amenities", items: additionalInfo.amenities)
                         infoGroup(title: "Atmosphere", items: additionalInfo.atmosphere)
-                        infoGroup(title: "Children", items: additionalInfo.children)
                         infoGroup(title: "Crowd", items: additionalInfo.crowd)
                         infoGroup(title: "Dining Options", items: additionalInfo.diningOptions)
-                        infoGroup(title: "Highlights", items: additionalInfo.highlights)
-                        infoGroup(title: "Offerings", items: additionalInfo.offerings)
                         infoGroup(title: "Payments", items: additionalInfo.payments)
-                        infoGroup(title: "Planning", items: additionalInfo.planning)
+                        infoGroup(title: "Pets", items: additionalInfo.pets)
                         infoGroup(title: "Popular For", items: additionalInfo.popularFor)
                         infoGroup(title: "Service Options", items: additionalInfo.serviceOptions)
                     }
@@ -298,16 +295,16 @@ struct RestaurantStatsView: View {
                 showErrorAlert = true
             }
         }
-    private func infoGroup<T: Hashable>(title: String, items: [T]?) -> some View {
+    private func infoGroup(title: String, items: [InfoItem]?) -> some View {
         Group {
             if let items = items, !items.isEmpty {
                 Text(title)
                     .font(.custom("MuseoSansRounded-300", size: 18))
                     .fontWeight(.medium)
-                ForEach(items, id: \.self) { item in
-                    if let infoItem = item as? InfoItem, let name = infoItem.name, infoItem.value == true {
-                        Text("✓ \(name)")
-                            .font(.custom("Mu seoSansRounded-300", size: 16))
+                ForEach(items, id: \.name) { item in
+                    if item.value {
+                        Text("✓ \(item.name)")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
                     }
                 }
             }
@@ -458,6 +455,6 @@ struct LinkItem: Identifiable {
     let id: String
     let url: URL
 }
-#Preview {
-    RestaurantStatsView(restaurant: DeveloperPreview.restaurants[0])
-}
+//#Preview {
+//    RestaurantStatsView(restaurant: DeveloperPreview.restaurants[0])
+//}

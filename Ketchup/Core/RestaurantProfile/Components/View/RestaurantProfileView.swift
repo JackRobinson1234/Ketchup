@@ -127,6 +127,4 @@ struct RestaurantProfileView: View {
     }
 }
 
-#Preview {
-    RestaurantProfileView(restaurantId: DeveloperPreview.restaurants[0].id)
-}
+

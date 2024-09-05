@@ -53,7 +53,7 @@ struct RestaurantCell: View {
     }
 }
 
-
-#Preview {
-    RestaurantCell(restaurant: DeveloperPreview.restaurants[0])
-}
+//
+//#Preview {
+//    RestaurantCell(restaurant: DeveloperPreview.restaurants[0])
+//}

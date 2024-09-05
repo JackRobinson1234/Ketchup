@@ -19,9 +19,55 @@ class RestaurantService {
     /// Fetches a single restaurant given an ID
     /// - Parameter id: String of an ID for a restaurant
     /// - Returns: RestaurantObject
-    func fetchRestaurant (withId id: String) async throws -> Restaurant {
-        print("DEBUG: Ran fetchRestaurant()")
-        return try await FirestoreConstants.RestaurantCollection.document(id).getDocument(as: Restaurant.self)
+    func fetchRestaurant(withId id: String) async throws -> Restaurant {
+        print("DEBUG: Fetching restaurant with ID: \(id)")
+        
+        do {
+            let documentSnapshot = try await FirestoreConstants.RestaurantCollection.document(id).getDocument()
+            print("DEBUG: Successfully fetched document")
+            
+            // Print raw data
+            if let data = documentSnapshot.data() {
+                print("DEBUG: Raw document data:")
+                print(data)
+            } else {
+                print("DEBUG: Document data is nil")
+            }
+            
+            // Attempt to decode
+            do {
+                let restaurant = try documentSnapshot.data(as: Restaurant.self)
+                print("DEBUG: Successfully decoded Restaurant")
+                print("DEBUG: Restaurant name: \(restaurant.name)")
+                print("DEBUG: Restaurant additionalInfo: \(String(describing: restaurant.additionalInfo))")
+                return restaurant
+            } catch {
+                print("DEBUG: Failed to decode Restaurant")
+                print("DEBUG: Decoding error: \(error)")
+                
+                // If it's a DecodingError, print more details
+                if let decodingError = error as? DecodingError {
+                    switch decodingError {
+                    case .keyNotFound(let key, let context):
+                        print("DEBUG: Key '\(key)' not found: \(context.debugDescription)")
+                    case .valueNotFound(let type, let context):
+                        print("DEBUG: Value of type '\(type)' not found: \(context.debugDescription)")
+                    case .typeMismatch(let type, let context):
+                        print("DEBUG: Type mismatch for type '\(type)': \(context.debugDescription)")
+                    case .dataCorrupted(let context):
+                        print("DEBUG: Data corrupted: \(context.debugDescription)")
+                    @unknown default:
+                        print("DEBUG: Unknown decoding error")
+                    }
+                }
+                
+                throw error
+            }
+        } catch {
+            print("DEBUG: Failed to fetch document")
+            print("DEBUG: Fetch error: \(error)")
+            throw error
+        }
     }
     //MARK: fetchRestaurants
     /// Fetches an array of restaurants that match the provided filters

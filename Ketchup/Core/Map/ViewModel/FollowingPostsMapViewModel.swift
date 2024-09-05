@@ -45,7 +45,7 @@ class FollowingPostsMapViewModel: ObservableObject {
     private let fetchDebouncer = Debouncer(delay: 0.3)
     var mapSize: CGSize = .zero
 
-    func updateMapState(newRegion: MKCoordinateRegion) {
+    func updateMapState(newRegion: MKCoordinateRegion, shouldAutoFetch: Bool = false) {
             let newZoomLevel = determineZoomLevel(for: newRegion)
             print("DEBUG: New zoom level determined: \(newZoomLevel)")
             
@@ -66,7 +66,7 @@ class FollowingPostsMapViewModel: ObservableObject {
                     let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
                     print("DEBUG: Should fetch new data: \(shouldFetch)")
 
-                    if shouldFetch {
+                    if shouldFetch || shouldAutoFetch{
                         print("DEBUG: Fetching new data...")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
@@ -227,6 +227,7 @@ class FollowingPostsMapViewModel: ObservableObject {
                 annotations.append(newItem)
             case .cluster(let newItem):
                 clusters.append(GroupedPostClusterAnnotation(
+                    id: newItem.id,
                     coordinate: newItem.coordinate,
                     count: newItem.memberAnnotations.count,
                     memberAnnotations: newItem.memberAnnotations

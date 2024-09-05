@@ -329,9 +329,9 @@ struct MapView: View {
                // Ensure the map is updated with the new data
                await MainActor.run {
                    if showFollowingPosts {
-                       followingViewModel.updateMapState(newRegion: viewModel.currentRegion)
+                       followingViewModel.updateMapState(newRegion: viewModel.currentRegion, shouldAutoFetch: true)
                    } else {
-                       viewModel.updateMapState(newRegion: followingViewModel.currentRegion)
+                       viewModel.updateMapState(newRegion: followingViewModel.currentRegion, shouldAutoFetch: true)
                    }
                }
            }
