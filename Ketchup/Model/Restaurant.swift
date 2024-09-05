@@ -188,6 +188,12 @@ struct AdditionalInfo: Codable, Hashable {
     let pets: [InfoItem]?
     let popularFor: [InfoItem]?
     let serviceOptions: [InfoItem]?
+    let highlights: [InfoItem]?
+    let offerings: [InfoItem]?
+    let parking: [InfoItem]?
+    let children: [InfoItem]?
+    let planning: [InfoItem]?
+    let fromTheBusiness: [InfoItem]?
     
     enum CodingKeys: String, CodingKey {
         case accessibility = "Accessibility"
@@ -199,6 +205,12 @@ struct AdditionalInfo: Codable, Hashable {
         case pets = "Pets"
         case popularFor = "Popular for"
         case serviceOptions = "Service options"
+        case highlights = "Highlights"
+        case offerings = "Offerings"
+        case parking = "Parking"
+        case children = "Children"
+        case planning = "Planning"
+        case fromTheBusiness = "From the business"
     }
 }
 

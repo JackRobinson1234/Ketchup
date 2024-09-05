@@ -202,6 +202,13 @@ struct RestaurantStatsView: View {
                         infoGroup(title: "Pets", items: additionalInfo.pets)
                         infoGroup(title: "Popular For", items: additionalInfo.popularFor)
                         infoGroup(title: "Service Options", items: additionalInfo.serviceOptions)
+                        infoGroup(title: "Highlights", items: additionalInfo.highlights)
+                        infoGroup(title: "Offerings", items: additionalInfo.offerings)
+                        infoGroup(title: "Parking", items: additionalInfo.parking)
+                        infoGroup(title: "Children", items: additionalInfo.children)
+                        infoGroup(title: "Planning", items: additionalInfo.planning)
+                        infoGroup(title: "From the Business", items: additionalInfo.fromTheBusiness)
+                        
                     }
                 } else {
                     Text("No additional information available")
