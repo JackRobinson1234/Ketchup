@@ -215,79 +215,24 @@ struct AdditionalInfo: Codable, Hashable {
 }
 
 struct InfoItem: Codable, Hashable {
-    let name: String
-    let value: Bool
+    let name: String?
+    let value: Bool?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let dict = try container.decode([String: Bool].self)
-        guard let (key, value) = dict.first else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Empty dictionary"))
+        if let dict = try? container.decode([String: Bool].self),
+           let (key, value) = dict.first {
+            self.name = key
+            self.value = value
+        } else if container.decodeNil() {
+            self.name = nil
+            self.value = nil
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid InfoItem format")
         }
-        self.name = key
-        self.value = value
     }
 }
-struct AccessibilityItem: Codable, Hashable{
-    let name: String?
-    let value: Bool?
-}
 
-struct AmenityItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-
-struct AtmosphereItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct ChildrenItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct CrowdItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct DiningOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct HighlightItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct OfferingItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PaymentItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PlanningItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PopularForItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct ServiceOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
 
 struct OpeningHour: Codable, Hashable {
     let day: String?

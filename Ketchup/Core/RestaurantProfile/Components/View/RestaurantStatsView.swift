@@ -304,14 +304,19 @@ struct RestaurantStatsView: View {
         }
     private func infoGroup(title: String, items: [InfoItem]?) -> some View {
         Group {
-            if let items = items, !items.isEmpty {
+            if let items = items, !items.isEmpty{
                 Text(title)
                     .font(.custom("MuseoSansRounded-300", size: 18))
                     .fontWeight(.medium)
                 ForEach(items, id: \.name) { item in
-                    if item.value {
-                        Text("✓ \(item.name)")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    if let value = item.value, let name = item.name {
+                        if value {
+                            Text("✓ \(name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        } else {
+                            Text("NO \(name)")
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                        }
                     }
                 }
             }

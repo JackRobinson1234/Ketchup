@@ -28,6 +28,8 @@ struct RestaurantProfileHeaderView: View {
     @StateObject var cameraViewModel: CameraViewModel = CameraViewModel()
     @StateObject var uploadViewModel: UploadViewModel
     @State var showFriendsList = false
+    @State private var highlightsAndTags: [String] = []
+    
     init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -37,7 +39,7 @@ struct RestaurantProfileHeaderView: View {
         // Initialize uploadViewModel with feedViewModel
         _uploadViewModel = StateObject(wrappedValue: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: FeedViewModel()))
     }
-
+    
     var body: some View {
         if let restaurant = viewModel.restaurant {
             VStack(alignment: .leading, spacing: 6) {
@@ -146,8 +148,79 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
+                Text("Known for")
+                    .font(.custom("MuseoSansRounded-900", size: 14))
+                    .foregroundColor(.black)
+                    .padding(.horizontal)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(highlightsAndTags, id: \.self) { item in
+                            HStack(spacing: 4) {
+                                Text(item)
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                                    .foregroundColor(.gray)
+                                
+                                if item != highlightsAndTags.last {
+                                    Circle()
+                                        .fill(Color.gray)
+                                        .frame(width: 3, height: 3)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .frame(height: 20)
+                }
+                
                 
                 // Buttons for menu, map, and overall rating
+                
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    VStack{
+                        Text("Features")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                        HStack(spacing: 1){
+                            Text("See All")
+                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                .foregroundColor(.gray)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.gray)
+                        }
+                        
+                    }
+                    
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            
+                            featureItem(icon: "sun.max", title: "Breakfast", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Breakfast" && $0.value == true } ?? false)
+                            featureItem(icon: "cup.and.saucer", title: "Lunch", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Lunch" && $0.value == true } ?? false)
+                            featureItem(icon: "moon.stars", title: "Dinner", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dinner" && $0.value == true } ?? false)
+                            featureItem(icon: "birthday.cake", title: "Dessert", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dessert" && $0.value == true } ?? false)
+                            featureItem(icon: "wineglass", title: "Alcohol", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Alcohol" && $0.value == true } ?? false)
+                            
+                        }
+                        HStack(spacing: 12) {
+                            featureItem(icon: "pawprint", title: "Dogs Allowed", isAvailable: restaurant.additionalInfo?.pets?.contains { $0.name == "Dogs allowed outside" && $0.value == true } ?? false)
+                            featureItem(icon: "umbrella", title: "Outdoor Seating", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Outdoor seating" && $0.value == true } ?? false)
+                            featureItem(icon: "wifi", title: "Wi-Fi", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Wi-Fi" && $0.value == true } ?? false)
+                            //                            featureItem(icon: "leaf", title: "Vegetarian", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Vegetarian options" && $0.value == true } ?? false)
+                            featureItem(icon: "parkingsign", title: "Free Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Free Parking Lot" && $0.value == true } ?? false)
+                            featureItem(icon: "car", title: "Valet Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Valet parking" && $0.value == true } ?? false)
+                        }
+                        HStack(spacing: 12) {
+                            
+                            
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal)
+                
+                
                 HStack(alignment: .bottom){
                     if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
                         Button {
@@ -209,7 +282,7 @@ struct RestaurantProfileHeaderView: View {
                                 Text("Average")
                                     .font(.custom("MuseoSansRounded-500", size: 12))
                                     .foregroundStyle(.gray)
-                                    
+                                
                                 HStack(alignment: .center, spacing: 4) {
                                     
                                     FeedOverallRatingView(rating: overallRating, font: .black)
@@ -260,7 +333,7 @@ struct RestaurantProfileHeaderView: View {
                     .padding(.horizontal)
                 }
                 
-               
+                
                 //                VStack(alignment: .leading) {
                 //                    Text("\(restaurant.bio ?? "")")
                 //                        .font(.custom("MuseoSansRounded-300", size: 16))
@@ -310,16 +383,16 @@ struct RestaurantProfileHeaderView: View {
             }
             .overlay{
                 if uploadViewModel.showSuccessMessage {
-                                successOverlay
-                                    .transition(.opacity)
-                                    .onAppear {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                            withAnimation {
-                                                uploadViewModel.showSuccessMessage = false
-                                            }
-                                        }
-                                    }
+                    successOverlay
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                withAnimation {
+                                    uploadViewModel.showSuccessMessage = false
+                                }
                             }
+                        }
+                }
             }
             .sheet(isPresented: $showFriendsList) {
                 TaggedUsersSheetView(taggedUsers: viewModel.friendsWhoPosted, title: "Friends who have eaten here")
@@ -329,6 +402,8 @@ struct RestaurantProfileHeaderView: View {
                 Task {
                     await viewModel.checkBookmarkStatus()
                     await viewModel.fetchFriendsWhoPosted()
+                    calculateHighlightsAndTags(restaurant: restaurant)
+                    
                 }
             }
             .fullScreenCover(isPresented: $showUploadPost){
@@ -347,10 +422,26 @@ struct RestaurantProfileHeaderView: View {
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {
                     AddItemCollectionList(restaurant: viewModel.restaurant)
-                        
+                    
                 }
             }
         }
+    }
+    private func calculateHighlightsAndTags(restaurant: Restaurant) {
+        var items = [String]()
+        
+        // Add highlights from additional info
+        if let highlights = restaurant.additionalInfo?.highlights {
+            items.append(contentsOf: highlights.compactMap { $0.name })
+        }
+        
+        // Add review tags (without count)
+        if let reviewTags = restaurant.reviewsTags {
+            items.append(contentsOf: reviewTags.compactMap { $0.title })
+        }
+        
+        // Remove duplicates and capitalize first letter of each item
+        highlightsAndTags = Array(Set(items)).map { $0.capitalized }
     }
     
     private func combineRestaurantDetails(restaurant: Restaurant) -> String {
@@ -414,5 +505,18 @@ struct RestaurantProfileHeaderView: View {
             Spacer()
         }
         .padding()
+    }
+    private func featureItem(icon: String, title: String, isAvailable: Bool) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 18)) // Smaller icon size
+                .foregroundColor(isAvailable ? .black : .gray.opacity(0.5))
+            Text(title)
+                .font(.custom("MuseoSansRounded-300", size: 10)) // Smaller font size
+                .foregroundColor(isAvailable ? .black : .gray.opacity(0.5))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity)
     }
 }

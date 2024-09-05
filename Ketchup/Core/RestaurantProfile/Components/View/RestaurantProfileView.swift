@@ -32,20 +32,21 @@ struct RestaurantProfileView: View {
                     self.dragDirection = "left"
                     if viewModel.currentSection == .posts {
                         dismiss()
-                    } else if viewModel.currentSection == .collections{
-                        viewModel.currentSection = .stats
-                    }  else if viewModel.currentSection == .stats{
-                        viewModel.currentSection = .posts
+                        //                    } else if viewModel.currentSection == .collections{
+                        //                        viewModel.currentSection = .stats
+                        //                    }  else if viewModel.currentSection == .stats{
+                        //                        viewModel.currentSection = .posts
+                        //                    }
                     }
-                } else {
-                    self.dragDirection = "right"
-                    if viewModel.currentSection == .posts {
-                        viewModel.currentSection = .stats
-                        
-                    }  else if viewModel.currentSection == .stats {
-                        viewModel.currentSection = .collections
-                        
-                    }
+                }else {
+//                    self.dragDirection = "right"
+//                    if viewModel.currentSection == .posts {
+//                        viewModel.currentSection = .stats
+//                        
+//                    }  else if viewModel.currentSection == .stats {
+//                        viewModel.currentSection = .collections
+//                        
+//                    }
                     self.isDragging = false
                 }
             }
@@ -85,7 +86,6 @@ struct RestaurantProfileView: View {
                                 
                             }
                         }
-                        
                     }
                     .scrollPosition(id: $scrollPosition)
                     .onChange(of: scrollTarget) {
