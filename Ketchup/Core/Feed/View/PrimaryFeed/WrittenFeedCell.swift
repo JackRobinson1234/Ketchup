@@ -42,7 +42,7 @@ struct WrittenFeedCell: View {
     
     @State private var selectedUserId: String?
     @State private var currentIndex: Int = 0
-
+    
     var checkLikes: Bool
     
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
@@ -360,26 +360,31 @@ struct WrittenFeedCell: View {
                     } label: {
                         InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
                     }
-
+                    
                     Button {
                         showComments.toggle()
                     } label: {
                         InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
                     }
-
+                    
                     Button {
                         triggerHapticFeedback()
                         handleBookmarkTapped()
                     } label: {
                         InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark",count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
                     }
-
+                    
                     Button {
                         showCollections.toggle()
                     } label: {
                         InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
                     }
-
+                    Button {
+                        showShareView.toggle()
+                    } label: {
+                        InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 21)
+                    }
+                    
                     Button {
                         showingOptionsSheet = true
                     } label: {
@@ -449,35 +454,35 @@ struct WrittenFeedCell: View {
             parsedCaption = parseCaption(post.caption)
         }
         .environment(\.openURL, OpenURLAction { url in
-                    if url.scheme == "user",
-                       let userId = url.host,
-                       let user = post.captionMentions.first(where: { $0.id == userId }) {
-                        selectedUser = user
-                        return .handled
-                    }
-                    return .systemAction
-                })
+            if url.scheme == "user",
+               let userId = url.host,
+               let user = post.captionMentions.first(where: { $0.id == userId }) {
+                selectedUser = user
+                return .handled
+            }
+            return .systemAction
+        })
         .sheet(item: $selectedUser) { user in
-                    NavigationStack {
-                        ProfileView(uid: user.id)
-                    }
-                    .onAppear {
-                        pauseAllVideos()
-                    }
-                    .onDisappear {
-                        handleIndexChange(currentIndex)
-                    }
-                }
-//        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
-//            if let newValue = newValue,
-//               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
-//                pauseAllVideos()
-//                coordinator.play()
-//                isCurrentVideoPlaying = true
-//            }
-//        }
+            NavigationStack {
+                ProfileView(uid: user.id)
+            }
+            .onAppear {
+                pauseAllVideos()
+            }
+            .onDisappear {
+                handleIndexChange(currentIndex)
+            }
+        }
+        //        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+        //            if let newValue = newValue,
+        //               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
+        //                pauseAllVideos()
+        //                coordinator.play()
+        //                isCurrentVideoPlaying = true
+        //            }
+        //        }
         
-
+        
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post, feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
@@ -489,7 +494,7 @@ struct WrittenFeedCell: View {
                 }
         }
         .sheet(isPresented: $showShareView) {
-            ShareView(post: post, currentImageIndex: currentImageIndex)
+            ShareView(post: post, currentMediaIndex: currentIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onAppear {
                     pauseAllVideos()
@@ -540,26 +545,26 @@ struct WrittenFeedCell: View {
                 }
             }
         )
-
         
-                .onDisappear {
-                   pauseAllVideos()
-                }
-                .fullScreenCover(isPresented: $showUserProfile) {
-                    NavigationStack {
-                        ProfileView(uid: post.user.id)
-                    }
-                }
-    }
-    private func handleVisibleMediaChange(oldValue: String?, newValue: String?) {
+        
+        .onDisappear {
             pauseAllVideos()
-            
-            if let newValue = newValue,
-               let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
-               mediaItem.type == .video {
-                playVideo(id: newValue)
+        }
+        .fullScreenCover(isPresented: $showUserProfile) {
+            NavigationStack {
+                ProfileView(uid: post.user.id)
             }
         }
+    }
+    private func handleVisibleMediaChange(oldValue: String?, newValue: String?) {
+        pauseAllVideos()
+        
+        if let newValue = newValue,
+           let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
+           mediaItem.type == .video {
+            playVideo(id: newValue)
+        }
+    }
     private func handleIndexChange(_ index: Int) {
         pauseAllVideos()
         if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
@@ -590,34 +595,34 @@ struct WrittenFeedCell: View {
             if isCurrentVideoPlaying {
                 coordinator.pause()
             } else {
-                   coordinator.play()
-               }
-               isCurrentVideoPlaying.toggle()
-           }
-       }
+                coordinator.play()
+            }
+            isCurrentVideoPlaying.toggle()
+        }
+    }
     
     private func toggleMute() {
-           viewModel.isMuted.toggle()
-           for (_, coordinator) in videoCoordinators {
-               coordinator.player.isMuted = viewModel.isMuted
-           }
-       }
+        viewModel.isMuted.toggle()
+        for (_, coordinator) in videoCoordinators {
+            coordinator.player.isMuted = viewModel.isMuted
+        }
+    }
     
     private func playVideo(id: String) {
-            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
-                coordinator.play()
-                isCurrentVideoPlaying = true
-                currentlyPlayingVideoId = id
-            }
+        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+            coordinator.play()
+            isCurrentVideoPlaying = true
+            currentlyPlayingVideoId = id
         }
+    }
     private func pauseVideo(id: String) {
-            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
-                coordinator.pause()
-                if currentlyPlayingVideoId == id {
-                    isCurrentVideoPlaying = false
-                }
+        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+            coordinator.pause()
+            if currentlyPlayingVideoId == id {
+                isCurrentVideoPlaying = false
             }
         }
+    }
     
     
     
@@ -634,31 +639,31 @@ struct WrittenFeedCell: View {
         return newCoordinator
     }
     private func parseCaption(_ input: String) -> AttributedString {
-            var result = AttributedString(input)
-            let pattern = "@\\w+"
-            
-            guard let regex = try? NSRegularExpression(pattern: pattern) else {
-                return result
-            }
-            
-            let nsRange = NSRange(input.startIndex..., in: input)
-            let matches = regex.matches(in: input, range: nsRange)
-            
-            for match in matches.reversed() {
-                guard let range = Range(match.range, in: input) else { continue }
-                
-                let fullMatch = String(input[range])
-                let username = String(fullMatch.dropFirst()) // Remove @ from username
-                
-                if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
-                   let attributedRange = Range(range, in: result) {
-                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
-                    result[attributedRange].link = URL(string: "user://\(user.id)")
-                }
-            }
-            
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return result
         }
+        
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+        
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+            
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst()) // Remove @ from username
+            
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
+            }
+        }
+        
+        return result
+    }
     
     
     private func handleBookmarkTapped() {

@@ -194,7 +194,7 @@ struct FeedCell: View {
                 }
         }
         .sheet(isPresented: $showShareView) {
-            ShareView(post: post, currentImageIndex: currentImageIndex)
+            ShareView(post: post, currentMediaIndex: currentIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onAppear {
                     pauseAllVideos()

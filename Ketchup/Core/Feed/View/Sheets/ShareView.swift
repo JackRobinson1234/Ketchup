@@ -15,84 +15,56 @@ struct ShareView: View {
     @State private var downloadedMediaData: Data?
     @State private var preppingMessage: Bool = false
     var post: Post
-    var currentImageIndex: Int?
-    
+    var currentMediaIndex: Int
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 30) {
-            VStack{
-                if downloadViewModel.downloadSuccess{
+            VStack {
+                if downloadViewModel.downloadSuccess {
                     Image(systemName: "checkmark")
                         .foregroundStyle(.green)
                         .font(.system(size: 30))
                     Text("Saved!")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .padding(.top,1)
-                    
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .padding(.top, 1)
                 } else if downloadViewModel.downloadFailure {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(Color("Colors/AccentColor"))
                         .font(.system(size: 50))
                     Text("Save Failed")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .padding(.top,1)
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .padding(.top, 1)
                 } else {
                     Button(action: {
-                        PHPhotoLibrary.requestAuthorization { status in
-                                       if status == .authorized {
-                                           // Photo access granted, proceed with downloading the video
-                                           let mediaURL: String?
-                                           if post.mediaType == .photo, let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
-                                               mediaURL = post.mediaUrls[index]
-                                           } else {
-                                               mediaURL = post.mediaUrls.first
-                                           }
-                                           
-                                           if let mediaURL = mediaURL, let url = URL(string: mediaURL) {
-                                               if post.mediaType == .photo {
-                                                       downloadViewModel.downloadMedia(url: url, mediaType: .photo)
-                                               } else if post.mediaType == .video {
-                                                       downloadViewModel.downloadMedia(url: url, mediaType: .video)
-                                                   }
-                                           }
-                                       } else {
-                                           // Handle denied or restricted access
-                                           isShowingRestrictedAlert = true
-                                           print("Photo library access denied or restricted.")
-                                       }
-                                   }
-                               })
-               {
-                            if downloadViewModel.isDownloading {
-                                if downloadViewModel.progress == 0 {
-                                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                                        .frame(width: 40, height: 40)
-                                }
-                                else {
-                                    ProgressView(value: downloadViewModel.progress)
-                                        .frame(width: 40, height: 40)
-                                }
-                                
+                        downloadViewModel.downloadMedia(post: post, currentMediaIndex: currentMediaIndex)
+                    }) {
+                        if downloadViewModel.isDownloading {
+                            if downloadViewModel.progress == 0 {
+                                ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                    .frame(width: 40, height: 40)
                             } else {
-                                Image(systemName: "square.and.arrow.down")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(.blue)
+                                ProgressView(value: downloadViewModel.progress)
+                                    .frame(width: 40, height: 40)
                             }
+                        } else {
+                            Image(systemName: "square.and.arrow.down")
+                                .font(.system(size: 30))
+                                .foregroundStyle(.blue)
                         }
+                    }
                     
-                    Text("Save \(post.mediaType.text)")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .padding(.top,1)
-                    
+                    Text("Save \(post.mediaType == .mixed ? post.mixedMediaUrls?[currentMediaIndex].type.text ?? "Media" : post.mediaType.text)")
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .padding(.top, 1)
                 }
             }
             VStack{
                 Button(action: {
                     let mediaURL: String?
-                    if post.mediaType == .photo, let index = currentImageIndex, post.mediaUrls.indices.contains(index) {
-                        mediaURL = post.mediaUrls[index]
+                    if post.mediaType == .mixed {
+                        mediaURL = post.mixedMediaUrls?[currentMediaIndex].url
                     } else {
-                        mediaURL = post.mediaUrls.first
+                        mediaURL = post.mediaUrls[currentMediaIndex]
                     }
                     
                     if let mediaURL = mediaURL, let url = URL(string: mediaURL) {
@@ -110,32 +82,19 @@ struct ShareView: View {
                             .background(
                                 Circle()
                                     .foregroundColor(.green)
-                                    .frame(width: 50, height: 50)
+                                    .frame(width: 40, height: 40)
                             )
                     } else {
                         ProgressView()
                     }
                 }
                 Text("Messages")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .font(.custom("MuseoSansRounded-500", size: 16))
                     .padding(.top, 7)
                 
             }
             VStack{
-            //Debug: Needs to be transferable
-//                if let image = (URL(string: post.thumbnailUrl)) {
-//                    ShareLink(item: image, preview: SharePreview("Big Ben", image: image)) {
-//                        VStack{
-//                            Image(systemName: "ellipsis.circle")
-//                                .foregroundColor(.blue)
-//                                .font(.system(size: 40))
-//                            Text("More")
-//                                .font(.custom("MuseoSansRounded-300", size: 16))
-//                                .padding(.top, 1)
-//                        }
-//                    }
-//                    
-//                }
+               
             }
             
             Spacer()
@@ -156,12 +115,13 @@ struct ShareView: View {
         
         .sheet(isPresented: $isShowingMessageView) {
             if let mediaData = downloadedMediaData {
-                if let city = post.restaurant.city{
-                    MessageComposeView(messageBody: "I need to try this restaurant called \(post.restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: post.mediaType)
-                        .onDisappear{preppingMessage = false}
+                if let city = post.restaurant.city {
+                    let mediaType = post.mediaType == .mixed ? post.mixedMediaUrls?[currentMediaIndex].type : post.mediaType
+                    MessageComposeView(messageBody: "I need to try this restaurant called \(post.restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: mediaType ?? .photo)
+                        .onDisappear { preppingMessage = false }
                 }
             } else {
-                NavigationStack{
+                NavigationStack {
                     ProgressView()
                         .modifier(BackButtonModifier())
                 }
@@ -169,22 +129,18 @@ struct ShareView: View {
         }
         
         .padding()
-                
+        
     }
     private func downloadMedia(url: URL) async {
-            Task {
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: url)
-                    downloadedMediaData = data
-                    //isShowingMessageView = true // Show the message compose view after download
-                } catch {
-                    print("Error downloading Media:", error.localizedDescription)
-                }
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                downloadedMediaData = data
+                //isShowingMessageView = true // Show the message compose view after download
+            } catch {
+                print("Error downloading Media:", error.localizedDescription)
             }
         }
-    
+    }
 }
 
-#Preview {
-    ShareView(post: DeveloperPreview.posts[0])
-}
