@@ -93,7 +93,7 @@ struct RestaurantProfileSlideBarView: View {
         
         if viewModel.currentSection == .stats {
             if let restaurant = viewModel.restaurant{
-                RestaurantStatsView(restaurant: restaurant, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                RestaurantStatsView(restaurant: restaurant, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget, viewModel: viewModel)
             }
         }
     }

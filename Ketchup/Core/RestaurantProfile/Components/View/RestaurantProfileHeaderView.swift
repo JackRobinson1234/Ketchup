@@ -238,8 +238,8 @@ struct RestaurantProfileHeaderView: View {
                 }
                 .onTapGesture{
                     viewModel.currentSection = .stats
-                        scrollTarget = "additionalInfo"
-                        scrollPosition = "additionalInfo"
+                    viewModel.scrollTarget = "additionalInfo"
+                    scrollPosition = "additionalInfo"
                 }
                 
                 

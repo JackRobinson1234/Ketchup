@@ -26,7 +26,7 @@ class RestaurantViewModel: ObservableObject {
     @Published var valueRating: Double?
     @Published var serviceRating: Double?
     @Published var friendsWhoPosted: [PostUser] = []
-    
+    @Published var scrollTarget: String? = nil
     init(restaurantId: String) {
         self.restaurantId = restaurantId
         // DEBUG: see if you can delete this

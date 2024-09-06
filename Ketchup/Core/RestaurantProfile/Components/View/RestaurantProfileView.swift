@@ -88,14 +88,25 @@ struct RestaurantProfileView: View {
                         }
                     }
                     
-                    .onChange(of: scrollTarget) {
-                        
-                        scrollPosition = scrollTarget
-                        withAnimation{
-                            scrollProxy.scrollTo(scrollTarget, anchor: .top)
-                        }
-                        scrollTarget = nil
-                    }
+                    .onChange(of: viewModel.scrollTarget) { newTarget in
+                                        print("DEBUG: scrollTarget changed to \(String(describing: newTarget))")
+                                        scrollPosition = viewModel.scrollTarget
+                                        
+                                        if let target = viewModel.scrollTarget {
+                                            print("DEBUG: Attempting to scroll to \(target)")
+                                            withAnimation {
+                                                scrollProxy.scrollTo(target, anchor: .top)
+                                            }
+                                            print("DEBUG: Scroll animation triggered")
+                                        } else {
+                                            print("DEBUG: scrollTarget is nil, no scrolling performed")
+                                        }
+                                        
+                                        DispatchQueue.main.async {
+                                            print("DEBUG: Resetting scrollTarget to nil")
+                                            viewModel.scrollTarget = nil
+                                        }
+                                    }
                     .scrollPosition(id: $scrollPosition)
                 }
                 .gesture(drag)

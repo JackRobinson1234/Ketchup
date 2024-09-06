@@ -10,6 +10,7 @@ import SwiftUI
 import SafariServices
 
 struct RestaurantStatsView: View {
+   
     let restaurant: Restaurant
     @State private var currentDay: String = getCurrentDay()
     @State private var selectedDay: String = getCurrentDay()
@@ -23,7 +24,7 @@ struct RestaurantStatsView: View {
             ("Additional Info", "additionalInfo", "info.circle"),
             ("Similar Restaurants", "peopleAlsoSearch", "magnifyingglass")
         ]
-        
+    @ObservedObject var viewModel: RestaurantViewModel
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             //generalInfoSection
@@ -32,8 +33,6 @@ struct RestaurantStatsView: View {
                 .id("openingHours")
             popularTimesSection
                 .id("popularTimes")
-            //websiteLinksSection
-            //ratingSection
             additionalInfoSection
                 .id("additionalInfo")
             peopleAlsoSearchSection
@@ -66,7 +65,7 @@ struct RestaurantStatsView: View {
                         ForEach(rowIndex*2..<min((rowIndex+1)*2, sections.count), id: \.self) { index in
                             let (title, id, icon) = sections[index]
                             actionButton(title: title, icon: icon) {
-                                scrollTarget = id
+                                viewModel.scrollTarget = id
                                 scrollPosition = id
                             }
                         }
@@ -222,16 +221,40 @@ struct RestaurantStatsView: View {
                        Text("No related searches available")
                            .font(.custom("MuseoSansRounded-300", size: 16))
                    } else {
-                       ForEach(similarRestaurants, id: \.id) { similarRestaurant in
-                           NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurant.id, restaurant: similarRestaurant)) {
-                               SimilarRestaurantCell(restaurant: similarRestaurant)
+                       VStack(spacing: 0) {
+                           ForEach(similarRestaurants.indices, id: \.self) { index in
+                               NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurants[index].id, restaurant: similarRestaurants[index])) {
+                                   SimilarRestaurantCell(restaurant: similarRestaurants[index])
+                               }
+                               .buttonStyle(PlainButtonStyle())
+                               
+                               if index < similarRestaurants.count - 1 {
+                                   Divider()
+                               }
                            }
-                           .buttonStyle(PlainButtonStyle())
                        }
+                       .background(Color.white)
+                       .cornerRadius(10)
+                       .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                    }
                }
            }
        }
+    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
+            var details = [String]()
+            
+            if let cuisine = restaurant.categoryName {
+                details.append(cuisine)
+            }
+            if let price = restaurant.price {
+                details.append(price)
+            }
+            
+           
+            
+            return details.joined(separator: " | ")
+        }
+
     
     private func linkRow(title: String, value: String?, placeholder: String, icon: String) -> some View {
         HStack(alignment: .top) {
@@ -479,6 +502,11 @@ struct SimilarRestaurantCell: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
+                
+                Text(combineRestaurantDetails(restaurant: restaurant))
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
             }
             
             Spacer()
@@ -487,7 +515,22 @@ struct SimilarRestaurantCell: View {
                 .foregroundColor(.gray)
         }
         .padding(.vertical, 8)
-        .frame(height: 72)
+        .padding(.horizontal, 16)
+        .frame(height: 80)  // Increased height to accommodate the new line
+        .contentShape(Rectangle())
+    }
+    
+    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
+        var details = [String]()
+        
+        if let cuisine = restaurant.categoryName {
+            details.append(cuisine)
+        }
+        if let price = restaurant.price {
+            details.append(price)
+        }
+        
+        return details.joined(separator: " | ")
     }
 }
 struct BarChart: View {
