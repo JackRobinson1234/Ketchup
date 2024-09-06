@@ -58,9 +58,31 @@ class URLHandler {
         var parsedString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         print("URLHandler: After cleanup: \(parsedString)")
         
+        // Handle "/url?q=http://" and similar cases
+        if parsedString.hasPrefix("/url?q=") {
+            parsedString = String(parsedString.dropFirst(7))
+            if let endIndex = parsedString.firstIndex(of: "&") {
+                parsedString = String(parsedString[..<endIndex])
+            }
+            parsedString = parsedString.removingPercentEncoding ?? parsedString
+            print("URLHandler: Removed '/url?q=' prefix: \(parsedString)")
+        }
+        
+        // Handle "www." prefix without a scheme
+        if parsedString.lowercased().hasPrefix("www.") && !parsedString.lowercased().hasPrefix("http") {
+            parsedString = "https://" + parsedString
+            print("URLHandler: Added https:// scheme to www.: \(parsedString)")
+        }
+        
+        // Add "https://" if no scheme is present
         if !parsedString.lowercased().hasPrefix("http://") && !parsedString.lowercased().hasPrefix("https://") {
             parsedString = "https://" + parsedString
             print("URLHandler: Added https:// scheme: \(parsedString)")
+        }
+        
+        // Remove any trailing slashes
+        while parsedString.hasSuffix("/") {
+            parsedString.removeLast()
         }
         
         guard let url = URL(string: parsedString),
@@ -69,11 +91,20 @@ class URLHandler {
             return nil
         }
         
+        // Additional validation: Check for valid TLD
+        let validTLDs = ["com", "org", "net", "edu", "gov", "io", "co", "app", "dev"]
+        let hostComponents = host.components(separatedBy: ".")
+        guard hostComponents.count >= 2,
+              let tld = hostComponents.last,
+              validTLDs.contains(tld.lowercased()) else {
+            print("URLHandler: Invalid or missing TLD")
+            return nil
+        }
+        
         print("URLHandler: URL validation successful: \(url)")
         return url
     }
 }
-
 struct LinkItem: Identifiable {
     let id: String
     let url: String

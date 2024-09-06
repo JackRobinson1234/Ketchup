@@ -29,7 +29,7 @@ struct RestaurantProfileHeaderView: View {
     @StateObject var uploadViewModel: UploadViewModel
     @State var showFriendsList = false
     @State private var highlightsAndTags: [String] = []
-    
+    @State private var showOrderSheet = false
     init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -318,35 +318,8 @@ struct RestaurantProfileHeaderView: View {
                     
                     
                         .padding(.horizontal)
-                    HStack() {
-                        if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
-                            actionButton(title: "Menu", icon: "menucard") {
-                                print("Menu URL:", menuUrl)
-                                urlToShow = url
-                            }
-                        }
-                        
-                        if let website = restaurant.website, let url = URL(string: website) {
-                            actionButton(title: "Website", icon: "globe") {
-                                urlToShow = url
-                            }
-                        }
-                        
-                        if restaurant.geoPoint != nil {
-                            actionButton(title: "Map", icon: "map") {
-                                showMapView.toggle()
-                            }
-                        }
-                        
-                        if let phone = restaurant.phone, !phone.isEmpty {
-                            actionButton(title: "Call", icon: "phone") {
-                                if let url = URL(string: "tel://\(phone.replacingOccurrences(of: " ", with: ""))") {
-                                    UIApplication.shared.open(url)
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
+                    actionButtonsView(restaurant: restaurant)
+                                          
                     
                     // Rating details dropdown
                     
@@ -405,7 +378,61 @@ struct RestaurantProfileHeaderView: View {
                     
                 }
             }
+            .sheet(isPresented: $showOrderSheet) {
+                            OrderSheetView(restaurant: restaurant)
+                                .presentationDetents([.fraction(0.25)])
+                        }
         }
+    }
+    @ViewBuilder
+    private func actionButtonsView(restaurant: Restaurant) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if let menuUrl = restaurant.menuUrl, !menuUrl.isEmpty, let url = URL(string: menuUrl) {
+                        actionButton(title: "Menu", icon: "menucard") {
+                            print("Menu URL:", menuUrl)
+                            urlToShow = url
+                        }
+                    }
+                    
+                    if let website = restaurant.website, !website.isEmpty, let url = URL(string: website) {
+                        actionButton(title: "Website", icon: "globe") {
+                            urlToShow = url
+                        }
+                    }
+                    
+                    if restaurant.geoPoint != nil {
+                        actionButton(title: "Map", icon: "map") {
+                            showMapView.toggle()
+                        }
+                    }
+                    
+                    if let phone = restaurant.phone, !phone.isEmpty {
+                        actionButton(title: "Call", icon: "phone") {
+                            if let url = URL(string: "tel://\(phone.replacingOccurrences(of: " ", with: ""))") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            HStack(spacing: 8) {
+                if let orderBy = restaurant.orderBy, !orderBy.isEmpty {
+                    actionButton(title: "Order", icon: "bag") {
+                        showOrderSheet = true
+                    }
+                }
+                
+                if let website = restaurant.reserveTableUrl, !website.isEmpty, let url = URL(string: website) {
+                    actionButton(title: "Reserve", icon: "calendar") {
+                        urlToShow = url
+                    }
+                }
+            }
+        }
+        .padding(.horizontal)
     }
     private func calculateHighlightsAndTags(restaurant: Restaurant) {
         var items = [String]()
@@ -511,8 +538,8 @@ struct RestaurantProfileHeaderView: View {
                         .foregroundColor(.gray)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 80)
-            .padding(4)
+            .frame(maxWidth: .infinity, minHeight: 70)
+            .padding(2)
             .background(Color.secondary.opacity(0.1))
             .cornerRadius(8)
         }
@@ -552,8 +579,8 @@ struct RestaurantProfileHeaderView: View {
                         .foregroundColor(.gray)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 80)
-            .padding(4)
+            .frame(maxWidth: .infinity, minHeight: 70)
+            .padding(2)
             .background(Color.secondary.opacity(0.1))
             .cornerRadius(8)
         }
@@ -596,5 +623,111 @@ struct RestaurantProfileHeaderView: View {
 extension URL: Identifiable {
     public var id: String {
         self.absoluteString
+    }
+}
+struct OrderSheetView: View {
+    let restaurant: Restaurant
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Order Options")
+                .font(.custom("MuseoSansRounded-700", size: 18))
+                .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    if let orderOptions = restaurant.orderBy {
+                        let sortedOrderOptions = orderOptions.sorted { option1, option2 in
+                            // Custom sorting based on desired order
+                            orderPriority(option: option1) < orderPriority(option: option2)
+                        }
+                        
+                        ForEach(sortedOrderOptions, id: \.name) { option in
+                            OrderOptionView(option: option)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .padding(.vertical)
+    }
+}
+
+struct OrderOptionView: View {
+    let option: OrderBy
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Group {
+                if imageNameForOption() == "globe" {
+                    Image(systemName: "globe")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundColor(.gray)
+                } else {
+                    Image(imageNameForOption())
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+            .frame(width: 60, height: 60)
+            .cornerRadius(8)
+            
+            Text(option.name ?? "Order")
+                .font(.custom("MuseoSansRounded-500", size: 12))
+                .lineLimit(2)
+                .minimumScaleFactor(0.5)
+                .multilineTextAlignment(.center)
+                .frame(width: 80)
+        }
+        .frame(width: 80, height: 90)
+        .onTapGesture {
+            if let orderUrl = option.orderUrl, let url = URL(string: orderUrl) {
+                UIApplication.shared.open(url)
+            }
+        }
+    }
+    
+    private func imageNameForOption() -> String {
+        guard let name = option.name?.lowercased() else { return "globe" }
+        
+        switch name {
+        case "doordash":
+            return "Doordash"
+        case "postmates":
+            return "Postmates"
+        case "caviar":
+            return "Caviar"
+        case "toast", "toast local":
+            return "Toast"
+        case "grubhub":
+            return "Grubhub"
+        case "ubereats":
+            return "UberEats"
+        default:
+            return "globe"
+        }
+    }
+}
+
+private func orderPriority(option: OrderBy) -> Int {
+    guard let name = option.name?.lowercased() else { return 999 } // Default to high number for options with "globe"
+    
+    switch name {
+    case "ubereats":
+        return 1
+    case "doordash":
+        return 2
+    case "grubhub":
+        return 3
+    case "toast", "toast local":
+        return 4
+    case "caviar":
+        return 5
+    case "postmates":
+        return 6
+    default:
+        return 999 // Place others (like those with "globe") at the end
     }
 }

@@ -59,7 +59,9 @@ struct RestaurantStatsView: View {
     
     private var sectionButtons: some View {
             VStack(alignment: .leading, spacing: 10) {
-                SectionHeader(title: "Jump to", icon: "info.circle")
+                Text("Jump to")
+                    .font(.custom("MuseoSansRounded-900", size: 14))
+                    .foregroundStyle(.black)
                 ForEach(0...(sections.count-1)/2, id: \.self) { rowIndex in
                     HStack(spacing: 10) {
                         ForEach(rowIndex*2..<min((rowIndex+1)*2, sections.count), id: \.self) { index in
