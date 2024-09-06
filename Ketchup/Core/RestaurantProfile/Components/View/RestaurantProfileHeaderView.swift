@@ -69,7 +69,7 @@ struct RestaurantProfileHeaderView: View {
                                     .foregroundStyle(.white)
                                     .background(
                                         Circle()
-                                            .fill(Color.gray.opacity(0.5))
+                                            .fill(Color.gray)
                                             .frame(width: 30, height: 30)
                                     )
                             }
@@ -236,109 +236,37 @@ struct RestaurantProfileHeaderView: View {
                     
                     
                 }
+                .onTapGesture{
+                    viewModel.currentSection = .stats
+                        scrollTarget = "additionalInfo"
+                        scrollPosition = "additionalInfo"
+                }
                 
                 
                 
                 
                 
                 VStack(alignment: .leading){
-                    HStack(spacing: 2) {
-                        Text("Scores")
-                            .font(.custom("MuseoSansRounded-900", size: 14))
-                            .foregroundColor(.black)
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.gray)
-                    }
-                    HStack{
-                        if let overallRating = viewModel.overallRating {
-                            HStack(alignment: .center, spacing: 6) {
-                                
-                                FeedOverallRatingView(rating: overallRating, font: .black)
-                                VStack(alignment: .leading){
-                                    Text("Overall Score")
-                                        .font(.custom("MuseoSansRounded-700", size: 14))
-                                        .foregroundColor(.black)
-                                    if let stats = restaurant.stats{
-                                        Text("\(stats.postCount) posts")
-                                            .font(.custom("MuseoSansRounded-500", size: 12))
-                                            .foregroundColor(.gray)
-                                        Text("\(stats.collectionCount) Collections")
-                                            .font(.custom("MuseoSansRounded-500", size: 12))
-                                            .foregroundColor(.gray)
+                                    HStack(spacing: 2) {
+                                        Text("Scores")
+                                            .font(.custom("MuseoSansRounded-900", size: 14))
+                                            .foregroundColor(.black)
                                         
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(.gray)
+                                    }
+                                    HStack(spacing: 10) {
+                                        overallScoreSection
+                                        friendsScoreSection
                                     }
                                 }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(3)
-                            .background(Color.secondary.opacity(0.1))
-                            .cornerRadius(8)
-                        } else {
-                            Text("No reviews yet")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                .foregroundColor(.gray)
-                                .padding(.leading, 10)
-                            
-                        }
-                        Spacer()
-                        if let friendsOverallRating = feedViewModel.friendsOverallRating {
-                            HStack(alignment: .center, spacing: 6) {
-                                
-                                FeedOverallRatingView(rating: friendsOverallRating, font: .black)
-                                VStack(alignment: .leading, spacing: 0){
-                                    Text("Friends Score")
-                                        .font(.custom("MuseoSansRounded-700", size: 14))
-                                        .foregroundColor(.black)
-                                    if !viewModel.friendsWhoPosted.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            HStack(spacing: -10) {
-                                                ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
-                                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
-                                                        .overlay(
-                                                            Circle()
-                                                                .stroke(Color.white, lineWidth: 2)
-                                                        )
-                                                }
-                                                
-                                                if viewModel.friendsWhoPosted.count > 3 {
-                                                    Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
-                                                        .font(.custom("MuseoSansRounded-300", size: 12))
-                                                        .foregroundColor(.gray)
-                                                        .padding(.leading, 10)
-                                                }
-                                                
-                                                
-                                            }
-                                            
-                                        }
-                                    } else {
-                                        Text("No reviews from friends")
-                                            .font(.custom("MuseoSansRounded-300", size: 13))
-                                            .foregroundColor(.gray)
-                                        
+                                .onTapGesture {
+                                    withAnimation {
+                                        showRatingDetails.toggle()
                                     }
                                 }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(3)
-                            .background(Color.secondary.opacity(0.1))
-                            .cornerRadius(8)
-                        } else {
-                            Text("No reviews from friends")
-                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                .foregroundColor(.gray)
-                            
-                            
-                        }
-                    }
-                }
-                .onTapGesture{
-                    withAnimation {
-                        showRatingDetails.toggle()
-                    }
-                }
+                               
                 
                 
                 
@@ -383,13 +311,13 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 VStack (alignment: .leading){
-                   
-                        Text("Info")
-                            .font(.custom("MuseoSansRounded-900", size: 14))
-                            .foregroundColor(.black)
-                       
                     
-                    .padding(.horizontal)
+                    Text("Info")
+                        .font(.custom("MuseoSansRounded-900", size: 14))
+                        .foregroundColor(.black)
+                    
+                    
+                        .padding(.horizontal)
                     HStack() {
                         if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
                             actionButton(title: "Menu", icon: "menucard") {
@@ -419,7 +347,7 @@ struct RestaurantProfileHeaderView: View {
                         }
                     }
                     .padding(.horizontal)
-                  
+                    
                     // Rating details dropdown
                     
                 }
@@ -558,6 +486,77 @@ struct RestaurantProfileHeaderView: View {
         }
         .padding()
     }
+    private var overallScoreSection: some View {
+            VStack(alignment: .leading) {
+                if let overallRating = viewModel.overallRating {
+                    HStack(alignment: .center, spacing: 6) {
+                        FeedOverallRatingView(rating: overallRating, font: .black)
+                        VStack(alignment: .leading){
+                            Text("Overall Score")
+                                .font(.custom("MuseoSansRounded-700", size: 14))
+                                .foregroundColor(.black)
+                            if let stats = viewModel.restaurant?.stats {
+                                Text("\(stats.postCount) posts")
+                                    .font(.custom("MuseoSansRounded-500", size: 12))
+                                    .foregroundColor(.gray)
+                                Text("\(stats.collectionCount) Collections")
+                                    .font(.custom("MuseoSansRounded-500", size: 12))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
+                } else {
+                    Text("No reviews yet")
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .foregroundColor(.gray)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 80)
+            .padding(4)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(8)
+        }
+
+        private var friendsScoreSection: some View {
+            VStack(alignment: .leading) {
+                if let friendsOverallRating = feedViewModel.friendsOverallRating {
+                    HStack(alignment: .center, spacing: 6) {
+                        FeedOverallRatingView(rating: friendsOverallRating, font: .black)
+                        VStack(alignment: .leading, spacing: 0){
+                            Text("Friends Score")
+                                .font(.custom("MuseoSansRounded-700", size: 14))
+                                .foregroundColor(.black)
+                            if !viewModel.friendsWhoPosted.isEmpty {
+                                HStack(spacing: -10) {
+                                    ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
+                                        UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color.white, lineWidth: 2)
+                                            )
+                                    }
+                                    
+                                    if viewModel.friendsWhoPosted.count > 3 {
+                                        Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .foregroundColor(.gray)
+                                            .padding(.leading, 10)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text("No reviews from friends")
+                        .font(.custom("MuseoSansRounded-300", size: 14))
+                        .foregroundColor(.gray)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 80)
+            .padding(4)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(8)
+        }
     private func featureItem(icon: String, title: String, isAvailable: Bool) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
@@ -582,8 +581,9 @@ struct RestaurantProfileHeaderView: View {
                     .font(.custom("MuseoSansRounded-300", size: 12))
                     .padding(.horizontal, 8)
             }
-            .padding(2)
-            .padding(.horizontal, 2)
+            
+            .padding(.horizontal, 5)
+            .padding(.vertical, 3)
             .overlay(
                 Capsule()
                     .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Rounded pill border

@@ -87,11 +87,16 @@ struct RestaurantProfileView: View {
                             }
                         }
                     }
-                    .scrollPosition(id: $scrollPosition)
+                    
                     .onChange(of: scrollTarget) {
+                        
                         scrollPosition = scrollTarget
-                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                        withAnimation{
+                            scrollProxy.scrollTo(scrollTarget, anchor: .top)
+                        }
+                        scrollTarget = nil
                     }
+                    .scrollPosition(id: $scrollPosition)
                 }
                 .gesture(drag)
                 .ignoresSafeArea(edges: .top)

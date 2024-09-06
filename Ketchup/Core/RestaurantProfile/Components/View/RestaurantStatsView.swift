@@ -14,23 +14,35 @@ struct RestaurantStatsView: View {
     @State private var currentDay: String = getCurrentDay()
     @State private var selectedDay: String = getCurrentDay()
     @State private var similarRestaurants: [Restaurant] = []
-        @State private var isLoadingSimilarRestaurants = false
+    @State private var isLoadingSimilarRestaurants = false
+    @Binding var scrollPosition: String?
+    @Binding var scrollTarget: String?
+    private let sections = [
+            ("Opening Hours", "openingHours", "clock"),
+            ("Popular Times", "popularTimes", "chart.bar"),
+            ("Additional Info", "additionalInfo", "info.circle"),
+            ("Similar Restaurants", "peopleAlsoSearch", "magnifyingglass")
+        ]
+        
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                //generalInfoSection
-                openingHoursSection
-                popularTimesSection
-                //websiteLinksSection
-                //ratingSection
-                additionalInfoSection
-                peopleAlsoSearchSection
-            }
-            .padding()
+        VStack(alignment: .leading, spacing: 20) {
+            //generalInfoSection
+            sectionButtons
+            openingHoursSection
+                .id("openingHours")
+            popularTimesSection
+                .id("popularTimes")
+            //websiteLinksSection
+            //ratingSection
+            additionalInfoSection
+                .id("additionalInfo")
+            peopleAlsoSearchSection
+                .id("peopleAlsoSearch")
         }
+        .padding()
         .onAppear {
-                    fetchSimilarRestaurants()
-                }
+            fetchSimilarRestaurants()
+        }
         .background(Color(UIColor.systemBackground))
     }
     
@@ -41,19 +53,34 @@ struct RestaurantStatsView: View {
                 InfoRow(title: "Name", value: restaurant.name, icon: "building")
                 InfoRow(title: "Cuisine", value: restaurant.categoryName ?? "N/A", icon: "fork.knife")
                 InfoRow(title: "Price", value: restaurant.price ?? "N/A", icon: "dollarsign.circle")
-               
+                
             }
         }
     }
     
-  
-
+    private var sectionButtons: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Jump to", icon: "info.circle")
+                ForEach(0...(sections.count-1)/2, id: \.self) { rowIndex in
+                    HStack(spacing: 10) {
+                        ForEach(rowIndex*2..<min((rowIndex+1)*2, sections.count), id: \.self) { index in
+                            let (title, id, icon) = sections[index]
+                            actionButton(title: title, icon: icon) {
+                                scrollTarget = id
+                                scrollPosition = id
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
     private var openingHoursSection: some View {
         SectionBox {
             VStack(alignment: .leading, spacing: 10) {
                 // Section header for Opening Hours
                 SectionHeader(title: "Opening Hours", icon: "clock")
-
+                
                 // Opening Hours
                 if let openingHours = restaurant.openingHours {
                     ForEach(openingHours, id: \.day) { hour in
@@ -72,40 +99,40 @@ struct RestaurantStatsView: View {
             }
         }
     }
-
+    
     private var popularTimesSection: some View {
-           VStack(alignment: .leading, spacing: 10) {
-               SectionHeader(title: "Popular Times", icon: "clock")
-               
-               DaySelectionView(selectedDay: $selectedDay)
-               
-               if let popularTimes = restaurant.popularTimesHistogram {
-                   BarChart(data: dataForDay(selectedDay, popularTimes: popularTimes))
-                      
-               } else {
-                   Text("No popular times data available")
-                       .font(.custom("MuseoSansRounded-300", size: 14))
-                       .foregroundColor(.gray)
-               }
-           }
-           .frame(maxWidth: .infinity)
-           .padding()
-           .background(Color.secondary.opacity(0.1))
-           .cornerRadius(10)
-       }
-       
-       private func dataForDay(_ day: String, popularTimes: PopularTimesHistogram) -> [PopularTimeItem] {
-           switch day {
-           case "Mon": return popularTimes.mo ?? []
-           case "Tue": return popularTimes.tu ?? []
-           case "Wed": return popularTimes.we ?? []
-           case "Thu": return popularTimes.th ?? []
-           case "Fri": return popularTimes.fr ?? []
-           case "Sat": return popularTimes.sa ?? []
-           case "Sun": return popularTimes.su ?? []
-           default: return []
-           }
-       }
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Popular Times", icon: "clock")
+            
+            DaySelectionView(selectedDay: $selectedDay)
+            
+            if let popularTimes = restaurant.popularTimesHistogram {
+                BarChart(data: dataForDay(selectedDay, popularTimes: popularTimes))
+                
+            } else {
+                Text("No popular times data available")
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.gray)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(10)
+    }
+    
+    private func dataForDay(_ day: String, popularTimes: PopularTimesHistogram) -> [PopularTimeItem] {
+        switch day {
+        case "Mon": return popularTimes.mo ?? []
+        case "Tue": return popularTimes.tu ?? []
+        case "Wed": return popularTimes.we ?? []
+        case "Thu": return popularTimes.th ?? []
+        case "Fri": return popularTimes.fr ?? []
+        case "Sat": return popularTimes.sa ?? []
+        case "Sun": return popularTimes.su ?? []
+        default: return []
+        }
+    }
     // Helper function to check for valid popular times data
     private func validPopularTimesData() -> [PopularTimeItem]? {
         let data = dataForDay(currentDay)
@@ -183,44 +210,28 @@ struct RestaurantStatsView: View {
             }
         }
     }
-
+    
     
     private var peopleAlsoSearchSection: some View {
-            SectionBox {
-                VStack(alignment: .leading, spacing: 10) {
-                    SectionHeader(title: "People Also Search", icon: "magnifyingglass")
-                    if isLoadingSimilarRestaurants {
-                        ProgressView()
-                    } else if similarRestaurants.isEmpty {
-                        Text("No related searches available")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                    } else {
-                        ForEach(similarRestaurants, id: \.id) { similarRestaurant in
-                            NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurant.id, restaurant: similarRestaurant)) {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(similarRestaurant.name)
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .fontWeight(.medium)
-                                            .foregroundColor(.primary)
-                                        if let city = similarRestaurant.city, let state = similarRestaurant.state {
-                                            Text("\(city), \(state)")
-                                                .font(.custom("MuseoSansRounded-300", size: 14))
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
-                                }
-                                .padding(.vertical, 5)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                }
-            }
-        }
+           SectionBox {
+               VStack(alignment: .leading, spacing: 10) {
+                   SectionHeader(title: "Similar Restaurants", icon: "magnifyingglass")
+                   if isLoadingSimilarRestaurants {
+                       ProgressView()
+                   } else if similarRestaurants.isEmpty {
+                       Text("No related searches available")
+                           .font(.custom("MuseoSansRounded-300", size: 16))
+                   } else {
+                       ForEach(similarRestaurants, id: \.id) { similarRestaurant in
+                           NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurant.id, restaurant: similarRestaurant)) {
+                               SimilarRestaurantCell(restaurant: similarRestaurant)
+                           }
+                           .buttonStyle(PlainButtonStyle())
+                       }
+                   }
+               }
+           }
+       }
     
     private func linkRow(title: String, value: String?, placeholder: String, icon: String) -> some View {
         HStack(alignment: .top) {
@@ -252,8 +263,8 @@ struct RestaurantStatsView: View {
             if let items = items, !items.isEmpty {
                 VStack(alignment: .leading) {
                     HStack {
-//                        Image(systemName: icon)
-//                            .foregroundColor(.gray)
+                        //                        Image(systemName: icon)
+                        //                            .foregroundColor(.gray)
                         Text(title)
                             .font(.custom("MuseoSansRounded-300", size: 18))
                             .fontWeight(.medium)
@@ -272,7 +283,26 @@ struct RestaurantStatsView: View {
             }
         }
     }
-    
+    private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 1) { // Horizontal stack to align icon and title
+                Image(systemName: icon)
+                    .font(.system(size: 16)) // Smaller icon size
+                Text(title)
+                    .font(.custom("MuseoSansRounded-300", size: 12))
+                    .padding(.horizontal, 8)
+            }
+            
+            .padding(.horizontal, 5)
+            .padding(.vertical, 3)
+            .overlay(
+                Capsule()
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Rounded pill border
+            )
+        }
+        .foregroundColor(.black)
+        
+    }
     private func dataForDay(_ day: String) -> [PopularTimeItem] {
         switch day {
         case "Monday": return restaurant.popularTimesHistogram?.mo ?? []
@@ -286,31 +316,31 @@ struct RestaurantStatsView: View {
         }
     }
     private func fetchSimilarRestaurants() {
-            guard let peopleAlsoSearch = restaurant.peopleAlsoSearch, !peopleAlsoSearch.isEmpty else { return }
-            
-            isLoadingSimilarRestaurants = true
-            Task {
-                do {
-                    var fetchedRestaurants: [Restaurant] = []
-                    for item in peopleAlsoSearch {
-                        if let title = item.title {
-                            if let fetchedRestaurant = try await RestaurantService.shared.fetchRestaurant(byName: title, nearGeoHash: restaurant.geoHash ?? "") {
-                                fetchedRestaurants.append(fetchedRestaurant)
-                            }
+        guard let peopleAlsoSearch = restaurant.peopleAlsoSearch, !peopleAlsoSearch.isEmpty else { return }
+        
+        isLoadingSimilarRestaurants = true
+        Task {
+            do {
+                var fetchedRestaurants: [Restaurant] = []
+                for item in peopleAlsoSearch {
+                    if let title = item.title {
+                        if let fetchedRestaurant = try await RestaurantService.shared.fetchRestaurant(byName: title, nearGeoHash: restaurant.geoHash ?? "") {
+                            fetchedRestaurants.append(fetchedRestaurant)
                         }
                     }
-                   
-                        self.similarRestaurants = fetchedRestaurants
-                        self.isLoadingSimilarRestaurants = false
-                    
-                } catch {
-                    print("Error fetching similar restaurants: \(error)")
-                    await MainActor.run {
-                        self.isLoadingSimilarRestaurants = false
-                    }
+                }
+                
+                self.similarRestaurants = fetchedRestaurants
+                self.isLoadingSimilarRestaurants = false
+                
+            } catch {
+                print("Error fetching similar restaurants: \(error)")
+                await MainActor.run {
+                    self.isLoadingSimilarRestaurants = false
                 }
             }
         }
+    }
 }
 
 struct SectionBox<Content: View>: View {
@@ -326,7 +356,7 @@ struct SectionBox<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.secondary.opacity(0.1))
             .cornerRadius(10)
-           //.shadow(color: .gray, radius: 2)
+        //.shadow(color: .gray, radius: 2)
     }
 }
 
@@ -336,7 +366,7 @@ struct SectionHeader: View {
     
     var body: some View {
         HStack {
-           // Image(systemName: icon)
+            // Image(systemName: icon)
             Text(title)
                 .font(.custom("MuseoSansRounded-300", size: 20))
                 .fontWeight(.bold)
@@ -412,7 +442,54 @@ struct DaySelectionView: View {
         }
     }
 }
-
+import Kingfisher
+struct SimilarRestaurantCell: View {
+    let restaurant: Restaurant
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Restaurant image
+            if let imageURL = restaurant.profileImageUrl {
+                KFImage(URL(string: imageURL))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            } else {
+                Image(systemName: "fork.knife")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .foregroundColor(.gray)
+                    .frame(width: 56, height: 56)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            
+            // Restaurant details
+            VStack(alignment: .leading, spacing: 4) {
+                Text(restaurant.name)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.black)
+                    .lineLimit(1)
+                
+                if let city = restaurant.city, let state = restaurant.state {
+                    Text("\(city), \(state)")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+        }
+        .padding(.vertical, 8)
+        .frame(height: 72)
+    }
+}
 struct BarChart: View {
     let data: [PopularTimeItem]
     
@@ -421,7 +498,7 @@ struct BarChart: View {
     private let labelHeight: CGFloat = 60
     private let spacing: CGFloat = 10 // Spacing between bars and labels
     private let gridLineCount = 4
-
+    
     var body: some View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 0) {
@@ -447,7 +524,7 @@ struct BarChart: View {
                         }
                         
                         Spacer() // Spacer between top and next grid line
-
+                        
                         // Middle aligned lines
                         ForEach(1..<gridLineCount, id: \.self) { i in
                             HStack(spacing: 4) {
@@ -462,7 +539,7 @@ struct BarChart: View {
                             }
                             Spacer()
                         }
-
+                        
                         // Bottom aligned (0%)
                         HStack(alignment: .bottom, spacing: 4) {
                             Text("0%")
@@ -521,6 +598,7 @@ struct BarChart: View {
         let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date())!
         return formatter.string(from: date).lowercased()
     }
+   
     
 }
 func getCurrentDay() -> String {
