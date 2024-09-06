@@ -21,6 +21,7 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2C2C719BA7001F296F /* ContactsView.swift */; };
 		F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */; };
+		F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F29F72C8A6BF500F385C1 /* SafariView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
 		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
@@ -306,6 +307,7 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F82BFF2C2C719BA7001F296F /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
 		F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModel.swift; sourceTree = "<group>"; };
+		F82F29F72C8A6BF500F385C1 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
 		F83380F32C28B31E0056C973 /* CustomFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
@@ -861,6 +863,7 @@
 				F8FB355F2BEED6010079DE6D /* VideoPlayer.swift */,
 				F85CDD4C2C078BDC00BD834F /* UISliderView.swift */,
 				F83F5B152C7017C300FB4434 /* FastCrossfadeFoodImageView.swift */,
+				F82F29F72C8A6BF500F385C1 /* SafariView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1937,6 +1940,7 @@
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
 				F83F5B162C7017C300FB4434 /* FastCrossfadeFoodImageView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
+				F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
 				F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */,
 				F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */,

@@ -22,7 +22,7 @@ struct RestaurantProfileHeaderView: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var showRatingDetails = false
-    @State private var showSafariView = false
+    @State private var urlToShow: URL?
     @State private var showCollections = false
     @State var showUploadPost = false
     @StateObject var cameraViewModel: CameraViewModel = CameraViewModel()
@@ -42,7 +42,7 @@ struct RestaurantProfileHeaderView: View {
     
     var body: some View {
         if let restaurant = viewModel.restaurant {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 // Image and overlay
                 ZStack(alignment: .bottomLeading) {
                     if let imageURLs = restaurant.profileImageUrl {
@@ -148,165 +148,203 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                Text("Known for")
-                    .font(.custom("MuseoSansRounded-900", size: 14))
-                    .foregroundColor(.black)
-                    .padding(.horizontal)
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(highlightsAndTags, id: \.self) { item in
-                            HStack(spacing: 4) {
-                                Text(item)
-                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                                    .foregroundColor(.gray)
-                                
-                                if item != highlightsAndTags.last {
-                                    Circle()
-                                        .fill(Color.gray)
-                                        .frame(width: 3, height: 3)
+                VStack( alignment: .leading, spacing: 0){
+                    Text("Known for")
+                        .font(.custom("MuseoSansRounded-900", size: 14))
+                        .foregroundColor(.black)
+                        .padding(.horizontal)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(highlightsAndTags, id: \.self) { item in
+                                HStack(spacing: 4) {
+                                    Text(item)
+                                        .font(.custom("MuseoSansRounded-300", size: 14))
+                                        .foregroundColor(.gray)
+                                    
+                                    if item != highlightsAndTags.last {
+                                        Circle()
+                                            .fill(Color.gray)
+                                            .frame(width: 3, height: 3)
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal)
+                        .frame(height: 40)
                     }
-                    .padding(.horizontal)
-                    .frame(height: 20)
                 }
-                
                 
                 // Buttons for menu, map, and overall rating
                 
                 
-                VStack(alignment: .leading, spacing: 10) {
-                    VStack{
-                        Text("Features")
-                            .font(.custom("MuseoSansRounded-900", size: 14))
-                            .foregroundColor(.black)
-                        HStack(spacing: 1){
-                            Text("See All")
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading){
+                        HStack(spacing: 2) {
+                            Text("Features")
+                                .font(.custom("MuseoSansRounded-900", size: 14))
+                                .foregroundColor(.black)
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 10))
                                 .foregroundStyle(.gray)
+                            
                         }
+                        
+                        
+                    }
+                    .padding(.horizontal)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack{
+                                HStack(spacing: 6) {
+                                    featureItem(icon: "sun.max", title: "Breakfast", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Breakfast" && $0.value == true } ?? false)
+                                    featureItem(icon: "fork.knife", title: "Lunch", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Lunch" && $0.value == true } ?? false)
+                                    featureItem(icon: "moon.stars", title: "Dinner", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dinner" && $0.value == true } ?? false)
+                                    featureItem(icon: "birthday.cake", title: "Dessert", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dessert" && $0.value == true } ?? false)
+                                    featureItem(icon: "wineglass", title: "Alcohol", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Alcohol" && $0.value == true } ?? false)
+                                    featureItem(icon: "beach.umbrella", title: "Outdoor Seating", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Outdoor seating" && $0.value == true } ?? false)
+                                    featureItem(icon: "calendar.badge.clock", title: "Accepts Reservations", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Accepts reservations" && $0.value == true } ?? false)
+                                    featureItem(icon: "calendar.badge.checkmark", title: "Reservations Required", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Reservations required" && $0.value == true } ?? false)
+                                    featureItem(icon: "bicycle", title: "Delivery", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Delivery" && $0.value == true } ?? false)
+                                    featureItem(icon: "leaf", title: "Vegetarian options", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Vegetarian options" && $0.value == true } ?? false)
+                                    featureItem(icon: "wineglass", title: "Happy Hour", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Happy hour drinks" && $0.value == true } ?? false)
+                                    featureItem(icon: "parkingsign", title: "Parking Lot", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Free parking lot" && $0.value == true } ?? false)
+                                    featureItem(icon: "pawprint", title: "Dogs Allowed", isAvailable: restaurant.additionalInfo?.pets?.contains { $0.name == "Dogs allowed" && $0.value == true } ?? false)
+                                    featureItem(icon: "wifi", title: "Wi-Fi", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Wi-Fi" && $0.value == true } ?? false)
+                                    featureItem(icon: "car", title: "Valet Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Valet parking" && $0.value == true } ?? false)
+                                    featureItem(icon: "calendar.badge.clock", title: "Lunch Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Lunch reservations recommended" && $0.value == true } ?? false)
+                                    featureItem(icon: "calendar.badge.clock", title: "Dinner Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Dinner reservations recommended" && $0.value == true } ?? false)
+                                    featureItem(icon: "figure.roll", title: "Wheelchair Seating", isAvailable: restaurant.additionalInfo?.accessibility?.contains { $0.name == "Wheelchair accessible seating" && $0.value == true } ?? false)
+                                    featureItem(icon: "creditcard", title: "Credit Cards", isAvailable: restaurant.additionalInfo?.payments?.contains { $0.name == "Credit cards" && $0.value == true } ?? false)
+                                    featureItem(icon: "toilet", title: "Restroom", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Restroom" && $0.value == true } ?? false)
+                                }
+                                HStack (spacing: 2){
+                                    Text("See all")
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 10)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
                         
                     }
                     
-                    VStack(spacing: 16) {
-                        HStack(spacing: 12) {
-                            
-                            featureItem(icon: "sun.max", title: "Breakfast", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Breakfast" && $0.value == true } ?? false)
-                            featureItem(icon: "cup.and.saucer", title: "Lunch", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Lunch" && $0.value == true } ?? false)
-                            featureItem(icon: "moon.stars", title: "Dinner", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dinner" && $0.value == true } ?? false)
-                            featureItem(icon: "birthday.cake", title: "Dessert", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dessert" && $0.value == true } ?? false)
-                            featureItem(icon: "wineglass", title: "Alcohol", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Alcohol" && $0.value == true } ?? false)
-                            
-                        }
-                        HStack(spacing: 12) {
-                            featureItem(icon: "pawprint", title: "Dogs Allowed", isAvailable: restaurant.additionalInfo?.pets?.contains { $0.name == "Dogs allowed outside" && $0.value == true } ?? false)
-                            featureItem(icon: "umbrella", title: "Outdoor Seating", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Outdoor seating" && $0.value == true } ?? false)
-                            featureItem(icon: "wifi", title: "Wi-Fi", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Wi-Fi" && $0.value == true } ?? false)
-                            //                            featureItem(icon: "leaf", title: "Vegetarian", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Vegetarian options" && $0.value == true } ?? false)
-                            featureItem(icon: "parkingsign", title: "Free Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Free Parking Lot" && $0.value == true } ?? false)
-                            featureItem(icon: "car", title: "Valet Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Valet parking" && $0.value == true } ?? false)
-                        }
-                        HStack(spacing: 12) {
-                            
-                            
-                        }
-                    }
+                    
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal)
                 
                 
-                HStack(alignment: .bottom){
-                    if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
-                        Button {
-                            showSafariView = true
-                        } label: {
-                            Label("View Menu", systemImage: "menucard")
-                                .padding(8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.black, lineWidth: 1)
-                                )
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                                .foregroundStyle(.black)
-                        }
-                        .sheet(isPresented: $showSafariView) {
-                            SafariView(url: url)
-                        }
-                    } else if let website = restaurant.website, let url = URL(string: website){
-                        Button {
-                            showSafariView = true
-                        } label: {
-                            Label("Website", systemImage: "globe")
-                                .padding(8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.black, lineWidth: 1)
-                                )
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                                .foregroundStyle(.black)
-                        }
-                        .sheet(isPresented: $showSafariView) {
-                            SafariView(url: url)
-                        }
+                
+                
+                
+                VStack(alignment: .leading){
+                    HStack(spacing: 2) {
+                        Text("Scores")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.gray)
                     }
-                    
-                    Button {
-                        showMapView.toggle()
-                    } label: {
-                        Label("View Map", systemImage: "map")
-                            .padding(8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black, lineWidth: 1)
-                            )
-                            .font(.custom("MuseoSansRounded-500", size: 16))
-                            .foregroundStyle(.black)
-                    }
-                    
-                    
-                    Spacer()
-                    
-                    if let overallRating = viewModel.overallRating {
-                        Button {
-                            withAnimation {
-                                showRatingDetails.toggle()
-                            }
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4){
-                                Text("Average")
-                                    .font(.custom("MuseoSansRounded-500", size: 12))
-                                    .foregroundStyle(.gray)
+                    HStack{
+                        if let overallRating = viewModel.overallRating {
+                            HStack(alignment: .center, spacing: 6) {
                                 
-                                HStack(alignment: .center, spacing: 4) {
-                                    
-                                    FeedOverallRatingView(rating: overallRating, font: .black)
-                                    
-                                    Image(systemName: showRatingDetails ? "chevron.down" : "chevron.right")
-                                        .foregroundColor(.gray)
-                                        .frame(width: 25)
-                                        .rotationEffect(.degrees(showRatingDetails  ? 0 : -90))
-                                        .animation(.easeInOut(duration: 0.3), value: showRatingDetails)
-                                    
+                                FeedOverallRatingView(rating: overallRating, font: .black)
+                                VStack(alignment: .leading){
+                                    Text("Overall Score")
+                                        .font(.custom("MuseoSansRounded-700", size: 14))
+                                        .foregroundColor(.black)
+                                    if let stats = restaurant.stats{
+                                        Text("\(stats.postCount) posts")
+                                            .font(.custom("MuseoSansRounded-500", size: 12))
+                                            .foregroundColor(.gray)
+                                        Text("\(stats.collectionCount) Collections")
+                                            .font(.custom("MuseoSansRounded-500", size: 12))
+                                            .foregroundColor(.gray)
+                                        
+                                    }
                                 }
-                                
-                                
                             }
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            Text("No reviews yet")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundColor(.gray)
+                                .padding(.leading, 10)
+                                
+                        }
+                        Spacer()
+                        if let friendsOverallRating = feedViewModel.friendsOverallRating {
+                            HStack(alignment: .center, spacing: 6) {
+                                
+                                FeedOverallRatingView(rating: friendsOverallRating, font: .black)
+                                VStack(alignment: .leading, spacing: 0){
+                                    Text("Friends Score")
+                                        .font(.custom("MuseoSansRounded-700", size: 14))
+                                        .foregroundColor(.black)
+                                    if !viewModel.friendsWhoPosted.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            HStack(spacing: -10) {
+                                                ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
+                                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
+                                                        .overlay(
+                                                            Circle()
+                                                                .stroke(Color.white, lineWidth: 2)
+                                                        )
+                                                }
+                                                
+                                                if viewModel.friendsWhoPosted.count > 3 {
+                                                    Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
+                                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                                        .foregroundColor(.gray)
+                                                        .padding(.leading, 10)
+                                                }
+                                                
+                                                
+                                            }
+                                            
+                                        }
+                                    } else {
+                                        Text("No reviews from friends")
+                                            .font(.custom("MuseoSansRounded-300", size: 13))
+                                            .foregroundColor(.gray)
+                                           
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            Text("No reviews from friends")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .foregroundColor(.gray)
+                                .padding(.leading, 10)
                         }
                     }
                 }
-                .padding(.horizontal)
+                .onTapGesture{
+                    withAnimation {
+                        showRatingDetails.toggle()
+                                }
+                            }
+                            
+                        
+                    
                 
-                // Rating details dropdown
+                .padding(.horizontal)
                 if showRatingDetails {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Average Ratings")
                             .font(.custom("MuseoSansRounded-700", size: 14))
+                            .foregroundStyle(.black)
+                        Text(" \"|\" indicates friends average")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
                         
                         // Food Rating with Friends' Rating
                         if let foodRating = viewModel.foodRating {
@@ -331,51 +369,47 @@ struct RestaurantProfileHeaderView: View {
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.1)))
                     .padding(.horizontal)
-                }
-                
-                
-                //                VStack(alignment: .leading) {
-                //                    Text("\(restaurant.bio ?? "")")
-                //                        .font(.custom("MuseoSansRounded-300", size: 16))
-                //                        .multilineTextAlignment(.leading)
-                //                }
-                //.padding()
-                if !viewModel.friendsWhoPosted.isEmpty {
-                    Button{
-                        showFriendsList = true
-                    } label: {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Eaten at by your friends")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .foregroundColor(.gray)
-                            HStack(spacing: -10) {
-                                ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
-                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white, lineWidth: 2)
-                                        )
-                                }
-                                
-                                if viewModel.friendsWhoPosted.count > 3 {
-                                    Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
-                                        .font(.custom("MuseoSansRounded-300", size: 12))
-                                        .foregroundColor(.gray)
-                                        .padding(.leading, 10)
-                                }
-                            }
-                            
-                            
+                    .onTapGesture{
+                        withAnimation {
+                            showRatingDetails.toggle()
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
                     }
-                } else {
-                    Text("No reviews from friends")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .foregroundColor(.gray)
-                        .padding(.leading, 10)
                 }
+                HStack(spacing: 12) {
+                    if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
+                        actionButton(title: "Menu", icon: "menucard") {
+                            print("Menu URL:", menuUrl)
+                            urlToShow = url
+                        }
+                    }
+                    
+                    if let website = restaurant.website, let url = URL(string: website) {
+                        actionButton(title: "Website", icon: "globe") {
+                            urlToShow = url
+                        }
+                    }
+                    
+                    if restaurant.geoPoint != nil {
+                        actionButton(title: "Map", icon: "map") {
+                            showMapView.toggle()
+                        }
+                    }
+                    
+                    if let phone = restaurant.phone, !phone.isEmpty {
+                        actionButton(title: "Call", icon: "phone") {
+                            if let url = URL(string: "tel://\(phone.replacingOccurrences(of: " ", with: ""))") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                // Rating details dropdown
+                
+                
+                
+                
                 Divider()
                     .padding(.top)
                 RestaurantProfileSlideBarView(viewModel: viewModel, feedViewModel: feedViewModel, scrollPosition: $scrollPosition,
@@ -408,6 +442,9 @@ struct RestaurantProfileHeaderView: View {
             }
             .fullScreenCover(isPresented: $showUploadPost){
                 CameraView(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
+            }
+            .sheet(item: $urlToShow) { url in
+                SafariView(url: url)
             }
             .ignoresSafeArea()
             .sheet(isPresented: $showAddToCollection) {
@@ -515,8 +552,30 @@ struct RestaurantProfileHeaderView: View {
                 .font(.custom("MuseoSansRounded-300", size: 10)) // Smaller font size
                 .foregroundColor(isAvailable ? .black : .gray.opacity(0.5))
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .lineLimit(3)
+                .minimumScaleFactor(0.5)
+            
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: 60, height: 60)
+    }
+    private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                Text(title)
+                    .font(.custom("MuseoSansRounded-300", size: 12))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(8)
+        }
+        .foregroundColor(.black)
+    }
+}
+extension URL: Identifiable {
+    public var id: String {
+        self.absoluteString
     }
 }

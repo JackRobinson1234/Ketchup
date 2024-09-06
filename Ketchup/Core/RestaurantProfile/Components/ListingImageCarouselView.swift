@@ -15,7 +15,7 @@ struct ListingImageCarouselView: View {
         self.images = images
     }
     
-    var height: CGFloat = 250
+    var height: CGFloat = 225
     var body: some View {
         if let unwrappedImages = images{
             TabView {
