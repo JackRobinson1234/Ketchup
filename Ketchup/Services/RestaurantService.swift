@@ -322,4 +322,17 @@ class RestaurantService {
         let snapshot = try await bookmarkRef.getDocument()
         return snapshot.exists
     }
+    func fetchRestaurant(byName name: String, nearGeoHash: String) async throws -> Restaurant? {
+            let endGeohash = String(nearGeoHash.dropLast(4))
+            let endValue = endGeohash
+
+            let query = FirestoreConstants.RestaurantCollection
+                .whereField("name", isEqualTo: name)
+                .order(by: "geoHash")
+                .start(at: [endGeohash])
+                .limit(to: 1)
+
+            let snapshot = try await query.getDocuments()
+            return try? snapshot.documents.first?.data(as: Restaurant.self)
+        }
 }

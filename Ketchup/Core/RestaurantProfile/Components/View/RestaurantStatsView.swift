@@ -13,7 +13,8 @@ struct RestaurantStatsView: View {
     let restaurant: Restaurant
     @State private var currentDay: String = getCurrentDay()
     @State private var selectedDay: String = getCurrentDay()
-
+    @State private var similarRestaurants: [Restaurant] = []
+        @State private var isLoadingSimilarRestaurants = false
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -27,6 +28,9 @@ struct RestaurantStatsView: View {
             }
             .padding()
         }
+        .onAppear {
+                    fetchSimilarRestaurants()
+                }
         .background(Color(UIColor.systemBackground))
     }
     
@@ -182,26 +186,41 @@ struct RestaurantStatsView: View {
 
     
     private var peopleAlsoSearchSection: some View {
-        SectionBox {
-            VStack(alignment: .leading, spacing: 10) {
-                SectionHeader(title: "People Also Search", icon: "magnifyingglass")
-                if let peopleAlsoSearch = restaurant.peopleAlsoSearch {
-                    ForEach(peopleAlsoSearch, id: \.title) { item in
-                        VStack(alignment: .leading) {
-                            if let title = item.title {
-                                Text(title)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                    .fontWeight(.medium)
+            SectionBox {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "People Also Search", icon: "magnifyingglass")
+                    if isLoadingSimilarRestaurants {
+                        ProgressView()
+                    } else if similarRestaurants.isEmpty {
+                        Text("No related searches available")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                    } else {
+                        ForEach(similarRestaurants, id: \.id) { similarRestaurant in
+                            NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurant.id, restaurant: similarRestaurant)) {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(similarRestaurant.name)
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                        if let city = similarRestaurant.city, let state = similarRestaurant.state {
+                                            Text("\(city), \(state)")
+                                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.vertical, 5)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
-                } else {
-                    Text("No related searches available")
-                        .font(.custom("MuseoSansRounded-300", size: 16))
                 }
             }
         }
-    }
     
     private func linkRow(title: String, value: String?, placeholder: String, icon: String) -> some View {
         HStack(alignment: .top) {
@@ -266,6 +285,32 @@ struct RestaurantStatsView: View {
         default: return []
         }
     }
+    private func fetchSimilarRestaurants() {
+            guard let peopleAlsoSearch = restaurant.peopleAlsoSearch, !peopleAlsoSearch.isEmpty else { return }
+            
+            isLoadingSimilarRestaurants = true
+            Task {
+                do {
+                    var fetchedRestaurants: [Restaurant] = []
+                    for item in peopleAlsoSearch {
+                        if let title = item.title {
+                            if let fetchedRestaurant = try await RestaurantService.shared.fetchRestaurant(byName: title, nearGeoHash: restaurant.geoHash ?? "") {
+                                fetchedRestaurants.append(fetchedRestaurant)
+                            }
+                        }
+                    }
+                   
+                        self.similarRestaurants = fetchedRestaurants
+                        self.isLoadingSimilarRestaurants = false
+                    
+                } catch {
+                    print("Error fetching similar restaurants: \(error)")
+                    await MainActor.run {
+                        self.isLoadingSimilarRestaurants = false
+                    }
+                }
+            }
+        }
 }
 
 struct SectionBox<Content: View>: View {
@@ -476,6 +521,7 @@ struct BarChart: View {
         let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date())!
         return formatter.string(from: date).lowercased()
     }
+    
 }
 func getCurrentDay() -> String {
     let dateFormatter = DateFormatter()

@@ -175,7 +175,7 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 
-                // Buttons for menu, map, and overall rating
+                
                 
                 
                 VStack(alignment: .leading, spacing: 0) {
@@ -272,12 +272,15 @@ struct RestaurantProfileHeaderView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity)
+                            .padding(3)
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
                         } else {
                             Text("No reviews yet")
                                 .font(.custom("MuseoSansRounded-300", size: 14))
                                 .foregroundColor(.gray)
                                 .padding(.leading, 10)
-                                
+                            
                         }
                         Spacer()
                         if let friendsOverallRating = feedViewModel.friendsOverallRating {
@@ -314,27 +317,31 @@ struct RestaurantProfileHeaderView: View {
                                         Text("No reviews from friends")
                                             .font(.custom("MuseoSansRounded-300", size: 13))
                                             .foregroundColor(.gray)
-                                           
+                                        
                                     }
                                 }
                             }
                             .frame(maxWidth: .infinity)
+                            .padding(3)
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
                         } else {
                             Text("No reviews from friends")
                                 .font(.custom("MuseoSansRounded-300", size: 14))
                                 .foregroundColor(.gray)
-                                .padding(.leading, 10)
+                            
+                            
                         }
                     }
                 }
                 .onTapGesture{
                     withAnimation {
                         showRatingDetails.toggle()
-                                }
-                            }
-                            
-                        
-                    
+                    }
+                }
+                
+                
+                
                 
                 .padding(.horizontal)
                 if showRatingDetails {
@@ -375,39 +382,47 @@ struct RestaurantProfileHeaderView: View {
                         }
                     }
                 }
-                HStack(spacing: 12) {
-                    if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
-                        actionButton(title: "Menu", icon: "menucard") {
-                            print("Menu URL:", menuUrl)
-                            urlToShow = url
-                        }
-                    }
+                VStack (alignment: .leading){
+                   
+                        Text("Info")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                       
                     
-                    if let website = restaurant.website, let url = URL(string: website) {
-                        actionButton(title: "Website", icon: "globe") {
-                            urlToShow = url
+                    .padding(.horizontal)
+                    HStack() {
+                        if let menuUrl = restaurant.menuUrl, let url = URL(string: menuUrl) {
+                            actionButton(title: "Menu", icon: "menucard") {
+                                print("Menu URL:", menuUrl)
+                                urlToShow = url
+                            }
                         }
-                    }
-                    
-                    if restaurant.geoPoint != nil {
-                        actionButton(title: "Map", icon: "map") {
-                            showMapView.toggle()
+                        
+                        if let website = restaurant.website, let url = URL(string: website) {
+                            actionButton(title: "Website", icon: "globe") {
+                                urlToShow = url
+                            }
                         }
-                    }
-                    
-                    if let phone = restaurant.phone, !phone.isEmpty {
-                        actionButton(title: "Call", icon: "phone") {
-                            if let url = URL(string: "tel://\(phone.replacingOccurrences(of: " ", with: ""))") {
-                                UIApplication.shared.open(url)
+                        
+                        if restaurant.geoPoint != nil {
+                            actionButton(title: "Map", icon: "map") {
+                                showMapView.toggle()
+                            }
+                        }
+                        
+                        if let phone = restaurant.phone, !phone.isEmpty {
+                            actionButton(title: "Call", icon: "phone") {
+                                if let url = URL(string: "tel://\(phone.replacingOccurrences(of: " ", with: ""))") {
+                                    UIApplication.shared.open(url)
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal)
+                  
+                    // Rating details dropdown
+                    
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
-                // Rating details dropdown
-                
-                
                 
                 
                 Divider()
@@ -560,18 +575,22 @@ struct RestaurantProfileHeaderView: View {
     }
     private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack {
+            HStack(spacing: 1) { // Horizontal stack to align icon and title
                 Image(systemName: icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: 16)) // Smaller icon size
                 Text(title)
                     .font(.custom("MuseoSansRounded-300", size: 12))
+                    .padding(.horizontal, 8)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.secondary.opacity(0.1))
-            .cornerRadius(8)
+            .padding(2)
+            .padding(.horizontal, 2)
+            .overlay(
+                Capsule()
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Rounded pill border
+            )
         }
         .foregroundColor(.black)
+        
     }
 }
 extension URL: Identifiable {

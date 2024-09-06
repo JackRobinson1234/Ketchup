@@ -244,11 +244,15 @@ struct FeedCell: View {
                 }
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
-        .sheet(isPresented: $isShowingProfileSheet) {
-            if let user = selectedUser {
-                NavigationStack {
-                    ProfileView(uid: user.id)
-                }
+        .sheet(item: $selectedUser) { user in
+            NavigationStack {
+                ProfileView(uid: user.id)
+            }
+            .onAppear {
+                pauseAllVideos()
+            }
+            .onDisappear {
+                handleIndexChange(currentIndex)
             }
         }
     }
@@ -364,6 +368,11 @@ struct FeedCell: View {
                             .lineLimit(1)
                     }
                     .disabled(post.user.username == "ketchup_media")
+                    if let timestamp = post.timestamp {
+                        Text(getTimeElapsedString(from: timestamp))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .foregroundColor(.gray)
+                    }
                 }
                 Spacer()
                 if let overallRating = overallRating {
@@ -460,11 +469,7 @@ struct FeedCell: View {
                             }
                         }
                         
-                        if let timestamp = post.timestamp {
-                            Text(getTimeElapsedString(from: timestamp))
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                                .foregroundColor(.black)
-                        }
+                        
                         
                         Text("See less...")
                             .font(.custom("MuseoSansRounded-300", size: 10))

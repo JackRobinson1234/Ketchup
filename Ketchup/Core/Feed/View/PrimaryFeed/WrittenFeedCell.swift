@@ -449,32 +449,25 @@ struct WrittenFeedCell: View {
             parsedCaption = parseCaption(post.caption)
         }
         .environment(\.openURL, OpenURLAction { url in
-            if url.scheme == "user",
-               let userId = url.host,
-               let user = post.captionMentions.first(where: { $0.id == userId }) {
-                selectedUserId = user.id
-                viewModel.isShowingProfileSheet = true
-                return .handled
-            }
-            return .systemAction
-        })
-        .sheet(isPresented: $viewModel.isShowingProfileSheet) {
-            if let userId = selectedUserId {
-                NavigationStack {
-                    if userId == "invalid" {
-                        Text("User does not exist")
-                    } else {
-                        ProfileView(uid: userId)
+                    if url.scheme == "user",
+                       let userId = url.host,
+                       let user = post.captionMentions.first(where: { $0.id == userId }) {
+                        selectedUser = user
+                        return .handled
+                    }
+                    return .systemAction
+                })
+        .sheet(item: $selectedUser) { user in
+                    NavigationStack {
+                        ProfileView(uid: user.id)
+                    }
+                    .onAppear {
+                        pauseAllVideos()
+                    }
+                    .onDisappear {
+                        handleIndexChange(currentIndex)
                     }
                 }
-                .onAppear {
-                    pauseAllVideos()
-                }
-                .onDisappear {
-                    handleIndexChange(currentIndex)
-                }
-            }
-        }
 //        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
 //            if let newValue = newValue,
 //               let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
@@ -641,31 +634,32 @@ struct WrittenFeedCell: View {
         return newCoordinator
     }
     private func parseCaption(_ input: String) -> AttributedString {
-        var result = AttributedString(input)
-        let pattern = "@\\w+"
-        
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            var result = AttributedString(input)
+            let pattern = "@\\w+"
+            
+            guard let regex = try? NSRegularExpression(pattern: pattern) else {
+                return result
+            }
+            
+            let nsRange = NSRange(input.startIndex..., in: input)
+            let matches = regex.matches(in: input, range: nsRange)
+            
+            for match in matches.reversed() {
+                guard let range = Range(match.range, in: input) else { continue }
+                
+                let fullMatch = String(input[range])
+                let username = String(fullMatch.dropFirst()) // Remove @ from username
+                
+                if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+                   let attributedRange = Range(range, in: result) {
+                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                    result[attributedRange].link = URL(string: "user://\(user.id)")
+                }
+            }
+            
             return result
         }
-        
-        let nsRange = NSRange(input.startIndex..., in: input)
-        let matches = regex.matches(in: input, range: nsRange)
-        
-        for match in matches.reversed() {
-            guard let range = Range(match.range, in: input) else { continue }
-            
-            let fullMatch = String(input[range])
-            let username = String(fullMatch.dropFirst()) // Remove @ from username
-            
-            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
-               let attributedRange = Range(range, in: result) {
-                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
-                result[attributedRange].link = URL(string: "user://\(user.id)")
-            }
-        }
-        
-        return result
-    }
+    
     
     private func handleBookmarkTapped() {
         Task {
