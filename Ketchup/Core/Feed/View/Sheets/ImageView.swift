@@ -29,7 +29,7 @@ struct ImageView: View {
             
             
             Button {
-                print("tesetpres")
+                //print("tesetpres")
             } label: {
                 Text("Hello button")
             }

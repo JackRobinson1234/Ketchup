@@ -37,18 +37,24 @@
         <string>14.4</string>
         <key>NSAppTransportSecurity</key>
         <dict>
-            <key>NSAllowsArbitraryLoads</key>
-            <true/>
             <key>NSExceptionDomains</key>
+            <dict>
+                <key>t0.gstatic.com</key>
                 <dict>
-                    <key>t2.gstatic.com</key>
-                    <dict>
-                        <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                        <true/>
-                        <key>NSIncludesSubdomains</key>
-                        <true/>
-                    </dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
                 </dict>
+                <key>t1.gstatic.com</key>
+                <dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
+                </dict>
+                <key>t2.gstatic.com</key>
+                <dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
+                </dict>
+            </dict>
         </dict>
         <key>UIAppFonts</key>
         <array>

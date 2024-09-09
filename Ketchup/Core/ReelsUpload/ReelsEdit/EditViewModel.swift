@@ -75,7 +75,7 @@ class ReelsEditViewModel: ObservableObject {
             
             return updatedPost
         } catch {
-            print("Error updating post: \(error.localizedDescription)")
+            //print("Error updating post: \(error.localizedDescription)")
             await setLoading(false)
             return nil
         }
@@ -169,7 +169,7 @@ class ReelsEditViewModel: ObservableObject {
                     self.mentionableUsers = users
                 }
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }

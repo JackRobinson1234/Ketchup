@@ -202,9 +202,9 @@ class PhoneAuthViewModel: ObservableObject {
         return false
     }
     private func handleError(_ error: Error) {
-        print("Detailed error: \(error)")
+        //print("Detailed error: \(error)")
         if let errCode = AuthErrorCode(rawValue: error._code) {
-            print("Firebase Auth Error Code: \(errCode.rawValue)")
+            //print("Firebase Auth Error Code: \(errCode.rawValue)")
             switch errCode {
             case .invalidVerificationCode:
                 showAlert(title: "Invalid Code", message: "The verification code entered is incorrect.")
@@ -235,7 +235,7 @@ class PhoneAuthViewModel: ObservableObject {
         
         do {
             let randomUsername = try await AuthService.shared.generateRandomUsername(prefix: "user")
-            print("PHONE NUMBER 1:", self.phoneNumber)
+            //print("PHONE NUMBER 1:", self.phoneNumber)
             let newUser = try await AuthService.shared.createFirestoreUser(
                 id: user.uid,
                 username: randomUsername,
@@ -252,7 +252,7 @@ class PhoneAuthViewModel: ObservableObject {
             }
             self.shouldNavigateToUsernameSelection = true
         } catch {
-            print("Error creating basic user: \(error.localizedDescription)")
+            //print("Error creating basic user: \(error.localizedDescription)")
             showAlert(title: "Error", message: "Failed to create user. Please try again.")
         }
     }
@@ -261,7 +261,7 @@ class PhoneAuthViewModel: ObservableObject {
             guard let userID = Auth.auth().currentUser?.uid else { return }
             
             // Update the user's phone number in Firestore
-            print("PHONE NUMBER 2:", self.phoneNumber)
+            //print("PHONE NUMBER 2:", self.phoneNumber)
             try await AuthService.shared.updateFirestoreUser(
                 id: userID,
                 phoneNumber: self.phoneNumber,
@@ -279,7 +279,7 @@ class PhoneAuthViewModel: ObservableObject {
                         await updateFCMTokenForUser(userId: userID, token: token)
                     }
         } catch {
-            print("Error updating user with phone number: \(error.localizedDescription)")
+            //print("Error updating user with phone number: \(error.localizedDescription)")
             showAlert(title: "Error", message: "Failed to update user. Please try again.")
         }
     }
@@ -297,10 +297,10 @@ class PhoneAuthViewModel: ObservableObject {
                 "fcmToken": token,
                 "lastUpdated": FieldValue.serverTimestamp()
             ])
-            print("Token saved successfully after login")
+            //print("Token saved successfully after login")
             UserDefaults.standard.removeObject(forKey: "fcmToken")
         } catch {
-            print("Error saving token: \(error)")
+            //print("Error saving token: \(error)")
         }
     }
 }

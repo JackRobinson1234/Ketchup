@@ -36,7 +36,7 @@ struct ProfileMapView: View {
                 ForEach(viewModel.annotations, id: \.self) { item in
                     Annotation(item.post.restaurant.name, coordinate: item.coordinate) {
                         Button {
-                            print("DEBUG: Single post annotation tapped")
+                            //print("DEBUG: Single post annotation tapped")
                             selectedWrittenPost = item.post
                         } label: {
                             ProfileSinglePostAnnotationView(post: item.post)
@@ -48,7 +48,7 @@ struct ProfileMapView: View {
                         ProfilePostClusterCell(cluster: cluster)
                             .onTapGesture {
                                 newFeedViewModel.posts = cluster.memberAnnotations.map { $0.post}
-                                print("DEBUG: Cluster tapped - \(cluster.count) posts")
+                                //print("DEBUG: Cluster tapped - \(cluster.count) posts")
                                 selectedCluster = cluster
                             }
                     }
@@ -56,20 +56,20 @@ struct ProfileMapView: View {
             }
             
             .readSize(onChange: { newValue in
-                print("DEBUG: Map size changed to \(newValue)")
+                //print("DEBUG: Map size changed to \(newValue)")
                 viewModel.mapSize = newValue
-                print(newValue)
+                //print(newValue)
             })
             .onAppear {
-                print("DEBUG: ProfileMapView appeared")
+                //print("DEBUG: ProfileMapView appeared")
                 viewModel.setPosts(posts: filteredPosts)
             }
             .onMapCameraChange { context in
-                print("DEBUG: Map camera changing - Center: \(context.region.center), Span: \(context.region.span)")
+                //print("DEBUG: Map camera changing - Center: \(context.region.center), Span: \(context.region.span)")
                 viewModel.currentRegion = context.region
             }
             .onMapCameraChange(frequency: .onEnd) { context in
-                print("DEBUG: Map camera change ended")
+                //print("DEBUG: Map camera change ended")
                 Task.detached { await viewModel.reloadAnnotations() }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
@@ -237,7 +237,7 @@ class ProfileMapViewModel: ObservableObject {
            span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60)
        )
     func setPosts(posts: [Post]) {
-        print("DEBUG: Setting posts - Count: \(posts.count)")
+        //print("DEBUG: Setting posts - Count: \(posts.count)")
         annotations = []
         clusters = []
         self.posts = posts
@@ -245,24 +245,24 @@ class ProfileMapViewModel: ObservableObject {
             if let coordinates = post.coordinates {
                 return ProfilePostMapAnnotation(coordinate: coordinates, post: post)
             } else {
-                print("DEBUG: Post without coordinates - ID: \(post.id)")
+                //print("DEBUG: Post without coordinates - ID: \(post.id)")
                 return nil
             }
         }
         
-        print("DEBUG: Created \(postAnnotations.count) annotations")
+        //print("DEBUG: Created \(postAnnotations.count) annotations")
         
         Task {
             await clusterManager.add(postAnnotations)
-            print("DEBUG: Added annotations to cluster manager")
+            //print("DEBUG: Added annotations to cluster manager")
             await reloadAnnotations()
         }
     }
     
     func reloadAnnotations() async {
-        print("DEBUG: Reloading annotations - Map size: \(mapSize), Region center: \(currentRegion.center)")
+        //print("DEBUG: Reloading annotations - Map size: \(mapSize), Region center: \(currentRegion.center)")
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
-        print("DEBUG: Cluster manager reload complete")
+        //print("DEBUG: Cluster manager reload complete")
         applyChanges(changes)
     }
     

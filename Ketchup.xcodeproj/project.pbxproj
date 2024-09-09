@@ -63,6 +63,10 @@
 		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E542BDAAD8200A48565 /* SettingsView.swift */; };
 		F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E562BDAADE800A48565 /* SettingsViewModel.swift */; };
+		F86508702C8CACE200E59B5C /* CuratedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F865086F2C8CACE200E59B5C /* CuratedList.swift */; };
+		F86508732C8CAF8D00E59B5C /* PostLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86508722C8CAF8D00E59B5C /* PostLeaderboard.swift */; };
+		F86508752C8CAFB100E59B5C /* LeaderboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */; };
+		F86508772C8F6C9700E59B5C /* LeaderboardCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86508762C8F6C9700E59B5C /* LeaderboardCover.swift */; };
 		F866CA4D2C6D62A000B4536E /* UsernameSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F866CA4C2C6D62A000B4536E /* UsernameSelectionViewModel.swift */; };
 		F866CA4F2C6D779F00B4536E /* AuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F866CA4E2C6D779F00B4536E /* AuthCoordinator.swift */; };
 		F8670A502BF1996900F527D9 /* CollectionItemNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8670A4F2BF1996900F527D9 /* CollectionItemNotesView.swift */; };
@@ -245,6 +249,7 @@
 		F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */; };
 		F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */; };
 		F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B052C43304900D6DF6D /* CollageImage.swift */; };
+		F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -352,6 +357,10 @@
 		F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		F8631E542BDAAD8200A48565 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F8631E562BDAADE800A48565 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		F865086F2C8CACE200E59B5C /* CuratedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedList.swift; sourceTree = "<group>"; };
+		F86508722C8CAF8D00E59B5C /* PostLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLeaderboard.swift; sourceTree = "<group>"; };
+		F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardViewModel.swift; sourceTree = "<group>"; };
+		F86508762C8F6C9700E59B5C /* LeaderboardCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardCover.swift; sourceTree = "<group>"; };
 		F866CA4C2C6D62A000B4536E /* UsernameSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSelectionViewModel.swift; sourceTree = "<group>"; };
 		F866CA4E2C6D779F00B4536E /* AuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCoordinator.swift; sourceTree = "<group>"; };
 		F8670A4F2BF1996900F527D9 /* CollectionItemNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItemNotesView.swift; sourceTree = "<group>"; };
@@ -527,6 +536,7 @@
 		F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionView.swift; sourceTree = "<group>"; };
 		F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionViewModel.swift; sourceTree = "<group>"; };
 		F8D60B052C43304900D6DF6D /* CollageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageImage.swift; sourceTree = "<group>"; };
+		F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboard.swift; sourceTree = "<group>"; };
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
@@ -822,6 +832,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8A98C262B9A668D00D399AB /* Explore */,
 				F82BFF2B2C719B98001F296F /* Contacts */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
@@ -880,7 +891,6 @@
 		F84FE27E2B6A54D700144F01 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				F8A98C262B9A668D00D399AB /* Activity */,
 				F84FE2922B6A55E200144F01 /* Protocols */,
 				F84FE28F2B6A55D200144F01 /* ViewModel */,
 				F84FE28E2B6A55CC00144F01 /* View */,
@@ -1062,6 +1072,17 @@
 				F8631E562BDAADE800A48565 /* SettingsViewModel.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		F86508712C8CAD8300E59B5C /* Leaderboards */ = {
+			isa = PBXGroup;
+			children = (
+				F86508722C8CAF8D00E59B5C /* PostLeaderboard.swift */,
+				F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */,
+				F86508762C8F6C9700E59B5C /* LeaderboardCover.swift */,
+				F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */,
+			);
+			path = Leaderboards;
 			sourceTree = "<group>";
 		};
 		F8670A642BF40E8B00F527D9 /* ViewModel */ = {
@@ -1516,16 +1537,18 @@
 			path = ReelsEdit;
 			sourceTree = "<group>";
 		};
-		F8A98C262B9A668D00D399AB /* Activity */ = {
+		F8A98C262B9A668D00D399AB /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				F86508712C8CAD8300E59B5C /* Leaderboards */,
 				F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */,
 				F89F28732BE3F4F300E670E0 /* ActivityCell.swift */,
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */,
+				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
 			);
-			path = Activity;
+			path = Explore;
 			sourceTree = "<group>";
 		};
 		F8B1B1292C80CF7D0035842E /* CollectionInvites */ = {
@@ -1925,6 +1948,7 @@
 				F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */,
 				F871B0062B8AA16400E4EB5F /* NavigationLazyView.swift in Sources */,
 				F86978D22C1E8A370036F86A /* RestaurantRequest.swift in Sources */,
+				F86508772C8F6C9700E59B5C /* LeaderboardCover.swift in Sources */,
 				F88E0B342B6CA11900EC159B /* StandardTextFieldModifier.swift in Sources */,
 				F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */,
 				F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */,
@@ -1947,6 +1971,7 @@
 				F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */,
 				F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */,
 				F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */,
+				F86508732C8CAF8D00E59B5C /* PostLeaderboard.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
 				F846F4532BFBD534009D1303 /* Review.swift in Sources */,
 				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,
@@ -2037,6 +2062,7 @@
 				F871B00B2B912CA500E4EB5F /* LocationRequest.swift in Sources */,
 				F8670A502BF1996900F527D9 /* CollectionItemNotesView.swift in Sources */,
 				F88322072C3DE8B0006744D2 /* RatingSliderGroup.swift in Sources */,
+				F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */,
 				F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */,
 				F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */,
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
@@ -2099,6 +2125,7 @@
 				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
 				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
 				F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */,
+				F86508702C8CACE200E59B5C /* CuratedList.swift in Sources */,
 				F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */,
@@ -2106,6 +2133,7 @@
 				F871B01E2B93ECB100E4EB5F /* MessagesComposeView.swift in Sources */,
 				F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */,
 				F866CA4F2C6D779F00B4536E /* AuthCoordinator.swift in Sources */,
+				F86508752C8CAFB100E59B5C /* LeaderboardViewModel.swift in Sources */,
 				F88E0ADE2B6B07A400EC159B /* SearchViewSlideBar.swift in Sources */,
 				F88E0AEA2B6B080F00EC159B /* UserCell.swift in Sources */,
 				F88E0AD42B6B070300EC159B /* ContentViewModel.swift in Sources */,

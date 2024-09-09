@@ -29,20 +29,20 @@ class LocationManager: NSObject, ObservableObject {
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        switch status {
-        case .notDetermined:
-            print("DEBUG: not determined")
-        case .restricted:
-            print("DEBUG: Restricted")
-        case .denied:
-            print("DEBUG: Denied")
-        case .authorizedAlways:
-            print("DEBUG: Auth always")
-        case .authorizedWhenInUse:
-            print("DEBUG: Auth when in use")
-        @unknown default:
-            break
-        }
+//        switch status {
+//        case .notDetermined:
+//            //print("DEBUG: not determined")
+//        case .restricted:
+//            //print("DEBUG: Restricted")
+//        case .denied:
+//            //print("DEBUG: Denied")
+//        case .authorizedAlways:
+//            //print("DEBUG: Auth always")
+//        case .authorizedWhenInUse:
+//            //print("DEBUG: Auth when in use")
+//        @unknown default:
+//            break
+//        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -52,7 +52,7 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func fetchRoute(coordinates: CLLocationCoordinate2D) async -> (MKRoute?, TimeInterval?) {
         guard let userLocation = userLocation else {
-            print("User location not available")
+            //print("User location not available")
             return (nil, nil)
         }
         
@@ -73,11 +73,11 @@ extension LocationManager: CLLocationManagerDelegate {
             if let firstRoute = result.routes.first {
                 return (firstRoute, firstRoute.expectedTravelTime)
             } else {
-                print("No routes found")
+                //print("No routes found")
                 return (nil, nil)
             }
         } catch {
-            print("Failed to calculate route: \(error)")
+            //print("Failed to calculate route: \(error)")
             return (nil, nil)
         }
     }

@@ -156,7 +156,7 @@ struct UserRow: View {
                 isCheckingFollowStatus = false
                 hasCheckedFollowStatus = true
             } catch {
-                print("Error checking follow status: \(error.localizedDescription)")
+                //print("Error checking follow status: \(error.localizedDescription)")
                 isCheckingFollowStatus = false
             }
         }
@@ -173,7 +173,7 @@ struct UserRow: View {
                 isFollowed.toggle()
                 viewModel.updateUserFollowStatus(user: user, isFollowed: isFollowed)
             } catch {
-                print("Failed to follow/unfollow: \(error.localizedDescription)")
+                //print("Failed to follow/unfollow: \(error.localizedDescription)")
             }
         }
     }

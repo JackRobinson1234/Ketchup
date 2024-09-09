@@ -18,6 +18,21 @@ struct ActivityView: View {
     @State var showContacts: Bool = false
     @Namespace private var animation
     @State var shouldShowExistingUsersOnContacts: Bool = false
+    @StateObject var leaderboardViewModel = LeaderboardViewModel()
+    @State var showPostLeaderboard = false
+    @State var topUSAPost: [Post]? = nil
+    @State var stateTopPost: [Post]? = nil
+    @State var showStatePostLeaderboard = false
+    @State var cityTopPost: [Post]? = nil
+    @State var showCityPostLeaderboard = false
+    @State var state: String? = AuthService.shared.userSession?.location?.state
+    @State var city: String? = AuthService.shared.userSession?.location?.city
+    @State var showRestaurantLeaderboard = false
+    @State var topUSARestaurant: [Restaurant]? = nil
+    @State var stateTopRestaurant: [Restaurant]? = nil
+    @State var showStateRestaurantLeaderboard = false
+    @State var cityTopRestaurant: [Restaurant]? = nil
+    @State var showCityRestaurantLeaderboard = false
     var body: some View {
         NavigationStack {
             VStack {
@@ -29,26 +44,118 @@ struct ActivityView: View {
                                 viewModel.checkContactPermission()
                                 try? await viewModel.fetchInitialActivities()
                                 try? await viewModel.fetchTopContacts()
+                                topUSAPost = try await leaderboardViewModel.fetchTopPosts(count: 1)
+                                
+                                if let state = AuthService.shared.userSession?.location?.state {
+                                    stateTopPost = try await leaderboardViewModel.fetchTopPosts(count: 1, state: state)
+                                }
+                                if let city = AuthService.shared.userSession?.location?.city {
+                                    stateTopPost = try await leaderboardViewModel.fetchTopPosts(count: 1, city: city)
+                                }
+                                topUSARestaurant = try await leaderboardViewModel.fetchTopRestaurants(count: 1)
+                                if let state = AuthService.shared.userSession?.location?.state {
+                                    stateTopRestaurant = try await leaderboardViewModel.fetchTopRestaurants(count: 1, state: state)
+                                }
+                                if let city = AuthService.shared.userSession?.location?.city {
+                                    cityTopRestaurant = try await leaderboardViewModel.fetchTopRestaurants(count: 1, city: city)
+                                }
                                 isLoading = false
+                                
                             }
                         }
                 } else {
                     ScrollView(showsIndicators: false) {
-                        VStack {
-                            // MARK: Ketchup Logo and Skip Button
-                            HStack {
-                                Image("KetchupTextRed")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 60, height: 17)
-                            }
+                        VStack(alignment: .leading){
                             Button{
                                 shouldShowExistingUsersOnContacts = false
                                 showContacts = true
                             } label: {
-                                SkipButton()
+                                InviteContactsButton()
                             }
-                            
+                            Text("Top Restaurants")
+                                .font(.custom("MuseoSansRounded-700", size: 25))
+                                .foregroundColor(.black)
+                                .padding(.horizontal)
+                                .padding(.top)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack {
+                                    Button {
+                                        showCityRestaurantLeaderboard = true
+                                    } label: {
+                                        if let city = city {
+                                            if let firstRestaurant = cityTopRestaurant?.first {
+                                                LeaderboardCover(imageUrl: firstRestaurant.profileImageUrl, title: city)
+                                            } else {
+                                                LeaderboardCover(imageUrl: nil, title: city)
+                                            }
+                                        }
+                                    }
+                                    Button {
+                                        showStateRestaurantLeaderboard = true
+                                    } label: {
+                                        if let state = AuthService.shared.userSession?.location?.state {
+                                            if let firstRestaurant = stateTopRestaurant?.first {
+                                                LeaderboardCover(imageUrl: firstRestaurant.profileImageUrl, title: state)
+                                            } else {
+                                                LeaderboardCover(imageUrl: nil, title: state)
+                                            }
+                                        }
+                                    }
+                                    Button {
+                                        showRestaurantLeaderboard = true
+                                    } label: {
+                                        if let firstRestaurant = topUSARestaurant?.first {
+                                            LeaderboardCover(imageUrl: firstRestaurant.profileImageUrl, title: "USA")
+                                        } else {
+                                            LeaderboardCover(imageUrl: nil, title: "Top USA Restaurants")
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                            Text("Trending Posts")
+                                .font(.custom("MuseoSansRounded-700", size: 25))
+                                .foregroundColor(.black)
+                                .padding(.horizontal)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack{
+                                    Button{
+                                        showCityPostLeaderboard = true
+                                    } label: {
+                                        if let city = city {
+                                            if let firstPost = stateTopPost?.first{
+                                                LeaderboardCover(imageUrl: firstPost.thumbnailUrl, title: city)
+                                            } else {
+                                                LeaderboardCover(imageUrl: nil, title: city)
+                                            }
+                                        }
+                                        
+                                    }
+                                    Button{
+                                        showStatePostLeaderboard = true
+                                    } label: {
+                                        if let state = AuthService.shared.userSession?.location?.state {
+                                            if let firstPost = stateTopPost?.first{
+                                                LeaderboardCover(imageUrl: firstPost.thumbnailUrl, title: state)
+                                            } else {
+                                                LeaderboardCover(imageUrl: nil, title: state)
+                                            }
+                                        }
+                                        
+                                    }
+                                    Button{
+                                        showPostLeaderboard = true
+                                    } label: {
+                                        if let firstPost = topUSAPost?.first{
+                                            LeaderboardCover(imageUrl: firstPost.thumbnailUrl, title: "USA")
+                                        } else {
+                                            LeaderboardCover(imageUrl: nil, title: "Global Posts")
+                                        }
+                                        
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                             // MARK: Contacts Section
                             if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
                                 contactsSection
@@ -59,6 +166,14 @@ struct ActivityView: View {
                             
                             // MARK: Activity List
                             activityListSection
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Image("KetchupTextRed") // Replace with your image name
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 100)
                         }
                     }
                     .refreshable {
@@ -129,6 +244,47 @@ struct ActivityView: View {
                             RestaurantProfileView(restaurantId: id)
                         }
                     }
+                    .fullScreenCover(isPresented: $showPostLeaderboard) {
+                        PostLeaderboard(viewModel: leaderboardViewModel, topImage: topUSAPost?.first?.thumbnailUrl, title: "USA")
+                    }
+                    .fullScreenCover(isPresented: $showStatePostLeaderboard) {
+                        if let state {
+                            PostLeaderboard(viewModel: leaderboardViewModel, topImage: stateTopPost?.first?.thumbnailUrl, title: state, state: state)
+                        }
+                    }
+                    .fullScreenCover(isPresented: $showCityPostLeaderboard) {
+                        if let city {
+                            PostLeaderboard(viewModel: leaderboardViewModel, topImage: cityTopPost?.first?.thumbnailUrl, title: city, city: city)
+                        }
+                    }
+                    .fullScreenCover(isPresented: $showRestaurantLeaderboard) {
+                        RestaurantLeaderboard(
+                            viewModel: leaderboardViewModel,
+                            topImage: topUSARestaurant?.first?.profileImageUrl,
+                            title: "USA"
+                        )
+                    }
+                    .fullScreenCover(isPresented: $showStateRestaurantLeaderboard) {
+                        if let state = state {
+                            RestaurantLeaderboard(
+                                viewModel: leaderboardViewModel,
+                                topImage: stateTopRestaurant?.first?.profileImageUrl,
+                                title: state,
+                                state: state
+                            )
+                        }
+                    }
+                    .fullScreenCover(isPresented: $showCityRestaurantLeaderboard) {
+                        if let city = city {
+                            RestaurantLeaderboard(
+                                viewModel: leaderboardViewModel,
+                                topImage: cityTopRestaurant?.first?.profileImageUrl,
+                                title: city,
+                                city: city
+                            )
+                        }
+                    }
+                    
                 }
             }
         }
@@ -320,7 +476,7 @@ struct ActivityContactRow: View {
                 isCheckingFollowStatus = false
                 hasCheckedFollowStatus = true
             } catch {
-                print("Error checking follow status: \(error.localizedDescription)")
+                //print("Error checking follow status: \(error.localizedDescription)")
                 isCheckingFollowStatus = false
             }
         }
@@ -338,7 +494,7 @@ struct ActivityContactRow: View {
                 isFollowed.toggle()
                 viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
             } catch {
-                print("Failed to follow/unfollow: \(error.localizedDescription)")
+                //print("Failed to follow/unfollow: \(error.localizedDescription)")
             }
         }
     }
@@ -362,7 +518,7 @@ struct ActivityContactRow: View {
 }
 
 
-struct SkipButton: View {
+struct InviteContactsButton: View {
     var body: some View {
         VStack{
             Divider()

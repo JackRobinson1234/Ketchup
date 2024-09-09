@@ -19,7 +19,7 @@ class PostService {
     /// - Parameter postId: string id of the post that is to be fetched
     /// - Returns: post
     func fetchPost(postId: String) async throws -> Post {
-        //print("DEBUG: Ran fetchPost")
+        ////print("DEBUG: Ran fetchPost")
         let post = try await FirestoreConstants
             .PostsCollection
             .document(postId)
@@ -50,7 +50,7 @@ class PostService {
                 post.repost = true
                 reposts.append(post)
             } catch {
-                print("Error fetching repost with id \(postId): \(error.localizedDescription)")
+                //print("Error fetching repost with id \(postId): \(error.localizedDescription)")
             }
         }
         // Combine posts and reposts
@@ -73,7 +73,7 @@ class PostService {
     /// - Parameter restaurant: restaurant object that you want posts for
     /// - Returns: array of post objects
     func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
-        //print("DEBUG: Ran fetchRestaurantPosts")
+        ////print("DEBUG: Ran fetchRestaurantPosts")
         let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
@@ -124,7 +124,7 @@ class PostService {
     ///
     /// Built a hacky solution where for cooking time posts, it fetches the matching postId, but for cooking it fetches the matching recipe Ids. Will probably want to look into a sql database for recipe storage.
     func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
-        print("applying filters", filters)
+        //print("applying filters", filters)
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
@@ -134,7 +134,7 @@ class PostService {
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
         }
-        print("final query", updatedQuery)
+        //print("final query", updatedQuery)
         return updatedQuery
     }
     
@@ -259,7 +259,7 @@ extension PostService {
                 let post = try await self.fetchPost(postId: postId)
                 likedPosts.append(post)
             } catch {
-                print("Error fetching post with id \(postId): \(error.localizedDescription)")
+                //print("Error fetching post with id \(postId): \(error.localizedDescription)")
             }
         }
         return likedPosts
@@ -269,10 +269,10 @@ extension PostService {
     func deletePost(_ post: Post) async throws  {
         do {
             try await FirestoreConstants.PostsCollection.document(post.id).delete()
-            print("Post deleted successfully")
+            //print("Post deleted successfully")
            
         } catch {
-            print("Error deleting post: \(error.localizedDescription)")
+            //print("Error deleting post: \(error.localizedDescription)")
             
         }
     }
@@ -419,7 +419,7 @@ extension PostService {
         averageValueRating: Double?
     ) {
         guard !friendIds.isEmpty else {
-            print("Error: friendIds array is empty.")
+            //print("Error: friendIds array is empty.")
             return ([], nil, nil, nil, nil, nil) // Return empty array and nil ratings
         }
 
@@ -528,7 +528,7 @@ extension PostService {
 //                .document(restaurantId)
 //                .delete()
 //        } catch {
-//            print("Error unbookmarking restaurant: \(error.localizedDescription)")
+//            //print("Error unbookmarking restaurant: \(error.localizedDescription)")
 //            throw error
 //        }
 //    }
@@ -549,7 +549,7 @@ extension PostService {
             
             return snapshot.exists
         } catch {
-            print("Error checking bookmark status: \(error.localizedDescription)")
+            //print("Error checking bookmark status: \(error.localizedDescription)")
             throw error
         }
     }

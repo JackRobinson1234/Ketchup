@@ -62,13 +62,13 @@ class FiltersViewModel: ObservableObject {
             filters["restaurant.price"] = selectedPrice
         }
         ///Dietary checking if there are any selected
-        print("Filters", filters)
+        //print("Filters", filters)
         do{
             feedViewModel.isInitialLoading = true
             try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
             feedViewModel.isInitialLoading = false
         } catch {
-            print("Error")
+            //print("Error")
         }
     }
     

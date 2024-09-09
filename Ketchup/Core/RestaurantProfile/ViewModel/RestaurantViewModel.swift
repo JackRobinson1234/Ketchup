@@ -32,29 +32,29 @@ class RestaurantViewModel: ObservableObject {
         // DEBUG: see if you can delete this
     }
     func fetchRestaurant(id: String) async throws {
-        print("ATTEMPTED ID", id)
+        //print("ATTEMPTED ID", id)
         if self.restaurant == nil {
             do {
                 self.restaurant = try await RestaurantService.shared.fetchRestaurant(withId: id)
-                print("DEBUG: Fetched restaurant: \(String(describing: self.restaurant))")
+                //print("DEBUG: Fetched restaurant: \(String(describing: self.restaurant))")
                 if let restaurant = self.restaurant {
-                    print("DEBUG: Restaurant ratingStats: \(String(describing: restaurant.ratingStats))")
+                    //print("DEBUG: Restaurant ratingStats: \(String(describing: restaurant.ratingStats))")
                     calculateRatings(from: restaurant.ratingStats)
                 } else {
-                    print("DEBUG: Restaurant is nil after fetching")
+                    //print("DEBUG: Restaurant is nil after fetching")
                 }
             } catch {
-                print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
+                //print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
             }
         } else {
-            print("DEBUG: Restaurant already exists, not fetching")
+            //print("DEBUG: Restaurant already exists, not fetching")
         }
     }
     
     private func calculateRatings(from ratingStats: RatingStats?) {
-        print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
+        //print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
         guard let ratingStats = ratingStats else {
-            print("DEBUG: RatingStats is nil")
+            //print("DEBUG: RatingStats is nil")
             return
         }
         
@@ -90,7 +90,7 @@ class RestaurantViewModel: ObservableObject {
             self.overallRating = nil
         }
         
-        print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
+        //print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
     }
     
     private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
@@ -114,7 +114,7 @@ class RestaurantViewModel: ObservableObject {
         do {
             isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
         } catch {
-            print("Error checking bookmark status: \(error.localizedDescription)")
+            //print("Error checking bookmark status: \(error.localizedDescription)")
         }
     }
     
@@ -128,7 +128,7 @@ class RestaurantViewModel: ObservableObject {
             }
             isBookmarked.toggle()
         } catch {
-            print("Error toggling bookmark: \(error.localizedDescription)")
+            //print("Error toggling bookmark: \(error.localizedDescription)")
         }
     }
     func fetchFriendsWhoPosted() async {
@@ -157,7 +157,7 @@ class RestaurantViewModel: ObservableObject {
             
             self.friendsWhoPosted = Array(Set(users))  // Remove duplicates
         } catch {
-            print("Error fetching friends who posted: \(error.localizedDescription)")
+            //print("Error fetching friends who posted: \(error.localizedDescription)")
         }
     }
 }

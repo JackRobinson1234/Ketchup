@@ -12,7 +12,7 @@ struct CollectionMapView: View {
     var body: some View {
         if collectionsViewModel.selectedCollection != nil {
         let items = collectionsViewModel.items
-        let _ = print(items)
+        let _ = //print(items)
         Map(initialPosition: .automatic) {
             ForEach(items, id: \.self) { item in
                 if let geoPoint = item.geoPoint {

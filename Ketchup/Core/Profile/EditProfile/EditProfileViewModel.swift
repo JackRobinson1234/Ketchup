@@ -24,7 +24,7 @@ class EditProfileViewModel: ObservableObject {
     @Published var profileImage: Image?
     @Published var favoritesPreview: [FavoriteRestaurant] {
         didSet {
-            print("Favorites Preview Changed: \(favoritesPreview)")
+            //print("Favorites Preview Changed: \(favoritesPreview)")
         }
     }
     @Published var validUsername: Bool? = true

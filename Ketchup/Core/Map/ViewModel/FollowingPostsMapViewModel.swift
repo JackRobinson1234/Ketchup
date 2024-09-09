@@ -47,34 +47,34 @@ class FollowingPostsMapViewModel: ObservableObject {
 
     func updateMapState(newRegion: MKCoordinateRegion, shouldAutoFetch: Bool = false) {
             let newZoomLevel = determineZoomLevel(for: newRegion)
-            print("DEBUG: New zoom level determined: \(newZoomLevel)")
+            //print("DEBUG: New zoom level determined: \(newZoomLevel)")
             
             fetchTask?.cancel()
-            print("DEBUG: Previous fetch task cancelled, if any.")
+            //print("DEBUG: Previous fetch task cancelled, if any.")
 
             fetchDebouncer.schedule { [weak self] in
                 guard let self = self else {
-                    print("DEBUG: Self is nil, aborting scheduled fetch.")
+                    //print("DEBUG: Self is nil, aborting scheduled fetch.")
                     return
                 }
                 self.fetchTask = Task { @MainActor in
                     if Task.isCancelled {
-                        print("DEBUG: Fetch task was cancelled, aborting.")
+                        //print("DEBUG: Fetch task was cancelled, aborting.")
                         return
                     }
 
                     let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
-                    print("DEBUG: Should fetch new data: \(shouldFetch)")
+                    //print("DEBUG: Should fetch new data: \(shouldFetch)")
 
                     if shouldFetch || shouldAutoFetch{
-                        print("DEBUG: Fetching new data...")
+                        //print("DEBUG: Fetching new data...")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         await self.fetchFollowingPosts()
                         self.lastFetchedRegion = newRegion
-                        print("DEBUG: Data fetch complete, region updated.")
+                        //print("DEBUG: Data fetch complete, region updated.")
                     } else {
-                        print("DEBUG: No need to fetch new data, updating clusters only.")
+                        //print("DEBUG: No need to fetch new data, updating clusters only.")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         self.updateAnnotations()
@@ -98,25 +98,25 @@ class FollowingPostsMapViewModel: ObservableObject {
             return false
         }
         guard let lastFetchedRegion = lastFetchedRegion else {
-            print("DEBUG: No last fetched region, performing initial fetch.")
+            //print("DEBUG: No last fetched region, performing initial fetch.")
             return true // First fetch
         }
         
 
         if newZoomLevel != currentZoomLevel {
-            print("DEBUG: Zoom level has changed from \(currentZoomLevel) to \(newZoomLevel), fetching new data.")
+            //print("DEBUG: Zoom level has changed from \(currentZoomLevel) to \(newZoomLevel), fetching new data.")
             return true
         }
        
 
         let distanceThreshold = MapUtils.calculateDistanceThreshold(for: newRegion)
-        print("DEBUG: Distance threshold calculated: \(distanceThreshold) km")
+        //print("DEBUG: Distance threshold calculated: \(distanceThreshold) km")
 
         let distance = calculateDistance(from: lastFetchedRegion.center, to: newRegion.center)
-        print("DEBUG: Distance moved from last fetched region: \(distance) km")
+        //print("DEBUG: Distance moved from last fetched region: \(distance) km")
 
         let shouldFetch = distance >= distanceThreshold
-        print("DEBUG: Should fetch based on distance: \(shouldFetch)")
+        //print("DEBUG: Should fetch based on distance: \(shouldFetch)")
         
         return shouldFetch
     }
@@ -127,7 +127,7 @@ class FollowingPostsMapViewModel: ObservableObject {
             return location1.distance(from: location2) / 1000 // Convert to kilometers
         }
     func fetchFollowingPosts() async {
-        print("DEBUG: Fetching Following Posts")
+        //print("DEBUG: Fetching Following Posts")
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
         if determineZoomLevel(for: currentRegion) == .maxZoomOut {
             return
@@ -174,7 +174,7 @@ class FollowingPostsMapViewModel: ObservableObject {
             }
             isLoading = false
         } catch {
-            print("ERROR: Failed to fetch following posts: \(error.localizedDescription)")
+            //print("ERROR: Failed to fetch following posts: \(error.localizedDescription)")
             isLoading = false
         }
     }
@@ -247,7 +247,7 @@ class FollowingPostsMapViewModel: ObservableObject {
         } else {
             filters["restaurant.price"] = selectedPrice
         }
-        print("updatedFilters", filters)
+        //print("updatedFilters", filters)
     }
    
 }

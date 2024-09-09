@@ -32,6 +32,7 @@ struct ListingImageCarouselView: View {
                 Image(systemName: "building.2.crop.circle")
                     .resizable()
                     .scaledToFill()
+                    .foregroundColor(.gray)
                     .frame(width: 20, height: 70)
                     
 

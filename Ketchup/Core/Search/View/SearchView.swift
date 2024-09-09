@@ -22,7 +22,8 @@ struct SearchView: View {
     var drag: some Gesture {
         DragGesture(minimumDistance: 5)
             .onChanged { _ in self.isDragging = true
-                print("DRAGGING ")}
+                //print("DRAGGING ")
+            }
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"

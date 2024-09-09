@@ -298,7 +298,7 @@ class UploadViewModel: ObservableObject {
                     self.mentionableUsers = users
                 }
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }

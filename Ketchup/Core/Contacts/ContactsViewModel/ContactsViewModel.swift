@@ -168,7 +168,7 @@ class ContactsViewModel: ObservableObject {
             let number = phoneNumberKit.format(parsedNumber, toType: .international)
             return number
         } catch {
-            print("Error parsing phone number: \(error.localizedDescription)")
+            //print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }

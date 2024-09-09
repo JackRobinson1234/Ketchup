@@ -184,7 +184,7 @@ struct MapRestaurantProfileView: View {
                     }
                 }
             } catch {
-                print("Error calculating directions: \(error.localizedDescription)")
+                //print("Error calculating directions: \(error.localizedDescription)")
             }
         }
     }

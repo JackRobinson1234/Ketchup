@@ -19,14 +19,14 @@ class ReportService {
         if let uid = Auth.auth().currentUser?.uid {
             let report = Report(id: ref.documentID, contentId: contentId, reporterId: uid, reasons: reasons, status: status, timestamp: Timestamp(), objectType: objectType)
             guard let reportData = try? Firestore.Encoder().encode(report) else {
-                print("not encoding report right")
+                //print("not encoding report right")
                 return
             }
             
             do {
                 try await ref.setData(reportData)
             } catch {
-                print("uploading a report failed")
+                //print("uploading a report failed")
             }
         }
     }

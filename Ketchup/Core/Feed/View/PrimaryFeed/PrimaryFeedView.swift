@@ -464,7 +464,7 @@ struct PrimaryFeedView: View {
         do {
             try await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
         } catch {
-            print("Error refreshing: \(error)")
+            //print("Error refreshing: \(error)")
         }
         isRefreshing = false
     }

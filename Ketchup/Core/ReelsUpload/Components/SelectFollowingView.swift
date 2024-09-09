@@ -111,7 +111,7 @@ struct SelectFollowingView: View {
                 let users = try await UserService.shared.fetchFollowingUsers()
                 followingUsers = users
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }
@@ -128,7 +128,7 @@ struct SelectFollowingView: View {
                                                         profileImageUrl: user.profileImageUrl,
                                                         privateMode: user.privateMode,
                                                         username: user.username))
-            print("Appending User")
+            //print("Appending User")
         }
         isSearchFieldFocused = false
         searchViewModel.searchQuery = ""

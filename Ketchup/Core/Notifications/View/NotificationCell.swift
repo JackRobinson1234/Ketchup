@@ -295,9 +295,9 @@ struct NotificationCell: View {
     
     private func fetchPost(postId: String) {
         Task {
-            print("Fetching post with ID \(postId)")
+            //print("Fetching post with ID \(postId)")
             self.post = try await PostService.shared.fetchPost(postId: postId)
-            print("Fetched post: \(String(describing: self.post))")
+            //print("Fetched post: \(String(describing: self.post))")
             if let post = self.post {
                 feedViewModel.posts = [post]
             }
@@ -330,7 +330,7 @@ struct NotificationCell: View {
     private var restaurantProfileView: some View {
         NavigationStack {
             if let selectedRestaurantId = selectedRestaurantId {
-                let _ = print("Showing RestaurantProfileView for \(selectedRestaurantId)")
+                let _ = //print("Showing RestaurantProfileView for \(selectedRestaurantId)")
                 RestaurantProfileView(restaurantId: selectedRestaurantId)
             }
         }

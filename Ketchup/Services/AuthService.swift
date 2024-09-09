@@ -31,7 +31,7 @@ class AuthService {
             let userDocument = try await FirestoreConstants.UserCollection.document(authUser).getDocument(as: User.self)
             self.userSession = userDocument
         } catch {
-            print("Error updating user session:", error.localizedDescription)
+            //print("Error updating user session:", error.localizedDescription)
             self.userSession = nil
             //throw error
             
@@ -49,7 +49,7 @@ class AuthService {
             try await updateUserSession()
             
         } catch {
-            print("DEBUG: Login failed \(error.localizedDescription)")
+            //print("DEBUG: Login failed \(error.localizedDescription)")
             throw error
         }
     }
@@ -63,7 +63,7 @@ class AuthService {
             try await FirestoreConstants.UserCollection.document(result.user.uid).setData(userData)
             try await updateUserSession()
         } catch {
-            print("DEBUG: Failed to create user with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to create user with error: \(error.localizedDescription)")
             throw error
         }
     }
@@ -108,14 +108,14 @@ class AuthService {
         
         do {
             try await userRef.setData(updatedUserData, merge: true)
-            print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
+            //print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
             
             let updatedUser = try await userRef.getDocument(as: User.self)
             self.userSession = updatedUser
             
             return updatedUser
         } catch {
-            print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
             throw error
         }
     }
@@ -128,10 +128,10 @@ class AuthService {
         
         do {
             try await FirestoreConstants.alertCollection.document(user.id).setData(userData)
-            print("DEBUG: Successfully created Contact user document in Firestore with ID: \(user.id)")
+            //print("DEBUG: Successfully created Contact user document in Firestore with ID: \(user.id)")
             
         } catch {
-            print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
             throw error
         }
     }
@@ -163,10 +163,10 @@ class AuthService {
         
         do {
             try await FirestoreConstants.UserCollection.document(id).setData(userData)
-            print("DEBUG: Successfully created user document in Firestore with ID: \(id)")
+            //print("DEBUG: Successfully created user document in Firestore with ID: \(id)")
             return user
         } catch {
-            print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to create user document in Firestore with error: \(error.localizedDescription)")
             throw error
         }
     }
@@ -187,7 +187,7 @@ class AuthService {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first,
               let rootViewController = window.rootViewController else {
-            print("There is no root view controller")
+            //print("There is no root view controller")
             return
         }
         let config = GIDConfiguration(clientID: clientID)
@@ -207,7 +207,7 @@ class AuthService {
             let result = try await Auth.auth().signIn(with: credential)
             
             let firebaseUser = result.user
-            print("User \(firebaseUser.uid) signed in with email \(firebaseUser.email ?? "unknown")")
+            //print("User \(firebaseUser.uid) signed in with email \(firebaseUser.email ?? "unknown")")
             
             //Creates user in firestore if the user doesnt exist then updates the user session
             let userRef = FirestoreConstants.UserCollection.document(firebaseUser.uid)
@@ -225,10 +225,10 @@ class AuthService {
                     try await updateUserSession()
                 }
             } catch {
-                print("Error getting document: \(error)")
+                //print("Error getting document: \(error)")
             }
         } catch {
-            print(error.localizedDescription)
+            //print(error.localizedDescription)
             //self.authError = AuthError(authErrorCode: error.localizedDescription)
         }
     }
@@ -263,7 +263,7 @@ class AuthService {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first,
               let rootViewController = window.rootViewController else {
-            print("There is no root view controller")
+            //print("There is no root view controller")
             return false
         }
         let config = GIDConfiguration(clientID: clientID)
@@ -285,14 +285,14 @@ class AuthService {
             return false
             
         } catch {
-            print("Reauthentication with Google failed: \(error.localizedDescription)")
+            //print("Reauthentication with Google failed: \(error.localizedDescription)")
             return false
             // Handle reauthentication failure here, such as showing an alert to the user
             
             
         }
         //        } catch {
-        //            print(error.localizedDescription)
+        //            //print(error.localizedDescription)
         //            //self.authError = AuthError(authErrorCode: error.localizedDescription)
         //        }
         //try await deleteAccount()
@@ -304,7 +304,7 @@ class AuthService {
             try await Auth.auth().currentUser?.reauthenticate(with: credential)
             try await deleteAccount()
         } catch {
-            print("DEBUG: reauth failed \(error.localizedDescription)")
+            //print("DEBUG: reauth failed \(error.localizedDescription)")
             throw error
         }
     }

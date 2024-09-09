@@ -27,12 +27,12 @@ class UserRegistrationViewModel: ObservableObject {
                 hasCompletedSetup: true
             )
             
-            print("Successfully updated user: \(updatedUser)")
+            //print("Successfully updated user: \(updatedUser)")
             try await AuthService.shared.createContactAlertUser(user: updatedUser)
             // Update the user session
             try await AuthService.shared.updateUserSession()
         } catch {
-            print("Failed to update user: \(error.localizedDescription)")
+            //print("Failed to update user: \(error.localizedDescription)")
             throw error
         }
     }

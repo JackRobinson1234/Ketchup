@@ -132,7 +132,7 @@ struct LocationSelectionView: View {
             
             CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
                 guard let placemark = placemarks?.first else {
-                    print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
+                    //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
                 

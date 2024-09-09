@@ -81,13 +81,13 @@ struct FiltersView: View {
             }
             //MARK: Navigation Title
             .onChange(of: filtersViewModel.disableAtHomeFilters) {
-                print("AtHome disabled: ", filtersViewModel.disableAtHomeFilters)
-                print("Restaurant disabled: ",  filtersViewModel.disableRestaurantFilters)
+                //print("AtHome disabled: ", filtersViewModel.disableAtHomeFilters)
+                //print("Restaurant disabled: ",  filtersViewModel.disableRestaurantFilters)
                 
             }
             .onChange(of: filtersViewModel.disableRestaurantFilters) {
-                print("AtHome disabled: ",filtersViewModel.disableAtHomeFilters)
-                print("Restaurant disabled: ", filtersViewModel.disableRestaurantFilters)
+                //print("AtHome disabled: ",filtersViewModel.disableAtHomeFilters)
+                //print("Restaurant disabled: ", filtersViewModel.disableRestaurantFilters)
                 
             }
 

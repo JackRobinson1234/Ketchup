@@ -61,7 +61,7 @@ class ActivityViewModel: ObservableObject {
             do {
                 try await fetchFollowingActivities()
             } catch {
-                print("Error fetching more activities: \(error)")
+                //print("Error fetching more activities: \(error)")
             }
             isLoadingMore = false
         }
@@ -74,7 +74,7 @@ class ActivityViewModel: ObservableObject {
                 do {
                     try await fetchTopContacts()
                 } catch {
-                    print("Error fetching more contacts: \(error)")
+                    //print("Error fetching more contacts: \(error)")
                 }
                 isLoadingMore = false
             }

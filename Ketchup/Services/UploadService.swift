@@ -76,7 +76,7 @@ struct UploadService {
             }
 
             try await ref.setData(postData)
-            print("Post created successfully")
+            //print("Post created successfully")
             return post
         }
     
@@ -142,7 +142,7 @@ struct ImageUploader {
             let url = try await ref.downloadURL()
             return url.absoluteString
         } catch {
-            print("DEBUG: Failed to upload image \(error.localizedDescription)")
+            //print("DEBUG: Failed to upload image \(error.localizedDescription)")
             return nil
         }
     }
@@ -181,7 +181,7 @@ struct VideoUploader {
             let url = try await ref.downloadURL()
             return url.absoluteString
         } catch {
-            print("DEBUG: Failed to upload video with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to upload video with error: \(error.localizedDescription)")
             throw error
         }
     }

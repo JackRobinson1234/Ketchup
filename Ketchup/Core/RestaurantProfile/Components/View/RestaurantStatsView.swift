@@ -359,7 +359,7 @@ struct RestaurantStatsView: View {
                 self.isLoadingSimilarRestaurants = false
                 
             } catch {
-                print("Error fetching similar restaurants: \(error)")
+                //print("Error fetching similar restaurants: \(error)")
                 await MainActor.run {
                     self.isLoadingSimilarRestaurants = false
                 }

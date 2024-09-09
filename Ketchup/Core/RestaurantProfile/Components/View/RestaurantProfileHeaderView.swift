@@ -391,7 +391,7 @@ struct RestaurantProfileHeaderView: View {
                 HStack(spacing: 8) {
                     if let menuUrl = restaurant.menuUrl, !menuUrl.isEmpty, let url = URL(string: menuUrl) {
                         actionButton(title: "Menu", icon: "menucard") {
-                            print("Menu URL:", menuUrl)
+                            //print("Menu URL:", menuUrl)
                             urlToShow = url
                         }
                     }

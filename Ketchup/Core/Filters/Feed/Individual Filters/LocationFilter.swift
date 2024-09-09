@@ -145,7 +145,7 @@ struct LocationFilter: View {
                     
                     guard let placemark = placemarks?.first else {
                         let errorString = error?.localizedDescription ?? "Unexpected Error"
-                        print("Unable to reverse geocode the given location. Error: \(errorString)")
+                        //print("Unable to reverse geocode the given location. Error: \(errorString)")
                         return
                     }
                     

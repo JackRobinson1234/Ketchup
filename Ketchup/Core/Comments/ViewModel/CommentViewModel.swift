@@ -94,7 +94,7 @@ class CommentViewModel: ObservableObject {
             // Sort top-level comments in ascending order (oldest to newest)
             self.organizedComments = topLevelComments.sorted(by: { $0.comment.timestamp.dateValue() < $1.comment.timestamp.dateValue() })
         }
-        print("Setting new comment ID")
+        //print("Setting new comment ID")
         //lastAddedCommentId = organizedComments.last?.comment.id
         }
     
@@ -136,7 +136,7 @@ class CommentViewModel: ObservableObject {
                 updateCommentLikeStatus(comment, didLike: true, likesChange: 1)
             }
         } catch {
-            print("DEBUG: Failed to like comment with error \(error.localizedDescription)")
+            //print("DEBUG: Failed to like comment with error \(error.localizedDescription)")
         }
     }
     
@@ -147,7 +147,7 @@ class CommentViewModel: ObservableObject {
                 updateCommentLikeStatus(comment, didLike: false, likesChange: -1)
             }
         } catch {
-            print("DEBUG: Failed to unlike comment with error \(error.localizedDescription)")
+            //print("DEBUG: Failed to unlike comment with error \(error.localizedDescription)")
         }
     }
     
@@ -176,7 +176,7 @@ class CommentViewModel: ObservableObject {
                 let didLike = try await CommentService.shared.checkIfUserLikedComment(comment, post: post)
                 updatedComments[i].didLike = didLike
             } catch {
-                print("DEBUG: Failed to check if user liked comment")
+                //print("DEBUG: Failed to check if user liked comment")
             }
         }
         await MainActor.run {
@@ -193,7 +193,7 @@ class CommentViewModel: ObservableObject {
                     self.taggedUsers = users
                 }
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }
@@ -319,7 +319,7 @@ class CommentViewModel: ObservableObject {
                 self.highlightComment(comment.id)
             }
         } catch {
-            print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
+            //print("DEBUG: Failed to upload comment with error \(error.localizedDescription)")
         }
     }
     func highlightComment(_ commentId: String) {
