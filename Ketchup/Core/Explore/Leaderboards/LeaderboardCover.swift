@@ -43,4 +43,3 @@ struct LeaderboardCover: View {
         }
     }
 }
-

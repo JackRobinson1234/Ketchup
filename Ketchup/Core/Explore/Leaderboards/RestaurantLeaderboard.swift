@@ -26,7 +26,7 @@ struct RestaurantLeaderboard: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 4) {
                         headerSection
-                        timePeriodPicker
+                       
                         
                         if isLoading {
                             loadingView
@@ -90,40 +90,6 @@ struct RestaurantLeaderboard: View {
         .frame(height: 200)
     }
     
-    private var timePeriodPicker: some View {
-        HStack(spacing: 10) {
-            Spacer()
-            Button(action: { switchTimePeriod(.month) }) {
-                Text("Month")
-                    .font(.custom("MuseoSansRounded-500", size: 18))
-                    .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .gray)
-                    .padding(.bottom, 5)
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .clear)
-                            .offset(y: 12)
-                    )
-            }
-            .disabled(viewModel.timePeriod == .month || !canSwitchTab)
-            
-            Button(action: { switchTimePeriod(.week) }) {
-                Text("Week")
-                    .font(.custom("MuseoSansRounded-500", size: 18))
-                    .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .gray)
-                    .padding(.bottom, 5)
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .clear)
-                            .offset(y: 12)
-                    )
-            }
-            .disabled(viewModel.timePeriod == .week || !canSwitchTab)
-            Spacer()
-        }
-        .padding(.vertical)
-    }
     
     private var loadingView: some View {
         FastCrossfadeFoodImageView()
@@ -202,10 +168,17 @@ struct RestaurantLeaderboard: View {
         let validCategories = categories.compactMap { $0 }
         guard !validCategories.isEmpty else { return nil }
         
-        let totalSum = validCategories.reduce(0.0) { $0 + ($1.sum ?? 0) }
-        let totalCount = validCategories.reduce(0) { $0 + ($1.totalCount ?? 0) }
+        var weightedSum = 0.0
+        var totalCount = 0
         
-        return totalCount > 0 ? totalSum / Double(totalCount) : nil
+        for category in validCategories {
+            if let average = category.average, let count = category.totalCount {
+                weightedSum += average * Double(count)
+                totalCount += count
+            }
+        }
+        
+        return totalCount > 0 ? (weightedSum / Double(totalCount)).rounded(to: 1) : nil
     }
 }
 

@@ -52,36 +52,28 @@ class RestaurantViewModel: ObservableObject {
     }
     
     private func calculateRatings(from ratingStats: RatingStats?) {
-        //print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
+        print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
         guard let ratingStats = ratingStats else {
-            //print("DEBUG: RatingStats is nil")
+            print("DEBUG: RatingStats is nil")
             return
         }
         
-        self.foodRating = calculateAverageRating(ratingStats.food)
-        self.atmosphereRating = calculateAverageRating(ratingStats.atmosphere)
-        self.valueRating = calculateAverageRating(ratingStats.value)
-        self.serviceRating = calculateAverageRating(ratingStats.service)
+        self.foodRating = ratingStats.food?.average?.rounded(to: 1)
+        self.atmosphereRating = ratingStats.atmosphere?.average?.rounded(to: 1)
+        self.valueRating = ratingStats.value?.average?.rounded(to: 1)
+        self.serviceRating = ratingStats.service?.average?.rounded(to: 1)
         
         // Calculate overall rating
         var totalSum = 0.0
         var totalCount = 0
         
-        if let food = ratingStats.food, let foodSum = food.sum, let foodCount = food.totalCount {
-            totalSum += foodSum
-            totalCount += foodCount
-        }
-        if let atmosphere = ratingStats.atmosphere, let atmosphereSum = atmosphere.sum, let atmosphereCount = atmosphere.totalCount {
-            totalSum += atmosphereSum
-            totalCount += atmosphereCount
-        }
-        if let value = ratingStats.value, let valueSum = value.sum, let valueCount = value.totalCount {
-            totalSum += valueSum
-            totalCount += valueCount
-        }
-        if let service = ratingStats.service, let serviceSum = service.sum, let serviceCount = service.totalCount {
-            totalSum += serviceSum
-            totalCount += serviceCount
+        let categories = [ratingStats.food, ratingStats.atmosphere, ratingStats.value, ratingStats.service]
+        
+        for category in categories {
+            if let average = category?.average, let count = category?.totalCount {
+                totalSum += average * Double(count)
+                totalCount += count
+            }
         }
         
         if totalCount > 0 {
@@ -90,19 +82,19 @@ class RestaurantViewModel: ObservableObject {
             self.overallRating = nil
         }
         
-        //print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
+        print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
     }
     
-    private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
-        guard let category = category,
-              let totalCount = category.totalCount,
-              totalCount > 0,
-              let sum = category.sum else {
-            return nil
-        }
-        
-        return (sum / Double(totalCount)).rounded(to: 1)
-    }
+//    private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
+//        guard let category = category,
+//              let totalCount = category.totalCount,
+//              totalCount > 0,
+//              let sum = category.sum else {
+//            return nil
+//        }
+//        
+//        return (sum / Double(totalCount)).rounded(to: 1)
+//    }
     
     func fetchRestaurantCollections() async throws{
         if let restaurant = restaurant{

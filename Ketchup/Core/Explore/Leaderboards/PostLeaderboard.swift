@@ -162,7 +162,7 @@ struct PostLeaderboard: View {
                                 FastCrossfadeFoodImageView()
                                     .onAppear {
                                         Task {
-                                            topPosts = try await viewModel.fetchTopPosts(count: 10)
+                                            try await fetchPosts()
                                             isLoading = false
                                         }
                                     }
@@ -302,6 +302,8 @@ struct PostLeaderboard: View {
         }
     }
     private func fetchPosts() {
+        print("City", city)
+        print("State", state)
         isLoading = true
         Task {
             do {

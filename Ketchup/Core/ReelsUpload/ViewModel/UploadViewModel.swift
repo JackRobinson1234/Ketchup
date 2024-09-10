@@ -9,7 +9,6 @@ import SwiftUI
 import Firebase
 import PhotosUI
 import YPImagePicker
-
 @MainActor
 class UploadViewModel: ObservableObject {
     @Published var isLoading = false
@@ -198,13 +197,29 @@ class UploadViewModel: ObservableObject {
             throw UploadError.invalidMediaType
         }
         
+        // Calculate average rating
+        let ratings = [
+            isServiceNA ? nil : serviceRating,
+            isAtmosphereNA ? nil : atmosphereRating,
+            isValueNA ? nil : valueRating,
+            isFoodNA ? nil : foodRating
+        ].compactMap { $0 }
+        
+        let averageRating: Double?
+        if !ratings.isEmpty {
+            let sum = ratings.reduce(0, +)
+            averageRating = (sum / Double(ratings.count)).rounded(to: 1)
+        } else {
+            averageRating = nil
+        }
+        
         return try await UploadService.shared.uploadPost(
             mixedMediaItems: mixedMediaItems,
             mediaType: .mixed,
             caption: caption,
             postRestaurant: postRestaurant,
             fromInAppCamera: fromInAppCamera,
-            overallRating: overallRating,
+            overallRating: averageRating, // Use calculated average rating
             serviceRating: isServiceNA ? nil : serviceRating,
             atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
             valueRating: isValueNA ? nil : valueRating,

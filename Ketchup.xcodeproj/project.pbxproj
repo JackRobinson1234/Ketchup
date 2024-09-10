@@ -250,6 +250,8 @@
 		F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */; };
 		F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B052C43304900D6DF6D /* CollageImage.swift */; };
 		F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */; };
+		F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */; };
+		F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -537,6 +539,8 @@
 		F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionViewModel.swift; sourceTree = "<group>"; };
 		F8D60B052C43304900D6DF6D /* CollageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageImage.swift; sourceTree = "<group>"; };
 		F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboard.swift; sourceTree = "<group>"; };
+		F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNameConverter.swift; sourceTree = "<group>"; };
+		F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
@@ -770,6 +774,7 @@
 				F871B00F2B914B6900E4EB5F /* photosRequest.swift */,
 				F83380F32C28B31E0056C973 /* CustomFont.swift */,
 				F819BD032C683194001247A9 /* TriggerHaptics.swift */,
+				F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1547,6 +1552,7 @@
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
+				F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2074,8 +2080,10 @@
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
+				F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
+				F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
 				F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */,
 				F8BE0C0A2C58A66800770E3F /* CombinedCameraControls.swift in Sources */,

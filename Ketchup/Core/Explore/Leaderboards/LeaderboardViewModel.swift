@@ -19,7 +19,8 @@ class LeaderboardViewModel: ObservableObject {
                 .order(by: "likes", descending: true)
             
             if let state = state, state != "All States" {
-                query = query.whereField("restaurant.state", isEqualTo: state)
+                let stateAbbreviation = StateNameConverter.fullName(for: state)
+                query = query.whereField("restaurant.state", isEqualTo: stateAbbreviation)
             }
             
             // Add city logic if necessary:
@@ -38,31 +39,32 @@ class LeaderboardViewModel: ObservableObject {
         }
     }
     func fetchTopRestaurants(count: Int = 10, state: String? = nil, city: String? = nil) async throws -> [Restaurant] {
-            do {
-                let startDate = timePeriod == .week ? getStartOfWeek() : getStartOfMonth()
-                
-                var query = FirestoreConstants.RestaurantCollection
-                    // Assuming restaurants have a 'lastPostTimestamp' field
-                    .order(by: "stats.postCount", descending: true)
-                
-                if let state = state, state != "All States" {
-                    query = query.whereField("state", isEqualTo: state)
-                }
-                
-                if let city = city, !city.isEmpty {
-                    query = query.whereField("city", isEqualTo: city)
-                }
-                
-                let restaurants = try await query
-                    .limit(to: count)
-                    .getDocuments(as: Restaurant.self)
-                
-                return restaurants
-            } catch {
-                print("Error fetching top restaurants: \(error.localizedDescription)")
-                throw error
+        do {
+            let startDate = timePeriod == .week ? getStartOfWeek() : getStartOfMonth()
+            
+            var query = FirestoreConstants.RestaurantCollection
+            // Assuming restaurants have a 'lastPostTimestamp' field
+                .order(by: "stats.postCount", descending: true)
+            
+            if let state = state, state != "All States" {
+                let stateAbbreviation = StateNameConverter.fullName(for: state)
+                query = query.whereField("state", isEqualTo: stateAbbreviation)
             }
+            
+            if let city = city, !city.isEmpty {
+                query = query.whereField("city", isEqualTo: city)
+            }
+            
+            let restaurants = try await query
+                .limit(to: count)
+                .getDocuments(as: Restaurant.self)
+            
+            return restaurants
+        } catch {
+            print("Error fetching top restaurants: \(error.localizedDescription)")
+            throw error
         }
+    }
     func getStartOfWeek() -> Timestamp {
         let calendar = Calendar.current
         let currentDate = Date()
