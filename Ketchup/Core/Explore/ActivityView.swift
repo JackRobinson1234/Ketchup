@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 enum LetsKetchupOptions {
     case friends, trending
 }
@@ -97,15 +98,15 @@ struct ActivityView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading) {
                 
-                inviteContactsButton
                 mostPostedRestaurantsSection
                 mostLikedPostsSection
                 if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
                     contactsSection
                 }
-//                HorizontalCollectionScrollView()
-//                    .padding(.bottom)
-               // activityListSection
+                inviteContactsButton
+                //                HorizontalCollectionScrollView()
+                //                    .padding(.bottom)
+                // activityListSection
             }
         }
     }
@@ -180,12 +181,14 @@ struct ActivityView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 16) {
                     ForEach(viewModel.topContacts) { contact in
+                        
                         ActivityContactRow(viewModel: viewModel, contact: contact)
                             .onAppear {
                                 if contact == viewModel.topContacts.last {
                                     viewModel.loadMoreContacts()
                                 }
                             }
+                        
                     }
                     loadMoreContactsIndicator
                     seeAllContactsButton
@@ -196,27 +199,27 @@ struct ActivityView: View {
         .padding(.vertical)
     }
     
-//    private var activityListSection: some View {
-//        VStack(alignment: .leading) {
-//            HStack(alignment: .top) {
-//                sectionTitle("Following Activity")
-//                Spacer()
-//                searchButton
-//            }
-//            .padding(.horizontal)
-//            
-//            if !viewModel.followingActivity.isEmpty {
-//                activityList
-//            } else if viewModel.isFetching {
-//                FastCrossfadeFoodImageView()
-//            } else {
-//                Text("No activity from your friends yet.")
-//                    .font(.custom("MuseoSansRounded-300", size: 16))
-//                    .foregroundColor(.gray)
-//                    .padding()
-//            }
-//        }
-//    }
+    //    private var activityListSection: some View {
+    //        VStack(alignment: .leading) {
+    //            HStack(alignment: .top) {
+    //                sectionTitle("Following Activity")
+    //                Spacer()
+    //                searchButton
+    //            }
+    //            .padding(.horizontal)
+    //
+    //            if !viewModel.followingActivity.isEmpty {
+    //                activityList
+    //            } else if viewModel.isFetching {
+    //                FastCrossfadeFoodImageView()
+    //            } else {
+    //                Text("No activity from your friends yet.")
+    //                    .font(.custom("MuseoSansRounded-300", size: 16))
+    //                    .foregroundColor(.gray)
+    //                    .padding()
+    //            }
+    //        }
+    //    }
     
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
@@ -466,7 +469,7 @@ struct ActivityView: View {
         }
     }
     private func refreshLocationData() async {
-       
+        
         async let contacts: () = viewModel.fetchTopContacts()
         async let usaPosts: () = fetchTopPosts(count: 1)
         async let statePosts: () = fetchTopPosts(count: 1, state: state)
@@ -547,7 +550,9 @@ struct ActivityContactRow: View {
     @State private var isCheckingFollowStatus: Bool = false
     @State private var hasCheckedFollowStatus: Bool = false
     @State private var isShowingProfile: Bool = false
-    
+    private var isCurrentUser: Bool {
+        Auth.auth().currentUser?.uid == contact.user?.id
+    }
     init(viewModel: ActivityViewModel, contact: Contact) {
         self.viewModel = viewModel
         self._contact = State(initialValue: contact)
@@ -555,14 +560,18 @@ struct ActivityContactRow: View {
     }
     
     var body: some View {
+        
         HStack(spacing: 12) {
             profileImageButton
             userInfoView
             Spacer()
-            followStatusView
+            if !isCurrentUser {
+                followStatusView
+            }
         }
         .padding(.vertical, 8)
         .onAppear(perform: checkFollowStatus)
+        
     }
     
     private var profileImageButton: some View {
