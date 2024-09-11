@@ -252,6 +252,11 @@
 		F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */; };
 		F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */; };
 		F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */; };
+		F8D62A1B2C9119E400E40B45 /* ReverseGeoCodingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A1A2C9119E400E40B45 /* ReverseGeoCodingView.swift */; };
+		F8D62A1D2C91FB3900E40B45 /* Poll.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A1C2C91FB3900E40B45 /* Poll.swift */; };
+		F8D62A242C92006F00E40B45 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A232C92006F00E40B45 /* PollView.swift */; };
+		F8D62A262C92014900E40B45 /* PollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A252C92014900E40B45 /* PollViewModel.swift */; };
+		F8D62A282C92383E00E40B45 /* ActivityContactRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -541,6 +546,11 @@
 		F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboard.swift; sourceTree = "<group>"; };
 		F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNameConverter.swift; sourceTree = "<group>"; };
 		F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
+		F8D62A1A2C9119E400E40B45 /* ReverseGeoCodingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverseGeoCodingView.swift; sourceTree = "<group>"; };
+		F8D62A1C2C91FB3900E40B45 /* Poll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Poll.swift; sourceTree = "<group>"; };
+		F8D62A232C92006F00E40B45 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
+		F8D62A252C92014900E40B45 /* PollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollViewModel.swift; sourceTree = "<group>"; };
+		F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityContactRow.swift; sourceTree = "<group>"; };
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
@@ -775,6 +785,7 @@
 				F83380F32C28B31E0056C973 /* CustomFont.swift */,
 				F819BD032C683194001247A9 /* TriggerHaptics.swift */,
 				F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */,
+				F8D62A1A2C9119E400E40B45 /* ReverseGeoCodingView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -818,6 +829,7 @@
 				F88C32952C60419C004CF72E /* Cluster.swift */,
 				F8DA34502C875AE600660978 /* PostCluster.swift */,
 				F8DA34582C877A7B00660978 /* SimplifiedPost.swift */,
+				F8D62A1C2C91FB3900E40B45 /* Poll.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1086,6 +1098,7 @@
 				F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */,
 				F86508762C8F6C9700E59B5C /* LeaderboardCover.swift */,
 				F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */,
+				F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */,
 			);
 			path = Leaderboards;
 			sourceTree = "<group>";
@@ -1545,6 +1558,7 @@
 		F8A98C262B9A668D00D399AB /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				F8D62A1E2C91FCCB00E40B45 /* Polls */,
 				F86508712C8CAD8300E59B5C /* Leaderboards */,
 				F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */,
 				F89F28732BE3F4F300E670E0 /* ActivityCell.swift */,
@@ -1640,6 +1654,15 @@
 				F8BE0C092C58A66800770E3F /* CombinedCameraControls.swift */,
 			);
 			path = Camera;
+			sourceTree = "<group>";
+		};
+		F8D62A1E2C91FCCB00E40B45 /* Polls */ = {
+			isa = PBXGroup;
+			children = (
+				F8D62A232C92006F00E40B45 /* PollView.swift */,
+				F8D62A252C92014900E40B45 /* PollViewModel.swift */,
+			);
+			path = Polls;
 			sourceTree = "<group>";
 		};
 		F8F494F22BBF8C230043B515 /* Individual Filters */ = {
@@ -1979,6 +2002,7 @@
 				F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */,
 				F86508732C8CAF8D00E59B5C /* PostLeaderboard.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
+				F8D62A242C92006F00E40B45 /* PollView.swift in Sources */,
 				F846F4532BFBD534009D1303 /* Review.swift in Sources */,
 				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,
 				F871CE0E2BCDFF1D003C9BE8 /* CreateCollectionDetails.swift in Sources */,
@@ -2044,6 +2068,7 @@
 				F8FB35602BEED6010079DE6D /* VideoPlayer.swift in Sources */,
 				F8DA34512C875AE600660978 /* PostCluster.swift in Sources */,
 				F88C32942C604160004CF72E /* ClusterService.swift in Sources */,
+				F8D62A1D2C91FB3900E40B45 /* Poll.swift in Sources */,
 				F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */,
 				F8670A5E2BF3FBC800F527D9 /* FinalPhotoPreview.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
@@ -2080,8 +2105,10 @@
 				F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */,
 				F88E0B392B6CA37000EC159B /* RestaurantProfileHeaderView.swift in Sources */,
 				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
+				F8D62A262C92014900E40B45 /* PollViewModel.swift in Sources */,
 				F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
+				F8D62A1B2C9119E400E40B45 /* ReverseGeoCodingView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
@@ -2125,6 +2152,7 @@
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
 				F8DA34572C87684700660978 /* PostAnnotationViews.swift in Sources */,
 				F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */,
+				F8D62A282C92383E00E40B45 /* ActivityContactRow.swift in Sources */,
 				F87D33E82C7EA56500E5A962 /* PostUploadedSuccessView.swift in Sources */,
 				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,

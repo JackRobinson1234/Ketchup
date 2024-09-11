@@ -26,7 +26,7 @@ class ActivityViewModel: ObservableObject {
     var user: User?
     private var service = ActivityService()
     @Published var topContacts: [Contact] = []
-
+    
     // Sheet state properties
     @Published var collectionsViewModel = CollectionsViewModel()
     @Published var showWrittenPost: Bool = false
@@ -42,17 +42,21 @@ class ActivityViewModel: ObservableObject {
     @Published var isContactPermissionGranted: Bool = false
     private var lastContactDocumentSnapshot: DocumentSnapshot? = nil
     @Published var hasMoreContacts: Bool = true
-
+    @Published var currentPoll: Poll?
+    
+    
     private var contactsPageSize = 10
-       
+    
     let contactsViewModel = ContactsViewModel()
     private let userService = UserService.shared
     func checkContactPermission() {
-            let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
-            DispatchQueue.main.async {
-                self.isContactPermissionGranted = authorizationStatus == .authorized
-            }
+        let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+        DispatchQueue.main.async {
+            self.isContactPermissionGranted = authorizationStatus == .authorized
         }
+    }
+    
+    
     func loadMore() {
         guard !isFetching, hasMoreActivities, !isLoadingMore else { return }
         
@@ -67,18 +71,18 @@ class ActivityViewModel: ObservableObject {
         }
     }
     func loadMoreContacts() {
-            guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
-            
-            isLoadingMore = true
-            Task {
-                do {
-                    try await fetchTopContacts()
-                } catch {
-                    //print("Error fetching more contacts: \(error)")
-                }
-                isLoadingMore = false
+        guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
+        
+        isLoadingMore = true
+        Task {
+            do {
+                try await fetchTopContacts()
+            } catch {
+                //print("Error fetching more contacts: \(error)")
             }
+            isLoadingMore = false
         }
+    }
     func fetchFollowingActivities() async throws {
         guard !isFetching else { return }
         isFetching = true
@@ -96,91 +100,91 @@ class ActivityViewModel: ObservableObject {
         }
     }
     func fetchTopContacts() async throws {
-            guard isContactPermissionGranted else { return }
-            guard let userId = Auth.auth().currentUser?.uid else { return }
-            
-            let db = Firestore.firestore()
-            var query = db.collection("users").document(userId).collection("contacts")
-                .whereField("hasExistingAccount", isEqualTo: true)
-                .order(by: "userCount", descending: true)
-                .limit(to: contactsPageSize)
-            
-            if let lastSnapshot = lastContactDocumentSnapshot {
-                query = query.start(afterDocument: lastSnapshot)
-            }
-            
-            let snapshot = try await query.getDocuments()
-            
-            var newContacts = snapshot.documents.compactMap { document -> Contact? in
-                try? document.data(as: Contact.self)
-            }
-            
-            // Fetch user details for each contact
-            for i in 0..<newContacts.count {
-                if let user = try await userService.fetchUser(withPhoneNumber: newContacts[i].phoneNumber) {
-                    newContacts[i].user = user
-                }
-            }
-            
-            DispatchQueue.main.async {
-                self.topContacts.append(contentsOf: newContacts)
-                self.lastContactDocumentSnapshot = snapshot.documents.last
-                self.hasMoreContacts = !snapshot.documents.isEmpty
+        guard isContactPermissionGranted else { return }
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        var query = db.collection("users").document(userId).collection("contacts")
+            .whereField("hasExistingAccount", isEqualTo: true)
+            .order(by: "userCount", descending: true)
+            .limit(to: contactsPageSize)
+        
+        if let lastSnapshot = lastContactDocumentSnapshot {
+            query = query.start(afterDocument: lastSnapshot)
+        }
+        
+        let snapshot = try await query.getDocuments()
+        
+        var newContacts = snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
+        }
+        
+        // Fetch user details for each contact
+        for i in 0..<newContacts.count {
+            if let user = try await userService.fetchUser(withPhoneNumber: newContacts[i].phoneNumber) {
+                newContacts[i].user = user
             }
         }
         
-        func resetContactsPagination() {
-            topContacts = []
-            lastContactDocumentSnapshot = nil
-            hasMoreContacts = true
+        DispatchQueue.main.async {
+            self.topContacts.append(contentsOf: newContacts)
+            self.lastContactDocumentSnapshot = snapshot.documents.last
+            self.hasMoreContacts = !snapshot.documents.isEmpty
         }
+    }
+    
+    func resetContactsPagination() {
+        topContacts = []
+        lastContactDocumentSnapshot = nil
+        hasMoreContacts = true
+    }
+    
+    func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
+        guard let userId = contact.user?.id else { return false }
         
-        func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
-            guard let userId = contact.user?.id else { return false }
-            
-            // If we've already checked the follow status, return the stored value
-            if let isFollowed = contact.isFollowed {
-                return isFollowed
-            }
-            
-            // If we haven't checked yet, fetch the status from the server
-            let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
-            
-            // Update the contact in the topContacts array
-            if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
-                DispatchQueue.main.async {
-                    self.topContacts[index].isFollowed = isFollowed
-                }
-            }
-            
+        // If we've already checked the follow status, return the stored value
+        if let isFollowed = contact.isFollowed {
             return isFollowed
         }
         
-        func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
-            if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
-                DispatchQueue.main.async {
-                    self.topContacts[index].isFollowed = isFollowed
-                }
+        // If we haven't checked yet, fetch the status from the server
+        let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
+        
+        // Update the contact in the topContacts array
+        if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
+            DispatchQueue.main.async {
+                self.topContacts[index].isFollowed = isFollowed
             }
         }
         
-        func follow(userId: String) async throws {
-            try await userService.follow(uid: userId)
-            updateFollowStatus(for: userId, isFollowed: true)
-        }
-        
-        func unfollow(userId: String) async throws {
-            try await userService.unfollow(uid: userId)
-            updateFollowStatus(for: userId, isFollowed: false)
-        }
-        
-        private func updateFollowStatus(for userId: String, isFollowed: Bool) {
-            if let index = topContacts.firstIndex(where: { $0.user?.id == userId }) {
-                DispatchQueue.main.async {
-                    self.topContacts[index].isFollowed = isFollowed
-                }
+        return isFollowed
+    }
+    
+    func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
+        if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
+            DispatchQueue.main.async {
+                self.topContacts[index].isFollowed = isFollowed
             }
         }
+    }
+    
+    func follow(userId: String) async throws {
+        try await userService.follow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: true)
+    }
+    
+    func unfollow(userId: String) async throws {
+        try await userService.unfollow(uid: userId)
+        updateFollowStatus(for: userId, isFollowed: false)
+    }
+    
+    private func updateFollowStatus(for userId: String, isFollowed: Bool) {
+        if let index = topContacts.firstIndex(where: { $0.user?.id == userId }) {
+            DispatchQueue.main.async {
+                self.topContacts[index].isFollowed = isFollowed
+            }
+        }
+    }
     func fetchInitialActivities() async throws {
         guard !isFetching else { return }
         

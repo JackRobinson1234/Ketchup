@@ -35,19 +35,19 @@ struct LocationSearchView: View {
                 .cornerRadius(8)
                 
                 List {
-                        ForEach(mapSearch.locationResults, id: \.self) { location in
-                            Button(action: {
-                                selectLocation(location)
-                            }) {
-                                VStack(alignment: .leading) {
-                                    Text(location.title)
-                                        .foregroundColor(.black)
-                                    Text(location.subtitle)
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
+                    ForEach(mapSearch.locationResults, id: \.self) { location in
+                        Button(action: {
+                            selectLocation(location)
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(location.title)
+                                    .foregroundColor(.black)
+                                Text(location.subtitle)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
                             }
                         }
+                    }
                     
                 }
             }

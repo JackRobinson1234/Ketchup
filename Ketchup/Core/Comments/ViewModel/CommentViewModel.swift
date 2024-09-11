@@ -120,7 +120,6 @@ class CommentViewModel: ObservableObject {
                     }
                 }
             }
-            //self.lastAddedCommentId = self.organizedComments.last?.comment.id
             
         }
         

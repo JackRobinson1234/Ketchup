@@ -9,8 +9,6 @@ import SwiftUI
 
 struct RestaurantLeaderboard: View {
     @ObservedObject var viewModel: LeaderboardViewModel
-    @State private var topRestaurants: [Restaurant] = []
-    @State private var isLoading = true
     @State private var selectedRestaurant: Restaurant?
     @Environment(\.dismiss) var dismiss
     @State private var canSwitchTab = true
@@ -19,6 +17,7 @@ struct RestaurantLeaderboard: View {
     var title: String
     var state: String?
     var city: String?
+    var surrounding: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -26,14 +25,16 @@ struct RestaurantLeaderboard: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 4) {
                         headerSection
-                       
                         
-                        if isLoading {
+                        if viewModel.isLoading && viewModel.restaurants.isEmpty {
                             loadingView
                         } else {
                             restaurantList
                         }
                     }
+                }
+                .refreshable {
+                    await refreshRestaurants()
                 }
             }
             .edgesIgnoringSafeArea(.top)
@@ -41,26 +42,28 @@ struct RestaurantLeaderboard: View {
                 RestaurantProfileView(restaurantId: restaurant.id)
             }
         }
-        .onAppear(perform: fetchRestaurants)
+        .onAppear {
+            Task {
+                await refreshRestaurants()
+            }
+        }
     }
     
     private var headerSection: some View {
         ZStack(alignment: .bottomLeading) {
             if let imageURL = topImage {
-                if let imageURL = topImage {
-                    ListingImageCarouselView(images: [imageURL])
-                        .overlay(
-                            LinearGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: Color.clear, location: 0.4),
-                                    .init(color: Color.black.opacity(0.7), location: 0.8),
-                                    .init(color: Color.black.opacity(0.9), location: 1.0)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
+                ListingImageCarouselView(images: [imageURL])
+                    .overlay(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color.clear, location: 0.4),
+                                .init(color: Color.black.opacity(0.7), location: 0.8),
+                                .init(color: Color.black.opacity(0.9), location: 1.0)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
-                }
+                    )
             }
             
             VStack {
@@ -90,13 +93,67 @@ struct RestaurantLeaderboard: View {
         .frame(height: 200)
     }
     
+    private var timePeriodSelector: some View {
+        HStack(spacing: 10) {
+            Spacer()
+            Button {
+                switchTimePeriod(.month)
+            } label: {
+                Text("Month")
+                    .font(.custom("MuseoSansRounded-500", size: 18))
+                    .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .gray)
+                    .padding(.bottom, 5)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .clear)
+                            .offset(y: 12)
+                    )
+            }
+            .disabled(viewModel.timePeriod == .month || !canSwitchTab)
+            
+            Button {
+                switchTimePeriod(.week)
+            } label: {
+                Text("Week")
+                    .font(.custom("MuseoSansRounded-500", size: 18))
+                    .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .gray)
+                    .padding(.bottom, 5)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .clear)
+                            .offset(y: 12)
+                    )
+            }
+            .disabled(viewModel.timePeriod == .week || !canSwitchTab)
+            Spacer()
+        }
+        .padding(.vertical)
+    }
+    
+    private var dateRangeView: some View {
+        HStack {
+            Spacer()
+            if viewModel.timePeriod == .week {
+                Text(getDateRangeForCurrentWeek())
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundStyle(.black)
+            } else {
+                Text(getCurrentMonth())
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundStyle(.black)
+            }
+            Spacer()
+        }
+    }
     
     private var loadingView: some View {
         FastCrossfadeFoodImageView()
     }
     
     private var restaurantList: some View {
-        ForEach(Array(topRestaurants.enumerated()), id: \.element.id) { index, restaurant in
+        ForEach(Array(viewModel.restaurants.enumerated()), id: \.element.id) { index, restaurant in
             Button(action: { selectedRestaurant = restaurant }) {
                 HStack(spacing: 8) {
                     Text("\(index + 1).")
@@ -133,6 +190,13 @@ struct RestaurantLeaderboard: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
             }
+            .onAppear {
+                if restaurant == viewModel.restaurants.last {
+                    Task {
+                        try? await viewModel.fetchMoreRestaurants(state: state, city: city, geohash: surrounding)
+                    }
+                }
+            }
         }
     }
     
@@ -142,24 +206,18 @@ struct RestaurantLeaderboard: View {
             viewModel.timePeriod = period
         }
         canSwitchTab = false
-        fetchRestaurants()
+        Task {
+            await refreshRestaurants()
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             canSwitchTab = true
         }
     }
     
-    private func fetchRestaurants() {
-        isLoading = true
-        Task {
-            do {
-                topRestaurants = try await viewModel.fetchTopRestaurants(count: 10, state: state, city: city)
-                isLoading = false
-            } catch {
-                print("Error fetching restaurants: \(error.localizedDescription)")
-                isLoading = false
-            }
-        }
+    private func refreshRestaurants() async {
+        viewModel.resetPagination()
+        try? await viewModel.fetchMoreRestaurants(state: state, city: city, geohash: surrounding)
     }
     
     private func calculateOverallRating(for restaurant: Restaurant) -> Double? {
@@ -180,5 +238,25 @@ struct RestaurantLeaderboard: View {
         
         return totalCount > 0 ? (weightedSum / Double(totalCount)).rounded(to: 1) : nil
     }
+    
+    private func getCurrentMonth() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM yyyy"
+        return dateFormatter.string(from: Date())
+    }
+    
+    private func getDateRangeForCurrentWeek() -> String {
+        let calendar = Calendar.current
+        let today = Date()
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
+        let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd"
+        
+        let startString = dateFormatter.string(from: startOfWeek)
+        let endString = dateFormatter.string(from: endOfWeek)
+        
+        return "\(startString)-\(endString)"
+    }
 }
-

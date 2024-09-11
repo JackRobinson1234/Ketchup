@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import GeoFire
 enum LetsKetchupOptions {
     case friends, trending
 }
@@ -27,6 +28,9 @@ struct ActivityView: View {
     @State private var cityTopRestaurant: [Restaurant]?
     @State private var showLocationSearch = false
     @State private var city: String?
+    @State private var surroundingGeohash: String?
+    @State private var surroundingTopPost: [Post]?
+    @State private var surroundingTopRestaurant: [Restaurant]?
     @State private var state: String?
     
     var body: some View {
@@ -68,6 +72,10 @@ struct ActivityView: View {
         }
         .onAppear {
             city = AuthService.shared.userSession?.location?.city
+            if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+                surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
+            }
+            
             state = AuthService.shared.userSession?.location?.state
         }
     }
@@ -97,16 +105,18 @@ struct ActivityView: View {
     private var mainContentView: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading) {
-                
+                //                PollView(poll: Poll.createNewPoll(
+                //                    question: "What's your favorite color?",
+                //                    options: ["Red", "Blue", "Green", "Yellow"],
+                //                    imageUrl: "https://picsum.photos/200/300"
+                //                ))
                 mostPostedRestaurantsSection
                 mostLikedPostsSection
                 if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
                     contactsSection
                 }
                 inviteContactsButton
-                //                HorizontalCollectionScrollView()
-                //                    .padding(.bottom)
-                // activityListSection
+                
             }
         }
     }
@@ -128,46 +138,52 @@ struct ActivityView: View {
     }
     
     private var mostPostedRestaurantsSection: some View {
-        VStack(alignment: .leading) {
-            sectionTitle("Most Posted Restaurants")
-                .padding(.horizontal)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    if cityTopRestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .city)
-                    }
-                    if stateTopRestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .state)
-                    }
-                    if topUSARestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .usa)
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-    }
+           VStack(alignment: .leading) {
+               sectionTitle("Most Posted Restaurants")
+                   .padding(.horizontal)
+               ScrollView(.horizontal, showsIndicators: false) {
+                   HStack {
+                       if cityTopRestaurant?.isEmpty == false {
+                           restaurantLeaderboardButton(for: .city)
+                       }
+                       if surroundingTopRestaurant?.isEmpty == false {
+                           restaurantLeaderboardButton(for: .surrounding)
+                       }
+                       if stateTopRestaurant?.isEmpty == false {
+                           restaurantLeaderboardButton(for: .state)
+                       }
+                       if topUSARestaurant?.isEmpty == false {
+                           restaurantLeaderboardButton(for: .usa)
+                       }
+                   }
+                   .padding(.horizontal)
+               }
+           }
+       }
     
     private var mostLikedPostsSection: some View {
-        VStack(alignment: .leading) {
-            sectionTitle("Most Liked Posts")
-                .padding(.horizontal)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    if let city = city, cityTopPost?.isEmpty == false {
-                        leaderboardButton(for: .city(city), posts: cityTopPost)
-                    }
-                    if let state = state, stateTopPost?.isEmpty == false {
-                        leaderboardButton(for: .state(state), posts: stateTopPost)
-                    }
-                    if topUSAPost?.isEmpty == false {
-                        leaderboardButton(for: .usa, posts: topUSAPost)
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-    }
+           VStack(alignment: .leading) {
+               sectionTitle("Most Liked Posts")
+                   .padding(.horizontal)
+               ScrollView(.horizontal, showsIndicators: false) {
+                   HStack {
+                       if let city = city, cityTopPost?.isEmpty == false {
+                           leaderboardButton(for: .city(city), posts: cityTopPost)
+                       }
+                       if let surrounding = surroundingGeohash, surroundingTopPost?.isEmpty == false {
+                           leaderboardButton(for: .surrounding(surrounding), posts: surroundingTopPost)
+                       }
+                       if let state = state, stateTopPost?.isEmpty == false {
+                           leaderboardButton(for: .state(state), posts: stateTopPost)
+                       }
+                       if topUSAPost?.isEmpty == false {
+                           leaderboardButton(for: .usa, posts: topUSAPost)
+                       }
+                   }
+                   .padding(.horizontal)
+               }
+           }
+       }
     
     private var contactsSection: some View {
         VStack(alignment: .leading) {
@@ -199,27 +215,7 @@ struct ActivityView: View {
         .padding(.vertical)
     }
     
-    //    private var activityListSection: some View {
-    //        VStack(alignment: .leading) {
-    //            HStack(alignment: .top) {
-    //                sectionTitle("Following Activity")
-    //                Spacer()
-    //                searchButton
-    //            }
-    //            .padding(.horizontal)
-    //
-    //            if !viewModel.followingActivity.isEmpty {
-    //                activityList
-    //            } else if viewModel.isFetching {
-    //                FastCrossfadeFoodImageView()
-    //            } else {
-    //                Text("No activity from your friends yet.")
-    //                    .font(.custom("MuseoSansRounded-300", size: 16))
-    //                    .foregroundColor(.gray)
-    //                    .padding()
-    //            }
-    //        }
-    //    }
+    
     
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
@@ -300,42 +296,44 @@ struct ActivityView: View {
     }
     
     private func leaderboardButton(for type: LeaderboardType, posts: [Post]?) -> some View {
-        Button {
-            selectedLeaderboardType = type
-        } label: {
-            LeaderboardCover(
-                imageUrl: posts?.first?.thumbnailUrl,
-                title: leaderboardTitle(for: type)
-            )
-        }
-    }
+           Button {
+               selectedLeaderboardType = type
+           } label: {
+               LeaderboardCover(
+                   imageUrl: posts?.first?.thumbnailUrl,
+                   title: leaderboardTitle(for: type)
+               )
+           }
+       }
     
     private func restaurantLeaderboardButton(for type: RestaurantLeaderboardType) -> some View {
-        Button {
-            selectedRestaurantLeaderboardType = type
-        } label: {
-            LeaderboardCover(
-                imageUrl: restaurantImageForLeaderboard(type),
-                title: leaderboardTitle(for: type)
-            )
+            Button {
+                selectedRestaurantLeaderboardType = type
+            } label: {
+                LeaderboardCover(
+                    imageUrl: restaurantImageForLeaderboard(type),
+                    title: leaderboardTitle(for: type)
+                )
+            }
         }
-    }
     
     private func leaderboardTitle(for type: LeaderboardType) -> String {
-        switch type {
-        case .usa: return "USA"
-        case .state(let state): return StateNameConverter.fullName(for: state)
-        case .city(let city): return city
+            switch type {
+            case .usa: return "USA"
+            case .state(let state): return StateNameConverter.fullName(for: state)
+            case .city(let city): return city
+            case .surrounding: return "Nearby"
+            }
         }
-    }
     
     private func leaderboardTitle(for type: RestaurantLeaderboardType) -> String {
-        switch type {
-        case .usa: return "USA"
-        case .state: return state ?? ""
-        case .city: return city ?? ""
+            switch type {
+            case .usa: return "USA"
+            case .state: return state ?? ""
+            case .city: return city ?? ""
+            case .surrounding: return "Nearby"
+            }
         }
-    }
     
     private func postLeaderboardView(for type: LeaderboardType) -> some View {
         PostLeaderboard(
@@ -343,7 +341,8 @@ struct ActivityView: View {
             topImage: topImageForLeaderboard(type),
             title: leaderboardTitle(for: type),
             state: stateForLeaderboard(type),
-            city: cityForLeaderboard(type)
+            city: cityForLeaderboard(type),
+            surrounding: surroundingForLeaderboard(type)
         )
     }
     
@@ -353,7 +352,8 @@ struct ActivityView: View {
             topImage: restaurantImageForLeaderboard(type),
             title: leaderboardTitle(for: type),
             state: type == .state ? state : nil,
-            city: type == .city ? city : nil
+            city: type == .city ? city : nil,
+            surrounding: type == .surrounding ? surroundingGeohash : nil
         )
     }
     
@@ -362,6 +362,7 @@ struct ActivityView: View {
         case .usa: return topUSAPost?.first?.thumbnailUrl
         case .state: return stateTopPost?.first?.thumbnailUrl
         case .city: return cityTopPost?.first?.thumbnailUrl
+        case .surrounding: return surroundingTopPost?.first?.thumbnailUrl
         }
     }
     
@@ -370,6 +371,7 @@ struct ActivityView: View {
         case .usa: return topUSARestaurant?.first?.profileImageUrl
         case .state: return stateTopRestaurant?.first?.profileImageUrl
         case .city: return cityTopRestaurant?.first?.profileImageUrl
+        case .surrounding: return surroundingTopRestaurant?.first?.profileImageUrl
         }
     }
     
@@ -380,6 +382,10 @@ struct ActivityView: View {
     
     private func cityForLeaderboard(_ type: LeaderboardType) -> String? {
         if case .city(let city) = type { return city }
+        return nil
+    }
+    private func surroundingForLeaderboard(_ type: LeaderboardType) -> String? {
+        if case .surrounding(let surrounding) = type { return surrounding}
         return nil
     }
     
@@ -438,18 +444,21 @@ struct ActivityView: View {
         async let usaPosts: () = fetchTopPosts(count: 1)
         async let statePosts: () = fetchTopPosts(count: 1, state: state)
         async let cityPosts: () = fetchTopPosts(count: 1, city: city)
+        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
         async let usaRestaurants: () = fetchTopRestaurants(count: 1)
         async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
         async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
+        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
         
         do {
-            try await ( _, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, usaRestaurants, stateRestaurants, cityRestaurants)
+            try await ( _, _, _, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
             isLoading = false
         } catch {
             print("Error loading initial data: \(error.localizedDescription)")
             isLoading = false
         }
     }
+    
     private func refreshData() async {
         viewModel.checkContactPermission()
         viewModel.resetContactsPagination()
@@ -458,73 +467,83 @@ struct ActivityView: View {
         async let usaPosts: () = fetchTopPosts(count: 1)
         async let statePosts: () = fetchTopPosts(count: 1, state: state)
         async let cityPosts: () = fetchTopPosts(count: 1, city: city)
+        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
         async let usaRestaurants: () = fetchTopRestaurants(count: 1)
         async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
         async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
+        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
         
         do {
-            try await (_, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, usaRestaurants, stateRestaurants, cityRestaurants)
+            try await (_, _, _, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
         } catch {
             print("Error refreshing data: \(error.localizedDescription)")
         }
     }
+
+    
     private func refreshLocationData() async {
-        
-        async let contacts: () = viewModel.fetchTopContacts()
         async let usaPosts: () = fetchTopPosts(count: 1)
         async let statePosts: () = fetchTopPosts(count: 1, state: state)
         async let cityPosts: () = fetchTopPosts(count: 1, city: city)
+        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
         async let usaRestaurants: () = fetchTopRestaurants(count: 1)
         async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
         async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
+        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
         
-        do {
-            try await (_, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, usaRestaurants, stateRestaurants, cityRestaurants)
-        } catch {
-            print("Error refreshing data: \(error.localizedDescription)")
-        }
+        //do {
+            try await ( _, _, _, _, _, _, _, _) = (usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
+//        } catch {
+//            print("Error refreshing data: \(error.localizedDescription)")
+//        }
     }
-    private func fetchTopPosts(count: Int, state: String? = nil, city: String? = nil) async {
-        do {
-            let posts = try await leaderboardViewModel.fetchTopPosts(count: count, state: state, city: city)
-            if state == nil && city == nil {
-                topUSAPost = posts.isEmpty ? nil : posts
-            } else if city == nil {
-                stateTopPost = posts.isEmpty ? nil : posts
-            } else {
-                cityTopPost = posts.isEmpty ? nil : posts
+    private func fetchTopPosts(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
+            do {
+                let posts = try await leaderboardViewModel.fetchTopPosts(count: count, state: state, city: city, geohash: geohash)
+                if state == nil && city == nil && geohash == nil {
+                    topUSAPost = posts.isEmpty ? nil : posts
+                } else if city == nil && geohash == nil {
+                    stateTopPost = posts.isEmpty ? nil : posts
+                } else if geohash == nil {
+                    cityTopPost = posts.isEmpty ? nil : posts
+                } else {
+                    surroundingTopPost = posts.isEmpty ? nil : posts
+                }
+            } catch {
+                print("Error fetching top posts: \(error.localizedDescription)")
             }
-        } catch {
-            print("Error fetching top posts: \(error.localizedDescription)")
         }
-    }
     
-    private func fetchTopRestaurants(count: Int, state: String? = nil, city: String? = nil) async {
-        do {
-            let restaurants = try await leaderboardViewModel.fetchTopRestaurants(count: count, state: state, city: city)
-            if state == nil && city == nil {
-                topUSARestaurant = restaurants.isEmpty ? nil : restaurants
-            } else if city == nil {
-                stateTopRestaurant = restaurants.isEmpty ? nil : restaurants
-            } else {
-                cityTopRestaurant = restaurants.isEmpty ? nil : restaurants
-            }
-        } catch {
-            print("Error fetching top restaurants: \(error.localizedDescription)")
-        }
-    }
+    private func fetchTopRestaurants(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
+           do {
+               let restaurants = try await leaderboardViewModel.fetchTopRestaurants(count: count, state: state, city: city, geohash: geohash)
+               if state == nil && city == nil && geohash == nil {
+                   topUSARestaurant = restaurants.isEmpty ? nil : restaurants
+               } else if city == nil && geohash == nil {
+                   stateTopRestaurant = restaurants.isEmpty ? nil : restaurants
+               } else if geohash == nil {
+                   cityTopRestaurant = restaurants.isEmpty ? nil : restaurants
+               } else {
+                   surroundingTopRestaurant = restaurants.isEmpty ? nil : restaurants
+               }
+           } catch {
+               print("Error fetching top restaurants: \(error.localizedDescription)")
+           }
+       }
 }
 
 enum LeaderboardType: Identifiable {
     case usa
     case state(String)
     case city(String)
+    case surrounding(String)
     
     var id: String {
         switch self {
         case .usa: return "usa"
         case .state(let state): return "state_\(state)"
         case .city(let city): return "city_\(city)"
+        case .surrounding(let surrounding): return "surrounding"
         }
     }
 }
@@ -533,137 +552,18 @@ enum RestaurantLeaderboardType: Identifiable {
     case usa
     case state
     case city
+    case surrounding
     
     var id: String {
         switch self {
         case .usa: return "usa"
         case .state: return "state"
         case .city: return "city"
+        case .surrounding: return "surrounding"
         }
     }
 }
 
-struct ActivityContactRow: View {
-    @ObservedObject var viewModel: ActivityViewModel
-    @State var contact: Contact
-    @State private var isFollowed: Bool
-    @State private var isCheckingFollowStatus: Bool = false
-    @State private var hasCheckedFollowStatus: Bool = false
-    @State private var isShowingProfile: Bool = false
-    private var isCurrentUser: Bool {
-        Auth.auth().currentUser?.uid == contact.user?.id
-    }
-    init(viewModel: ActivityViewModel, contact: Contact) {
-        self.viewModel = viewModel
-        self._contact = State(initialValue: contact)
-        self._isFollowed = State(initialValue: contact.isFollowed ?? false)
-    }
-    
-    var body: some View {
-        
-        HStack(spacing: 12) {
-            profileImageButton
-            userInfoView
-            Spacer()
-            if !isCurrentUser {
-                followStatusView
-            }
-        }
-        .padding(.vertical, 8)
-        .onAppear(perform: checkFollowStatus)
-        
-    }
-    
-    private var profileImageButton: some View {
-        Button(action: { isShowingProfile = true }) {
-            UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
-        }
-        .fullScreenCover(isPresented: $isShowingProfile) {
-            if let userId = contact.user?.id {
-                NavigationStack {
-                    ProfileView(uid: userId)
-                }
-            }
-        }
-    }
-    
-    private var userInfoView: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Button(action: { isShowingProfile = true }) {
-                Text(contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundStyle(.black)
-            }
-            
-            if let username = contact.user?.username {
-                Text("@\(username)")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-        }
-    }
-    
-    private var followStatusView: some View {
-        Group {
-            if isCheckingFollowStatus {
-                ProgressView()
-                    .scaleEffect(0.7)
-            } else {
-                followButton
-            }
-        }
-    }
-    
-    private var followButton: some View {
-        Button(action: handleFollowAction) {
-            Text(isFollowed ? "Following" : "Follow")
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .fontWeight(.semibold)
-                .frame(width: 110)
-                .padding(.vertical, 8)
-                .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
-                .background(isFollowed ? Color.clear : Color.red)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color("Colors/AccentColor"), lineWidth: isFollowed ? 1 : 0)
-                )
-        }
-    }
-    
-    private func checkFollowStatus() {
-        guard let userId = contact.user?.id, !hasCheckedFollowStatus else { return }
-        
-        isCheckingFollowStatus = true
-        Task {
-            do {
-                isFollowed = try await viewModel.checkIfUserIsFollowed(contact: contact)
-                isCheckingFollowStatus = false
-                hasCheckedFollowStatus = true
-            } catch {
-                print("Error checking follow status: \(error.localizedDescription)")
-                isCheckingFollowStatus = false
-            }
-        }
-    }
-    
-    private func handleFollowAction() {
-        guard let userId = contact.user?.id else { return }
-        Task {
-            do {
-                if isFollowed {
-                    try await viewModel.unfollow(userId: userId)
-                } else {
-                    try await viewModel.follow(userId: userId)
-                }
-                isFollowed.toggle()
-                viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
-            } catch {
-                print("Failed to follow/unfollow: \(error.localizedDescription)")
-            }
-        }
-    }
-}
 
 struct InviteContactsButton: View {
     var body: some View {

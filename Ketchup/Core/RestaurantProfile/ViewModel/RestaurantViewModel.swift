@@ -85,16 +85,7 @@ class RestaurantViewModel: ObservableObject {
         print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
     }
     
-//    private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
-//        guard let category = category,
-//              let totalCount = category.totalCount,
-//              totalCount > 0,
-//              let sum = category.sum else {
-//            return nil
-//        }
-//        
-//        return (sum / Double(totalCount)).rounded(to: 1)
-//    }
+
     
     func fetchRestaurantCollections() async throws{
         if let restaurant = restaurant{
