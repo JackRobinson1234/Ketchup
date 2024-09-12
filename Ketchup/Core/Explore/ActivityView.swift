@@ -33,15 +33,24 @@ struct ActivityView: View {
     @State private var surroundingTopRestaurant: [Restaurant]?
     @State private var state: String?
     @State private var surroundingCounty: String = "Nearby"
-
+    @State private var selectedTab: Tab = .discover
+    
+    enum Tab {
+        case discover
+        case leaderboards
+    }
     var body: some View {
         NavigationStack {
-            Group {
-                if isLoading {
-                    loadingView
-                } else {
-                    mainContentView
+            VStack{
+                tabButtons
+                Group {
+                    if isLoading {
+                        loadingView
+                    } else {
+                        mainContentView
+                    }
                 }
+                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -50,7 +59,7 @@ struct ActivityView: View {
                         toolbarLogoView
                         Spacer()
                         locationButton
-                            
+                        
                     }.padding(.horizontal)
                 }
                 
@@ -67,17 +76,17 @@ struct ActivityView: View {
             .fullScreenCover(item: $selectedRestaurantLeaderboardType) { restaurantLeaderboardView(for: $0) }
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchView(
-                       city: $city,
-                       state: $state,
-                       surroundingGeohash: $surroundingGeohash,
-                       surroundingCounty: $surroundingCounty,
-                       onLocationSelected: {
-                           Task {
-                               await refreshLocationData()
-                           }
-                       }
-                   )
-                   .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                    city: $city,
+                    state: $state,
+                    surroundingGeohash: $surroundingGeohash,
+                    surroundingCounty: $surroundingCounty,
+                    onLocationSelected: {
+                        Task {
+                            await refreshLocationData()
+                        }
+                    }
+                )
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
         }
         .onAppear {
@@ -85,13 +94,44 @@ struct ActivityView: View {
             if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
                 surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
                 reverseGeocodeLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
-
+                
             }
             
             state = AuthService.shared.userSession?.location?.state
         }
     }
+    private var tabButtons: some View {
+        HStack {
+            actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
+                selectedTab = .discover
+            }
+            actionButton(title: "Leaderboards", icon: "trophy", isSelected: selectedTab == .leaderboards) {
+                selectedTab = .leaderboards
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
     
+    private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text(title)
+                    .font(.custom("MuseoSansRounded-500", size: 12))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            //.background(isSelected ? Color.black : Color.clear)
+            .foregroundColor(isSelected ? Color("Colors/AccentColor") : .black)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(isSelected ? Color("Colors/AccentColor") : Color.gray.opacity(0.5), lineWidth: 1)
+            )
+            .cornerRadius(20)
+        }
+    }
     private var loadingView: some View {
         FastCrossfadeFoodImageView()
             .onAppear { Task { await loadInitialData() } }
@@ -107,7 +147,7 @@ struct ActivityView: View {
                 Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .foregroundStyle(.gray)
-                   
+                
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.gray)
                     .font(.caption)
@@ -122,19 +162,30 @@ struct ActivityView: View {
     private var mainContentView: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading) {
-                //                PollView(poll: Poll.createNewPoll(
-                //                    question: "What's your favorite color?",
-                //                    options: ["Red", "Blue", "Green", "Yellow"],
-                //                    imageUrl: "https://picsum.photos/200/300"
-                //                ))
-                mostPostedRestaurantsSection
-                mostLikedPostsSection
-                if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
-                    contactsSection
+                if selectedTab == .discover {
+                    discoverContent
+                } else {
+                    leaderboardsContent
                 }
-                inviteContactsButton
-                
             }
+        }
+    }
+    
+    private var discoverContent: some View {
+        VStack(alignment: .leading) {
+            mostPostedRestaurantsSection
+            mostLikedPostsSection
+            if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
+                contactsSection
+            }
+            inviteContactsButton
+        }
+    }
+    
+    private var leaderboardsContent: some View {
+        VStack(alignment: .leading) {
+            mostPostedRestaurantsSection
+            mostLikedPostsSection
         }
     }
     
@@ -155,52 +206,52 @@ struct ActivityView: View {
     }
     
     private var mostPostedRestaurantsSection: some View {
-           VStack(alignment: .leading) {
-               sectionTitle("Most Posted Restaurants")
-                   .padding(.horizontal)
-               ScrollView(.horizontal, showsIndicators: false) {
-                   HStack {
-                       if cityTopRestaurant?.isEmpty == false {
-                           restaurantLeaderboardButton(for: .city)
-                       }
-                       if surroundingTopRestaurant?.isEmpty == false {
-                           restaurantLeaderboardButton(for: .surrounding)
-                       }
-                       if stateTopRestaurant?.isEmpty == false {
-                           restaurantLeaderboardButton(for: .state)
-                       }
-                       if topUSARestaurant?.isEmpty == false {
-                           restaurantLeaderboardButton(for: .usa)
-                       }
-                   }
-                   .padding(.horizontal)
-               }
-           }
-       }
+        VStack(alignment: .leading) {
+            sectionTitle("Restaurants- Most Posts")
+                .padding(.horizontal)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    if cityTopRestaurant?.isEmpty == false {
+                        restaurantLeaderboardButton(for: .city)
+                    }
+                    if surroundingTopRestaurant?.isEmpty == false {
+                        restaurantLeaderboardButton(for: .surrounding)
+                    }
+                    if stateTopRestaurant?.isEmpty == false {
+                        restaurantLeaderboardButton(for: .state)
+                    }
+                    if topUSARestaurant?.isEmpty == false {
+                        restaurantLeaderboardButton(for: .usa)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
     
     private var mostLikedPostsSection: some View {
-           VStack(alignment: .leading) {
-               sectionTitle("Most Liked Posts")
-                   .padding(.horizontal)
-               ScrollView(.horizontal, showsIndicators: false) {
-                   HStack {
-                       if let city = city, cityTopPost?.isEmpty == false {
-                           leaderboardButton(for: .city(city), posts: cityTopPost)
-                       }
-                       if let surrounding = surroundingGeohash, surroundingTopPost?.isEmpty == false {
-                           leaderboardButton(for: .surrounding(surrounding), posts: surroundingTopPost)
-                       }
-                       if let state = state, stateTopPost?.isEmpty == false {
-                           leaderboardButton(for: .state(state), posts: stateTopPost)
-                       }
-                       if topUSAPost?.isEmpty == false {
-                           leaderboardButton(for: .usa, posts: topUSAPost)
-                       }
-                   }
-                   .padding(.horizontal)
-               }
-           }
-       }
+        VStack(alignment: .leading) {
+            sectionTitle("Posts- Most Likes")
+                .padding(.horizontal)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    if let city = city, cityTopPost?.isEmpty == false {
+                        leaderboardButton(for: .city(city), posts: cityTopPost)
+                    }
+                    if let surrounding = surroundingGeohash, surroundingTopPost?.isEmpty == false {
+                        leaderboardButton(for: .surrounding(surrounding), posts: surroundingTopPost)
+                    }
+                    if let state = state, stateTopPost?.isEmpty == false {
+                        leaderboardButton(for: .state(state), posts: stateTopPost)
+                    }
+                    if topUSAPost?.isEmpty == false {
+                        leaderboardButton(for: .usa, posts: topUSAPost)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
     
     private var contactsSection: some View {
         VStack(alignment: .leading) {
@@ -313,44 +364,44 @@ struct ActivityView: View {
     }
     
     private func leaderboardButton(for type: LeaderboardType, posts: [Post]?) -> some View {
-           Button {
-               selectedLeaderboardType = type
-           } label: {
-               LeaderboardCover(
-                   imageUrl: posts?.first?.thumbnailUrl,
-                   title: leaderboardTitle(for: type)
-               )
-           }
-       }
+        Button {
+            selectedLeaderboardType = type
+        } label: {
+            LeaderboardCover(
+                imageUrl: posts?.first?.thumbnailUrl,
+                title: leaderboardTitle(for: type)
+            )
+        }
+    }
     
     private func restaurantLeaderboardButton(for type: RestaurantLeaderboardType) -> some View {
-            Button {
-                selectedRestaurantLeaderboardType = type
-            } label: {
-                LeaderboardCover(
-                    imageUrl: restaurantImageForLeaderboard(type),
-                    title: leaderboardTitle(for: type)
-                )
-            }
+        Button {
+            selectedRestaurantLeaderboardType = type
+        } label: {
+            LeaderboardCover(
+                imageUrl: restaurantImageForLeaderboard(type),
+                title: leaderboardTitle(for: type)
+            )
         }
+    }
     
     private func leaderboardTitle(for type: LeaderboardType) -> String {
-            switch type {
-            case .usa: return "USA"
-            case .state(let state): return StateNameConverter.fullName(for: state)
-            case .city(let city): return city
-            case .surrounding: return surroundingCounty
-            }
+        switch type {
+        case .usa: return "USA"
+        case .state(let state): return StateNameConverter.fullName(for: state)
+        case .city(let city): return city
+        case .surrounding: return surroundingCounty
         }
+    }
     
     private func leaderboardTitle(for type: RestaurantLeaderboardType) -> String {
-            switch type {
-            case .usa: return "USA"
-            case .state: return state ?? ""
-            case .city: return city ?? ""
-            case .surrounding: return surroundingCounty
-            }
+        switch type {
+        case .usa: return "USA"
+        case .state: return state ?? ""
+        case .city: return city ?? ""
+        case .surrounding: return surroundingCounty
         }
+    }
     
     private func postLeaderboardView(for type: LeaderboardType) -> some View {
         PostLeaderboard(
@@ -496,7 +547,7 @@ struct ActivityView: View {
             print("Error refreshing data: \(error.localizedDescription)")
         }
     }
-
+    
     
     private func refreshLocationData() async {
         async let usaPosts: () = fetchTopPosts(count: 1)
@@ -509,65 +560,65 @@ struct ActivityView: View {
         async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
         
         //do {
-            try await ( _, _, _, _, _, _, _, _) = (usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
-//        } catch {
-//            print("Error refreshing data: \(error.localizedDescription)")
-//        }
+        try await ( _, _, _, _, _, _, _, _) = (usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
+        //        } catch {
+        //            print("Error refreshing data: \(error.localizedDescription)")
+        //        }
     }
     private func fetchTopPosts(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
-            do {
-                let posts = try await leaderboardViewModel.fetchTopPosts(count: count, state: state, city: city, geohash: geohash)
-                if state == nil && city == nil && geohash == nil {
-                    topUSAPost = posts.isEmpty ? nil : posts
-                } else if city == nil && geohash == nil {
-                    stateTopPost = posts.isEmpty ? nil : posts
-                } else if geohash == nil {
-                    cityTopPost = posts.isEmpty ? nil : posts
-                } else {
-                    surroundingTopPost = posts.isEmpty ? nil : posts
-                }
-            } catch {
-                print("Error fetching top posts: \(error.localizedDescription)")
+        do {
+            let posts = try await leaderboardViewModel.fetchTopPosts(count: count, state: state, city: city, geohash: geohash)
+            if state == nil && city == nil && geohash == nil {
+                topUSAPost = posts.isEmpty ? nil : posts
+            } else if city == nil && geohash == nil {
+                stateTopPost = posts.isEmpty ? nil : posts
+            } else if geohash == nil {
+                cityTopPost = posts.isEmpty ? nil : posts
+            } else {
+                surroundingTopPost = posts.isEmpty ? nil : posts
             }
+        } catch {
+            print("Error fetching top posts: \(error.localizedDescription)")
         }
+    }
     
     private func fetchTopRestaurants(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
-           do {
-               let restaurants = try await leaderboardViewModel.fetchTopRestaurants(count: count, state: state, city: city, geohash: geohash)
-               if state == nil && city == nil && geohash == nil {
-                   topUSARestaurant = restaurants.isEmpty ? nil : restaurants
-               } else if city == nil && geohash == nil {
-                   stateTopRestaurant = restaurants.isEmpty ? nil : restaurants
-               } else if geohash == nil {
-                   cityTopRestaurant = restaurants.isEmpty ? nil : restaurants
-               } else {
-                   surroundingTopRestaurant = restaurants.isEmpty ? nil : restaurants
-               }
-           } catch {
-               print("Error fetching top restaurants: \(error.localizedDescription)")
-           }
-       }
+        do {
+            let restaurants = try await leaderboardViewModel.fetchTopRestaurants(count: count, state: state, city: city, geohash: geohash)
+            if state == nil && city == nil && geohash == nil {
+                topUSARestaurant = restaurants.isEmpty ? nil : restaurants
+            } else if city == nil && geohash == nil {
+                stateTopRestaurant = restaurants.isEmpty ? nil : restaurants
+            } else if geohash == nil {
+                cityTopRestaurant = restaurants.isEmpty ? nil : restaurants
+            } else {
+                surroundingTopRestaurant = restaurants.isEmpty ? nil : restaurants
+            }
+        } catch {
+            print("Error fetching top restaurants: \(error.localizedDescription)")
+        }
+    }
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
-            let location = CLLocation(latitude: latitude, longitude: longitude)
-            let geocoder = CLGeocoder()
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let geocoder = CLGeocoder()
+        
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            if let error = error {
+                print("Reverse geocoding error: \(error.localizedDescription)")
+                return
+            }
             
-            geocoder.reverseGeocodeLocation(location) { placemarks, error in
-                if let error = error {
-                    print("Reverse geocoding error: \(error.localizedDescription)")
-                    return
-                }
-                
-                if let placemark = placemarks?.first {
-                    if let county = placemark.subAdministrativeArea {
-                        DispatchQueue.main.async {
-                            self.surroundingCounty = county
-                        }
-                    } else {
-                        print("County information not available")
+            if let placemark = placemarks?.first {
+                if let county = placemark.subAdministrativeArea {
+                    DispatchQueue.main.async {
+                        self.surroundingCounty = county
                     }
+                } else {
+                    print("County information not available")
                 }
             }
         }
+    }
 }
 
 enum LeaderboardType: Identifiable {

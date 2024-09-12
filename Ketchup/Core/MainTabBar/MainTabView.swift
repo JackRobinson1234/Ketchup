@@ -23,7 +23,7 @@ struct MainTabView: View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)
                 .tabItem {
-                    VStack{
+                    VStack(spacing:1){
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
                             .resizable()
                             .foregroundStyle(.black)
@@ -44,7 +44,7 @@ struct MainTabView: View {
             
             MapView()
                 .tabItem {
-                    VStack{
+                    VStack(spacing:1){
                         Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
                             .foregroundStyle(.black)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
@@ -78,7 +78,7 @@ struct MainTabView: View {
 
             ActivityView()
                 .tabItem {
-                    VStack{
+                    VStack(spacing:1){
                         Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
                             .foregroundStyle(.black)
                             .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
@@ -98,14 +98,14 @@ struct MainTabView: View {
 
             CurrentUserProfileView( feedViewModel: currentUserFeedViewModel)
                 .tabItem {
-                    VStack {
-                        VStack{
+                    
+                        VStack(spacing:1){
                             Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
                             Text("Profile")
                                 .font(.custom("MuseoSansRounded-500", size: 8))
                                 .foregroundStyle(.gray)
                         }
-                    }
+                    
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.black)
                 }
