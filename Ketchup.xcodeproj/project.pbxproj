@@ -21,6 +21,7 @@
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
 		F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2C2C719BA7001F296F /* ContactsView.swift */; };
 		F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */; };
+		F82EC7432C9249DF00DDA688 /* GeohashKit in Frameworks */ = {isa = PBXBuildFile; productRef = F82EC7422C9249DF00DDA688 /* GeohashKit */; };
 		F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F29F72C8A6BF500F385C1 /* SafariView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
@@ -579,6 +580,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F8628A6E2C501B62000B046B /* YPImagePicker in Frameworks */,
+				F82EC7432C9249DF00DDA688 /* GeohashKit in Frameworks */,
 				F8C6455A2C3B73770004F1B0 /* InstantSearch in Frameworks */,
 				F8C645632C3B73850004F1B0 /* AlgoliaSearchClient in Frameworks */,
 				F8C645662C3B738E0004F1B0 /* CachingPlayerItem in Frameworks */,
@@ -1728,6 +1730,7 @@
 				F8C645652C3B738E0004F1B0 /* CachingPlayerItem */,
 				F88322042C3DDD9E006744D2 /* SwiftyCrop */,
 				F8628A6D2C501B62000B046B /* YPImagePicker */,
+				F82EC7422C9249DF00DDA688 /* GeohashKit */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1811,6 +1814,7 @@
 				F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */,
 				F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
 				F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */,
+				F82EC7412C9249DF00DDA688 /* XCRemoteSwiftPackageReference "GeohashKit" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2600,6 +2604,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F82EC7412C9249DF00DDA688 /* XCRemoteSwiftPackageReference "GeohashKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ualch9/GeohashKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 		F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Yummypets/YPImagePicker.git";
@@ -2651,6 +2663,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F82EC7422C9249DF00DDA688 /* GeohashKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F82EC7412C9249DF00DDA688 /* XCRemoteSwiftPackageReference "GeohashKit" */;
+			productName = GeohashKit;
+		};
 		F8628A6D2C501B62000B046B /* YPImagePicker */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */;

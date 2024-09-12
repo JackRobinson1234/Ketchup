@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "geohashkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ualch9/GeohashKit",
+      "state" : {
+        "revision" : "d514b5af0b43bdb0a0912eaa036442f4d02f5661",
+        "version" : "3.0.0"
+      }
+    },
+    {
       "identity" : "instantsearch-ios",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/algolia/instantsearch-ios",

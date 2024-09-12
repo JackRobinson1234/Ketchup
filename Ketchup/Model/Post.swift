@@ -49,7 +49,7 @@ struct Post: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.mediaType = try container.decode(MediaType.self, forKey: .mediaType)
-        self.mediaUrls = try container.decodeIfPresent([String].self, forKey: .mediaUrls) ?? []  // Default to empty array if not present
+        self.mediaUrls = try container.decodeIfPresent([String].self, forKey: .mediaUrls) ?? []
         self.mixedMediaUrls = try container.decodeIfPresent([MixedMediaItem].self, forKey: .mixedMediaUrls)
         self.caption = try container.decode(String.self, forKey: .caption)
         self.likes = try container.decode(Int.self, forKey: .likes)
@@ -142,6 +142,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     var name: String
     var geoPoint: GeoPoint?
     var geoHash: String?
+    var truncatedGeoHash: String?
     var address: String?
     var city: String?
     var state: String?

@@ -9,6 +9,7 @@ import Foundation
 import FirebaseCore
 import FirebaseFirestoreInternal
 import GeoFire
+import GeohashKit
 
 @MainActor
 class LeaderboardViewModel: ObservableObject {
@@ -46,8 +47,8 @@ class LeaderboardViewModel: ObservableObject {
             }
             if let geohash = geohash {
                 let geohashPrefix = String(geohash.prefix(4)) // Using first 5 characters of the geohash
-                query = query.whereField("restaurant.geoHash", isGreaterThanOrEqualTo: geohashPrefix)
-                    .whereField("restaurant.geoHash", isLessThan: geohashPrefix + "~")
+                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("restaurant.truncatedGeohash", in: geohashNeighbors)
             }
             if let lastPostDocument = lastPostDocument {
                 query = query.start(afterDocument: lastPostDocument)
@@ -88,8 +89,8 @@ class LeaderboardViewModel: ObservableObject {
             }
             if let geohash = geohash {
                 let geohashPrefix = String(geohash.prefix(4)) // Using first 5 characters of the geohash
-                query = query.whereField("restaurant.geoHash", isGreaterThanOrEqualTo: geohashPrefix)
-                    .whereField("restaurant.geoHash", isLessThan: geohashPrefix + "~")
+                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("restaurant.truncatedGeohash", in: geohashNeighbors)
             }
             // Add city logic if necessary:
             if let city = city, !city.isEmpty {
@@ -109,28 +110,38 @@ class LeaderboardViewModel: ObservableObject {
     func fetchTopRestaurants(count: Int = 10, state: String? = nil, city: String? = nil, geohash: String? = nil) async throws -> [Restaurant] {
         do {
             let startDate = timePeriod == .week ? getStartOfWeek() : getStartOfMonth()
+            print("Fetching top restaurants starting from: \(startDate)")
             
             var query = FirestoreConstants.RestaurantCollection
-            // Assuming restaurants have a 'lastPostTimestamp' field
                 .order(by: "stats.postCount", descending: true)
-            
+            print("Initial query ordered by post count")
+
             if let state = state, state != "All States" {
                 let stateAbbreviation = StateNameConverter.fullName(for: state)
                 query = query.whereField("state", isEqualTo: stateAbbreviation)
+                print("Filtering by state: \(stateAbbreviation)")
             }
             
             if let city = city, !city.isEmpty {
                 query = query.whereField("city", isEqualTo: city)
+                print("Filtering by city: \(city)")
             }
+
             if let geohash = geohash {
-                let geohashPrefix = String(geohash.prefix(4)) // Using first 5 characters of the geohash
-                query = query.whereField("geoHash", isGreaterThanOrEqualTo: geohashPrefix)
-                    .whereField("geoHash", isLessThan: geohashPrefix + "~")
+                let geohashPrefix = String(geohash.prefix(4)) // Using first 4 characters of the geohash
+                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("truncatedGeohash", in: geohashNeighbors)
+                print("Filtering by geohash with prefix: \(geohashPrefix)")
+                print("Geohash neighbors: \(geohashNeighbors)")
             }
+
+            print("Final query before fetching documents: \(query)")
+            
             let restaurants = try await query
                 .limit(to: count)
                 .getDocuments(as: Restaurant.self)
             
+            print("Successfully fetched \(restaurants.count) restaurants")
             return restaurants
         } catch {
             print("Error fetching top restaurants: \(error.localizedDescription)")
@@ -142,10 +153,8 @@ class LeaderboardViewModel: ObservableObject {
         
         isLoading = true
         defer { isLoading = false }
-        
         do {
             let startDate = timePeriod == .week ? getStartOfWeek() : getStartOfMonth()
-            
             var query = FirestoreConstants.RestaurantCollection
                 .order(by: "stats.postCount", descending: true)
             
@@ -155,8 +164,8 @@ class LeaderboardViewModel: ObservableObject {
             }
             if let geohash = geohash {
                 let geohashPrefix = String(geohash.prefix(4)) // Using first 5 characters of the geohash
-                query = query.whereField("geoHash", isGreaterThanOrEqualTo: geohashPrefix)
-                    .whereField("geoHash", isLessThan: geohashPrefix + "~")
+                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("truncatedGeohash", in: geohashNeighbors)
             }
             if let city = city, !city.isEmpty {
                 query = query.whereField("city", isEqualTo: city)
@@ -190,10 +199,20 @@ class LeaderboardViewModel: ObservableObject {
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) ?? currentDate
         return Timestamp(date: startOfMonth)
     }
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            let neighbors = geoHash.neighbors
+            if let neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                print([geohash] + neighborGeohashes)
+                return [geohash] + neighborGeohashes
+            }
+        }
+        return [geohash]
+    }
 }
 // Enum for TimePeriod
 enum TimePeriod {
     case week
     case month
 }
-

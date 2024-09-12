@@ -23,11 +23,16 @@ struct MainTabView: View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)
                 .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
-                        .resizable()
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
-                        .padding()
+                    VStack{
+                        Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
+                            .resizable()
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
+                            .padding()
+                        Text("Home")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
+                    }
                 }
                 .onAppear {
                     tabBarController.selectedTab = 0
@@ -39,10 +44,15 @@ struct MainTabView: View {
             
             MapView()
                 .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                        .padding()
+                    VStack{
+                        Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+                            .padding()
+                        Text("Map")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
+                    }
                 }
                 .onAppear {
                     tabBarController.selectedTab = 1
@@ -68,10 +78,15 @@ struct MainTabView: View {
 
             ActivityView()
                 .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
-                        .padding()
+                    VStack{
+                        Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
+                            .padding()
+                        Text("Discover")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
+                    }
                 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
@@ -84,7 +99,12 @@ struct MainTabView: View {
             CurrentUserProfileView( feedViewModel: currentUserFeedViewModel)
                 .tabItem {
                     VStack {
-                        Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
+                        VStack{
+                            Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
+                            Text("Profile")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
                     }
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.black)

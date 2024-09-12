@@ -98,6 +98,7 @@ struct UploadService {
             name: restaurant.name,
             geoPoint: restaurant.geoPoint,
             geoHash: restaurant.geoHash,
+            truncatedGeoHash: restaurant.truncatedGeohash,
             address: restaurant.address,
             city: restaurant.city,
             state: restaurant.state,

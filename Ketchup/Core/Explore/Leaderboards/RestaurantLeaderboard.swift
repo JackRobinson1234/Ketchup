@@ -27,9 +27,15 @@ struct RestaurantLeaderboard: View {
                         headerSection
                         
                         if viewModel.isLoading && viewModel.restaurants.isEmpty {
-                            loadingView
+                            HStack{
+                                Spacer()
+                                
+                                loadingView
+                                Spacer()
+                            }
                         } else {
                             restaurantList
+                                .padding(.top)
                         }
                     }
                 }
@@ -154,30 +160,28 @@ struct RestaurantLeaderboard: View {
     
     private var restaurantList: some View {
         ForEach(Array(viewModel.restaurants.enumerated()), id: \.element.id) { index, restaurant in
-            Button(action: { selectedRestaurant = restaurant }) {
+            NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                 HStack(spacing: 8) {
                     Text("\(index + 1).")
                         .font(.custom("MuseoSansRounded-700", size: 16))
                         .foregroundColor(.black)
                         .frame(width: 30)
-                    
-                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl ?? "", size: .medium)
-                    
+                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl ?? "", size: .large)
                     VStack(alignment: .leading) {
                         Text(restaurant.name)
                             .lineLimit(1)
                             .font(.custom("MuseoSansRounded-700", size: 14))
                             .foregroundColor(.black)
-                        
                         Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                             .lineLimit(1)
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
-                        
+                        Text("\(combineRestaurantDetails(restaurant:restaurant))")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
                         Text("Posts: \(restaurant.stats?.postCount ?? 0)")
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
-                        
                         if let rating = calculateOverallRating(for: restaurant) {
                             Text("Rating: \(rating, specifier: "%.1f")")
                                 .font(.custom("MuseoSansRounded-300", size: 12))
@@ -238,7 +242,18 @@ struct RestaurantLeaderboard: View {
         
         return totalCount > 0 ? (weightedSum / Double(totalCount)).rounded(to: 1) : nil
     }
-    
+    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
+        var details = [String]()
+        
+        if let cuisine = restaurant.categoryName {
+            details.append(cuisine)
+        }
+        if let price = restaurant.price {
+            details.append(price)
+        }
+        
+        return details.joined(separator: ", ")
+    }
     private func getCurrentMonth() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM yyyy"
@@ -253,10 +268,8 @@ struct RestaurantLeaderboard: View {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd"
-        
         let startString = dateFormatter.string(from: startOfWeek)
         let endString = dateFormatter.string(from: endOfWeek)
-        
         return "\(startString)-\(endString)"
     }
 }

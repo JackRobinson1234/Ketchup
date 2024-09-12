@@ -32,7 +32,8 @@ struct ActivityView: View {
     @State private var surroundingTopPost: [Post]?
     @State private var surroundingTopRestaurant: [Restaurant]?
     @State private var state: String?
-    
+    @State private var surroundingCounty: String = "Nearby"
+
     var body: some View {
         NavigationStack {
             Group {
@@ -45,11 +46,14 @@ struct ActivityView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    VStack(spacing: 2){
+                    HStack(){
                         toolbarLogoView
+                        Spacer()
                         locationButton
-                            .padding(.bottom,2)
-                    }}
+                            
+                    }.padding(.horizontal)
+                }
+                
             }
             .refreshable { await refreshData() }
             .sheet(isPresented: $showSearchView) { SearchView(initialSearchConfig: .users) }
@@ -62,18 +66,26 @@ struct ActivityView: View {
             .fullScreenCover(item: $selectedLeaderboardType) { postLeaderboardView(for: $0) }
             .fullScreenCover(item: $selectedRestaurantLeaderboardType) { restaurantLeaderboardView(for: $0) }
             .sheet(isPresented: $showLocationSearch) {
-                LocationSearchView(city: $city, state: $state, onLocationSelected: {
-                    Task {
-                        await refreshData()
-                    }
-                })
-                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                LocationSearchView(
+                       city: $city,
+                       state: $state,
+                       surroundingGeohash: $surroundingGeohash,
+                       surroundingCounty: $surroundingCounty,
+                       onLocationSelected: {
+                           Task {
+                               await refreshLocationData()
+                           }
+                       }
+                   )
+                   .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
         }
         .onAppear {
             city = AuthService.shared.userSession?.location?.city
             if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
                 surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
+                reverseGeocodeLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+
             }
             
             state = AuthService.shared.userSession?.location?.state
@@ -95,12 +107,17 @@ struct ActivityView: View {
                 Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .foregroundStyle(.gray)
+                   
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.gray)
                     .font(.caption)
             }
+            .lineLimit(2)
+            .minimumScaleFactor(0.5)
+            
         }
     }
+    
     
     private var mainContentView: some View {
         ScrollView(showsIndicators: false) {
@@ -322,7 +339,7 @@ struct ActivityView: View {
             case .usa: return "USA"
             case .state(let state): return StateNameConverter.fullName(for: state)
             case .city(let city): return city
-            case .surrounding: return "Nearby"
+            case .surrounding: return surroundingCounty
             }
         }
     
@@ -331,7 +348,7 @@ struct ActivityView: View {
             case .usa: return "USA"
             case .state: return state ?? ""
             case .city: return city ?? ""
-            case .surrounding: return "Nearby"
+            case .surrounding: return surroundingCounty
             }
         }
     
@@ -530,6 +547,27 @@ struct ActivityView: View {
                print("Error fetching top restaurants: \(error.localizedDescription)")
            }
        }
+    private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
+            let location = CLLocation(latitude: latitude, longitude: longitude)
+            let geocoder = CLGeocoder()
+            
+            geocoder.reverseGeocodeLocation(location) { placemarks, error in
+                if let error = error {
+                    print("Reverse geocoding error: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let placemark = placemarks?.first {
+                    if let county = placemark.subAdministrativeArea {
+                        DispatchQueue.main.async {
+                            self.surroundingCounty = county
+                        }
+                    } else {
+                        print("County information not available")
+                    }
+                }
+            }
+        }
 }
 
 enum LeaderboardType: Identifiable {
