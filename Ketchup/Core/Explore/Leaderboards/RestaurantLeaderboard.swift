@@ -12,36 +12,48 @@ struct RestaurantLeaderboard: View {
     @State private var selectedRestaurant: Restaurant?
     @Environment(\.dismiss) var dismiss
     @State private var canSwitchTab = true
-    
+    @State var restaurants: [Restaurant] = []
     var topImage: String?
     var title: String
     var state: String?
     var city: String?
-    var surrounding: String? = nil
-
+    var surrounding: String?
+    var leaderboardType: RestaurantLeaderboardType
+    var selectedLocation: ActivityView.LocationType
+    enum RestaurantLeaderboardType {
+        case mostPosts
+        case highestRated(LeaderboardViewModel.RatingCategory)
+    }
+    
     var body: some View {
         NavigationStack {
-            VStack {
+            ZStack(alignment: .top) {
                 ScrollView(.vertical, showsIndicators: false) {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        headerSection
+                    VStack(spacing: 0) {
+                        Color.clear.frame(height: 200) // Space for sticky header
                         
-                        if viewModel.isLoading && viewModel.restaurants.isEmpty {
-                            HStack{
+                        LazyVStack(alignment: .leading, spacing: 4) {
+                            if viewModel.isLoading && restaurants.isEmpty {
                                 Spacer()
-                                
-                                loadingView
+                                HStack {
+                                    Spacer()
+                                    loadingView
+                                    Spacer()
+                                }
                                 Spacer()
+                            } else {
+                                restaurantList
+                                    .padding(.top)
                             }
-                        } else {
-                            restaurantList
-                                .padding(.top)
                         }
                     }
+                    .refreshable {
+                        await refreshRestaurants()
+                    }
                 }
-                .refreshable {
-                    await refreshRestaurants()
-                }
+                
+                // Sticky header section
+                headerSection
             }
             .edgesIgnoringSafeArea(.top)
             .navigationDestination(for: Restaurant.self) { restaurant in
@@ -90,67 +102,22 @@ struct RestaurantLeaderboard: View {
                 Spacer()
             }
             
-            Text("Top Restaurants: \(title)")
+            Text(headerTitle)
                 .font(.custom("MuseoSansRounded-300", size: 20))
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
                 .padding([.horizontal, .bottom])
         }
         .frame(height: 200)
+        .background(Color.black.opacity(0.5)) // Optional background
     }
     
-    private var timePeriodSelector: some View {
-        HStack(spacing: 10) {
-            Spacer()
-            Button {
-                switchTimePeriod(.month)
-            } label: {
-                Text("Month")
-                    .font(.custom("MuseoSansRounded-500", size: 18))
-                    .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .gray)
-                    .padding(.bottom, 5)
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(viewModel.timePeriod == .month ? Color("Colors/AccentColor") : .clear)
-                            .offset(y: 12)
-                    )
-            }
-            .disabled(viewModel.timePeriod == .month || !canSwitchTab)
-            
-            Button {
-                switchTimePeriod(.week)
-            } label: {
-                Text("Week")
-                    .font(.custom("MuseoSansRounded-500", size: 18))
-                    .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .gray)
-                    .padding(.bottom, 5)
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(viewModel.timePeriod == .week ? Color("Colors/AccentColor") : .clear)
-                            .offset(y: 12)
-                    )
-            }
-            .disabled(viewModel.timePeriod == .week || !canSwitchTab)
-            Spacer()
-        }
-        .padding(.vertical)
-    }
-    
-    private var dateRangeView: some View {
-        HStack {
-            Spacer()
-            if viewModel.timePeriod == .week {
-                Text(getDateRangeForCurrentWeek())
-                    .font(.custom("MuseoSansRounded-500", size: 14))
-                    .foregroundStyle(.black)
-            } else {
-                Text(getCurrentMonth())
-                    .font(.custom("MuseoSansRounded-500", size: 14))
-                    .foregroundStyle(.black)
-            }
-            Spacer()
+    private var headerTitle: String {
+        switch leaderboardType {
+        case .mostPosts:
+            return "Most Posted Restaurants: \(title)"
+        case .highestRated(let category):
+            return "Top 20 \(category.rawValue.capitalized): \(title)"
         }
     }
     
@@ -159,7 +126,7 @@ struct RestaurantLeaderboard: View {
     }
     
     private var restaurantList: some View {
-        ForEach(Array(viewModel.restaurants.enumerated()), id: \.element.id) { index, restaurant in
+        ForEach(Array(restaurants.enumerated()), id: \.element.id) { index, restaurant in
             NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                 HStack(spacing: 8) {
                     Text("\(index + 1).")
@@ -176,14 +143,14 @@ struct RestaurantLeaderboard: View {
                             .lineLimit(1)
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
-                        Text("\(combineRestaurantDetails(restaurant:restaurant))")
+                        Text("\(combineRestaurantDetails(restaurant: restaurant))")
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
                         Text("Posts: \(restaurant.stats?.postCount ?? 0)")
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .foregroundColor(.gray)
-                        if let rating = calculateOverallRating(for: restaurant) {
-                            Text("Rating: \(rating, specifier: "%.1f")")
+                        if let rating = getRatingForDisplay(restaurant) {
+                            Text("\(getRatingDescription()) Rating: \(rating, specifier: "%.1f")")
                                 .font(.custom("MuseoSansRounded-300", size: 12))
                                 .foregroundColor(.gray)
                         }
@@ -193,13 +160,6 @@ struct RestaurantLeaderboard: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-            }
-            .onAppear {
-                if restaurant == viewModel.restaurants.last {
-                    Task {
-                        try? await viewModel.fetchMoreRestaurants(state: state, city: city, geohash: surrounding)
-                    }
-                }
             }
         }
     }
@@ -221,7 +181,7 @@ struct RestaurantLeaderboard: View {
     
     private func refreshRestaurants() async {
         viewModel.resetPagination()
-        try? await viewModel.fetchMoreRestaurants(state: state, city: city, geohash: surrounding)
+        await fetchMoreRestaurants()
     }
     
     private func calculateOverallRating(for restaurant: Restaurant) -> Double? {
@@ -271,5 +231,54 @@ struct RestaurantLeaderboard: View {
         let startString = dateFormatter.string(from: startOfWeek)
         let endString = dateFormatter.string(from: endOfWeek)
         return "\(startString)-\(endString)"
+    }
+    private func fetchMoreRestaurants() async {
+        do {
+            let locationFilter: LeaderboardViewModel.LocationFilter
+            switch selectedLocation {
+            case .usa:
+                locationFilter = .anywhere
+            case .city:
+                locationFilter = .city(city ?? "")
+            case .surrounding:
+                locationFilter = .geohash(surrounding ?? "")
+            }
+            print("LEADERBOARD LOCATION FILTER", locationFilter)
+            switch leaderboardType {
+            case .mostPosts:
+                self.restaurants = try await viewModel.fetchTopRestaurants(count: 20, locationFilter: locationFilter)
+            case .highestRated(let category):
+                self.restaurants = try await viewModel.fetchHighestRatedRestaurants(category: category, count: 20, locationFilter: locationFilter)
+            }
+        } catch {
+            print("Error fetching more restaurants: \(error.localizedDescription)")
+        }
+    }
+    private func getRatingDescription() -> String {
+           switch leaderboardType {
+           case .mostPosts:
+               return "Overall"
+           case .highestRated(let category):
+               return category.rawValue.capitalized
+           }
+       }
+    private func getRatingForDisplay(_ restaurant: Restaurant) -> Double? {
+        switch leaderboardType {
+        case .mostPosts:
+            return restaurant.overallRating?.average
+        case .highestRated(let category):
+            switch category {
+            case .overall:
+                return restaurant.overallRating?.average
+            case .food:
+                return restaurant.ratingStats?.food?.average
+            case .atmosphere:
+                return restaurant.ratingStats?.atmosphere?.average
+            case .value:
+                return restaurant.ratingStats?.value?.average
+            case .service:
+                return restaurant.ratingStats?.service?.average
+            }
+        }
     }
 }

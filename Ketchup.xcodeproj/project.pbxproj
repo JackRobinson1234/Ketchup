@@ -22,6 +22,7 @@
 		F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2C2C719BA7001F296F /* ContactsView.swift */; };
 		F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */; };
 		F82EC7432C9249DF00DDA688 /* GeohashKit in Frameworks */ = {isa = PBXBuildFile; productRef = F82EC7422C9249DF00DDA688 /* GeohashKit */; };
+		F82EC7452C939ACA00DDA688 /* RestaurantLeaderboardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */; };
 		F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F29F72C8A6BF500F385C1 /* SafariView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
@@ -248,7 +249,6 @@
 		F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */; };
 		F8D1CD412B6A5A8A00CEBE76 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */; };
 		F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */; };
-		F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */; };
 		F8D60B062C43304900D6DF6D /* CollageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D60B052C43304900D6DF6D /* CollageImage.swift */; };
 		F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */; };
 		F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */; };
@@ -320,6 +320,7 @@
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
 		F82BFF2C2C719BA7001F296F /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
 		F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModel.swift; sourceTree = "<group>"; };
+		F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboardsView.swift; sourceTree = "<group>"; };
 		F82F29F72C8A6BF500F385C1 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
@@ -542,7 +543,6 @@
 		F8D1CD3E2B6A5A7200CEBE76 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F8D1CD402B6A5A8A00CEBE76 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionView.swift; sourceTree = "<group>"; };
-		F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCollectionViewModel.swift; sourceTree = "<group>"; };
 		F8D60B052C43304900D6DF6D /* CollageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageImage.swift; sourceTree = "<group>"; };
 		F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboard.swift; sourceTree = "<group>"; };
 		F8D62A162C8FC32B00E40B45 /* StateNameConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNameConverter.swift; sourceTree = "<group>"; };
@@ -1101,6 +1101,7 @@
 				F86508762C8F6C9700E59B5C /* LeaderboardCover.swift */,
 				F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */,
 				F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */,
+				F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */,
 			);
 			path = Leaderboards;
 			sourceTree = "<group>";
@@ -1566,7 +1567,6 @@
 				F89F28732BE3F4F300E670E0 /* ActivityCell.swift */,
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
-				F8D60B032C432E7300D6DF6D /* HorizontalCollectionViewModel.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
 				F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */,
 			);
@@ -1997,6 +1997,7 @@
 				F85CDD4D2C078BDC00BD834F /* UISliderView.swift in Sources */,
 				F83F5B162C7017C300FB4434 /* FastCrossfadeFoodImageView.swift in Sources */,
 				F871B0022B886D2900E4EB5F /* MapSearchView.swift in Sources */,
+				F82EC7452C939ACA00DDA688 /* RestaurantLeaderboardsView.swift in Sources */,
 				F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */,
 				F8A24B682BE849F000AB7FDD /* NotificationCell.swift in Sources */,
 				F8A96F252C3C95DA009E67A9 /* LibraryTypeMenuView.swift in Sources */,
@@ -2166,7 +2167,6 @@
 				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
 				F8D60B022C432E5100D6DF6D /* HorizontalCollectionView.swift in Sources */,
 				F86508702C8CACE200E59B5C /* CuratedList.swift in Sources */,
-				F8D60B042C432E7300D6DF6D /* HorizontalCollectionViewModel.swift in Sources */,
 				F8D1CD3F2B6A5A7200CEBE76 /* LoginView.swift in Sources */,
 				6FCD8EBB2C41A476000ACE3F /* SelectFollowingView.swift in Sources */,
 				F88C32962C60419C004CF72E /* Cluster.swift in Sources */,

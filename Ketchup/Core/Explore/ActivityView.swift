@@ -15,65 +15,83 @@ struct ActivityView: View {
     @StateObject private var viewModel = ActivityViewModel()
     @StateObject private var leaderboardViewModel = LeaderboardViewModel()
     @State private var isLoading = true
-    @State private var showSearchView = false
     @State private var showContacts = false
     @State private var shouldShowExistingUsersOnContacts = false
-    @State private var selectedLeaderboardType: LeaderboardType?
-    @State private var selectedRestaurantLeaderboardType: RestaurantLeaderboardType?
-    @State private var topUSAPost: [Post]?
-    @State private var stateTopPost: [Post]?
-    @State private var cityTopPost: [Post]?
-    @State private var topUSARestaurant: [Restaurant]?
-    @State private var stateTopRestaurant: [Restaurant]?
-    @State private var cityTopRestaurant: [Restaurant]?
     @State private var showLocationSearch = false
     @State private var city: String?
     @State private var surroundingGeohash: String?
-    @State private var surroundingTopPost: [Post]?
-    @State private var surroundingTopRestaurant: [Restaurant]?
     @State private var state: String?
     @State private var surroundingCounty: String = "Nearby"
     @State private var selectedTab: Tab = .discover
-    
+    @State private var leaderboardData: [LeaderboardCategory: [LocationType: Any]] = [:]
+    @State private var selectedLeaderboard: (category: LeaderboardCategory?, location: LocationType?)?
+
+
     enum Tab {
         case discover
         case leaderboards
     }
+    
+    enum LeaderboardCategory: String, CaseIterable, Identifiable {
+        case mostPosts = "Top 20 Most Posts"
+        case mostLikes = "Posts - Most Likes"
+        case highestOverallRated = "Top 20 Overall"
+        case highestFoodRated = "Top 20 Food"
+        case highestAtmosphereRated = "Top 20 Atmosphere"
+        case highestValueRated = "Top 20 Value"
+        case highestServiceRated = "Top 20 Service"
+        
+        var id: String { self.rawValue }
+    }
+    
+    enum LocationType: String, CaseIterable, Identifiable {
+        case city = "City"
+        case surrounding = "Surrounding"
+        case usa = "USA"
+        
+        var id: String { self.rawValue }
+    }
+    
     var body: some View {
         NavigationStack {
-            VStack{
-                tabButtons
-                Group {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    tabButtons
+                    
                     if isLoading {
-                        loadingView
+                        FastCrossfadeFoodImageView()
                     } else {
-                        mainContentView
+                        if selectedTab == .discover {
+                            discoverContent
+                        } else {
+                            leaderboardsContent
+                        }
                     }
                 }
-                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    HStack(){
+                    HStack {
                         toolbarLogoView
                         Spacer()
                         locationButton
-                        
-                    }.padding(.horizontal)
+                    }
                 }
-                
             }
             .refreshable { await refreshData() }
-            .sheet(isPresented: $showSearchView) { SearchView(initialSearchConfig: .users) }
-            .sheet(isPresented: $showContacts) { ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts) }
-            .sheet(item: $viewModel.post) { postView(for: $0) }
-            .sheet(item: $viewModel.collection) { collectionView(for: $0) }
-            .sheet(isPresented: $viewModel.showRestaurant) { restaurantView }
-            .sheet(isPresented: $viewModel.showUserProfile) { userProfileView }
-            .sheet(item: $viewModel.writtenPost) { writtenPostView(for: $0) }
-            .fullScreenCover(item: $selectedLeaderboardType) { postLeaderboardView(for: $0) }
-            .fullScreenCover(item: $selectedRestaurantLeaderboardType) { restaurantLeaderboardView(for: $0) }
+            .fullScreenCover(item: Binding(
+                get: { selectedLeaderboard?.category },
+                set: { newValue in
+                    if let newValue = newValue {
+                        selectedLeaderboard?.category = newValue
+                    } else {
+                        selectedLeaderboard = nil
+                    }
+                }
+            )) { category in
+                leaderboardView(for: category)
+            }
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchView(
                     city: $city,
@@ -88,18 +106,18 @@ struct ActivityView: View {
                 )
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
+            .sheet(isPresented: $showContacts) {
+                ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts)
+            }
         }
         .onAppear {
-            city = AuthService.shared.userSession?.location?.city
-            if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
-                surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
-                reverseGeocodeLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
-                
+            loadInitialLocation()
+            Task {
+                await loadInitialData()
             }
-            
-            state = AuthService.shared.userSession?.location?.state
         }
     }
+    
     private var tabButtons: some View {
         HStack {
             actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
@@ -123,7 +141,6 @@ struct ActivityView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            //.background(isSelected ? Color.black : Color.clear)
             .foregroundColor(isSelected ? Color("Colors/AccentColor") : .black)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -132,48 +149,19 @@ struct ActivityView: View {
             .cornerRadius(20)
         }
     }
-    private var loadingView: some View {
-        FastCrossfadeFoodImageView()
-            .onAppear { Task { await loadInitialData() } }
-    }
-    private var locationButton: some View {
-        Button(action: {
-            showLocationSearch = true
-        }) {
-            HStack(spacing:1) {
-                Image(systemName: "location")
-                    .foregroundStyle(.gray)
-                    .font(.caption)
-                Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .foregroundStyle(.gray)
-                
-                Image(systemName: "chevron.down")
-                    .foregroundStyle(.gray)
-                    .font(.caption)
-            }
-            .lineLimit(2)
-            .minimumScaleFactor(0.5)
-            
-        }
-    }
-    
-    
-    private var mainContentView: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading) {
-                if selectedTab == .discover {
-                    discoverContent
-                } else {
-                    leaderboardsContent
-                }
-            }
-        }
-    }
     
     private var discoverContent: some View {
-        VStack(alignment: .leading) {
-            mostPostedRestaurantsSection
+        VStack(alignment: .leading, spacing: 20) {
+            RestaurantLeaderboardsView(
+                viewModel: leaderboardViewModel,
+                leaderboardData: $leaderboardData,
+                selectedLeaderboard: $selectedLeaderboard,
+
+                city: city,
+                state: state,
+                surroundingGeohash: surroundingGeohash,
+                surroundingCounty: surroundingCounty
+            )
             mostLikedPostsSection
             if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
                 contactsSection
@@ -183,8 +171,17 @@ struct ActivityView: View {
     }
     
     private var leaderboardsContent: some View {
-        VStack(alignment: .leading) {
-            mostPostedRestaurantsSection
+        VStack(alignment: .leading, spacing: 20) {
+            RestaurantLeaderboardsView(
+                viewModel: leaderboardViewModel,
+                leaderboardData: $leaderboardData,
+                selectedLeaderboard: $selectedLeaderboard,
+
+                city: city,
+                state: state,
+                surroundingGeohash: surroundingGeohash,
+                surroundingCounty: surroundingCounty
+            )
             mostLikedPostsSection
         }
     }
@@ -196,56 +193,39 @@ struct ActivityView: View {
             .frame(width: 100)
     }
     
-    private var inviteContactsButton: some View {
-        Button {
-            shouldShowExistingUsersOnContacts = false
-            showContacts = true
-        } label: {
-            InviteContactsButton()
-        }
-    }
-    
-    private var mostPostedRestaurantsSection: some View {
-        VStack(alignment: .leading) {
-            sectionTitle("Restaurants- Most Posts")
-                .padding(.horizontal)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    if cityTopRestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .city)
-                    }
-                    if surroundingTopRestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .surrounding)
-                    }
-                    if stateTopRestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .state)
-                    }
-                    if topUSARestaurant?.isEmpty == false {
-                        restaurantLeaderboardButton(for: .usa)
-                    }
-                }
-                .padding(.horizontal)
+    private var locationButton: some View {
+        Button(action: {
+            showLocationSearch = true
+        }) {
+            HStack(spacing: 1) {
+                Image(systemName: "location")
+                    .foregroundStyle(.gray)
+                    .font(.caption)
+                Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .foregroundStyle(.gray)
+                Image(systemName: "chevron.down")
+                    .foregroundStyle(.gray)
+                    .font(.caption)
             }
+            .lineLimit(2)
+            .minimumScaleFactor(0.5)
         }
     }
     
     private var mostLikedPostsSection: some View {
         VStack(alignment: .leading) {
-            sectionTitle("Posts- Most Likes")
+            Text("Posts - Most Likes")
+                .font(.custom("MuseoSansRounded-700", size: 25))
+                .foregroundColor(.black)
                 .padding(.horizontal)
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    if let city = city, cityTopPost?.isEmpty == false {
-                        leaderboardButton(for: .city(city), posts: cityTopPost)
-                    }
-                    if let surrounding = surroundingGeohash, surroundingTopPost?.isEmpty == false {
-                        leaderboardButton(for: .surrounding(surrounding), posts: surroundingTopPost)
-                    }
-                    if let state = state, stateTopPost?.isEmpty == false {
-                        leaderboardButton(for: .state(state), posts: stateTopPost)
-                    }
-                    if topUSAPost?.isEmpty == false {
-                        leaderboardButton(for: .usa, posts: topUSAPost)
+                    ForEach(LocationType.allCases) { locationType in
+                        if let data = leaderboardData[.mostLikes]?[locationType] {
+                            leaderboardButton(for: .mostLikes, locationType: locationType, data: data)
+                        }
                     }
                 }
                 .padding(.horizontal)
@@ -256,348 +236,228 @@ struct ActivityView: View {
     private var contactsSection: some View {
         VStack(alignment: .leading) {
             HStack {
-                sectionTitle("Friends on Ketchup")
+                Text("Friends on Ketchup")
+                    .font(.custom("MuseoSansRounded-700", size: 25))
+                    .foregroundColor(.black)
                 Spacer()
-                seeAllButton
+                Button("See All") {
+                    shouldShowExistingUsersOnContacts = true
+                    showContacts = true
+                }
+                .font(.custom("MuseoSansRounded-300", size: 12))
+                .foregroundStyle(.gray)
             }
             .padding(.horizontal)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 16) {
                     ForEach(viewModel.topContacts) { contact in
-                        
                         ActivityContactRow(viewModel: viewModel, contact: contact)
                             .onAppear {
                                 if contact == viewModel.topContacts.last {
                                     viewModel.loadMoreContacts()
                                 }
                             }
-                        
                     }
-                    loadMoreContactsIndicator
-                    seeAllContactsButton
+                    if viewModel.isLoadingMore {
+                        FastCrossfadeFoodImageView()
+                            .frame(width: 50, height: 50)
+                    }
+                    if viewModel.hasMoreContacts {
+                        Color.clear
+                            .frame(width: 1, height: 1)
+                            .onAppear { viewModel.loadMoreContacts() }
+                    }
                 }
                 .padding(.horizontal)
             }
         }
-        .padding(.vertical)
     }
     
-    
-    
-    private func sectionTitle(_ title: String) -> some View {
-        Text(title)
-            .font(.custom("MuseoSansRounded-700", size: 25))
-            .foregroundColor(.black)
-    }
-    
-    private var seeAllButton: some View {
-        Button(action: {
-            shouldShowExistingUsersOnContacts = true
-            showContacts = true
-        }) {
-            Text("See All")
-                .font(.custom("MuseoSansRounded-300", size: 12))
-                .foregroundStyle(.gray)
-        }
-    }
-    
-    private var loadMoreContactsIndicator: some View {
-        Group {
-            if viewModel.isLoadingMore {
-                ProgressView()
-                    .frame(width: 50, height: 50)
-            }
-            if viewModel.hasMoreContacts {
-                Color.clear
-                    .frame(width: 1, height: 1)
-                    .onAppear { viewModel.loadMoreContacts() }
-            }
-        }
-    }
-    
-    private var seeAllContactsButton: some View {
-        Button(action: { showContacts = true }) {
-            Text("See All")
-                .font(.custom("MuseoSansRounded-300", size: 14))
-                .foregroundColor(.white)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(Color("Colors/AccentColor"))
-                .cornerRadius(20)
-        }
-    }
-    
-    private var searchButton: some View {
+    private var inviteContactsButton: some View {
         Button {
-            showSearchView.toggle()
+            shouldShowExistingUsersOnContacts = false
+            showContacts = true
         } label: {
-            VStack {
-                Image(systemName: "magnifyingglass")
+            HStack {
+                Image(systemName: "envelope")
                     .resizable()
                     .scaledToFit()
-                Text("Search Users")
-                    .font(.custom("MuseoSansRounded-300", size: 12))
+                    .frame(width: 30)
+                    .foregroundStyle(.black)
+                Text("Invite your friends to Beta!")
+                    .font(.custom("MuseoSansRounded-700", size: 16))
+                    .foregroundStyle(.black)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.gray)
             }
-            .frame(height: 40)
-            .foregroundStyle(.gray)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(radius: 2)
         }
+        .padding(.horizontal)
     }
     
-    private var activityList: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(alignment: .top, spacing: 16) {
-                ForEach(viewModel.followingActivity) { activity in
-                    ActivityCell(activity: activity, viewModel: viewModel)
-                        .onAppear {
-                            if activity == viewModel.followingActivity.last {
-                                viewModel.loadMore()
-                            }
-                        }
-                }
-                if viewModel.isLoadingMore {
-                    FastCrossfadeFoodImageView()
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
-    
-    private func leaderboardButton(for type: LeaderboardType, posts: [Post]?) -> some View {
+    private func leaderboardButton(for category: LeaderboardCategory, locationType: LocationType, data: Any) -> some View {
         Button {
-            selectedLeaderboardType = type
+            selectedLeaderboard = (category: category, location: locationType)
         } label: {
             LeaderboardCover(
-                imageUrl: posts?.first?.thumbnailUrl,
-                title: leaderboardTitle(for: type)
+                imageUrl: (data as? [Post])?.first?.thumbnailUrl,
+                title: "Top 20: Most Likes",
+                subtitle: subtitleForLeaderboard(locationType: locationType)
             )
         }
     }
     
-    private func restaurantLeaderboardButton(for type: RestaurantLeaderboardType) -> some View {
-        Button {
-            selectedRestaurantLeaderboardType = type
-        } label: {
-            LeaderboardCover(
-                imageUrl: restaurantImageForLeaderboard(type),
-                title: leaderboardTitle(for: type)
-            )
+    private func subtitleForLeaderboard(locationType: LocationType) -> String {
+        switch locationType {
+        case .city:
+            return city ?? "City"
+        case .surrounding:
+            return surroundingCounty
+        case .usa:
+            return "USA"
         }
     }
     
-    private func leaderboardTitle(for type: LeaderboardType) -> String {
-        switch type {
-        case .usa: return "USA"
-        case .state(let state): return StateNameConverter.fullName(for: state)
-        case .city(let city): return city
-        case .surrounding: return surroundingCounty
-        }
-    }
-    
-    private func leaderboardTitle(for type: RestaurantLeaderboardType) -> String {
-        switch type {
-        case .usa: return "USA"
-        case .state: return state ?? ""
-        case .city: return city ?? ""
-        case .surrounding: return surroundingCounty
-        }
-    }
-    
-    private func postLeaderboardView(for type: LeaderboardType) -> some View {
-        PostLeaderboard(
-            viewModel: leaderboardViewModel,
-            topImage: topImageForLeaderboard(type),
-            title: leaderboardTitle(for: type),
-            state: stateForLeaderboard(type),
-            city: cityForLeaderboard(type),
-            surrounding: surroundingForLeaderboard(type)
-        )
-    }
-    
-    private func restaurantLeaderboardView(for type: RestaurantLeaderboardType) -> some View {
-        RestaurantLeaderboard(
-            viewModel: leaderboardViewModel,
-            topImage: restaurantImageForLeaderboard(type),
-            title: leaderboardTitle(for: type),
-            state: type == .state ? state : nil,
-            city: type == .city ? city : nil,
-            surrounding: type == .surrounding ? surroundingGeohash : nil
-        )
-    }
-    
-    private func topImageForLeaderboard(_ type: LeaderboardType) -> String? {
-        switch type {
-        case .usa: return topUSAPost?.first?.thumbnailUrl
-        case .state: return stateTopPost?.first?.thumbnailUrl
-        case .city: return cityTopPost?.first?.thumbnailUrl
-        case .surrounding: return surroundingTopPost?.first?.thumbnailUrl
-        }
-    }
-    
-    private func restaurantImageForLeaderboard(_ type: RestaurantLeaderboardType) -> String? {
-        switch type {
-        case .usa: return topUSARestaurant?.first?.profileImageUrl
-        case .state: return stateTopRestaurant?.first?.profileImageUrl
-        case .city: return cityTopRestaurant?.first?.profileImageUrl
-        case .surrounding: return surroundingTopRestaurant?.first?.profileImageUrl
-        }
-    }
-    
-    private func stateForLeaderboard(_ type: LeaderboardType) -> String? {
-        if case .state(let state) = type { return state }
-        return nil
-    }
-    
-    private func cityForLeaderboard(_ type: LeaderboardType) -> String? {
-        if case .city(let city) = type { return city }
-        return nil
-    }
-    private func surroundingForLeaderboard(_ type: LeaderboardType) -> String? {
-        if case .surrounding(let surrounding) = type { return surrounding}
-        return nil
-    }
-    
-    private func postView(for post: Post) -> some View {
-        NavigationStack {
-            let feedViewModel = FeedViewModel(posts: [post])
-            SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
-        }
-    }
-    
-    private func collectionView(for collection: Collection) -> some View {
-        CollectionView(collectionsViewModel: viewModel.collectionsViewModel)
-    }
-    
-    private var restaurantView: some View {
-        NavigationStack {
-            if let selectedRestaurantId = viewModel.selectedRestaurantId {
-                RestaurantProfileView(restaurantId: selectedRestaurantId)
+    private func leaderboardView(for category: LeaderboardCategory) -> some View {
+        Group {
+            if category == .mostLikes {
+                PostLeaderboard(
+                    viewModel: leaderboardViewModel,
+                    topImage: (leaderboardData[category]?[.usa] as? [Post])?.first?.thumbnailUrl,
+                    title: category.rawValue,
+                    state: state,
+                    city: city,
+                    surrounding: surroundingGeohash
+                )
+            } else {
+                if let location = selectedLeaderboard?.location{
+                    RestaurantLeaderboard(
+                        viewModel: leaderboardViewModel,
+                        topImage: (leaderboardData[category]?[location] as? [Restaurant])?.first?.profileImageUrl,
+                        title: subtitleForLeaderboard(locationType: location),
+                        state: state,
+                        city: city,
+                        surrounding: surroundingGeohash,
+                        leaderboardType: leaderboardTypeFor(category),
+                        selectedLocation: location
+                        
+                    )
+                }
             }
         }
     }
     
-    private var userProfileView: some View {
-        NavigationStack {
-            if let selectedUid = viewModel.selectedUid {
-                ProfileView(uid: selectedUid)
-                    .navigationDestination(for: PostUser.self) { user in
-                        ProfileView(uid: user.id)
-                    }
-                    .navigationDestination(for: PostRestaurant.self) { restaurant in
-                        RestaurantProfileView(restaurantId: restaurant.id)
-                    }
-            }
+    private func leaderboardTypeFor(_ category: LeaderboardCategory) -> RestaurantLeaderboard.RestaurantLeaderboardType {
+        switch category {
+        case .mostPosts:
+            return .mostPosts
+        case .highestOverallRated:
+            return .highestRated(.overall)
+        case .highestFoodRated:
+            return .highestRated(.food)
+        case .highestAtmosphereRated:
+            return .highestRated(.atmosphere)
+        case .highestValueRated:
+            return .highestRated(.value)
+        case .highestServiceRated:
+            return .highestRated(.service)
+        case .mostLikes:
+            fatalError("Unexpected category for RestaurantLeaderboard")
         }
     }
     
-    private func writtenPostView(for post: Post) -> some View {
-        NavigationStack {
-            ScrollView {
-                let feedViewModel = FeedViewModel(posts: [post])
-                WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
-            }
-            .modifier(BackButtonModifier())
-            .navigationDestination(for: PostRestaurant.self) { restaurant in
-                RestaurantProfileView(restaurantId: restaurant.id)
-            }
+    private func loadInitialLocation() {
+        city = AuthService.shared.userSession?.location?.city
+        if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
+            reverseGeocodeLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
         }
-        .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
+        state = AuthService.shared.userSession?.location?.state
     }
     
     private func loadInitialData() async {
         viewModel.user = AuthService.shared.userSession
         viewModel.checkContactPermission()
         
-        async let contacts: () = viewModel.fetchTopContacts()
-        async let usaPosts: () = fetchTopPosts(count: 1)
-        async let statePosts: () = fetchTopPosts(count: 1, state: state)
-        async let cityPosts: () = fetchTopPosts(count: 1, city: city)
-        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
-        async let usaRestaurants: () = fetchTopRestaurants(count: 1)
-        async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
-        async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
-        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
+        for category in LeaderboardCategory.allCases {
+            for locationType in LocationType.allCases {
+                await fetchLeaderboardData(for: category, locationType: locationType)
+            }
+        }
         
         do {
-            try await ( _, _, _, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
-            isLoading = false
+            try await viewModel.fetchTopContacts()
         } catch {
-            print("Error loading initial data: \(error.localizedDescription)")
-            isLoading = false
+            print("Error fetching top contacts: \(error)")
         }
+        
+        isLoading = false
     }
     
     private func refreshData() async {
-        viewModel.checkContactPermission()
-        viewModel.resetContactsPagination()
-        
-        async let contacts: () = viewModel.fetchTopContacts()
-        async let usaPosts: () = fetchTopPosts(count: 1)
-        async let statePosts: () = fetchTopPosts(count: 1, state: state)
-        async let cityPosts: () = fetchTopPosts(count: 1, city: city)
-        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
-        async let usaRestaurants: () = fetchTopRestaurants(count: 1)
-        async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
-        async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
-        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
+        for category in LeaderboardCategory.allCases {
+            for locationType in LocationType.allCases {
+                await fetchLeaderboardData(for: category, locationType: locationType)
+            }
+        }
         
         do {
-            try await (_, _, _, _, _, _, _, _, _) = (contacts, usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
+            try await viewModel.fetchTopContacts()
         } catch {
-            print("Error refreshing data: \(error.localizedDescription)")
+            print("Error refreshing top contacts: \(error)")
         }
     }
-    
     
     private func refreshLocationData() async {
-        async let usaPosts: () = fetchTopPosts(count: 1)
-        async let statePosts: () = fetchTopPosts(count: 1, state: state)
-        async let cityPosts: () = fetchTopPosts(count: 1, city: city)
-        async let surroundingPosts: () = fetchTopPosts(count: 1, geohash: surroundingGeohash)
-        async let usaRestaurants: () = fetchTopRestaurants(count: 1)
-        async let stateRestaurants: () = fetchTopRestaurants(count: 1, state: state)
-        async let cityRestaurants: () = fetchTopRestaurants(count: 1, city: city)
-        async let surroundingRestaurants: () = fetchTopRestaurants(count: 1, geohash: surroundingGeohash)
-        
-        //do {
-        try await ( _, _, _, _, _, _, _, _) = (usaPosts, statePosts, cityPosts, surroundingPosts, usaRestaurants, stateRestaurants, cityRestaurants, surroundingRestaurants)
-        //        } catch {
-        //            print("Error refreshing data: \(error.localizedDescription)")
-        //        }
+        await refreshData()
     }
-    private func fetchTopPosts(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
+    
+    private func fetchLeaderboardData(for category: LeaderboardCategory, locationType: LocationType) async {
         do {
-            let posts = try await leaderboardViewModel.fetchTopPosts(count: count, state: state, city: city, geohash: geohash)
-            if state == nil && city == nil && geohash == nil {
-                topUSAPost = posts.isEmpty ? nil : posts
-            } else if city == nil && geohash == nil {
-                stateTopPost = posts.isEmpty ? nil : posts
-            } else if geohash == nil {
-                cityTopPost = posts.isEmpty ? nil : posts
-            } else {
-                surroundingTopPost = posts.isEmpty ? nil : posts
+            let locationFilter: LeaderboardViewModel.LocationFilter
+            switch locationType {
+            case .usa:
+                locationFilter = .anywhere
+            case .city:
+                locationFilter = .city(city ?? "")
+            case .surrounding:
+                locationFilter = .geohash(surroundingGeohash ?? "")
+            }
+
+            let data: Any
+            switch category {
+            case .mostPosts:
+                data = try await leaderboardViewModel.fetchTopRestaurants(count: 1, locationFilter: locationFilter)
+            case .mostLikes:
+                data = try await leaderboardViewModel.fetchTopPosts(count: 1)
+            case .highestOverallRated:
+                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .overall, count: 1, locationFilter: locationFilter)
+            case .highestFoodRated:
+                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .food, count: 1, locationFilter: locationFilter)
+            case .highestAtmosphereRated:
+                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .atmosphere, count: 1, locationFilter: locationFilter)
+            case .highestValueRated:
+                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .value, count: 1, locationFilter: locationFilter)
+            case .highestServiceRated:
+                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .service, count: 1, locationFilter: locationFilter)
+            }
+            
+            if (data as? [Any])?.isEmpty == false {
+                if leaderboardData[category] == nil {
+                    leaderboardData[category] = [:]
+                }
+                leaderboardData[category]?[locationType] = data
             }
         } catch {
-            print("Error fetching top posts: \(error.localizedDescription)")
+            print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
         }
     }
     
-    private func fetchTopRestaurants(count: Int, state: String? = nil, city: String? = nil, geohash: String? = nil) async {
-        do {
-            let restaurants = try await leaderboardViewModel.fetchTopRestaurants(count: count, state: state, city: city, geohash: geohash)
-            if state == nil && city == nil && geohash == nil {
-                topUSARestaurant = restaurants.isEmpty ? nil : restaurants
-            } else if city == nil && geohash == nil {
-                stateTopRestaurant = restaurants.isEmpty ? nil : restaurants
-            } else if geohash == nil {
-                cityTopRestaurant = restaurants.isEmpty ? nil : restaurants
-            } else {
-                surroundingTopRestaurant = restaurants.isEmpty ? nil : restaurants
-            }
-        } catch {
-            print("Error fetching top restaurants: \(error.localizedDescription)")
-        }
-    }
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         let geocoder = CLGeocoder()
@@ -608,14 +468,12 @@ struct ActivityView: View {
                 return
             }
             
-            if let placemark = placemarks?.first {
-                if let county = placemark.subAdministrativeArea {
-                    DispatchQueue.main.async {
-                        self.surroundingCounty = county
-                    }
-                } else {
-                    print("County information not available")
+            if let placemark = placemarks?.first, let county = placemark.subAdministrativeArea {
+                DispatchQueue.main.async {
+                    self.surroundingCounty = county
                 }
+            } else {
+                print("County information not available")
             }
         }
     }
