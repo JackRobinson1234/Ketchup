@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
-
+enum listSection {
+    case list, map
+}
 struct RestaurantLeaderboard: View {
     @ObservedObject var viewModel: LeaderboardViewModel
     @State private var selectedRestaurant: Restaurant?
@@ -24,7 +26,8 @@ struct RestaurantLeaderboard: View {
         case mostPosts
         case highestRated(LeaderboardViewModel.RatingCategory)
     }
-    
+    @State var currentSection: listSection = .list
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -42,8 +45,13 @@ struct RestaurantLeaderboard: View {
                                 }
                                 Spacer()
                             } else {
-                                restaurantList
-                                    .padding(.top)
+                                toggleButtons
+                                if currentSection == .list {
+                                    restaurantList
+                                        .padding(.top)
+                                } else {
+                                    
+                                }
                             }
                         }
                     }
@@ -111,7 +119,34 @@ struct RestaurantLeaderboard: View {
         .frame(height: 200)
         .background(Color.black.opacity(0.5)) // Optional background
     }
-    
+    private var toggleButtons: some View {
+        HStack(spacing: 0) {
+            Image(systemName: currentSection == .list ? "list.bullet" : "list.bullet")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 50, height: 20)
+                .onTapGesture {
+                    withAnimation {
+                        self.currentSection = .list
+                    }
+                }
+                .modifier(UnderlineImageModifier(isSelected: currentSection == .list))
+                .frame(maxWidth: .infinity)
+            
+            Image(systemName: currentSection == .map ? "location.fill" : "location")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 50, height: 22)
+                .onTapGesture {
+                    withAnimation {
+                        self.currentSection = .map
+                    }
+                }
+                .modifier(UnderlineImageModifier(isSelected: currentSection == .map))
+                .frame(maxWidth: .infinity)
+        }
+        .padding()
+    }
     private var headerTitle: String {
         switch leaderboardType {
         case .mostPosts:
@@ -124,7 +159,6 @@ struct RestaurantLeaderboard: View {
     private var loadingView: some View {
         FastCrossfadeFoodImageView()
     }
-    
     private var restaurantList: some View {
         ForEach(Array(restaurants.enumerated()), id: \.element.id) { index, restaurant in
             NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {

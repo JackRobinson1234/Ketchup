@@ -33,13 +33,13 @@ struct ActivityView: View {
     }
     
     enum LeaderboardCategory: String, CaseIterable, Identifiable {
-        case mostPosts = "Top 20 Most Posts"
+        case mostPosts = "Most Posted"
         case mostLikes = "Posts - Most Likes"
-        case highestOverallRated = "Top 20 Overall"
-        case highestFoodRated = "Top 20 Food"
-        case highestAtmosphereRated = "Top 20 Atmosphere"
-        case highestValueRated = "Top 20 Value"
-        case highestServiceRated = "Top 20 Service"
+        case highestOverallRated = "Best Overall"
+        case highestFoodRated = "Best Food"
+        case highestAtmosphereRated = "Best Atmosphere"
+        case highestValueRated = "Best Value"
+        case highestServiceRated = "Best Service"
         
         var id: String { self.rawValue }
     }

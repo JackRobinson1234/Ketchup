@@ -32,11 +32,11 @@ struct RestaurantLeaderboardsView: View {
     }
     
     private func leaderboardSection(for category: ActivityView.LeaderboardCategory) -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 20) {
             sectionTitle(category.rawValue)
                 .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10){
+                HStack(spacing: 20){
                     ForEach(ActivityView.LocationType.allCases) { locationType in
                         if let data = leaderboardData[category]?[locationType] {
                             leaderboardButton(for: category, locationType: locationType, data: data)
@@ -68,17 +68,17 @@ struct RestaurantLeaderboardsView: View {
     private func titleForLeaderboard(category: ActivityView.LeaderboardCategory) -> String {
         switch category {
         case .mostPosts:
-            return "Top 20: Most Posts"
+            return "Most Posts"
         case .highestOverallRated:
-            return "Top 20: Overall"
+            return "Best Overall"
         case .highestFoodRated:
-            return "Top 20: Food"
+            return "Best Food"
         case .highestAtmosphereRated:
-            return "Top 20: Atmosphere"
+            return "Best Atmosphere"
         case .highestValueRated:
-            return "Top 20: Value"
+            return "Best Value"
         case .highestServiceRated:
-            return "Top 20: Service"
+            return "Best Service"
         default:
             return ""
         }
