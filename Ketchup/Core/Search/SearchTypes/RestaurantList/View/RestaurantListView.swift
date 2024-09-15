@@ -7,18 +7,20 @@
 
 import SwiftUI
 import InstantSearchSwiftUI
+import MapKit
 
 struct RestaurantListView: View {
     @ObservedObject var viewModel: SearchViewModel
     @Environment(\.dismiss) var dismiss
-    var debouncer = Debouncer(delay: 1.0)
+    @State private var userLocation: CLLocation? = LocationManager.shared.userLocation
     
+    var debouncer = Debouncer(delay: 1.0)
     var body: some View {
-        
+        VStack{
             InfiniteList(viewModel.restaurantHits, itemView: { hit in
                 NavigationLink(value: hit.object) {
                     RestaurantCell(restaurant: hit.object)
-                        .padding()
+                        .padding(.horizontal)
                 }
                 Divider()
             }, noResults: {
@@ -26,10 +28,6 @@ struct RestaurantListView: View {
                     .foregroundStyle(.black)
             })
         }
-    
+       
+    }
 }
-
-
-//#Preview {
-//    RestaurantListView()
-//}

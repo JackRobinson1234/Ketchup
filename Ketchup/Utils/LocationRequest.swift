@@ -11,74 +11,88 @@ import MapKit
 
 
 class LocationManager: NSObject, ObservableObject {
-    private let manager = CLLocationManager()
     @Published var userLocation: CLLocation?
     static let shared = LocationManager()
+    
+    private let manager = CLLocationManager()
+    private var locationCompletion: ((Bool) -> Void)?
     
     override init() {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.startUpdatingLocation()
     }
     
-    func requestLocation() {
-        manager.requestWhenInUseAuthorization()
+    func requestLocation(completion: @escaping (Bool) -> Void) {
+        locationCompletion = completion
+        
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+        case .restricted, .denied:
+            locationCompletion?(false)
+        case .authorizedWhenInUse, .authorizedAlways:
+            manager.startUpdatingLocation()
+        @unknown default:
+            locationCompletion?(false)
+        }
+    }
+    
+    func fetchRoute(coordinates: CLLocationCoordinate2D) async -> (MKRoute?, TimeInterval?) {
+        guard let userLocation = userLocation else {
+            print("User location not available")
+            return (nil, nil)
+        }
+        
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: userLocation.coordinate))
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: coordinates))
+        request.transportType = .automobile
+        
+        do {
+            let result = try await MKDirections(request: request).calculate()
+            if let firstRoute = result.routes.first {
+                return (firstRoute, firstRoute.expectedTravelTime)
+            } else {
+                print("No routes found")
+                return (nil, nil)
+            }
+        } catch {
+            print("Failed to calculate route: \(error)")
+            return (nil, nil)
+        }
     }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-//        switch status {
-//        case .notDetermined:
-//            //print("DEBUG: not determined")
-//        case .restricted:
-//            //print("DEBUG: Restricted")
-//        case .denied:
-//            //print("DEBUG: Denied")
-//        case .authorizedAlways:
-//            //print("DEBUG: Auth always")
-//        case .authorizedWhenInUse:
-//            //print("DEBUG: Auth when in use")
-//        @unknown default:
-//            break
-//        }
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            manager.startUpdatingLocation()
+        case .restricted, .denied:
+            locationCompletion?(false)
+        case .notDetermined:
+            // Wait for the user to make a choice
+            break
+        @unknown default:
+            locationCompletion?(false)
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        self.userLocation = location
+        userLocation = location
+        locationCompletion?(true)
+        locationCompletion = nil
+        manager.stopUpdatingLocation()
     }
     
-    func fetchRoute(coordinates: CLLocationCoordinate2D) async -> (MKRoute?, TimeInterval?) {
-        guard let userLocation = userLocation else {
-            //print("User location not available")
-            return (nil, nil)
-        }
-        
-        let request = MKDirections.Request()
-        let sourcePlacemark = MKPlacemark(coordinate: userLocation.coordinate)
-        let routeSource = MKMapItem(placemark: sourcePlacemark)
-        let destinationPlacemark = MKPlacemark(coordinate: coordinates)
-        let routeDestination = MKMapItem(placemark: destinationPlacemark)
-        
-        request.source = routeSource
-        request.destination = routeDestination
-        request.transportType = .automobile
-        
-        let directions = MKDirections(request: request)
-        
-        do {
-            let result = try await directions.calculate()
-            if let firstRoute = result.routes.first {
-                return (firstRoute, firstRoute.expectedTravelTime)
-            } else {
-                //print("No routes found")
-                return (nil, nil)
-            }
-        } catch {
-            //print("Failed to calculate route: \(error)")
-            return (nil, nil)
-        }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location manager failed with error: \(error)")
+        locationCompletion?(false)
+        locationCompletion = nil
+    }
+    func requestLocation() {
+        manager.requestWhenInUseAuthorization()
     }
 }

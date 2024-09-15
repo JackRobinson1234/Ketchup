@@ -27,7 +27,7 @@ struct RestaurantLeaderboard: View {
         case highestRated(LeaderboardViewModel.RatingCategory)
     }
     @State var currentSection: listSection = .list
-
+    
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -289,13 +289,13 @@ struct RestaurantLeaderboard: View {
         }
     }
     private func getRatingDescription() -> String {
-           switch leaderboardType {
-           case .mostPosts:
-               return "Overall"
-           case .highestRated(let category):
-               return category.rawValue.capitalized
-           }
-       }
+        switch leaderboardType {
+        case .mostPosts:
+            return "Overall"
+        case .highestRated(let category):
+            return category.rawValue.capitalized
+        }
+    }
     private func getRatingForDisplay(_ restaurant: Restaurant) -> Double? {
         switch leaderboardType {
         case .mostPosts:

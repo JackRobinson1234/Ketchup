@@ -75,7 +75,16 @@ struct MapSearchView: View {
                 .padding(.top)
                 .background(.white)
                 .cornerRadius(8)
+                
 
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    dismissKeyboard()
+                }
             }
         }
     }

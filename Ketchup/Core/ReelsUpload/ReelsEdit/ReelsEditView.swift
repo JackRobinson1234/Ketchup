@@ -118,12 +118,12 @@ struct ReelsEditView: View {
                 }
             }
             .sheet(isPresented: $isTaggingUsers) {
-                        NavigationStack {
-                            SelectFollowingEditPostView(editViewModel: editViewModel)
-                                .navigationTitle("Tag Users")
-                        }
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
-                    }
+                NavigationStack {
+                    SelectFollowingEditPostView(editViewModel: editViewModel)
+                        .navigationTitle("Tag Users")
+                }
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+            }
         }
     }
     
@@ -295,7 +295,7 @@ struct ReelsEditView: View {
                 .modifier(StandardButtonModifier(width: 90))
                 .overlay {
                     if editViewModel.isLoading {
-                       ProgressView()
+                        ProgressView()
                             .tint(.white)
                     }
                 }
@@ -338,18 +338,18 @@ struct ReelsEditView: View {
         }
     }
     private var hasUnsavedChanges: Bool {
-            editViewModel.caption != post.caption ||
-            (editViewModel.isFoodNA != (post.foodRating == nil) || (!editViewModel.isFoodNA && tempFoodRating != post.foodRating)) ||
-            (editViewModel.isAtmosphereNA != (post.atmosphereRating == nil) || (!editViewModel.isAtmosphereNA && tempAtmosphereRating != post.atmosphereRating)) ||
-            (editViewModel.isValueNA != (post.valueRating == nil) || (!editViewModel.isValueNA && tempValueRating != post.valueRating)) ||
-            (editViewModel.isServiceNA != (post.serviceRating == nil) || (!editViewModel.isServiceNA && tempServiceRating != post.serviceRating)) ||
-            !areTaggedUsersEqual(editViewModel.taggedUsers, post.taggedUsers)
-        }
-
-        private func areTaggedUsersEqual(_ users1: [PostUser], _ users2: [PostUser]) -> Bool {
-            guard users1.count == users2.count else { return false }
-            return Set(users1.map { $0.id }) == Set(users2.map { $0.id })
-        }
+        editViewModel.caption != post.caption ||
+        (editViewModel.isFoodNA != (post.foodRating == nil) || (!editViewModel.isFoodNA && tempFoodRating != post.foodRating)) ||
+        (editViewModel.isAtmosphereNA != (post.atmosphereRating == nil) || (!editViewModel.isAtmosphereNA && tempAtmosphereRating != post.atmosphereRating)) ||
+        (editViewModel.isValueNA != (post.valueRating == nil) || (!editViewModel.isValueNA && tempValueRating != post.valueRating)) ||
+        (editViewModel.isServiceNA != (post.serviceRating == nil) || (!editViewModel.isServiceNA && tempServiceRating != post.serviceRating)) ||
+        !areTaggedUsersEqual(editViewModel.taggedUsers, post.taggedUsers)
+    }
+    
+    private func areTaggedUsersEqual(_ users1: [PostUser], _ users2: [PostUser]) -> Bool {
+        guard users1.count == users2.count else { return false }
+        return Set(users1.map { $0.id }) == Set(users2.map { $0.id })
+    }
     
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

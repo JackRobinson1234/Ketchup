@@ -34,9 +34,7 @@ final class RestaurantListViewModel: ObservableObject {
     }
     
     func notifyQueryChanged() {
-            //if !searchQuery.isEmpty {
-                itemsSearcher.request.query.query = searchQuery
-                itemsSearcher.search()
-        //}
+        itemsSearcher.request.query.query = searchQuery
+        itemsSearcher.search()
     }
 }
