@@ -142,5 +142,3 @@ struct RestaurantProfileView: View {
         }
     }
 }
-
-

@@ -47,7 +47,8 @@ struct RestaurantCell: View {
                     .font(.custom("MuseoSansRounded-300", size: 12))
                     .foregroundColor(.gray)
                 let address = restaurant.address ?? "Unknown Address"
-                Text("\(address)")
+                let addressWithoutZip = removeZipCode(from: address)
+                Text("\(addressWithoutZip)")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.gray)
@@ -72,6 +73,19 @@ struct RestaurantCell: View {
                 .foregroundStyle(.gray)
             
         }
+    }
+    private func removeZipCode(from address: String) -> String {
+        let components = address.components(separatedBy: ", ")
+        if components.count > 1 {
+            var newComponents = components
+            let lastComponent = components.last ?? ""
+            let stateAndZip = lastComponent.components(separatedBy: .whitespaces)
+            if stateAndZip.count > 1 {
+                newComponents[newComponents.count - 1] = stateAndZip[0]
+            }
+            return newComponents.joined(separator: ", ")
+        }
+        return address
     }
     private func combineRestaurantDetails(restaurant: Restaurant) -> String {
         var details = [String]()

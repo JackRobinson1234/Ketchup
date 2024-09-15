@@ -148,30 +148,45 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                VStack( alignment: .leading, spacing: 0){
-                    Text("Known for")
-                        .font(.custom("MuseoSansRounded-900", size: 14))
-                        .foregroundColor(.black)
-                        .padding(.horizontal)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(highlightsAndTags, id: \.self) { item in
-                                HStack(spacing: 4) {
-                                    Text(item)
-                                        .font(.custom("MuseoSansRounded-300", size: 14))
-                                        .foregroundColor(.gray)
-                                    
-                                    if item != highlightsAndTags.last {
-                                        Circle()
-                                            .fill(Color.gray)
-                                            .frame(width: 3, height: 3)
+                if let bio = restaurant.bio {
+                    VStack( alignment: .leading, spacing: 0){
+                        Text("Bio")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                        
+                        Text(bio)
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                    }
+                }
+                if !highlightsAndTags.isEmpty{
+                    VStack( alignment: .leading, spacing: 0){
+                        Text("Known for")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(highlightsAndTags, id: \.self) { item in
+                                    HStack(spacing: 4) {
+                                        Text(item)
+                                            .font(.custom("MuseoSansRounded-300", size: 14))
+                                            .foregroundColor(.gray)
+                                        
+                                        if item != highlightsAndTags.last {
+                                            Circle()
+                                                .fill(Color.gray)
+                                                .frame(width: 3, height: 3)
+                                        }
                                     }
                                 }
                             }
+                            .padding(.horizontal)
+                            .frame(height: 40)
                         }
-                        .padding(.horizontal)
-                        .frame(height: 40)
                     }
                 }
                 
