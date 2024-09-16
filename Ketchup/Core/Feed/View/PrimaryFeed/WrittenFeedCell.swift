@@ -28,7 +28,6 @@ struct WrittenFeedCell: View {
         return post.didBookmark
     }
     @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
-    
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
@@ -36,10 +35,8 @@ struct WrittenFeedCell: View {
     @State private var isCurrentVideoPlaying = false
     @State private var isTaggedSheetPresented = false
     @State private var showUserProfile = false
-    
     @State private var selectedUser: PostUser?
     @State private var parsedCaption: AttributedString?
-    
     @State private var selectedUserId: String?
     @State private var currentIndex: Int = 0
     
@@ -107,6 +104,7 @@ struct WrittenFeedCell: View {
                             ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
                                 VStack {
                                     Button {
+                                        pauseAllVideos()
                                         viewModel.startingImageIndex = index
                                         viewModel.startingPostId = post.id
                                         selectedPost = post

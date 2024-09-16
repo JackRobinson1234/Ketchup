@@ -33,7 +33,7 @@ struct PrimaryFeedView: View {
     @State private var hideTopUI = false
     @State private var lastScrollOffset: CGFloat = 0
     @State private var debounceTask: Task<Void, Never>? = nil
-    private let scrollThreshold: CGFloat = 20 // Minimum scroll change to trigger updates
+    private let scrollThreshold: CGFloat = 20
     private let debounceDelay: TimeInterval = 0.2
     @State private var topBarHeight: CGFloat = 150 // Default height
     @State var showPostSuccess = false
@@ -50,8 +50,7 @@ struct PrimaryFeedView: View {
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
-                        viewModel.setupLocation()
-                    //try await viewModel.fetchInitialPosts()
+                        try await viewModel.setupLocation()
                         isLoading = false
                     }
                 }
@@ -161,21 +160,7 @@ struct PrimaryFeedView: View {
                     
                     VStack(spacing: 5){
                         HStack(spacing: 0) {
-//                            Button {
-//                                showSearchView.toggle()
-//                            } label: {
-//                                VStack{
-//                                    
-//                                    Image(systemName: "magnifyingglass")
-//                                        .font(.system(size: 27))
-//                                        .frame(width: 60)
-//                                    Text("Search")
-//                                        .foregroundStyle(.gray)
-//                                    
-//                                        .font(.custom("MuseoSansRounded-500", size: 10))
-//                                }
-//                            }
-                                                       Button{
+                            Button{
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
@@ -184,7 +169,7 @@ struct PrimaryFeedView: View {
                                     .frame(width: 60, height: 17)
                                     .padding(.leading, 40)
                             }
-                          
+                            
                             Spacer()
                             Button {
                                 showLocationFilter.toggle()

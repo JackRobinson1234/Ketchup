@@ -857,7 +857,6 @@
 				F8CC21A32BD58A7B00B4B329 /* Camera */,
 				F8CC21982BD5871E00B4B329 /* ReelsUpload */,
 				F871CDEB2BC6F620003C9BE8 /* Collection */,
-				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F8901C842BA4369500FBE778 /* VideoPlayer */,
 				F84FE27D2B6A54BC00144F01 /* Comments */,
 				F84FE27C2B6A548500144F01 /* Components */,
@@ -1291,7 +1290,6 @@
 				F8FB356A2BF05EA20079DE6D /* PostOptionsSheet.swift */,
 				F88E0A8F2B6B021800EC159B /* FeedCellActionButtonView.swift */,
 				F871B0122B91CB9C00E4EB5F /* ShareView.swift */,
-				F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */,
 			);
 			path = Sheets;
 			sourceTree = "<group>";
@@ -1318,6 +1316,7 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F879874C2C56F4F8007BAAB4 /* Sheets */,
 				F87987432C56F41F007BAAB4 /* SecondaryFeed */,
 				F87987422C56F40F007BAAB4 /* PrimaryFeed */,
@@ -1562,6 +1561,7 @@
 		F8A98C262B9A668D00D399AB /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				F8D62A182C90F06A00E40B45 /* LocationSearchView.swift */,
 				F8D62A1E2C91FCCB00E40B45 /* Polls */,
 				F86508712C8CAD8300E59B5C /* Leaderboards */,
 				F8760EF62BD3905B00C4EAB9 /* ActivityView.swift */,

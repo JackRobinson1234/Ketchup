@@ -91,7 +91,7 @@ class FeedViewModel: ObservableObject {
         self.startingPostId = startingPostId
         self.showBookmarks = showBookmarks
     }
-    func setupLocation() {
+    func setupLocation() async throws{
         locationManager.requestLocation { success in
             if success {
                 self.updateLocationInfo()
@@ -100,6 +100,7 @@ class FeedViewModel: ObservableObject {
                 self.loadLocationFromUserSession()
             }
         }
+        try await fetchInitialPosts()
     }
     
     private func updateLocationInfo() {

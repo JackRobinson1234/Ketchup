@@ -81,11 +81,7 @@ struct LocationFilter: View {
             applyFilters()
             dismiss()
         })
-        .onAppear {
-            if feedViewModel.currentLocationFilter != .anywhere {
-                feedViewModel.setupLocation()
-            }
-        }
+
     }
     
     private func selectLocation(_ location: MKLocalSearchCompletion) {
@@ -115,7 +111,9 @@ struct LocationFilter: View {
         
         feedViewModel.applyLocationFilter()
         Task {
+            feedViewModel.isInitialLoading = true
             await feedViewModel.fetchInitialPosts()
+            feedViewModel.isInitialLoading = false
         }
     }
 }
