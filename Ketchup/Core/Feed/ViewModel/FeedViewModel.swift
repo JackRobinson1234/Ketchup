@@ -70,8 +70,11 @@ class FeedViewModel: ObservableObject {
     @Published var friendsValueRating: Double?
     @Published var friendsAtmosphereRating: Double?
     @Published var friendsServiceRating: Double?
-
-    
+    @Published var city: String?
+        @Published var state: String?
+        @Published var surroundingGeohash: String?
+        @Published var surroundingCounty: String = "Nearby"
+    private let locationManager = LocationManager.shared
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true, selectedCommentId: String? = nil) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
@@ -306,14 +309,7 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-    //    func fetchRestaurantPosts(restaurant: Restaurant) async throws{
-    //        do {
-    //            self.posts = try await PostService.shared.fetchRestaurantPosts(restaurant: restaurant)
-    //        } catch {
-    //            //print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-    //
-    //        }
-    //    }
+
     func fetchRestaurantPosts(restaurant: Restaurant, friendIds: [String]) async throws {
         do {
             // Ensure the current user is authenticated

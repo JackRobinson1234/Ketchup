@@ -20,9 +20,7 @@ class ActivityViewModel: ObservableObject {
     @Published var isLoadingMore: Bool = false
     @Published var hasMoreActivities: Bool = true
     private let loadThreshold = 5
-    
     private var lastDocumentSnapshot: DocumentSnapshot? = nil
-    
     var user: User?
     private var service = ActivityService()
     @Published var topContacts: [Contact] = []

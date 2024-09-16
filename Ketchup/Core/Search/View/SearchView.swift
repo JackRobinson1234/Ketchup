@@ -82,6 +82,11 @@ struct SearchView: View {
                         }
                     }
                 }
+                .contentShape(Rectangle()) // Makes the entire HStack area tappable
+                .onTapGesture {
+                    isSearchFocused = true // Focuses the TextField
+                }
+                
                 .padding(8)
                 .background(Color(.systemGray6))
                 .cornerRadius(10)
@@ -155,6 +160,7 @@ struct SearchView: View {
             viewModel.notifyQueryChanged()
         }
         .onAppear {
+            isSearchFocused = true
             Debouncer(delay: 0.3).schedule {
                 viewModel.notifyQueryChanged()
             }

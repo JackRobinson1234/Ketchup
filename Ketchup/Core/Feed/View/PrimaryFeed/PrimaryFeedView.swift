@@ -119,7 +119,7 @@ struct PrimaryFeedView: View {
                                 triggerHapticFeedback()
                             }
                         }
-                        .safeAreaPadding(.top, 110)
+                        .safeAreaPadding(.top, 170)
                         .transition(.slide)
                         .scrollPosition(id: $scrollPosition)
                         .onChange(of: viewModel.initialPrimaryScrollPosition) {
@@ -157,117 +157,33 @@ struct PrimaryFeedView: View {
                         .edgesIgnoringSafeArea(.top)
                     
                     
-                    VStack(spacing: 0){
+                    VStack(spacing: 5){
                         HStack(spacing: 0) {
-                            Button {
-                                showSearchView.toggle()
-                            } label: {
-                                VStack{
-                                    
-                                    Image(systemName: "magnifyingglass")
-                                        .font(.system(size: 27))
-                                        .frame(width: 60)
-                                    Text("Search")
-                                        .foregroundStyle(.gray)
-                                    
-                                        .font(.custom("MuseoSansRounded-500", size: 10))
-                                }
-                            }
-                            Spacer()
-                            Button{
+//                            Button {
+//                                showSearchView.toggle()
+//                            } label: {
+//                                VStack{
+//                                    
+//                                    Image(systemName: "magnifyingglass")
+//                                        .font(.system(size: 27))
+//                                        .frame(width: 60)
+//                                    Text("Search")
+//                                        .foregroundStyle(.gray)
+//                                    
+//                                        .font(.custom("MuseoSansRounded-500", size: 10))
+//                                }
+//                            }
+                                                       Button{
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 60, height: 17)
+                                    .padding(.leading, 40)
                             }
+                          
                             Spacer()
-                            Button {
-                                showFilters.toggle()
-                            } label: {
-                                VStack{
-                                    ZStack {
-                                        
-                                        Image(systemName: "slider.horizontal.3")
-                                            .imageScale(.large)
-                                            .shadow(radius: 4)
-                                            .font(.system(size: 23))
-                                        if filtersViewModel.hasNonLocationFilters {
-                                            Circle()
-                                                .fill(Color("Colors/AccentColor"))
-                                                .frame(width: 12, height: 12)
-                                                .offset(x: 12, y: 12)
-                                        }
-                                        
-                                    }
-                                    Text("Filters")
-                                        .foregroundStyle(.gray)
-                                    
-                                        .font(.custom("MuseoSansRounded-500", size: 10))
-                                }
-                                .frame(width: 60)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 20)
-                        .foregroundStyle(.black)
-                        if !hideTopUI{
-                            
-                            HStack(spacing: 40) {
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .following
-                                        }
-                                        canSwitchTab = false
-                                        
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
-                                        }
-                                    }
-                                } label: {
-                                    Text("Following")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
-                                }
-                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .discover
-                                        }
-                                        canSwitchTab = false
-                                        
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
-                                        }
-                                    }
-                                } label: {
-                                    Text("Discover")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
-                                }
-                                .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
-                            }
-                            .padding(.bottom, 6)
                             Button {
                                 showLocationFilter.toggle()
                             } label: {
@@ -326,40 +242,172 @@ struct PrimaryFeedView: View {
                                         }
                                     }
                                 }
-                            }
-                        }
-                    }
-                    if showPostSuccess {
-                        ZStack {
-                            FallingFoodView(isStatic: false)
-                                .transition(.opacity)
-                                .opacity(showPostSuccess ? 1 : 0) // Set opacity based on the condition
-                                .animation(.easeInOut(duration: 1.0), value: showPostSuccess) // Animate opacity changes
-                                .onAppear {
-                                    triggerHapticFeedback() 
-                                    viewModel.showEmptyView = false
-                                    Debouncer(delay: 5.0).schedule {
-                                        withAnimation(.easeInOut(duration: 1.0)) {
-                                            showPostSuccess = false // Trigger fade-out animation
-                                        }
-                                    }
-                                }
-                            
-                            VStack{
-                                Image("Skip")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 150, height: 150)
-                                Text("Review Uploaded!")
-                                    .foregroundColor(.black)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                                .padding(.trailing, 20)
+
                                 
                             }
-                            .background(Color.white.opacity(0.7))
+//                            Rectangle()
+//                                .foregroundStyle(.clear)
+//                                .frame(width: 100, height: 1)
+//                            Button {
+//                                showFilters.toggle()
+//                            } label: {
+//                                VStack{
+//                                    ZStack {
+//                                        
+//                                        Image(systemName: "slider.horizontal.3")
+//                                            .imageScale(.large)
+//                                            .shadow(radius: 4)
+//                                            .font(.system(size: 23))
+//                                        if filtersViewModel.hasNonLocationFilters {
+//                                            Circle()
+//                                                .fill(Color("Colors/AccentColor"))
+//                                                .frame(width: 12, height: 12)
+//                                                .offset(x: 12, y: 12)
+//                                        }
+//                                        
+//                                    }
+//                                    Text("Filters")
+//                                        .foregroundStyle(.gray)
+//                                    
+//                                        .font(.custom("MuseoSansRounded-500", size: 10))
+//                                }
+//                                .frame(width: 60)
+//                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        .foregroundStyle(.black)
+                        if !hideTopUI{
+
+                        
+                        // Search bar button
+                        Button(action: {
+                            showSearchView.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundColor(.gray)
+                                Text("Search restaurants, users, or collections")
+                                    .font(.custom("MuseoSansRounded-500", size: 14))
+                                    .foregroundColor(.gray)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color(.systemGray6))
                             .cornerRadius(10)
-                            .shadow(radius: 10)
+                            .padding(.horizontal)
+                        }
+//                       
+//                                                    ScrollView(.horizontal, showsIndicators: false) {
+//                                                        HStack(spacing: 8) {
+//                                                            ForEach(["Filter Cuisine", "Filter Price"], id: \.self) { filter in
+//                                                                Text(filter)
+//                                                                    .font(.custom("MuseoSansRounded-300", size: 12))
+//                                                                    .foregroundColor(.black)
+//                                                                    .padding(.horizontal, 12)
+//                                                                    .padding(.vertical, 6)
+//                                                                    
+//                                                                    .overlay(
+//                                                                        RoundedRectangle(cornerRadius: 20)
+//                                                                            .stroke( Color("Colors/AccentColor"), lineWidth: 1)
+//                                                                    )
+//                                                                    .cornerRadius(16)
+//                                                                
+//                                                            }
+//                                                        }
+//                                                        .padding(.horizontal)
+//                                                    }
+                            HStack(spacing: 40) {
+                                Button {
+                                    if canSwitchTab {
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            viewModel.selectedTab = .following
+                                        }
+                                        canSwitchTab = false
+                                        
+                                        // Re-enable switching after a delay
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            canSwitchTab = true
+                                        }
+                                    }
+                                } label: {
+                                    Text("Following")
+                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
+                                }
+                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                                
+                                Button {
+                                    if canSwitchTab {
+                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                            viewModel.selectedTab = .discover
+                                        }
+                                        canSwitchTab = false
+                                        
+                                        // Re-enable switching after a delay
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            canSwitchTab = true
+                                        }
+                                    }
+                                } label: {
+                                    Text("Discover")
+                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
+                                        .padding(.bottom, 5)
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(height: 2)
+                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
+                                                .offset(y: 12)
+                                        )
+                                }
+                                .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
+                            }
+                            .padding(.bottom, 6)
+                           
                         }
                     }
+//                    if showPostSuccess {
+//                        ZStack {
+//                            FallingFoodView(isStatic: false)
+//                                .transition(.opacity)
+//                                .opacity(showPostSuccess ? 1 : 0) // Set opacity based on the condition
+//                                .animation(.easeInOut(duration: 1.0), value: showPostSuccess) // Animate opacity changes
+//                                .onAppear {
+//                                    triggerHapticFeedback() 
+//                                    viewModel.showEmptyView = false
+//                                    Debouncer(delay: 5.0).schedule {
+//                                        withAnimation(.easeInOut(duration: 1.0)) {
+//                                            showPostSuccess = false // Trigger fade-out animation
+//                                        }
+//                                    }
+//                                }
+//                            
+//                            VStack{
+//                                Image("Skip")
+//                                    .resizable()
+//                                    .scaledToFit()
+//                                    .frame(width: 150, height: 150)
+//                                Text("Review Uploaded!")
+//                                    .foregroundColor(.black)
+//                                    .font(.custom("MuseoSansRounded-300", size: 16))
+//                                
+//                            }
+//                            .background(Color.white.opacity(0.7))
+//                            .cornerRadius(10)
+//                            .shadow(radius: 10)
+//                        }
+//                    }
                 }
                 .overlay {
                     if viewModel.showEmptyView {
@@ -476,7 +524,7 @@ struct PrimaryFeedView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
                     
-                    topBarHeight = 160
+                    topBarHeight = 170
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
@@ -484,7 +532,7 @@ struct PrimaryFeedView: View {
                     hideTopUI = true
                     
                     
-                    topBarHeight = 105
+                    topBarHeight = 85
                 }
             }
             lastScrollOffset = scrollOffset
@@ -536,21 +584,21 @@ extension Color {
     }
 }
 
-struct ConditionalSafeAreaPadding: ViewModifier {
-    var condition: Bool
-    var padding: CGFloat
-    
-    func body(content: Content) -> some View {
-        if condition {
-            content.safeAreaPadding(.vertical, padding)
-        } else {
-            content
-        }
-    }
-}
-
-extension View {
-    func conditionalSafeAreaPadding(_ condition: Bool, padding: CGFloat) -> some View {
-        self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
-    }
-}
+//struct ConditionalSafeAreaPadding: ViewModifier {
+//    var condition: Bool
+//    var padding: CGFloat
+//    
+//    func body(content: Content) -> some View {
+//        if condition {
+//            content.safeAreaPadding(.vertical, padding)
+//        } else {
+//            content
+//        }
+//    }
+//}
+//
+//extension View {
+//    func conditionalSafeAreaPadding(_ condition: Bool, padding: CGFloat) -> some View {
+//        self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
+//    }
+//}

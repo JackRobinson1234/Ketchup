@@ -13,167 +13,74 @@ struct LocationFilter: View {
     @ObservedObject var filtersViewModel: FiltersViewModel
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
-    var autoCompleteNumber: Int = 6 // # of autocomplete suggestions
     
     var body: some View {
-        // MARK: Title
-        VStack{
-            HStack{
-                VStack(alignment: .leading){
-                    Text("Select a Location")
-                        .foregroundStyle(.black)
-                        .font(.custom("MuseoSansRounded-300", size: 22))
-                        .fontWeight(.semibold)
-                    Text("(Max 10)")
-                        .foregroundStyle(.gray)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        
-                }
-                Spacer()
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Current Location")
+                .font(.custom("MuseoSansRounded-300", size: 22))
+                .fontWeight(.semibold)
+            
+            HStack {
+                Image(systemName: "location.circle.fill")
+                    .foregroundColor(.blue)
+                Text("\(filtersViewModel.city ?? "Unknown"), \(filtersViewModel.state ?? "")")
+                    .font(.custom("MuseoSansRounded-300", size: 16))
             }
-            //MARK: Search
-            /// if no filters are selected, search bar
-            if filtersViewModel.selectedLocations.count < 10{
-                HStack{
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.gray)
-                        .imageScale(.small)
-                    TextField("Search destinations", text: $mapSearch.searchTerm)
-                        .foregroundStyle(.black)
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .frame(height:44)
-                        .padding(.horizontal)
-                }
-                .frame(height: 44)
-                .padding(.horizontal)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(lineWidth: 1.0)
-                        .foregroundStyle(Color(.systemGray4))
-                )
-                
-                // MARK: Auto-complete results
-                if isFocused == false {
-                    ForEach(mapSearch.locationResults.prefix(autoCompleteNumber), id: \.self) { location in
-                        Button {
-                            reverseGeo(location: location)
-                        } label: {
-                            HStack{
-                                VStack(alignment: .leading) {
-                                    Text(location.title)
-                                        .foregroundColor(.black)
-                                    Text(location.subtitle)
-                                        .font(.system(.caption))
-                                        .foregroundColor(.gray)
-                                }
-                                Spacer()
-                            }
+            
+            Text("Search Other Locations")
+                .font(.custom("MuseoSansRounded-300", size: 22))
+                .fontWeight(.semibold)
+            
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                TextField("Search destinations", text: $mapSearch.searchTerm)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(10)
+            
+            if !mapSearch.searchTerm.isEmpty {
+                List(mapSearch.locationResults.prefix(5), id: \.self) { location in
+                    Button(action: {
+                        selectLocation(location)
+                    }) {
+                        VStack(alignment: .leading) {
+                            Text(location.title)
+                            Text(location.subtitle)
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                     }
                 }
-            //MARK: Selected Restaurant
             }
-            if !filtersViewModel.selectedLocations.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(filtersViewModel.selectedLocations, id: \.self) { location in
-                            HStack {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color("Colors/AccentColor"))
-                                    .onTapGesture {
-                                        withAnimation(.snappy) {
-                                            filtersViewModel.selectedLocations.removeAll { $0 == location }
-                                        }
-                                    }
-                                Text("\(location["city"] ?? ""), \(location["state"] ?? "")")
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .shadow(radius: 2)
-                            .padding(.vertical, 5) // Add vertical padding
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal, 5) // Add horizontal padding
-                }
-                .padding(.vertical) // Add padding to ScrollView
-            }
-                
             
-            
-             Spacer()
+            Spacer()
         }
-        .padding(.horizontal)
-        .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                saveFilters()
-                                dismiss()
-                            } label: {
-                                Text("Save")
-                                    .foregroundColor(Color("Colors/AccentColor"))
-                                    .padding(6)
-                            }
-                        }
-                    }
-        
-        
+        .padding()
+        .navigationBarItems(trailing: Button("Save") {
+            saveFilters()
+            dismiss()
+        })
     }
+    
+    private func selectLocation(_ location: MKLocalSearchCompletion) {
+        let searchRequest = MKLocalSearch.Request(completion: location)
+        let search = MKLocalSearch(request: searchRequest)
+        search.start { response, error in
+            guard let coordinate = response?.mapItems.first?.placemark.coordinate else { return }
+            filtersViewModel.updateLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            mapSearch.searchTerm = ""
+        }
+    }
+    
     private func saveFilters() {
         Task {
             await filtersViewModel.fetchFilteredPosts()
         }
     }
-    //MARK: ReverseGeo
-    
-    /// Takes in the selected MKLocalSearchCompletion value and makes it into a coordinate, the reverses that coordinate into a geocode to get the address information.
-    /// - Parameter location: Selected MKocalSearchCompletion from the autocomplete suggestions
-    private func reverseGeo(location: MKLocalSearchCompletion) {
-        let searchRequest = MKLocalSearch.Request(completion: location)
-        let search = MKLocalSearch(request: searchRequest)
-        var coordinateK : CLLocationCoordinate2D?
-        search.start { (response, error) in
-            if error == nil, let coordinate = response?.mapItems.first?.placemark.coordinate {
-                coordinateK = coordinate
-            }
-            
-            if let c = coordinateK {
-                let location = CLLocation(latitude: c.latitude, longitude: c.longitude)
-                CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
-                    
-                    guard let placemark = placemarks?.first else {
-                        let errorString = error?.localizedDescription ?? "Unexpected Error"
-                        //print("Unable to reverse geocode the given location. Error: \(errorString)")
-                        return
-                    }
-                    
-                    let reversedGeoLocation = ReversedGeoLocation(with: placemark)
-                    let city = "\(reversedGeoLocation.city)"
-                    let state = "\(reversedGeoLocation.state)"
-                    
-                    mapSearch.searchTerm = ""
-                    mapSearch.locationResults = []
-                    ///adds the selected location to the view model
-                    //filtersViewModel.selectedLocation = [c]
-                    let newLocation = ["city": city, "state": state]
-                                    
-                                    if let index = filtersViewModel.selectedLocations.firstIndex(where: { $0["city"] == city && $0["state"] == state }) {
-                                        filtersViewModel.selectedLocations[index] = newLocation
-                                    } else {
-                                        filtersViewModel.selectedLocations.append(newLocation)
-                                    }
-                                    
-                    //filtersViewModel.selectedState = state
-                    isFocused = false
-                    
-                }
-            }
-        }
-    }
-    
-} // End Struct
+} 
 
 
 //MARK: ViewModel
@@ -252,4 +159,3 @@ struct ReversedGeoLocation {
         self.isoCountryCode = placemark.isoCountryCode ?? ""
     }
 }
-

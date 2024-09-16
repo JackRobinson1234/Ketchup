@@ -8,86 +8,111 @@ import SwiftUI
 import Combine
 import CoreLocation
 import MapKit
+import GeoFire
+import GeohashKit
 
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
     @Published var filters: [String: [Any]] = [:]
-    
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedDietary: [String] = []
     @Published var selectedCookingTime: [Int] = []
     
+    @Published var city: String?
+    @Published var state: String?
+    @Published var surroundingGeohash: String?
+    @Published var surroundingCounty: String = "Nearby"
+    
+    private let locationManager = CLLocationManager()
+    
     var hasNonLocationFilters: Bool {
-            // Check if there are any filters excluding the "location" key
-            return filters.filter { $0.key != "restaurant.city" }.isEmpty == false
-        }
-    /// variables for the location filter
-    @Published var selectedLocations: [[String: String]] = []
-    
-    /// variables for the postType filter
-    @Published var restaurantChecked: Bool = true
-    @Published var atHomeChecked: Bool = true
-    
-    @Published var disableAtHomeFilters = false
-    @Published var disableRestaurantFilters = false
-    @State var filtersChanged = false
+        return filters.filter { $0.key != "restaurant.truncatedGeohash" }.isEmpty == false
+    }
     
     init(feedViewModel: FeedViewModel) {
         self.feedViewModel = feedViewModel
+        setupLocationManager()
+        loadInitialLocation()
     }
     
-    /// fetches filtered from firebase and preloads the next 3 posts in the cache based on the current filters
-    func fetchFilteredPosts() async {
-        /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
-        if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "restaurant.cuisine")
-        } else {
-            filters["restaurant.cuisine"] = selectedCuisines
+    private func setupLocationManager() {
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+    }
+    
+    private func loadInitialLocation() {
+        if let location = locationManager.location {
+            updateLocation(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        } else if let userSession = AuthService.shared.userSession,
+                  let userLocation = userSession.location,
+                  let geoPoint = userLocation.geoPoint {
+            updateLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
         }
-        /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
+    }
+    
+    func updateLocation(latitude: Double, longitude: Double) {
+        surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+        reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+    }
+    
+    private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let geocoder = CLGeocoder()
         
-        if selectedLocations.isEmpty {
-                filters.removeValue(forKey: "restaurant.city")
-            } else {
-                let selectedCities = selectedLocations.compactMap { $0["city"] }
-                filters["restaurant.city"] = selectedCities
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Reverse geocoding error: \(error.localizedDescription)")
+                return
             }
-        
-        ///Price checking if there are any selected
-        if selectedPrice.isEmpty {
-            filters.removeValue(forKey: "restaurant.price")
-        } else {
-            filters["restaurant.price"] = selectedPrice
+            
+            if let placemark = placemarks?.first {
+                self.city = placemark.locality
+                self.state = placemark.administrativeArea
+                self.surroundingCounty = placemark.subAdministrativeArea ?? "Nearby"
+            }
         }
-        ///Dietary checking if there are any selected
-        //print("Filters", filters)
-        do{
+    }
+    
+    func fetchFilteredPosts() async {
+        if let geohash = surroundingGeohash {
+            let geohashPrefix = String(geohash.prefix(4))
+            filters["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
+        } else {
+            filters.removeValue(forKey: "restaurant.truncatedGeohash")
+        }
+        
+        // Add other filters (cuisine, price, etc.) here...
+        
+        do {
+            feedViewModel.filters = filters
             feedViewModel.isInitialLoading = true
-            try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+            try await feedViewModel.fetchInitialPosts()
             feedViewModel.isInitialLoading = false
         } catch {
-            //print("Error")
+            print("Error fetching filtered posts: \(error)")
         }
     }
     
-    //MARK: update selected posts
-    /// updates "selectedPostTypes" with what the boolean values for the toggle are selected to
-    
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            if let neighbors = geoHash.neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                return [geohash] + neighborGeohashes
+            }
+        }
+        return [geohash]
+    }
     
     func clearFilters() {
         selectedCuisines = []
         selectedPrice = []
         selectedDietary = []
         selectedCookingTime = []
-//        selectedLocations = []
-//        selectedCity = []
-//        selectedState = []
-        restaurantChecked = true
-        atHomeChecked = true
+        loadInitialLocation()
         filters = [:]
     }
-    
-
 }

@@ -26,7 +26,6 @@ struct ActivityView: View {
     @State private var leaderboardData: [LeaderboardCategory: [LocationType: Any]] = [:]
     @State private var selectedLeaderboard: (category: LeaderboardCategory?, location: LocationType?)?
 
-
     enum Tab {
         case discover
         case leaderboards
