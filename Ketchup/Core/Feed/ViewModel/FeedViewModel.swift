@@ -91,16 +91,28 @@ class FeedViewModel: ObservableObject {
         self.startingPostId = startingPostId
         self.showBookmarks = showBookmarks
     }
-    func setupLocation() async throws{
-        locationManager.requestLocation { success in
-            if success {
-                self.updateLocationInfo()
-            } else {
-                print("Failed to get user location")
-                self.loadLocationFromUserSession()
+    func setupLocation() {
+       
+            isInitialLoading = true
+            locationManager.requestLocation { success in
+                
+                if success {
+                    Task{
+                        self.updateLocationInfo()
+                        try await self.fetchInitialPosts()
+                        self.isInitialLoading = false
+                    }
+                } else {
+                    Task{
+                        print("Failed to get user location")
+                        self.loadLocationFromUserSession()
+                        try await self.fetchInitialPosts()
+                        self.isInitialLoading = false
+                    
+                }
             }
+          
         }
-        try await fetchInitialPosts()
     }
     
     private func updateLocationInfo() {
@@ -120,9 +132,9 @@ class FeedViewModel: ObservableObject {
         surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
         print(surroundingGeohash, "2")
         reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-        Task{
-            try await fetchInitialPosts()
-        }
+//        Task{
+//            try await fetchInitialPosts()
+//        }
     }
     
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
