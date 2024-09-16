@@ -50,7 +50,8 @@ struct PrimaryFeedView: View {
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
-                        try await viewModel.fetchInitialPosts()
+                        viewModel.setupLocation()
+                    //try await viewModel.fetchInitialPosts()
                         isLoading = false
                     }
                 }
@@ -102,9 +103,10 @@ struct PrimaryFeedView: View {
                                                     await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
                                                 }
                                             }
-                                        }
+                                    }
                                 }
                             }
+                            .edgesIgnoringSafeArea(.top)
                             .scrollTargetLayout()
                         }
                         .refreshable {
@@ -187,66 +189,28 @@ struct PrimaryFeedView: View {
                             Button {
                                 showLocationFilter.toggle()
                             } label: {
-                                HStack {
-                                    if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
-                                        if let cities = cityFilter.value as? [String], !cities.isEmpty {
-                                            if cities.count > 1 {
-                                                HStack (spacing: 1){
-                                                    Image(systemName: "location")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                    Text("\(cities[0]) +\(cities.count - 1) more")
-                                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                                        .foregroundStyle(.gray)
-                                                    Image(systemName: "chevron.down")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                }
-                                            } else {
-                                                HStack(spacing: 1) {
-                                                    Image(systemName: "location")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                    Text(cities[0])
-                                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                                        .foregroundStyle(.gray)
-                                                    Image(systemName: "chevron.down")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                }
-                                            }
-                                        } else {
-                                            HStack(spacing: 1) {
-                                                Image(systemName: "location")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
-                                                Text("Any Location")
-                                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                                    .foregroundStyle(.gray)
-                                                Image(systemName: "chevron.down")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
-                                            }
-                                        }
+                                HStack(spacing: 1) {
+                                    Image(systemName: "location")
+                                        .foregroundStyle(.gray)
+                                        .font(.caption)
+                                    
+                                    if let city = viewModel.city, let state = viewModel.state {
+                                        Text("\(city), \(state)")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundStyle(.gray)
                                     } else {
-                                        HStack(spacing: 1) {
-                                            Image(systemName: "location")
-                                                .foregroundStyle(.gray)
-                                                .font(.caption)
-                                            Text("Any Location")
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                                .foregroundStyle(.gray)
-                                            Image(systemName: "chevron.down")
-                                                .foregroundStyle(.gray)
-                                                .font(.caption)
-                                        }
+                                        Text("Any Location")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundStyle(.gray)
                                     }
+                                    
+                                    Image(systemName: "chevron.down")
+                                        .foregroundStyle(.gray)
+                                        .font(.caption)
                                 }
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                                 .padding(.trailing, 20)
-
-                                
                             }
 //                            Rectangle()
 //                                .foregroundStyle(.clear)
@@ -459,7 +423,7 @@ struct PrimaryFeedView: View {
                 }
                 .sheet(isPresented: $showLocationFilter) {
                     NavigationStack {
-                        LocationFilter(filtersViewModel: filtersViewModel)
+                        LocationFilter(feedViewModel: viewModel)
                             .modifier(BackButtonModifier())
                     }
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
@@ -510,7 +474,7 @@ struct PrimaryFeedView: View {
     private func refreshFeed() async {
         isRefreshing = true
         do {
-            try await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
+            try await viewModel.fetchInitialPosts()
         } catch {
             //print("Error refreshing: \(error)")
         }

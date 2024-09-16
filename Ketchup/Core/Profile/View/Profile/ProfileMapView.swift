@@ -69,7 +69,6 @@ struct ProfileMapView: View {
                 viewModel.currentRegion = context.region
             }
             .onMapCameraChange(frequency: .onEnd) { context in
-                //print("DEBUG: Map camera change ended")
                 Task.detached { await viewModel.reloadAnnotations() }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))

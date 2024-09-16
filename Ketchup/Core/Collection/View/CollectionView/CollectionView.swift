@@ -140,6 +140,7 @@ struct CollectionView: View {
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 50, height: 22)
                                     .onTapGesture {
+
                                         withAnimation {
                                             self.currentSection = .map
                                         }

@@ -35,22 +35,52 @@ struct EditCollectionView: View {
                     } else {
                         leaveCollectionButton
                     }
-
+                    
                     // Rest of the view remains the same
                     CoverPhotoSelector(viewModel: collectionsViewModel)
                         .padding()
-
+                    
                     Button(action: { self.isEditingTitle = true }) {
                         TextBox(text: $collectionsViewModel.editTitle, isEditing: $isEditingTitle, placeholder: "Enter a title...*", maxCharacters: 100)
                     }
                     .padding()
-
+                    
                     Button(action: { self.isEditingCaption = true }) {
                         TextBox(text: $collectionsViewModel.editDescription, isEditing: $isEditingCaption, placeholder: "Enter a description...", maxCharacters: 150)
                     }
                     .padding()
-
-                    // ... rest of the existing view code ...
+                    
+                    ForEach(itemsPreview, id: \.id) { item in
+                        HStack {
+                            CollectionItemCell(item: item, previewMode: true, viewModel: collectionsViewModel)
+                                .frame(height: 72)
+                            
+                            Spacer()
+                            
+                            Button {
+                                self.selectedItem = item
+                            } label: {
+                                Image(systemName: "square.and.pencil")
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            Button {
+                                if let index = itemsPreview.firstIndex(where: { $0.id == item.id }) {
+                                    itemsPreview.remove(at: index)
+                                    collectionsViewModel.deleteItems.append(item)
+                                }
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        Divider()
+                            .padding(.leading, 84)
+                    }
+                
+            
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

@@ -11,6 +11,9 @@ import FirebaseFirestoreInternal
 import AVFoundation
 import CachingPlayerItem
 import FirebaseAuth
+import CoreLocation
+import GeoFire
+import GeohashKit
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -20,7 +23,11 @@ enum FeedTab {
     case discover
     case following
 }
-
+enum FeedLocationSetting {
+    case exactCity
+    case surrounding
+    case anywhere
+}
 @MainActor
 class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
@@ -71,16 +78,90 @@ class FeedViewModel: ObservableObject {
     @Published var friendsAtmosphereRating: Double?
     @Published var friendsServiceRating: Double?
     @Published var city: String?
-        @Published var state: String?
-        @Published var surroundingGeohash: String?
-        @Published var surroundingCounty: String = "Nearby"
+    @Published var state: String?
+    @Published var surroundingGeohash: String?
+    @Published var surroundingCounty: String = "Nearby"
+    @Published var currentLocationFilter: FeedLocationSetting = .surrounding
+    
     private let locationManager = LocationManager.shared
+    
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true, selectedCommentId: String? = nil) {
         self.posts = posts
         self.isContainedInTabBar = posts.isEmpty
         self.startingPostId = startingPostId
         self.showBookmarks = showBookmarks
     }
+    func setupLocation() {
+        locationManager.requestLocation { success in
+            if success {
+                self.updateLocationInfo()
+            } else {
+                print("Failed to get user location")
+                self.loadLocationFromUserSession()
+            }
+        }
+    }
+    
+    private func updateLocationInfo() {
+        guard let location = locationManager.userLocation else { return }
+        updateLocation(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    }
+    
+    private func loadLocationFromUserSession() {
+        if let userSession = AuthService.shared.userSession,
+           let userLocation = userSession.location,
+           let geoPoint = userLocation.geoPoint {
+            updateLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+        }
+    }
+    
+    func updateLocation(latitude: Double, longitude: Double) {
+        surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+        print(surroundingGeohash, "2")
+        reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+        Task{
+            try await fetchInitialPosts()
+        }
+    }
+    
+    private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let geocoder = CLGeocoder()
+        
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Reverse geocoding error: \(error.localizedDescription)")
+                return
+            }
+            
+            if let placemark = placemarks?.first {
+                self.city = placemark.locality
+                self.state = placemark.administrativeArea
+                self.surroundingCounty = placemark.subAdministrativeArea ?? "Nearby"
+            }
+        }
+    }
+    
+    func applyLocationFilter() {
+        if let geohash = surroundingGeohash {
+            let geohashPrefix = String(geohash.prefix(4))
+            filters?["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
+        } else {
+               filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+           }
+       }
+       
+       private func geohashNeighbors(geohash: String) -> [String] {
+           if let geoHash = Geohash(geohash: geohash) {
+               if let neighbors = geoHash.neighbors {
+                   let neighborGeohashes = neighbors.all.map { $0.geohash }
+                   return [geohash] + neighborGeohashes
+               }
+           }
+           return [geohash]
+       }
     private func handleTabChange() async {
         
         resetFeedState()
@@ -98,7 +179,6 @@ class FeedViewModel: ObservableObject {
     @MainActor
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
         resetFeedState(filters: filters)
-        
         do {
             var newPosts = try await fetchPostsPage(withFilters: filters, isInitialLoad: true)
             await checkPostInteractions(for: &newPosts)
@@ -159,7 +239,23 @@ class FeedViewModel: ObservableObject {
             if followingBatch.isEmpty { return [] }
             query = query.whereField("user.id", in: followingBatch)
         }
-        
+        switch currentLocationFilter {
+        case .exactCity:
+            if let city = self.city {
+                query = query.whereField("restaurant.city", isEqualTo: city)
+            }
+        case .surrounding:
+            print(surroundingGeohash)
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(4))
+                let neighbors = geohashNeighbors(geohash: geohashPrefix)
+                print("neighbors", neighbors)
+                query = query.whereField("restaurant.truncatedGeohash", in: neighbors)
+            }
+        case .anywhere:
+            // No location filter applied
+            break
+        }
         query = query.order(by: "timestamp", descending: true)
             .limit(to: pageSize)
         

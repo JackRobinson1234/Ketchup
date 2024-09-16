@@ -10,59 +10,82 @@ import MapKit
 
 struct LocationFilter: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var filtersViewModel: FiltersViewModel
+    @ObservedObject var feedViewModel: FeedViewModel
     @StateObject private var mapSearch = MapSearch()
     @FocusState private var isFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Current Location")
+            Text("Location Filter")
                 .font(.custom("MuseoSansRounded-300", size: 22))
                 .fontWeight(.semibold)
             
-            HStack {
-                Image(systemName: "location.circle.fill")
-                    .foregroundColor(.blue)
-                Text("\(filtersViewModel.city ?? "Unknown"), \(filtersViewModel.state ?? "")")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+            Picker("Filter Type", selection: $feedViewModel.currentLocationFilter) {
+                Text("Exact City").tag(FeedLocationSetting.exactCity)
+                Text("Surrounding Area").tag(FeedLocationSetting.surrounding)
+                Text("Anywhere").tag(FeedLocationSetting.anywhere)
             }
+            .pickerStyle(SegmentedPickerStyle())
             
-            Text("Search Other Locations")
-                .font(.custom("MuseoSansRounded-300", size: 22))
-                .fontWeight(.semibold)
-            
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                TextField("Search destinations", text: $mapSearch.searchTerm)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-            
-            if !mapSearch.searchTerm.isEmpty {
-                List(mapSearch.locationResults.prefix(5), id: \.self) { location in
-                    Button(action: {
-                        selectLocation(location)
-                    }) {
-                        VStack(alignment: .leading) {
-                            Text(location.title)
-                            Text(location.subtitle)
-                                .font(.caption)
-                                .foregroundColor(.gray)
+            if feedViewModel.currentLocationFilter != .anywhere {
+                Text("Current Location")
+                    .font(.custom("MuseoSansRounded-300", size: 22))
+                    .fontWeight(.semibold)
+                
+                HStack {
+                    Image(systemName: "location.circle.fill")
+                        .foregroundColor(.blue)
+                    Text("\(feedViewModel.city ?? "Unknown"), \(feedViewModel.state ?? "")")
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+                
+                Text("Search Other Locations")
+                    .font(.custom("MuseoSansRounded-300", size: 22))
+                    .fontWeight(.semibold)
+                
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    TextField("Search destinations", text: $mapSearch.searchTerm)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                
+                if !mapSearch.searchTerm.isEmpty {
+                    List(mapSearch.locationResults.prefix(5), id: \.self) { location in
+                        Button(action: {
+                            selectLocation(location)
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(location.title)
+                                Text(location.subtitle)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                 }
+            } else {
+                Text("Showing posts from anywhere")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                    .padding()
             }
             
             Spacer()
         }
         .padding()
-        .navigationBarItems(trailing: Button("Save") {
-            saveFilters()
+        .navigationBarItems(trailing: Button("Apply") {
+            applyFilters()
             dismiss()
         })
+        .onAppear {
+            if feedViewModel.currentLocationFilter != .anywhere {
+                feedViewModel.setupLocation()
+            }
+        }
     }
     
     private func selectLocation(_ location: MKLocalSearchCompletion) {
@@ -70,18 +93,32 @@ struct LocationFilter: View {
         let search = MKLocalSearch(request: searchRequest)
         search.start { response, error in
             guard let coordinate = response?.mapItems.first?.placemark.coordinate else { return }
-            filtersViewModel.updateLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            feedViewModel.updateLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             mapSearch.searchTerm = ""
         }
     }
     
-    private func saveFilters() {
+    private func applyFilters() {
+        switch feedViewModel.currentLocationFilter {
+        case .exactCity:
+            // City and state are already set by selectLocation or setupLocation
+            feedViewModel.surroundingGeohash = nil
+        case .surrounding:
+            // City, state, and surroundingGeohash are already set by selectLocation or setupLocation
+            break
+        case .anywhere:
+            feedViewModel.city = nil
+            feedViewModel.state = nil
+            feedViewModel.surroundingGeohash = nil
+            feedViewModel.surroundingCounty = "Anywhere"
+        }
+        
+        feedViewModel.applyLocationFilter()
         Task {
-            await filtersViewModel.fetchFilteredPosts()
+            await feedViewModel.fetchInitialPosts()
         }
     }
-} 
-
+}
 
 //MARK: ViewModel
 /// Taken from "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
