@@ -181,11 +181,11 @@ struct PrimaryFeedView: View {
                                     
                                     if let city = viewModel.city, let state = viewModel.state {
                                         Text("\(city), \(state)")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .font(.custom("MuseoSansRounded-500", size: 16))
                                             .foregroundStyle(.gray)
                                     } else {
                                         Text("Any Location")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .font(.custom("MuseoSansRounded-500", size: 16))
                                             .foregroundStyle(.gray)
                                     }
                                     

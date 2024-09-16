@@ -33,8 +33,8 @@ struct LocationSearchView: View {
                         .focused($isFocused)
                 }
                 .frame(height: 44)
-                .padding(.horizontal)
-                .background(Color.white)
+                .padding()
+                .background(Color.gray)
                 .cornerRadius(8)
                 
                 List {
@@ -42,16 +42,19 @@ struct LocationSearchView: View {
                         Button(action: {
                             selectLocation(location)
                         }) {
-                            VStack(alignment: .leading) {
-                                Text(location.title)
-                                    .foregroundColor(.black)
-                                Text(location.subtitle)
-                                    .font(.caption)
+                            HStack {
+                                Image(systemName: "location")
                                     .foregroundColor(.gray)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Text(location.title)
+                                    .foregroundColor(.primary)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Spacer()
                             }
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
             }
             .navigationTitle("Choose Location")
             .navigationBarTitleDisplayMode(.inline)
