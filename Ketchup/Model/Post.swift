@@ -11,6 +11,7 @@ import SwiftUI
 import AVKit
 import FirebaseFirestore
 import MapKit
+
 struct Post: Identifiable, Codable {
     let id: String
     let mediaType: MediaType
@@ -37,6 +38,7 @@ struct Post: Identifiable, Codable {
     var foodRating: Double?
     var taggedUsers: [PostUser]
     var captionMentions: [PostUser]
+    var isReported: Bool // New property for reported status
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.restaurant.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
@@ -72,12 +74,13 @@ struct Post: Identifiable, Codable {
         self.foodRating = try container.decodeIfPresent(Double.self, forKey: .foodRating)
         self.taggedUsers = try container.decodeIfPresent([PostUser].self, forKey: .taggedUsers) ?? []
         self.captionMentions = try container.decodeIfPresent([PostUser].self, forKey: .captionMentions) ?? []
+        self.isReported = try container.decodeIfPresent(Bool.self, forKey: .isReported) ?? false
     }
     
     init(
         id: String,
         mediaType: MediaType,
-        mediaUrls: [String] = [],  // Default to empty array
+        mediaUrls: [String] = [],
         mixedMediaUrls: [MixedMediaItem]? = nil,
         caption: String,
         likes: Int,
@@ -99,7 +102,8 @@ struct Post: Identifiable, Codable {
         valueRating: Double? = nil,
         foodRating: Double? = nil,
         taggedUsers: [PostUser] = [],
-        captionMentions: [PostUser] = []
+        captionMentions: [PostUser] = [],
+        isReported: Bool = false  // Default value set here
     ) {
         self.id = id
         self.mediaType = mediaType
@@ -126,9 +130,9 @@ struct Post: Identifiable, Codable {
         self.foodRating = foodRating
         self.taggedUsers = taggedUsers
         self.captionMentions = captionMentions
+        self.isReported = isReported
     }
 }
-
 extension Post: Hashable { }
 
 extension Post: Equatable {

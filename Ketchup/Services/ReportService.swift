@@ -14,20 +14,37 @@ class ReportService {
     static let shared = ReportService() // Singleton instance
     private init() {}
     func uploadReport(contentId: String, reasons: [String], status: String, objectType: String) async throws {
+        let db = Firestore.firestore()
+        let reportRef = FirestoreConstants.ReportsCollection.document(contentId).collection("reports").document()
         
-        let ref = FirestoreConstants.ReportsCollection.document(contentId).collection("reports").document()
-        if let uid = Auth.auth().currentUser?.uid {
-            let report = Report(id: ref.documentID, contentId: contentId, reporterId: uid, reasons: reasons, status: status, timestamp: Timestamp(), objectType: objectType)
-            guard let reportData = try? Firestore.Encoder().encode(report) else {
-                //print("not encoding report right")
-                return
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "ReportService", code: 1, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        let report = Report(id: reportRef.documentID, contentId: contentId, reporterId: uid, reasons: reasons, status: status, timestamp: Timestamp(), objectType: objectType)
+        
+        do {
+            let reportData = try Firestore.Encoder().encode(report)
+            
+            // Start a batch write
+            let batch = db.batch()
+            
+            // Add the report
+            batch.setData(reportData, forDocument: reportRef)
+            
+            // Update the post's isReported field
+            if objectType == "post"{
+                let postRef = db.collection("posts").document(contentId)
+                batch.updateData(["isReported": true], forDocument: postRef)
             }
             
-            do {
-                try await ref.setData(reportData)
-            } catch {
-                //print("uploading a report failed")
-            }
+            // Commit the batch
+            try await batch.commit()
+            
+            print("Report uploaded and post updated successfully")
+        } catch {
+            print("Error uploading report and updating post: \(error.localizedDescription)")
+            throw error
         }
     }
 }

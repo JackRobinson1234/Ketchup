@@ -9,6 +9,7 @@ import SwiftUI
 import AVKit
 import Combine
 import Contacts
+import CryptoKit
 
 struct PrimaryFeedView: View {
     @StateObject var viewModel: FeedViewModel
@@ -372,37 +373,9 @@ struct PrimaryFeedView: View {
                            
                         }
                     }
-//                    if showPostSuccess {
-//                        ZStack {
-//                            FallingFoodView(isStatic: false)
-//                                .transition(.opacity)
-//                                .opacity(showPostSuccess ? 1 : 0) // Set opacity based on the condition
-//                                .animation(.easeInOut(duration: 1.0), value: showPostSuccess) // Animate opacity changes
-//                                .onAppear {
-//                                    triggerHapticFeedback() 
-//                                    viewModel.showEmptyView = false
-//                                    Debouncer(delay: 5.0).schedule {
-//                                        withAnimation(.easeInOut(duration: 1.0)) {
-//                                            showPostSuccess = false // Trigger fade-out animation
-//                                        }
-//                                    }
-//                                }
-//                            
-//                            VStack{
-//                                Image("Skip")
-//                                    .resizable()
-//                                    .scaledToFit()
-//                                    .frame(width: 150, height: 150)
-//                                Text("Review Uploaded!")
-//                                    .foregroundColor(.black)
-//                                    .font(.custom("MuseoSansRounded-300", size: 16))
-//                                
-//                            }
-//                            .background(Color.white.opacity(0.7))
-//                            .cornerRadius(10)
-//                            .shadow(radius: 10)
-//                        }
-//                    }
+                }
+                .onAppear{
+                    
                 }
                 .overlay {
                     if viewModel.showEmptyView {
@@ -475,6 +448,7 @@ struct PrimaryFeedView: View {
                     ContactsView()
                 }
                 .onAppear {
+                    print(hashPhoneNumber("+1234567890"))
                     checkContactsPermissionAndSync()
                 }
             }
@@ -514,6 +488,7 @@ struct PrimaryFeedView: View {
         }
         isRefreshing = false
     }
+    
     private func debounceScrollUpdate(_ scrollOffset: CGFloat, _ scrollDifference: CGFloat) async {
         try? await Task.sleep(nanoseconds: UInt64(debounceDelay * 1_000_000_000))
         DispatchQueue.main.async {
@@ -536,6 +511,11 @@ struct PrimaryFeedView: View {
             lastScrollOffset = scrollOffset
         }
     }
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+            let inputData = Data(phoneNumber.utf8)
+            let hashed = SHA256.hash(data: inputData)
+            return hashed.compactMap { String(format: "%02x", $0) }.joined()
+        }
     private func updateNewPostsCount() {
         if let userSession = AuthService.shared.userSession{
             if userSession.followingPosts > 0 {

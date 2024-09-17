@@ -8,7 +8,6 @@
 import SwiftUI
 import FirebaseAuth
 
-
 struct PostOptionsSheet: View {
     @Binding var post: Post
     @ObservedObject var viewModel: FeedViewModel
@@ -18,6 +17,7 @@ struct PostOptionsSheet: View {
     @State var optionsSheetDismissed: Bool = false
     @State var showingEditPost: Bool = false
     @State private var showingRepostSheet = false
+    @State var isReported = false
     var body: some View {
         VStack(spacing: 20) {
             if post.user.id == Auth.auth().currentUser?.uid {
@@ -69,7 +69,6 @@ struct PostOptionsSheet: View {
                     }
                     .padding(.trailing, 10)
                     .disabled(post.user.id == AuthService.shared.userSession?.id)
-                    
                 }
                 Divider()
                 Button {
@@ -93,20 +92,23 @@ struct PostOptionsSheet: View {
         }
         .padding()
         .sheet(isPresented: $showReportDetails) {
-            ReportingView(contentId: post.id, objectType: "post", dismissView: $optionsSheetDismissed )
+            ReportingView(contentId: post.id,
+                          objectType: "post",
+                          isReported:  $isReported,
+                          dismissView: $optionsSheetDismissed)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                .onDisappear{
+                    post.isReported = isReported  // Update the post
+                    dismiss()
+                }
+        }
+        .sheet(isPresented: $showingRepostSheet) {
+            RepostView(viewModel: viewModel, post: post)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
                 .onDisappear{
                     dismiss()
                 }
-                
         }
-        .sheet(isPresented: $showingRepostSheet) {
-                    RepostView(viewModel: viewModel, post: post)
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
-                        .onDisappear{
-                            dismiss()
-                        }
-                }
         .fullScreenCover(isPresented: $showingEditPost){
             NavigationStack{
                 ReelsEditView(post: $post, feedViewModel: viewModel)

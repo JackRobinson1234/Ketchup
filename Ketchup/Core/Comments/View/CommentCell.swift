@@ -22,7 +22,7 @@ struct CommentCell: View {
     @State private var showingDeleteAlert = false
     @State private var showReportDetails = false
     @Environment(\.openURL) private var openURL
-    
+    @State var isReported: Bool = false
     private let optionsWidth: CGFloat = 60
     
     var body: some View {
@@ -163,7 +163,7 @@ struct CommentCell: View {
         
         
         .sheet(isPresented: $showReportDetails) {
-            ReportingView(contentId: comment.id, objectType: "comment", dismissView: .constant(false))
+            ReportingView(contentId: comment.id, objectType: "comment",isReported: $isReported, dismissView: .constant(false))
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
         .sheet(isPresented: $isShowingProfileSheet) {

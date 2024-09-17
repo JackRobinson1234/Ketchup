@@ -10,6 +10,8 @@ import FirebaseAuth
 import Contacts
 import PhoneNumberKit
 import SwiftUI
+import CryptoKit
+
 class ContactService {
     static let shared = ContactService()
     private let db = Firestore.firestore()
@@ -37,7 +39,12 @@ class ContactService {
             }
         }
     }
-    
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+            let inputData = Data(phoneNumber.utf8)
+            let hashed = SHA256.hash(data: inputData)
+            return hashed.compactMap { String(format: "%02x", $0) }.joined()
+        }
+
     func syncDeviceContacts() {
         guard !isSyncing && !hasSynced else {
             //print("Sync is not needed or is already in progress.")
@@ -46,7 +53,6 @@ class ContactService {
         
         isSyncing = true
         syncProgress = 0.0
-        
         startBackgroundTask()
         
         Task {
@@ -97,7 +103,8 @@ class ContactService {
                       let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
                     return nil
                 }
-                return Contact(phoneNumber: formattedPhoneNumber)
+                let hashedPhoneNumber = hashPhoneNumber(formattedPhoneNumber)
+                return Contact(phoneNumber: hashedPhoneNumber)
             }
             
             do {

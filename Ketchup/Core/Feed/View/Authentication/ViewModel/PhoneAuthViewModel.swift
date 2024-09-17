@@ -10,6 +10,8 @@ import Combine
 import FirebaseAuth
 import PhoneNumberKit
 import FirebaseFirestoreInternal
+import CryptoKit
+
 @MainActor
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber = ""
@@ -67,7 +69,6 @@ class PhoneAuthViewModel: ObservableObject {
         
         isAuthenticating = true
         ///DELETE BEFORE PRODUCTION
-       
 
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
             DispatchQueue.main.async {
@@ -259,12 +260,13 @@ class PhoneAuthViewModel: ObservableObject {
     private func updateUserWithPhoneNumber() async {
         do {
             guard let userID = Auth.auth().currentUser?.uid else { return }
-            
+            let hashedPhoneNumber = hashPhoneNumber(self.phoneNumber)
+
             // Update the user's phone number in Firestore
             //print("PHONE NUMBER 2:", self.phoneNumber)
             try await AuthService.shared.updateFirestoreUser(
                 id: userID,
-                phoneNumber: self.phoneNumber,
+                phoneNumber: hashedPhoneNumber,
                 hasCompletedSetup: false
             )
             
@@ -283,6 +285,11 @@ class PhoneAuthViewModel: ObservableObject {
             showAlert(title: "Error", message: "Failed to update user. Please try again.")
         }
     }
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+           let inputData = Data(phoneNumber.utf8)
+           let hashed = SHA256.hash(data: inputData)
+           return hashed.compactMap { String(format: "%02x", $0) }.joined()
+       }
     private func showAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message

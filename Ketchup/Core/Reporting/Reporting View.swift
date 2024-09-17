@@ -12,6 +12,7 @@ import SwiftUI
 struct ReportingView: View {
     var contentId: String
     var objectType: String
+    @Binding var isReported: Bool
     @Environment(\.dismiss) var dismiss
     @State private var selectedReasons: [String] = []
     @State private var customReason: String = ""
@@ -46,11 +47,11 @@ struct ReportingView: View {
                     Text("Characters remaining: \(150 - customReason.count)")
                         .foregroundColor(.black)
                         .font(.custom("MuseoSansRounded-300", size: 10))
-                        .onChange(of: customReason) {oldValue, newValue in
-                               if newValue.count > 50 {
-                                   customReason = String(newValue.prefix(150))
-                               }
-                           }
+                        .onChange(of: customReason) { oldValue, newValue in
+                            if newValue.count > 150 {
+                                customReason = String(newValue.prefix(150))
+                            }
+                        }
                 }
                 .padding()
                 
@@ -76,8 +77,8 @@ struct ReportingView: View {
                     Text("Report")
                         .modifier(StandardButtonModifier())
                 }
-                .disabled(selectedReasons.isEmpty && customReason.isEmpty) // Disable the button if both selectedReasons and customReason are empty
-                .opacity((selectedReasons.isEmpty && customReason.isEmpty) ? 0.5 : 1.0) // Reduce opacity if both selectedReasons and customReason are empty
+                .disabled(selectedReasons.isEmpty && customReason.isEmpty)
+                .opacity((selectedReasons.isEmpty && customReason.isEmpty) ? 0.5 : 1.0)
                 .padding()
             }
             
@@ -85,7 +86,6 @@ struct ReportingView: View {
                 Alert(title: Text("Report Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")) {
                     dismiss()
                 })
-                    
             }
             .padding()
         }
@@ -104,11 +104,5 @@ struct ReportingView: View {
                 }
             }
         )
-    }
-}
-
-struct ReportingView_Previews: PreviewProvider {
-    static var previews: some View {
-        ReportingView(contentId: "123", objectType: "comment", dismissView: .constant(false))
     }
 }
