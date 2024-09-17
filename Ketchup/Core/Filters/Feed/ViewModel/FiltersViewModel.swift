@@ -68,7 +68,6 @@ class FiltersViewModel: ObservableObject {
                 print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
-            
             if let placemark = placemarks?.first {
                 self.city = placemark.locality
                 self.state = placemark.administrativeArea
@@ -78,24 +77,31 @@ class FiltersViewModel: ObservableObject {
     }
     
     func fetchFilteredPosts() async {
-        if let geohash = surroundingGeohash {
-            let geohashPrefix = String(geohash.prefix(4))
-            filters["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
-        } else {
-            filters.removeValue(forKey: "restaurant.truncatedGeohash")
+            /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
+            if selectedCuisines.isEmpty {
+                filters.removeValue(forKey: "restaurant.cuisine")
+            } else {
+                filters["restaurant.cuisine"] = selectedCuisines
+            }
+            /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
+           
+            ///Price checking if there are any selected
+            if selectedPrice.isEmpty {
+                filters.removeValue(forKey: "restaurant.price")
+            } else {
+                filters["restaurant.price"] = selectedPrice
+            }
+            ///Dietary checking if there are any selected
+            //print("Filters", filters)
+            do{
+                feedViewModel.filters = self.filters
+                feedViewModel.isInitialLoading = true
+                try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+                feedViewModel.isInitialLoading = false
+            } catch {
+                //print("Error")
+            }
         }
-        
-        // Add other filters (cuisine, price, etc.) here...
-        
-        do {
-            feedViewModel.filters = filters
-            feedViewModel.isInitialLoading = true
-            try await feedViewModel.fetchInitialPosts()
-            feedViewModel.isInitialLoading = false
-        } catch {
-            print("Error fetching filtered posts: \(error)")
-        }
-    }
     
     private func geohashNeighbors(geohash: String) -> [String] {
         if let geoHash = Geohash(geohash: geohash) {

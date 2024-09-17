@@ -36,6 +36,46 @@ struct LocationFilter: View {
 
     var body: some View {
         VStack {
+            VStack(alignment: .leading) {
+                // Toggle between exact city and surrounding area
+                Toggle(isOn: $tempIncludeSurroundingArea) {
+                    Text( "Include Surrounding Area")
+                        .foregroundColor(.primary)
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                }
+                .disabled(isAnywhereSelected)
+                .opacity(isAnywhereSelected ? 0.3 : 1.0)
+                Toggle(isOn: $isAnywhereSelected) {
+                    Text("All Locations")
+                        .foregroundColor(.primary)
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                }
+            
+                    .onChange(of: isAnywhereSelected) {oldValue, newValue in
+                        handleAnywhereToggleChange(newValue)
+                    }
+                // 'Anywhere' option with checkmark
+                //                Button(action: {
+                //                    isAnywhereSelected.toggle()
+                //                    if isAnywhereSelected {
+                //                        tempCurrentLocationFilter = .anywhere
+                //                        tempIsUsingCurrentLocation = false
+                //                        tempSelectedLocation = nil
+                //                        displayLocationText = "Anywhere"
+                //                        mapSearch.searchTerm = ""
+                //                    } else {
+                //                        tempCurrentLocationFilter = .surrounding
+                //                    }
+                //                }) {
+                //                    HStack {
+                //                        Image(systemName: isAnywhereSelected ? "checkmark.circle.fill" : "circle")
+                //                            .foregroundColor(.blue)
+                //                        Text("Anywhere")
+                //                            .font(.headline)
+                //                    }
+                //                }
+            }
+            .padding()
             // Search bar for city selection
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -98,46 +138,7 @@ struct LocationFilter: View {
 
             Spacer()
 
-            VStack(alignment: .leading) {
-                // Toggle between exact city and surrounding area
-                Toggle(isOn: $tempIncludeSurroundingArea) {
-                    Text( "Include Surrounding Area")
-                        .foregroundColor(.primary)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-                .disabled(isAnywhereSelected)
-                .opacity(isAnywhereSelected ? 0.3 : 1.0)
-                Toggle(isOn: $isAnywhereSelected) {
-                    Text("No Location Filter")
-                        .foregroundColor(.primary)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-            
-                    .onChange(of: isAnywhereSelected) {oldValue, newValue in
-                        handleAnywhereToggleChange(newValue)
-                    }
-                // 'Anywhere' option with checkmark
-                //                Button(action: {
-                //                    isAnywhereSelected.toggle()
-                //                    if isAnywhereSelected {
-                //                        tempCurrentLocationFilter = .anywhere
-                //                        tempIsUsingCurrentLocation = false
-                //                        tempSelectedLocation = nil
-                //                        displayLocationText = "Anywhere"
-                //                        mapSearch.searchTerm = ""
-                //                    } else {
-                //                        tempCurrentLocationFilter = .surrounding
-                //                    }
-                //                }) {
-                //                    HStack {
-                //                        Image(systemName: isAnywhereSelected ? "checkmark.circle.fill" : "circle")
-                //                            .foregroundColor(.blue)
-                //                        Text("Anywhere")
-                //                            .font(.headline)
-                //                    }
-                //                }
-            }
-            .padding()
+         
         }
         .toolbar {
             ToolbarItem(placement: .principal) {

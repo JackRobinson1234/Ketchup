@@ -14,6 +14,7 @@ import FirebaseAuth
 import CoreLocation
 import GeoFire
 import GeohashKit
+import Firebase
 enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
@@ -62,9 +63,13 @@ class FeedViewModel: ObservableObject {
     @Published var selectedTab: FeedTab = .discover {
         didSet {
             Task {
+                if selectedTab == .following {
+                    currentLocationFilter = .anywhere
+                }
                 isInitialLoading = true
                 await handleTabChange()
                 isInitialLoading = false
+                
             }
         }
     }
@@ -81,8 +86,10 @@ class FeedViewModel: ObservableObject {
     @Published var state: String?
     @Published var surroundingGeohash: String?
     @Published var surroundingCounty: String = "Nearby"
-    @Published var currentLocationFilter: FeedLocationSetting = .surrounding
-    
+    @Published var currentLocationFilter: FeedLocationSetting = .anywhere
+    @Published var simplifiedPosts: [SimplifiedPost] = []
+    private var lastSimplifiedPostTimestamp: Timestamp?
+    private let simplifiedPostPageSize = 15
     private let locationManager = LocationManager.shared
     
     init(posts: [Post] = [], startingPostId: String = "", earlyPosts: [Post] = [], showBookmarks: Bool = true, selectedCommentId: String? = nil) {
@@ -92,26 +99,26 @@ class FeedViewModel: ObservableObject {
         self.showBookmarks = showBookmarks
     }
     func setupLocation() {
-       
-            isInitialLoading = true
-            locationManager.requestLocation { success in
-                
-                if success {
-                    Task{
-                        self.updateLocationInfo()
-                        try await self.fetchInitialPosts()
-                        self.isInitialLoading = false
-                    }
-                } else {
-                    Task{
-                        print("Failed to get user location")
-                        self.loadLocationFromUserSession()
-                        try await self.fetchInitialPosts()
-                        self.isInitialLoading = false
+        
+        isInitialLoading = true
+        locationManager.requestLocation { success in
+            
+            if success {
+                Task{
+                    self.updateLocationInfo()
+                    try await self.fetchInitialPosts()
+                    self.isInitialLoading = false
+                }
+            } else {
+                Task{
+                    print("Failed to get user location")
+                    self.loadLocationFromUserSession()
+                    try await self.fetchInitialPosts()
+                    self.isInitialLoading = false
                     
                 }
             }
-          
+            
         }
     }
     
@@ -132,9 +139,9 @@ class FeedViewModel: ObservableObject {
         surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
         print(surroundingGeohash, "2")
         reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-//        Task{
-//            try await fetchInitialPosts()
-//        }
+        //        Task{
+        //            try await fetchInitialPosts()
+        //        }
     }
     
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
@@ -162,19 +169,19 @@ class FeedViewModel: ObservableObject {
             let geohashPrefix = String(geohash.prefix(4))
             filters?["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
         } else {
-               filters?.removeValue(forKey: "restaurant.truncatedGeohash")
-           }
-       }
-       
-       private func geohashNeighbors(geohash: String) -> [String] {
-           if let geoHash = Geohash(geohash: geohash) {
-               if let neighbors = geoHash.neighbors {
-                   let neighborGeohashes = neighbors.all.map { $0.geohash }
-                   return [geohash] + neighborGeohashes
-               }
-           }
-           return [geohash]
-       }
+            filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+        }
+    }
+    
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            if let neighbors = geoHash.neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                return [geohash] + neighborGeohashes
+            }
+        }
+        return [geohash]
+    }
     private func handleTabChange() async {
         
         resetFeedState()
@@ -191,9 +198,10 @@ class FeedViewModel: ObservableObject {
     }
     @MainActor
     func fetchInitialPosts(withFilters filters: [String: [Any]]? = nil) async {
+        
         resetFeedState(filters: filters)
         do {
-            var newPosts = try await fetchPostsPage(withFilters: filters, isInitialLoad: true)
+            var newPosts = try await fetchPostsPage(withFilters: self.filters, isInitialLoad: true)
             await checkPostInteractions(for: &newPosts)
             handleFetchedPosts(newPosts, isInitialLoad: true)
         } catch {
@@ -202,10 +210,11 @@ class FeedViewModel: ObservableObject {
     }
     
     private func resetFeedState(filters: [String: [Any]]? = nil) {
+        lastSimplifiedPostTimestamp = nil
         isLoading = true
         lastDocument = nil
         hasMorePosts = true
-        self.filters = filters
+        //self.filters = filters
         lastFetched = 0
     }
     
@@ -218,10 +227,11 @@ class FeedViewModel: ObservableObject {
             await checkPostInteractions(for: &newPosts)
             handleFetchedPosts(newPosts, isInitialLoad: false)
         } catch {
-            //print("Error fetching more posts: \(error)")
+            print("DEBUG: Error fetching more posts: \(error)")
         }
         isFetching = false
     }
+    
     private func shouldFetchMorePosts(currentPost: String?) -> Bool {
         guard let currentPost = currentPost, !posts.isEmpty else { return false }
         guard !isFetching, hasMorePosts else { return false }
@@ -233,6 +243,29 @@ class FeedViewModel: ObservableObject {
         return false
     }
     private func fetchPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
+        if selectedTab == .following {
+            return try await fetchFollowingPostsPage()
+        } else {
+            return try await fetchRegularPostsPage(withFilters: filters, isInitialLoad: isInitialLoad)
+        }
+    }
+    
+    private func fetchFollowingPostsPage() async throws -> [Post] {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { throw NSError(domain: "FeedViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "No current user"]) }
+        
+        let newSimplifiedPosts = try await fetchSimplifiedFollowingPosts(userId: currentUserId, withFilters: filters)
+        let newPosts = try await fetchFullPostDetails(for: newSimplifiedPosts)
+        
+        await MainActor.run {
+            self.simplifiedPosts.append(contentsOf: newSimplifiedPosts)
+            self.lastSimplifiedPostTimestamp = newSimplifiedPosts.last?.timestamp
+        }
+        
+        return newPosts
+    }
+    
+    private func fetchRegularPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
+        print("FETCHING WITH FILTERS", filters)
         var updatedFilters = filters ?? [:]
         updatedFilters["user.privateMode"] = [false]
         
@@ -246,23 +279,15 @@ class FeedViewModel: ObservableObject {
         if selectedTab != .following {
             query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
         }
-        
-        if selectedTab == .following {
-            let followingBatch = Array(followingUsers.prefix(30))
-            if followingBatch.isEmpty { return [] }
-            query = query.whereField("user.id", in: followingBatch)
-        }
         switch currentLocationFilter {
         case .exactCity:
             if let city = self.city {
                 query = query.whereField("restaurant.city", isEqualTo: city)
             }
         case .surrounding:
-            print(surroundingGeohash)
             if let geohash = surroundingGeohash {
                 let geohashPrefix = String(geohash.prefix(4))
                 let neighbors = geohashNeighbors(geohash: geohashPrefix)
-                print("neighbors", neighbors)
                 query = query.whereField("restaurant.truncatedGeohash", in: neighbors)
             }
         case .anywhere:
@@ -280,6 +305,61 @@ class FeedViewModel: ObservableObject {
         self.lastDocument = snapshot.documents.last
         return snapshot.documents.compactMap { try? $0.data(as: Post.self) }
     }
+    
+    private func fetchSimplifiedFollowingPosts(userId: String, withFilters filters: [String: [Any]]? = nil) async throws -> [SimplifiedPost] {
+        let db = Firestore.firestore()
+        guard let currentUserID = Auth.auth().currentUser?.uid else { return [] }
+        var query: Query = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
+        if let filters, !filters.isEmpty {
+            for (key, value) in filters {
+                query = query.whereField(key, in: value)
+            }
+        }
+        query = query
+            .order(by: "timestamp", descending: true)
+            .limit(to: simplifiedPostPageSize)
+        
+        switch currentLocationFilter {
+        case .exactCity:
+            if let city = self.city {
+                query = query.whereField("restaurant.city", isEqualTo: city)
+            }
+        case .surrounding:
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(4))
+                let neighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("restaurant.truncatedGeohash", in: neighbors)
+            }
+        case .anywhere:
+            // No location filter applied
+            break
+        }
+        if let lastTimestamp = lastSimplifiedPostTimestamp {
+            query = query.start(after: [lastTimestamp])
+        }
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.compactMap { try? $0.data(as: SimplifiedPost.self) }
+    }
+    
+    private func fetchFullPostDetails(for simplifiedPosts: [SimplifiedPost]) async throws -> [Post] {
+        let db = Firestore.firestore()
+        let postIds = simplifiedPosts.map { $0.id }
+        
+        let chunks = postIds.chunked(into: 30) // Firestore allows up to 10 items in a whereField(in:) query
+        var allPosts: [Post] = []
+        
+        for chunk in chunks {
+            let query = db.collection("posts").whereField("id", in: chunk).order(by: "timestamp", descending: true)
+            let snapshot = try await query.getDocuments()
+            let posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            allPosts.append(contentsOf: posts)
+        }
+        
+        return allPosts
+    }
+    
+    
     
     private func handleFetchedPosts(_ newPosts: [Post], isInitialLoad: Bool) {
         if isInitialLoad {
@@ -418,7 +498,7 @@ class FeedViewModel: ObservableObject {
             }
         }
     }
-
+    
     func fetchRestaurantPosts(restaurant: Restaurant, friendIds: [String]) async throws {
         do {
             // Ensure the current user is authenticated

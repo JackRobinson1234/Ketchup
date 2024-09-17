@@ -179,7 +179,7 @@ struct PrimaryFeedView: View {
                                         .foregroundStyle(.gray)
                                         .font(.caption)
                                     
-                                    if let city = viewModel.city, let state = viewModel.state {
+                                    if viewModel.currentLocationFilter != .anywhere, let city = viewModel.city, let state = viewModel.state {
                                         Text("\(city), \(state)")
                                             .font(.custom("MuseoSansRounded-500", size: 16))
                                             .foregroundStyle(.gray)
@@ -238,18 +238,35 @@ struct PrimaryFeedView: View {
                         }) {
                             HStack {
                                 Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                Text("Search restaurants, users, or collections")
+                                    .foregroundColor(.black)
+                                Text("Search restaurants, sushi, users, etc.")
                                     .font(.custom("MuseoSansRounded-500", size: 14))
                                     .foregroundColor(.gray)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                                 Spacer()
                             }
                             .padding()
                             .background(Color(.systemGray6))
                             .cornerRadius(10)
                             .padding(.horizontal)
+                            .padding(.top, 4)
                         }
-//                       
+                            Button{
+                                pauseVideo = true
+                                showFilters.toggle()
+                            } label: {
+                                HStack(spacing: 1){
+                                    Image(systemName: "slider.horizontal.3")
+                                        .foregroundColor(.gray)
+                                    Text("Filter Feed")
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.vertical,2)
+                                .padding(.horizontal)
+                            }
+//
 //                                                    ScrollView(.horizontal, showsIndicators: false) {
 //                                                        HStack(spacing: 8) {
 //                                                            ForEach(["Filter Cuisine", "Filter Price"], id: \.self) { filter in
@@ -360,8 +377,11 @@ struct PrimaryFeedView: View {
                 }
                 .overlay {
                     if viewModel.showEmptyView {
-                        ContentUnavailableView("No posts to show", systemImage: "eye.slash")
-                            .foregroundStyle(Color("Colors/AccentColor"))
+                        VStack{
+                            ContentUnavailableView("No posts to show", systemImage: "eye.slash")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                            
+                        }
                     }
                     
                     if viewModel.showRepostAlert {
@@ -473,7 +493,7 @@ struct PrimaryFeedView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
                     
-                    topBarHeight = 170
+                    topBarHeight = 190
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down

@@ -117,7 +117,7 @@ struct ShareView: View {
             if let mediaData = downloadedMediaData {
                 if let city = post.restaurant.city {
                     let mediaType = post.mediaType == .mixed ? post.mixedMediaUrls?[currentMediaIndex].type : post.mediaType
-                    MessageComposeView(messageBody: "I need to try this restaurant called \(post.restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: mediaType ?? .photo)
+                    MessageComposeView(messageBody: "Check out this restaurant called \(post.restaurant.name) in \(city) that I found on Ketchup!", mediaData: mediaData, mediaType: mediaType ?? .photo)
                         .onDisappear { preppingMessage = false }
                 }
             } else {

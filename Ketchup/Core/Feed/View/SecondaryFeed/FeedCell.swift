@@ -776,7 +776,7 @@ struct FeedCell: View {
         Task {
             if post.didBookmark {
                 await viewModel.unbookmark(post)
-                post.bookmarkCount -= 1
+                //ost.bookmarkCount -= 1
             } else {
                 await viewModel.bookmark(post)
                 post.bookmarkCount += 1

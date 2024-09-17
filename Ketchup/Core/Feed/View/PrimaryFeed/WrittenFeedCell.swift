@@ -667,7 +667,7 @@ struct WrittenFeedCell: View {
     private func handleBookmarkTapped() {
         Task {
             if post.didBookmark {
-                post.bookmarkCount -= 1
+                //post.bookmarkCount -= 1
                 await viewModel.unbookmark(post)
                 
             } else {
