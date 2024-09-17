@@ -37,6 +37,8 @@ struct PrimaryFeedView: View {
     private let debounceDelay: TimeInterval = 0.2
     @State private var topBarHeight: CGFloat = 150 // Default height
     @State var showPostSuccess = false
+    @State private var newPostsCount: Int = 0
+
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -50,7 +52,8 @@ struct PrimaryFeedView: View {
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
-                        try await viewModel.setupLocation()
+                        updateNewPostsCount()
+                        viewModel.setupLocation()
                         isLoading = false
                     }
                 }
@@ -252,18 +255,31 @@ struct PrimaryFeedView: View {
                             .padding(.horizontal)
                             .padding(.top, 4)
                         }
-                            Button{
+                            Button {
                                 pauseVideo = true
                                 showFilters.toggle()
                             } label: {
-                                HStack(spacing: 1){
+                                HStack(spacing: 1) {
                                     Image(systemName: "slider.horizontal.3")
                                         .foregroundColor(.gray)
                                     Text("Filter Feed")
-                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .font(.custom("MuseoSansRounded-500", size: 16))
                                         .foregroundColor(.gray)
+                                    
+                                    if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color("Colors/AccentColor"))
+                                                .frame(width: 16, height: 16)
+                                            Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding(.leading, 1)
+                                    }
+                                        
                                 }
-                                .padding(.vertical,2)
+                                .padding(.vertical, 2)
                                 .padding(.horizontal)
                             }
 //
@@ -287,32 +303,45 @@ struct PrimaryFeedView: View {
 //                                                        .padding(.horizontal)
 //                                                    }
                             HStack(spacing: 40) {
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .following
+                                HStack(spacing: 2) {
+                                    if newPostsCount > 0 && viewModel.selectedTab == .discover {
+                                           ZStack {
+                                               Circle()
+                                                   .fill(Color("Colors/AccentColor"))
+                                                   .frame(width: 20, height: 20)
+                                               Text("\(newPostsCount)")
+                                                   .font(.custom("MuseoSansRounded-500", size: 10))
+                                                   .foregroundColor(.white)
+                                           }
+                                       }
+                                    Button {
+                                        newPostsCount = 0
+                                        if canSwitchTab {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                viewModel.selectedTab = .following
+                                            }
+                                            canSwitchTab = false
+                                            
+                                            // Re-enable switching after a delay
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                canSwitchTab = true
+                                            }
                                         }
-                                        canSwitchTab = false
-                                        
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
-                                        }
+                                    } label: {
+                                        Text("Following")
+                                            .font(.custom("MuseoSansRounded-500", size: 18))
+                                            .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                            
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(height: 2)
+                                                    .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                    .offset(y: 17)
+                                            )
                                     }
-                                } label: {
-                                    Text("Following")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
+                                    .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                                   
                                 }
-                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                
                                 Button {
                                     if canSwitchTab {
                                         withAnimation(.easeInOut(duration: 0.5)) {
@@ -329,12 +358,12 @@ struct PrimaryFeedView: View {
                                     Text("Discover")
                                         .font(.custom("MuseoSansRounded-500", size: 18))
                                         .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
+                                       
                                         .overlay(
                                             Rectangle()
                                                 .frame(height: 2)
                                                 .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
+                                                .offset(y: 17)
                                         )
                                 }
                                 .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
@@ -493,7 +522,7 @@ struct PrimaryFeedView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
                     
-                    topBarHeight = 190
+                    topBarHeight = 200
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
@@ -507,7 +536,13 @@ struct PrimaryFeedView: View {
             lastScrollOffset = scrollOffset
         }
     }
-    
+    private func updateNewPostsCount() {
+        if let userSession = AuthService.shared.userSession{
+            if userSession.followingPosts > 0 {
+                newPostsCount = userSession.followingPosts
+            }
+        }
+    }
 }
 
 struct SuccessMessageOverlay: View {

@@ -69,6 +69,7 @@ class FeedViewModel: ObservableObject {
                 isInitialLoading = true
                 await handleTabChange()
                 isInitialLoading = false
+                await resetNewPostsCount()
                 
             }
         }
@@ -782,5 +783,44 @@ extension FeedViewModel {
             //print("DEBUG: Failed to check if user bookmarked post with error \(error.localizedDescription)")
             return false
         }
+    }
+    func resetNewPostsCount() {
+        
+        let authService = AuthService.shared
+        
+        guard let userId = authService.userSession?.id,
+              let currentCount = authService.userSession?.followingPosts,
+              currentCount > 0 else { return }
+        
+        
+        // Reset count in Firebase
+        
+        let userRef = Firestore.firestore().collection("users").document(userId)
+        userRef.updateData(["followingPosts": 0]) { error in
+            if let error = error {
+                print("Error resetting followingPosts in Firebase: \(error.localizedDescription)")
+            } else {
+                print("Successfully reset followingPosts in Firebase")
+            }
+        }
+        
+        // Reset count in local auth user session
+        authService.userSession?.followingPosts = 0
+        
+        // Reset local state
+    }
+}
+extension FeedViewModel {
+    var activeCuisineAndPriceFiltersCount: Int {
+        var count = 0
+        if let filters = filters {
+            if let cuisines = filters["restaurant.cuisine"] {
+                count += cuisines.count
+            }
+            if let prices = filters["restaurant.price"] {
+                count += prices.count
+            }
+        }
+        return count
     }
 }

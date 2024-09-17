@@ -25,14 +25,14 @@ struct User: Codable, Identifiable, Hashable {
     var createdAt: Date?
     var lastActive: Date?
     var hasContactsSynced: Bool = false
-    var inviteCount: Int = 0 // New property with default value
-
+    var inviteCount: Int = 0
+    var followingPosts: Int = 0 // New property with default value
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, inviteCount // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, inviteCount, followingPosts // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -78,6 +78,9 @@ struct User: Codable, Identifiable, Hashable {
         
         // Decode inviteCount property, defaulting to 0 if not present
         self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
+
+        // Decode followingPosts property, defaulting to 0 if not present
+        self.followingPosts = try container.decodeIfPresent(Int.self, forKey: .followingPosts) ?? 0
     }
 
     init(
@@ -94,7 +97,8 @@ struct User: Codable, Identifiable, Hashable {
         createdAt: Date? = nil,
         lastActive: Date? = nil,
         hasContactsSynced: Bool = false,
-        inviteCount: Int = 0 // Default value
+        inviteCount: Int = 0,
+        followingPosts: Int = 0 // New parameter with default value
     ) {
         self.id = id
         self.username = username
@@ -118,6 +122,7 @@ struct User: Codable, Identifiable, Hashable {
         self.lastActive = lastActive
         self.hasContactsSynced = hasContactsSynced
         self.inviteCount = inviteCount
+        self.followingPosts = followingPosts
     }
 
     func encode(to encoder: Encoder) throws {
@@ -157,6 +162,9 @@ struct User: Codable, Identifiable, Hashable {
         
         // Encode inviteCount property
         try container.encode(inviteCount, forKey: .inviteCount)
+        
+        // Encode followingPosts property
+        try container.encode(followingPosts, forKey: .followingPosts)
     }
 }
 
