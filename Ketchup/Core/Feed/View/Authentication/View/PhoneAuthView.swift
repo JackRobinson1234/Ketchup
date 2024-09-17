@@ -13,9 +13,10 @@ import FirebaseAuth
 struct PhoneAuthView: View {
     @StateObject private var viewModel: PhoneAuthViewModel
     @Environment(\.dismiss) var dismiss
-    var isDelete: Bool = false
+    var isDelete: Bool
     init(isDelete: Bool = false) {
             _viewModel = StateObject(wrappedValue: PhoneAuthViewModel(isDelete: isDelete))
+        self.isDelete = isDelete
         }
     //@StateObject var registrationViewModel = UserRegistrationViewModel()
     var body: some View {

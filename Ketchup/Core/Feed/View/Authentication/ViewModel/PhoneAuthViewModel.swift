@@ -133,6 +133,7 @@ class PhoneAuthViewModel: ObservableObject {
             if let error = error {
                 self?.handleError(error)
             } else {
+                AuthService.shared.signout()
                 DispatchQueue.main.async {
                     self?.deletionSuccessful = true
                     self?.showAlert(title: "Account Deleted", message: "Your account has been successfully deleted.")

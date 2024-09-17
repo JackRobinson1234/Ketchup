@@ -88,7 +88,7 @@ struct SecondaryFeedView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(width: 60, height: 17)
-                        .shadow(color: .gray, radius: 1, x: 0, y: 0)
+                        
                     
                     Spacer()
                     Color.clear
