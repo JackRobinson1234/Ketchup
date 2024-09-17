@@ -11,7 +11,7 @@ import Kingfisher
 struct LeaderboardCover: View {
     private let spacing: CGFloat = 8
     private var width: CGFloat {
-        (UIScreen.main.bounds.width - (spacing * 2)) / 3
+        140
     }
     let cornerRadius: CGFloat = 5
     var imageUrl: String?
@@ -24,12 +24,12 @@ struct LeaderboardCover: View {
                 KFImage(URL(string: imageUrl))
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 200, height: width + 40) // Slightly bigger image
+                    .frame(width: width, height: width) // Slightly bigger image
                     .cornerRadius(cornerRadius)
                     .clipped()
             } else {
                 Color.gray
-                    .frame(width: 200, height: width + 40)
+                    .frame(width: width, height: width)
                     .cornerRadius(cornerRadius)
                     .clipped()
             }
@@ -52,7 +52,7 @@ struct LeaderboardCover: View {
                     .shadow(color: .black, radius: 2, x: 0, y: 1)
                     .padding(.horizontal, 8)
             }
-            .frame(width: 200, height: width + 40) // Center the text in the available space
+            .frame(width: width, height: width) // Center the text in the available space
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
@@ -63,6 +63,6 @@ struct LeaderboardCover: View {
             .cornerRadius(cornerRadius)
             .padding(.vertical, 8)
         }
-        .frame(width: 200, height: width + 40)
+        .frame(width: width, height: width)
     }
 }

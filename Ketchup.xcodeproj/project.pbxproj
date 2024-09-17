@@ -186,6 +186,7 @@
 		F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */; };
 		F89342052C72C08000E313AC /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89342042C72C08000E313AC /* Contact.swift */; };
 		F89342072C72CA9000E313AC /* ContactService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89342062C72CA9000E313AC /* ContactService.swift */; };
+		F8973A062C99EE8300973D76 /* RestaurantClusterMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8973A052C99EE8300973D76 /* RestaurantClusterMapView.swift */; };
 		F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */; };
 		F89DF2122C581F0200A90E0D /* UploadFlowRestaurantSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */; };
 		F89F28722BE3163C00E670E0 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28712BE3163C00E670E0 /* Activity.swift */; };
@@ -488,6 +489,7 @@
 		F88E0B3A2B6CA38D00EC159B /* RestaurantProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantProfileView.swift; sourceTree = "<group>"; };
 		F89342042C72C08000E313AC /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		F89342062C72CA9000E313AC /* ContactService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactService.swift; sourceTree = "<group>"; };
+		F8973A052C99EE8300973D76 /* RestaurantClusterMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantClusterMapView.swift; sourceTree = "<group>"; };
 		F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRequestRestaurantView.swift; sourceTree = "<group>"; };
 		F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadFlowRestaurantSelector.swift; sourceTree = "<group>"; };
 		F89F28712BE3163C00E670E0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
@@ -982,6 +984,7 @@
 				F88E0ACA2B6B05DB00EC159B /* View */,
 				F88E0ACB2B6B05E100EC159B /* ViewModel */,
 				F88E0AC32B6B057200EC159B /* Components */,
+				F8973A052C99EE8300973D76 /* RestaurantClusterMapView.swift */,
 			);
 			path = RestaurantProfile;
 			sourceTree = "<group>";
@@ -2034,6 +2037,7 @@
 				F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */,
+				F8973A062C99EE8300973D76 /* RestaurantClusterMapView.swift in Sources */,
 				F8A96F292C3C9638009E67A9 /* PermissionDeniedView.swift in Sources */,
 				F868686E2C34541400F6CE56 /* ProfileMapView.swift in Sources */,
 				F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */,

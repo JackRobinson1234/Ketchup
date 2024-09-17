@@ -122,7 +122,7 @@ struct ActivityView: View {
             actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
                 selectedTab = .discover
             }
-            actionButton(title: "Leaderboards", icon: "trophy", isSelected: selectedTab == .leaderboards) {
+            actionButton(title: "Top Rated Restaurants", icon: "trophy", isSelected: selectedTab == .leaderboards) {
                 selectedTab = .leaderboards
             }
         }
@@ -151,6 +151,11 @@ struct ActivityView: View {
     
     private var discoverContent: some View {
         VStack(alignment: .leading, spacing: 20) {
+            if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
+                contactsSection
+            }
+            
+            inviteContactsButton
             RestaurantLeaderboardsView(
                 viewModel: leaderboardViewModel,
                 leaderboardData: $leaderboardData,
@@ -162,10 +167,7 @@ struct ActivityView: View {
                 surroundingCounty: surroundingCounty
             )
             mostLikedPostsSection
-            if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
-                contactsSection
-            }
-            inviteContactsButton
+           
         }
     }
     
@@ -201,7 +203,7 @@ struct ActivityView: View {
                     .foregroundStyle(.gray)
                     .font(.caption)
                 Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .font(.custom("MuseoSansRounded-500", size: 16))
                     .foregroundStyle(.gray)
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.gray)
@@ -214,7 +216,7 @@ struct ActivityView: View {
     
     private var mostLikedPostsSection: some View {
         VStack(alignment: .leading) {
-            Text("Posts - Most Likes")
+            Text("Most Liked Posts")
                 .font(.custom("MuseoSansRounded-700", size: 25))
                 .foregroundColor(.black)
                 .padding(.horizontal)
@@ -278,25 +280,25 @@ struct ActivityView: View {
             shouldShowExistingUsersOnContacts = false
             showContacts = true
         } label: {
-            HStack {
-                Image(systemName: "envelope")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30)
-                    .foregroundStyle(.black)
-                Text("Invite your friends to Beta!")
-                    .font(.custom("MuseoSansRounded-700", size: 16))
-                    .foregroundStyle(.black)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.gray)
+            VStack{
+                Divider()
+                HStack {
+                    Image(systemName: "envelope")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30)
+                        .foregroundStyle(.black)
+                    Text("Invite your friends to Ketchup!")
+                        .font(.custom("MuseoSansRounded-700", size: 16))
+                        .foregroundStyle(.black)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.gray)
+                }
+                .padding()
+                Divider()
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(10)
-            .shadow(radius: 2)
         }
-        .padding(.horizontal)
     }
     
     private func leaderboardButton(for category: LeaderboardCategory, locationType: LocationType, data: Any) -> some View {
@@ -305,7 +307,7 @@ struct ActivityView: View {
         } label: {
             LeaderboardCover(
                 imageUrl: (data as? [Post])?.first?.thumbnailUrl,
-                title: "Top 20: Most Likes",
+                title: "Most Liked Posts",
                 subtitle: subtitleForLeaderboard(locationType: locationType)
             )
         }

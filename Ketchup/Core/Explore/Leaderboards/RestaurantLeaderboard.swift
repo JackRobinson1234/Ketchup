@@ -46,11 +46,13 @@ struct RestaurantLeaderboard: View {
                                 Spacer()
                             } else {
                                 toggleButtons
+                                    .padding(.top)
                                 if currentSection == .list {
                                     restaurantList
                                         .padding(.top)
                                 } else {
-                                    
+                                    RestaurantClusterMapView(restaurants: restaurants)
+
                                 }
                             }
                         }
@@ -111,7 +113,7 @@ struct RestaurantLeaderboard: View {
             }
             
             Text(headerTitle)
-                .font(.custom("MuseoSansRounded-300", size: 20))
+                .font(.custom("MuseoSansRounded-700", size: 22))
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
                 .padding([.horizontal, .bottom])
@@ -150,9 +152,9 @@ struct RestaurantLeaderboard: View {
     private var headerTitle: String {
         switch leaderboardType {
         case .mostPosts:
-            return "Most Posted Restaurants: \(title)"
+            return "Most Posted: \(title)"
         case .highestRated(let category):
-            return "Top 20 \(category.rawValue.capitalized): \(title)"
+            return "Best \(category.rawValue.capitalized): \(title)"
         }
     }
     

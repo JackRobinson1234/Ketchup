@@ -522,7 +522,7 @@ struct PrimaryFeedView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
                     
-                    topBarHeight = 200
+                    topBarHeight = 210
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down

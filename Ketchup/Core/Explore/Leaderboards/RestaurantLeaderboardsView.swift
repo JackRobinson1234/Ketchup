@@ -68,7 +68,7 @@ struct RestaurantLeaderboardsView: View {
     private func titleForLeaderboard(category: ActivityView.LeaderboardCategory) -> String {
         switch category {
         case .mostPosts:
-            return "Most Posts"
+            return "Most Posted"
         case .highestOverallRated:
             return "Best Overall"
         case .highestFoodRated:
