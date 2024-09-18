@@ -112,16 +112,50 @@ struct WrittenFeedCell: View {
 
             // Media content
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                CustomPagingView(itemCount: mixedMediaUrls.count, itemWidth: mediaWidth, itemSpacing: 10, currentIndex: $currentIndex) {
-                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                            mediaItemView(for: mediaItem, at: index)
-                                .frame(width: mediaWidth, height: mediaHeight)
+                GeometryReader { geometry in
+                    let itemWidth = mediaWidth + 10
+                    HStack(spacing: 0) {
+                        // ScrollView with custom paging behavior
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                    mediaItemView(for: mediaItem, at: index)
+                                        .frame(width: mediaWidth)
+                                }
+                            }
+                            .padding(.horizontal, (geometry.size.width - mediaWidth) / 2)
+                            .offset(x: self.dragOffset + self.dragState.translation)
+                            .animation(.easeOut(duration: 0.2), value: dragOffset)
+                            .gesture(
+                                DragGesture()
+                                    .updating($dragState) { value, state, _ in
+                                        state = .dragging(translation: value.translation.width)
+                                    }
+                                    .onEnded { value in
+                                        let itemWidthWithSpacing = mediaWidth + 10
+                                        let totalItems = mixedMediaUrls.count
+                                        let predictedEndOffset = self.dragOffset + value.predictedEndTranslation.width
+                                        var newIndex = Int(round(-predictedEndOffset / itemWidthWithSpacing))
+                                        newIndex = max(0, min(newIndex, totalItems - 1))
+
+                                        self.currentIndex = newIndex
+                                        let newOffset = -CGFloat(newIndex) * itemWidthWithSpacing
+                                        withAnimation(.spring()) {
+                                            self.dragOffset = newOffset
+                                        }
+
+                                        handleIndexChange(newIndex)
+                                    }
+                            )
                         }
+                        .frame(width: geometry.size.width)
                     }
-                    .frame(height: mediaHeight)
-                    .onChange(of: currentIndex) { newIndex in
-                        handleIndexChange(newIndex)
+                    .onAppear {
+                        self.scrollViewWidth = geometry.size.width
+                        self.dragOffset = -CGFloat(self.currentIndex) * (mediaWidth + 10)
                     }
+                }
+                .frame(height: mediaHeight)
 
                 // Play/Pause and Mute buttons
                 if let currentVideoId = currentlyPlayingVideoId,
@@ -732,8 +766,6 @@ struct WrittenFeedCell: View {
         }
     }
 }
-import SwiftUI
-
 struct CustomPagingView<Content: View>: View {
     let itemCount: Int
     let itemWidth: CGFloat
@@ -741,11 +773,8 @@ struct CustomPagingView<Content: View>: View {
     @Binding var currentIndex: Int
     let content: () -> Content
 
-    @State private var offset: CGFloat = 0
-    @State private var draggingOffset: CGFloat = 0
-    @GestureState private var isDragging: Bool = false
-    @State private var velocityX: CGFloat = 0
-    @State private var lastDragValue: DragGesture.Value?
+    @State private var offsetX: CGFloat = 0
+    @GestureState private var dragOffsetX: CGFloat = 0
 
     init(itemCount: Int, itemWidth: CGFloat, itemSpacing: CGFloat = 10, currentIndex: Binding<Int>, @ViewBuilder content: @escaping () -> Content) {
         self.itemCount = itemCount
@@ -757,58 +786,41 @@ struct CustomPagingView<Content: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let totalWidth = CGFloat(itemCount) * (itemWidth + itemSpacing) - itemSpacing
+            let totalContentWidth = CGFloat(itemCount) * (itemWidth + itemSpacing) - itemSpacing
             let containerWidth = geometry.size.width
             let horizontalPadding = (containerWidth - itemWidth) / 2
-            let itemWidthWithSpacing = itemWidth + itemSpacing
 
             HStack(spacing: itemSpacing) {
                 content()
                     .frame(width: itemWidth)
             }
             .padding(.horizontal, horizontalPadding)
-            .offset(x: offset + draggingOffset)
+            .offset(x: offsetX + dragOffsetX)
             .gesture(
                 DragGesture()
-                    .updating($isDragging) { _, state, _ in
-                        state = true
-                    }
-                    .onChanged { value in
-                        draggingOffset = value.translation.width
-                        updateVelocity(value)
+                    .updating($dragOffsetX) { value, state, _ in
+                        state = value.translation.width
                     }
                     .onEnded { value in
-                        let predictedEndOffset = offset + value.translation.width + velocityX * 0.55
-                        let targetIndex = round(predictedEndOffset / -itemWidthWithSpacing)
-                        withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
-                            offset = -targetIndex * itemWidthWithSpacing
-                            draggingOffset = 0
-                            currentIndex = Int(max(0, min(targetIndex, CGFloat(itemCount - 1))))
+                        let itemWidthWithSpacing = itemWidth + itemSpacing
+                        let predictedEndOffset = offsetX + value.predictedEndTranslation.width
+                        var newIndex = Int(round(-predictedEndOffset / itemWidthWithSpacing))
+                        newIndex = max(0, min(newIndex, itemCount - 1))
+
+                        withAnimation(.spring()) {
+                            currentIndex = newIndex
+                            offsetX = -CGFloat(newIndex) * itemWidthWithSpacing
                         }
                     }
             )
-            .onChange(of: isDragging) { newValue in
-                if !newValue {
-                    withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
-                        let targetIndex = round((offset + draggingOffset) / -itemWidthWithSpacing)
-                        offset = -targetIndex * itemWidthWithSpacing
-                        draggingOffset = 0
-                        currentIndex = Int(max(0, min(targetIndex, CGFloat(itemCount - 1))))
-                    }
-                }
+            .onAppear {
+                offsetX = -CGFloat(currentIndex) * (itemWidth + itemSpacing)
             }
             .onChange(of: currentIndex) { newIndex in
-                withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
-                    offset = -CGFloat(newIndex) * itemWidthWithSpacing
+                withAnimation(.spring()) {
+                    offsetX = -CGFloat(newIndex) * (itemWidth + itemSpacing)
                 }
             }
         }
-    }
-
-    private func updateVelocity(_ value: DragGesture.Value) {
-        let timeDelta = value.time.timeIntervalSince(lastDragValue?.time ?? .now)
-        let distanceDelta = value.translation.width - (lastDragValue?.translation.width ?? 0)
-        velocityX = timeDelta > 0 ? distanceDelta / CGFloat(timeDelta) : 0
-        lastDragValue = value
     }
 }
