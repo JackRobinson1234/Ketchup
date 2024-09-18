@@ -87,7 +87,7 @@ class FeedViewModel: ObservableObject {
     @Published var state: String?
     @Published var surroundingGeohash: String?
     @Published var surroundingCounty: String = "Nearby"
-    @Published var currentLocationFilter: FeedLocationSetting = .anywhere
+    @Published var currentLocationFilter: FeedLocationSetting = .surrounding
     @Published var simplifiedPosts: [SimplifiedPost] = []
     private var lastSimplifiedPostTimestamp: Timestamp?
     private let simplifiedPostPageSize = 15
