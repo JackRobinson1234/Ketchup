@@ -25,7 +25,7 @@ struct CollectionOptionsSheet: View {
                         .bold()
                 }
         }
-        .onChange(of: optionsSheetDismissed) {
+        .onChange(of: optionsSheetDismissed) {newValue in
             if optionsSheetDismissed {
                 dismiss()
             }

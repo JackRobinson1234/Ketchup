@@ -154,7 +154,7 @@ struct FeedCell: View {
         .onTapGesture {
             toggleVideoPlayback()
         }
-        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+        .onChange(of: currentlyPlayingVideoId) { newValue in
             if let newValue = newValue,
                let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
                 pauseAllVideos()
@@ -162,7 +162,7 @@ struct FeedCell: View {
                 isCurrentVideoPlaying = true
             }
         }
-        .onChange(of: scrollPosition) {
+        .onChange(of: scrollPosition) {newValue in
             if scrollPosition != post.id {
                 pauseAllVideos()
             } else {
@@ -176,7 +176,7 @@ struct FeedCell: View {
         .onDisappear {
             pauseAllVideos()
         }
-        .onChange(of: pauseVideo) {
+        .onChange(of: pauseVideo) {newValue in
             if pauseVideo {
                 pauseAllVideos()
             } else {
@@ -224,7 +224,7 @@ struct FeedCell: View {
                     handleIndexChange(currentIndex)
                 }
         }
-        .onChange(of: currentIndex) { oldValue, newValue in
+        .onChange(of: currentIndex) {newValue in
             handleIndexChange(newValue)
         }
         .overlay(
@@ -476,7 +476,7 @@ struct FeedCell: View {
                             .foregroundColor(Color("Colors/AccentColor"))
                     }
                 }
-                .onChange(of: post.caption) {
+                .onChange(of: post.caption) {newValue in
                     parsedCaption = parseCaption(post.caption)
                 }
             }

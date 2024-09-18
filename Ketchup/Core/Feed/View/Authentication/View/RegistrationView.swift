@@ -38,7 +38,7 @@ struct RegistrationView: View {
                     .autocorrectionDisabled()
                     .keyboardType(.emailAddress)
                     .modifier(StandardTextFieldModifier())
-                    .onChange(of: viewModel.email){
+                    .onChange(of: viewModel.email){newValue in
                         emailDebouncer.schedule{
                             viewModel.isValidEmail()
                         }
@@ -73,7 +73,7 @@ struct RegistrationView: View {
                 
                 SecureField("Enter your password", text: $viewModel.password)
                     .modifier(StandardTextFieldModifier())
-                    .onChange(of: viewModel.password) {
+                    .onChange(of: viewModel.password) {newValue in
                         passwordDebouncer.schedule{
                             viewModel.isValidPassword()
                         }
@@ -100,7 +100,7 @@ struct RegistrationView: View {
                     .autocorrectionDisabled()
                     .autocapitalization(.none)
                     .modifier(StandardTextFieldModifier())
-                    .onChange(of: viewModel.fullname) {oldValue, newValue in
+                    .onChange(of: viewModel.fullname) {newValue in
                         if newValue.count > 64 {
                             viewModel.fullname = String(newValue.prefix(64))
                         }
@@ -127,7 +127,7 @@ struct RegistrationView: View {
                     .autocapitalization(.none)
                     .textInputAutocapitalization(.never)
                     .modifier(StandardTextFieldModifier())
-                    .onChange(of: viewModel.username) {oldValue, newValue in
+                    .onChange(of: viewModel.username) {newValue in
                         //lowercase and no space
                         viewModel.username = viewModel.username.trimmingCharacters(in: .whitespaces).lowercased()
                         //limits characters
@@ -238,7 +238,7 @@ struct RegistrationView: View {
 //                  message: Text(viewModel.authError?.description ?? ""))
 //        }
         .modifier(BackButtonModifier())
-        .onChange(of: viewModel.registrationAttempts) {
+        .onChange(of: viewModel.registrationAttempts) {newValue in
             if viewModel.registrationAttempts >= maxRegistrationAttempts{
                 maxRegistrationDebouncer.schedule{
                     viewModel.registrationAttempts = 0

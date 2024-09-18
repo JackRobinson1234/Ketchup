@@ -51,7 +51,9 @@ struct RestaurantLeaderboard: View {
                                     restaurantList
                                         .padding(.top)
                                 } else {
-                                    RestaurantClusterMapView(restaurants: restaurants)
+//                                    if #available(iOS 17, *) {
+//                                        RestaurantClusterMapView(restaurants: restaurants)
+//                                    }
 
                                 }
                             }

@@ -93,7 +93,7 @@ struct SelectFollowingEditPostView: View {
         })
     
         .onAppear(perform: fetchFollowingUsers)
-        .onChange(of: searchViewModel.searchQuery) {
+        .onChange(of: searchViewModel.searchQuery) {newValue in
             if filteredUsers.isEmpty && !searchViewModel.searchQuery.isEmpty {
                 debouncer.schedule {
                     searchViewModel.notifyQueryChanged()

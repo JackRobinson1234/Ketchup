@@ -19,6 +19,7 @@ struct MainTabView: View {
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
     
+  
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)
@@ -41,27 +42,28 @@ struct MainTabView: View {
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-            
-            MapView()
-                .tabItem {
-                    VStack(spacing:1){
-                        Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                            .foregroundStyle(.black)
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                            .padding()
-                        Text("Map")
-                            .font(.custom("MuseoSansRounded-500", size: 8))
-                            .foregroundStyle(.gray)
-                    }
-                }
-                .onAppear {
-                    tabBarController.selectedTab = 1
-                    tabBarController.visibility = .visible
-                }
-                .tag(1)
-                .toolbarBackground(.visible, for: .tabBar)
-                .toolbar(tabBarController.visibility, for: .tabBar)
-            
+//            if #available(iOS 17, *) {
+//                MapView()
+//                    .tabItem {
+//                        VStack(spacing:1){
+//                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+//                                .foregroundStyle(.black)
+//                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+//                                .padding()
+//                            Text("Map")
+//                                .font(.custom("MuseoSansRounded-500", size: 8))
+//                                .foregroundStyle(.gray)
+//                        }
+//                    }
+//                
+//                    .onAppear {
+//                        tabBarController.selectedTab = 1
+//                        tabBarController.visibility = .visible
+//                    }
+//                    .tag(1)
+//                    .toolbarBackground(.visible, for: .tabBar)
+//                    .toolbar(tabBarController.visibility, for: .tabBar)
+//            }
             UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")
@@ -136,19 +138,19 @@ struct MainTabView: View {
             stopTracking(tab: tabBarController.selectedTab)
             sendSessionAnalytics()
         }
-        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
-            stopTracking(tab: oldTab)
-            startTracking(tab: newTab)
-        }
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .background {
-                stopTracking(tab: tabBarController.selectedTab)
-                sendSessionAnalytics()
-            } else if newPhase == .active {
-                sessionStartTime = Date()
-                startTracking(tab: tabBarController.selectedTab)
-            }
-        }
+//        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
+//            stopTracking(tab: oldTab)
+//            startTracking(tab: newTab)
+//        }
+//        .onChange(of: scenePhase) { oldPhase, newPhase in
+//            if newPhase == .background {
+//                stopTracking(tab: tabBarController.selectedTab)
+//                sendSessionAnalytics()
+//            } else if newPhase == .active {
+//                sessionStartTime = Date()
+//                startTracking(tab: tabBarController.selectedTab)
+//            }
+//        }
         .sheet(isPresented: $tabBarController.showContacts){
             ContactsView()
         }

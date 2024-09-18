@@ -82,7 +82,7 @@ struct CuisineFilter: View {
                     .frame(height:44)
                     .padding(.horizontal)
                     .foregroundStyle(.gray)
-                    .onChange(of: searchText) {oldValue, newValue in
+                    .onChange(of: searchText) {newValue in
                         filteredCuisines = filteredCuisine(newValue)
                     }
             }

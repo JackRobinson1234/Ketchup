@@ -51,8 +51,11 @@ struct RatingSliderGroup: View {
                             .padding(.vertical, 4)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(isNA ? Color.red : Color.clear)
-                                    .stroke(isNA ? Color.red : Color.gray, lineWidth: 1)
+                                    .stroke(isNA ? Color.red : Color.gray, lineWidth: 1) // Border stroke
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(isNA ? Color.red : Color.clear) // Fill for background
+                                    )
                             )
                     }
                     .frame(width: 50)

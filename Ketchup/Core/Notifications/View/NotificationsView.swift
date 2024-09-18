@@ -43,8 +43,13 @@ struct NotificationsView: View {
                 if viewModel.isLoading {
                     FastCrossfadeFoodImageView()
                 } else if viewModel.showEmptyView {
-                    ContentUnavailableView("No notifications to show", systemImage: "bubble.middle.bottom")
-                        .foregroundStyle(.gray)
+//                    if #available(iOS 17, *) {
+//                        
+//                        ContentUnavailableView("No notifications to show", systemImage: "bubble.middle.bottom")
+//                            .foregroundStyle(.gray)
+//                    } else {
+//                        CustomUnavailableView(text: "No notifications to show",image: "bubble.middle.bottom")
+//                    }
                 }
             }
             .navigationDestination(for: User.self, destination: { user in

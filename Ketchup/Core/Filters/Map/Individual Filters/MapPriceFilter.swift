@@ -91,10 +91,10 @@ struct MapPriceFilter: View {
                     .padding()
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-            
+                
             }
         }
-        .onChange(of: selectedPrice) {oldValue, newValue in
+        .onChange(of: selectedPrice) {oldValue in
             filteredPrice = filteredPrices()
         }
         .onAppear{
@@ -102,9 +102,8 @@ struct MapPriceFilter: View {
         }
     }
     func filteredPrices() -> [String] {
-            let priceOptions = ["$", "$$", "$$$", "$$$$"]
-            return priceOptions.filter { price in
-                !selectedPrice.contains(price)}
-        }
+        let priceOptions = ["$", "$$", "$$$", "$$$$"]
+        return priceOptions.filter { price in
+            !selectedPrice.contains(price)}
     }
-
+}

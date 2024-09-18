@@ -54,13 +54,13 @@ struct CurrentUserProfileView: View {
                                                 scrollTarget: $scrollTarget)
                             }
                         }
-                        .onChange(of: scrollTarget) {
+                        .onChange(of: scrollTarget) {newValue in
                             scrollPosition = scrollTarget
                             withAnimation {
                                 scrollProxy.scrollTo(scrollTarget, anchor: .center)
                             }
                         }
-                        .scrollPosition(id: $scrollPosition)
+                        //.scrollPosition(id: $scrollPosition)
                     }
                     //.gesture(drag)
                     .toolbarBackground(Color.white, for: .navigationBar) // Set navigation bar background color
@@ -131,7 +131,7 @@ struct CurrentUserProfileView: View {
                             RestaurantProfileView(restaurantId: restaurant.id)
                         
                     }
-                    .onChange(of: AuthService.shared.userSession) {
+                    .onChange(of: AuthService.shared.userSession) {newValue in
                         if AuthService.shared.userSession != nil {
                             Task { try await profileViewModel.refreshCurrentUser()
                             }

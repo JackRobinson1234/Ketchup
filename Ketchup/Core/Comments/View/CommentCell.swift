@@ -157,7 +157,7 @@ struct CommentCell: View {
                 secondaryButton: .cancel()
             )
         }
-        .onChange(of: selectedUser) {
+        .onChange(of: selectedUser) {newValue in
             isShowingProfileSheet = selectedUser != nil
         }
         

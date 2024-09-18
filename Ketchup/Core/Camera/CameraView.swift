@@ -111,7 +111,7 @@ struct CameraView: View {
                     }
                 }
                 .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-                .onChange(of: tabBarController.selectedTab) {
+                .onChange(of: tabBarController.selectedTab) {newValue in
                     cameraViewModel.reset()
                 }
                 .onAppear {
@@ -124,7 +124,7 @@ struct CameraView: View {
                     removeKeyboardObservers()
                     cameraViewModel.stopCameraSession()
                 }
-                .onChange(of: uploadViewModel.dismissAll) {oldValue,  newValue in
+                .onChange(of: uploadViewModel.dismissAll) {newValue in
                     if newValue {
                         uploadViewModel.dismissAll = false
                         dismiss()

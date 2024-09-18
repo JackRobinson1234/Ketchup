@@ -36,7 +36,7 @@ struct PostListView: View {
             .navigationTitle("Explore")
             .searchable(text: $viewModel.searchQuery,
                         prompt: "Search")
-            .onChange(of: viewModel.searchQuery) {
+            .onChange(of: viewModel.searchQuery) {newValue in
                 debouncer.schedule {
                     viewModel.notifyQueryChanged()
                 }

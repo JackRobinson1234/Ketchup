@@ -89,8 +89,8 @@ struct ProfileView: View {
                             }
                         }
                     }
-                    .scrollPosition(id: $scrollPosition)
-                    .onChange(of: scrollTarget) {
+                    //.scrollPosition(id: $scrollPosition)
+                    .onChange(of: scrollTarget) {newValue in
                         scrollPosition = scrollTarget
                         withAnimation {
                             //print("SCROLLING")

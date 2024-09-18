@@ -127,7 +127,7 @@ struct FavoriteRestaurantSearchView: View {
                 }
             }
         }
-        .onChange(of: viewModel.searchQuery) {
+        .onChange(of: viewModel.searchQuery) {newValue in
             debouncer.schedule {
                 viewModel.notifyQueryChanged()
             }

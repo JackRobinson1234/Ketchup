@@ -59,7 +59,7 @@ struct CollectionInviteUserList: View {
                     .foregroundColor(.black)
             })
             .onAppear(perform: fetchFollowingUsers)
-            .onChange(of: searchViewModel.searchQuery) {
+            .onChange(of: searchViewModel.searchQuery) {newValue in
                 debouncer.schedule {
                     searchViewModel.notifyQueryChanged()
                 }

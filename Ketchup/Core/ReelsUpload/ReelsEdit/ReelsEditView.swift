@@ -105,7 +105,7 @@ struct ReelsEditView: View {
             .onAppear {
                 editViewModel.fetchFollowingUsers()
             }
-            .onChange(of: editViewModel.caption) { oldValue, newValue in
+            .onChange(of: editViewModel.caption) {newValue in
                 editViewModel.checkForMentioning()
                 if editViewModel.filteredMentionedUsers.isEmpty {
                     let text = editViewModel.checkForAlgoliaTagging(in: newValue)
@@ -143,7 +143,7 @@ struct ReelsEditView: View {
                             }
                         }
                     }
-                    .onChange(of: editViewModel.caption) {
+                    .onChange(of: editViewModel.caption) {newValue in
                         editViewModel.checkForMentioning()
                     }
                 if editViewModel.caption.isEmpty {
@@ -162,7 +162,7 @@ struct ReelsEditView: View {
                     .padding(.horizontal, 10)
             }
         }
-        .onChange(of: editViewModel.caption) {
+        .onChange(of: editViewModel.caption) {newValue in
             if editViewModel.caption.count >= 500 {
                 editViewModel.caption = String(editViewModel.caption.prefix(500))
             }

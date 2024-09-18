@@ -107,7 +107,7 @@ struct RestaurantProfileView: View {
                                             viewModel.scrollTarget = nil
                                         }
                                     }
-                    .scrollPosition(id: $scrollPosition)
+                    //.scrollPosition(id: $scrollPosition)
                 }
                 .gesture(drag)
                 .ignoresSafeArea(edges: .top)

@@ -35,11 +35,11 @@ struct WelcomeView: View {
                             HStack {
                                 Text("Review Restaurants ")
                                     .font(.custom("MuseoSansRounded-500", size: 18))
-                                    .foregroundStyle(.black)
+                                    .foregroundColor(.black)
                                 +
                                 Text("With Friends!")
                                     .font(.custom("MuseoSansRounded-700", size: 18))
-                                    .foregroundStyle(.black)
+                                    .foregroundColor(.black)
                             }
                             
                             .padding()

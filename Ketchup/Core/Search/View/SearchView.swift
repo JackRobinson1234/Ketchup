@@ -151,12 +151,12 @@ struct SearchView: View {
             }
         }
         
-        .onChange(of: viewModel.searchQuery) {
+        .onChange(of: viewModel.searchQuery) {newValue in
             debouncer.schedule {
                 viewModel.notifyQueryChanged()
             }
         }
-        .onChange(of: viewModel.searchConfig) {
+        .onChange(of: viewModel.searchConfig) {newValue in
             viewModel.notifyQueryChanged()
         }
         .onAppear {

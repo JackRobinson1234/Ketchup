@@ -83,7 +83,7 @@ struct MapCuisineFilter: View {
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .frame(height:44)
                     .padding(.horizontal)
-                    .onChange(of: searchText) {oldValue, newValue in
+                    .onChange(of: searchText) {newValue in
                         filteredCuisines = filteredCuisine(newValue)
                     }
             }
@@ -135,7 +135,7 @@ struct MapCuisineFilter: View {
             
         }
         /// updates what options should be shown when the lists change
-        .onChange(of: selectedCuisines) {oldValue, newValue in
+        .onChange(of: selectedCuisines) { newValue in
             filteredCuisines = filteredCuisine(searchText)
         }
         .onAppear{

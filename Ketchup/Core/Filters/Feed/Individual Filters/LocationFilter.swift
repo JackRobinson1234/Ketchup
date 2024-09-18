@@ -51,7 +51,7 @@ struct LocationFilter: View {
                         .font(.custom("MuseoSansRounded-500", size: 16))
                 }
             
-                    .onChange(of: isAnywhereSelected) {oldValue, newValue in
+                    .onChange(of: isAnywhereSelected) {newValue in
                         handleAnywhereToggleChange(newValue)
                     }
                 // 'Anywhere' option with checkmark

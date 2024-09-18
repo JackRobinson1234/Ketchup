@@ -63,7 +63,7 @@ struct CommentsView: View {
                 .padding(.horizontal)
                 .padding(.bottom)
             }
-            .onChange(of: viewModel.commentText) {
+            .onChange(of: viewModel.commentText) {newValue in
                 handleCommentTextChange()
             }
             .onAppear {
@@ -71,11 +71,14 @@ struct CommentsView: View {
             }
             .overlay {
                 if viewModel.showEmptyView && !viewModel.isTagging {
-                    ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
-                        .foregroundStyle(.gray)
+                    EmptyStateView(
+                        message: "No comments yet. Add yours now!",
+                        systemImage: "exclamationmark.bubble"
+                    )
+                    .foregroundStyle(.gray)
                 }
             }
-            .onChange(of: viewModel.organizedComments.count) {
+            .onChange(of: viewModel.organizedComments.count) {newValue in
                 viewModel.showEmptyView = viewModel.organizedComments.isEmpty
             }
             
@@ -153,5 +156,23 @@ struct CommentsView: View {
         words.append("@" + username)
         viewModel.commentText = words.joined(separator: " ") + " "
         viewModel.isTagging = false
+    }
+}
+struct EmptyStateView: View {
+    let message: String
+    let systemImage: String
+
+    var body: some View {
+        VStack {
+            Image(systemName: systemImage)
+                .font(.system(size: 50))
+                .padding(.bottom, 8)
+            
+            Text(message)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.gray)
+        }
+        .padding()
     }
 }

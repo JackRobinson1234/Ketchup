@@ -9,21 +9,42 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>64</integer>
+			<integer>65</integer>
 		</dict>
 		<key>MapPlayground (Playground) 2.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>65</integer>
+			<integer>66</integer>
+		</dict>
+		<key>MapPlayground (Playground) 3.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>63</integer>
+		</dict>
+		<key>MapPlayground (Playground) 4.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>67</integer>
+		</dict>
+		<key>MapPlayground (Playground) 5.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>68</integer>
 		</dict>
 		<key>MapPlayground (Playground).xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>63</integer>
+			<integer>64</integer>
 		</dict>
 	</dict>
 </dict>

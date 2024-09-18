@@ -53,7 +53,7 @@ struct EditNotesView: View {
                         .foregroundStyle(.gray)
                         .padding()
                 }
-                .onChange(of: notes) {
+                .onChange(of: notes) {newValue in
                     if notes.count > maxCharacters {
                         notes = String(notes.prefix(maxCharacters))
                     }

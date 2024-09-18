@@ -57,7 +57,7 @@ struct SettingsView: View {
                             Toggle("", isOn: $viewModel.privateMode)
                                 .labelsHidden()
                                 .disabled(!toggleEnabled) // Disable the toggle based on the toggleEnabled state
-                                .onChange(of: viewModel.privateMode) {
+                                .onChange(of: viewModel.privateMode) {newValue in
                                     Task {
                                         // Disable the toggle for 20 seconds
                                         toggleEnabled = false

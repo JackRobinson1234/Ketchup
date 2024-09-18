@@ -384,8 +384,10 @@ struct RestaurantProfileHeaderView: View {
                 }
             }
             .sheet(isPresented: $showMapView) {
-                MapRestaurantProfileView(viewModel: viewModel)
-                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+//                if #available(iOS 17, *) {
+//                    MapRestaurantProfileView(viewModel: viewModel)
+//                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+//                }
             }
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {

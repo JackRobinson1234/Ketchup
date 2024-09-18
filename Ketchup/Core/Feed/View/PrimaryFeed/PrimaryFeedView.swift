@@ -39,6 +39,7 @@ struct PrimaryFeedView: View {
     @State private var topBarHeight: CGFloat = 150 // Default height
     @State var showPostSuccess = false
     @State private var newPostsCount: Int = 0
+    @State private var scrollOffset: CGFloat = 0
 
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -110,7 +111,7 @@ struct PrimaryFeedView: View {
                                 }
                             }
                             .edgesIgnoringSafeArea(.top)
-                            .scrollTargetLayout()
+                            //.scrollTargetLayout()
                         }
                         .refreshable {
                             await refreshFeed()
@@ -124,22 +125,22 @@ struct PrimaryFeedView: View {
                                 triggerHapticFeedback()
                             }
                         }
-                        .safeAreaPadding(.top, 170)
-                        .transition(.slide)
-                        .scrollPosition(id: $scrollPosition)
-                        .onChange(of: viewModel.initialPrimaryScrollPosition) {
+                        //.safeAreaPadding(.top, 170)
+                        //.transition(.slide)
+                        //.scrollPosition(id: $scrollPosition)
+                        .onChange(of: viewModel.initialPrimaryScrollPosition) {newValue in
                             scrollPosition = viewModel.initialPrimaryScrollPosition
                             scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
                             
                         }
-                        .onChange(of: tabBarController.scrollToTop){
+                        .onChange(of: tabBarController.scrollToTop){ newValue in
                             if let post = viewModel.posts.first {
                                 withAnimation(.smooth) {
                                     scrollProxy.scrollTo(post.id, anchor: .center)
                                 }
                             }
                         }
-                        .onChange(of: viewModel.isInitialLoading){
+                        .onChange(of: viewModel.isInitialLoading){newValue in
                             if !viewModel.isInitialLoading{
                                 if let post = viewModel.posts.first {
                                     withAnimation(.smooth) {
@@ -380,7 +381,7 @@ struct PrimaryFeedView: View {
                 .overlay {
                     if viewModel.showEmptyView {
                         VStack{
-                            ContentUnavailableView("No posts to show", systemImage: "eye.slash")
+                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
                                 .foregroundStyle(Color("Colors/AccentColor"))
                             
                         }
@@ -396,26 +397,26 @@ struct PrimaryFeedView: View {
                             }
                     }
                 }
-                .onChange(of: scrollPosition) { oldPostId, newPostId in
-                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                        if newIndex > oldIndex {
-                            Task {
-                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                            }
-                            viewModel.updateCache(scrollPosition: newPostId)
-                            
-                        } else {
-                        }
-                    }
-                }
-                .onChange(of: showSearchView) { oldValue, newValue in
+//                .onChange(of: scrollPosition) { oldPostId, newPostId in
+//                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
+//                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+//                        if newIndex > oldIndex {
+//                            Task {
+//                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+//                            }
+//                            viewModel.updateCache(scrollPosition: newPostId)
+//                            
+//                        } else {
+//                        }
+//                    }
+//                }
+                .onChange(of: showSearchView) { newValue in
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showSearchView) {
                     SearchView(initialSearchConfig: .restaurants)
                 }
-                .onChange(of: showFilters) { oldValue, newValue in
+                .onChange(of: showFilters) { newValue in
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showFilters) {
@@ -441,7 +442,7 @@ struct PrimaryFeedView: View {
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
-                .onChange(of: showAddFriends) { oldValue, newValue in
+                .onChange(of: showAddFriends) { newValue in
                     pauseVideo = newValue
                 }
                 .sheet(isPresented: $showAddFriends) {

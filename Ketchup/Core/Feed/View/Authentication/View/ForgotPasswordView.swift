@@ -23,7 +23,7 @@ struct ForgotPasswordView: View {
                 .autocapitalization(.none)
                 .keyboardType(.emailAddress)
                 .modifier(StandardTextFieldModifier())
-                .onChange(of: viewModel.resetEmailText) {
+                .onChange(of: viewModel.resetEmailText) {newValue in
                     debouncer.schedule{
                         viewModel.isValidResetEmail()
                     }

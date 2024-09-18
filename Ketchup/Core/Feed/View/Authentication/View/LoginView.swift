@@ -47,7 +47,7 @@ struct LoginView: View {
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                         .modifier(StandardTextFieldModifier())
-                        .onChange(of: viewModel.email) {
+                        .onChange(of: viewModel.email) {newValue in
                             emailDebouncer.schedule{
                                 viewModel.isValidLoginEmail()
                             }
@@ -68,7 +68,7 @@ struct LoginView: View {
                     //MARK: Enter Password
                     SecureField("Enter your password", text: $viewModel.password)
                         .modifier(StandardTextFieldModifier())
-                        .onChange(of: viewModel.password) {
+                        .onChange(of: viewModel.password) {newValue in
                             passwordDebouncer.schedule{
                                 viewModel.isValidPassword()
                             }
@@ -194,7 +194,7 @@ struct LoginView: View {
                     }
                 }
             }
-            .onChange(of: viewModel.loginAttempts){
+            .onChange(of: viewModel.loginAttempts){newValue in
                 if viewModel.loginAttempts >= maxLoginAttempts{
                     loginRateDebouncer.schedule{
                         viewModel.loginAttempts = 0

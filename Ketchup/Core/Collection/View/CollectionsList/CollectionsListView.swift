@@ -49,7 +49,7 @@ struct CollectionsListView: View {
                 }
             }
         }
-        .onChange(of: viewModel.dismissListView) {
+        .onChange(of: viewModel.dismissListView) {newValue in
             if viewModel.dismissListView {
                 viewModel.dismissListView = false
                 dismiss()

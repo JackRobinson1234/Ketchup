@@ -105,7 +105,7 @@ struct ReelsUploadView: View {
                     .padding()
                 }
                 .if(writtenReview) { view in
-                    view.safeAreaPadding(.bottom, 100)
+                    view.padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 + 100)
                 }
             }
             .onTapGesture {
@@ -127,7 +127,7 @@ struct ReelsUploadView: View {
                     }
                 }
             )
-            .onChange(of: uploadViewModel.caption) {
+            .onChange(of: uploadViewModel.caption) { newValue in
                 uploadViewModel.checkForMentioning()
             }
             .navigationDestination(isPresented: $isPickingRestaurant) {
@@ -141,7 +141,7 @@ struct ReelsUploadView: View {
                 }
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
-            .onChange(of: uploadViewModel.caption){
+            .onChange(of: uploadViewModel.caption){ newValue in
                 if uploadViewModel.filteredMentionedUsers.isEmpty{
                     let text = uploadViewModel.checkForAlgoliaTagging()
                     if !text.isEmpty{
@@ -312,7 +312,7 @@ struct ReelsUploadView: View {
                             }
                         }
                     }
-                    .onChange(of: uploadViewModel.caption) {
+                    .onChange(of: uploadViewModel.caption) { newValue in
                         uploadViewModel.checkForMentioning()
                     }
                 if uploadViewModel.caption.isEmpty {
@@ -331,7 +331,7 @@ struct ReelsUploadView: View {
                     .padding(.horizontal, 10)
             }
         }
-        .onChange(of: uploadViewModel.caption) {
+        .onChange(of: uploadViewModel.caption) { newValue in
             if uploadViewModel.caption.count >= 500 {
                 uploadViewModel.caption = String(uploadViewModel.caption.prefix(500))
             }
@@ -536,7 +536,7 @@ struct VideoPlayerTest: View {
         .onDisappear {
             deinitPlayer()
         }
-        .onChange(of: isVideoExpanded) { oldValue, newValue in
+        .onChange(of: isVideoExpanded) { newValue in
             if !newValue {
                 player?.seek(to: .zero)
                 player?.play()

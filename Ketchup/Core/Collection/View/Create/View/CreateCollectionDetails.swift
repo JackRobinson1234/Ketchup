@@ -286,7 +286,7 @@ struct EditorView: View {
                     }
                     
                 }
-                .onChange(of: text) {
+                .onChange(of: text) {newValue in
                     if text.count > maxCharacters {
                         text = String(text.prefix(maxCharacters))
                     }

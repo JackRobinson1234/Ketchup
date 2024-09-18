@@ -80,7 +80,7 @@ struct PostOptionsSheet: View {
                 }
             }
         }
-        .onChange(of: optionsSheetDismissed) {
+        .onChange(of: optionsSheetDismissed) {newValue in
             if optionsSheetDismissed {
                 dismiss()
             }
