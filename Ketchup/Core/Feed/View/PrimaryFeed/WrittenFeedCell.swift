@@ -112,81 +112,28 @@ struct WrittenFeedCell: View {
 
             // Media content
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                GeometryReader { geometry in
-                    let itemWidth = mediaWidth + 10
-                    HStack(spacing: 0) {
-                        // ScrollView with custom paging behavior
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                    mediaItemView(for: mediaItem, at: index)
-                                        .frame(width: mediaWidth)
-                                }
-                            }
-                            .padding(.horizontal, (geometry.size.width - mediaWidth) / 2)
-                            .offset(x: self.dragOffset + self.dragState.translation)
-                            .animation(.easeOut(duration: 0.2), value: dragOffset)
-                            .gesture(
-                                DragGesture()
-                                    .updating($dragState) { value, state, _ in
-                                        state = .dragging(translation: value.translation.width)
-                                    }
-                                    .onEnded { value in
-                                        let itemWidthWithSpacing = mediaWidth + 10
-                                        let totalItems = mixedMediaUrls.count
-                                        let predictedEndOffset = self.dragOffset + value.predictedEndTranslation.width
-                                        var newIndex = Int(round(-predictedEndOffset / itemWidthWithSpacing))
-                                        newIndex = max(0, min(newIndex, totalItems - 1))
-
-                                        self.currentIndex = newIndex
-                                        let newOffset = -CGFloat(newIndex) * itemWidthWithSpacing
-                                        withAnimation(.spring()) {
-                                            self.dragOffset = newOffset
-                                        }
-
-                                        handleIndexChange(newIndex)
-                                    }
-                            )
+                PagingScrollView(
+                    itemWidth: mediaWidth,
+                    itemSpacing: 10,
+                    itemCount: mixedMediaUrls.count,
+                    currentIndex: $currentIndex
+                ) {
+                    HStack(spacing: 10) {
+                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                            mediaItemView(for: mediaItem, at: index)
+                                .frame(width: mediaWidth)
                         }
-                        .frame(width: geometry.size.width)
-                    }
-                    .onAppear {
-                        self.scrollViewWidth = geometry.size.width
-                        self.dragOffset = -CGFloat(self.currentIndex) * (mediaWidth + 10)
                     }
                 }
                 .frame(height: mediaHeight)
-
-                // Play/Pause and Mute buttons
-                if let currentVideoId = currentlyPlayingVideoId,
-                   mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            togglePlayPause()
-                        }) {
-                            Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
-                        }
-                        Button(action: {
-                            toggleMute()
-                        }) {
-                            Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
-                        }
-                        Spacer()
-                    }
-                    .padding(.top, 8)
+                .onAppear {
+                    handleIndexChange(currentIndex)
                 }
-            } else if post.mediaType == .video {
+                .onChange(of: currentIndex) { newIndex in
+                    handleIndexChange(newIndex)
+                }
+            }
+ else if post.mediaType == .video {
                 videoView()
             } else if post.mediaType == .photo {
                 photoView()
@@ -743,9 +690,15 @@ struct WrittenFeedCell: View {
     }
 
     private func handleIndexChange(_ index: Int) {
-        if index >= 0 && index < (post.mixedMediaUrls?.count ?? 0) {
-            pauseAllVideos()
-            playVideoForCurrentIndex(index)
+        pauseAllVideos()
+        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
+            let mediaItem = mixedMediaUrls[index]
+            if mediaItem.type == .video {
+                currentlyPlayingVideoId = mediaItem.id
+                playVideo(id: mediaItem.id)
+            } else {
+                currentlyPlayingVideoId = nil
+            }
         }
     }
 
@@ -820,6 +773,127 @@ struct CustomPagingView<Content: View>: View {
                 withAnimation(.spring()) {
                     offsetX = -CGFloat(newIndex) * (itemWidth + itemSpacing)
                 }
+            }
+        }
+    }
+}
+struct PagingScrollView<Content: View>: UIViewRepresentable {
+    let content: Content
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    let itemCount: Int
+    @Binding var currentIndex: Int
+    
+    init(itemWidth: CGFloat, itemSpacing: CGFloat = 10, itemCount: Int, currentIndex: Binding<Int>, @ViewBuilder content: () -> Content) {
+        self.content = content()
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self.itemCount = itemCount
+        self._currentIndex = currentIndex
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.isPagingEnabled = false // We'll simulate paging
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.delegate = context.coordinator
+        scrollView.decelerationRate = .fast
+        
+        // Create a UIHostingController to host SwiftUI content
+        let hostingController = UIHostingController(rootView: content)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        
+        scrollView.addSubview(hostingController.view)
+        
+        // Constraints for the content size
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            hostingController.view.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        ])
+        
+        // Set contentInset to center the items
+        let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        scrollView.contentOffset = CGPoint(x: -horizontalInset, y: 0)
+        
+        return scrollView
+    }
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        // Update content size
+        let totalItemWidth = itemWidth + itemSpacing
+        let totalWidth = CGFloat(itemCount) * totalItemWidth - itemSpacing
+        scrollView.contentSize = CGSize(width: totalWidth, height: scrollView.frame.size.height)
+        
+        // Update the hosting controller's frame
+        if let hostingView = scrollView.subviews.first {
+            hostingView.frame = CGRect(origin: .zero, size: CGSize(width: scrollView.contentSize.width, height: scrollView.frame.size.height))
+        }
+        
+        // Update content offset if currentIndex changes programmatically
+        let targetX = CGFloat(currentIndex) * totalItemWidth - scrollView.contentInset.left
+        if abs(scrollView.contentOffset.x - targetX) > 0.5 {
+            scrollView.setContentOffset(CGPoint(x: targetX, y: 0), animated: false)
+        }
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: PagingScrollView
+        var isUserScrolling = false
+        var targetIndex: Int = 0
+
+        init(_ parent: PagingScrollView) {
+            self.parent = parent
+        }
+
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            isUserScrolling = true
+        }
+
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let pageWidth = self.parent.itemWidth + self.parent.itemSpacing
+            let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
+            var index = Int(round(offsetX / pageWidth))
+
+            let velocityX = velocity.x
+
+            if velocityX > 0.2 {
+                // Swiping to the left (next item)
+                index = min(index + 1, self.parent.itemCount - 1)
+            } else if velocityX < -0.2 {
+                // Swiping to the right (previous item)
+                index = max(index - 1, 0)
+            } else {
+                // Not enough velocity, snap to nearest
+                index = Int(round(offsetX / pageWidth))
+            }
+
+            let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
+            targetContentOffset.pointee.x = newOffsetX
+
+            // Store the target index to update the currentIndex later
+            self.targetIndex = index
+            isUserScrolling = false
+        }
+
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            // Update currentIndex after scrolling animation ends
+            DispatchQueue.main.async {
+                self.parent.currentIndex = self.targetIndex
+            }
+        }
+
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            // Update currentIndex after decelerating
+            DispatchQueue.main.async {
+                self.parent.currentIndex = self.targetIndex
             }
         }
     }
