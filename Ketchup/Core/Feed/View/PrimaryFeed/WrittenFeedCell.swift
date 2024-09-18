@@ -14,7 +14,6 @@ struct WrittenFeedCell: View {
     @State private var showShareView = false
     @State private var showCollections = false
     @State private var showingOptionsSheet = false
-    @State private var currentImageIndex = 0
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
     private let mediaWidth: CGFloat = 240
@@ -26,7 +25,6 @@ struct WrittenFeedCell: View {
         return post.didBookmark
     }
     @State private var videoCoordinators: [(String, VideoPlayerCoordinator)] = []
-    
     @Binding var selectedPost: Post?
     @State var showHeartOverlay = false
     @State var isExpanded = false
@@ -34,30 +32,30 @@ struct WrittenFeedCell: View {
     @State private var isCurrentVideoPlaying = false
     @State private var isTaggedSheetPresented = false
     @State private var showUserProfile = false
-    
     @State private var selectedUser: PostUser?
     @State private var parsedCaption: AttributedString?
-    
     @State private var selectedUserId: String?
     @State private var currentIndex: Int = 0
     @State private var scrollViewWidth: CGFloat = 0
-       @State private var dragOffset: CGFloat = 0
-       @GestureState private var dragState = DragState.inactive
-    private enum DragState {
-            case inactive
-            case dragging(translation: CGFloat)
+    @State private var dragOffset: CGFloat = 0
+    @GestureState private var dragState = DragState.inactive
 
-            var translation: CGFloat {
-                switch self {
-                case .inactive:
-                    return 0
-                case .dragging(let translation):
-                    return translation
-                }
+    private enum DragState {
+        case inactive
+        case dragging(translation: CGFloat)
+
+        var translation: CGFloat {
+            switch self {
+            case .inactive:
+                return 0
+            case .dragging(let translation):
+                return translation
             }
         }
+    }
+
     var checkLikes: Bool
-    
+
     init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
@@ -65,17 +63,18 @@ struct WrittenFeedCell: View {
         self._pauseVideo = pauseVideo
         self._selectedPost = selectedPost
         self.checkLikes = checkLikes
-        
+
+        // Initialize videoCoordinators
         let coordinators = VideoPrefetcher.shared.getPlayerItems(for: post.wrappedValue)
         self._videoCoordinators = State(initialValue: coordinators)
     }
-    
+
     var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
         guard !ratings.isEmpty else { return nil }
         return ratings.reduce(0, +) / Double(ratings.count)
     }
-    
+
     var body: some View {
         VStack {
             // User profile and timestamp
@@ -110,41 +109,20 @@ struct WrittenFeedCell: View {
                 }
             }
             .padding(.horizontal)
-            
+
             // Media content
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                            GeometryReader { geometry in
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 10) {
-                                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                                            mediaItemView(for: mediaItem, at: index)
-                                                .frame(width: mediaWidth)
-                                        }
-                                    }
-                                    .offset(x: self.dragOffset)
-                                    .gesture(
-                                        DragGesture()
-                                            .updating($dragState) { value, state, _ in
-                                                state = .dragging(translation: value.translation.width)
-                                            }
-                                            .onEnded { value in
-                                                let predictedEndOffset = self.dragOffset + value.predictedEndTranslation.width
-                                                let targetIndex = round(predictedEndOffset / -(mediaWidth + 10))
-                                                let newOffset = targetIndex * -(mediaWidth + 10)
-                                                withAnimation(.easeOut) {
-                                                    self.dragOffset = max(min(newOffset, 0), -CGFloat(mixedMediaUrls.count - 1) * (mediaWidth + 10))
-                                                }
-                                                self.currentIndex = Int(-self.dragOffset / (mediaWidth + 10))
-                                            }
-                                    )
-                                }
-                                .onAppear {
-                                    self.scrollViewWidth = geometry.size.width
-                                }
-                            }
-                            .frame(height: mediaHeight)
+                CustomPagingView(itemCount: mixedMediaUrls.count, itemWidth: mediaWidth, itemSpacing: 10, currentIndex: $currentIndex) {
+                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                            mediaItemView(for: mediaItem, at: index)
+                                .frame(width: mediaWidth, height: mediaHeight)
+                        }
+                    }
+                    .frame(height: mediaHeight)
+                    .onChange(of: currentIndex) { newIndex in
+                        handleIndexChange(newIndex)
+                    }
 
-                
                 // Play/Pause and Mute buttons
                 if let currentVideoId = currentlyPlayingVideoId,
                    mixedMediaUrls.first(where: { $0.id == currentVideoId })?.type == .video {
@@ -179,26 +157,25 @@ struct WrittenFeedCell: View {
             } else if post.mediaType == .photo {
                 photoView()
             }
-            
+
             // Restaurant info and ratings
             restaurantInfoView()
-            
+
             // Caption
             captionView()
-            
+
             // Tagged users
             taggedUsersView()
-            
+
             // Interaction buttons
             interactionButtonsView()
-            
+
             Divider()
                 .padding(.top, 5)
         }
         .onAppear(perform: onAppear)
         .onChange(of: scrollPosition) { _ in handleScrollPositionChange() }
         .onDisappear(perform: pauseAllVideos)
-        .onChange(of: currentIndex) { newValue in handleIndexChange(newValue) }
         .onChange(of: pauseVideo) { newValue in handlePauseVideoChange(newValue) }
         .onChange(of: post.caption) { _ in updateParsedCaption() }
         .environment(\.openURL, OpenURLAction { url in handleOpenURL(url) })
@@ -239,7 +216,7 @@ struct WrittenFeedCell: View {
                 pauseAllVideos()
             }
         }
-        .onChange(of: currentlyPlayingVideoId) {newValue in
+        .onChange(of: currentlyPlayingVideoId) { newValue in
             handleVisibleMediaChange(newValue: newValue)
         }
         .overlay(
@@ -260,50 +237,50 @@ struct WrittenFeedCell: View {
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     @ViewBuilder
-       private func mediaItemView(for mediaItem: MixedMediaItem, at index: Int) -> some View {
-           VStack {
-               Button {
-                   viewModel.startingImageIndex = index
-                   viewModel.startingPostId = post.id
-                   selectedPost = post
-               } label: {
-                   if mediaItem.type == .photo {
-                       KFImage(URL(string: mediaItem.url))
-                           .resizable()
-                           .aspectRatio(contentMode: .fill)
-                           .frame(width: mediaWidth, height: mediaHeight)
-                           .clipped()
-                           .cornerRadius(10)
-                   } else if mediaItem.type == .video {
-                       ZStack {
-                           VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
-                               .frame(width: mediaWidth, height: mediaHeight)
-                               .cornerRadius(10)
-                               .id(mediaItem.id)
-                           
-                           if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
-                               Image(systemName: "play.circle.fill")
-                                   .resizable()
-                                   .frame(width: 50, height: 50)
-                                   .foregroundColor(.white)
-                                   .opacity(0.8)
-                           }
-                       }
-                   }
-               }
-           }
-       }
-    
+    private func mediaItemView(for mediaItem: MixedMediaItem, at index: Int) -> some View {
+        VStack {
+            Button {
+                viewModel.startingImageIndex = index
+                viewModel.startingPostId = post.id
+                selectedPost = post
+            } label: {
+                if mediaItem.type == .photo {
+                    KFImage(URL(string: mediaItem.url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: mediaWidth, height: mediaHeight)
+                        .clipped()
+                        .cornerRadius(10)
+                } else if mediaItem.type == .video {
+                    ZStack {
+                        VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                            .frame(width: mediaWidth, height: mediaHeight)
+                            .cornerRadius(10)
+                            .id(mediaItem.id)
+
+                        if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
+                            Image(systemName: "play.circle.fill")
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.white)
+                                .opacity(0.8)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private func videoView() -> some View {
         HStack(alignment: .bottom) {
             Rectangle()
                 .frame(width: 40, height: 40)
                 .foregroundColor(.clear)
-            
+
             ForEach(videoCoordinators, id: \.0) { mediaItemId, coordinator in
                 Button {
                     viewModel.startingPostId = post.id
@@ -314,7 +291,7 @@ struct WrittenFeedCell: View {
                         .cornerRadius(10)
                 }
             }
-            
+
             VStack {
                 Button(action: {
                     togglePlayPause()
@@ -325,7 +302,7 @@ struct WrittenFeedCell: View {
                         .background(Circle().fill(Color.gray))
                 }
                 .frame(width: 40, height: 30)
-                
+
                 Button(action: {
                     toggleMute()
                 }) {
@@ -338,30 +315,63 @@ struct WrittenFeedCell: View {
             }
         }
     }
-    
+
     private func photoView() -> some View {
         Group {
             if post.mediaUrls.count > 1 {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
-                            Button {
-                                viewModel.startingImageIndex = index
-                                viewModel.startingPostId = post.id
-                                selectedPost = post
-                            } label: {
-                                KFImage(URL(string: url))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: mediaWidth, height: mediaHeight)
-                                    .clipped()
-                                    .cornerRadius(10)
+                // Custom paging for multiple photos
+                GeometryReader { geometry in
+                    let itemWidth = mediaWidth + 10
+                    HStack(spacing: 0) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(Array(post.mediaUrls.enumerated()), id: \.element) { index, url in
+                                    Button {
+                                        viewModel.startingImageIndex = index
+                                        viewModel.startingPostId = post.id
+                                        selectedPost = post
+                                    } label: {
+                                        KFImage(URL(string: url))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: mediaWidth, height: mediaHeight)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                    }
+                                    .frame(width: mediaWidth)
+                                }
                             }
+                            .padding(.horizontal, (geometry.size.width - mediaWidth) / 2)
+                            .offset(x: self.dragOffset + self.dragState.translation)
+                            .animation(.easeOut(duration: 0.2), value: dragOffset)
+                            .gesture(
+                                DragGesture()
+                                    .updating($dragState) { value, state, _ in
+                                        state = .dragging(translation: value.translation.width)
+                                    }
+                                    .onEnded { value in
+                                        let itemWidthWithSpacing = mediaWidth + 10
+                                        let totalItems = post.mediaUrls.count
+                                        let predictedEndOffset = self.dragOffset + value.translation.width
+                                        var newIndex = Int(round(-predictedEndOffset / itemWidthWithSpacing))
+                                        newIndex = max(0, min(newIndex, totalItems - 1))
+
+                                        self.currentIndex = newIndex
+                                        let newOffset = -CGFloat(newIndex) * itemWidthWithSpacing
+                                        self.dragOffset = newOffset
+                                    }
+                            )
                         }
+                        .frame(width: geometry.size.width)
+                    }
+                    .onAppear {
+                        self.scrollViewWidth = geometry.size.width
+                        self.dragOffset = -CGFloat(self.currentIndex) * (mediaWidth + 10)
                     }
                 }
-                .padding(.horizontal)
+                .frame(height: mediaHeight)
             } else {
+                // Single photo
                 Button {
                     viewModel.startingImageIndex = 0
                     viewModel.startingPostId = post.id
@@ -378,7 +388,7 @@ struct WrittenFeedCell: View {
             }
         }
     }
-    
+
     private func restaurantInfoView() -> some View {
         VStack {
             NavigationLink(value: post.restaurant) {
@@ -413,314 +423,392 @@ struct WrittenFeedCell: View {
                 }
                 .padding(.top, 5)
             }
-            
+
             if isExpanded {
                 RatingsView(post: post, isExpanded: $isExpanded)
                     .padding(.vertical, 5)
             }
         }
     }
+
     private func captionView() -> some View {
-            HStack {
-                if let parsed = parsedCaption {
-                    Text(parsed)
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                } else {
-                    Text(post.caption)
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                        .onAppear {
-                            parsedCaption = parseCaption(post.caption)
-                        }
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-        }
-        
-        private func taggedUsersView() -> some View {
-            Group {
-                if !post.taggedUsers.isEmpty {
-                    Button(action: {
-                        isTaggedSheetPresented.toggle()
-                    }) {
-                        HStack {
-                            Text("Went with:")
-                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                .bold()
-                            
-                            ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
-                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
-                            }
-                            
-                            if post.taggedUsers.count > 3 {
-                                VStack {
-                                    Spacer()
-                                    Text("and \(post.taggedUsers.count - 3) others")
-                                        .font(.custom("MuseoSansRounded-300", size: 12))
-                                }
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .sheet(isPresented: $isTaggedSheetPresented) {
-                        TaggedUsersSheetView(taggedUsers: post.taggedUsers)
-                            .presentationDetents([.medium])
-                    }
-                }
-            }
-            .padding(.horizontal)
-        }
-        
-        private func interactionButtonsView() -> some View {
-            HStack(spacing: 15) {
-                Button {
-                    triggerHapticFeedback()
-                    handleLikeTapped()
-                } label: {
-                    InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
-                }
-                
-                Button {
-                    showComments.toggle()
-                } label: {
-                    InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
-                }
-                
-                Button {
-                    triggerHapticFeedback()
-                    handleBookmarkTapped()
-                } label: {
-                    InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
-                }
-                
-                Button {
-                    showCollections.toggle()
-                } label: {
-                    InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
-                }
-                
-                Button {
-                    showShareView.toggle()
-                } label: {
-                    InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 21)
-                }
-                
-                Button {
-                    showingOptionsSheet = true
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .fill(.clear)
-                            .frame(width: 20, height: 28)
-                        Image(systemName: "ellipsis")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 5, height: 5)
-                            .foregroundColor(.gray)
-                    }
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-        }
-        
-        // MARK: - Helper Functions
-        
-        private func onAppear() {
-            if checkLikes {
-                Task {
-                    post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
-                    post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
-                }
-            }
-            isCurrentVideoPlaying = false
-            
-            if post.mediaType == .mixed, let firstMediaItem = post.mixedMediaUrls?.first, firstMediaItem.type == .video {
-                currentlyPlayingVideoId = firstMediaItem.id
-            } else if post.mediaType == .video, let firstVideoId = videoCoordinators.first?.0 {
-                currentlyPlayingVideoId = firstVideoId
-            }
-            if viewModel.selectedCommentId != nil {
-                showComments = true
-            }
-        }
-        
-        private func handleScrollPositionChange() {
-            if scrollPosition != post.id {
-                pauseAllVideos()
+        HStack {
+            if let parsed = parsedCaption {
+                Text(parsed)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
             } else {
-                handleIndexChange(currentIndex)
+                Text(post.caption)
+                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .onAppear {
+                        parsedCaption = parseCaption(post.caption)
+                    }
             }
+            Spacer()
         }
-        
-        private func handleIndexChange(_ newValue: Int) {
-                if newValue >= 0 && newValue < (post.mixedMediaUrls?.count ?? 0) {
-                    pauseAllVideos()
-                    playVideoForCurrentIndex(newValue)
-                    withAnimation(.easeOut) {
-                        self.dragOffset = CGFloat(-newValue) * (mediaWidth + 10)
+        .padding(.horizontal)
+    }
+
+    private func taggedUsersView() -> some View {
+        Group {
+            if !post.taggedUsers.isEmpty {
+                Button(action: {
+                    isTaggedSheetPresented.toggle()
+                }) {
+                    HStack {
+                        Text("Went with:")
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                            .bold()
+
+                        ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
+                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                        }
+
+                        if post.taggedUsers.count > 3 {
+                            VStack {
+                                Spacer()
+                                Text("and \(post.taggedUsers.count - 3) others")
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                            }
+                        }
+
+                        Spacer()
                     }
                 }
-            }
-        
-        private func handlePauseVideoChange(_ newValue: Bool) {
-            if newValue {
-                pauseAllVideos()
-            } else {
-                handleIndexChange(currentIndex)
+                .sheet(isPresented: $isTaggedSheetPresented) {
+                    TaggedUsersSheetView(taggedUsers: post.taggedUsers)
+                        .presentationDetents([.medium])
+                }
             }
         }
-        
-        private func updateParsedCaption() {
-            parsedCaption = parseCaption(post.caption)
-        }
-        
-        private func handleOpenURL(_ url: URL) -> OpenURLAction.Result {
-            if url.scheme == "user",
-               let userId = url.host,
-               let user = post.captionMentions.first(where: { $0.id == userId }) {
-                selectedUser = user
-                return .handled
+        .padding(.horizontal)
+    }
+
+    private func interactionButtonsView() -> some View {
+        HStack(spacing: 15) {
+            Button {
+                triggerHapticFeedback()
+                handleLikeTapped()
+            } label: {
+                InteractionButtonView(icon: didLike ? "heart.fill" : "heart", count: post.likes, color: didLike ? Color("Colors/AccentColor") : .gray)
             }
-            return .systemAction
+
+            Button {
+                showComments.toggle()
+            } label: {
+                InteractionButtonView(icon: "ellipsis.bubble", count: post.commentCount)
+            }
+
+            Button {
+                triggerHapticFeedback()
+                handleBookmarkTapped()
+            } label: {
+                InteractionButtonView(icon: didBookmark ? "bookmark.fill" : "bookmark", count: post.bookmarkCount, color: didBookmark ? Color("Colors/AccentColor") : .gray, width: 20, height: 20)
+            }
+
+            Button {
+                showCollections.toggle()
+            } label: {
+                InteractionButtonView(icon: "folder.badge.plus", width: 24, height: 24)
+            }
+
+            Button {
+                showShareView.toggle()
+            } label: {
+                InteractionButtonView(icon: "arrowshape.turn.up.right", width: 22, height: 21)
+            }
+
+            Button {
+                showingOptionsSheet = true
+            } label: {
+                ZStack {
+                    Rectangle()
+                        .fill(.clear)
+                        .frame(width: 20, height: 28)
+                    Image(systemName: "ellipsis")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 5, height: 5)
+                        .foregroundColor(.gray)
+                }
+            }
+            Spacer()
         }
-        
-        private func handleVisibleMediaChange(newValue: String?) {
+        .padding(.horizontal)
+    }
+
+    // MARK: - Helper Functions
+
+    private func onAppear() {
+        if checkLikes {
+            Task {
+                post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
+            }
+        }
+        isCurrentVideoPlaying = false
+
+        if post.mediaType == .mixed, let firstMediaItem = post.mixedMediaUrls?.first, firstMediaItem.type == .video {
+            currentlyPlayingVideoId = firstMediaItem.id
+        } else if post.mediaType == .video, let firstVideoId = videoCoordinators.first?.0 {
+            currentlyPlayingVideoId = firstVideoId
+        }
+        if viewModel.selectedCommentId != nil {
+            showComments = true
+        }
+    }
+
+    private func handleScrollPositionChange() {
+        if scrollPosition != post.id {
             pauseAllVideos()
-            
-            if let newValue = newValue,
-               let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
-               mediaItem.type == .video {
-                playVideo(id: newValue)
-            }
+        } else {
+            handleIndexChange(currentIndex)
         }
-        
-        private func pauseAllVideos() {
-            for (_, coordinator) in videoCoordinators {
+    }
+
+    private func handlePauseVideoChange(_ newValue: Bool) {
+        if newValue {
+            pauseAllVideos()
+        } else {
+            handleIndexChange(currentIndex)
+        }
+    }
+
+    private func updateParsedCaption() {
+        parsedCaption = parseCaption(post.caption)
+    }
+
+    private func handleOpenURL(_ url: URL) -> OpenURLAction.Result {
+        if url.scheme == "user",
+           let userId = url.host,
+           let user = post.captionMentions.first(where: { $0.id == userId }) {
+            selectedUser = user
+            return .handled
+        }
+        return .systemAction
+    }
+
+    private func handleVisibleMediaChange(newValue: String?) {
+        pauseAllVideos()
+
+        if let newValue = newValue,
+           let mediaItem = post.mixedMediaUrls?.first(where: { $0.id == newValue }),
+           mediaItem.type == .video {
+            playVideo(id: newValue)
+        }
+    }
+
+    private func pauseAllVideos() {
+        for (_, coordinator) in videoCoordinators {
+            coordinator.pause()
+        }
+        isCurrentVideoPlaying = false
+    }
+
+    private func togglePlayPause() {
+        if let currentVideoId = currentlyPlayingVideoId,
+           let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
+            if isCurrentVideoPlaying {
                 coordinator.pause()
-            }
-            isCurrentVideoPlaying = false
-        }
-        
-        private func togglePlayPause() {
-            if let currentVideoId = currentlyPlayingVideoId,
-               let coordinator = videoCoordinators.first(where: { $0.0 == currentVideoId })?.1 {
-                if isCurrentVideoPlaying {
-                    coordinator.pause()
-                } else {
-                    coordinator.play()
-                }
-                isCurrentVideoPlaying.toggle()
-            }
-        }
-        
-        private func toggleMute() {
-            viewModel.isMuted.toggle()
-            for (_, coordinator) in videoCoordinators {
-                coordinator.player.isMuted = viewModel.isMuted
-            }
-        }
-        
-        private func playVideo(id: String) {
-            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+            } else {
                 coordinator.play()
-                isCurrentVideoPlaying = true
-                currentlyPlayingVideoId = id
+            }
+            isCurrentVideoPlaying.toggle()
+        }
+    }
+
+    private func toggleMute() {
+        viewModel.isMuted.toggle()
+        for (_, coordinator) in videoCoordinators {
+            coordinator.player.isMuted = viewModel.isMuted
+        }
+    }
+
+    private func playVideo(id: String) {
+        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+            coordinator.play()
+            isCurrentVideoPlaying = true
+            currentlyPlayingVideoId = id
+        }
+    }
+
+    private func pauseVideo(id: String) {
+        if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
+            coordinator.pause()
+            if currentlyPlayingVideoId == id {
+                isCurrentVideoPlaying = false
             }
         }
-        
-        private func pauseVideo(id: String) {
-            if let coordinator = videoCoordinators.first(where: { $0.0 == id })?.1 {
-                coordinator.pause()
-                if currentlyPlayingVideoId == id {
-                    isCurrentVideoPlaying = false
-                }
-            }
+    }
+
+    private var isPlaying: Bool {
+        videoCoordinators.first?.1.player.timeControlStatus == .playing
+    }
+
+    private func getVideoCoordinator(for mediaItemId: String) -> VideoPlayerCoordinator {
+        if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
+            return coordinator.1
         }
-        
-        private var isPlaying: Bool {
-            videoCoordinators.first?.1.player.timeControlStatus == .playing
-        }
-        
-        private func getVideoCoordinator(for mediaItemId: String) -> VideoPlayerCoordinator {
-            if let coordinator = videoCoordinators.first(where: { $0.0 == mediaItemId }) {
-                return coordinator.1
-            }
-            let newCoordinator = VideoPlayerCoordinator()
-            videoCoordinators.append((mediaItemId, newCoordinator))
-            return newCoordinator
-        }
-        
-        private func parseCaption(_ input: String) -> AttributedString {
-            var result = AttributedString(input)
-            let pattern = "@\\w+"
-            
-            guard let regex = try? NSRegularExpression(pattern: pattern) else {
-                return result
-            }
-            
-            let nsRange = NSRange(input.startIndex..., in: input)
-            let matches = regex.matches(in: input, range: nsRange)
-            
-            for match in matches.reversed() {
-                guard let range = Range(match.range, in: input) else { continue }
-                
-                let fullMatch = String(input[range])
-                let username = String(fullMatch.dropFirst())
-                
-                if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
-                   let attributedRange = Range(range, in: result) {
-                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
-                    result[attributedRange].link = URL(string: "user://\(user.id)")
-                }
-            }
-            
+        // If not found, create a new one
+        let newCoordinator = VideoPlayerCoordinator()
+        videoCoordinators.append((mediaItemId, newCoordinator))
+        return newCoordinator
+    }
+
+    private func parseCaption(_ input: String) -> AttributedString {
+        var result = AttributedString(input)
+        let pattern = "@\\w+"
+
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return result
         }
-        
-        private func handleBookmarkTapped() {
-            Task {
-                if post.didBookmark {
-                    post.bookmarkCount -= 1
-                    await viewModel.unbookmark(post)
-                } else {
-                    post.bookmarkCount += 1
-                    await viewModel.bookmark(post)
-                }
+
+        let nsRange = NSRange(input.startIndex..., in: input)
+        let matches = regex.matches(in: input, range: nsRange)
+
+        for match in matches.reversed() {
+            guard let range = Range(match.range, in: input) else { continue }
+
+            let fullMatch = String(input[range])
+            let username = String(fullMatch.dropFirst())
+
+            if let user = post.captionMentions.first(where: { $0.username.lowercased() == username.lowercased() }),
+               let attributedRange = Range(range, in: result) {
+                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                result[attributedRange].link = URL(string: "user://\(user.id)")
             }
         }
-        
-        private func handleLikeTapped() {
-            Task {
-                if didLike {
+
+        return result
+    }
+
+    private func handleBookmarkTapped() {
+        Task {
+            if post.didBookmark {
+                await viewModel.unbookmark(post)
+            } else {
+                post.bookmarkCount += 1
+                await viewModel.bookmark(post)
+            }
+        }
+    }
+
+    private func handleLikeTapped() {
+        Task {
+            if didLike {
+                withAnimation {
+                    showHeartOverlay = true
+                }
+                Debouncer(delay: 1.0).schedule {
                     withAnimation {
-                        showHeartOverlay = true
+                        showHeartOverlay = false
                     }
-                    Debouncer(delay: 1.0).schedule {
-                        withAnimation {
-                            showHeartOverlay = false
+                }
+            }
+            didLike ? await viewModel.unlike(post) : await viewModel.like(post)
+        }
+    }
+
+    private func handleIndexChange(_ index: Int) {
+        if index >= 0 && index < (post.mixedMediaUrls?.count ?? 0) {
+            pauseAllVideos()
+            playVideoForCurrentIndex(index)
+        }
+    }
+
+    private func playVideoForCurrentIndex(_ index: Int) {
+        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
+            if index >= 0 && index < mixedMediaUrls.count {
+                let mediaItem = mixedMediaUrls[index]
+                if mediaItem.type == .video {
+                    currentlyPlayingVideoId = mediaItem.id
+                    playVideo(id: mediaItem.id)
+                }
+            }
+        } else if post.mediaType == .video && index == 0 {
+            if let firstVideoId = videoCoordinators.first?.0 {
+                currentlyPlayingVideoId = firstVideoId
+                playVideo(id: firstVideoId)
+            }
+        }
+    }
+}
+import SwiftUI
+
+struct CustomPagingView<Content: View>: View {
+    let itemCount: Int
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    @Binding var currentIndex: Int
+    let content: () -> Content
+
+    @State private var offset: CGFloat = 0
+    @State private var draggingOffset: CGFloat = 0
+    @GestureState private var isDragging: Bool = false
+    @State private var velocityX: CGFloat = 0
+    @State private var lastDragValue: DragGesture.Value?
+
+    init(itemCount: Int, itemWidth: CGFloat, itemSpacing: CGFloat = 10, currentIndex: Binding<Int>, @ViewBuilder content: @escaping () -> Content) {
+        self.itemCount = itemCount
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self._currentIndex = currentIndex
+        self.content = content
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let totalWidth = CGFloat(itemCount) * (itemWidth + itemSpacing) - itemSpacing
+            let containerWidth = geometry.size.width
+            let horizontalPadding = (containerWidth - itemWidth) / 2
+            let itemWidthWithSpacing = itemWidth + itemSpacing
+
+            HStack(spacing: itemSpacing) {
+                content()
+                    .frame(width: itemWidth)
+            }
+            .padding(.horizontal, horizontalPadding)
+            .offset(x: offset + draggingOffset)
+            .gesture(
+                DragGesture()
+                    .updating($isDragging) { _, state, _ in
+                        state = true
+                    }
+                    .onChanged { value in
+                        draggingOffset = value.translation.width
+                        updateVelocity(value)
+                    }
+                    .onEnded { value in
+                        let predictedEndOffset = offset + value.translation.width + velocityX * 0.55
+                        let targetIndex = round(predictedEndOffset / -itemWidthWithSpacing)
+                        withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
+                            offset = -targetIndex * itemWidthWithSpacing
+                            draggingOffset = 0
+                            currentIndex = Int(max(0, min(targetIndex, CGFloat(itemCount - 1))))
                         }
                     }
-                }
-                didLike ? await viewModel.unlike(post) : await viewModel.like(post)
-            }
-        }
-        
-        private func playVideoForCurrentIndex(_ index: Int) {
-            if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                if index >= 0 && index < mixedMediaUrls.count {
-                    let mediaItem = mixedMediaUrls[index]
-                    if mediaItem.type == .video {
-                        currentlyPlayingVideoId = mediaItem.id
-                        playVideo(id: mediaItem.id)
+            )
+            .onChange(of: isDragging) { newValue in
+                if !newValue {
+                    withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
+                        let targetIndex = round((offset + draggingOffset) / -itemWidthWithSpacing)
+                        offset = -targetIndex * itemWidthWithSpacing
+                        draggingOffset = 0
+                        currentIndex = Int(max(0, min(targetIndex, CGFloat(itemCount - 1))))
                     }
                 }
-            } else if post.mediaType == .video && index == 0 {
-                if let firstVideoId = videoCoordinators.first?.0 {
-                    currentlyPlayingVideoId = firstVideoId
-                    playVideo(id: firstVideoId)
+            }
+            .onChange(of: currentIndex) { newIndex in
+                withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
+                    offset = -CGFloat(newIndex) * itemWidthWithSpacing
                 }
             }
         }
     }
+
+    private func updateVelocity(_ value: DragGesture.Value) {
+        let timeDelta = value.time.timeIntervalSince(lastDragValue?.time ?? .now)
+        let distanceDelta = value.translation.width - (lastDragValue?.translation.width ?? 0)
+        velocityX = timeDelta > 0 ? distanceDelta / CGFloat(timeDelta) : 0
+        lastDragValue = value
+    }
+}
