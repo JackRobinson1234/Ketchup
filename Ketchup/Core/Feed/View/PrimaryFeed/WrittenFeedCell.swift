@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Kingfisher
+
 struct WrittenFeedCell: View {
     @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var viewModel: FeedViewModel
@@ -112,32 +113,65 @@ struct WrittenFeedCell: View {
 
             // Media content
             if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-                PagingScrollView(
-                    itemWidth: mediaWidth,
-                    itemSpacing: 10,
-                    itemCount: mixedMediaUrls.count,
-                    currentIndex: $currentIndex
-                ) {
-                    HStack(spacing: 10) {
-                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
-                            mediaItemView(for: mediaItem, at: index)
-                                .frame(width: mediaWidth)
+                            VStack {
+                                PagingScrollView(
+                                    itemWidth: mediaWidth,
+                                    itemSpacing: 10,
+                                    itemCount: mixedMediaUrls.count,
+                                    currentIndex: $currentIndex
+                                ) {
+                                    HStack(spacing: 10) {
+                                        ForEach(Array(mixedMediaUrls.enumerated()), id: \.element.id) { index, mediaItem in
+                                            mediaItemView(for: mediaItem, at: index)
+                                                .frame(width: mediaWidth)
+                                        }
+                                    }
+                                }
+                                .frame(height: mediaHeight)
+                                .onAppear {
+                                    handleIndexChange(currentIndex)
+                                }
+                                .onChange(of: currentIndex) { newIndex in
+                                    handleIndexChange(newIndex)
+                                }
+                                
+                                // Play/Pause and Mute buttons
+                                if currentIndex >= 0 && currentIndex < mixedMediaUrls.count {
+                                    let currentMediaItem = mixedMediaUrls[currentIndex]
+                                    if currentMediaItem.type == .video {
+                                        HStack {
+                                            Button(action: {
+                                                togglePlayPause()
+                                            }) {
+                                                Image(systemName: isCurrentVideoPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                                    .resizable()
+                                                    .frame(width: 30, height: 30)
+                                                    .foregroundColor(.white)
+                                                    .background(Color.black.opacity(0.6))
+                                                    .clipShape(Circle())
+                                            }
+                                            .padding(.trailing, 10)
+                                            
+                                            Button(action: {
+                                                toggleMute()
+                                            }) {
+                                                Image(systemName: viewModel.isMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill")
+                                                    .resizable()
+                                                    .frame(width: 30, height: 30)
+                                                    .foregroundColor(.white)
+                                                    .background(Color.black.opacity(0.6))
+                                                    .clipShape(Circle())
+                                            }
+                                        }
+                                        .padding(.top, 8)
+                                    }
+                                }
+                            }
+                        } else if post.mediaType == .video {
+                            videoView()
+                        } else if post.mediaType == .photo {
+                            photoView()
                         }
-                    }
-                }
-                .frame(height: mediaHeight)
-                .onAppear {
-                    handleIndexChange(currentIndex)
-                }
-                .onChange(of: currentIndex) { newIndex in
-                    handleIndexChange(newIndex)
-                }
-            }
- else if post.mediaType == .video {
-                videoView()
-            } else if post.mediaType == .photo {
-                photoView()
-            }
 
             // Restaurant info and ratings
             restaurantInfoView()
@@ -221,10 +255,12 @@ struct WrittenFeedCell: View {
 
     // MARK: - Subviews
 
+    
     @ViewBuilder
     private func mediaItemView(for mediaItem: MixedMediaItem, at index: Int) -> some View {
-        VStack {
+        VStack(spacing: 0) {
             Button {
+                pauseAllVideos()
                 viewModel.startingImageIndex = index
                 viewModel.startingPostId = post.id
                 selectedPost = post
@@ -242,19 +278,21 @@ struct WrittenFeedCell: View {
                             .frame(width: mediaWidth, height: mediaHeight)
                             .cornerRadius(10)
                             .id(mediaItem.id)
-
-                        if !isCurrentVideoPlaying || currentlyPlayingVideoId != mediaItem.id {
-                            Image(systemName: "play.circle.fill")
-                                .resizable()
-                                .frame(width: 50, height: 50)
-                                .foregroundColor(.white)
-                                .opacity(0.8)
-                        }
+                        
+                        // Show play icon overlay when video is not playing or not the current one
+//                        if !isCurrentVideoPlaying {
+//                            Image(systemName: "play.circle.fill")
+//                                .resizable()
+//                                .frame(width: 50, height: 50)
+//                                .foregroundColor(.white)
+//                                .opacity(0.8)
+//                        }
                     }
                 }
             }
         }
     }
+    
 
     private func videoView() -> some View {
         HStack(alignment: .bottom) {
@@ -522,30 +560,27 @@ struct WrittenFeedCell: View {
 
     private func onAppear() {
         if checkLikes {
-            Task {
-                post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
-                post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
-            }
-        }
-        isCurrentVideoPlaying = false
+               Task {
+                   post.didLike = try await PostService.shared.checkIfUserLikedPost(post)
+                   post.didBookmark = await viewModel.checkIfUserBookmarkedPost(post)
+               }
+           }
+           isCurrentVideoPlaying = false
 
-        if post.mediaType == .mixed, let firstMediaItem = post.mixedMediaUrls?.first, firstMediaItem.type == .video {
-            currentlyPlayingVideoId = firstMediaItem.id
-        } else if post.mediaType == .video, let firstVideoId = videoCoordinators.first?.0 {
-            currentlyPlayingVideoId = firstVideoId
-        }
-        if viewModel.selectedCommentId != nil {
-            showComments = true
-        }
+           // Handle initial video playback based on the first media item
+           handleIndexChange(currentIndex)
+           if viewModel.selectedCommentId != nil {
+               showComments = true
+           }
     }
 
     private func handleScrollPositionChange() {
-        if scrollPosition != post.id {
-            pauseAllVideos()
-        } else {
-            handleIndexChange(currentIndex)
+            if scrollPosition != post.id {
+                pauseAllVideos()
+            } else {
+                handleIndexChange(currentIndex)
+            }
         }
-    }
 
     private func handlePauseVideoChange(_ newValue: Bool) {
         if newValue {
@@ -689,19 +724,26 @@ struct WrittenFeedCell: View {
             didLike ? await viewModel.unlike(post) : await viewModel.like(post)
         }
     }
-
     private func handleIndexChange(_ index: Int) {
-        pauseAllVideos()
-        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-            let mediaItem = mixedMediaUrls[index]
-            if mediaItem.type == .video {
-                currentlyPlayingVideoId = mediaItem.id
-                playVideo(id: mediaItem.id)
-            } else {
-                currentlyPlayingVideoId = nil
-            }
-        }
-    }
+           pauseAllVideos()
+           if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
+               if index >= 0 && index < mixedMediaUrls.count {
+                   let mediaItem = mixedMediaUrls[index]
+                   if mediaItem.type == .video {
+                       currentlyPlayingVideoId = mediaItem.id
+                       playVideo(id: mediaItem.id)
+                   } else {
+                       currentlyPlayingVideoId = nil
+                   }
+               }
+           } else if post.mediaType == .video && index == 0 {
+               if let firstVideoId = videoCoordinators.first?.0 {
+                   currentlyPlayingVideoId = firstVideoId
+                   playVideo(id: firstVideoId)
+               }
+           }
+       }
+
 
     private func playVideoForCurrentIndex(_ index: Int) {
         if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
