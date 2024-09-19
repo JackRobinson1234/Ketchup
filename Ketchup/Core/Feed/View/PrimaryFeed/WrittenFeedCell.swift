@@ -402,6 +402,7 @@ struct WrittenFeedCell: View {
                         }
                     }
                 }
+                .padding(.horizontal)
                 .padding(.top, 5)
             }
 

@@ -40,7 +40,7 @@ struct PrimaryFeedView: View {
     @State var showPostSuccess = false
     @State private var newPostsCount: Int = 0
     @State private var scrollOffset: CGFloat = 0
-
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -90,15 +90,27 @@ struct PrimaryFeedView: View {
                                 if viewModel.isInitialLoading {
                                     FastCrossfadeFoodImageView()
                                 } else {
-                                    ForEach($viewModel.posts) { post in
-                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                                    ForEach($viewModel.posts) { $post in
+                                        WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                             .id(post.id)
-                                        
+                                            .onAppear {
+                                                // Update scrollPosition when this cell appears
+                                                scrollPosition = post.id
+                                                // Trigger pagination when reaching near the end
+                                                if let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                                                    if index >= viewModel.posts.count - 5 {
+                                                        Task {
+                                                            await viewModel.loadMoreContentIfNeeded(currentPost: post.id)
+                                                        }
+                                                    }
+                                                }
+                                            }
                                     }
                                     if viewModel.isLoadingMoreContent {
                                         FastCrossfadeFoodImageView()
                                             .padding()
                                     }
+                                    // Optional: A clear rectangle to detect when the user has scrolled to the bottom
                                     Rectangle()
                                         .foregroundStyle(.clear)
                                         .onAppear {
@@ -107,17 +119,17 @@ struct PrimaryFeedView: View {
                                                     await viewModel.loadMoreContentIfNeeded(currentPost: last.id)
                                                 }
                                             }
-                                    }
+                                        }
                                 }
                             }
                             .edgesIgnoringSafeArea(.top)
-                            //.scrollTargetLayout()
+                            .padding(.top, 140)
                         }
                         .refreshable {
                             await refreshFeed()
                         }
-                        .onAppear{
-                            if viewModel.showPostAlert{
+                        .onAppear {
+                            if viewModel.showPostAlert {
                                 withAnimation(.easeInOut(duration: 1.0)) {
                                     showPostSuccess = true
                                     viewModel.showPostAlert = false
@@ -125,23 +137,20 @@ struct PrimaryFeedView: View {
                                 triggerHapticFeedback()
                             }
                         }
-                        //.safeAreaPadding(.top, 170)
-                        //.transition(.slide)
-                        //.scrollPosition(id: $scrollPosition)
-                        .onChange(of: viewModel.initialPrimaryScrollPosition) {newValue in
-                            scrollPosition = viewModel.initialPrimaryScrollPosition
-                            scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
-                            
+                        .onChange(of: viewModel.initialPrimaryScrollPosition) { newValue in
+                            if let newPosition = newValue {
+                                scrollProxy.scrollTo(newPosition, anchor: .center)
+                            }
                         }
-                        .onChange(of: tabBarController.scrollToTop){ newValue in
+                        .onChange(of: tabBarController.scrollToTop) { _ in
                             if let post = viewModel.posts.first {
                                 withAnimation(.smooth) {
                                     scrollProxy.scrollTo(post.id, anchor: .center)
                                 }
                             }
                         }
-                        .onChange(of: viewModel.isInitialLoading){newValue in
-                            if !viewModel.isInitialLoading{
+                        .onChange(of: viewModel.isInitialLoading) { newValue in
+                            if !viewModel.isInitialLoading {
                                 if let post = viewModel.posts.first {
                                     withAnimation(.smooth) {
                                         scrollProxy.scrollTo(post.id, anchor: .center)
@@ -152,6 +161,7 @@ struct PrimaryFeedView: View {
                     }
                     .background(.white)
                     
+                    // Top bar and other UI components
                     Rectangle()
                         .fill(Color.white)
                         .frame(height: topBarHeight)
@@ -162,10 +172,9 @@ struct PrimaryFeedView: View {
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
                     
-                    
-                    VStack(spacing: 5){
+                    VStack(spacing: 5) {
                         HStack(spacing: 0) {
-                            Button{
+                            Button {
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
@@ -202,61 +211,32 @@ struct PrimaryFeedView: View {
                                 .minimumScaleFactor(0.5)
                                 .padding(.trailing, 20)
                             }
-//                            Rectangle()
-//                                .foregroundStyle(.clear)
-//                                .frame(width: 100, height: 1)
-//                            Button {
-//                                showFilters.toggle()
-//                            } label: {
-//                                VStack{
-//                                    ZStack {
-//                                        
-//                                        Image(systemName: "slider.horizontal.3")
-//                                            .imageScale(.large)
-//                                            .shadow(radius: 4)
-//                                            .font(.system(size: 23))
-//                                        if filtersViewModel.hasNonLocationFilters {
-//                                            Circle()
-//                                                .fill(Color("Colors/AccentColor"))
-//                                                .frame(width: 12, height: 12)
-//                                                .offset(x: 12, y: 12)
-//                                        }
-//                                        
-//                                    }
-//                                    Text("Filters")
-//                                        .foregroundStyle(.gray)
-//                                    
-//                                        .font(.custom("MuseoSansRounded-500", size: 10))
-//                                }
-//                                .frame(width: 60)
-//                            }
                         }
                         .frame(maxWidth: .infinity)
-                        
                         .foregroundStyle(.black)
-                        if !hideTopUI{
-
                         
-                        // Search bar button
-                        Button(action: {
-                            showSearchView.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.black)
-                                Text("Search restaurants, sushi, users, etc.")
-                                    .font(.custom("MuseoSansRounded-500", size: 14))
-                                    .foregroundColor(.gray)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.5)
-                                Spacer()
+                        if !hideTopUI {
+                            // Search bar button
+                            Button(action: {
+                                showSearchView.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundColor(.black)
+                                    Text("Search restaurants, sushi, users, etc.")
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.5)
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                .padding(.horizontal)
+                                .padding(.top, 4)
                             }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                            .padding(.top, 4)
-                        }
+                            
                             Button {
                                 pauseVideo = true
                                 showFilters.toggle()
@@ -279,43 +259,23 @@ struct PrimaryFeedView: View {
                                         }
                                         .padding(.leading, 1)
                                     }
-                                        
                                 }
                                 .padding(.vertical, 2)
                                 .padding(.horizontal)
                             }
-//
-//                                                    ScrollView(.horizontal, showsIndicators: false) {
-//                                                        HStack(spacing: 8) {
-//                                                            ForEach(["Filter Cuisine", "Filter Price"], id: \.self) { filter in
-//                                                                Text(filter)
-//                                                                    .font(.custom("MuseoSansRounded-300", size: 12))
-//                                                                    .foregroundColor(.black)
-//                                                                    .padding(.horizontal, 12)
-//                                                                    .padding(.vertical, 6)
-//                                                                    
-//                                                                    .overlay(
-//                                                                        RoundedRectangle(cornerRadius: 20)
-//                                                                            .stroke( Color("Colors/AccentColor"), lineWidth: 1)
-//                                                                    )
-//                                                                    .cornerRadius(16)
-//                                                                
-//                                                            }
-//                                                        }
-//                                                        .padding(.horizontal)
-//                                                    }
+                            
                             HStack(spacing: 40) {
                                 HStack(spacing: 2) {
                                     if newPostsCount > 0 && viewModel.selectedTab == .discover {
-                                           ZStack {
-                                               Circle()
-                                                   .fill(Color("Colors/AccentColor"))
-                                                   .frame(width: 20, height: 20)
-                                               Text("\(newPostsCount)")
-                                                   .font(.custom("MuseoSansRounded-500", size: 10))
-                                                   .foregroundColor(.white)
-                                           }
-                                       }
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color("Colors/AccentColor"))
+                                                .frame(width: 20, height: 20)
+                                            Text("\(newPostsCount)")
+                                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
                                     Button {
                                         newPostsCount = 0
                                         if canSwitchTab {
@@ -333,7 +293,6 @@ struct PrimaryFeedView: View {
                                         Text("Following")
                                             .font(.custom("MuseoSansRounded-500", size: 18))
                                             .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                            
                                             .overlay(
                                                 Rectangle()
                                                     .frame(height: 2)
@@ -342,7 +301,6 @@ struct PrimaryFeedView: View {
                                             )
                                     }
                                     .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                   
                                 }
                                 Button {
                                     if canSwitchTab {
@@ -360,7 +318,6 @@ struct PrimaryFeedView: View {
                                     Text("Discover")
                                         .font(.custom("MuseoSansRounded-500", size: 18))
                                         .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                       
                                         .overlay(
                                             Rectangle()
                                                 .frame(height: 2)
@@ -371,21 +328,16 @@ struct PrimaryFeedView: View {
                                 .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                             }
                             .padding(.bottom, 6)
-                           
                         }
                     }
-                }
-                .onAppear{
-                    
                 }
                 .overlay {
-                    if viewModel.showEmptyView {
-                        VStack{
-                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
-                                .foregroundStyle(Color("Colors/AccentColor"))
-                            
-                        }
-                    }
+                    //                    if viewModel.showEmptyView {
+                    //                        VStack {
+                    //                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
+                    //                                .foregroundStyle(Color("Colors/AccentColor"))
+                    //                        }
+                    //                    }
                     
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
@@ -397,19 +349,6 @@ struct PrimaryFeedView: View {
                             }
                     }
                 }
-//                .onChange(of: scrollPosition) { oldPostId, newPostId in
-//                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-//                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-//                        if newIndex > oldIndex {
-//                            Task {
-//                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-//                            }
-//                            viewModel.updateCache(scrollPosition: newPostId)
-//                            
-//                        } else {
-//                        }
-//                    }
-//                }
                 .onChange(of: showSearchView) { newValue in
                     pauseVideo = newValue
                 }
@@ -423,7 +362,6 @@ struct PrimaryFeedView: View {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
                         SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
@@ -449,12 +387,14 @@ struct PrimaryFeedView: View {
                     ContactsView()
                 }
                 .onAppear {
-                    print(hashPhoneNumber("+1234567890"))
                     checkContactsPermissionAndSync()
                 }
             }
         }
     }
+    
+    // MARK: - Helper Functions
+    
     private func checkContactsPermissionAndSync() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         if authorizationStatus == .denied || authorizationStatus == .restricted {
@@ -480,12 +420,13 @@ struct PrimaryFeedView: View {
             }
         }
     }
+    
     private func refreshFeed() async {
         isRefreshing = true
         do {
             try await viewModel.fetchInitialPosts()
         } catch {
-            //print("Error refreshing: \(error)")
+            // Handle error
         }
         isRefreshing = false
     }
@@ -497,28 +438,27 @@ struct PrimaryFeedView: View {
                 // Scrolling up
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
-                    
                     topBarHeight = 210
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = true
-                    
-                    
                     topBarHeight = 85
                 }
             }
             lastScrollOffset = scrollOffset
         }
     }
+    
     private func hashPhoneNumber(_ phoneNumber: String) -> String {
-            let inputData = Data(phoneNumber.utf8)
-            let hashed = SHA256.hash(data: inputData)
-            return hashed.compactMap { String(format: "%02x", $0) }.joined()
-        }
+        let inputData = Data(phoneNumber.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
+    }
+    
     private func updateNewPostsCount() {
-        if let userSession = AuthService.shared.userSession{
+        if let userSession = AuthService.shared.userSession {
             if userSession.followingPosts > 0 {
                 newPostsCount = userSession.followingPosts
             }
@@ -572,7 +512,7 @@ extension Color {
 //struct ConditionalSafeAreaPadding: ViewModifier {
 //    var condition: Bool
 //    var padding: CGFloat
-//    
+//
 //    func body(content: Content) -> some View {
 //        if condition {
 //            content.safeAreaPadding(.vertical, padding)

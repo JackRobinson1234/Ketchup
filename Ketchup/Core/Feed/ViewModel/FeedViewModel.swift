@@ -69,7 +69,7 @@ class FeedViewModel: ObservableObject {
                 isInitialLoading = true
                 await handleTabChange()
                 isInitialLoading = false
-                await resetNewPostsCount()
+                resetNewPostsCount()
                 
             }
         }
