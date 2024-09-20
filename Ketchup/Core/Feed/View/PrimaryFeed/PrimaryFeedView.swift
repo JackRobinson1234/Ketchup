@@ -123,7 +123,7 @@ struct PrimaryFeedView: View {
                                 }
                             }
                             .edgesIgnoringSafeArea(.top)
-                            .padding(.top, 140)
+                            .padding(.top, 150)
                         }
                         .refreshable {
                             await refreshFeed()

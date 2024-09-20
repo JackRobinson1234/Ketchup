@@ -32,6 +32,7 @@ struct FeedCell: View {
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
+    @Binding var secondaryFeedIsLoading: Bool
     @State private var showingOptionsSheet = false
     @State private var currentImageIndex =  0
     @State var isDragging = false
@@ -51,6 +52,7 @@ struct FeedCell: View {
     var checkLikes: Bool
     @State private var selectedUser: PostUser?
     @State private var isShowingProfileSheet = false
+    
     var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
         guard !ratings.isEmpty else { return nil }
@@ -62,6 +64,7 @@ struct FeedCell: View {
     }
     
     init(post: Binding<Post>,
+         secondaryFeedIsLoading: Binding<Bool>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
          pauseVideo: Binding<Bool>,
@@ -69,6 +72,7 @@ struct FeedCell: View {
          checkLikes: Bool = false) {
         
         self._post = post
+        self._secondaryFeedIsLoading = secondaryFeedIsLoading
         self.viewModel = viewModel
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
@@ -85,15 +89,10 @@ struct FeedCell: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    if self.currentImageIndex > 0 {
-                        withAnimation(.easeInOut) {
-                            self.currentImageIndex -= 1
-                        }
-                    } else {
-                        viewModel.initialPrimaryScrollPosition = scrollPosition
-                        dismiss()
+                    viewModel.initialPrimaryScrollPosition = scrollPosition
+                    dismiss()
                     }
-                } else {
+                 else {
                     self.dragDirection = "right"
                 }
                 self.isDragging = false
@@ -102,11 +101,11 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            
             VStack() {
                 Spacer()
                 if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                    
+                    var startingImageIndex = 0
+                   
                         CustomHorizontalScrollView(
                             content: {
                                 HStack(spacing: 0) {
@@ -118,13 +117,18 @@ struct FeedCell: View {
                             currentIndex: $currentIndex,
                             itemCount: mixedMediaUrls.count,
                             itemWidth: mediaWidth,
-                            initialIndex: viewModel.startingImageIndex,
+                            initialIndex:  viewModel.startingImageIndex,
                             onDismiss: {
                                 viewModel.initialPrimaryScrollPosition = scrollPosition
                                 dismiss()
                             }
                         )
-                        .onAppear { viewModel.startingImageIndex = 0 }
+                        
+                        //
+                        .onAppear {  if post.id == viewModel.startingPostId{
+                            viewModel.startingImageIndex = 0
+                        }
+                        }
                         .frame(height: mediaHeight)
                         .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
                         }
@@ -154,7 +158,7 @@ struct FeedCell: View {
         .onTapGesture {
             toggleVideoPlayback()
         }
-        .onChange(of: currentlyPlayingVideoId) { newValue in
+        .onChange(of: currentlyPlayingVideoId) {newValue in
             if let newValue = newValue,
                let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
                 pauseAllVideos()
@@ -224,7 +228,7 @@ struct FeedCell: View {
                     handleIndexChange(currentIndex)
                 }
         }
-        .onChange(of: currentIndex) {newValue in
+        .onChange(of: currentIndex) { newValue in
             handleIndexChange(newValue)
         }
         .overlay(
