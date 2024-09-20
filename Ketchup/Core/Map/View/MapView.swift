@@ -88,10 +88,16 @@ struct MapView: View {
                 GroupedPostClusterListView(groupedPosts: cluster.memberAnnotations)
             }
             .sheet(item: $selectedRestaurant) { annotation in
-                            NavigationView {
-                                RestaurantProfileView(restaurantId: annotation.restaurant.id)
-                            }
-                        }
+                NavigationView {
+                    RestaurantProfileView(restaurantId: annotation.restaurant.id)
+                }
+            }
+
+            .sheet(item: $selectedGroupedPost) { groupedPost in
+                NavigationView {
+                    RestaurantProfileView(restaurantId: groupedPost.restaurant.id)
+                }
+            }
                         .sheet(isPresented: .constant(!selectedClusterAnnotations.isEmpty)) {
                             NavigationView {
                                 ClusterRestaurantListView(restaurants: selectedClusterAnnotations.map { $0.restaurant })
@@ -114,6 +120,27 @@ struct MapView: View {
                     }
                 }
             }
+            .overlay(
+                Group {
+                    if showFollowingPosts {
+                        if followingViewModel.currentZoomLevel == .maxZoomOut {
+                            Text("Zoom in to see posts")
+                                .modifier(OverlayModifier())
+                        } else if noNearbyRestaurants {
+                            Text("No posts found nearby")
+                                .modifier(OverlayModifier())
+                        }
+                    } else {
+                        if viewModel.currentZoomLevel == .maxZoomOut {
+                            Text("Zoom in to see restaurants")
+                                .modifier(OverlayModifier())
+                        } else if noNearbyRestaurants {
+                            Text("No restaurants found nearby")
+                                .modifier(OverlayModifier())
+                        }
+                    }
+                }
+            )
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Location Permission Required"),
@@ -226,7 +253,7 @@ struct MapView: View {
                     }
                 }
                 .padding(.horizontal, 25)
-                .padding(.top, 60)
+                .padding(.top, 30)
                 Spacer()
             } else {
                 VStack {
@@ -371,7 +398,6 @@ struct UIKitMapView: UIViewRepresentable {
                 } else {
                     annotationView?.annotation = annotation
                 }
-                annotationView?.clusteringIdentifier = "restaurant"
                 return annotationView
             } else if let clusterAnnotation = annotation as? ExampleClusterAnnotation {
                 let identifier = ClusterAnnotationView.identifier
@@ -415,11 +441,12 @@ struct UIKitMapView: UIViewRepresentable {
 
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let restaurantAnnotation = view.annotation as? RestaurantMapAnnotation {
-                mapView.deselectAnnotation(restaurantAnnotation, animated: false)
-                DispatchQueue.main.async {
-                    self.parent.selectedRestaurant = restaurantAnnotation
-                }
-            } else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
+                   mapView.deselectAnnotation(restaurantAnnotation, animated: false)
+                   DispatchQueue.main.async {
+                       self.parent.selectedRestaurant = restaurantAnnotation
+                   }
+               }
+            else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
                 mapView.deselectAnnotation(clusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedCluster = clusterAnnotation
@@ -432,7 +459,7 @@ struct UIKitMapView: UIViewRepresentable {
                 DispatchQueue.main.async {
                     self.parent.selectedGroupedPost = groupedPostAnnotation
                 }
-            } else if let groupedClusterAnnotation = view.annotation as? GroupedPostClusterAnnotation {
+            }else if let groupedClusterAnnotation = view.annotation as? GroupedPostClusterAnnotation {
                 mapView.deselectAnnotation(groupedClusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedFollowingCluster = groupedClusterAnnotation
@@ -558,6 +585,16 @@ struct GroupedPostClusterListView: View {
 }
 class RestaurantAnnotationView: MKAnnotationView {
     static let identifier = "RestaurantAnnotationView"
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        self.isUserInteractionEnabled = true
+        canShowCallout = false
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private var hostingController: UIHostingController<RestaurantAnnotationContentView>?
     
@@ -571,19 +608,21 @@ class RestaurantAnnotationView: MKAnnotationView {
     private func configure(with annotation: RestaurantMapAnnotation) {
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
-        
+
         let restaurantView = RestaurantAnnotationContentView(
             imageUrl: annotation.restaurant.profileImageUrl,
             color: Color("Colors/AccentColor"),
             size: .medium,
             name: annotation.restaurant.name
         )
-        
+
         let hostingController = UIHostingController(rootView: restaurantView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         hostingController.view.backgroundColor = .clear
+        hostingController.view.isUserInteractionEnabled = false // Add this line
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
+
         
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: self.topAnchor),
@@ -595,6 +634,7 @@ class RestaurantAnnotationView: MKAnnotationView {
         ])
     }
 }
+
 struct ClusterCell: View {
     var count: Int
     
@@ -663,7 +703,7 @@ struct RestaurantAnnotationContentView: View {
         VStack(spacing: 4) {
             RestaurantCircularProfileImageView(imageUrl: imageUrl, color: color, size: size)
             Text(name)
-                .font(.caption2)
+                .font(.headline) // Increased from .caption2 to .headline
                 .foregroundColor(.black)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
@@ -707,6 +747,16 @@ class LargeClusterAnnotationView: MKAnnotationView {
 class GroupedPostAnnotationView: MKAnnotationView {
     static let identifier = "GroupedPostAnnotationView"
 
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        self.isUserInteractionEnabled = true
+        canShowCallout = false
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     private var hostingController: UIHostingController<GroupedPostAnnotationContentView>?
 
     override var annotation: MKAnnotation? {
@@ -724,6 +774,8 @@ class GroupedPostAnnotationView: MKAnnotationView {
 
         let hostingController = UIHostingController(rootView: groupedPostView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.isUserInteractionEnabled = false // Add this line
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
 
@@ -842,6 +894,12 @@ struct GroupedPostAnnotationContentView: View {
                     .padding(.bottom, -8) // Shift it slightly lower
                 }
             }
+            Text(groupedPost.restaurant.name)
+                           .font(.headline)
+                           .foregroundColor(.black)
+                           .lineLimit(1)
+                           .minimumScaleFactor(0.5)
+                           .frame(width: 70)
         }
         .padding(.bottom,5)
     }
