@@ -16,7 +16,7 @@ import SwiftUI
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, bookmarks, collections, map
+    case posts, bookmarks, collections, map, badges
 }
 
 enum PostDisplayMode: String, CaseIterable {
@@ -95,6 +95,19 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .bookmarks))
                     .frame(maxWidth: .infinity)
+                
+                // Add Badges Icon
+                Image(systemName: viewModel.profileSection == .badges ? "trophy.fill" : "trophy")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 45, height: 20)
+                    .onTapGesture {
+                        withAnimation {
+                            self.viewModel.profileSection = .badges
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .badges))
+                    .frame(maxWidth: .infinity)
             }
             .padding()
             .padding(.bottom, 16)
@@ -102,15 +115,13 @@ struct ProfileSlideBar: View {
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
                 VStack {
-                   
                     if isKetchupMediaUser {
                         Text("This user has too many posts to view")
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
-                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
-                        
+                        PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
                     }
                 }
             }
@@ -128,6 +139,13 @@ struct ProfileSlideBar: View {
             if viewModel.profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }
+
+            // Add BadgeListView when badges are selected
+            if viewModel.profileSection == .badges {
+                
+                ProfileBadgeView(user: viewModel.user)
+            }
         }
     }
 }
+

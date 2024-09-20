@@ -1,13 +1,7 @@
-//
-//  User.swift
-//  Foodi
-//
-//  Created by Jack Robinson on 2/1/24.
-//
-
 import FirebaseAuth
 import FirebaseFirestoreInternal
 import Firebase
+
 struct User: Codable, Identifiable, Hashable {
     let id: String
     var username: String
@@ -24,13 +18,14 @@ struct User: Codable, Identifiable, Hashable {
     var hasCompletedSetup: Bool = false
     var createdAt: Date?
     var lastActive: Date?
-    var hasContactsSynced: Bool = false // New property
+    var hasContactsSynced: Bool = false
+
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced  // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -134,6 +129,23 @@ struct User: Codable, Identifiable, Hashable {
         // Encode new hasContactsSynced property
         try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
     }
+    
+    // Add a method to fetch badges from Firestore sub-collection
+        func fetchBadges(completion: @escaping ([Badge]) -> Void) {
+            let db = Firestore.firestore()
+            let badgesRef = db.collection("users").document(self.id).collection("user-badges")
+
+            badgesRef.getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents, error == nil else {
+                    completion([])  // Return an empty array if there's an error
+                    return
+                }
+                let badges = documents.compactMap { doc -> Badge? in
+                    try? doc.data(as: Badge.self)
+                }
+                completion(badges)
+            }
+        }
 }
 
 // Other structs remain unchanged
