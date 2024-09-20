@@ -42,28 +42,28 @@ struct MainTabView: View {
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-//            if #available(iOS 17, *) {
-//                MapView()
-//                    .tabItem {
-//                        VStack(spacing:1){
-//                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-//                                .foregroundStyle(.black)
-//                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-//                                .padding()
-//                            Text("Map")
-//                                .font(.custom("MuseoSansRounded-500", size: 8))
-//                                .foregroundStyle(.gray)
-//                        }
-//                    }
-//                
-//                    .onAppear {
-//                        tabBarController.selectedTab = 1
-//                        tabBarController.visibility = .visible
-//                    }
-//                    .tag(1)
-//                    .toolbarBackground(.visible, for: .tabBar)
-//                    .toolbar(tabBarController.visibility, for: .tabBar)
-//            }
+           
+                Ios16MapView()
+                    .tabItem {
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                                .foregroundStyle(.black)
+                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+                                .padding()
+                            Text("Map")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                
+                    .onAppear {
+                        tabBarController.selectedTab = 1
+                        tabBarController.visibility = .visible
+                    }
+                    .tag(1)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .toolbar(tabBarController.visibility, for: .tabBar)
+            
             UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")

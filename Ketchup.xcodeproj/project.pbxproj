@@ -209,6 +209,7 @@
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
 		F8B1B1282C7F8AF40035842E /* CollectionInviteUserList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */; };
 		F8B1B12B2C80CF960035842E /* CollectionInvitesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B1B12A2C80CF960035842E /* CollectionInvitesView.swift */; };
+		F8B5CF392C9DE94D001C9433 /* Ios16mapview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */; };
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
 		F8B69F1E2C6C66800084AE68 /* LocationSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */; };
 		F8B69F222C6D4E0F0084AE68 /* BirthdaySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */; };
@@ -512,6 +513,7 @@
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
 		F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionInviteUserList.swift; sourceTree = "<group>"; };
 		F8B1B12A2C80CF960035842E /* CollectionInvitesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionInvitesView.swift; sourceTree = "<group>"; };
+		F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ios16mapview.swift; sourceTree = "<group>"; };
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelectorView.swift; sourceTree = "<group>"; };
 		F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySelectorView.swift; sourceTree = "<group>"; };
@@ -1149,6 +1151,7 @@
 				F846F4702BFF97A9009D1303 /* ClusterCell.swift */,
 				F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */,
 				F8DA34562C87684700660978 /* PostAnnotationViews.swift */,
+				F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2035,6 +2038,7 @@
 				F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */,
+				F8B5CF392C9DE94D001C9433 /* Ios16mapview.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */,
 				F8973A062C99EE8300973D76 /* RestaurantClusterMapView.swift in Sources */,
