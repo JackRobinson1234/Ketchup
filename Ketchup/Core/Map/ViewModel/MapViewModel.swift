@@ -138,27 +138,19 @@ class MapViewModel: ObservableObject {
         if zoomLevel == .neighborhood || zoomLevel == .city {
             // Show individual restaurants
             visibleRestaurants = allClusters.flatMap { $0.restaurants }
-            clusters = []
             largeClusters = []
         } else {
             // Show clusters
             visibleRestaurants = []
-            clusters = allClusters.map { cluster in
-                ExampleClusterAnnotation(
-                    id: UUID(),
+            largeClusters = allClusters.map { cluster in
+                LargeClusterAnnotation(
                     coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
                     count: cluster.count,
-                    memberAnnotations: cluster.restaurants.map {
-                        RestaurantMapAnnotation(
-                            coordinate: CLLocationCoordinate2D(latitude: $0.geoPoint.latitude, longitude: $0.geoPoint.longitude),
-                            restaurant: $0
-                        )
-                    }
+                    memberAnnotations: cluster.restaurants
                 )
             }
-            largeClusters = []
         }
-
+        
         updateAnnotations()
     }
     
@@ -167,7 +159,7 @@ class MapViewModel: ObservableObject {
             let coordinate = CLLocationCoordinate2D(latitude: restaurant.geoPoint.latitude, longitude: restaurant.geoPoint.longitude)
             return RestaurantMapAnnotation(coordinate: coordinate, restaurant: restaurant)
         }
-
+        
         Task {
             await clusterManager.removeAll()
             await clusterManager.add(restaurantAnnotations)

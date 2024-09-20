@@ -34,6 +34,7 @@ struct MapView: View {
     @State private var showMoveWarning = false
     @State private var showFollowingPosts = false
     @State private var selectedClusterAnnotations: [RestaurantMapAnnotation] = []
+    @State private var selectedLargeCluster: LargeClusterAnnotation?
 
     private var noNearbyRestaurants: Bool {
         if showFollowingPosts {
@@ -62,6 +63,7 @@ struct MapView: View {
                         selectedCluster: $selectedCluster,
                         selectedFollowingCluster: $selectedFollowingCluster,
                         selectedGroupedPost: $selectedGroupedPost,
+                        selectedLargeCluster: $selectedLargeCluster,
                         isLoading: $isLoading,
                         showAlert: $showAlert,
                         mapSize: geometryProxy.size
@@ -81,30 +83,41 @@ struct MapView: View {
                     }
                 }
             }
-            .sheet(item: $selectedCluster) { cluster in
+            .sheet(item: $selectedCluster, onDismiss: {
+                selectedCluster = nil
+            }) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
             }
             .sheet(item: $selectedFollowingCluster) { cluster in
                 GroupedPostClusterListView(groupedPosts: cluster.memberAnnotations)
             }
-            .sheet(item: $selectedRestaurant) { annotation in
-                NavigationView {
-                    RestaurantProfileView(restaurantId: annotation.restaurant.id)
-                }
+            .sheet(item: $selectedLargeCluster, onDismiss: {
+                selectedLargeCluster = nil
+            }) { cluster in
+                ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
             }
-
-            .sheet(item: $selectedGroupedPost) { groupedPost in
+            .sheet(item: $selectedGroupedPost, onDismiss: {
+                selectedGroupedPost = nil
+            }) { groupedPost in
+                // Present the view for the grouped post
                 NavigationView {
                     RestaurantProfileView(restaurantId: groupedPost.restaurant.id)
                 }
             }
-                        .sheet(isPresented: .constant(!selectedClusterAnnotations.isEmpty)) {
-                            NavigationView {
-                                ClusterRestaurantListView(restaurants: selectedClusterAnnotations.map { $0.restaurant })
-                                    .onDisappear {
-                                        selectedClusterAnnotations = []
-                                    }
-                            }
+            .sheet(item: $selectedRestaurant, onDismiss: {
+                selectedRestaurant = nil
+            }) { annotation in
+                NavigationView {
+                    RestaurantProfileView(restaurantId: annotation.restaurant.id)
+                }
+            }
+            .sheet(isPresented: .constant(!selectedClusterAnnotations.isEmpty)) {
+                NavigationView {
+                    ClusterRestaurantListView(restaurants: selectedClusterAnnotations.map { $0.restaurant })
+                        .onDisappear {
+                            selectedClusterAnnotations = []
+                        }
+                }
                         }
             .onAppear {
                 if !hasAppeared {
@@ -325,6 +338,7 @@ struct UIKitMapView: UIViewRepresentable {
     @Binding var selectedCluster: ExampleClusterAnnotation?
     @Binding var selectedFollowingCluster: GroupedPostClusterAnnotation?
     @Binding var selectedGroupedPost: GroupedPostMapAnnotation?
+    @Binding var selectedLargeCluster: LargeClusterAnnotation?
     @Binding var isLoading: Bool
     @Binding var showAlert: Bool
     var mapSize: CGSize
@@ -335,6 +349,8 @@ struct UIKitMapView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView(frame: .zero)
+        mapView.pointOfInterestFilter = .excludingAll
+
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
 
@@ -441,25 +457,26 @@ struct UIKitMapView: UIViewRepresentable {
 
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let restaurantAnnotation = view.annotation as? RestaurantMapAnnotation {
-                   mapView.deselectAnnotation(restaurantAnnotation, animated: false)
-                   DispatchQueue.main.async {
-                       self.parent.selectedRestaurant = restaurantAnnotation
-                   }
-               }
-            else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
+                mapView.deselectAnnotation(restaurantAnnotation, animated: false)
+                DispatchQueue.main.async {
+                    self.parent.selectedRestaurant = restaurantAnnotation
+                }
+            } else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
                 mapView.deselectAnnotation(clusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedCluster = clusterAnnotation
                 }
             } else if let largeClusterAnnotation = view.annotation as? LargeClusterAnnotation {
                 mapView.deselectAnnotation(largeClusterAnnotation, animated: false)
-                // Handle selection of large cluster
+                DispatchQueue.main.async {
+                            self.parent.selectedLargeCluster = largeClusterAnnotation
+                        }
             } else if let groupedPostAnnotation = view.annotation as? GroupedPostMapAnnotation {
                 mapView.deselectAnnotation(groupedPostAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedGroupedPost = groupedPostAnnotation
                 }
-            }else if let groupedClusterAnnotation = view.annotation as? GroupedPostClusterAnnotation {
+            } else if let groupedClusterAnnotation = view.annotation as? GroupedPostClusterAnnotation {
                 mapView.deselectAnnotation(groupedClusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedFollowingCluster = groupedClusterAnnotation
@@ -585,16 +602,6 @@ struct GroupedPostClusterListView: View {
 }
 class RestaurantAnnotationView: MKAnnotationView {
     static let identifier = "RestaurantAnnotationView"
-
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        self.isUserInteractionEnabled = true
-        canShowCallout = false
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     private var hostingController: UIHostingController<RestaurantAnnotationContentView>?
     
@@ -608,21 +615,19 @@ class RestaurantAnnotationView: MKAnnotationView {
     private func configure(with annotation: RestaurantMapAnnotation) {
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
-
+        
         let restaurantView = RestaurantAnnotationContentView(
             imageUrl: annotation.restaurant.profileImageUrl,
             color: Color("Colors/AccentColor"),
             size: .medium,
             name: annotation.restaurant.name
         )
-
+        
         let hostingController = UIHostingController(rootView: restaurantView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         hostingController.view.backgroundColor = .clear
-        hostingController.view.isUserInteractionEnabled = false // Add this line
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
-
         
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: self.topAnchor),
@@ -747,16 +752,6 @@ class LargeClusterAnnotationView: MKAnnotationView {
 class GroupedPostAnnotationView: MKAnnotationView {
     static let identifier = "GroupedPostAnnotationView"
 
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        self.isUserInteractionEnabled = true
-        canShowCallout = false
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     private var hostingController: UIHostingController<GroupedPostAnnotationContentView>?
 
     override var annotation: MKAnnotation? {
@@ -774,8 +769,6 @@ class GroupedPostAnnotationView: MKAnnotationView {
 
         let hostingController = UIHostingController(rootView: groupedPostView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        hostingController.view.backgroundColor = .clear
-        hostingController.view.isUserInteractionEnabled = false // Add this line
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
 
@@ -857,7 +850,7 @@ struct GroupedPostAnnotationContentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 6) {
             ZStack {
                 RestaurantCircularProfileImageView(imageUrl: groupedPost.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
                     .frame(width: 50, height: 50)
