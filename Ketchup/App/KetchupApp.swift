@@ -32,25 +32,25 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     private func setupNotifications(_ application: UIApplication) {
-            //print("Setting up notifications...")
-            UNUserNotificationCenter.current().delegate = self
-            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-            UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
-                if granted {
-                    //print("Notification authorization granted")
-                    DispatchQueue.main.async {
-                        //print("Registering for remote notifications...")
-                        application.registerForRemoteNotifications()
-                    }
-                } else {
-                    //print("Notification authorization denied")
-                    if let error = error {
-                        //print("Authorization error: \(error.localizedDescription)")
-                    }
+        //print("Setting up notifications...")
+        UNUserNotificationCenter.current().delegate = self
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+            if granted {
+                //print("Notification authorization granted")
+                DispatchQueue.main.async {
+                    //print("Registering for remote notifications...")
+                    application.registerForRemoteNotifications()
+                }
+            } else {
+                //print("Notification authorization denied")
+                if let error = error {
+                    //print("Authorization error: \(error.localizedDescription)")
                 }
             }
-        resetBadgeCount()
         }
+        resetBadgeCount()
+    }
     
     private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
@@ -94,13 +94,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication,
-                        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-           //print("Successfully registered for remote notifications with token:")
-           Messaging.messaging().apnsToken = deviceToken
-           Auth.auth().setAPNSToken(deviceToken, type: .prod)
-           //print("FETCHING FCM TOKEN")
-           fetchFCMToken()
-       }
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        //print("Successfully registered for remote notifications with token:")
+        Messaging.messaging().apnsToken = deviceToken
+        Auth.auth().setAPNSToken(deviceToken, type: .prod)
+        //print("FETCHING FCM TOKEN")
+        fetchFCMToken()
+    }
     
     func application(_ application: UIApplication,
                      configurationForConnecting connectingSceneSession: UISceneSession,

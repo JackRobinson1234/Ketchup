@@ -249,20 +249,40 @@ class FollowingPostsMapViewModel: ObservableObject {
         }
         //print("updatedFilters", filters)
     }
-   
+    
 }
-struct GroupedPostMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
+class GroupedPostMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
     var restaurant: PostRestaurant
     var postCount: Int
     var userCount: Int
     var posts: [SimplifiedPost]
-}
+    var title: String?
 
-struct GroupedPostClusterAnnotation: Identifiable {
-    var id = UUID()
+    init(coordinate: CLLocationCoordinate2D, restaurant: PostRestaurant, postCount: Int, userCount: Int, posts: [SimplifiedPost]) {
+        self.coordinate = coordinate
+        self.restaurant = restaurant
+        self.postCount = postCount
+        self.userCount = userCount
+        self.posts = posts
+        self.title = "\(restaurant.name) (\(postCount) posts)"
+        super.init()
+    }
+}
+class GroupedPostClusterAnnotation: NSObject, MKAnnotation, Identifiable {
+    let id: UUID
     var coordinate: CLLocationCoordinate2D
     var count: Int
     var memberAnnotations: [GroupedPostMapAnnotation]
+    var title: String?
+
+    init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [GroupedPostMapAnnotation]) {
+        self.id = id
+        self.coordinate = coordinate
+        self.count = count
+        self.memberAnnotations = memberAnnotations
+        self.title = "Cluster of \(count) Posts"
+        super.init()
+    }
 }

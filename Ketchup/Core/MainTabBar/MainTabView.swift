@@ -43,7 +43,7 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
            
-                Ios16MapView()
+               MapView()
                     .tabItem {
                         VStack(spacing:1){
                             Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")

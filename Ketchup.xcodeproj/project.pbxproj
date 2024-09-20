@@ -263,7 +263,6 @@
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
-		F8DA34572C87684700660978 /* PostAnnotationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34562C87684700660978 /* PostAnnotationViews.swift */; };
 		F8DA34592C877A7B00660978 /* SimplifiedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34582C877A7B00660978 /* SimplifiedPost.swift */; };
 		F8DA345B2C87935D00660978 /* MapUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA345A2C87935D00660978 /* MapUtils.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
@@ -559,7 +558,6 @@
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
-		F8DA34562C87684700660978 /* PostAnnotationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAnnotationViews.swift; sourceTree = "<group>"; };
 		F8DA34582C877A7B00660978 /* SimplifiedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPost.swift; sourceTree = "<group>"; };
 		F8DA345A2C87935D00660978 /* MapUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUtils.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
@@ -1150,7 +1148,6 @@
 				F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */,
 				F846F4702BFF97A9009D1303 /* ClusterCell.swift */,
 				F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */,
-				F8DA34562C87684700660978 /* PostAnnotationViews.swift */,
 				F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */,
 			);
 			path = View;
@@ -2163,7 +2160,6 @@
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
 				F8631E422BD883C700A48565 /* FacetsView.swift in Sources */,
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
-				F8DA34572C87684700660978 /* PostAnnotationViews.swift in Sources */,
 				F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */,
 				F8D62A282C92383E00E40B45 /* ActivityContactRow.swift in Sources */,
 				F87D33E82C7EA56500E5A962 /* PostUploadedSuccessView.swift in Sources */,

@@ -91,31 +91,29 @@ class MapViewModel: ObservableObject {
             }
         }
     }
-    
+    func centerMapOnLocation(location: CLLocation) {
+           let newRegion = MKCoordinateRegion(
+               center: location.coordinate,
+               span: currentRegion.span // Keep the current span to maintain zoom level
+           )
+           currentRegion = newRegion
+       }
     func fetchFilteredClusters(limit: Int = 0) async {
         do {
-            print("DEBUG: Starting fetchFilteredClusters with limit: \(limit)")
             isLoading = true
             await clusterManager.removeAll()
-            print("DEBUG: Removed all existing clusters")
             
             let radius = calculateRadius()
-            print("DEBUG: Calculated radius: \(radius)")
             updateFilters(radius: radius)
-            print("DEBUG: Updated filters: \(filters)")
             
             if currentZoomLevel == .maxZoomOut {
-                print("DEBUG: Current zoom level is maxZoomOut, removing annotations and returning")
                 await removeAnnotations()
                 isLoading = false
                 return
             }
             if determineZoomLevel(for: currentRegion) == .maxZoomOut {
-                print("DEBUG: Determined zoom level is maxZoomOut, returning")
                 return
             }
-            
-            print("DEBUG: Fetching clusters with center: \(currentRegion.center), radius: \(radius), zoomLevel: \(currentZoomLevel.rawValue)")
             let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
                 filters: self.filters,
                 center: self.currentRegion.center,
@@ -123,19 +121,15 @@ class MapViewModel: ObservableObject {
                 zoomLevel: currentZoomLevel.rawValue,
                 limit: limit
             )
-            print("DEBUG: Fetched \(fetchedClusters.count) clusters")
             
             await MainActor.run {
                 self.allClusters = fetchedClusters
-                print("DEBUG: Updated allClusters with \(self.allClusters.count) clusters")
                 updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
-                print("DEBUG: Updated visible data")
             }
             
             isLoading = false
-            print("DEBUG: Finished fetchFilteredClusters")
         } catch {
-            print("DEBUG: Failed to fetch clusters. Error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
             isLoading = false
         }
     }
@@ -208,29 +202,21 @@ class MapViewModel: ObservableObject {
         let mapHeight = mapSize.height
         let span = currentRegion.span
         
-        print("DEBUG: calculateRadius - mapSize: \(mapSize), span: \(span)")
-        
         // Calculate the diagonal distance of the visible map area in degrees
         let diagonalSpan = sqrt(pow(span.latitudeDelta, 2) + pow(span.longitudeDelta, 2))
-        print("DEBUG: calculateRadius - diagonalSpan: \(diagonalSpan)")
         
         // Convert the diagonal span to meters
         let metersPerDegree = 111319.9 // Approximate meters per degree at the equator
         let diagonalMeters = diagonalSpan * metersPerDegree
-        print("DEBUG: calculateRadius - diagonalMeters: \(diagonalMeters)")
         
         // Adjust the radius based on the map size and zoom level
         let baseRadius = diagonalMeters / 2
         let zoomFactor = max(mapWidth, mapHeight) / 1000 // Adjust this factor as needed
-        print("DEBUG: calculateRadius - baseRadius: \(baseRadius), zoomFactor: \(zoomFactor)")
         
         let adjustedRadius = baseRadius * zoomFactor
         
         // Clamp the radius to a reasonable range (e.g., between 500m and 50km)
-        let clampedRadius = min(max(adjustedRadius, 500), 5000) * 0.8
-        print("DEBUG: calculateRadius - adjustedRadius: \(adjustedRadius), clampedRadius: \(clampedRadius)")
-        
-        return clampedRadius
+        return min(max(adjustedRadius, 500), 5000) * 0.8
     }
     func reloadAnnotations() async {
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
@@ -270,6 +256,7 @@ class MapViewModel: ObservableObject {
                 annotations.append(newItem)
             case .cluster(let newItem):
                 clusters.append(ExampleClusterAnnotation(
+                    id: newItem.id,
                     coordinate: newItem.coordinate,
                     count: newItem.memberAnnotations.count,
                     memberAnnotations: newItem.memberAnnotations
@@ -295,38 +282,47 @@ class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, I
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
     let restaurant: ClusterRestaurant
+    var title: String?
 
     init(coordinate: CLLocationCoordinate2D, restaurant: ClusterRestaurant) {
         self.coordinate = coordinate
         self.restaurant = restaurant
+        self.title = restaurant.name
         super.init()
     }
 }
 
+// MARK: - ExampleClusterAnnotation
 class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
-    let id = UUID()
+    let id: UUID
     var coordinate: CLLocationCoordinate2D
     let count: Int
     let memberAnnotations: [RestaurantMapAnnotation]
+    var title: String?
 
-    init(coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
+    init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
+        self.id = id
         self.coordinate = coordinate
         self.count = count
         self.memberAnnotations = memberAnnotations
+        self.title = "Cluster of \(count) Restaurants"
         super.init()
     }
 }
 
+// MARK: - LargeClusterAnnotation
 class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
     let count: Int
     let memberAnnotations: [ClusterRestaurant]
+    var title: String? // Add this line
 
     init(coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [ClusterRestaurant]) {
         self.coordinate = coordinate
         self.count = count
         self.memberAnnotations = memberAnnotations
+        self.title = "Cluster of \(count) Restaurants" // Set an appropriate title
         super.init()
     }
 }
