@@ -8,23 +8,23 @@
 import SwiftUI
 import MapKit
 
-struct ClusterCell: View {
-    var cluster: ExampleClusterAnnotation
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 20, height: 20)
-                .overlay(
-                    Circle()
-                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
-                )
-            Text("\(cluster.count)")
-                .foregroundColor(.black)
-                .font(.custom("MuseoSansRounded-300", size: 10))
-        }
-    }
-}
+//struct ClusterCell: View {
+//    var cluster: ExampleClusterAnnotation
+//    var body: some View {
+//        ZStack {
+//            Circle()
+//                .fill(Color.white)
+//                .frame(width: 20, height: 20)
+//                .overlay(
+//                    Circle()
+//                        .stroke(Color("Colors/AccentColor"), lineWidth: 2)
+//                )
+//            Text("\(cluster.count)")
+//                .foregroundColor(.black)
+//                .font(.custom("MuseoSansRounded-300", size: 10))
+//        }
+//    }
+//}
 
 struct NewClusterCell: View {
     var cluster: LargeClusterAnnotation
