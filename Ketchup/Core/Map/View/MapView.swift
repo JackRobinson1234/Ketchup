@@ -432,7 +432,6 @@ struct UIKitMapView: UIViewRepresentable {
                 }
                 return annotationView
             } else if let clusterAnnotation = annotation as? ExampleClusterAnnotation {
-                print("SHOULD BE CREATING CLUSTER")
                 let identifier = ClusterAnnotationView.identifier
                 var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? ClusterAnnotationView
                 if annotationView == nil {
@@ -479,7 +478,6 @@ struct UIKitMapView: UIViewRepresentable {
                     self.parent.selectedRestaurant = restaurantAnnotation
                 }
             } else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
-                print(clusterAnnotation)
                 mapView.deselectAnnotation(clusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedCluster = clusterAnnotation
@@ -487,8 +485,8 @@ struct UIKitMapView: UIViewRepresentable {
             } else if let largeClusterAnnotation = view.annotation as? LargeClusterAnnotation {
                 mapView.deselectAnnotation(largeClusterAnnotation, animated: false)
                 DispatchQueue.main.async {
-                            self.parent.selectedLargeCluster = largeClusterAnnotation
-                        }
+                    self.parent.selectedLargeCluster = largeClusterAnnotation
+                }
             } else if let groupedPostAnnotation = view.annotation as? GroupedPostMapAnnotation {
                 mapView.deselectAnnotation(groupedPostAnnotation, animated: false)
                 DispatchQueue.main.async {
@@ -685,12 +683,13 @@ class ClusterAnnotationView: MKAnnotationView {
     
     override var annotation: MKAnnotation? {
         willSet {
-            guard let clusterAnnotation = newValue as? MKClusterAnnotation else { return }
+            guard let clusterAnnotation = newValue as? ExampleClusterAnnotation else { return }
             configure(with: clusterAnnotation)
         }
     }
     
-    private func configure(with cluster: MKClusterAnnotation) {
+    private func configure(with cluster: ExampleClusterAnnotation) {
+        print("SHOULD BE CONFIGURING CLUSTER")
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
         
