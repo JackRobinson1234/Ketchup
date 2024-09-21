@@ -353,10 +353,14 @@ struct UIKitMapView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView(frame: .zero)
-        mapView.pointOfInterestFilter = .excludingAll
-
-        mapView.delegate = context.coordinator
-        mapView.showsUserLocation = true
+            mapView.pointOfInterestFilter = .excludingAll
+            mapView.delegate = context.coordinator
+            mapView.showsUserLocation = true
+            // Set the mapSize here
+            DispatchQueue.main.async {
+                self.viewModel.mapSize = mapView.bounds.size
+                self.followingViewModel.mapSize = mapView.bounds.size
+            }
 
         // Register annotation views
         mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: RestaurantAnnotationView.identifier)
@@ -428,6 +432,7 @@ struct UIKitMapView: UIViewRepresentable {
                 }
                 return annotationView
             } else if let clusterAnnotation = annotation as? ExampleClusterAnnotation {
+                print("SHOULD BE CREATING CLUSTER")
                 let identifier = ClusterAnnotationView.identifier
                 var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? ClusterAnnotationView
                 if annotationView == nil {
@@ -474,6 +479,7 @@ struct UIKitMapView: UIViewRepresentable {
                     self.parent.selectedRestaurant = restaurantAnnotation
                 }
             } else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
+                print(clusterAnnotation)
                 mapView.deselectAnnotation(clusterAnnotation, animated: false)
                 DispatchQueue.main.async {
                     self.parent.selectedCluster = clusterAnnotation
@@ -649,8 +655,7 @@ class RestaurantAnnotationView: MKAnnotationView {
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.widthAnchor.constraint(equalToConstant: 70),
-            self.heightAnchor.constraint(equalToConstant: 80)
+            
         ])
     }
 }
@@ -698,7 +703,6 @@ class ClusterAnnotationView: MKAnnotationView {
         // Embed the SwiftUI view into the annotation view
         let hostingController = UIHostingController(rootView: clusterCell)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        hostingController.view.backgroundColor = .clear
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
         
@@ -708,8 +712,7 @@ class ClusterAnnotationView: MKAnnotationView {
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.widthAnchor.constraint(equalToConstant: 40),
-            self.heightAnchor.constraint(equalToConstant: 40)
+            
         ])
     }
 }
@@ -759,8 +762,7 @@ class LargeClusterAnnotationView: MKAnnotationView {
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.widthAnchor.constraint(equalToConstant: 50),
-            self.heightAnchor.constraint(equalToConstant: 50)
+           
         ])
     }
 }
@@ -792,8 +794,7 @@ class GroupedPostAnnotationView: MKAnnotationView {
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.widthAnchor.constraint(equalToConstant: 70),
-            self.heightAnchor.constraint(equalToConstant: 80)
+            
         ])
     }
 }
@@ -825,8 +826,7 @@ class GroupedPostClusterAnnotationView: MKAnnotationView {
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.widthAnchor.constraint(equalToConstant: 40),
-            self.heightAnchor.constraint(equalToConstant: 40)
+           
         ])
     }
 }

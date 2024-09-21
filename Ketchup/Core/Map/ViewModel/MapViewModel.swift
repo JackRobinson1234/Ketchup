@@ -263,6 +263,7 @@ class MapViewModel: ObservableObject {
                 ))
             }
         }
+        //print("Clusters", clusters)
     }
     
     func checkForNearbyRestaurants() async {
