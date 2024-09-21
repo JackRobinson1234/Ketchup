@@ -364,7 +364,7 @@ struct PrimaryFeedView: View {
                 .navigationBarHidden(true)
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
-                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
                     }
                 }
                 .sheet(isPresented: $showLocationFilter) {

@@ -36,7 +36,7 @@ struct MapView: View {
     @State private var selectedClusterAnnotations: [RestaurantMapAnnotation] = []
     @State private var selectedLargeCluster: LargeClusterAnnotation?
     @State var selectedLocation: CLLocationCoordinate2D?
-
+    
     private var noNearbyRestaurants: Bool {
         if showFollowingPosts {
             return followingViewModel.annotations.isEmpty && followingViewModel.clusters.isEmpty && !followingViewModel.isLoading
@@ -69,9 +69,9 @@ struct MapView: View {
                         showAlert: $showAlert,
                         mapSize: geometryProxy.size,
                         selectedLocation: $selectedLocation
-
+                        
                     )
-                                   .edgesIgnoringSafeArea(.all)
+                    .edgesIgnoringSafeArea(.all)
                 }
                 topRow
                 if (showFollowingPosts ? followingViewModel.isLoading : viewModel.isLoading) {
@@ -121,7 +121,7 @@ struct MapView: View {
                             selectedClusterAnnotations = []
                         }
                 }
-                        }
+            }
             .onAppear {
                 if !hasAppeared {
                     Task {
@@ -274,8 +274,8 @@ struct MapView: View {
             } else {
                 VStack {
                     Ios16MapSearchView(selectedLocation: $selectedLocation, inSearchView: $inSearchView)
-                                        .padding(32)
-                                        .padding(.top, 20)
+                        .padding(32)
+                        .padding(.top, 20)
                     Spacer()
                 }
             }
@@ -346,42 +346,42 @@ struct UIKitMapView: UIViewRepresentable {
     @Binding var showAlert: Bool
     var mapSize: CGSize
     @Binding var selectedLocation: CLLocationCoordinate2D?
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self, viewModel: viewModel, followingViewModel: followingViewModel)
     }
-
+    
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView(frame: .zero)
-            mapView.pointOfInterestFilter = .excludingAll
-            mapView.delegate = context.coordinator
-            mapView.showsUserLocation = true
-            // Set the mapSize here
-            DispatchQueue.main.async {
-                self.viewModel.mapSize = mapView.bounds.size
-                self.followingViewModel.mapSize = mapView.bounds.size
-            }
-
+        mapView.pointOfInterestFilter = .excludingAll
+        mapView.delegate = context.coordinator
+        mapView.showsUserLocation = true
+        // Set the mapSize here
+        DispatchQueue.main.async {
+            self.viewModel.mapSize = mapView.bounds.size
+            self.followingViewModel.mapSize = mapView.bounds.size
+        }
+        
         // Register annotation views
         mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: RestaurantAnnotationView.identifier)
         mapView.register(ClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: ClusterAnnotationView.identifier)
         mapView.register(LargeClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: LargeClusterAnnotationView.identifier)
         mapView.register(GroupedPostAnnotationView.self, forAnnotationViewWithReuseIdentifier: GroupedPostAnnotationView.identifier)
         mapView.register(GroupedPostClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: GroupedPostClusterAnnotationView.identifier)
-
+        
         return mapView
     }
-
+    
     func updateUIView(_ uiView: MKMapView, context: Context) {
         uiView.removeAnnotations(uiView.annotations)
         if let selectedLocation = selectedLocation {
-                    let coordinateRegion = MKCoordinateRegion(center: selectedLocation, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
-                    uiView.setRegion(coordinateRegion, animated: true)
-                    // After moving the map, set selectedLocation to nil so that we don't keep moving it
-                    DispatchQueue.main.async {
-                        self.selectedLocation = nil
-                    }
-                }
+            let coordinateRegion = MKCoordinateRegion(center: selectedLocation, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+            uiView.setRegion(coordinateRegion, animated: true)
+            // After moving the map, set selectedLocation to nil so that we don't keep moving it
+            DispatchQueue.main.async {
+                self.selectedLocation = nil
+            }
+        }
         if showFollowingPosts {
             uiView.addAnnotations(followingViewModel.annotations)
             uiView.addAnnotations(followingViewModel.clusters)
@@ -395,18 +395,18 @@ struct UIKitMapView: UIViewRepresentable {
             followingViewModel.mapSize = mapSize
         }
     }
-
+    
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: UIKitMapView
         var viewModel: MapViewModel
         var followingViewModel: FollowingPostsMapViewModel
-
+        
         init(_ parent: UIKitMapView, viewModel: MapViewModel, followingViewModel: FollowingPostsMapViewModel) {
             self.parent = parent
             self.viewModel = viewModel
             self.followingViewModel = followingViewModel
         }
-
+        
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
             let newRegion = mapView.region
             DispatchQueue.main.async { [weak self] in
@@ -420,7 +420,7 @@ struct UIKitMapView: UIViewRepresentable {
                 }
             }
         }
-
+        
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             if let restaurantAnnotation = annotation as? RestaurantMapAnnotation {
                 let identifier = RestaurantAnnotationView.identifier
@@ -470,7 +470,7 @@ struct UIKitMapView: UIViewRepresentable {
             }
             return nil
         }
-
+        
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let restaurantAnnotation = view.annotation as? RestaurantMapAnnotation {
                 mapView.deselectAnnotation(restaurantAnnotation, animated: false)
@@ -610,7 +610,7 @@ struct GroupedPostClusterListView: View {
                             Text("\(groupedPost.postCount) posts by \(groupedPost.userCount) users")
                                 .font(.custom("MuseoSansRounded-500", size: 16))
                                 .foregroundStyle(.black)
-
+                            
                         }
                     }
                 }
@@ -665,14 +665,14 @@ struct ClusterCell: View {
         ZStack {
             Circle()
                 .fill(Color.white)
-                .frame(width: 40, height: 40)
+                .frame(width: 24, height: 24)
                 .overlay(
                     Circle()
                         .stroke(Color("Colors/AccentColor"), lineWidth: 2)
                 )
             Text("\(count)")
                 .foregroundColor(.black)
-                .font(.custom("MuseoSansRounded-300", size: 14))
+                .font(.custom("MuseoSansRounded-300", size: 12))
         }
     }
 }
@@ -720,7 +720,7 @@ struct RestaurantAnnotationContentView: View {
     let color: Color
     let size: RestaurantImageSize
     let name: String
-
+    
     var body: some View {
         VStack(spacing: 4) {
             RestaurantCircularProfileImageView(imageUrl: imageUrl, color: color, size: size)
@@ -735,59 +735,59 @@ struct RestaurantAnnotationContentView: View {
 }
 class LargeClusterAnnotationView: MKAnnotationView {
     static let identifier = "LargeClusterAnnotationView"
-
+    
     private var hostingController: UIHostingController<ClusterCell>?
-
+    
     override var annotation: MKAnnotation? {
         willSet {
             guard let largeClusterAnnotation = newValue as? LargeClusterAnnotation else { return }
             configure(with: largeClusterAnnotation)
         }
     }
-
+    
     private func configure(with annotation: LargeClusterAnnotation) {
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
-
+        
         let clusterCell = ClusterCell(count: annotation.count)
-
+        
         let hostingController = UIHostingController(rootView: clusterCell)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
-
+        
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: self.topAnchor),
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-           
+            
         ])
     }
 }
 class GroupedPostAnnotationView: MKAnnotationView {
     static let identifier = "GroupedPostAnnotationView"
-
+    
     private var hostingController: UIHostingController<GroupedPostAnnotationContentView>?
-
+    
     override var annotation: MKAnnotation? {
         willSet {
             guard let groupedPostAnnotation = newValue as? GroupedPostMapAnnotation else { return }
             configure(with: groupedPostAnnotation)
         }
     }
-
+    
     private func configure(with annotation: GroupedPostMapAnnotation) {
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
-
+        
         let groupedPostView = GroupedPostAnnotationContentView(groupedPost: annotation)
-
+        
         let hostingController = UIHostingController(rootView: groupedPostView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
-
+        
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: self.topAnchor),
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
@@ -799,33 +799,33 @@ class GroupedPostAnnotationView: MKAnnotationView {
 }
 class GroupedPostClusterAnnotationView: MKAnnotationView {
     static let identifier = "GroupedPostClusterAnnotationView"
-
+    
     private var hostingController: UIHostingController<GroupedPostClusterCell>?
-
+    
     override var annotation: MKAnnotation? {
         willSet {
             guard let clusterAnnotation = newValue as? GroupedPostClusterAnnotation else { return }
             configure(with: clusterAnnotation)
         }
     }
-
+    
     private func configure(with cluster: GroupedPostClusterAnnotation) {
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
-
+        
         let clusterCell = GroupedPostClusterCell(cluster: cluster)
-
+        
         let hostingController = UIHostingController(rootView: clusterCell)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(hostingController.view)
         self.hostingController = hostingController
-
+        
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: self.topAnchor),
             hostingController.view.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-           
+            
         ])
     }
 }
@@ -848,21 +848,21 @@ struct GroupedPostClusterCell: View {
 }
 struct GroupedPostAnnotationContentView: View {
     let groupedPost: GroupedPostMapAnnotation
-
+    
     private func calculateOverallRating(for post: SimplifiedPost) -> Double? {
         let ratings = [post.serviceRating, post.atmosphereRating, post.valueRating, post.foodRating]
         let validRatings = ratings.compactMap { $0 }
         guard !validRatings.isEmpty else { return nil }
         return validRatings.reduce(0, +) / Double(validRatings.count)
     }
-
+    
     private var averageRating: String {
         let overallRatings = groupedPost.posts.compactMap { calculateOverallRating(for: $0) }
         guard !overallRatings.isEmpty else { return "N/A" }
         let average = overallRatings.reduce(0, +) / Double(overallRatings.count)
         return String(format: "%.1f", average)
     }
-
+    
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
@@ -902,11 +902,11 @@ struct GroupedPostAnnotationContentView: View {
                 }
             }
             Text(groupedPost.restaurant.name)
-                           .font(.headline)
-                           .foregroundColor(.black)
-                           .lineLimit(1)
-                           .minimumScaleFactor(0.5)
-                           .frame(width: 70)
+                .font(.headline)
+                .foregroundColor(.black)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .frame(width: 70)
         }
         .padding(.bottom,5)
     }

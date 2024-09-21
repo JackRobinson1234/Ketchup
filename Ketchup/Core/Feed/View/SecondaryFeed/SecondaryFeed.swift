@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SecondaryFeedView: View {
+struct IOS16SecondaryFeedView: View {
     @ObservedObject var viewModel: FeedViewModel
     @State var scrollPosition: String?
     @State private var showFilters = false
@@ -39,16 +39,18 @@ struct SecondaryFeedView: View {
                         LazyVStack(spacing: 0) {
                             ForEach($viewModel.posts) { post in
                                 if hasValidMedia(post.wrappedValue) {
-                                    FeedCell(post: post, secondaryFeedIsLoading: $isLoading, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
-                                        .id(post.id)
-                                        .frame(height: UIScreen.main.bounds.height)
-                                        .onAppear {
-                                            if scrollPosition != post.wrappedValue.id {
-                                                scrollPosition = post.wrappedValue.id
-                                                handleScrollPositionChange(newPostId: post.wrappedValue.id)
+                                    if viewModel.startingPostId == post.wrappedValue.id || viewModel.posts.count == 1 {
+                                        FeedCell(post: post, secondaryFeedIsLoading: $isLoading, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
+                                            .id(post.id)
+                                            .frame(height: UIScreen.main.bounds.height)
+                                            .onAppear {
+                                                if scrollPosition != post.wrappedValue.id {
+                                                    scrollPosition = post.wrappedValue.id
+                                                    handleScrollPositionChange(newPostId: post.wrappedValue.id)
+                                                }
                                             }
-                                        }
-                                        .opacity(isLoading ? 0 : 1)
+                                            .opacity(isLoading ? 0 : 1)
+                                    }
                                 }
                             }
                         }
@@ -85,12 +87,12 @@ struct SecondaryFeedView: View {
                     }
             }
         }
-        .onChange(of: scrollPosition) { newPostId in
-            print("SCROLL POSITION", scrollPosition)
-            if let newPostId{
-                handleScrollPositionChange(newPostId: newPostId)
-            }
-        }
+//        .onChange(of: scrollPosition) { newPostId in
+//            print("SCROLL POSITION", scrollPosition)
+//            if let newPostId{
+//                handleScrollPositionChange(newPostId: newPostId)
+//            }
+//        }
         .ignoresSafeArea()
         .navigationDestination(for: PostUser.self) { user in
             ProfileView(uid: user.id)

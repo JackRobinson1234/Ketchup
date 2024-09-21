@@ -291,7 +291,7 @@ struct PostLeaderboard: View {
     
     private func postDetailView(for post: Post) -> some View {
         NavigationStack {
-            SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Trending Posts", checkLikes: true)
+            IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Trending Posts", checkLikes: true)
         }
         .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
     }

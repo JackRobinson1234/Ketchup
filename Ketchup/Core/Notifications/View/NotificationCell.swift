@@ -358,7 +358,7 @@ struct NotificationCell: View {
                             }
                     }
                 } else {
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                    IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
                 }
             }
         }
