@@ -35,6 +35,7 @@ struct MapView: View {
     @State private var showFollowingPosts = false
     @State private var selectedClusterAnnotations: [RestaurantMapAnnotation] = []
     @State private var selectedLargeCluster: LargeClusterAnnotation?
+    @State var selectedLocation: CLLocationCoordinate2D?
 
     private var noNearbyRestaurants: Bool {
         if showFollowingPosts {
@@ -66,7 +67,9 @@ struct MapView: View {
                         selectedLargeCluster: $selectedLargeCluster,
                         isLoading: $isLoading,
                         showAlert: $showAlert,
-                        mapSize: geometryProxy.size
+                        mapSize: geometryProxy.size,
+                        selectedLocation: $selectedLocation
+
                     )
                                    .edgesIgnoringSafeArea(.all)
                 }
@@ -270,9 +273,9 @@ struct MapView: View {
                 Spacer()
             } else {
                 VStack {
-//                    MapSearchView(cameraPosition: .constant(MKCoordinateRegion()), inSearchView: $inSearchView)
-//                        .padding(32)
-//                        .padding(.top, 20)
+                    Ios16MapSearchView(selectedLocation: $selectedLocation, inSearchView: $inSearchView)
+                                        .padding(32)
+                                        .padding(.top, 20)
                     Spacer()
                 }
             }
@@ -342,6 +345,7 @@ struct UIKitMapView: UIViewRepresentable {
     @Binding var isLoading: Bool
     @Binding var showAlert: Bool
     var mapSize: CGSize
+    @Binding var selectedLocation: CLLocationCoordinate2D?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self, viewModel: viewModel, followingViewModel: followingViewModel)
@@ -366,6 +370,14 @@ struct UIKitMapView: UIViewRepresentable {
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
         uiView.removeAnnotations(uiView.annotations)
+        if let selectedLocation = selectedLocation {
+                    let coordinateRegion = MKCoordinateRegion(center: selectedLocation, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+                    uiView.setRegion(coordinateRegion, animated: true)
+                    // After moving the map, set selectedLocation to nil so that we don't keep moving it
+                    DispatchQueue.main.async {
+                        self.selectedLocation = nil
+                    }
+                }
         if showFollowingPosts {
             uiView.addAnnotations(followingViewModel.annotations)
             uiView.addAnnotations(followingViewModel.clusters)
@@ -588,10 +600,13 @@ struct GroupedPostClusterListView: View {
                         
                         VStack(alignment: .leading) {
                             Text(groupedPost.restaurant.name)
-                                .font(.headline)
+                                .font(.custom("MuseoSansRounded-500", size: 16))
+                                .lineLimit(2)
+                                .foregroundStyle(.black)
                             Text("\(groupedPost.postCount) posts by \(groupedPost.userCount) users")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .font(.custom("MuseoSansRounded-500", size: 16))
+                                .foregroundStyle(.black)
+
                         }
                     }
                 }

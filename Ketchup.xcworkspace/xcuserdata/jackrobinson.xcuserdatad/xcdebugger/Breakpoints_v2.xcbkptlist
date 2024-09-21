@@ -62,8 +62,8 @@
             filePath = "Ketchup/Core/Map/View/MapView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "603"
-            endingLineNumber = "603"
+            startingLineNumber = "618"
+            endingLineNumber = "618"
             landmarkName = "RestaurantAnnotationView"
             landmarkType = "3">
          </BreakpointContent>

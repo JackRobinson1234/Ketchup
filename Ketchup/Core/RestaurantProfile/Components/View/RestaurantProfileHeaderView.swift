@@ -388,6 +388,8 @@ struct RestaurantProfileHeaderView: View {
 //                    MapRestaurantProfileView(viewModel: viewModel)
 //                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
 //                }
+                Ios16MapRestaurantProfileView(viewModel: viewModel)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
             .sheet(isPresented: $showCollections) {
                 if let currentUser = AuthService.shared.userSession {
