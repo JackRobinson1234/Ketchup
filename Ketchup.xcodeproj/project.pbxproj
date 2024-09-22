@@ -189,6 +189,8 @@
 		F8973A062C99EE8300973D76 /* RestaurantClusterMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8973A052C99EE8300973D76 /* RestaurantClusterMapView.swift */; };
 		F89CFA8E2C21E6760003D449 /* CollectionRequestRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */; };
 		F89D42A32C9F2B380078D17A /* IOS16CollectionMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89D42A22C9F2B380078D17A /* IOS16CollectionMapView.swift */; };
+		F89D42A52C9F53450078D17A /* IOS16MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89D42A42C9F53450078D17A /* IOS16MapView.swift */; };
+		F89D42A72CA0746C0078D17A /* Ios16RestaurantClusterMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89D42A62CA0746C0078D17A /* Ios16RestaurantClusterMapView.swift */; };
 		F89DF2122C581F0200A90E0D /* UploadFlowRestaurantSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */; };
 		F89F28722BE3163C00E670E0 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28712BE3163C00E670E0 /* Activity.swift */; };
 		F89F28742BE3F4F300E670E0 /* ActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F89F28732BE3F4F300E670E0 /* ActivityCell.swift */; };
@@ -493,6 +495,8 @@
 		F8973A052C99EE8300973D76 /* RestaurantClusterMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantClusterMapView.swift; sourceTree = "<group>"; };
 		F89CFA8D2C21E6760003D449 /* CollectionRequestRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRequestRestaurantView.swift; sourceTree = "<group>"; };
 		F89D42A22C9F2B380078D17A /* IOS16CollectionMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOS16CollectionMapView.swift; sourceTree = "<group>"; };
+		F89D42A42C9F53450078D17A /* IOS16MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOS16MapView.swift; sourceTree = "<group>"; };
+		F89D42A62CA0746C0078D17A /* Ios16RestaurantClusterMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ios16RestaurantClusterMapView.swift; sourceTree = "<group>"; };
 		F89DF2112C581F0200A90E0D /* UploadFlowRestaurantSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadFlowRestaurantSelector.swift; sourceTree = "<group>"; };
 		F89F28712BE3163C00E670E0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		F89F28732BE3F4F300E670E0 /* ActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityCell.swift; sourceTree = "<group>"; };
@@ -650,6 +654,7 @@
 				F871AFF32B82E4D300E4EB5F /* ProfileSlideBar.swift */,
 				F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */,
 				F868686D2C34541400F6CE56 /* ProfileMapView.swift */,
+				F89D42A42C9F53450078D17A /* IOS16MapView.swift */,
 				F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */,
 			);
 			path = Profile;
@@ -1378,6 +1383,7 @@
 			isa = PBXGroup;
 			children = (
 				F88E0AC62B6B059F00EC159B /* ListingImageCarouselView.swift */,
+				F89D42A62CA0746C0078D17A /* Ios16RestaurantClusterMapView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2034,6 +2040,7 @@
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
 				F8BD81612BC605ED007C2CFC /* UIMapViewTest.swift in Sources */,
 				F819BD042C683194001247A9 /* TriggerHaptics.swift in Sources */,
+				F89D42A72CA0746C0078D17A /* Ios16RestaurantClusterMapView.swift in Sources */,
 				F8B1B12B2C80CF960035842E /* CollectionInvitesView.swift in Sources */,
 				F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
@@ -2060,6 +2067,7 @@
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,
 				F8670A622BF3FCE400F527D9 /* CaptionBox.swift in Sources */,
 				F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */,
+				F89D42A52C9F53450078D17A /* IOS16MapView.swift in Sources */,
 				F871CDFF2BCDBC9F003C9BE8 /* CollectionsListView.swift in Sources */,
 				F88E0B2C2B6CA05300EC159B /* CollapsableDestination.swift in Sources */,
 				F8CC21A92BD58B1D00B4B329 /* TabBarController.swift in Sources */,

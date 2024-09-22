@@ -155,7 +155,7 @@ struct CollectionView: View {
 //                                if #available(iOS 17, *) {
 ////                                    CollectionMapView(collectionsViewModel: collectionsViewModel)
 //                                } else {
-                               CollectionMapView(collectionsViewModel: collectionsViewModel)
+                               Ios16CollectionMapView(collectionsViewModel: collectionsViewModel)
                                 //}
                             } else if currentSection == .grid {
                                 CollectionListView(collectionsViewModel: collectionsViewModel)

@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
-import _MapKit_SwiftUI
+import MapKit
 import ClusterMap
 import Kingfisher
 
-//@available(iOS 17.0, *)
+//@available(iOS 17.2, *)
 //struct RestaurantClusterMapView: View {
 //    @StateObject private var viewModel: RestaurantMapViewModel
 //    @State private var selectedRestaurant: Restaurant?

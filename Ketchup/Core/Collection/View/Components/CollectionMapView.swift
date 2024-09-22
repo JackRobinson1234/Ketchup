@@ -11,7 +11,7 @@ import ClusterMap
 import Kingfisher
 
 //@available(iOS 17.0, *)
-struct CollectionMapView: View {
+struct Ios16CollectionMapView: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @StateObject private var viewModel = CollectionMapViewModel()
     @State private var selectedItem: CollectionItem?
@@ -22,38 +22,14 @@ struct CollectionMapView: View {
             GeometryReader { geometryProxy in
                 CollectionKitMapView(viewModel: viewModel, selectedRestaurant: $selectedItem, selectedCluster: $selectedCluster,  mapSize: geometryProxy.size  )
             }
-//            Map(initialPosition: .region(viewModel.initialUSRegion)) {
-//                ForEach(viewModel.annotations, id: \.self) { item in
-//                    Annotation(item.name, coordinate: item.coordinate) {
-//                        Button {
-//                            selectedItem = item.collectionItem
-//                        } label: {
-//                            CollectionItemAnnotationView(item: item.collectionItem)
-//                        }
-//                    }
-//                }
-//                ForEach(viewModel.clusters) { cluster in
-//                    Annotation("", coordinate: cluster.coordinate) {
-//                        CollectionItemClusterCell(cluster: cluster)
-//                            .onTapGesture {
-//                                selectedCluster = cluster
-//                            }
-//                    }
-//                }
-//            }
+
             .readSize(onChange: { newValue in
                 viewModel.mapSize = newValue
             })
             .onAppear {
                 viewModel.setItems(items: collectionsViewModel.items)
             }
-//            .onMapCameraChange { context in
-//                viewModel.currentRegion = context.region
-//            }
-//            .onMapCameraChange(frequency: .onEnd) { _ in
-//                Task.detached { await viewModel.reloadAnnotations() }
-//            }
-//            .mapStyle(.standard(pointsOfInterest: .excludingAll))
+
             .frame(height: 500)
             .cornerRadius(10)
             .sheet(item: $selectedItem) { item in

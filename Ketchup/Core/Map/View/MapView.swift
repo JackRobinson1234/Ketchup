@@ -85,6 +85,14 @@ struct MapView: View {
                         }
                     }
                 }
+                VStack {
+                                  Spacer()
+                                  HStack {
+                                      Spacer()
+                                      userLocationButton
+                                  }
+
+                              }
             }
             .sheet(item: $selectedCluster, onDismiss: {
                 selectedCluster = nil
@@ -183,6 +191,7 @@ struct MapView: View {
                     showAlert = true
                 } label: {
                     Image(systemName: "location.fill")
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .padding()
                         .background(Color.white)
                         .clipShape(Circle())
@@ -190,13 +199,16 @@ struct MapView: View {
                 }
             } else {
                 Button {
+                    
                     // Center on user location
                     if let userLocation = LocationManager.shared.userLocation {
                         center = userLocation.coordinate
+                        self.selectedLocation = userLocation.coordinate
                         viewModel.centerMapOnLocation(location: userLocation)
                     }
                 } label: {
                     Image(systemName: "location.fill")
+                        .foregroundStyle(Color("Colors/AccentColor"))
                         .padding()
                         .background(Color.white)
                         .clipShape(Circle())

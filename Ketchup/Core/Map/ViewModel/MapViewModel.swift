@@ -96,6 +96,7 @@ class MapViewModel: ObservableObject {
                center: location.coordinate,
                span: currentRegion.span // Keep the current span to maintain zoom level
            )
+            selectedLocation = [location.coordinate]
            currentRegion = newRegion
        }
     func fetchFilteredClusters(limit: Int = 0) async {

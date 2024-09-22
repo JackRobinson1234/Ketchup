@@ -725,24 +725,37 @@ struct WrittenFeedCell: View {
         }
     }
     private func handleIndexChange(_ index: Int) {
-           pauseAllVideos()
-           if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty {
-               if index >= 0 && index < mixedMediaUrls.count {
-                   let mediaItem = mixedMediaUrls[index]
-                   if mediaItem.type == .video {
-                       currentlyPlayingVideoId = mediaItem.id
-                       playVideo(id: mediaItem.id)
-                   } else {
-                       currentlyPlayingVideoId = nil
-                   }
-               }
-           } else if post.mediaType == .video && index == 0 {
-               if let firstVideoId = videoCoordinators.first?.0 {
-                   currentlyPlayingVideoId = firstVideoId
-                   playVideo(id: firstVideoId)
-               }
-           }
-       }
+        pauseAllVideos()
+        
+        switch post.mediaType {
+        case .mixed:
+            guard let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty else {
+                currentlyPlayingVideoId = nil
+                return
+            }
+            
+            let safeIndex = max(0, min(index, mixedMediaUrls.count - 1))
+            let mediaItem = mixedMediaUrls[safeIndex]
+            
+            if mediaItem.type == .video {
+                currentlyPlayingVideoId = mediaItem.id
+                playVideo(id: mediaItem.id)
+            } else {
+                currentlyPlayingVideoId = nil
+            }
+            
+        case .video:
+            if index == 0, let firstVideoId = videoCoordinators.first?.0 {
+                currentlyPlayingVideoId = firstVideoId
+                playVideo(id: firstVideoId)
+            } else {
+                currentlyPlayingVideoId = nil
+            }
+            
+        default:
+            currentlyPlayingVideoId = nil
+        }
+    }
 
 
     private func playVideoForCurrentIndex(_ index: Int) {

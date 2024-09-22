@@ -115,14 +115,14 @@ struct ProfileSlideBar: View {
                 }
             }
             if viewModel.profileSection == .map {
-//                if #available(iOS 17, *) {
-//                    
-//                    ProfileMapView(feedViewModel: feedViewModel)
-//                        .id("map")
-//                        .onAppear {
-//                            scrollTarget = "map"
-//                        }
-//                }
+               
+                    
+                    ProfileMapView(feedViewModel: feedViewModel)
+                        .id("map")
+                        .onAppear {
+                            scrollTarget = "map"
+                        }
+                
             }
             if viewModel.profileSection == .bookmarks {
                 BookmarksListView(profileViewModel: viewModel)
