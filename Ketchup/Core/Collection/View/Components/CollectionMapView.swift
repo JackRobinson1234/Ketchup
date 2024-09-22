@@ -10,8 +10,8 @@ import MapKit
 import ClusterMap
 import Kingfisher
 
-//@available(iOS 17.0, *)
-struct Ios16CollectionMapView: View {
+@available(iOS 17.0, *)
+struct CollectionMapView: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @StateObject private var viewModel = CollectionMapViewModel()
     @State private var selectedItem: CollectionItem?
@@ -19,17 +19,38 @@ struct Ios16CollectionMapView: View {
     var body: some View {
         if let collection = collectionsViewModel.selectedCollection,
            !collectionsViewModel.items.isEmpty {
-            GeometryReader { geometryProxy in
-                CollectionKitMapView(viewModel: viewModel, selectedRestaurant: $selectedItem, selectedCluster: $selectedCluster,  mapSize: geometryProxy.size  )
+            Map(initialPosition: .region(viewModel.initialUSRegion)) {
+                ForEach(viewModel.annotations, id: \.self) { item in
+                    Annotation(item.name, coordinate: item.coordinate) {
+                        Button {
+                            selectedItem = item.collectionItem
+                        } label: {
+                            CollectionItemAnnotationView(item: item.collectionItem)
+                        }
+                    }
+                }
+                ForEach(viewModel.clusters) { cluster in
+                    Annotation("", coordinate: cluster.coordinate) {
+                        CollectionItemClusterCell(cluster: cluster)
+                            .onTapGesture {
+                                selectedCluster = cluster
+                            }
+                    }
+                }
             }
-
             .readSize(onChange: { newValue in
                 viewModel.mapSize = newValue
             })
             .onAppear {
                 viewModel.setItems(items: collectionsViewModel.items)
             }
-
+            .onMapCameraChange { context in
+                viewModel.currentRegion = context.region
+            }
+            .onMapCameraChange(frequency: .onEnd) { _ in
+                Task.detached { await viewModel.reloadAnnotations() }
+            }
+            .mapStyle(.standard(pointsOfInterest: .excludingAll))
             .frame(height: 500)
             .cornerRadius(10)
             .sheet(item: $selectedItem) { item in
@@ -120,37 +141,19 @@ class CollectionMapViewModel: ObservableObject {
     }
 }
 
-class CollectionItemAnnotation: NSObject, CoordinateIdentifiable, Identifiable, MKAnnotation {
+struct CollectionItemAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
     var collectionItem: CollectionItem
     
     var name: String { collectionItem.name }
-    var title: String?
-
-    init(coordinate: CLLocationCoordinate2D, collectionItem: CollectionItem) {
-        self.coordinate = coordinate
-        self.collectionItem = collectionItem
-        self.title = collectionItem.name
-        super.init()
-    }
 }
 
-class CollectionItemClusterAnnotation: NSObject, Identifiable, MKAnnotation, CoordinateIdentifiable {
+struct CollectionItemClusterAnnotation: Identifiable {
     var id = UUID()
     var coordinate: CLLocationCoordinate2D
     var count: Int
     var memberAnnotations: [CollectionItemAnnotation]
-    var title: String?
-
-    init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [CollectionItemAnnotation]) {
-        self.id = id
-        self.coordinate = coordinate
-        self.count = count
-        self.memberAnnotations = memberAnnotations
-        self.title = "Cluster of \(count) Restaurants"
-        super.init()
-    }
 }
 
 struct CollectionItemAnnotationView: View {
@@ -197,3 +200,4 @@ struct CollectionItemClusterCell: View {
         }
     }
 }
+

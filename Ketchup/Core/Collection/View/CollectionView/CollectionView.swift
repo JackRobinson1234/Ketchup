@@ -152,11 +152,11 @@ struct CollectionView: View {
                             
                             // MARK: Section Logic
                             if currentSection == .map {
-//                                if #available(iOS 17, *) {
-////                                    CollectionMapView(collectionsViewModel: collectionsViewModel)
-//                                } else {
+                                if #available(iOS 17, *) {
+                                    CollectionMapView(collectionsViewModel: collectionsViewModel)
+                                } else {
                                Ios16CollectionMapView(collectionsViewModel: collectionsViewModel)
-                                //}
+                                }
                             } else if currentSection == .grid {
                                 CollectionListView(collectionsViewModel: collectionsViewModel)
                             }

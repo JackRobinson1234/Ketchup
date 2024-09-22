@@ -118,6 +118,9 @@ struct RatingsView: View {
                 .transition(.scale(scale: 0.9, anchor: .top).combined(with: .opacity))
             }
         }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.1)))
+        .padding(.horizontal)
     }
 }
 

@@ -43,7 +43,12 @@ struct ProfileFeedView: View {
             }
             .fullScreenCover(item: $selectedPost) { post in
                 NavigationStack {
-                    IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    if #available(iOS 17, *) {
+                        
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    } else {
+                        IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    }
                 }
             }
         } else {

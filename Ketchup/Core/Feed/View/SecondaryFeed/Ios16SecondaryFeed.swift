@@ -40,7 +40,7 @@ struct IOS16SecondaryFeedView: View {
                             ForEach($viewModel.posts) { post in
                                 if hasValidMedia(post.wrappedValue) {
                                     if viewModel.startingPostId == post.wrappedValue.id || viewModel.posts.count == 1 {
-                                        FeedCell(post: post, secondaryFeedIsLoading: $isLoading, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
+                                        FeedCell(post: post, viewModel: viewModel, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, hideFeedOptions: hideFeedOptions, checkLikes: checkLikes)
                                             .id(post.id)
                                             .frame(height: UIScreen.main.bounds.height)
                                             .onAppear {

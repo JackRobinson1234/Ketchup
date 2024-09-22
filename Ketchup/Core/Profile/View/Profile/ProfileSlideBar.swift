@@ -31,11 +31,11 @@ struct ProfileSlideBar: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
-
+    
     private var isKetchupMediaUser: Bool {
         return viewModel.user.username == "ketchup_media"
     }
-
+    
     init(viewModel: ProfileViewModel, collectionsViewModel: CollectionsViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
@@ -43,7 +43,7 @@ struct ProfileSlideBar: View {
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
     }
-
+    
     var body: some View {
         VStack {
             // MARK: Images
@@ -59,7 +59,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .posts))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .map ? "location.fill" : "location")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -71,7 +71,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .map))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -83,7 +83,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .collections))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -98,36 +98,42 @@ struct ProfileSlideBar: View {
             }
             .padding()
             .padding(.bottom, 16)
-
+            
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
                 VStack {
-                   
+                    
                     if isKetchupMediaUser {
                         Text("This user has too many posts to view")
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
-                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                        PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
                         
                     }
                 }
             }
             if viewModel.profileSection == .map {
-               
-                    
+                
+                if #available(iOS 17, *) {
                     ProfileMapView(feedViewModel: feedViewModel)
                         .id("map")
                         .onAppear {
                             scrollTarget = "map"
                         }
-                
+                } else {
+                    Ios16ProfileMapView(feedViewModel: feedViewModel)
+                        .id("map")
+                        .onAppear {
+                            scrollTarget = "map"
+                        }
+                }
             }
             if viewModel.profileSection == .bookmarks {
                 BookmarksListView(profileViewModel: viewModel)
             }
-
+            
             if viewModel.profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }

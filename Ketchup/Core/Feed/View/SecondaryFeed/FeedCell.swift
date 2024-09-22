@@ -32,7 +32,6 @@ struct FeedCell: View {
     private var didLike: Bool { return post.didLike }
     @Binding var scrollPosition: String?
     @Binding var pauseVideo: Bool
-    @Binding var secondaryFeedIsLoading: Bool
     @State private var showingOptionsSheet = false
     @State private var currentImageIndex =  0
     @State var isDragging = false
@@ -64,7 +63,6 @@ struct FeedCell: View {
     }
     
     init(post: Binding<Post>,
-         secondaryFeedIsLoading: Binding<Bool>,
          viewModel: FeedViewModel,
          scrollPosition: Binding<String?>,
          pauseVideo: Binding<Bool>,
@@ -72,7 +70,6 @@ struct FeedCell: View {
          checkLikes: Bool = false) {
         
         self._post = post
-        self._secondaryFeedIsLoading = secondaryFeedIsLoading
         self.viewModel = viewModel
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo

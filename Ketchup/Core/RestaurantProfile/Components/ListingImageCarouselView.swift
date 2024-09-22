@@ -9,7 +9,6 @@ import SwiftUI
 import Kingfisher
 
 struct ListingImageCarouselView: View {
-    
     private var images: [String]?
     init(images: [String]? = nil) {
         self.images = images
@@ -34,8 +33,8 @@ struct ListingImageCarouselView: View {
                     .scaledToFill()
                     .foregroundColor(.gray)
                     .frame(width: 20, height: 70)
-                    
-
+                
+                
             }
             .frame(height: height)
         }
@@ -45,4 +44,3 @@ struct ListingImageCarouselView: View {
 #Preview {
     ListingImageCarouselView()
 }
-

@@ -51,10 +51,12 @@ struct RestaurantLeaderboard: View {
                                     restaurantList
                                         .padding(.top)
                                 } else {
-                                    Ios16RestaurantClusterMapView(restaurants: restaurants)
-//                                    if #available(iOS 17, *) {
-//                                        RestaurantClusterMapView(restaurants: restaurants)
-//                                    }
+                                   
+                                    if #available(iOS 17, *) {
+                                        RestaurantClusterMapView(restaurants: restaurants)
+                                    } else {
+                                        Ios16RestaurantClusterMapView(restaurants: restaurants)
+                                    }
 
                                 }
                             }

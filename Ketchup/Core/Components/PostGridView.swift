@@ -162,7 +162,11 @@ struct PostGridView: View {
             .fullScreenCover(item: $selectedPost) { post in
                 if post.mediaType != .written {
                     NavigationStack {
-                        IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        if #available(iOS 17, *) {
+                            SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        } else {
+                            IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        }
                     }
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                 }
