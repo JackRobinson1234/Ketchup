@@ -203,7 +203,7 @@ struct WrittenFeedCell: View {
         }
         .sheet(isPresented: $showComments) {
             CommentsView(post: $post, feedViewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear(perform: pauseAllVideos)
                 .onDisappear { handleIndexChange(currentIndex) }
         }

@@ -32,8 +32,8 @@ struct CollectionKitMapView: UIViewRepresentable {
         }
         
         // Register annotation views
-        mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: RestaurantAnnotationView.identifier)
-        mapView.register(ClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: ClusterAnnotationView.identifier)
+        mapView.register(Ios16RestaurantAnnotationMapView.self, forAnnotationViewWithReuseIdentifier: Ios16RestaurantAnnotationMapView.identifier)
+        mapView.register(Ios16ClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: Ios16ClusterAnnotationView.identifier)
         
         return mapView
     }

@@ -138,7 +138,7 @@
 		F88E0A922B6B023800EC159B /* PrimaryFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */; };
 		F88E0A942B6B026D00EC159B /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A932B6B026D00EC159B /* FiltersView.swift */; };
 		F88E0A962B6B028900EC159B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A952B6B028900EC159B /* MainTabView.swift */; };
-		F88E0A982B6B02A300EC159B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A972B6B02A300EC159B /* MapView.swift */; };
+		F88E0A982B6B02A300EC159B /* Ios16MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A972B6B02A300EC159B /* Ios16MapView.swift */; };
 		F88E0AA42B6B034500EC159B /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA32B6B034500EC159B /* Notification.swift */; };
 		F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AA72B6B037200EC159B /* NotificationService.swift */; };
 		F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */; };
@@ -212,7 +212,7 @@
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
 		F8B1B1282C7F8AF40035842E /* CollectionInviteUserList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */; };
 		F8B1B12B2C80CF960035842E /* CollectionInvitesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B1B12A2C80CF960035842E /* CollectionInvitesView.swift */; };
-		F8B5CF392C9DE94D001C9433 /* Ios16mapview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */; };
+		F8B5CF392C9DE94D001C9433 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B5CF382C9DE94D001C9433 /* MapView.swift */; };
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
 		F8B69F1E2C6C66800084AE68 /* LocationSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */; };
 		F8B69F222C6D4E0F0084AE68 /* BirthdaySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */; };
@@ -444,7 +444,7 @@
 		F88E0A912B6B023800EC159B /* PrimaryFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryFeedView.swift; sourceTree = "<group>"; };
 		F88E0A932B6B026D00EC159B /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		F88E0A952B6B028900EC159B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		F88E0A972B6B02A300EC159B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		F88E0A972B6B02A300EC159B /* Ios16MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ios16MapView.swift; sourceTree = "<group>"; };
 		F88E0AA32B6B034500EC159B /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		F88E0AA72B6B037200EC159B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		F88E0AAD2B6B03E900EC159B /* NotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewModel.swift; sourceTree = "<group>"; };
@@ -518,7 +518,7 @@
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
 		F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionInviteUserList.swift; sourceTree = "<group>"; };
 		F8B1B12A2C80CF960035842E /* CollectionInvitesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionInvitesView.swift; sourceTree = "<group>"; };
-		F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ios16mapview.swift; sourceTree = "<group>"; };
+		F8B5CF382C9DE94D001C9433 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelectorView.swift; sourceTree = "<group>"; };
 		F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySelectorView.swift; sourceTree = "<group>"; };
@@ -1148,14 +1148,14 @@
 		F871AFED2B7832A000E4EB5F /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F88E0A972B6B02A300EC159B /* MapView.swift */,
+				F88E0A972B6B02A300EC159B /* Ios16MapView.swift */,
 				F871AFF12B7978A100E4EB5F /* MapRestaurantView.swift */,
 				F871B0012B886D2900E4EB5F /* MapSearchView.swift */,
 				F8BD815E2BC6053C007C2CFC /* UIKitMapVIew.swift */,
 				F8BD81602BC605ED007C2CFC /* UIMapViewTest.swift */,
 				F846F4702BFF97A9009D1303 /* ClusterCell.swift */,
 				F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */,
-				F8B5CF382C9DE94D001C9433 /* Ios16mapview.swift */,
+				F8B5CF382C9DE94D001C9433 /* MapView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2045,7 +2045,7 @@
 				F8A96F272C3C9612009E67A9 /* CameraPreview.swift in Sources */,
 				F871B0002B85A41B00E4EB5F /* FavoriteRestaurantSearchView.swift in Sources */,
 				F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */,
-				F8B5CF392C9DE94D001C9433 /* Ios16mapview.swift in Sources */,
+				F8B5CF392C9DE94D001C9433 /* MapView.swift in Sources */,
 				F88E0B172B6B0AE700EC159B /* Post.swift in Sources */,
 				F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */,
 				F8973A062C99EE8300973D76 /* RestaurantClusterMapView.swift in Sources */,
@@ -2168,7 +2168,7 @@
 				F8670A562BF3EDBC00F527D9 /* CaptionEditorView.swift in Sources */,
 				F8A24B672BE849D300AB7FDD /* NotificationsView.swift in Sources */,
 				F88E0B1B2B6B0B0800EC159B /* User.swift in Sources */,
-				F88E0A982B6B02A300EC159B /* MapView.swift in Sources */,
+				F88E0A982B6B02A300EC159B /* Ios16MapView.swift in Sources */,
 				F871AFF42B82E4D300E4EB5F /* ProfileSlideBar.swift in Sources */,
 				F8631E422BD883C700A48565 /* FacetsView.swift in Sources */,
 				F8CC21A02BD587EE00B4B329 /* Photo.swift in Sources */,
