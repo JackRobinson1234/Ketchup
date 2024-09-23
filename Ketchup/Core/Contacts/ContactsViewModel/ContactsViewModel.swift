@@ -46,7 +46,7 @@ class ContactsViewModel: ObservableObject {
     @MainActor
     var inviteMessage: String {
             if let username = AuthService.shared.userSession?.username {
-                return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+                return "Hey! Sharing an invite to the beta for Ketchup —no, not the condiment, but a new social restaurant rating app. Use this link to check it out: https://testflight.apple.com/join/ki6ajEz9 (P.S. Follow me @\(username))"
             } else {
                 return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
             }

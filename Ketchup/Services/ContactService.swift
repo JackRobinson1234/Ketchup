@@ -35,7 +35,7 @@ class ContactService {
         
         db.collection("users").document(userId).getDocument { [weak self] (document, error) in
             if let document = document, document.exists {
-                self?.hasSynced = document.data()?["hasContactsSynced"] as? Bool ?? false
+                self?.hasSynced = document.data()?["contactsSynced"] as? Bool ?? false
             }
         }
     }
@@ -138,7 +138,7 @@ class ContactService {
         
         let userRef = db.collection("users").document(userId)
         try await userRef.updateData([
-            "hasContactsSynced": true,
+            "contactsSynced": true,
             "contactsSyncedOn": Timestamp(date: Date())
         ])
     }

@@ -426,7 +426,7 @@ struct ReelsUploadView: View {
         } label: {
             HStack {
                 Text("Went with anyone?")
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                    .font(.custom("MuseoSansRounded-500", size: 16))
                     .foregroundColor(.black)
                     .frame(alignment: .trailing)
                 

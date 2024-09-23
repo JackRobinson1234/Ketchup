@@ -152,7 +152,7 @@ struct UsernameSelectionView: View {
     }
     
     private func startContactSync() {
-        if AuthService.shared.userSession?.hasContactsSynced == false {
+        if AuthService.shared.userSession?.contactsSynced == false {
             Task {
                 try await ContactService.shared.syncDeviceContacts()
             }

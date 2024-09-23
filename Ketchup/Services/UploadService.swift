@@ -98,7 +98,7 @@ struct UploadService {
             name: restaurant.name,
             geoPoint: restaurant.geoPoint,
             geoHash: restaurant.geoHash,
-            truncatedGeoHash: restaurant.geoHash.flatMap { String($0.prefix(4)) },
+            truncatedGeohash: restaurant.geoHash.flatMap { String($0.prefix(4)) },
             address: restaurant.address,
             city: restaurant.city,
             state: restaurant.state,

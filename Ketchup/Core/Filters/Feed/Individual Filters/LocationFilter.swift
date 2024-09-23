@@ -21,7 +21,7 @@ struct LocationFilter: View {
     @State private var isUsingCurrentLocation: Bool = false
     @State private var selectedLocation: CLLocation?
     @State private var displayLocationText: String = "Select a city"
-    @State private var isAnywhereSelected: Bool = false
+    @State private var isAllLocationsSelected: Bool = false
     @State private var isLoadingLocation: Bool = false
 
     // Temporary state variables to hold the selections
@@ -36,46 +36,8 @@ struct LocationFilter: View {
 
     var body: some View {
         VStack {
-            VStack(alignment: .leading) {
-                // Toggle between exact city and surrounding area
-                Toggle(isOn: $tempIncludeSurroundingArea) {
-                    Text( "Include Surrounding Area")
-                        .foregroundColor(.primary)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-                .disabled(isAnywhereSelected)
-                .opacity(isAnywhereSelected ? 0.3 : 1.0)
-                Toggle(isOn: $isAnywhereSelected) {
-                    Text("All Locations")
-                        .foregroundColor(.primary)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-            
-                    .onChange(of: isAnywhereSelected) {newValue in
-                        handleAnywhereToggleChange(newValue)
-                    }
-                // 'Anywhere' option with checkmark
-                //                Button(action: {
-                //                    isAnywhereSelected.toggle()
-                //                    if isAnywhereSelected {
-                //                        tempCurrentLocationFilter = .anywhere
-                //                        tempIsUsingCurrentLocation = false
-                //                        tempSelectedLocation = nil
-                //                        displayLocationText = "Anywhere"
-                //                        mapSearch.searchTerm = ""
-                //                    } else {
-                //                        tempCurrentLocationFilter = .surrounding
-                //                    }
-                //                }) {
-                //                    HStack {
-                //                        Image(systemName: isAnywhereSelected ? "checkmark.circle.fill" : "circle")
-                //                            .foregroundColor(.blue)
-                //                        Text("Anywhere")
-                //                            .font(.headline)
-                //                    }
-                //                }
-            }
-            .padding()
+          
+
             // Search bar for city selection
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -87,6 +49,10 @@ struct LocationFilter: View {
                         .onChange(of: isFocused) { newValue in
                             if newValue {
                                 mapSearch.searchTerm = ""
+                                if isAllLocationsSelected {
+                                    isAllLocationsSelected = false
+                                    handleAllLocationsChange(false)
+                                }
                             } else {
                                 updateDisplayLocation()
                             }
@@ -97,11 +63,16 @@ struct LocationFilter: View {
                             .foregroundColor(isFocused ? .gray : (isUsingCurrentLocation ? .red : .black))
                             .onTapGesture {
                                 isFocused = true
+                                if isAllLocationsSelected {
+                                    isAllLocationsSelected = false
+                                    handleAllLocationsChange(false)
+                                }
                             }
                     }
                 }
                 if isFocused && !mapSearch.searchTerm.isEmpty {
                     Button(action: {
+                        isAllLocationsSelected = false
                         mapSearch.searchTerm = ""
                     }) {
                         Image(systemName: "xmark.circle.fill")
@@ -113,8 +84,7 @@ struct LocationFilter: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
             .padding()
-            .opacity(isAnywhereSelected ? 0.3 : 1.0)
-            .disabled(isAnywhereSelected)
+            .opacity(isAllLocationsSelected ? 0.3 : 1.0)
 
             // Search results list
             if isFocused && !mapSearch.locationResults.isEmpty {
@@ -137,8 +107,31 @@ struct LocationFilter: View {
             }
 
             Spacer()
+            VStack(alignment: .leading) {
+                // Toggle between exact city and surrounding area
+                Toggle(isOn: $tempIncludeSurroundingArea) {
+                    Text("Include Surrounding Area")
+                        .foregroundColor(.primary)
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                }
+                .disabled(isAllLocationsSelected)
+                .opacity(isAllLocationsSelected ? 0 : 1.0)
 
-         
+                // All Locations checkbox
+                Button(action: {
+                    isAllLocationsSelected.toggle()
+                    handleAllLocationsChange(isAllLocationsSelected)
+                }) {
+                    HStack {
+                        Image(systemName: isAllLocationsSelected ? "checkmark.square.fill" : "square")
+                            .foregroundColor(Color("Colors/AccentColor"))
+                        Text("All Locations")
+                            .foregroundColor(.primary)
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                    }
+                }
+            }
+            .padding()
         }
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -147,13 +140,13 @@ struct LocationFilter: View {
                     .foregroundStyle(.black)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button{
+                Button {
                     applyFilters()
                     dismiss()
                 } label: {
                     Text("Apply Filter")
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundStyle(Color("Colors/AccentColor"))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundStyle(Color("Colors/AccentColor"))
                 }
             }
         }
@@ -173,10 +166,10 @@ struct LocationFilter: View {
         tempIncludeSurroundingArea = feedViewModel.currentLocationFilter == .surrounding
 
         if tempCurrentLocationFilter == .anywhere {
-            isAnywhereSelected = true
+            isAllLocationsSelected = true
             displayLocationText = "Anywhere"
         } else {
-            isAnywhereSelected = false
+            isAllLocationsSelected = false
             if tempSelectedLocation != nil {
                 updateDisplayLocation()
             } else if let city = tempCity, let state = tempState {
@@ -229,7 +222,8 @@ struct LocationFilter: View {
             }
         }
     }
-    private func handleAnywhereToggleChange(_ isSelected: Bool) {
+
+    private func handleAllLocationsChange(_ isSelected: Bool) {
         if isSelected {
             tempCurrentLocationFilter = .anywhere
             tempIsUsingCurrentLocation = false
@@ -241,12 +235,13 @@ struct LocationFilter: View {
             // Optionally reset other variables or keep them as is
         }
     }
+
     private func coordinate2D(_ location: CLLocation) -> CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
     }
 
     private func applyFilters() {
-        feedViewModel.currentLocationFilter = isAnywhereSelected ? .anywhere : (tempIncludeSurroundingArea ? .surrounding : .exactCity)
+        feedViewModel.currentLocationFilter = isAllLocationsSelected ? .anywhere : (tempIncludeSurroundingArea ? .surrounding : .exactCity)
         feedViewModel.city = tempCity
         feedViewModel.state = tempState
         feedViewModel.surroundingCounty = tempSurroundingCounty
@@ -261,14 +256,13 @@ struct LocationFilter: View {
     }
 }
 
-//MARK: ViewModel
-/// Taken from "stackoverflow.com/questions/70571615/swiftui-using-mapkit-for-address-auto-complete"
-class MapSearch : NSObject, ObservableObject {
-    @Published var locationResults : [MKLocalSearchCompletion] = []
+// MARK: - ViewModel
+class MapSearch: NSObject, ObservableObject {
+    @Published var locationResults: [MKLocalSearchCompletion] = []
     @Published var searchTerm = ""
-    private var cancellables : Set<AnyCancellable> = []
+    private var cancellables: Set<AnyCancellable> = []
     private var searchCompleter = MKLocalSearchCompleter()
-    private var currentPromise : ((Result<[MKLocalSearchCompletion], Error>) -> Void)?
+    private var currentPromise: ((Result<[MKLocalSearchCompletion], Error>) -> Void)?
     
     override init() {
         super.init()
@@ -282,9 +276,9 @@ class MapSearch : NSObject, ObservableObject {
                 self.searchTermToResults(searchTerm: currentSearchTerm)
             })
             .sink(receiveCompletion: { (completion) in
-                //handle error
+                // handle error
             }, receiveValue: { (results) in
-                self.locationResults = results.filter { $0.subtitle.contains("United States") } // This parses the subtitle to show only results that have United States as the country. You could change this text to be Germany or Brazil and only show results from those countries.
+                self.locationResults = results.filter { $0.subtitle.contains("United States") }
             })
             .store(in: &cancellables)
     }
@@ -297,26 +291,25 @@ class MapSearch : NSObject, ObservableObject {
     }
 }
 
-
-extension MapSearch : MKLocalSearchCompleterDelegate {
+extension MapSearch: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         currentPromise?(.success(completer.results))
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-        //could deal with the error here, but beware that it will finish the Combine publisher stream
-        //currentPromise?(.failure(error))
+        // could deal with the error here, but beware that it will finish the Combine publisher stream
+        // currentPromise?(.failure(error))
     }
 }
 
 struct ReversedGeoLocation {
-    let streetNumber: String    // eg. 1
-    let streetName: String      // eg. Infinite Loop
-    let city: String            // eg. Cupertino
-    let state: String           // eg. CA
-    let zipCode: String         // eg. 95014
-    let country: String         // eg. United States
-    let isoCountryCode: String  // eg. US
+    let streetNumber: String
+    let streetName: String
+    let city: String
+    let state: String
+    let zipCode: String
+    let country: String
+    let isoCountryCode: String
     
     var formattedAddress: String {
         return """
@@ -326,14 +319,13 @@ struct ReversedGeoLocation {
         """
     }
     
-    // Handle optionals as needed
     init(with placemark: CLPlacemark) {
-        self.streetName     = placemark.thoroughfare ?? ""
-        self.streetNumber   = placemark.subThoroughfare ?? ""
-        self.city           = placemark.locality ?? ""
-        self.state          = placemark.administrativeArea ?? ""
-        self.zipCode        = placemark.postalCode ?? ""
-        self.country        = placemark.country ?? ""
+        self.streetName = placemark.thoroughfare ?? ""
+        self.streetNumber = placemark.subThoroughfare ?? ""
+        self.city = placemark.locality ?? ""
+        self.state = placemark.administrativeArea ?? ""
+        self.zipCode = placemark.postalCode ?? ""
+        self.country = placemark.country ?? ""
         self.isoCountryCode = placemark.isoCountryCode ?? ""
     }
 }

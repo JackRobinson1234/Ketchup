@@ -205,7 +205,7 @@ struct ContactsView: View {
     }
     
     private func startContactSync() {
-        if AuthService.shared.userSession?.hasContactsSynced == false {
+        if AuthService.shared.userSession?.contactsSynced == false {
             isSyncingContacts = true
             Task {
                 try await ContactService.shared.syncDeviceContacts()

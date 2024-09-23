@@ -151,7 +151,7 @@ struct ActivityView: View {
     
     private var discoverContent: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if let user = viewModel.user, user.hasContactsSynced, viewModel.isContactPermissionGranted {
+            if let user = viewModel.user, user.contactsSynced, viewModel.isContactPermissionGranted {
                 contactsSection
             }
             

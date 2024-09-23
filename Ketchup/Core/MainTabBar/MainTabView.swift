@@ -39,6 +39,7 @@ struct MainTabView: View {
                     tabBarController.selectedTab = 0
                     tabBarController.visibility = .visible
                 }
+                .badge(AuthService.shared.userSession?.followingPosts ?? 0)
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)

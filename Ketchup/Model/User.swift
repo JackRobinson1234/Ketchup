@@ -24,7 +24,7 @@ struct User: Codable, Identifiable, Hashable {
     var hasCompletedSetup: Bool = false
     var createdAt: Date?
     var lastActive: Date?
-    var hasContactsSynced: Bool = false
+    var contactsSynced: Bool = false
     var inviteCount: Int = 0
     var followingPosts: Int = 0 // New property with default value
     var isCurrentUser: Bool {
@@ -32,7 +32,7 @@ struct User: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, inviteCount, followingPosts // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -73,8 +73,8 @@ struct User: Codable, Identifiable, Hashable {
             self.lastActive = nil
         }
 
-        // Decode hasContactsSynced property
-        self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
+        // Decode contactsSynced property
+        self.contactsSynced = try container.decodeIfPresent(Bool.self, forKey: .contactsSynced) ?? false
         
         // Decode inviteCount property, defaulting to 0 if not present
         self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
@@ -96,7 +96,7 @@ struct User: Codable, Identifiable, Hashable {
         hasCompletedSetup: Bool = false,
         createdAt: Date? = nil,
         lastActive: Date? = nil,
-        hasContactsSynced: Bool = false,
+        contactsSynced: Bool = false,
         inviteCount: Int = 0,
         followingPosts: Int = 0 // New parameter with default value
     ) {
@@ -120,7 +120,7 @@ struct User: Codable, Identifiable, Hashable {
         self.hasCompletedSetup = hasCompletedSetup
         self.createdAt = createdAt
         self.lastActive = lastActive
-        self.hasContactsSynced = hasContactsSynced
+        self.contactsSynced = contactsSynced
         self.inviteCount = inviteCount
         self.followingPosts = followingPosts
     }
@@ -157,8 +157,8 @@ struct User: Codable, Identifiable, Hashable {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
         
-        // Encode hasContactsSynced property
-        try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
+        // Encode contactsSynced property
+        try container.encode(contactsSynced, forKey: .contactsSynced)
         
         // Encode inviteCount property
         try container.encode(inviteCount, forKey: .inviteCount)
