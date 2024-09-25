@@ -13,6 +13,8 @@ class UserRegistrationViewModel: ObservableObject {
     @Published var birthday: Date?
     @Published var location: Location?
     @Published var fullname: String?
+    @Published var referrer: User?
+
     func updateUser() async throws {
         guard let userID = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "UserRegistration", code: 0, userInfo: [NSLocalizedDescriptionKey: "No authenticated user found"])

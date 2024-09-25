@@ -11,7 +11,6 @@ import FirebaseAuth
 import PhoneNumberKit
 import FirebaseFirestoreInternal
 import CryptoKit
-
 @MainActor
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber = ""
@@ -28,7 +27,7 @@ class PhoneAuthViewModel: ObservableObject {
     @Published var shouldNavigateToUsernameSelection = false
     @Published var isDelete: Bool = false
     private var cancellables = Set<AnyCancellable>()
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let debounceDuration: TimeInterval = 0.5
     @Published var deletionSuccessful: Bool = false
     
@@ -38,7 +37,7 @@ class PhoneAuthViewModel: ObservableObject {
     }
     
     private func setupPhoneNumberValidation() {
-    
+        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
         $phoneNumber
             .debounce(for: .seconds(debounceDuration), scheduler: RunLoop.main)
             .sink { [weak self] number in
@@ -50,10 +49,11 @@ class PhoneAuthViewModel: ObservableObject {
     func phoneNumberChanged(_ newValue: String) {
         phoneNumber = newValue
         showInvalidPhoneNumberError = false
+
     }
     
     private func validatePhoneNumber(_ number: String) {
-        
+
         do {
             let parsedNumber = try phoneNumberKit.parse(number)
             phoneNumber = phoneNumberKit.format(parsedNumber, toType: .international)
