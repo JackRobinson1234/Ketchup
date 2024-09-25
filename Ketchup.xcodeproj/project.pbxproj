@@ -82,6 +82,7 @@
 		F86868702C34811000F6CE56 /* ClusterRestaurantListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */; };
 		F86868752C34CDE600F6CE56 /* ProfileFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86868742C34CDE600F6CE56 /* ProfileFeedView.swift */; };
 		F86978D22C1E8A370036F86A /* RestaurantRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86978D12C1E8A370036F86A /* RestaurantRequest.swift */; };
+		F86D9D3A2CA3AF930068B028 /* ReferrerSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86D9D392CA3AF930068B028 /* ReferrerSearchView.swift */; };
 		F86E15B12C039FA40059D15C /* RepostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86E15B02C039FA40059D15C /* RepostView.swift */; };
 		F86EC6372C1D17FA00618EF8 /* AddRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */; };
 		F871AFF02B7832B800E4EB5F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */; };
@@ -216,7 +217,7 @@
 		F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */; };
 		F8B69F1E2C6C66800084AE68 /* LocationSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */; };
 		F8B69F222C6D4E0F0084AE68 /* BirthdaySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */; };
-		F8B69F242C6D5A240084AE68 /* UserRegistrtationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F232C6D5A240084AE68 /* UserRegistrtationViewModel.swift */; };
+		F8B69F242C6D5A240084AE68 /* UserRegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B69F232C6D5A240084AE68 /* UserRegistrationViewModel.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
 		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
 		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
@@ -388,6 +389,7 @@
 		F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterRestaurantListView.swift; sourceTree = "<group>"; };
 		F86868742C34CDE600F6CE56 /* ProfileFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFeedView.swift; sourceTree = "<group>"; };
 		F86978D12C1E8A370036F86A /* RestaurantRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantRequest.swift; sourceTree = "<group>"; };
+		F86D9D392CA3AF930068B028 /* ReferrerSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferrerSearchView.swift; sourceTree = "<group>"; };
 		F86E15B02C039FA40059D15C /* RepostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepostView.swift; sourceTree = "<group>"; };
 		F86EC6362C1D17FA00618EF8 /* AddRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRestaurantView.swift; sourceTree = "<group>"; };
 		F871AFEF2B7832B800E4EB5F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
@@ -523,7 +525,7 @@
 		F8B6995B2C2A3BE400EE5C19 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		F8B69F1D2C6C66800084AE68 /* LocationSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelectorView.swift; sourceTree = "<group>"; };
 		F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySelectorView.swift; sourceTree = "<group>"; };
-		F8B69F232C6D5A240084AE68 /* UserRegistrtationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRegistrtationViewModel.swift; sourceTree = "<group>"; };
+		F8B69F232C6D5A240084AE68 /* UserRegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRegistrationViewModel.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
 		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
 		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
@@ -862,6 +864,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F8A98C262B9A668D00D399AB /* Explore */,
 				F82BFF2B2C719B98001F296F /* Contacts */,
 				F8FB35652BF03A9A0079DE6D /* Reporting */,
@@ -1041,6 +1044,7 @@
 				F8B69F212C6D4E0F0084AE68 /* BirthdaySelectorView.swift */,
 				F87D33E52C7EA46100E5A962 /* FallingFoodView.swift */,
 				F87D33E72C7EA56500E5A962 /* PostUploadedSuccessView.swift */,
+				F86D9D392CA3AF930068B028 /* ReferrerSearchView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1051,7 +1055,7 @@
 				F8D1CD3A2B6A5A3C00CEBE76 /* LoginViewModel.swift */,
 				F8D1CD3C2B6A5A5700CEBE76 /* RegistrationViewModel.swift */,
 				F840698E2C6AEAD300C31433 /* PhoneAuthViewModel.swift */,
-				F8B69F232C6D5A240084AE68 /* UserRegistrtationViewModel.swift */,
+				F8B69F232C6D5A240084AE68 /* UserRegistrationViewModel.swift */,
 				F866CA4C2C6D62A000B4536E /* UsernameSelectionViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1331,7 +1335,6 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F879874C2C56F4F8007BAAB4 /* Sheets */,
 				F87987432C56F41F007BAAB4 /* SecondaryFeed */,
 				F87987422C56F40F007BAAB4 /* PrimaryFeed */,
@@ -2034,7 +2037,7 @@
 				F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */,
 				F871CE012BCDBD8F003C9BE8 /* CollectionsViewModel.swift in Sources */,
 				F8A24B592BE7F2BD00AB7FDD /* UploadError.swift in Sources */,
-				F8B69F242C6D5A240084AE68 /* UserRegistrtationViewModel.swift in Sources */,
+				F8B69F242C6D5A240084AE68 /* UserRegistrationViewModel.swift in Sources */,
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
 				F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */,
@@ -2124,6 +2127,7 @@
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
 				F84069912C6AEAF200C31433 /* PhoneAuthView.swift in Sources */,
 				F871B0082B8C7F3000E4EB5F /* LikedPostsView.swift in Sources */,
+				F86D9D3A2CA3AF930068B028 /* ReferrerSearchView.swift in Sources */,
 				F871CDEF2BC6F9BC003C9BE8 /* CollectionItemCell.swift in Sources */,
 				F88E0B052B6B09E400EC159B /* Movie.swift in Sources */,
 				F88E0AD02B6B069000EC159B /* RestaurantProfileSlideBarView.swift in Sources */,
@@ -2328,6 +2332,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -2384,6 +2389,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -2431,10 +2437,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -2481,10 +2488,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -2504,10 +2512,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.FoodiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ketchup.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ketchup";
 			};
 			name = Debug;
@@ -2528,10 +2537,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.FoodiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ketchup.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ketchup";
 			};
 			name = Release;
@@ -2551,10 +2561,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.FoodiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Foodi;
 			};
 			name = Debug;
@@ -2574,10 +2585,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Foodi.FoodiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Foodi;
 			};
 			name = Release;

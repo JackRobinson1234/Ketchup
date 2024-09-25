@@ -15,7 +15,7 @@ struct UsernameSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject var registrationViewModel: UserRegistrationViewModel = UserRegistrationViewModel()
     @State private var isContactsPermissionDenied = false
-
+    
     var body: some View {
         NavigationStack{
             VStack(alignment: .leading, spacing: 20) {
@@ -24,7 +24,7 @@ struct UsernameSelectionView: View {
                     .scaledToFit()
                     .frame(width: 200)
                 
-                Text("Enter your name and choose a username")
+                Text("Hey! Welcome to Ketchup, please enter your name and choose a username")
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
@@ -98,6 +98,10 @@ struct UsernameSelectionView: View {
                 }
                 .disabled(!viewModel.canSave)
             }
+            .padding(.horizontal)
+           
+            .padding(.top, 10)
+          
             .onChange(of: viewModel.username) { newValue in
                 registrationViewModel.username = newValue
             }
@@ -127,10 +131,7 @@ struct UsernameSelectionView: View {
                     }
                 }
             }
-            .onAppear {
-                checkContactsPermissionAndSync()
-            }
-            
+
         }
     }
     private func checkContactsPermissionAndSync() {

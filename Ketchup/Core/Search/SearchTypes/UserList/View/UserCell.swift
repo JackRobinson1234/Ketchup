@@ -19,7 +19,7 @@ struct UserCell: View {
             UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .medium)
             
             VStack(alignment: .leading) {
-                Text(user.username)
+                Text("@\(user.username)")
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .fontWeight(.semibold)
                     .foregroundStyle(.black)

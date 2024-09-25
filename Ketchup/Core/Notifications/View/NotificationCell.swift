@@ -52,7 +52,10 @@ struct NotificationCell: View {
             checkFollowStatus()
             checkInviteStatus()
         }
-        .fullScreenCover(isPresented: $showUserProfile) {
+        .fullScreenCover(isPresented: Binding(
+            get: { showUserProfile  },
+            set: { showUserProfile = $0 }
+        ))  {
             if let user = notification.user {
                 NavigationStack {
                     ProfileView(uid: user.id)
@@ -106,45 +109,62 @@ struct NotificationCell: View {
     }
     private var fullNotificationMessage: AttributedString {
         let username = notification.user?.username ?? ""
-        var message = ""
-        
-        switch notification.type {
-        case .postBookmark:
-            if let restaurantName = notification.restaurantName {
-                message = " created a bookmark from your post of \(restaurantName)"
-            } else {
-                message = " bookmarked your post"
-            }
-        case .collectionInvite:
-            let collectionName = notification.text ?? " a collection"
-            message = " invited you to collaborate on"
-        case .newCollectionItem:
-                    let itemName = notification.text ?? " added an item"
-                    let collectionName = notification.collectionName ?? "a collection"
-                    message = " added \(itemName) to \(collectionName)"
-        case .collectionInviteAccepted:
-            let collectionName = notification.text ?? " a collection"
-            message = " accepted your invitation to collaborate on"
-        default:
-            message = notification.type.notificationMessage
-        }
-        
-        let additionalText = (notification.type != .postWentWithMention && notification.type != .newCollectionItem) ? (notification.text ?? "") : ""
+        let message = generateMessage(for: notification)
+        let additionalText = shouldAppendAdditionalText(notification) ? (notification.text ?? "") : ""
         let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
         
         var result = AttributedString(fullText)
         result.font = .custom("MuseoSansRounded-300", size: 14)
         result.foregroundColor = .black
-        
+
+        applyBoldFontToUsername(&result, username: username)
+        applyBoldFontToRestaurantName(&result)
+        applyAccentColorToMentions(&result, fullText: fullText, username: username)
+
+        return result
+    }
+
+    private func generateMessage(for notification: Notification) -> String {
+        switch notification.type {
+        case .welcomeReferral:
+            return " referred you to Ketchup. Welcome!"
+        case .newReferral:
+            return " joined Ketchup using your referral!"
+        case .postBookmark:
+            if let restaurantName = notification.restaurantName {
+                return " created a bookmark from your post of \(restaurantName)"
+            } else {
+                return " bookmarked your post"
+            }
+        case .collectionInvite:
+            return " invited you to collaborate on \(notification.text ?? "a collection")"
+        case .newCollectionItem:
+            return " added \(notification.text ?? "an item") to \(notification.collectionName ?? "a collection")"
+        case .collectionInviteAccepted:
+            return " accepted your invitation to collaborate on \(notification.text ?? "a collection")"
+        default:
+            return notification.type.notificationMessage
+        }
+    }
+
+    private func shouldAppendAdditionalText(_ notification: Notification) -> Bool {
+        return ![.postWentWithMention, .newCollectionItem, .welcomeReferral, .newReferral].contains(notification.type)
+    }
+
+    private func applyBoldFontToUsername(_ result: inout AttributedString, username: String) {
         if let usernameRange = result.range(of: "@\(username)") {
             result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)
         }
-        
+    }
+
+    private func applyBoldFontToRestaurantName(_ result: inout AttributedString) {
         if let restaurantName = notification.restaurantName,
            let restaurantRange = result.range(of: "\"\(restaurantName)\"") {
             result[restaurantRange].font = .custom("MuseoSansRounded-700", size: 14)
         }
-        
+    }
+
+    private func applyAccentColorToMentions(_ result: inout AttributedString, fullText: String, username: String) {
         let pattern = "@\\w+"
         if let regex = try? NSRegularExpression(pattern: pattern) {
             let nsRange = NSRange(fullText.startIndex..., in: fullText)
@@ -161,8 +181,6 @@ struct NotificationCell: View {
                 }
             }
         }
-        
-        return result
     }
     
     private var timestampText: some View {
@@ -174,7 +192,7 @@ struct NotificationCell: View {
     @ViewBuilder
     private var actionButton: some View {
         switch notification.type {
-        case .follow, .newUser:
+        case .follow, .newUser, .welcomeReferral, .newReferral:
             followButton
         case .collectionInvite:
             inviteActionButtons
@@ -249,7 +267,7 @@ struct NotificationCell: View {
     }
     
     private func checkFollowStatus() {
-        if notification.type == .follow || notification.type == .newUser {
+        if notification.type == .follow || notification.type == .newUser || notification.type == .welcomeReferral || notification.type == .newReferral {
             Task {
                 self.isFollowed = await viewModel.checkIfUserIsFollowed(userId: notification.uid)
             }

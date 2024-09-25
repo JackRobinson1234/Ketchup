@@ -16,7 +16,7 @@ class ContactService {
     static let shared = ContactService()
     private let db = Firestore.firestore()
     private let contactStore = CNContactStore()
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let batchSize = 50
     
     @Published var error: Error?

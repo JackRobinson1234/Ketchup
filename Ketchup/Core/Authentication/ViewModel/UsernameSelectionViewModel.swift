@@ -28,6 +28,7 @@ class UsernameSelectionViewModel: ObservableObject {
     @Published var selectedLocation: Location?
     @Published var showMaxCharReachedWarning = false
     private var usernameCheckWorkItem: DispatchWorkItem?
+
     
     var canSave: Bool {
         return isUsernameAvailable == true && !username.isEmpty && isUsernameValid && !isChecking && isFullNameValid

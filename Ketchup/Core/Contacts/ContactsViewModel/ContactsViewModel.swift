@@ -28,7 +28,7 @@ class ContactsViewModel: ObservableObject {
     private var lastNewDocument: DocumentSnapshot?
     private var lastExistingDocument: DocumentSnapshot?
 
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let contactStore = CNContactStore()
     private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
     private var currentPage = 0

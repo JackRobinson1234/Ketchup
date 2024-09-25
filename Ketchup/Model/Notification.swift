@@ -27,6 +27,7 @@ struct Notification: Identifiable, Codable {
     var collectionCoverImage: [String]?
     var inviteStatus: InviteStatus?
     var collectionName: String?
+    
 }
 
 enum NotificationType: Int, Codable {
@@ -45,6 +46,8 @@ enum NotificationType: Int, Codable {
     case collectionInvite
     case collectionInviteAccepted
     case newCollectionItem
+    case welcomeReferral  // New case for welcome notification to new user
+    case newReferral
     var notificationMessage: String {
         switch self {
         case .postLike: return " liked one of your posts."
@@ -62,6 +65,8 @@ enum NotificationType: Int, Codable {
         case .collectionInvite: return " invited you to collaborate on a collection: "
         case .collectionInviteAccepted: return " accepted your invitation to collaborate on: "
         case .newCollectionItem: return " added an item to "
+        case .welcomeReferral: return "Welcome to Ketchup! Do you want to follow the person who referred you?"
+        case .newReferral: return "mentioned you as a referral!"
 
         }
     }

@@ -30,7 +30,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
     }
-    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+            if Auth.auth().canHandle(url) {
+                return true
+            }
+            // Here you can handle other custom URL schemes if needed
+            return false
+        }
     private func setupNotifications(_ application: UIApplication) {
         //print("Setting up notifications...")
         UNUserNotificationCenter.current().delegate = self
@@ -51,7 +57,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
         resetBadgeCount()
     }
-    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+      for urlContext in URLContexts {
+          let url = urlContext.url
+          _ = Auth.auth().canHandle(url)
+      }
+      // URL not auth related; it should be handled separately.
+    }
     private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
             if let error = error {

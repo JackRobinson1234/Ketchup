@@ -37,7 +37,7 @@ class PhoneAuthViewModel: ObservableObject {
     }
     
     private func setupPhoneNumberValidation() {
-        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+        //Auth.auth().settings?.isAppVerificationDisabledForTesting = true
         $phoneNumber
             .debounce(for: .seconds(debounceDuration), scheduler: RunLoop.main)
             .sink { [weak self] number in

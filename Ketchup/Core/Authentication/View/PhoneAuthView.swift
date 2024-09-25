@@ -32,7 +32,7 @@ struct PhoneAuthView: View {
                     
                 }
                 
-                Text("First, What's your phone number?")
+                Text("Welcome to Ketchup! First, What's your phone number?")
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)

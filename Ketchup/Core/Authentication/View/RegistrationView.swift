@@ -186,7 +186,7 @@ struct RegistrationView: View {
                     .modifier(StandardButtonModifier())
                     .overlay {
                         if viewModel.isAuthenticating {
-                           ProgressView()
+                            ProgressView()
                                 .tint(.white)
                         }
                     }
@@ -233,10 +233,7 @@ struct RegistrationView: View {
             }
             .padding(.vertical, 16)
         }
-//        .alert(isPresented: $viewModel.showAlert) {
-//            Alert(title: Text("Error"),
-//                  message: Text(viewModel.authError?.description ?? ""))
-//        }
+        
         .modifier(BackButtonModifier())
         .onChange(of: viewModel.registrationAttempts) {newValue in
             if viewModel.registrationAttempts >= maxRegistrationAttempts{
@@ -246,10 +243,10 @@ struct RegistrationView: View {
             }
         }
         .alert("Error", isPresented: $viewModel.showAlert) {
-                   Button("OK", role: .cancel) { }
-               } message: {
-                   Text("An account with that email already exists, please try another email.")
-               }
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("An account with that email already exists, please try another email.")
+        }
     }
 }
 

@@ -75,7 +75,8 @@ class AuthService {
         birthday: Date? = nil,
         location: Location? = nil,
         phoneNumber: String? = nil,
-        hasCompletedSetup: Bool
+        hasCompletedSetup: Bool,
+        referrer: String? = nil
     ) async throws -> User {
         let userRef = FirestoreConstants.UserCollection.document(id)
         
@@ -100,6 +101,9 @@ class AuthService {
         if let location = location {
             updatedUserData["location"] = try Firestore.Encoder().encode(location)
         }
+        if let referrer = referrer {
+            updatedUserData["referredBy"] = referrer
+        }
         updatedUserData["createdAt"] = Timestamp(date: Date())
         updatedUserData["lastActive"] = Timestamp(date: Date())
         
@@ -108,14 +112,14 @@ class AuthService {
         
         do {
             try await userRef.setData(updatedUserData, merge: true)
-            //print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
+            print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
             
             let updatedUser = try await userRef.getDocument(as: User.self)
             self.userSession = updatedUser
             
             return updatedUser
         } catch {
-            //print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
+            print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
             throw error
         }
     }

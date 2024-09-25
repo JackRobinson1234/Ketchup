@@ -26,13 +26,15 @@ struct User: Codable, Identifiable, Hashable {
     var lastActive: Date?
     var contactsSynced: Bool = false
     var inviteCount: Int = 0
-    var followingPosts: Int = 0 // New property with default value
+    var followingPosts: Int = 0
+    var referredBy: String? = nil
+    var totalReferrals: Int = 0  // New property with default value of 0
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals  // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -49,38 +51,31 @@ struct User: Codable, Identifiable, Hashable {
         self.notificationAlert = try container.decodeIfPresent(Int.self, forKey: .notificationAlert) ?? 0
         self.location = try container.decodeIfPresent(Location.self, forKey: .location)
         
-        // Decode birthday property
         if let birthdayTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .birthday) {
             self.birthday = birthdayTimestamp.dateValue()
         } else {
             self.birthday = nil
         }
         
-        // Decode hasCompletedSetup property
         self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
         
-        // Decode createdAt property
         if let createdAtTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .createdAt) {
             self.createdAt = createdAtTimestamp.dateValue()
         } else {
             self.createdAt = nil
         }
         
-        // Decode lastActive property
         if let lastActiveTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastActive) {
             self.lastActive = lastActiveTimestamp.dateValue()
         } else {
             self.lastActive = nil
         }
 
-        // Decode contactsSynced property
         self.contactsSynced = try container.decodeIfPresent(Bool.self, forKey: .contactsSynced) ?? false
-        
-        // Decode inviteCount property, defaulting to 0 if not present
         self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
-
-        // Decode followingPosts property, defaulting to 0 if not present
         self.followingPosts = try container.decodeIfPresent(Int.self, forKey: .followingPosts) ?? 0
+        self.referredBy = try container.decodeIfPresent(String.self, forKey: .referredBy)
+        self.totalReferrals = try container.decodeIfPresent(Int.self, forKey: .totalReferrals) ?? 0  // New decoding for totalReferrals
     }
 
     init(
@@ -98,7 +93,9 @@ struct User: Codable, Identifiable, Hashable {
         lastActive: Date? = nil,
         contactsSynced: Bool = false,
         inviteCount: Int = 0,
-        followingPosts: Int = 0 // New parameter with default value
+        followingPosts: Int = 0,
+        referredBy: String? = nil,
+        totalReferrals: Int = 0  // New parameter with default value
     ) {
         self.id = id
         self.username = username
@@ -123,6 +120,8 @@ struct User: Codable, Identifiable, Hashable {
         self.contactsSynced = contactsSynced
         self.inviteCount = inviteCount
         self.followingPosts = followingPosts
+        self.referredBy = referredBy
+        self.totalReferrals = totalReferrals  // Initialize the new property
     }
 
     func encode(to encoder: Encoder) throws {
@@ -139,32 +138,25 @@ struct User: Codable, Identifiable, Hashable {
         try container.encode(notificationAlert, forKey: .notificationAlert)
         try container.encodeIfPresent(location, forKey: .location)
         
-        // Encode birthday property
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
         
-        // Encode hasCompletedSetup property
         try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
         
-        // Encode createdAt property
         if let createdAt = createdAt {
             try container.encode(Timestamp(date: createdAt), forKey: .createdAt)
         }
         
-        // Encode lastActive property
         if let lastActive = lastActive {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
         
-        // Encode contactsSynced property
         try container.encode(contactsSynced, forKey: .contactsSynced)
-        
-        // Encode inviteCount property
         try container.encode(inviteCount, forKey: .inviteCount)
-        
-        // Encode followingPosts property
         try container.encode(followingPosts, forKey: .followingPosts)
+        try container.encodeIfPresent(referredBy, forKey: .referredBy)
+        try container.encode(totalReferrals, forKey: .totalReferrals)  // New encoding for totalReferrals
     }
 }
 

@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-protobuf.git",
       "state" : {
-        "revision" : "e17d61f26df0f0e06f58f6977ba05a097a720106",
-        "version" : "1.27.1"
+        "revision" : "edb6ed4919f7756157fe02f2552b7e3850a538e5",
+        "version" : "1.28.1"
       }
     },
     {
@@ -96,7 +96,7 @@
       "location" : "https://github.com/benedom/SwiftyCrop",
       "state" : {
         "branch" : "master",
-        "revision" : "f3189b74d49db138c9a4a9982314172fff8f9251"
+        "revision" : "6ee0b98647d8068066b8c77876acb868ad2294a5"
       }
     },
     {

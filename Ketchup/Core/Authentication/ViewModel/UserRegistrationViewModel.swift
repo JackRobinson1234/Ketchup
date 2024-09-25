@@ -26,13 +26,15 @@ class UserRegistrationViewModel: ObservableObject {
                 fullname: fullname,
                 birthday: birthday,
                 location: location,
-                hasCompletedSetup: true
+                hasCompletedSetup: true,
+                referrer: referrer?.id
             )
-            
-            //print("Successfully updated user: \(updatedUser)")
-            try await AuthService.shared.createContactAlertUser(user: updatedUser)
-            // Update the user session
-            try await AuthService.shared.updateUserSession()
+            Task{
+                //print("Successfully updated user: \(updatedUser)")
+                try await AuthService.shared.createContactAlertUser(user: updatedUser)
+                // Update the user session
+                try await AuthService.shared.updateUserSession()
+            }
         } catch {
             //print("Failed to update user: \(error.localizedDescription)")
             throw error
