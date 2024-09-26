@@ -234,12 +234,58 @@ class UploadViewModel: ObservableObject {
         uploadSuccess = true
         feedViewModel.showPostAlert = true
         feedViewModel.posts.insert(post, at: 0)
+        
         if !fromRestaurantProfile{
             currentUserFeedViewModel.posts.insert(post, at: 0)
         }
+        if let currentUser = AuthService.shared.userSession {
+            let postDate = Date() // Or use the server timestamp if available
+            updateWeeklyStreak(for: currentUser, withPostDate: postDate)
+        }
         showSuccessMessage = true
     }
-
+    private func updateWeeklyStreak(for user: User, withPostDate postDate: Date) {
+        let calendar = Calendar.current
+        
+        // Calculate the start of the week for the current post
+        let currentWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: postDate))!
+        
+        var newStreak = user.weeklyStreak
+        
+        if let lastPostDate = user.mostRecentPost {
+            // Calculate the start of the week for the last post
+            let lastPostWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: lastPostDate))!
+            
+            if currentWeekStart > lastPostWeekStart {
+                // This is the first post of the new week
+                newStreak += 1
+            }
+        } else {
+            // This is the user's first post ever
+            newStreak = 1
+        }
+        
+        // Update user locally
+        var updatedUser = user
+        updatedUser.weeklyStreak = newStreak
+        updatedUser.mostRecentPost = postDate
+        
+        // Update AuthService.shared.userSession
+        AuthService.shared.userSession = updatedUser
+        
+        // Update user in Firestore
+        let userRef = Firestore.firestore().collection("users").document(user.id)
+        userRef.updateData([
+            "weeklyStreak": newStreak,
+            "mostRecentPost": Timestamp(date: postDate)
+        ]) { error in
+            if let error = error {
+                print("Error updating user streak: \(error.localizedDescription)")
+            } else {
+                print("Successfully updated user streak. New streak: \(newStreak)")
+            }
+        }
+    }
     private func handleUploadFailure(error: Error) {
         self.error = error
         uploadFailure = true

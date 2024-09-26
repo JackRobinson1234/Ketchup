@@ -28,13 +28,15 @@ struct User: Codable, Identifiable, Hashable {
     var inviteCount: Int = 0
     var followingPosts: Int = 0
     var referredBy: String? = nil
-    var totalReferrals: Int = 0  // New property with default value of 0
+    var totalReferrals: Int = 0
+    var weeklyStreak: Int = 0
+    var mostRecentPost: Date?
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals  // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost
     }
 
     init(from decoder: Decoder) throws {
@@ -75,7 +77,14 @@ struct User: Codable, Identifiable, Hashable {
         self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
         self.followingPosts = try container.decodeIfPresent(Int.self, forKey: .followingPosts) ?? 0
         self.referredBy = try container.decodeIfPresent(String.self, forKey: .referredBy)
-        self.totalReferrals = try container.decodeIfPresent(Int.self, forKey: .totalReferrals) ?? 0  // New decoding for totalReferrals
+        self.totalReferrals = try container.decodeIfPresent(Int.self, forKey: .totalReferrals) ?? 0
+        self.weeklyStreak = try container.decodeIfPresent(Int.self, forKey: .weeklyStreak) ?? 0
+        
+        if let mostRecentPostTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .mostRecentPost) {
+            self.mostRecentPost = mostRecentPostTimestamp.dateValue()
+        } else {
+            self.mostRecentPost = nil
+        }
     }
 
     init(
@@ -95,7 +104,9 @@ struct User: Codable, Identifiable, Hashable {
         inviteCount: Int = 0,
         followingPosts: Int = 0,
         referredBy: String? = nil,
-        totalReferrals: Int = 0  // New parameter with default value
+        totalReferrals: Int = 0,
+        weeklyStreak: Int = 0,
+        mostRecentPost: Date? = nil
     ) {
         self.id = id
         self.username = username
@@ -121,7 +132,9 @@ struct User: Codable, Identifiable, Hashable {
         self.inviteCount = inviteCount
         self.followingPosts = followingPosts
         self.referredBy = referredBy
-        self.totalReferrals = totalReferrals  // Initialize the new property
+        self.totalReferrals = totalReferrals
+        self.weeklyStreak = weeklyStreak
+        self.mostRecentPost = mostRecentPost
     }
 
     func encode(to encoder: Encoder) throws {
@@ -156,7 +169,12 @@ struct User: Codable, Identifiable, Hashable {
         try container.encode(inviteCount, forKey: .inviteCount)
         try container.encode(followingPosts, forKey: .followingPosts)
         try container.encodeIfPresent(referredBy, forKey: .referredBy)
-        try container.encode(totalReferrals, forKey: .totalReferrals)  // New encoding for totalReferrals
+        try container.encode(totalReferrals, forKey: .totalReferrals)
+        try container.encode(weeklyStreak, forKey: .weeklyStreak)
+        
+        if let mostRecentPost = mostRecentPost {
+            try container.encode(Timestamp(date: mostRecentPost), forKey: .mostRecentPost)
+        }
     }
 }
 

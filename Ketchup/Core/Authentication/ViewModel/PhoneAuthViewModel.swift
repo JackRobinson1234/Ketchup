@@ -243,7 +243,7 @@ class PhoneAuthViewModel: ObservableObject {
                 username: randomUsername,
                 fullname: "",
                 birthday: Date(),
-                phoneNumber: self.phoneNumber,
+                phoneNumber: hashPhoneNumber(self.phoneNumber),
                 privateMode: false
             )
             Task{

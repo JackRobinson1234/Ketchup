@@ -47,7 +47,9 @@ struct ProfileHeaderView: View {
                         Text("\(city), \(state)")
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .foregroundColor(.black)
+                        
                     }
+                   
                     if user.isCurrentUser {
                         Button {
                             showEditProfile.toggle()
@@ -107,6 +109,11 @@ struct ProfileHeaderView: View {
                 } label: {
                     UserStatView(value: user.stats.collections, title: "Collections")
                 }
+            }
+            HStack(spacing: 2) {
+                Text("🔥\(user.weeklyStreak) week  streak")
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.black)
             }
             Text("Favorites")
                 .font(.custom("MuseoSansRounded-700", size: 14))
