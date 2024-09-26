@@ -31,11 +31,17 @@ struct PhoneAuthView: View {
                     Text("Hey @\(userSession.username), we're updating our sign in flow! Don't worry- this will be linked to your existing account")
                         .font(.custom("MuseoSansRounded-500", size: 20))
                 }
+                    
                 
                 Text("First, What's your phone number?")
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
+                    .onAppear{
+                        ////DELETE BEFORE PUSHING
+                        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+
+                    }
 
                 
                 HStack {

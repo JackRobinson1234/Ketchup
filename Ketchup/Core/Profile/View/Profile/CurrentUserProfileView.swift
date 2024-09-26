@@ -18,6 +18,8 @@ struct CurrentUserProfileView: View {
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
     @ObservedObject var feedViewModel: FeedViewModel
+    @State private var selectedBadge: Badge? = nil
+    @State private var selectedBadgeType: BadgeType? = nil
 
     init(currentProfileSection: ProfileSectionEnum = .posts,  feedViewModel: FeedViewModel) {
         let viewModel = ProfileViewModel(uid: "")
@@ -49,7 +51,10 @@ struct CurrentUserProfileView: View {
                                 //MARK: Slide bar
                                 ProfileSlideBar(viewModel: profileViewModel, feedViewModel: feedViewModel,
                                                 scrollPosition: $scrollPosition,
-                                                scrollTarget: $scrollTarget)
+                                                scrollTarget: $scrollTarget,
+                                                selectedBadge: $selectedBadge,
+                                                selectedBadgeType: $selectedBadgeType
+                                )
                             }
                         }
                         .onChange(of: scrollTarget) {
@@ -133,7 +138,59 @@ struct CurrentUserProfileView: View {
                     }
                 }
             }
-
+            
+            // Overlay for the popup
+            if let badge = selectedBadge {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            selectedBadge = nil
+                        }
+                    }
+                
+                VStack {
+                    Spacer()
+                    BadgeDetailView(badge: badge, onDismiss: {
+                        withAnimation {
+                            selectedBadge = nil
+                        }
+                    })
+                    .frame(width: UIScreen.main.bounds.width * 0.8,
+                           height: UIScreen.main.bounds.height * 0.6)
+                    .background(Color.white)
+                    .cornerRadius(20)
+                    .shadow(radius: 20)
+                    Spacer()
+                }
+            }
+            
+            // Overlay for Badge Type Info View
+            if let badgeType = selectedBadgeType {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            selectedBadgeType = nil
+                        }
+                    }
+                
+                VStack {
+                    Spacer()
+                    BadgeTypeInfoView(badgeType: badgeType, onDismiss: {
+                        withAnimation {
+                            selectedBadgeType = nil
+                        }
+                    })
+                    .frame(width: UIScreen.main.bounds.width * 0.8,
+                           height: UIScreen.main.bounds.height * 0.4)
+                    .background(Color.white)
+                    .cornerRadius(20)
+                    .shadow(radius: 20)
+                    Spacer()
+                }
+            }
+            
             if showZoomedProfileImage {
                 Color.black.opacity(0.7)
                     .ignoresSafeArea()

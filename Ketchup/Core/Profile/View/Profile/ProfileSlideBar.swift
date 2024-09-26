@@ -31,17 +31,21 @@ struct ProfileSlideBar: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
-
+    @Binding var selectedBadge: Badge?
+    @Binding var selectedBadgeType: BadgeType?
+    
     private var isKetchupMediaUser: Bool {
         return viewModel.user.username == "ketchup_media"
     }
 
-    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, selectedBadge: Binding<Badge?>, selectedBadgeType: Binding<BadgeType?>) {
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
         self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
+        self._selectedBadge = selectedBadge
+        self._selectedBadgeType = selectedBadgeType
     }
 
     var body: some View {
@@ -143,7 +147,7 @@ struct ProfileSlideBar: View {
             // Add BadgeListView when badges are selected
             if viewModel.profileSection == .badges {
                 
-                ProfileBadgeView(user: viewModel.user)
+                ProfileBadgeView(user: viewModel.user, selectedBadge: $selectedBadge, selectedBadgeType: $selectedBadgeType)
             }
         }
     }
