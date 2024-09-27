@@ -29,7 +29,7 @@ struct PhoneAuthView: View {
                 if isDelete {
                     deleteAccountMessage
                 } else if let userSession = AuthService.shared.userSession {
-                    
+                   
                 }
                 
                 Text("Welcome to Ketchup! First, What's your phone number?")

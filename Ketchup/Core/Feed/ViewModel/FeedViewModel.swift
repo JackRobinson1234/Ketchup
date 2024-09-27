@@ -681,6 +681,8 @@ extension FeedViewModel {
             if let index = posts.firstIndex(where: { $0.id == post.id }) {
                 posts.remove(at: index)
             }
+            AuthService.shared.userSession?.stats.posts -= 1
+
         } catch {
             //print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
         }

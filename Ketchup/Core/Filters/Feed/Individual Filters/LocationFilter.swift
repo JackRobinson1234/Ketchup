@@ -203,16 +203,25 @@ struct LocationFilter: View {
                 return
             }
             DispatchQueue.main.async {
-                if tempIsUsingCurrentLocation {
-                    displayLocationText = "Current Location"
-                } else {
-                    displayLocationText = [placemark.locality, placemark.administrativeArea]
-                        .compactMap { $0 }
-                        .joined(separator: ", ")
-                }
+                let mainComponents = [placemark.locality, placemark.administrativeArea]
+                       .compactMap { $0 }
+                       .joined(separator: ", ")
+                   
+                   let subLocalityComponent = placemark.subLocality.map { " (\($0))" } ?? ""
+                   
+                   displayLocationText = mainComponents + subLocalityComponent
+                
+            
+                
                 if !isFocused {
                     mapSearch.searchTerm = displayLocationText
                 }
+                print("subLoc", placemark.subLocality)
+                print("subAdministrative", placemark.subAdministrativeArea)
+                print("locality", placemark.locality)
+                print("name", placemark.name)
+                print("thoroughfare", placemark.thoroughfare)
+                print("subthoroughfare", placemark.subThoroughfare)
                 tempCity = placemark.locality
                 tempState = placemark.administrativeArea
                 tempSurroundingCounty = placemark.subAdministrativeArea ?? "Nearby"

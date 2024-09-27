@@ -49,7 +49,7 @@ struct ProfileHeaderView: View {
                             .foregroundColor(.black)
                         
                     }
-                   
+                    
                     if user.isCurrentUser {
                         Button {
                             showEditProfile.toggle()
@@ -110,11 +110,12 @@ struct ProfileHeaderView: View {
                     UserStatView(value: user.stats.collections, title: "Collections")
                 }
             }
-            HStack(spacing: 2) {
-                Text("🔥\(user.weeklyStreak) week  streak")
-                    .font(.custom("MuseoSansRounded-300", size: 14))
-                    .foregroundColor(.black)
-            }
+            
+            Text("🔥\(user.weeklyStreak) week streak")
+                .font(.custom("MuseoSansRounded-700", size: 14))
+                .foregroundColor(.black)
+                .cornerRadius(12)
+            
             Text("Favorites")
                 .font(.custom("MuseoSansRounded-700", size: 14))
                 .foregroundStyle(.black)
@@ -160,7 +161,3 @@ struct UserStatView: View {
         .foregroundColor(.black)
     }
 }
-
-//#Preview {
-//    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234"), profileSection: .constant(.posts))
-//}

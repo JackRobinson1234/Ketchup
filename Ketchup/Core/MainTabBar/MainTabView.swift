@@ -35,7 +35,7 @@ struct MainTabView: View {
                             .foregroundStyle(.gray)
                     }
                 }
-                .onAppear {
+                .onAppear{ 
                     tabBarController.selectedTab = 0
                     tabBarController.visibility = .visible
                 }
@@ -43,6 +43,7 @@ struct MainTabView: View {
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
+                
             if #available(iOS 17, *) {
                 MapView()
                     .tabItem {

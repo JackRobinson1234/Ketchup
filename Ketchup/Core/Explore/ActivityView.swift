@@ -56,7 +56,7 @@ struct ActivityView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     tabButtons
-                    
+                    PollView(poll: Poll.createNewPoll(question: "What is the best spot in LA", options: ["Phillipe", "Apple Pan"]))
                     if isLoading {
                         FastCrossfadeFoodImageView()
                     } else {

@@ -69,7 +69,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             if let error = error {
                 //print("Error fetching FCM registration token: \(error)")
             } else if let token = token {
-                //print("FCM registration token: \(token)")
+                print("FCM registration token: \(token)")
             }
         }
     }
@@ -245,6 +245,7 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
             rootView: EmptyView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .modifier(InAppNotificationViewModifier())
+                .modifier(UploadViewModifier()) // Apply the new modifier
         )
         secondaryViewController.view.backgroundColor = .clear
         let secondaryWindow = PassThroughWindow(windowScene: scene)
@@ -279,3 +280,29 @@ struct InAppNotificationViewModifier: ViewModifier {
             }
     }
 }
+struct UploadViewModifier: ViewModifier {
+    @State private var showUploadView = false
+    @StateObject var feedViewModel = FeedViewModel()
+    @StateObject var currentUserFeedViewModel = FeedViewModel()
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if showUploadView {
+                    NewPostCongratulations(isShown: $showUploadView)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .presentUploadView)) { _ in
+                DispatchQueue.main.async {
+                    showUploadView = true
+                }
+            }
+    }
+}
+
+
+
+extension Foundation.Notification.Name {
+    static let presentUploadView = Foundation.Notification.Name("presentUploadView")
+}
+

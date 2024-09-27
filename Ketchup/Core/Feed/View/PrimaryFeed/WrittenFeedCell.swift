@@ -40,6 +40,7 @@ struct WrittenFeedCell: View {
     @State private var scrollViewWidth: CGFloat = 0
     @State private var dragOffset: CGFloat = 0
     @GestureState private var dragState = DragState.inactive
+    var hideActionButtons: Bool = false
 
     private enum DragState {
         case inactive
@@ -57,13 +58,15 @@ struct WrittenFeedCell: View {
 
     var checkLikes: Bool
 
-    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false) {
+    init(viewModel: FeedViewModel, post: Binding<Post>, scrollPosition: Binding<String?>, pauseVideo: Binding<Bool>, selectedPost: Binding<Post?>, checkLikes: Bool = false,     hideActionButtons: Bool = false
+) {
         self._viewModel = ObservedObject(initialValue: viewModel)
         self._post = post
         self._scrollPosition = scrollPosition
         self._pauseVideo = pauseVideo
         self._selectedPost = selectedPost
         self.checkLikes = checkLikes
+        self.hideActionButtons = hideActionButtons
 
         // Initialize videoCoordinators
         let coordinators = VideoPrefetcher.shared.getPlayerItems(for: post.wrappedValue)
@@ -85,6 +88,8 @@ struct WrittenFeedCell: View {
                 }) {
                     UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
                 }
+                .disabled(hideActionButtons)
+
                 Button(action: {
                     showUserProfile = true
                 }) {
@@ -101,6 +106,7 @@ struct WrittenFeedCell: View {
                             .multilineTextAlignment(.leading)
                     }
                 }
+                .disabled(hideActionButtons)
                 .disabled(post.user.username == "ketchup_media")
                 Spacer()
                 if let timestamp = post.timestamp {
@@ -183,10 +189,13 @@ struct WrittenFeedCell: View {
             taggedUsersView()
 
             // Interaction buttons
-            interactionButtonsView()
-
-            Divider()
-                .padding(.top, 5)
+            if !hideActionButtons {
+                interactionButtonsView()
+            }
+            if !hideActionButtons {
+                Divider()
+                    .padding(.top, 5)
+            }
         }
         .onAppear(perform: onAppear)
         .onChange(of: scrollPosition) { _ in handleScrollPositionChange() }
@@ -443,6 +452,7 @@ struct WrittenFeedCell: View {
                 .padding(.horizontal)
                 .padding(.top, 5)
             }
+            .disabled(hideActionButtons)
 
             if isExpanded {
                 RatingsView(post: post, isExpanded: $isExpanded)
@@ -477,6 +487,7 @@ struct WrittenFeedCell: View {
                     HStack {
                         Text("Went with:")
                             .font(.custom("MuseoSansRounded-300", size: 16))
+                            .foregroundStyle(.black)
                             .bold()
 
                         ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
@@ -494,6 +505,7 @@ struct WrittenFeedCell: View {
                         Spacer()
                     }
                 }
+                .disabled(hideActionButtons)
                 .sheet(isPresented: $isTaggedSheetPresented) {
                     TaggedUsersSheetView(taggedUsers: post.taggedUsers)
                         .presentationDetents([.medium])

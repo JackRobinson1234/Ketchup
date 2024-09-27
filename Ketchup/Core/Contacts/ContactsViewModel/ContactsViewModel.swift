@@ -12,6 +12,7 @@ import PhoneNumberKit
 import FirebaseAuth
 import FirebaseFirestoreInternal
 import MessageUI
+import CryptoKit
 
 class ContactsViewModel: ObservableObject {
     @Published var contacts: [Contact] = []
@@ -155,6 +156,7 @@ class ContactsViewModel: ObservableObject {
         try await contactStore.enumerateContacts(with: request) { contact, _ in
             for phoneNumber in contact.phoneNumbers {
                 if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
+                    let formattedNumber = hashPhoneNumber(formattedNumber)
                     let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespacesAndNewlines)
                     self.deviceContacts[formattedNumber] = name
                 }
@@ -246,6 +248,11 @@ class ContactsViewModel: ObservableObject {
         self.messageRecipient = contact.phoneNumber
         self.isShowingMessageComposer = true
     }
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+           let inputData = Data(phoneNumber.utf8)
+           let hashed = SHA256.hash(data: inputData)
+           return hashed.compactMap { String(format: "%02x", $0) }.joined()
+       }
 }
 
 
@@ -279,4 +286,5 @@ struct ContactMessageComposeView: UIViewControllerRepresentable {
             parent.isShowing = false
         }
     }
+   
 }

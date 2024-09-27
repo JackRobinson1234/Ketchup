@@ -131,7 +131,7 @@ struct ReelsUploadView: View {
                 uploadViewModel.checkForMentioning()
             }
             .navigationDestination(isPresented: $isPickingRestaurant) {
-                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, isEditingRestaurant: true)
+                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel,  isEditingRestaurant: true)
                     .navigationTitle("Select Restaurant")
             }
             .sheet(isPresented: $isTaggingUsers) {
@@ -463,9 +463,10 @@ struct ReelsUploadView: View {
                 showAlert = true
             } else {
                 Task {
-                    
                     let overallRating = calculateOverallRating()
-                    await uploadViewModel.uploadPost()
+                    let post = try await uploadViewModel.uploadPost()
+                    UploadService.shared.newestPost = post
+                    NotificationCenter.default.post(name: .presentUploadView, object: nil)
                     if !uploadViewModel.fromRestaurantProfile{
                         tabBarController.selectedTab = 0
                     }
@@ -476,14 +477,54 @@ struct ReelsUploadView: View {
                 }
             }
         } label: {
-            Text(uploadViewModel.isLoading ? "" : "Post")
-                .modifier(StandardButtonModifier(width: 90))
-                .overlay {
-                    if uploadViewModel.isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    }
-                }
+            VStack{
+//                VStack {
+//                    ZStack {
+//                        // Button background
+//                        RoundedRectangle(cornerRadius: 10)
+//                            .fill(Color("Colors/AccentColor"))
+//                            .frame(width: 190, height: 50)
+//                        
+//                        // Progress indicator around the button
+//                        PerimeterProgressView(progress: uploadViewModel.uploadProgress / 100)
+//                            .stroke(Color.white, lineWidth: 3)
+//                            .frame(width: 190, height: 50)
+//                        
+//                        // Button text
+//                        Text("Post")
+//                            .foregroundColor(.white)
+//                            .font(.headline)
+//                    }
+//                    .frame(width: 190, height: 50)
+//                }
+                ProgressButton(uploadViewModel: uploadViewModel)
+
+           
+//                ZStack {
+//                        // Button background
+//                        RoundedRectangle(cornerRadius: 10)
+//                            .fill(Color("Colors/AccentColor"))
+//                            .frame(height: 50)
+//                        
+//                        // Button text
+//                        Text("Post")
+//                            .foregroundColor(.white)
+//                            .font(.headline)
+//                        
+//                        // Progress indicator at the bottom of the button
+//                        GeometryReader { geometry in
+//                            Rectangle()
+//                                .fill(Color.white)
+//                                .frame(width: geometry.size.width * CGFloat(uploadViewModel.uploadProgress / 100), height: 4)
+//                                .position(x: geometry.size.width / 2, y: geometry.size.height - 2)
+//                        }
+//                    }
+//                    .frame(width: 190, height: 50)
+//                    .animation(.linear(duration: 0.2), value: uploadViewModel.uploadProgress)
+                
+            }
+            
+            
         }
         .disabled(uploadViewModel.isLoading)
         .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
@@ -644,5 +685,33 @@ extension View {
         } else {
             self
         }
+    }
+}
+struct ProgressButton: View {
+    @ObservedObject var uploadViewModel: UploadViewModel
+    
+    var body: some View {
+        ZStack(alignment: .leading) {
+            // Button background
+            RoundedRectangle(cornerRadius: 12)
+                .fill(uploadViewModel.isLoading ? .gray : Color("Colors/AccentColor"))
+            
+            // Progress bar
+            Rectangle()
+                .fill(Color("Colors/AccentColor"))
+                .frame(width: calculateProgressWidth(), height: nil)
+            
+            // Button text
+            Text(uploadViewModel.isLoading ? "Creating Post" : "Post")
+                .foregroundColor(.white)
+                .font(.custom("MuseoSansRounded-700", size: 16))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(width: 190, height: 50)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func calculateProgressWidth() -> CGFloat {
+        return 190 * CGFloat(uploadViewModel.uploadProgress / 100)
     }
 }

@@ -49,7 +49,6 @@ class PhoneAuthViewModel: ObservableObject {
     func phoneNumberChanged(_ newValue: String) {
         phoneNumber = newValue
         showInvalidPhoneNumberError = false
-
     }
     
     private func validatePhoneNumber(_ number: String) {

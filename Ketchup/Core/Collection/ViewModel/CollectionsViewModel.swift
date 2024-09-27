@@ -357,7 +357,12 @@ class CollectionsViewModel: ObservableObject {
         var data: [String: Any] = [:]
         
         if coverImage != nil, let uiImage = self.uiImage {
-            let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
+            let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection,
+                                                               progressHandler: { progress in
+                                                                   DispatchQueue.main.async {
+//                                                                       self.uploadProgress = progress
+                                                                   }
+                                                               })
             data["coverImageUrl"] = imageUrl
             selectedCollection.coverImageUrl = imageUrl
             changed = true

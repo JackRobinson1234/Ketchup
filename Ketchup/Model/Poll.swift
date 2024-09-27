@@ -16,13 +16,13 @@ struct Poll: Identifiable, Codable {
     var commentCount: Int
     var imageUrl: String?
     
-    struct PollOption: Identifiable, Codable {
-        let id: String
-        let text: String
-        var voteCount: Int
-    }
 }
-
+struct PollOption: Identifiable, Codable {
+    let id: String
+    let text: String
+    var voteCount: Int
+    var restaurant: PostRestaurant?
+}
 extension Poll {
     static func createNewPoll(question: String, options: [String], imageUrl: String? = nil) -> Poll {
         let now = Date()

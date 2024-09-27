@@ -51,7 +51,7 @@ class RestaurantViewModel: ObservableObject {
         }
     }
     
-    private func calculateRatings(from ratingStats: RatingStats?) {
+    func calculateRatings(from ratingStats: RatingStats?) {
         print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
         guard let ratingStats = ratingStats else {
             print("DEBUG: RatingStats is nil")

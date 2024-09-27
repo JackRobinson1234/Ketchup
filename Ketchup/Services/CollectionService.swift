@@ -122,7 +122,12 @@ class CollectionService {
             var imageUrl: String? = nil
             if let uiImage = uiImage {
                 do {
-                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
+                    imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection,
+                                                                   progressHandler: { progress in
+                                                                       DispatchQueue.main.async {
+                                                                          // self.uploadProgress = progress
+                                                                       }
+                                                                   })
                 } catch {
                     //print("Error uploading image: \(error)")
                     // Handle the error, such as showing an alert to the user

@@ -46,6 +46,8 @@ class UploadViewModel: ObservableObject {
     @Published var dismissAll: Bool = false
     @Published var fromRestaurantProfile = false
     @Published var showSuccessMessage = false
+    @Published var uploadProgress: Double = 0.0
+
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
@@ -85,7 +87,7 @@ class UploadViewModel: ObservableObject {
         
     }
     
-    func uploadPost() async {
+    func uploadPost() async throws-> Post?{
         isLoading = true
         
         do {
@@ -98,14 +100,18 @@ class UploadViewModel: ObservableObject {
                 postRestaurant: postRestaurant,
                 mentionedUsers: mentionedUsers
             )
-            
+            AuthService.shared.userSession?.stats.posts += 1
             handleUploadSuccess(post: post)
+            isLoading = false
+            reset()
+            return post
+            
         } catch {
             handleUploadFailure(error: error)
+            isLoading = false
+            reset()
+            return nil
         }
-        
-        isLoading = false
-        reset()
     }
 
     private func createPostRestaurant() async throws -> PostRestaurant? {
@@ -168,26 +174,46 @@ class UploadViewModel: ObservableObject {
         guard !mixedMediaItems.isEmpty else { return nil }
         
         var uploadedItems: [MixedMediaItem] = []
-        for item in mixedMediaItems {
+        let totalItems = Double(mixedMediaItems.count)
+        
+        for (index, item) in mixedMediaItems.enumerated() {
+            let baseProgress = Double(index) / totalItems
+            
             switch item.type {
             case .photo:
-                if let image = item.localMedia as? UIImage,
-                   let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
-                    uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                if let image = item.localMedia as? UIImage {
+                    let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) { [baseProgress, totalItems] progress in
+                        DispatchQueue.main.async {
+                            let itemProgress = progress / totalItems
+                            self.uploadProgress = baseProgress + itemProgress
+                            print(self.uploadProgress)
+                        }
+                    }
+                    if let imageUrl = imageUrl {
+                        uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                    }
                 }
             case .video:
-                if let videoURL = item.localMedia as? URL,
-                   let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
-                    uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                if let videoURL = item.localMedia as? URL {
+                    let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) { [baseProgress, totalItems] progress in
+                        DispatchQueue.main.async {
+                            let itemProgress = progress / totalItems
+                            self.uploadProgress = baseProgress + itemProgress
+                            print(self.uploadProgress)
+                        }
+                    }
+                    if let videoUrl = videoUrl {
+                        uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                    }
                 }
             default:
-                break  // Handle other cases if necessary
+                break
             }
         }
         
         return uploadedItems
     }
-
+    
     private func uploadPostToService(
         mixedMediaItems: [MixedMediaItem]?,
         postRestaurant: PostRestaurant?,
@@ -214,20 +240,25 @@ class UploadViewModel: ObservableObject {
         }
         
         return try await UploadService.shared.uploadPost(
-            mixedMediaItems: mixedMediaItems,
-            mediaType: .mixed,
-            caption: caption,
-            postRestaurant: postRestaurant,
-            fromInAppCamera: fromInAppCamera,
-            overallRating: averageRating, // Use calculated average rating
-            serviceRating: isServiceNA ? nil : serviceRating,
-            atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-            valueRating: isValueNA ? nil : valueRating,
-            foodRating: isFoodNA ? nil : foodRating,
-            taggedUsers: taggedUsers,
-            captionMentions: mentionedUsers,
-            thumbnailImage: thumbnailImage
-        )
+               mixedMediaItems: mixedMediaItems,
+               mediaType: .mixed,
+               caption: caption,
+               postRestaurant: postRestaurant,
+               fromInAppCamera: fromInAppCamera,
+               overallRating: averageRating, // Use calculated average rating
+               serviceRating: isServiceNA ? nil : serviceRating,
+               atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+               valueRating: isValueNA ? nil : valueRating,
+               foodRating: isFoodNA ? nil : foodRating,
+               taggedUsers: taggedUsers,
+               captionMentions: mentionedUsers,
+               thumbnailImage: thumbnailImage,
+               progressHandler: { progress in
+                   DispatchQueue.main.async {
+                       //self.uploadProgress = progress
+                   }
+               }
+           )
     }
 
     private func handleUploadSuccess(post: Post) {

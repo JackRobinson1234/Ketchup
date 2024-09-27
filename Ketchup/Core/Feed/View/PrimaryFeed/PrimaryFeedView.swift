@@ -94,6 +94,8 @@ struct PrimaryFeedView: View {
                                         WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                             .id(post.id)
                                             .onAppear {
+                                                
+                                                
                                                 // Update scrollPosition when this cell appears
                                                 scrollPosition = post.id
                                                 // Trigger pagination when reaching near the end
@@ -175,30 +177,30 @@ struct PrimaryFeedView: View {
                     VStack(spacing: 5) {
                         HStack(spacing: 0) {
                             
-//                            actionButton(title: viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location", icon: "location") {
-//                                pauseVideo = true
-//                                showLocationFilter.toggle()
-//                            }
+                            //                            actionButton(title: viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location", icon: "location") {
+                            //                                pauseVideo = true
+                            //                                showLocationFilter.toggle()
+                            //                            }
                             
-                                Button {
-                                    pauseVideo = true
-                                    showFilters.toggle()
-                                } label: {
-                                    
-                                    VStack{
-                                        Image(systemName: "slider.horizontal.3")
-                                            .font(.system(size: 27))
-                                            .foregroundStyle(.gray)
-                                        Text("Filter Feed")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.gray)
-                                    }
-                                    .frame(width: 100)
-                                    
-                                }
+                            Button {
+                                pauseVideo = true
+                                showFilters.toggle()
+                            } label: {
                                 
-                           
-
+                                VStack{
+                                    Image(systemName: "slider.horizontal.3")
+                                        .font(.system(size: 27))
+                                        .foregroundStyle(.gray)
+                                    Text("Filter Feed")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundStyle(.gray)
+                                }
+                                .frame(width: 100)
+                                
+                            }
+                            
+                            
+                            
                             Spacer()
                             Button {
                                 tabBarController.scrollToTop.toggle()
@@ -209,26 +211,26 @@ struct PrimaryFeedView: View {
                                     .frame(width: 60, height: 17)
                             }
                             Spacer()
-                           
+                            
                             Button {
                                 pauseVideo = true
                                 showLocationFilter.toggle()
                             } label: {
-                               
-                                    VStack{
-                                        Image(systemName: "location")
-                                            .font(.system(size: 24))
-                                            .foregroundStyle(.gray)
-                                        Text(viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.gray)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.5)
-                                    }
-                                    .frame(width: 100)
+                                
+                                VStack{
+                                    Image(systemName: "location")
+                                        .font(.system(size: 24))
+                                        .foregroundStyle(.gray)
+                                    Text(viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundStyle(.gray)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.5)
                                 }
+                                .frame(width: 100)
+                            }
                             
-                         
+                            
                         }
                         .padding(.horizontal, 3)
                         .frame(maxWidth: .infinity)
@@ -258,24 +260,24 @@ struct PrimaryFeedView: View {
                             HStack{
                                 HStack {
                                     
-//                                    ZStack(alignment: .bottomTrailing){
-//                                        actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
-//                                            pauseVideo = true
-//                                            showFilters.toggle() // Toggle the search view or feed filter when tapped
-//                                        }
-//                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-//                                            ZStack {
-//                                                Circle()
-//                                                    .fill(Color("Colors/AccentColor"))
-//                                                    .frame(width: 16, height: 16)
-//                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-//                                                    .font(.custom("MuseoSansRounded-500", size: 10))
-//                                                    .foregroundColor(.white)
-//                                            }
-//                                            .offset(x: 5, y: 5)
-//                                            .padding(.leading, 1)
-//                                        }
-//                                    }
+                                    //                                    ZStack(alignment: .bottomTrailing){
+                                    //                                        actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
+                                    //                                            pauseVideo = true
+                                    //                                            showFilters.toggle() // Toggle the search view or feed filter when tapped
+                                    //                                        }
+                                    //                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                    //                                            ZStack {
+                                    //                                                Circle()
+                                    //                                                    .fill(Color("Colors/AccentColor"))
+                                    //                                                    .frame(width: 16, height: 16)
+                                    //                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                    //                                                    .font(.custom("MuseoSansRounded-500", size: 10))
+                                    //                                                    .foregroundColor(.white)
+                                    //                                            }
+                                    //                                            .offset(x: 5, y: 5)
+                                    //                                            .padding(.leading, 1)
+                                    //                                        }
+                                    //                                    }
                                     
                                 }
                                 .padding(.horizontal)
@@ -283,49 +285,49 @@ struct PrimaryFeedView: View {
                             
                             HStack(spacing: 40) {
                                 HStack(spacing: 2) {
-                                   
                                     
-                                        Button {
-                                            newPostsCount = 0
-                                            if canSwitchTab {
-                                                withAnimation(.easeInOut(duration: 0.5)) {
-                                                    viewModel.selectedTab = .following
-                                                }
-                                                canSwitchTab = false
-                                                
-                                                // Re-enable switching after a delay
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                    canSwitchTab = true
-                                                }
+                                    
+                                    Button {
+                                        newPostsCount = 0
+                                        if canSwitchTab {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                viewModel.selectedTab = .following
                                             }
-                                        } label: {
-                                            HStack(){
-                                                if newPostsCount > 0 && viewModel.selectedTab == .discover {
-                                                    ZStack {
-                                                        Circle()
-                                                            .fill(Color("Colors/AccentColor"))
-                                                            .frame(width: 8, height: 8)
-//                                                        Text("\(newPostsCount)")
-//                                                            .font(.custom("MuseoSansRounded-500", size: 10))
-//                                                            .foregroundColor(.white)
-                                                    }
-                                                    //.offset(x: 5, y: -5)
-                                                    .padding(.leading, 1)
-                                                }
-                                                Text("Following")
-                                                    .font(.custom("MuseoSansRounded-500", size: 18))
-                                                    .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                                    .overlay(
-                                                        Rectangle()
-                                                            .frame(height: 2)
-                                                            .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                                            .offset(y: 17)
-                                                    )
-                                               
+                                            canSwitchTab = false
+                                            
+                                            // Re-enable switching after a delay
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                canSwitchTab = true
                                             }
                                         }
-                                        .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                        
+                                    } label: {
+                                        HStack(){
+                                            if newPostsCount > 0 && viewModel.selectedTab == .discover {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(Color("Colors/AccentColor"))
+                                                        .frame(width: 8, height: 8)
+                                                    //                                                        Text("\(newPostsCount)")
+                                                    //                                                            .font(.custom("MuseoSansRounded-500", size: 10))
+                                                    //                                                            .foregroundColor(.white)
+                                                }
+                                                //.offset(x: 5, y: -5)
+                                                .padding(.leading, 1)
+                                            }
+                                            Text("Following")
+                                                .font(.custom("MuseoSansRounded-500", size: 18))
+                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(height: 2)
+                                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                        .offset(y: 17)
+                                                )
+                                            
+                                        }
+                                    }
+                                    .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                                    
                                 }
                                 Button {
                                     if canSwitchTab {

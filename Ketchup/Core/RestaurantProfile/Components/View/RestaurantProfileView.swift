@@ -64,7 +64,9 @@ struct RestaurantProfileView: View {
                             await viewModel.fetchFriendsWhoPosted()
                             if let restaurant = viewModel.restaurant{
                                 try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant, friendIds: viewModel.friendsWhoPosted.map { $0.id })
+                                viewModel.calculateRatings(from: restaurant.ratingStats)
                             }
+                            
                         } catch {
                             //print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
                         }

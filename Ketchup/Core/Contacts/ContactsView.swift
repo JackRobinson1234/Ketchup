@@ -81,7 +81,7 @@ struct ContactsView: View {
             ForEach(filteredContacts) { contact in
                 ContactRow(viewModel: viewModel, contact: contact)
             }
-            
+
             if viewModel.hasMoreContacts {
                 ProgressView()
                     .onAppear {
