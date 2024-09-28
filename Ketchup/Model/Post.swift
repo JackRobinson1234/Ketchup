@@ -147,6 +147,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     var geoPoint: GeoPoint?
     var geoHash: String?
     var truncatedGeohash: String?
+    var truncatedGeohash5: String?
     var truncatedGeohash6: String?
     var address: String?
     var city: String?

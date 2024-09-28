@@ -56,6 +56,7 @@ struct LocationSelectionView: View {
                                 Text(location.subtitle)
                                     .font(.custom("MuseoSansRounded-300", size: 14))
                                     .foregroundColor(.gray)
+                                
                             }
                         }
                     }

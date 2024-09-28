@@ -747,11 +747,16 @@ struct WrittenFeedCell: View {
             }
             
             let safeIndex = max(0, min(index, mixedMediaUrls.count - 1))
-            let mediaItem = mixedMediaUrls[safeIndex]
             
-            if mediaItem.type == .video {
-                currentlyPlayingVideoId = mediaItem.id
-                playVideo(id: mediaItem.id)
+            if safeIndex < mixedMediaUrls.count {
+                let mediaItem = mixedMediaUrls[safeIndex]
+                
+                if mediaItem.type == .video {
+                    currentlyPlayingVideoId = mediaItem.id
+                    playVideo(id: mediaItem.id)
+                } else {
+                    currentlyPlayingVideoId = nil
+                }
             } else {
                 currentlyPlayingVideoId = nil
             }

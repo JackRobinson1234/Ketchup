@@ -14,7 +14,7 @@ import GeohashKit
 class FiltersViewModel: ObservableObject {
     @ObservedObject var feedViewModel: FeedViewModel
     
-    @Published var filters: [String: [Any]] = [:]
+    //@Published var filters: [String: [Any]] = [:]
     @Published var selectedCuisines: [String] = []
     @Published var selectedPrice: [String] = []
     @Published var selectedDietary: [String] = []
@@ -28,7 +28,10 @@ class FiltersViewModel: ObservableObject {
     private let locationManager = CLLocationManager()
     
     var hasNonLocationFilters: Bool {
-        return filters.filter { $0.key != "restaurant.truncatedGeohash" }.isEmpty == false
+        if let filters = feedViewModel.filters{
+            return filters.filter { $0.key != "restaurant.truncatedGeohash" }.isEmpty == false
+        }
+        return false
     }
     
     init(feedViewModel: FeedViewModel) {
@@ -77,14 +80,15 @@ class FiltersViewModel: ObservableObject {
     }
     
     func fetchFilteredPosts() async {
-            /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
+        /// if no cuisines are passed in, then it removes the value from filters, otherwise adds it as a parameter to be passed into fetchPosts
+        if var filters = feedViewModel.filters {
             if selectedCuisines.isEmpty {
                 filters.removeValue(forKey: "restaurant.cuisine")
             } else {
                 filters["restaurant.cuisine"] = selectedCuisines
             }
             /// checks to see if selectedPostTypes has both selected. If it does, it doesn't pass it as a parameter to fetchPosts.
-           
+            
             ///Price checking if there are any selected
             if selectedPrice.isEmpty {
                 filters.removeValue(forKey: "restaurant.price")
@@ -94,14 +98,15 @@ class FiltersViewModel: ObservableObject {
             ///Dietary checking if there are any selected
             //print("Filters", filters)
             do{
-                feedViewModel.filters = self.filters
+                feedViewModel.filters = filters
                 feedViewModel.isInitialLoading = true
-                try await feedViewModel.fetchInitialPosts(withFilters: self.filters)
+                try await feedViewModel.fetchInitialPosts(withFilters: filters)
                 feedViewModel.isInitialLoading = false
             } catch {
                 //print("Error")
             }
         }
+    }
     
     private func geohashNeighbors(geohash: String) -> [String] {
         if let geoHash = Geohash(geohash: geohash) {
@@ -119,6 +124,6 @@ class FiltersViewModel: ObservableObject {
         selectedDietary = []
         selectedCookingTime = []
         loadInitialLocation()
-        filters = [:]
+       
     }
 }

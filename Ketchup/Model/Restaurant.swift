@@ -12,6 +12,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var geoPoint: GeoPoint?
     let geoHash: String?
     let truncatedGeohash: String?
+    let truncatedGeohash5: String?
     let truncatedGeohash6: String?
     let address: String?
     let city: String?
@@ -46,7 +47,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let website: String?
     let reserveTableUrl: String?
     var overallRating: OverallRating?
-    
 
     // New mergedCategories field
     var mergedCategories: [String]?
@@ -61,6 +61,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.geoPoint = try container.decodeIfPresent(GeoPoint.self, forKey: .geoPoint)
         self.geoHash = try container.decodeIfPresent(String.self, forKey: .geoHash)
         self.truncatedGeohash = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash)
+        self.truncatedGeohash5 = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash6)
         self.truncatedGeohash6 = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash6)
         self.address = try container.decodeIfPresent(String.self, forKey: .address)
         self.city = try container.decodeIfPresent(String.self, forKey: .city)
@@ -125,7 +126,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
 
     }
     
-    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, truncatedGeohash: String? = nil, truncatedGeohash6: String? = nil,  address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil, reserveTableUrl: String? = nil, overallRating: OverallRating? = nil) {
+    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, truncatedGeohash: String? = nil, truncatedGeohash5: String? = nil, truncatedGeohash6: String? = nil,  address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil, reserveTableUrl: String? = nil, overallRating: OverallRating? = nil) {
         self.id = id
         self.categoryName = categoryName
         self.price = price
@@ -133,6 +134,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.geoPoint = geoPoint
         self.geoHash = geoHash
         self.truncatedGeohash = truncatedGeohash
+        self.truncatedGeohash5 = truncatedGeohash5
         self.truncatedGeohash6 = truncatedGeohash6
 
         self.address = address

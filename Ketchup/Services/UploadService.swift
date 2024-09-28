@@ -124,6 +124,7 @@ class UploadService {
             geoPoint: restaurant.geoPoint,
             geoHash: restaurant.geoHash,
             truncatedGeohash: restaurant.geoHash.flatMap { String($0.prefix(4)) },
+            truncatedGeohash5: restaurant.geoHash.flatMap { String($0.prefix(5)) },
             truncatedGeohash6: restaurant.geoHash.flatMap { String($0.prefix(6)) },
             address: restaurant.address,
             city: restaurant.city,

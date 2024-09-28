@@ -24,13 +24,20 @@ enum FeedTab {
     case discover
     case following
 }
-enum FeedLocationSetting {
-    case exactCity
-    case surrounding
-    case anywhere
+enum FeedLocationSetting: String, CaseIterable, Identifiable {
+    var id: String { self.rawValue }
+
+    //case exactCity = "Exact City"
+    case twoMiles = "1 mile"
+    case fiveMiles = "3 miles"
+    case tenMiles = "5 miles"
+    case twentyMiles = "10 miles"
+    case anywhere = "Any"
 }
+
 @MainActor
 class FeedViewModel: ObservableObject {
+    
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -87,6 +94,7 @@ class FeedViewModel: ObservableObject {
     @Published var state: String?
     @Published var surroundingGeohash: String?
     @Published var surroundingCounty: String = "Nearby"
+    
     @Published var currentLocationFilter: FeedLocationSetting = .anywhere
     @Published var simplifiedPosts: [SimplifiedPost] = []
     private var lastSimplifiedPostTimestamp: Timestamp?
@@ -166,14 +174,74 @@ class FeedViewModel: ObservableObject {
     }
     
     func applyLocationFilter() {
-        if let geohash = surroundingGeohash {
-            let geohashPrefix = String(geohash.prefix(4))
-            filters?["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
-        } else {
+        filters?.removeValue(forKey: "restaurant.truncatedGeohash6")
+        filters?.removeValue(forKey: "restaurant.truncatedGeohash5")
+        filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+        filters?.removeValue(forKey: "restaurant.city")
+        switch currentLocationFilter {
+//        case .exactCity:
+//            if let city = self.city {
+//                filters?["restaurant.city"] = [city]
+//            } else {
+//                filters?.removeValue(forKey: "restaurant.city")
+//            }
+//            filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+        case .twoMiles:
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(6))
+                filters?["restaurant.truncatedGeohash6"] = geohashNeighbors(geohash: geohashPrefix)
+            } else {
+                filters?.removeValue(forKey: "restaurant.truncatedGeohash6")
+            }
+        case .fiveMiles:
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(6))
+                filters?["restaurant.truncatedGeohash6"] = geohashNeighborsOfNeighbors(geohash: geohashPrefix)
+            } else {
+                filters?.removeValue(forKey: "restaurant.truncatedGeohash6")
+            }
+        case .tenMiles:
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(5))
+                filters?["restaurant.truncatedGeohash5"] = geohashNeighbors(geohash: geohashPrefix)
+            } else {
+                filters?.removeValue(forKey: "restaurant.truncatedGeohash5")
+            }
+        case .twentyMiles:
+            if let geohash = surroundingGeohash {
+                let geohashPrefix = String(geohash.prefix(4))
+                filters?["restaurant.truncatedGeohash"] = geohashNeighbors(geohash: geohashPrefix)
+            } else {
+                filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+            }
+        case .anywhere:
+            filters?.removeValue(forKey: "restaurant.truncatedGeohash6")
+            filters?.removeValue(forKey: "restaurant.truncatedGeohash5")
             filters?.removeValue(forKey: "restaurant.truncatedGeohash")
+            filters?.removeValue(forKey: "restaurant.city")
         }
     }
-    
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
+            }
+        }
+        
+        return Array(resultSet)
+    }
     private func geohashNeighbors(geohash: String) -> [String] {
         if let geoHash = Geohash(geohash: geohash) {
             if let neighbors = geoHash.neighbors {
@@ -266,6 +334,7 @@ class FeedViewModel: ObservableObject {
     }
     
     private func fetchRegularPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
+        applyLocationFilter()
         print("FETCHING WITH FILTERS", filters)
         var updatedFilters = filters ?? [:]
         updatedFilters["user.privateMode"] = [false]
@@ -280,21 +349,7 @@ class FeedViewModel: ObservableObject {
         if selectedTab != .following {
             query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
         }
-        switch currentLocationFilter {
-        case .exactCity:
-            if let city = self.city {
-                query = query.whereField("restaurant.city", isEqualTo: city)
-            }
-        case .surrounding:
-            if let geohash = surroundingGeohash {
-                let geohashPrefix = String(geohash.prefix(4))
-                let neighbors = geohashNeighbors(geohash: geohashPrefix)
-                query = query.whereField("restaurant.truncatedGeohash", in: neighbors)
-            }
-        case .anywhere:
-            // No location filter applied
-            break
-        }
+       
         query = query.order(by: "timestamp", descending: true)
             .limit(to: pageSize)
         
@@ -308,8 +363,9 @@ class FeedViewModel: ObservableObject {
     }
     
     private func fetchSimplifiedFollowingPosts(userId: String, withFilters filters: [String: [Any]]? = nil) async throws -> [SimplifiedPost] {
-        let db = Firestore.firestore()
+        applyLocationFilter()
         guard let currentUserID = Auth.auth().currentUser?.uid else { return [] }
+        
         var query: Query = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
         if let filters, !filters.isEmpty {
             for (key, value) in filters {
@@ -320,21 +376,7 @@ class FeedViewModel: ObservableObject {
             .order(by: "timestamp", descending: true)
             .limit(to: simplifiedPostPageSize)
         
-        switch currentLocationFilter {
-        case .exactCity:
-            if let city = self.city {
-                query = query.whereField("restaurant.city", isEqualTo: city)
-            }
-        case .surrounding:
-            if let geohash = surroundingGeohash {
-                let geohashPrefix = String(geohash.prefix(4))
-                let neighbors = geohashNeighbors(geohash: geohashPrefix)
-                query = query.whereField("restaurant.truncatedGeohash", in: neighbors)
-            }
-        case .anywhere:
-            // No location filter applied
-            break
-        }
+        
         if let lastTimestamp = lastSimplifiedPostTimestamp {
             query = query.start(after: [lastTimestamp])
         }

@@ -58,16 +58,18 @@ struct MapSearchView: View {
                             reverseGeo(location: location)
                      
                         } label: {
-                            HStack{
-                                VStack(alignment: .leading) {
-                                    Text(location.title)
-                                        .foregroundColor(Color.black)
-                                    Text(location.subtitle)
-                                        .font(.system(.caption))
-                                        .foregroundColor(Color.black)
+                            VStack{
+                                HStack{
+                                    VStack(alignment: .leading) {
+                                        Text(location.title)
+                                            .foregroundColor(Color.black)
+                                        Text(location.subtitle)
+                                            .font(.system(.caption))
+                                            .foregroundColor(Color.black)
+                                    }
+                                    .padding(.horizontal)
+                                    Spacer()
                                 }
-                                .padding(.horizontal)
-                                Spacer()
                             }
                         }
                         Divider()

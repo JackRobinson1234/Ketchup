@@ -21,23 +21,39 @@ struct LocationFilter: View {
     @State private var isUsingCurrentLocation: Bool = false
     @State private var selectedLocation: CLLocation?
     @State private var displayLocationText: String = "Select a city"
-    @State private var isAllLocationsSelected: Bool = false
     @State private var isLoadingLocation: Bool = false
 
     // Temporary state variables to hold the selections
-    @State private var tempCurrentLocationFilter: FeedLocationSetting = .surrounding
+    @State private var tempCurrentLocationFilter: FeedLocationSetting = .anywhere
     @State private var tempCity: String?
     @State private var tempState: String?
     @State private var tempSurroundingGeohash: String?
     @State private var tempSurroundingCounty: String = "Nearby"
     @State private var tempSelectedLocation: CLLocation?
     @State private var tempIsUsingCurrentLocation: Bool = false
-    @State private var tempIncludeSurroundingArea: Bool = true
+    //@State private var tempIncludeSurroundingArea: Bool = true
 
     var body: some View {
-        VStack {
-          
+        VStack(spacing: 2){
+            HStack{
+                Text("Select Radius")
+                    .foregroundStyle(.black)
+                    .font(.custom("MuseoSansRounded-700", size: 16))
+                Spacer()
+            }
+            .padding(.horizontal)
+            VStack(alignment: .leading) {
+                Picker("Location Range", selection: $tempCurrentLocationFilter) {
+                    ForEach(FeedLocationSetting.allCases) { setting in
+                        Text(setting.rawValue).tag(setting)
+                            .foregroundStyle(.black)
+                            .font(.custom("MuseoSansRounded-500", size: 16))
 
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding()
+            }
             // Search bar for city selection
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -49,10 +65,7 @@ struct LocationFilter: View {
                         .onChange(of: isFocused) { newValue in
                             if newValue {
                                 mapSearch.searchTerm = ""
-                                if isAllLocationsSelected {
-                                    isAllLocationsSelected = false
-                                    handleAllLocationsChange(false)
-                                }
+                                    //handleAllLocationsChange(false)
                             } else {
                                 updateDisplayLocation()
                             }
@@ -63,16 +76,18 @@ struct LocationFilter: View {
                             .foregroundColor(isFocused ? .gray : (isUsingCurrentLocation ? .red : .black))
                             .onTapGesture {
                                 isFocused = true
-                                if isAllLocationsSelected {
-                                    isAllLocationsSelected = false
-                                    handleAllLocationsChange(false)
-                                }
+//                                if tempCurrentLocationFilter == .anywhere {
+//                                    tempCurrentLocationFilter = .fiveMiles
+//                                    handleAllLocationsChange(false)
+//                                }
                             }
                     }
                 }
                 if isFocused && !mapSearch.searchTerm.isEmpty {
                     Button(action: {
-                        isAllLocationsSelected = false
+                        if tempCurrentLocationFilter == .anywhere {
+                            tempCurrentLocationFilter = .fiveMiles
+                        }
                         mapSearch.searchTerm = ""
                     }) {
                         Image(systemName: "xmark.circle.fill")
@@ -80,58 +95,80 @@ struct LocationFilter: View {
                     }
                 }
             }
+            .onTapGesture{
+                if tempCurrentLocationFilter == .anywhere {
+                    tempCurrentLocationFilter = .fiveMiles
+                    handleAllLocationsChange(false)
+                }
+            }
             .padding(8)
             .background(Color(.systemGray6))
             .cornerRadius(10)
             .padding()
-            .opacity(isAllLocationsSelected ? 0.3 : 1.0)
-
+            .opacity(tempCurrentLocationFilter == .anywhere ? 0.3 : 1.0)
+            
             // Search results list
             if isFocused && !mapSearch.locationResults.isEmpty {
-                List(mapSearch.locationResults.prefix(5), id: \.self) { location in
+                List(mapSearch.locationResults.prefix(6), id: \.self) { location in
                     Button(action: {
                         selectLocation(location)
                     }) {
-                        HStack {
-                            Image(systemName: "location")
-                                .foregroundColor(.gray)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                            Text(location.title)
-                                .foregroundColor(.primary)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                            Spacer()
+                        VStack{
+                            HStack {
+                                Image(systemName: "location")
+                                    .foregroundColor(.gray)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Text(location.title)
+                                    .foregroundColor(.primary)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Spacer()
+                                
+                            }
+                            HStack{
+                                Text(location.subtitle)
+                                    .foregroundColor(.secondary)
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                                Spacer()
+                            }
+                            
                         }
                     }
                 }
                 .listStyle(PlainListStyle())
             }
-
+            
             Spacer()
-            VStack(alignment: .leading) {
-                // Toggle between exact city and surrounding area
-                Toggle(isOn: $tempIncludeSurroundingArea) {
-                    Text("Include Surrounding Area")
-                        .foregroundColor(.primary)
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                }
-                .disabled(isAllLocationsSelected)
-                .opacity(isAllLocationsSelected ? 0 : 1.0)
-
-                // All Locations checkbox
-                Button(action: {
-                    isAllLocationsSelected.toggle()
-                    handleAllLocationsChange(isAllLocationsSelected)
-                }) {
-                    HStack {
-                        Image(systemName: isAllLocationsSelected ? "checkmark.square.fill" : "square")
-                            .foregroundColor(Color("Colors/AccentColor"))
-                        Text("All Locations")
-                            .foregroundColor(.primary)
-                            .font(.custom("MuseoSansRounded-500", size: 16))
-                    }
-                }
+//            VStack(alignment: .leading) {
+//                // Toggle between exact city and surrounding area
+//                Toggle(isOn: $tempIncludeSurroundingArea) {
+//                    Text("Include Surrounding Area")
+//                        .foregroundColor(.primary)
+//                        .font(.custom("MuseoSansRounded-500", size: 16))
+//                }
+//                .disabled(isAllLocationsSelected)
+//                .opacity(isAllLocationsSelected ? 0 : 1.0)
+//
+//                // All Locations checkbox
+//                Button(action: {
+//                    isAllLocationsSelected.toggle()
+//                    handleAllLocationsChange(isAllLocationsSelected)
+//                }) {
+//                    HStack {
+//                        Image(systemName: isAllLocationsSelected ? "checkmark.square.fill" : "square")
+//                            .foregroundColor(Color("Colors/AccentColor"))
+//                        Text("All Locations")
+//                            .foregroundColor(.primary)
+//                            .font(.custom("MuseoSansRounded-500", size: 16))
+//                    }
+//                }
+//            }
+//            .padding()
+        }
+        .padding(.top)
+        .onChange(of: tempCurrentLocationFilter){new in
+            if tempCurrentLocationFilter == .anywhere {
+                handleAllLocationsChange(true)
             }
-            .padding()
         }
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -163,13 +200,10 @@ struct LocationFilter: View {
         tempSurroundingGeohash = feedViewModel.surroundingGeohash
         tempSurroundingCounty = feedViewModel.surroundingCounty
         tempIsUsingCurrentLocation = isUsingCurrentLocation
-        tempIncludeSurroundingArea = feedViewModel.currentLocationFilter == .surrounding
 
         if tempCurrentLocationFilter == .anywhere {
-            isAllLocationsSelected = true
             displayLocationText = "Anywhere"
         } else {
-            isAllLocationsSelected = false
             if tempSelectedLocation != nil {
                 updateDisplayLocation()
             } else if let city = tempCity, let state = tempState {
@@ -216,13 +250,8 @@ struct LocationFilter: View {
                 if !isFocused {
                     mapSearch.searchTerm = displayLocationText
                 }
-                print("subLoc", placemark.subLocality)
-                print("subAdministrative", placemark.subAdministrativeArea)
-                print("locality", placemark.locality)
-                print("name", placemark.name)
-                print("thoroughfare", placemark.thoroughfare)
-                print("subthoroughfare", placemark.subThoroughfare)
-                tempCity = placemark.locality
+               
+                tempCity = placemark.subLocality
                 tempState = placemark.administrativeArea
                 tempSurroundingCounty = placemark.subAdministrativeArea ?? "Nearby"
                 // Update tempSurroundingGeohash
@@ -239,8 +268,9 @@ struct LocationFilter: View {
             tempSelectedLocation = nil
             displayLocationText = "Anywhere"
             mapSearch.searchTerm = ""
+            isFocused = false
         } else {
-            tempCurrentLocationFilter = .surrounding
+            tempCurrentLocationFilter = .fiveMiles
             // Optionally reset other variables or keep them as is
         }
     }
@@ -250,7 +280,7 @@ struct LocationFilter: View {
     }
 
     private func applyFilters() {
-        feedViewModel.currentLocationFilter = isAllLocationsSelected ? .anywhere : (tempIncludeSurroundingArea ? .surrounding : .exactCity)
+        feedViewModel.currentLocationFilter = tempCurrentLocationFilter
         feedViewModel.city = tempCity
         feedViewModel.state = tempState
         feedViewModel.surroundingCounty = tempSurroundingCounty

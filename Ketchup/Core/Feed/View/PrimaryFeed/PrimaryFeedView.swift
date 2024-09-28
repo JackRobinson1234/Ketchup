@@ -188,12 +188,28 @@ struct PrimaryFeedView: View {
                             } label: {
                                 
                                 VStack{
-                                    Image(systemName: "slider.horizontal.3")
-                                        .font(.system(size: 27))
-                                        .foregroundStyle(.gray)
-                                    Text("Filter Feed")
-                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                                        .foregroundStyle(.gray)
+                                    ZStack(alignment: . bottomTrailing){
+                                        Image(systemName: "slider.horizontal.3")
+                                            .font(.system(size: 27))
+                                            .foregroundStyle(.gray)
+                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(Color("Colors/AccentColor"))
+                                                    .frame(width: 16, height: 16)
+                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                                    .font(.custom("MuseoSansRounded-500", size: 10))
+                                                    .foregroundColor(.white)
+                                            }
+                                            .offset(x: 5, y: 5)
+                                            .padding(.leading, 1)
+                                        }
+                                    }
+                                        Text("Filter Feed")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .foregroundStyle(.gray)
+                                    
+                                   
                                 }
                                 .frame(width: 100)
                                 
@@ -221,7 +237,7 @@ struct PrimaryFeedView: View {
                                     Image(systemName: "location")
                                         .font(.system(size: 24))
                                         .foregroundStyle(.gray)
-                                    Text(viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location")
+                                    Text(viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!) (\(abbreviatedDistance(viewModel.currentLocationFilter.rawValue)))" : "Any Location")
                                         .font(.custom("MuseoSansRounded-300", size: 10))
                                         .foregroundStyle(.gray)
                                         .lineLimit(1)
@@ -260,24 +276,24 @@ struct PrimaryFeedView: View {
                             HStack{
                                 HStack {
                                     
-                                    //                                    ZStack(alignment: .bottomTrailing){
-                                    //                                        actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
-                                    //                                            pauseVideo = true
-                                    //                                            showFilters.toggle() // Toggle the search view or feed filter when tapped
-                                    //                                        }
-                                    //                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-                                    //                                            ZStack {
-                                    //                                                Circle()
-                                    //                                                    .fill(Color("Colors/AccentColor"))
-                                    //                                                    .frame(width: 16, height: 16)
-                                    //                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-                                    //                                                    .font(.custom("MuseoSansRounded-500", size: 10))
-                                    //                                                    .foregroundColor(.white)
-                                    //                                            }
-                                    //                                            .offset(x: 5, y: 5)
-                                    //                                            .padding(.leading, 1)
-                                    //                                        }
-                                    //                                    }
+//                                                                        ZStack(alignment: .bottomTrailing){
+//                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
+//                                                                                pauseVideo = true
+//                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
+//                                                                            }
+//                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+//                                                                                ZStack {
+//                                                                                    Circle()
+//                                                                                        .fill(Color("Colors/AccentColor"))
+//                                                                                        .frame(width: 16, height: 16)
+//                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+//                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
+//                                                                                        .foregroundColor(.white)
+//                                                                                }
+//                                                                                .offset(x: 5, y: 5)
+//                                                                                .padding(.leading, 1)
+//                                                                            }
+//                                                                        }
                                     
                                 }
                                 .padding(.horizontal)
@@ -495,6 +511,11 @@ struct PrimaryFeedView: View {
                 newPostsCount = userSession.followingPosts
             }
         }
+    }
+    func abbreviatedDistance(_ distance: String) -> String {
+        return distance
+            .replacingOccurrences(of: " miles", with: "mi")
+            .replacingOccurrences(of: " mile", with: "mi")
     }
     private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {

@@ -67,14 +67,22 @@ struct RestaurantLocationSearchView: View {
                     Button(action: {
                         reverseGeo(location: location)
                     }) {
-                        HStack {
-                            Image(systemName: "location")
-                                .foregroundColor(.gray)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                            Text(location.title)
-                                .foregroundColor(.primary)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                            Spacer()
+                        VStack{
+                            HStack {
+                                Image(systemName: "location")
+                                    .foregroundColor(.gray)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Text(location.title)
+                                    .foregroundColor(.primary)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                Spacer()
+                            }
+                            HStack{
+                                Text(location.subtitle)
+                                    .foregroundColor(.secondary)
+                                    .font(.custom("MuseoSansRounded-300", size: 14))
+                                Spacer()
+                            }
                         }
                     }
                 }
@@ -169,6 +177,5 @@ struct RestaurantLocationSearchView: View {
             inSearchView = false
             isFocused = false
         }
-        
     }
 }
