@@ -16,7 +16,7 @@ import SwiftUI
 import SwiftUI
 
 enum ProfileSectionEnum {
-    case posts, bookmarks, collections, map
+    case posts, bookmarks, collections, map, badges
 }
 
 enum PostDisplayMode: String, CaseIterable {
@@ -31,17 +31,24 @@ struct ProfileSlideBar: View {
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
+
+    @Binding var selectedBadge: Badge?
+    @Binding var selectedBadgeType: BadgeType?
+
     
     private var isKetchupMediaUser: Bool {
         return viewModel.user.username == "ketchup_media"
     }
-    
-    init(viewModel: ProfileViewModel, collectionsViewModel: CollectionsViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, collectionsViewModel: CollectionsViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, selectedBadge: Binding<Badge?>, selectedBadgeType: Binding<BadgeType?>) {
+
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self.collectionsViewModel =  collectionsViewModel
+        self.collectionsViewModel = collectionsViewModel
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
+        self._selectedBadge = selectedBadge
+        self._selectedBadgeType = selectedBadgeType
     }
     
     var body: some View {
@@ -95,6 +102,19 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .bookmarks))
                     .frame(maxWidth: .infinity)
+                
+                // Add Badges Icon
+                Image(systemName: viewModel.profileSection == .badges ? "trophy.fill" : "trophy")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 45, height: 20)
+                    .onTapGesture {
+                        withAnimation {
+                            self.viewModel.profileSection = .badges
+                        }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .badges))
+                    .frame(maxWidth: .infinity)
             }
             .padding()
             .padding(.bottom, 16)
@@ -102,7 +122,6 @@ struct ProfileSlideBar: View {
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
                 VStack {
-                    
                     if isKetchupMediaUser {
                         Text("This user has too many posts to view")
                             .font(.headline)
@@ -110,7 +129,6 @@ struct ProfileSlideBar: View {
                             .padding()
                     } else {
                         PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
-                        
                     }
                 }
             }
@@ -137,6 +155,13 @@ struct ProfileSlideBar: View {
             if viewModel.profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }
+
+            // Add BadgeListView when badges are selected
+            if viewModel.profileSection == .badges {
+                
+                ProfileBadgeView(user: viewModel.user, selectedBadge: $selectedBadge, selectedBadgeType: $selectedBadgeType)
+            }
         }
     }
 }
+

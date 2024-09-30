@@ -31,12 +31,12 @@ struct PhoneAuthView: View {
                 } else if let userSession = AuthService.shared.userSession {
                    
                 }
+                    
                 
                 Text("Welcome to Ketchup! First, What's your phone number?")
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
-                
                 
                 HStack {
                     TextField("Phone number", text: $viewModel.phoneNumber)

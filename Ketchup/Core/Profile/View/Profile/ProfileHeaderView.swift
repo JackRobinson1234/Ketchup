@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ProfileHeaderView: View {
     @State private var showEditProfile = false
@@ -28,11 +29,19 @@ struct ProfileHeaderView: View {
         VStack(spacing: 6) {
             HStack(alignment: .top) {
                 Spacer()
-                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
-                    .frame(width: frameWidth)
-                    .onTapGesture {
-                        showZoomedProfileImage.toggle()
-                    }
+                VStack {
+                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxLarge)
+                        .frame(width: frameWidth)
+                        .onTapGesture {
+                            showZoomedProfileImage.toggle()
+                        }
+                    
+                    Image(user.statusImageName!)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: frameWidth)
+                }
+                
                 VStack(alignment: .leading) {
                     Text(user.fullname)
                         .font(.custom("MuseoSansRounded-300", size: 20))

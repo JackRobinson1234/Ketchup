@@ -123,7 +123,8 @@ struct SelectFollowingEditPostView: View {
                                     fullname: user.fullname,
                                     profileImageUrl: user.profileImageUrl,
                                     privateMode: user.privateMode,
-                                    username: user.username)
+                                    username: user.username,
+                                    statusNameImage: user.statusImageName)
             editViewModel.taggedUsers.append(postUser)
             //print("User tagged: \(user.username)")
         } else {
@@ -131,7 +132,8 @@ struct SelectFollowingEditPostView: View {
                                fullname: user.fullname,
                                profileImageUrl: user.profileImageUrl,
                                privateMode: user.privateMode,
-                               username: user.username))
+                               username: user.username,
+                               statusNameImage: user.statusImageName))
         }
         isSearchFieldFocused = false
         searchViewModel.searchQuery = ""

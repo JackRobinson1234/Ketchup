@@ -93,7 +93,8 @@ class ReelsEditViewModel: ObservableObject {
                     fullname: user.fullname,
                     profileImageUrl: user.profileImageUrl,
                     privateMode: user.privateMode,
-                    username: user.username
+                    username: user.username,
+                    statusNameImage: user.statusImageName
                 ))
             } else if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
                 mentionedUsers.append(PostUser(
@@ -101,7 +102,8 @@ class ReelsEditViewModel: ObservableObject {
                     fullname: fetchedUser.fullname,
                     profileImageUrl: fetchedUser.profileImageUrl,
                     privateMode: fetchedUser.privateMode,
-                    username: fetchedUser.username
+                    username: fetchedUser.username,
+                    statusNameImage: fetchedUser.statusImageName
                 ))
             } else {
                 mentionedUsers.append(PostUser(
@@ -109,7 +111,8 @@ class ReelsEditViewModel: ObservableObject {
                     fullname: "invalid",
                     profileImageUrl: nil,
                     privateMode: false,
-                    username: username
+                    username: username,
+                    statusNameImage: "BEGINNER1"
                 ))
             }
         }

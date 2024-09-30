@@ -1,13 +1,7 @@
-//
-//  User.swift
-//  Foodi
-//
-//  Created by Jack Robinson on 2/1/24.
-//
-
 import FirebaseAuth
 import FirebaseFirestoreInternal
 import Firebase
+
 struct User: Codable, Identifiable, Hashable {
     let id: String
     var username: String
@@ -24,6 +18,8 @@ struct User: Codable, Identifiable, Hashable {
     var hasCompletedSetup: Bool = false
     var createdAt: Date?
     var lastActive: Date?
+    var hasContactsSynced: Bool = false
+    var statusImageName: String?
     var contactsSynced: Bool = false
     var inviteCount: Int = 0
     var followingPosts: Int = 0
@@ -36,7 +32,7 @@ struct User: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName
     }
 
     init(from decoder: Decoder) throws {
@@ -72,7 +68,6 @@ struct User: Codable, Identifiable, Hashable {
         } else {
             self.lastActive = nil
         }
-
         self.contactsSynced = try container.decodeIfPresent(Bool.self, forKey: .contactsSynced) ?? false
         self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
         self.followingPosts = try container.decodeIfPresent(Int.self, forKey: .followingPosts) ?? 0
@@ -85,6 +80,8 @@ struct User: Codable, Identifiable, Hashable {
         } else {
             self.mostRecentPost = nil
         }
+        self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
+        self.statusImageName = try container.decodeIfPresent(String.self, forKey: .statusImageName) ?? "ADVANCED1"
     }
 
     init(
@@ -106,7 +103,9 @@ struct User: Codable, Identifiable, Hashable {
         referredBy: String? = nil,
         totalReferrals: Int = 0,
         weeklyStreak: Int = 0,
-        mostRecentPost: Date? = nil
+        mostRecentPost: Date? = nil,
+        hasContactsSynced: Bool = false, 
+        statusImageName: String? = "ADVANCED1"
     ) {
         self.id = id
         self.username = username
@@ -135,6 +134,8 @@ struct User: Codable, Identifiable, Hashable {
         self.totalReferrals = totalReferrals
         self.weeklyStreak = weeklyStreak
         self.mostRecentPost = mostRecentPost
+        self.hasContactsSynced = hasContactsSynced
+        self.statusImageName = statusImageName
     }
 
     func encode(to encoder: Encoder) throws {
@@ -175,7 +176,26 @@ struct User: Codable, Identifiable, Hashable {
         if let mostRecentPost = mostRecentPost {
             try container.encode(Timestamp(date: mostRecentPost), forKey: .mostRecentPost)
         }
+        try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
+        try container.encodeIfPresent(statusImageName, forKey: .statusImageName)
     }
+    
+    // Add a method to fetch badges from Firestore sub-collection
+        func fetchBadges(completion: @escaping ([Badge]) -> Void) {
+            let db = Firestore.firestore()
+            let badgesRef = db.collection("users").document(self.id).collection("user-badges")
+
+            badgesRef.getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents, error == nil else {
+                    completion([])  // Return an empty array if there's an error
+                    return
+                }
+                let badges = documents.compactMap { doc -> Badge? in
+                    try? doc.data(as: Badge.self)
+                }
+                completion(badges)
+            }
+        }
 }
 
 // Other structs remain unchanged

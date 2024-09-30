@@ -21,6 +21,10 @@ struct ProfileView: View {
     @State private var showZoomedProfileImage = false
     @StateObject var collectionsViewModel = CollectionsViewModel()
     private let uid: String
+    @State private var selectedBadge: Badge? = nil
+    @State private var selectedBadgeType: BadgeType? = nil
+    
+    
     var drag: some Gesture {
         
         DragGesture(minimumDistance: 15)
@@ -69,24 +73,28 @@ struct ProfileView: View {
                     }
                 }
         } else{
-            NavigationStack{
-                ZStack{
-                    ScrollViewReader{ scrollProxy in
-                        ScrollView(showsIndicators: false) {
-                            VStack(spacing: 2) {
-                                ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
-                                if !profileViewModel.user.privateMode {
-                                    ProfileSlideBar(viewModel: profileViewModel, collectionsViewModel: collectionsViewModel, feedViewModel: feedViewModel,
-                                                    scrollPosition: $scrollPosition,
-                                                    scrollTarget: $scrollTarget)
-                                } else {
-                                    VStack {
-                                        Image(systemName: "lock.fill")
-                                            .font(.largeTitle)
-                                            .padding()
-                                        Text("Account is private")
-                                            .font(.custom("MuseoSansRounded-300", size: 18))
-                                    }
+            ZStack{
+                ScrollViewReader{ scrollProxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 2) {
+                            ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
+                            if !profileViewModel.user.privateMode {
+                                ProfileSlideBar(
+                                    viewModel: profileViewModel,
+                                    feedViewModel: feedViewModel,
+                                    collectionsViewModel: collectionsViewModel,
+                                    scrollPosition: $scrollPosition,
+                                    scrollTarget: $scrollTarget,
+                                    selectedBadge: $selectedBadge,
+                                    selectedBadgeType: $selectedBadgeType
+                                )
+                            } else {
+                                VStack {
+                                    Image(systemName: "lock.fill")
+                                        .font(.largeTitle)
+                                        .padding()
+                                    Text("Account is private")
+                                        .font(.custom("MuseoSansRounded-300", size: 18))
                                 }
                             }
                         }
@@ -136,14 +144,74 @@ struct ProfileView: View {
                             }
                         }
                     }
-                    .navigationBarBackButtonHidden()
-                    .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
-                        RestaurantProfileView(restaurantId: restaurant.id ?? "")
-                    }
+                }
+                .navigationBarBackButtonHidden()
+                .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
+                    RestaurantProfileView(restaurantId: restaurant.id ?? "")
+                }
+                if let badge = selectedBadge {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                selectedBadge = nil
+                            }
+                        }
                     
-                    if showZoomedProfileImage {
-                        Color.black.opacity(0.7)
-                            .ignoresSafeArea()
+                    VStack {
+                        Spacer()
+                        BadgeDetailView(badge: badge, onDismiss: {
+                            withAnimation {
+                                selectedBadge = nil
+                            }
+                        })
+                        .frame(width: UIScreen.main.bounds.width * 0.8,
+                               height: UIScreen.main.bounds.height * 0.6)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(radius: 20)
+                        Spacer()
+                    }
+                }
+                
+                // Overlay for Badge Type Info View
+                if let badgeType = selectedBadgeType {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                selectedBadgeType = nil
+                            }
+                        }
+                    
+                    VStack {
+                        Spacer()
+                        BadgeTypeInfoView(badgeType: badgeType, onDismiss: {
+                            withAnimation {
+                                selectedBadgeType = nil
+                            }
+                        })
+                        .frame(width: UIScreen.main.bounds.width * 0.8,
+                               height: UIScreen.main.bounds.height * 0.4)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(radius: 20)
+                        Spacer()
+                    }
+                }
+                
+                
+                if showZoomedProfileImage {
+                    Color.black.opacity(0.7)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showZoomedProfileImage = false
+                        }
+                    VStack {
+                        Spacer()
+                        UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
+                            .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                             .onTapGesture {
                                 showZoomedProfileImage = false
                             }

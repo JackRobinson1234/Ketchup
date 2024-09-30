@@ -248,7 +248,8 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                                                    fullname: user.fullname,
                                                    profileImageUrl: user.profileImageUrl,
                                                    privateMode: user.privateMode,
-                                                   username: user.username))
+                                                   username: user.username,
+                                                   statusNameImage: user.statusImageName))
             } else {
                 // Fetch user by username if not found in suggestions
                 if let fetchedUser = try? await UserService.shared.fetchUser(byUsername: username) {
@@ -256,14 +257,16 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                                                        fullname: fetchedUser.fullname,
                                                        profileImageUrl: fetchedUser.profileImageUrl,
                                                        privateMode: fetchedUser.privateMode,
-                                                       username: fetchedUser.username))
+                                                       username: fetchedUser.username,
+                                                       statusNameImage: fetchedUser.statusImageName))
                 } else {
                     // User not found, add as invalid
                     mentionedUserArray.append(PostUser(id: "invalid",
                                                        fullname: "invalid",
                                                        profileImageUrl: nil,
                                                        privateMode: false,
-                                                       username: username))
+                                                       username: username,
+                                                       statusNameImage: "BEGINNER1"))
                 }
             }
         }

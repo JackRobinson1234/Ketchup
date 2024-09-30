@@ -86,20 +86,29 @@ struct WrittenFeedCell: View {
                 Button(action: {
                     showUserProfile = true
                 }) {
-                    UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                    ZStack(alignment: .bottomLeading) {
+                        UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
+                        
+                        Image("BETA")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 23, height: 23) // Adjust the size as needed
+                            .offset(x: 30, y: 5)
+                    }
                 }
                 .disabled(hideActionButtons)
 
                 Button(action: {
                     showUserProfile = true
                 }) {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing:0) {
                         Text("\(post.user.fullname)")
                             .font(.custom("MuseoSansRounded-300", size: 16))
                             .fontWeight(.semibold)
                             .foregroundColor(.black)
                             .bold()
                             .multilineTextAlignment(.leading)
+                         
                         Text("@\(post.user.username)")
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .foregroundColor(Color("Colors/AccentColor"))
