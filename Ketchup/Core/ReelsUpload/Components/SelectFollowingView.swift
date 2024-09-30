@@ -129,9 +129,6 @@ struct SelectFollowingView: View {
                                                         privateMode: user.privateMode,
                                                         username: user.username,
                                                         statusNameImage: user.statusImageName))
-
-                                                        username: user.username))
-
         }
         isSearchFieldFocused = false
         searchViewModel.searchQuery = ""

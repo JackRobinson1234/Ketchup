@@ -52,7 +52,7 @@ struct CurrentUserProfileView: View {
                                 ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
                                     .padding(.top)
                                 //MARK: Slide bar
-                                ProfileSlideBar(viewModel: profileViewModel, collectionsViewModel: collectionsViewModel, feedViewModel: feedViewModel,
+                                ProfileSlideBar(viewModel: profileViewModel,  feedViewModel: feedViewModel,collectionsViewModel: collectionsViewModel,
                                                 scrollPosition: $scrollPosition,
                                                 scrollTarget: $scrollTarget,
                                                 selectedBadge: $selectedBadge,

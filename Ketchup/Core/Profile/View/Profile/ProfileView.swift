@@ -82,6 +82,7 @@ struct ProfileView: View {
                                 ProfileSlideBar(
                                     viewModel: profileViewModel,
                                     feedViewModel: feedViewModel,
+                                    collectionsViewModel: collectionsViewModel,
                                     scrollPosition: $scrollPosition,
                                     scrollTarget: $scrollTarget,
                                     selectedBadge: $selectedBadge,

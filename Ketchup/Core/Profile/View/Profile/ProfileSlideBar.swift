@@ -40,11 +40,11 @@ struct ProfileSlideBar: View {
         return viewModel.user.username == "ketchup_media"
     }
 
-    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, selectedBadge: Binding<Badge?>, selectedBadgeType: Binding<BadgeType?>) {
+    init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, collectionsViewModel: CollectionsViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, selectedBadge: Binding<Badge?>, selectedBadgeType: Binding<BadgeType?>) {
 
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self.collectionsViewModel =  collectionsViewModel
+        self.collectionsViewModel = collectionsViewModel
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
         self._selectedBadge = selectedBadge
