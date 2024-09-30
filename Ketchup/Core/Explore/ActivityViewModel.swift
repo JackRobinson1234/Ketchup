@@ -24,7 +24,6 @@ class ActivityViewModel: ObservableObject {
     var user: User?
     private var service = ActivityService()
     @Published var topContacts: [Contact] = []
-    
     // Sheet state properties
     @Published var collectionsViewModel = CollectionsViewModel()
     @Published var showWrittenPost: Bool = false

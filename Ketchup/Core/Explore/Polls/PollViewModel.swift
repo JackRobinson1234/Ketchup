@@ -10,91 +10,119 @@ import FirebaseFirestoreInternal
 import FirebaseStorage
 import Firebase
 @MainActor
-class PollViewModel: ObservableObject, CommentableViewModel {
-    @Published var poll: Poll?
-    @Published var hasUserVoted = false
-    @Published var userVotedOptionId: String?
-    @Published var userVote: PollVote?
-    @Published var selectedCommentId: String?
+class PollViewModel: ObservableObject {
+    @Published var polls: [Poll] = []
+    @Published var hasUserVotedPolls: [String: (hasVoted: Bool, optionId: String?)] = [:]
+    
+    private var lastDocumentSnapshot: DocumentSnapshot?
+    private var isFetching = false
+        private let pageSize = 5
+        private var hasMorePolls = true
 
-    init(poll: Poll? = nil) {
-        if let poll = poll {
-            self.poll = poll
-            self.checkIfUserHasVoted()
-        } else {
-            fetchPollForToday()
-        }
+    init() {
+        // Fetch initial set of polls
+        fetchPreviousPolls()
     }
 
-    func fetchPollForToday() {
-        let db = Firestore.firestore()
-        let pollsRef = db.collection("polls")
+    func fetchPreviousPolls() {
+            guard !isFetching && hasMorePolls else { return }
+            isFetching = true
+            
+            let db = Firestore.firestore()
+            let pollsRef = db.collection("polls")
+            
+            // Get the start of today in PST
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = TimeZone(abbreviation: "PST")!
+            let startOfToday = calendar.startOfDay(for: Date())
 
-        // Get the start and end of the current day in PST
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(abbreviation: "PST")!
-        let startOfDay = calendar.startOfDay(for: Date())
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+            var query: Query = pollsRef
+                .whereField("scheduledDate", isLessThanOrEqualTo: startOfToday)
+                .order(by: "scheduledDate", descending: true)
+                .limit(to: pageSize)
+            
+            if let lastSnapshot = lastDocumentSnapshot {
+                query = query.start(afterDocument: lastSnapshot)
+            }
 
-        pollsRef
-            .whereField("scheduledDate", isGreaterThanOrEqualTo: startOfDay)
-            .whereField("scheduledDate", isLessThan: endOfDay)
-            .getDocuments { snapshot, error in
+            query.getDocuments { snapshot, error in
                 if let error = error {
-                    print("Error fetching poll: \(error.localizedDescription)")
+                    print("Error fetching previous polls: \(error.localizedDescription)")
+                    self.isFetching = false
                     return
                 }
 
-                if let document = snapshot?.documents.first {
+                guard let snapshot = snapshot, !snapshot.documents.isEmpty else {
+                    self.hasMorePolls = false
+                    self.isFetching = false
+                    return
+                }
+
+                var fetchedPolls: [Poll] = []
+                for document in snapshot.documents {
                     do {
                         var poll = try document.data(as: Poll.self)
                         poll.id = document.documentID
-                        DispatchQueue.main.async {
-                            self.poll = poll
-                            self.checkIfUserHasVoted()
+                        if !self.polls.contains(where: { $0.id == poll.id }) {
+                            fetchedPolls.append(poll)
                         }
                     } catch {
                         print("Error decoding poll: \(error.localizedDescription)")
                     }
-                } else {
-                    print("No poll scheduled for today")
+                }
+                
+                DispatchQueue.main.async {
+                    self.polls.append(contentsOf: fetchedPolls)
+                    self.lastDocumentSnapshot = snapshot.documents.last
+                    self.isFetching = false
+                    
+                    // Check if user has voted for these polls
+                    for poll in fetchedPolls {
+                        self.checkIfUserHasVoted(for: poll)
+                    }
+                    
+                    // Update hasMorePolls flag
+                    self.hasMorePolls = !fetchedPolls.isEmpty
                 }
             }
-    }
-
-    func checkIfUserHasVoted() {
-        guard let poll = poll else { return }
-        guard let userId = AuthService.shared.userSession?.id else { return }
-
+        }
+    
+    
+    func checkIfUserHasVoted(for poll: Poll) {
+        guard let userId = AuthService.shared.userSession?.id else {
+            return
+        }
+        
         let db = Firestore.firestore()
         let votesRef = db.collection("polls").document(poll.id).collection("votes").document(userId)
-
+        
         votesRef.getDocument { snapshot, error in
             if let error = error {
                 print("Error checking vote: \(error.localizedDescription)")
                 return
             }
-
+            
             if let snapshot = snapshot, snapshot.exists {
                 do {
                     let vote = try snapshot.data(as: PollVote.self)
                     DispatchQueue.main.async {
-                        self.hasUserVoted = true
-                        self.userVotedOptionId = vote.optionId
-                        self.userVote = vote
+                        self.hasUserVotedPolls[poll.id] = (true, vote.optionId)
                     }
                 } catch {
                     print("Error decoding user vote: \(error.localizedDescription)")
                 }
+            } else {
+                DispatchQueue.main.async {
+                    self.hasUserVotedPolls[poll.id] = (false, nil)
+                }
             }
         }
     }
-
-    func voteForOption(_ optionId: String) async {
-        guard let poll = poll, poll.isActive else { return }
+    
+    func voteForOption(_ optionId: String, in poll: Poll) async {
+        guard poll.isActive else { return }
         guard let user = AuthService.shared.userSession else { return }
         let userId = user.id
-       
 
         let db = Firestore.firestore()
         let pollRef = db.collection("polls").document(poll.id)
@@ -108,6 +136,11 @@ class PollViewModel: ObservableObject, CommentableViewModel {
             if snapshot.exists {
                 let existingVote = try snapshot.data(as: PollVote.self)
                 previousOptionId = existingVote.optionId
+            }
+
+            // If the user is voting for the same option, do nothing
+            if previousOptionId == optionId {
+                return
             }
 
             // Create or update the PollVote object
@@ -168,11 +201,11 @@ class PollViewModel: ObservableObject, CommentableViewModel {
 
             // Update local state
             DispatchQueue.main.async {
-                self.poll?.options = updatedOptions
-                self.poll?.totalVotes = totalVotes
-                self.hasUserVoted = true
-                self.userVotedOptionId = optionId
-                self.userVote = pollVote
+                if let index = self.polls.firstIndex(where: { $0.id == poll.id }) {
+                    self.polls[index].options = updatedOptions
+                    self.polls[index].totalVotes = totalVotes
+                }
+                self.hasUserVotedPolls[poll.id] = (true, optionId)
             }
 
         } catch {

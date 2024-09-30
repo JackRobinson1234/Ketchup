@@ -296,7 +296,6 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                     // Append the new comment at the bottom of the list
                     self.organizedComments.append((comment: comment, replies: []))
                 }
-                self.$commentable.wrappedValue.commentCount += 1
                 if self.showEmptyView { self.showEmptyView = false }
                 self.commentText = ""
                 self.replyingTo = nil
@@ -304,6 +303,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                 self.lastAddedCommentId = comment.id
             }
             await MainActor.run {
+                self.$commentable.wrappedValue.commentCount += 1
                 self.highlightComment(comment.id)
             }
         } catch {

@@ -27,9 +27,10 @@ class PollUploadViewModel: ObservableObject {
         let db = Firestore.firestore()
         let pollsRef = db.collection("polls")
         let now = Date()
+        let oneDayAgo = Calendar.current.date(byAdding: .day, value: -1, to: now)!
 
         pollsRef
-            .whereField("scheduledDate", isGreaterThanOrEqualTo: now)
+            .whereField("scheduledDate", isGreaterThanOrEqualTo: oneDayAgo)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching scheduled polls: \(error)")

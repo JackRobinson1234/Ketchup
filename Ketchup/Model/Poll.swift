@@ -63,3 +63,8 @@ extension Poll: Commentable {
         return "polls/\(id)/comments"
     }
 }
+extension Poll: Equatable {
+    static func == (lhs: Poll, rhs: Poll) -> Bool {
+        return lhs.id == rhs.id
+    }
+}

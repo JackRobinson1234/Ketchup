@@ -27,6 +27,9 @@ struct ActivityView: View {
     @State private var leaderboardData: [LeaderboardCategory: [LocationType: Any]] = [:]
     @State private var selectedLeaderboard: (category: LeaderboardCategory?, location: LocationType?)?
     @State private var showPollUploadView = false
+    @StateObject private var pollViewModel = PollViewModel()
+    @State private var currentTabHeight: CGFloat = 650
+    @State private var selectedPollIndex: Int = 0
     
     enum Tab {
         case discover
@@ -75,7 +78,41 @@ struct ActivityView: View {
                         }
                         
                     }
-                    PollView()
+                    if !pollViewModel.polls.isEmpty {
+                        VStack(spacing: 10) {
+                            TabView(selection: $selectedPollIndex) {
+                                ForEach(pollViewModel.polls.indices, id: \.self) { index in
+                                    PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel)
+                                        .background(
+                                            GeometryReader { geometry in
+                                                Color.clear
+                                                    .onAppear {
+                                                        if index == selectedPollIndex {
+                                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                                currentTabHeight = geometry.size.height + 15
+                                                            }
+                                                        }
+                                                    }
+                                                    .onChange(of: selectedPollIndex) { _ in
+                                                        if index == selectedPollIndex {
+                                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                                currentTabHeight = geometry.size.height + 15
+                                                            }
+                                                        }
+                                                    }
+                                            }
+                                        )
+                                        .tag(index)
+                                }
+                            }
+                            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                            .frame(height: currentTabHeight)
+                            Text("Swipe to see previous polls")
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .foregroundColor(.gray.opacity(0.8))
+                                .padding(.bottom, 5)
+                        }
+                    }
                     if isLoading {
                         FastCrossfadeFoodImageView()
                     } else {
@@ -559,3 +596,4 @@ struct InviteContactsButton: View {
         }
     }
 }
+

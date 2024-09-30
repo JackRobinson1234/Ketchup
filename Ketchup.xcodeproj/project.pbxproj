@@ -226,10 +226,6 @@
 		F8B6FB632CA8831F006CCE2D /* PollUploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB622CA8831F006CCE2D /* PollUploadViewModel.swift */; };
 		F8B6FB652CA8BB79006CCE2D /* PollComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB642CA8BB79006CCE2D /* PollComment.swift */; };
 		F8B6FB672CA8BBB4006CCE2D /* PollCommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB662CA8BBB4006CCE2D /* PollCommentService.swift */; };
-		F8B6FB6A2CA8BBE7006CCE2D /* PollCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB692CA8BBE7006CCE2D /* PollCommentCell.swift */; };
-		F8B6FB6C2CA8BC14006CCE2D /* PollCommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB6B2CA8BC14006CCE2D /* PollCommentsView.swift */; };
-		F8B6FB6E2CA8BC48006CCE2D /* PollCommentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB6D2CA8BC48006CCE2D /* PollCommentsViewModel.swift */; };
-		F8B6FB702CA8BCF1006CCE2D /* PollCommentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B6FB6F2CA8BCF1006CCE2D /* PollCommentInputView.swift */; };
 		F8BD81522BC5AA04007C2CFC /* MapFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */; };
 		F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */; };
 		F8BD815D2BC5B22F007C2CFC /* MapPriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */; };
@@ -546,10 +542,6 @@
 		F8B6FB622CA8831F006CCE2D /* PollUploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollUploadViewModel.swift; sourceTree = "<group>"; };
 		F8B6FB642CA8BB79006CCE2D /* PollComment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollComment.swift; sourceTree = "<group>"; };
 		F8B6FB662CA8BBB4006CCE2D /* PollCommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCommentService.swift; sourceTree = "<group>"; };
-		F8B6FB692CA8BBE7006CCE2D /* PollCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCommentCell.swift; sourceTree = "<group>"; };
-		F8B6FB6B2CA8BC14006CCE2D /* PollCommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCommentsView.swift; sourceTree = "<group>"; };
-		F8B6FB6D2CA8BC48006CCE2D /* PollCommentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCommentsViewModel.swift; sourceTree = "<group>"; };
-		F8B6FB6F2CA8BCF1006CCE2D /* PollCommentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCommentInputView.swift; sourceTree = "<group>"; };
 		F8BD81512BC5AA04007C2CFC /* MapFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFiltersView.swift; sourceTree = "<group>"; };
 		F8BD815A2BC5B17B007C2CFC /* MapCuisineFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCuisineFilter.swift; sourceTree = "<group>"; };
 		F8BD815C2BC5B22F007C2CFC /* MapPriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPriceFilter.swift; sourceTree = "<group>"; };
@@ -1637,17 +1629,6 @@
 			path = CollectionInvites;
 			sourceTree = "<group>";
 		};
-		F8B6FB682CA8BBD2006CCE2D /* PollComments */ = {
-			isa = PBXGroup;
-			children = (
-				F8B6FB692CA8BBE7006CCE2D /* PollCommentCell.swift */,
-				F8B6FB6B2CA8BC14006CCE2D /* PollCommentsView.swift */,
-				F8B6FB6D2CA8BC48006CCE2D /* PollCommentsViewModel.swift */,
-				F8B6FB6F2CA8BCF1006CCE2D /* PollCommentInputView.swift */,
-			);
-			path = PollComments;
-			sourceTree = "<group>";
-		};
 		F8BD81552BC5B101007C2CFC /* Map */ = {
 			isa = PBXGroup;
 			children = (
@@ -1729,7 +1710,6 @@
 		F8D62A1E2C91FCCB00E40B45 /* Polls */ = {
 			isa = PBXGroup;
 			children = (
-				F8B6FB682CA8BBD2006CCE2D /* PollComments */,
 				F8564C042CA8728100A9DAD8 /* CreatingPolls */,
 				F8D62A232C92006F00E40B45 /* PollView.swift */,
 				F8D62A252C92014900E40B45 /* PollViewModel.swift */,
@@ -2060,7 +2040,6 @@
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
 				F80886352C6FC7710089E71B /* SelectFollowingEditPostView.swift in Sources */,
 				F8B6FB612CA88243006CCE2D /* CalendarView.swift in Sources */,
-				F8B6FB6E2CA8BC48006CCE2D /* PollCommentsViewModel.swift in Sources */,
 				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F866CA4D2C6D62A000B4536E /* UsernameSelectionViewModel.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
@@ -2096,7 +2075,6 @@
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
 				F82BFF302C719C20001F296F /* ContactsViewModel.swift in Sources */,
-				F8B6FB6A2CA8BBE7006CCE2D /* PollCommentCell.swift in Sources */,
 				F8628A712C501BFD000B046B /* YPImagePicker.swift in Sources */,
 				F88E0B112B6B0A8B00EC159B /* DeveloperPreview.swift in Sources */,
 				F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */,
@@ -2127,7 +2105,6 @@
 				F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */,
 				F88E0AC02B6B052700EC159B /* ProfileView.swift in Sources */,
 				F84FE24E2B6A531200144F01 /* ContentView.swift in Sources */,
-				F8B6FB702CA8BCF1006CCE2D /* PollCommentInputView.swift in Sources */,
 				F8670A622BF3FCE400F527D9 /* CaptionBox.swift in Sources */,
 				F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */,
 				F89D42A52C9F53450078D17A /* ProfileMapView.swift in Sources */,
@@ -2199,7 +2176,6 @@
 				F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F8D62A1B2C9119E400E40B45 /* ReverseGeoCodingView.swift in Sources */,
-				F8B6FB6C2CA8BC14006CCE2D /* PollCommentsView.swift in Sources */,
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,

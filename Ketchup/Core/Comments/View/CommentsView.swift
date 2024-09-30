@@ -6,9 +6,10 @@ struct CommentsView<T: Commentable>: View {
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     @FocusState private var isInputFocused: Bool
     @ObservedObject var feedViewModel: FeedViewModel
-
+    @Binding var commentable: T
     init(commentable: Binding<T>, feedViewModel: FeedViewModel){
         self._viewModel = StateObject(wrappedValue: CommentViewModel(commentable: commentable))
+        self._commentable = commentable
         self.feedViewModel = feedViewModel
     }
     
@@ -16,7 +17,7 @@ struct CommentsView<T: Commentable>: View {
         NavigationStack {
             VStack {
                 if !viewModel.organizedComments.isEmpty && !viewModel.isTagging {
-                    Text(viewModel.commentCountText)
+                    Text("\(commentable.commentCount) comments")
                         .font(.custom("MuseoSansRounded-300", size: 16))
                         .fontWeight(.semibold)
                         .padding(.top, 24)
