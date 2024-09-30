@@ -109,29 +109,12 @@ struct BadgeGridView: View {
                             .bold()
                     }
                     
-                    ZStack {
-                        if let imageUrl = badge.imageUrl, let url = URL(string: imageUrl) {
-                            KFImage(url)
-                                .placeholder {
-                                    ProgressView()
-                                        .frame(width: 60, height: 60)
-                                }
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .opacity(badge.tier == .locked ? 0.05 : 1.0) // Set opacity
-
-                        } else {
-                            Image(systemName: "xmark.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .background(Color.gray.opacity(0.3))
-                                .clipShape(Circle())
-                        }
-                        
-
-                    }
+                    Image(badge.imageName) // Load image from assets
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .opacity(badge.tier == .locked ? 0.05 : 1.0) // Set opacity
+                        .shadow(color: badge.backgroundColor, radius: 10, x: 0, y: 0)
                     
                     // Progress bar
                     if let totalProgress = calculateTotalProgress(badge: badge) {
@@ -197,29 +180,13 @@ struct BadgeDetailView: View {
                 }
                 
                 // Badge image
-                if let imageUrl = badge.imageUrl, let url = URL(string: imageUrl) {
-                    ZStack {
-                        KFImage(url)
-                            .placeholder {
-                                ProgressView()
-                                    .frame(width: 120, height: 120)
-                            }
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 120, height: 120)
-                            .opacity(badge.tier == .locked ? 0.05 : 1.0) // Set opacity
-                        
-                    }
+                Image(badge.imageName) // Use the image name from your asset catalog
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .opacity(badge.tier == .locked ? 0.05 : 1.0) // Set opacity
+                    .shadow(color: badge.backgroundColor, radius: 10, x: 0, y: 0)
                     .padding()
-                } else {
-                    Image(systemName: "xmark.circle")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
-                        .padding()
-                }
                 
                 HStack {
                     Text("Tier:")
@@ -237,9 +204,9 @@ struct BadgeDetailView: View {
                 }
                 .padding(.leading)
                 
-                // Badge description or rules
+                // Badge description
                 HStack {
-                    Text(badge.rules)
+                    Text(badge.description)
                         .font(.custom("MuseoSansRounded-300", size: 14))
                         .multilineTextAlignment(.leading)
                         .lineLimit(nil) // Allow unlimited lines
@@ -292,7 +259,7 @@ struct BadgeTypeInfoView: View {
     var onDismiss: () -> Void  // Closure to dismiss the popup
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {  // Align all content to the leading edge
             // Close button
             HStack {
                 Spacer()
@@ -310,16 +277,27 @@ struct BadgeTypeInfoView: View {
             Text(badgeTypeTitle())
                 .font(.custom("MuseoSansRounded-300", size: 25))
                 .bold()
-                .padding()
+                .padding(.bottom, 8)
 
             // Description
             Text(badgeTypeDescription())
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .multilineTextAlignment(.center)
-                .padding()
+                .font(.custom("MuseoSansRounded-300", size: 18))
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal)
+
+            // Notes
+            if let notes = badgeTypeNotes() {
+                Text(notes)
+                    .font(.custom("MuseoSansRounded-300", size: 14))  // Make font size a bit closer to the description
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal)  // Match padding with description
+                    .padding(.top, 4)      // Add a bit of spacing between the description and notes
+            }
 
             Spacer()
         }
+        .padding(.bottom)  // General padding to give space at the bottom
     }
 
     // Helper functions to get title and description based on badge type
@@ -337,14 +315,27 @@ struct BadgeTypeInfoView: View {
     func badgeTypeDescription() -> String {
         switch badgeType {
         case .basic:
-            return "Basic Badges are awarded for completing fundamental tasks."
+            return "Basic Badges may seem easy, but don’t be fooled! With 4 different tiers—Bronze, Silver, Gold, and Diamond—these badges start simple but climb to serious prestige."
         case .advanced:
-            return "Advanced Badges are awarded for more challenging achievements."
+            return "Advanced Badges are for those who love a good challenge. These are awarded for difficult, one-time feats. No tiers here—just pure bragging rights once you’ve conquered the task. Unlock it, own it, flaunt it forever!"
         case .limited:
-            return "Limited Badges are special badges available for a limited time."
+            return "Limited Badges are the hardest to obtain and the most exclusive badges out there. Available only for a short time, these rare treasures are earned by attending exclusive events or tackling special in-app challenges. Once they're gone, they’re gone—so grab them while you can!"
+        }
+    }
+
+    // Helper function to get notes based on badge type
+    func badgeTypeNotes() -> String? {
+        switch badgeType {
+        case .basic:
+            return "Progress towards tiers can only be made once unlocked."
+        case .advanced:
+            return nil // No notes for advanced badges
+        case .limited:
+            return "Only badges you've unlocked and currently available limited badges will appear here."
         }
     }
 }
+
 
 
 

@@ -127,7 +127,8 @@ struct SelectFollowingView: View {
                                                         fullname: user.fullname,
                                                         profileImageUrl: user.profileImageUrl,
                                                         privateMode: user.privateMode,
-                                                        username: user.username))
+                                                        username: user.username,
+                                                        statusNameImage: user.statusImageName))
             print("Appending User")
         }
         isSearchFieldFocused = false

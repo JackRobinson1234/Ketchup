@@ -148,7 +148,9 @@ struct DeveloperPreview {
                     fullname: "John Doe",
                     profileImageUrl: "https://picsum.photos/400/500",
                     privateMode: false,
-                    username: "johndoe123"
+                    username: "johndoe123",
+                    statusNameImage: "ADVANCED2"
+                    
                 ),
                 restaurant: PostRestaurant(
                     id: "restaurant1",

@@ -37,11 +37,7 @@ struct PhoneAuthView: View {
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
-                    .onAppear{
-                        ////DELETE BEFORE PUSHING
-                        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
-
-                    }
+                   
 
                 
                 HStack {

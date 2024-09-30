@@ -156,6 +156,7 @@ struct PostUser: Codable, Hashable, Identifiable {
     var profileImageUrl: String? = nil
     var privateMode: Bool
     var username: String
+    var statusNameImage: String? = "BEGINNER2"
 }
 
 enum MediaType: Int, Codable {

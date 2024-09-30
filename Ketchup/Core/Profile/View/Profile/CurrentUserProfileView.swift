@@ -182,11 +182,11 @@ struct CurrentUserProfileView: View {
                             selectedBadgeType = nil
                         }
                     })
-                    .frame(width: UIScreen.main.bounds.width * 0.8,
-                           height: UIScreen.main.bounds.height * 0.4)
+                    .frame(width: UIScreen.main.bounds.width * 0.8) // Keep a fixed width
                     .background(Color.white)
                     .cornerRadius(20)
                     .shadow(radius: 20)
+                    .fixedSize(horizontal: false, vertical: true) // Allow height to be dynamic based on content
                     Spacer()
                 }
             }

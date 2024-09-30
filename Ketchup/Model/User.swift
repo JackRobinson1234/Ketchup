@@ -19,13 +19,15 @@ struct User: Codable, Identifiable, Hashable {
     var createdAt: Date?
     var lastActive: Date?
     var hasContactsSynced: Bool = false
-
+    var statusImageName: String?
+    
+    
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced  // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, statusImageName  // Updated CodingKeys
     }
 
     init(from decoder: Decoder) throws {
@@ -68,9 +70,10 @@ struct User: Codable, Identifiable, Hashable {
 
         // Decode new hasContactsSynced property, defaulting to false if not present
         self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
+        self.statusImageName = try container.decodeIfPresent(String.self, forKey: .statusImageName) ?? "ADVANCED1"
     }
 
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil, hasContactsSynced: Bool = false) {
+    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil, hasContactsSynced: Bool = false, statusImageName: String? = "ADVANCED1") {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -92,6 +95,7 @@ struct User: Codable, Identifiable, Hashable {
         self.createdAt = createdAt
         self.lastActive = lastActive
         self.hasContactsSynced = hasContactsSynced
+        self.statusImageName = statusImageName
     }
 
     func encode(to encoder: Encoder) throws {
@@ -128,6 +132,7 @@ struct User: Codable, Identifiable, Hashable {
         
         // Encode new hasContactsSynced property
         try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
+        try container.encodeIfPresent(statusImageName, forKey: .statusImageName)
     }
     
     // Add a method to fetch badges from Firestore sub-collection

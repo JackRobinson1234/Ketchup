@@ -54,7 +54,7 @@ struct UploadService {
                 repostCount: 0,
                 thumbnailUrl: thumbnailUrl,
                 timestamp: Timestamp(),
-                user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username),
+                user: PostUser(id: user.id, fullname: user.fullname, profileImageUrl: user.profileImageUrl, privateMode: user.privateMode, username: user.username, statusNameImage: user.statusImageName),
                 restaurant: postRestaurant,
                 didLike: false,
                 didBookmark: false,

@@ -72,7 +72,7 @@ struct Badge: Identifiable, Codable, Equatable, Hashable {
     var name: String  // Name of the badge
     var type: BadgeType  // Type of the badge (basic, advanced, limited)
     var progress: [BadgeCriteriaProgressItem]  // Progress towards unlocking the badge
-    var imageUrl: String?  // Optional: URL to the badge image, if available
+    var imageName: String
     var tier: BadgeTier
     var rgbValues: [Double]
     var backgroundColor: Color {
@@ -83,7 +83,7 @@ struct Badge: Identifiable, Codable, Equatable, Hashable {
             red: rgbValues[0] / 255.0,
             green: rgbValues[1] / 255.0,
             blue: rgbValues[2] / 255.0,
-            opacity: tier == .locked ? 0.0 : 0.2 // No background for locked badges
+            opacity: tier == .locked ? 0.0 : 0.0 // No background for locked badges
         )
     }
     
@@ -100,21 +100,21 @@ struct Badge: Identifiable, Codable, Equatable, Hashable {
     }
     
     
-    static var badgeRules: [String: String] = [
+    static var badgeDescriptions: [String: String] = [
         "Foodie": "Post reviews to level up this badge!",
         "Influencer": "Recieve engagement across your posts to level up this badge!",
         "Socialite": "Make some friends on Ketchup to level up this badge!"
     ]
 
-    var rules: String {
-        return Badge.badgeRules[name] ?? "No description available."
+    var description: String {
+        return Badge.badgeDescriptions[name] ?? "No description available."
     }
 
-    init(name: String, type: BadgeType, progress: [BadgeCriteriaProgressItem], imageUrl: String? = nil, tier: BadgeTier, rgbValues: [Double]) {
+    init(name: String, type: BadgeType, progress: [BadgeCriteriaProgressItem], imageName: String, tier: BadgeTier, rgbValues: [Double]) {
         self.name = name
         self.type = type
         self.progress = progress
-        self.imageUrl = imageUrl
+        self.imageName = imageName
         self.tier = tier
         self.rgbValues = rgbValues
     }
