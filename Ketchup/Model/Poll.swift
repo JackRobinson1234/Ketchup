@@ -7,15 +7,21 @@
 
 import Foundation
 struct Poll: Identifiable, Codable {
-    var id: String?
+    var id: String
     let question: String
     var options: [PollOption]
     let createdAt: Date
-    let expiresAt: Date
+    let scheduledDate: Date
+    let expiresAt: Date // Now a stored property
     var totalVotes: Int
     var commentCount: Int
     var imageUrl: String?
     
+    // Computed property to check if the poll is active
+    var isActive: Bool {
+        let now = Date()
+        return now >= scheduledDate && now < expiresAt
+    }
 }
 struct PollOption: Identifiable, Codable {
     let id: String
@@ -24,31 +30,36 @@ struct PollOption: Identifiable, Codable {
     var restaurant: PostRestaurant?
 }
 extension Poll {
-    static func createNewPoll(question: String, options: [String], imageUrl: String? = nil) -> Poll {
+    static func createNewPoll(question: String, options: [String], imageUrl: String? = nil, scheduledDate: Date) -> Poll {
         let now = Date()
+        let expiresAt = Calendar.current.date(byAdding: .day, value: 1, to: scheduledDate)!
+        
         return Poll(
+            id: UUID().uuidString,
             question: question,
             options: options.map { PollOption(id: UUID().uuidString, text: $0, voteCount: 0) },
             createdAt: now,
-            expiresAt: Calendar.current.date(byAdding: .hour, value: 48, to: now)!,
+            scheduledDate: scheduledDate,
+            expiresAt: expiresAt,
             totalVotes: 0,
             commentCount: 0,
             imageUrl: imageUrl
         )
     }
-    
-    var isActive: Bool {
-        Date() < expiresAt
+}
+
+struct PollVote: Identifiable, Codable {
+    var id: String
+    let user: PostUser
+    let optionId: String
+    let timestamp: Date
+}
+extension Poll: Commentable {
+    var ownerUid: String? {
+        return nil // Assuming polls don't have an owner UID
     }
     
-    mutating func vote(for optionId: String) {
-        if let index = options.firstIndex(where: { $0.id == optionId }) {
-            options[index].voteCount += 1
-            totalVotes += 1
-        }
-    }
-    
-    mutating func addComment() {
-        commentCount += 1
+    var commentsCollectionPath: String {
+        return "polls/\(id)/comments"
     }
 }

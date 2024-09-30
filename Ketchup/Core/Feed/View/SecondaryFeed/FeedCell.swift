@@ -185,7 +185,7 @@ struct FeedCell: View {
             }
         }
         .sheet(isPresented: $showComments) {
-            CommentsView(post: $post, feedViewModel: viewModel)
+            CommentsView(commentable: Binding(get: { post }, set: { post = $0 }), feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
                     pauseAllVideos()

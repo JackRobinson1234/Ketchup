@@ -8,10 +8,10 @@
 import SwiftUI
 import UIKit
 
-struct CommentCell: View {
+struct CommentCell<T: Commentable>: View {
     let comment: Comment
     let replies: [Comment]
-    @ObservedObject var viewModel: CommentViewModel
+    @ObservedObject var viewModel: CommentViewModel<T>
     let isReply: Bool
     @State private var parsedComment: AttributedString?
     @State private var selectedUser: PostUser?

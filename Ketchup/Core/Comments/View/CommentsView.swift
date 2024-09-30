@@ -1,15 +1,14 @@
 import SwiftUI
 import InstantSearchSwiftUI
 
-struct CommentsView: View {
-    @StateObject var viewModel: CommentViewModel
+struct CommentsView<T: Commentable>: View {
+    @StateObject var viewModel: CommentViewModel<T>
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     @FocusState private var isInputFocused: Bool
     @ObservedObject var feedViewModel: FeedViewModel
-    
-    init(post: Binding<Post>, feedViewModel: FeedViewModel) {
-        let viewModel = CommentViewModel(post: post)
-        self._viewModel = StateObject(wrappedValue: viewModel)
+
+    init(commentable: Binding<T>, feedViewModel: FeedViewModel){
+        self._viewModel = StateObject(wrappedValue: CommentViewModel(commentable: commentable))
         self.feedViewModel = feedViewModel
     }
     
@@ -38,6 +37,7 @@ struct CommentsView: View {
                         }
                     }
                     .onChange(of: viewModel.lastAddedCommentId) { commentId in
+                        print("UPDATING", commentId)
                             if let commentId = feedViewModel.selectedCommentId {
                                 scrollViewProxy.scrollTo(commentId)
                                 viewModel.highlightComment(commentId)

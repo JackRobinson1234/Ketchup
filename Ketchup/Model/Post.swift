@@ -191,3 +191,20 @@ struct MixedMediaItem: Codable, Hashable, Identifiable {
         self.type = type
     }
 }
+extension Post: Commentable {
+    var ownerUid: String? {
+        return user.id
+    }
+    
+    var commentsCollectionPath: String {
+        return "posts/\(id)/post-comments"
+    }
+}
+
+
+protocol Commentable {
+    var id: String { get }
+    var ownerUid: String? { get }
+    var commentCount: Int { get set }
+    var commentsCollectionPath: String { get }
+}

@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 import GeoFire
+import Firebase
 enum LetsKetchupOptions {
     case friends, trending
 }
@@ -25,7 +26,8 @@ struct ActivityView: View {
     @State private var selectedTab: Tab = .discover
     @State private var leaderboardData: [LeaderboardCategory: [LocationType: Any]] = [:]
     @State private var selectedLeaderboard: (category: LeaderboardCategory?, location: LocationType?)?
-
+    @State private var showPollUploadView = false
+    
     enum Tab {
         case discover
         case leaderboards
@@ -56,7 +58,24 @@ struct ActivityView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     tabButtons
-//                    PollView(poll: Poll.createNewPoll(question: "What is the best spot in LA", options: ["Phillipe", "Apple Pan"]))
+                    
+                    
+                    if let userId = AuthService.shared.userSession?.id,
+                       ["uydfmAuFmCWOvSuLaGYuSKQO8Qn2", "cQlKGlOWTOSeZcsqObd4Iuy6jr93", "4lwAIMZ8zqgoIljiNQmqANMpjrk2"].contains(userId) {
+                        Button{
+                            showPollUploadView = true
+                        } label:{
+                            HStack{
+                                Spacer()
+                                Text("Poll Manager")
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                                    .modifier(StandardButtonModifier(width: 80))
+                                Spacer()
+                            }
+                        }
+                        
+                    }
+                    PollView()
                     if isLoading {
                         FastCrossfadeFoodImageView()
                     } else {
@@ -107,6 +126,9 @@ struct ActivityView: View {
             }
             .sheet(isPresented: $showContacts) {
                 ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts)
+            }
+            .sheet(isPresented: $showPollUploadView){
+                PollUploadView()
             }
         }
         .onAppear {
@@ -160,14 +182,14 @@ struct ActivityView: View {
                 viewModel: leaderboardViewModel,
                 leaderboardData: $leaderboardData,
                 selectedLeaderboard: $selectedLeaderboard,
-
+                
                 city: city,
                 state: state,
                 surroundingGeohash: surroundingGeohash,
                 surroundingCounty: surroundingCounty
             )
             mostLikedPostsSection
-           
+            
         }
     }
     
@@ -177,7 +199,7 @@ struct ActivityView: View {
                 viewModel: leaderboardViewModel,
                 leaderboardData: $leaderboardData,
                 selectedLeaderboard: $selectedLeaderboard,
-
+                
                 city: city,
                 state: state,
                 surroundingGeohash: surroundingGeohash,
@@ -429,7 +451,7 @@ struct ActivityView: View {
             case .surrounding:
                 locationFilter = .geohash(surroundingGeohash ?? "")
             }
-
+            
             let data: Any
             switch category {
             case .mostPosts:

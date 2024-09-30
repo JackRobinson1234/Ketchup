@@ -34,9 +34,11 @@ enum FeedLocationSetting: String, CaseIterable, Identifiable {
     case twentyMiles = "10 miles"
     case anywhere = "Any"
 }
-
+protocol CommentableViewModel: ObservableObject {
+    var selectedCommentId: String? { get }// Include any other common properties or methods
+}
 @MainActor
-class FeedViewModel: ObservableObject {
+class FeedViewModel: ObservableObject, CommentableViewModel  {
     
     @Published var posts = [Post]()
     @Published var showEmptyView = false
