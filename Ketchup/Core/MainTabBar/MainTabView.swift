@@ -18,6 +18,7 @@ struct MainTabView: View {
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
+    @State private var testString: String?
     
   
     var body: some View {
