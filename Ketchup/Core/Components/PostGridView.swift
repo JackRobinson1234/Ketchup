@@ -29,13 +29,17 @@ struct PostGridView: View {
     @State var selectedWrittenPost: Post?
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
-    init(feedViewModel: FeedViewModel, feedTitleText: String?, showNames: Bool, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
+    private let friendIds: [String]
+    
+    init(feedViewModel: FeedViewModel, feedTitleText: String?, showNames: Bool, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, friendIds: [String] = []) {
         self.feedViewModel = feedViewModel
         self.feedTitleText = feedTitleText
         self.showNames = showNames
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
+        self.friendIds = friendIds
     }
+    
     var body: some View {
         if !feedViewModel.posts.isEmpty {
             LazyVGrid(columns: items, spacing: spacing / 2) {
@@ -73,7 +77,6 @@ struct PostGridView: View {
                                 VStack {
                                     if let profileImageUrl = post.restaurant.profileImageUrl {
                                         RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .large)
-                                        
                                     }
                                     if !post.caption.isEmpty {
                                         Image(systemName: "line.3.horizontal")
@@ -90,8 +93,42 @@ struct PostGridView: View {
                             }
                             
                             VStack(alignment: .leading) {
+                                HStack{
+                                    if !friendIds.isEmpty && friendIds.contains(post.user.id) {
+                                        
+                                        HStack(spacing: 1){
+                                            Image(systemName: "person.2.fill")
+                                                .font(.system(size: 10))
+                                                .foregroundColor(.white)
+                                                .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                            
+                                            Text("@\(post.user.username)")
+                                                .lineLimit(2)
+                                                .truncationMode(.tail)
+                                                .foregroundColor(.white)
+                                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                                .bold()
+                                                .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                                .multilineTextAlignment(.leading)
+                                                .minimumScaleFactor(0.5)
+                                        }
+                                        
+                                    }
+                                    Spacer()
+                                    HStack(spacing: 1) {
+                                        Image(systemName: "heart")
+                                            .font(.footnote)
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                        Text("\(post.likes)")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .bold()
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                    }
+                                }
                                 Spacer()
-                                HStack {
+                                HStack(alignment: .bottom) {
                                     if showNames {
                                         Text("\(post.restaurant.name)")
                                             .lineLimit(2)
@@ -101,8 +138,19 @@ struct PostGridView: View {
                                             .bold()
                                             .shadow(color: .black, radius: 2, x: 0, y: 1)
                                             .multilineTextAlignment(.leading)
+                                            .minimumScaleFactor(0.5)
                                     }
+                                    
                                     Spacer()
+                                    Text(calculateOverallRating(for: post))
+                                        .lineLimit(2)
+                                        .truncationMode(.tail)
+                                        .foregroundColor(.white)
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .bold()
+                                        .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                        .multilineTextAlignment(.leading)
+                                        .minimumScaleFactor(0.5)
                                 }
                             }
                             .padding(4)
@@ -114,7 +162,11 @@ struct PostGridView: View {
             .fullScreenCover(item: $selectedPost) { post in
                 if post.mediaType != .written {
                     NavigationStack {
-                        SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        if #available(iOS 17, *) {
+                            SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        } else {
+                            IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: feedTitleText ?? "Posts", checkLikes: true)
+                        }
                     }
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                 }
@@ -143,31 +195,18 @@ struct PostGridView: View {
         }
     }
     
-    private func calculateAverageRating(for post: Post) -> Double? {
-        var totalSum = 0.0
-        var totalCount = 0
+    private func calculateOverallRating(for post: Post) -> String {
+        var ratings: [Double] = []
+        if let foodRating = post.foodRating, foodRating != 0 { ratings.append(foodRating) }
+        if let atmosphereRating = post.atmosphereRating, atmosphereRating != 0 { ratings.append(atmosphereRating) }
+        if let valueRating = post.valueRating, valueRating != 0 { ratings.append(valueRating) }
+        if let serviceRating = post.serviceRating, serviceRating != 0 { ratings.append(serviceRating) }
         
-        if let foodRating = post.foodRating {
-            totalSum += foodRating
-            totalCount += 1
-        }
-        if let atmosphereRating = post.atmosphereRating {
-            totalSum += atmosphereRating
-            totalCount += 1
-        }
-        if let valueRating = post.valueRating {
-            totalSum += valueRating
-            totalCount += 1
-        }
-        if let serviceRating = post.serviceRating {
-            totalSum += serviceRating
-            totalCount += 1
-        }
-        
-        if totalCount > 0 {
-            return (totalSum / Double(totalCount)).rounded(to: 1)
+        if ratings.isEmpty {
+            return "N/A"
         } else {
-            return nil
+            let average = ratings.reduce(0, +) / Double(ratings.count)
+            return String(format: "%.1f", average)
         }
     }
 }

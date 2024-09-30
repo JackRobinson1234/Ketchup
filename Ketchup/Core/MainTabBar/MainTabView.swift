@@ -19,39 +19,74 @@ struct MainTabView: View {
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
     
+  
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
             PrimaryFeedView(viewModel: feedViewModel)
                 .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
-                        .resizable()
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
-                        .padding()
+                    VStack(spacing:1){
+                        Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
+                            .resizable()
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 0 ? .none : .none)
+                            .padding()
+                        Text("Home")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
+                    }
                 }
-                .onAppear {
+                .onAppear{ 
                     tabBarController.selectedTab = 0
                     tabBarController.visibility = .visible
                 }
+                .badge(AuthService.shared.userSession?.followingPosts ?? 0)
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-            
-            MapView()
-                .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                        .padding()
-                }
-                .onAppear {
-                    tabBarController.selectedTab = 1
-                    tabBarController.visibility = .visible
-                }
-                .tag(1)
-                .toolbarBackground(.visible, for: .tabBar)
-                .toolbar(tabBarController.visibility, for: .tabBar)
-            
+                
+            if #available(iOS 17, *) {
+                MapView()
+                    .tabItem {
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                                .foregroundStyle(.black)
+                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+                                .padding()
+                            Text("Map")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                
+                    .onAppear {
+                        tabBarController.selectedTab = 1
+                        tabBarController.visibility = .visible
+                    }
+                    .tag(1)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .toolbar(tabBarController.visibility, for: .tabBar)
+            } else {
+                Ios16MapView()
+                    .tabItem {
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
+                                .foregroundStyle(.black)
+                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+                                .padding()
+                            Text("Map")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                
+                    .onAppear {
+                        tabBarController.selectedTab = 1
+                        tabBarController.visibility = .visible
+                    }
+                    .tag(1)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .toolbar(tabBarController.visibility, for: .tabBar)
+            }
             UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
                     Image(systemName: "plus.app")
@@ -68,10 +103,15 @@ struct MainTabView: View {
 
             ActivityView()
                 .tabItem {
-                    Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
-                        .foregroundStyle(.black)
-                        .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
-                        .padding()
+                    VStack(spacing:1){
+                        Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
+                            .padding()
+                        Text("Discover")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
+                    }
                 }
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
@@ -83,9 +123,14 @@ struct MainTabView: View {
 
             CurrentUserProfileView( feedViewModel: currentUserFeedViewModel)
                 .tabItem {
-                    VStack {
-                        Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
-                    }
+                    
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 4 ? "person.fill" : "person")
+                            Text("Profile")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
+                    
                     .environment(\.symbolVariants, tabBarController.selectedTab == 4 ? .none : .none)
                     .foregroundStyle(.black)
                 }
@@ -116,19 +161,19 @@ struct MainTabView: View {
             stopTracking(tab: tabBarController.selectedTab)
             sendSessionAnalytics()
         }
-        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
-            stopTracking(tab: oldTab)
-            startTracking(tab: newTab)
-        }
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .background {
-                stopTracking(tab: tabBarController.selectedTab)
-                sendSessionAnalytics()
-            } else if newPhase == .active {
-                sessionStartTime = Date()
-                startTracking(tab: tabBarController.selectedTab)
-            }
-        }
+//        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
+//            stopTracking(tab: oldTab)
+//            startTracking(tab: newTab)
+//        }
+//        .onChange(of: scenePhase) { oldPhase, newPhase in
+//            if newPhase == .background {
+//                stopTracking(tab: tabBarController.selectedTab)
+//                sendSessionAnalytics()
+//            } else if newPhase == .active {
+//                sessionStartTime = Date()
+//                startTracking(tab: tabBarController.selectedTab)
+//            }
+//        }
         .sheet(isPresented: $tabBarController.showContacts){
             ContactsView()
         }

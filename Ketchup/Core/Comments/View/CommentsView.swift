@@ -1,15 +1,14 @@
 import SwiftUI
 import InstantSearchSwiftUI
 
-struct CommentsView: View {
-    @StateObject var viewModel: CommentViewModel
+struct CommentsView<T: Commentable>: View {
+    @StateObject var viewModel: CommentViewModel<T>
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     @FocusState private var isInputFocused: Bool
     @ObservedObject var feedViewModel: FeedViewModel
-    
-    init(post: Binding<Post>, feedViewModel: FeedViewModel) {
-        let viewModel = CommentViewModel(post: post)
-        self._viewModel = StateObject(wrappedValue: viewModel)
+
+    init(commentable: Binding<T>, feedViewModel: FeedViewModel){
+        self._viewModel = StateObject(wrappedValue: CommentViewModel(commentable: commentable))
         self.feedViewModel = feedViewModel
     }
     
@@ -38,6 +37,7 @@ struct CommentsView: View {
                         }
                     }
                     .onChange(of: viewModel.lastAddedCommentId) { commentId in
+                        print("UPDATING", commentId)
                             if let commentId = feedViewModel.selectedCommentId {
                                 scrollViewProxy.scrollTo(commentId)
                                 viewModel.highlightComment(commentId)
@@ -63,7 +63,7 @@ struct CommentsView: View {
                 .padding(.horizontal)
                 .padding(.bottom)
             }
-            .onChange(of: viewModel.commentText) {
+            .onChange(of: viewModel.commentText) {newValue in
                 handleCommentTextChange()
             }
             .onAppear {
@@ -71,11 +71,14 @@ struct CommentsView: View {
             }
             .overlay {
                 if viewModel.showEmptyView && !viewModel.isTagging {
-                    ContentUnavailableView("No comments yet. Add yours now!", systemImage: "exclamationmark.bubble")
-                        .foregroundStyle(.gray)
+                    EmptyStateView(
+                        message: "No comments yet. Add yours now!",
+                        systemImage: "exclamationmark.bubble"
+                    )
+                    .foregroundStyle(.gray)
                 }
             }
-            .onChange(of: viewModel.organizedComments.count) {
+            .onChange(of: viewModel.organizedComments.count) {newValue in
                 viewModel.showEmptyView = viewModel.organizedComments.isEmpty
             }
             
@@ -153,5 +156,23 @@ struct CommentsView: View {
         words.append("@" + username)
         viewModel.commentText = words.joined(separator: " ") + " "
         viewModel.isTagging = false
+    }
+}
+struct EmptyStateView: View {
+    let message: String
+    let systemImage: String
+
+    var body: some View {
+        VStack {
+            Image(systemName: systemImage)
+                .font(.system(size: 50))
+                .padding(.bottom, 8)
+            
+            Text(message)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.gray)
+        }
+        .padding()
     }
 }

@@ -145,7 +145,7 @@ struct AddRestaurantView: View {
                 case .failure(let error):
                     showAlert = true
                     alertMessage = "Error: \(error.localizedDescription)"
-                    print("Error scraping restaurant: \(error.localizedDescription)")
+                    //print("Error scraping restaurant: \(error.localizedDescription)")
                 }
             }
         }
@@ -196,7 +196,7 @@ struct AddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                print("Scrape request was cancelled.")
+                //print("Scrape request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -229,7 +229,7 @@ struct AddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: statusUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                print("Polling request was cancelled.")
+                //print("Polling request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -251,7 +251,7 @@ struct AddRestaurantView: View {
                     } else if status == "ABORTED" {
                       return
                     } else {
-                        print("Run is still in progress...")
+                        //print("Run is still in progress...")
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             self.pollRunStatus(runId: runId, completion: completion)
                         }
@@ -272,7 +272,7 @@ struct AddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: statusUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                print("Data fetch request was cancelled.")
+                //print("Data fetch request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -304,7 +304,7 @@ struct AddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: dataUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                print("Data fetch request was cancelled.")
+                //print("Data fetch request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -337,7 +337,7 @@ struct AddRestaurantView: View {
         }
         isScraping = false
         buttonText = "Search"
-        print("Scraping process has been canceled.")
+        //print("Scraping process has been canceled.")
     }
     
     func abortActorRun(runId: String) {
@@ -348,9 +348,9 @@ struct AddRestaurantView: View {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("Error aborting actor run: \(error.localizedDescription)")
+                //print("Error aborting actor run: \(error.localizedDescription)")
             } else {
-                print("Actor run \(runId) aborted successfully.")
+                //print("Actor run \(runId) aborted successfully.")
             }
         }
         
@@ -483,7 +483,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     
     func uploadRestaurantToFirebase(restaurantData: [String: Any]) {
         guard let matchingId = restaurantData["matchingId"] as? String else {
-            print("Matching ID is missing, cannot proceed.")
+            //print("Matching ID is missing, cannot proceed.")
             return
         }
         
@@ -492,14 +492,14 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
         
         query.getDocuments { (snapshot, error) in
             if let error = error {
-                print("Error querying Firestore: \(error.localizedDescription)")
+                //print("Error querying Firestore: \(error.localizedDescription)")
                 return
             }
             
             if let snapshot = snapshot, let document = snapshot.documents.first {
                 // Restaurant with the same matchingId already exists
                 DispatchQueue.main.async {
-                    print("MATCHING ID FOUND: Using Existing Restaurant")
+                    //print("MATCHING ID FOUND: Using Existing Restaurant")
                     if let existingRestaurant = self.mapToRestaurant(from: document.data()) {
                         self.uploadViewModel.restaurant = existingRestaurant
                         // Dismiss the view after setting the existing restaurant
@@ -514,9 +514,9 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
                 
                 newDocRef.setData(restaurantDataWithId, merge: true) { error in
                     if let error = error {
-                        print("Error uploading restaurant: \(error.localizedDescription)")
+                        //print("Error uploading restaurant: \(error.localizedDescription)")
                     } else {
-                        print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
+                        //print("Restaurant uploaded successfully with id \(newDocRef.documentID)")
                         if let updatedRestaurant = self.mapToRestaurant(from: restaurantDataWithId) {
                             self.uploadViewModel.restaurant = updatedRestaurant
                             if let collectionsViewModel = self.uploadViewModel as? CollectionsViewModel {
@@ -539,7 +539,7 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     
     func cleanRestaurantData(restaurant: [String: Any]) -> [String: Any] {
         // Specify the keys to keep, equivalent to the `keep_columns` in your Python script
-        print("in clean func")
+        //print("in clean func")
         let keepKeys: Set<String> = [
             "name", "bio", "categoryName", "categories", "subCategories", "reviewsTags", "price",
             "address", "neighborhood", "street", "city", "postalCode", "state", "countryCode", "location",
@@ -657,25 +657,25 @@ struct ConfirmRestaurantView<T: RestaurantUploadable>: View {
     
     func mapToRestaurant(from data: [String: Any]) -> Restaurant? {
         guard let name = data["name"] as? String else {
-            print("Failed to extract name")
+            //print("Failed to extract name")
             return nil
         }
-        print("Extracted name: \(name)")
+        //print("Extracted name: \(name)")
         
         // Create RestaurantStats directly
         let statsDict = data["stats"] as? [String: Int] ?? [:]
-        print("Extracted statsDict: \(statsDict)")
+        //print("Extracted statsDict: \(statsDict)")
         
         let stats = RestaurantStats(postCount: statsDict["postCount"] ?? 0, collectionCount: statsDict["collectionCount"] ?? 0)
-        print("Created stats: \(stats)")
+        //print("Created stats: \(stats)")
         
         let geoPoint: GeoPoint?
         if let location = data["location"] as? [String: Double], let lat = location["lat"], let lng = location["lng"] {
             geoPoint = GeoPoint(latitude: lat, longitude: lng)
-            print("Extracted GeoPoint: \(geoPoint!)")
+            //print("Extracted GeoPoint: \(geoPoint!)")
         } else {
             geoPoint = nil
-            print("GeoPoint is nil")
+            //print("GeoPoint is nil")
         }
         
         // Constructing the Restaurant object without the id

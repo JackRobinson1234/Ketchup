@@ -17,6 +17,8 @@ struct LocationSelectionView: View {
     @State private var showSearchBar = true
     @FocusState private var isFocused: Bool
     @ObservedObject var registrationViewModel: UserRegistrationViewModel
+    @State private var showReferrerSearch = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Image("KetchupTextRed")
@@ -24,10 +26,12 @@ struct LocationSelectionView: View {
                 .scaledToFit()
                 .frame(width: 200)
             
-            Text("Select Your Location")
+            Text("Finally, Select Your Preferred Location")
                 .font(.custom("MuseoSansRounded-700", size: 26))
                 .foregroundColor(.black)
-          
+            Text("You will see restaurants near this location, you can always change it in your profile later")
+                .font(.custom("MuseoSansRounded-500", size: 14))
+                .foregroundColor(.gray)
             if showSearchBar {
                 HStack {
                     Image(systemName: "magnifyingglass")
@@ -52,6 +56,7 @@ struct LocationSelectionView: View {
                                 Text(location.subtitle)
                                     .font(.custom("MuseoSansRounded-300", size: 14))
                                     .foregroundColor(.gray)
+                                
                             }
                         }
                     }
@@ -83,7 +88,31 @@ struct LocationSelectionView: View {
             }
             
             Spacer()
-            
+            Button(action: {
+                showReferrerSearch = true
+            }) {
+               
+                    if registrationViewModel.referrer == nil{
+                        HStack{
+                            Spacer()
+                            Text("Referred by someone? Click here to add them")
+                                .font(.custom("MuseoSansRounded-500", size: 16))
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .multilineTextAlignment(.leading)
+                            Spacer()
+
+                        }
+                    
+                    
+                } else if let referrer = registrationViewModel.referrer{
+                    VStack(spacing: 0){
+                    UserCell(user: referrer)
+                    Text("Referred by @\(referrer.username)! Click to change.")
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundStyle(Color("Colors/AccentColor"))
+                    }
+                }
+            }
             Button(action: {
                 selectedLocation = localSelectedLocation
                 registrationViewModel.location = localSelectedLocation
@@ -121,6 +150,9 @@ struct LocationSelectionView: View {
             Image(systemName: "chevron.left")
                 .foregroundColor(.black)
         })
+        .sheet(isPresented: $showReferrerSearch) {
+            ReferUserListView(usernameRegistrationViewModel: registrationViewModel)
+        }
     }
     
     private func reverseGeo(location: MKLocalSearchCompletion) {
@@ -132,7 +164,7 @@ struct LocationSelectionView: View {
             
             CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
                 guard let placemark = placemarks?.first else {
-                    print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
+                    //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
                 

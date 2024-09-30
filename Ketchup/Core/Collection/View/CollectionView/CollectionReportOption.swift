@@ -13,6 +13,7 @@ struct CollectionOptionsSheet: View {
     @State private var showingDeleteAlert = false
     @State var showReportDetails = false
     @State var optionsSheetDismissed: Bool = false
+    @State var isReported = false
     var body: some View {
         VStack(spacing: 20) {
                 Button {
@@ -24,7 +25,7 @@ struct CollectionOptionsSheet: View {
                         .bold()
                 }
         }
-        .onChange(of: optionsSheetDismissed) {
+        .onChange(of: optionsSheetDismissed) {newValue in
             if optionsSheetDismissed {
                 dismiss()
             }
@@ -36,7 +37,7 @@ struct CollectionOptionsSheet: View {
         }
         .padding()
         .sheet(isPresented: $showReportDetails) {
-            ReportingView(contentId: collection.id, objectType: "collection", dismissView: $optionsSheetDismissed )
+            ReportingView(contentId: collection.id, objectType: "collection", isReported: $isReported, dismissView: $optionsSheetDismissed )
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
                 .onDisappear{
                     dismiss()

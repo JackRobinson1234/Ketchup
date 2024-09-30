@@ -12,6 +12,7 @@ import PhoneNumberKit
 import FirebaseAuth
 import FirebaseFirestoreInternal
 import MessageUI
+import CryptoKit
 
 class ContactsViewModel: ObservableObject {
     @Published var contacts: [Contact] = []
@@ -28,7 +29,7 @@ class ContactsViewModel: ObservableObject {
     private var lastNewDocument: DocumentSnapshot?
     private var lastExistingDocument: DocumentSnapshot?
 
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let contactStore = CNContactStore()
     private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
     private var currentPage = 0
@@ -46,7 +47,7 @@ class ContactsViewModel: ObservableObject {
     @MainActor
     var inviteMessage: String {
             if let username = AuthService.shared.userSession?.username {
-                return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+                return "Hey! Sharing an invite to the beta for Ketchup —no, not the condiment, but a new social restaurant rating app. Use this link to check it out: https://testflight.apple.com/join/ki6ajEz9 (P.S. Follow me @\(username))"
             } else {
                 return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
             }
@@ -155,6 +156,7 @@ class ContactsViewModel: ObservableObject {
         try await contactStore.enumerateContacts(with: request) { contact, _ in
             for phoneNumber in contact.phoneNumbers {
                 if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
+                    let formattedNumber = hashPhoneNumber(formattedNumber)
                     let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespacesAndNewlines)
                     self.deviceContacts[formattedNumber] = name
                 }
@@ -168,7 +170,7 @@ class ContactsViewModel: ObservableObject {
             let number = phoneNumberKit.format(parsedNumber, toType: .international)
             return number
         } catch {
-            print("Error parsing phone number: \(error.localizedDescription)")
+            //print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }
@@ -246,6 +248,11 @@ class ContactsViewModel: ObservableObject {
         self.messageRecipient = contact.phoneNumber
         self.isShowingMessageComposer = true
     }
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+           let inputData = Data(phoneNumber.utf8)
+           let hashed = SHA256.hash(data: inputData)
+           return hashed.compactMap { String(format: "%02x", $0) }.joined()
+       }
 }
 
 
@@ -279,4 +286,5 @@ struct ContactMessageComposeView: UIViewControllerRepresentable {
             parent.isShowing = false
         }
     }
+   
 }

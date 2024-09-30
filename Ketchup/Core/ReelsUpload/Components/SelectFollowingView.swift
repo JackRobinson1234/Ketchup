@@ -92,7 +92,7 @@ struct SelectFollowingView: View {
             })
         
         .onAppear(perform: fetchFollowingUsers)
-        .onChange(of: searchViewModel.searchQuery) {
+        .onChange(of: searchViewModel.searchQuery) {newValue in
             if filteredUsers.isEmpty && !searchViewModel.searchQuery.isEmpty {
                 debouncer.schedule {
                     searchViewModel.notifyQueryChanged()
@@ -111,7 +111,7 @@ struct SelectFollowingView: View {
                 let users = try await UserService.shared.fetchFollowingUsers()
                 followingUsers = users
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }
@@ -129,7 +129,9 @@ struct SelectFollowingView: View {
                                                         privateMode: user.privateMode,
                                                         username: user.username,
                                                         statusNameImage: user.statusImageName))
-            print("Appending User")
+
+                                                        username: user.username))
+
         }
         isSearchFieldFocused = false
         searchViewModel.searchQuery = ""

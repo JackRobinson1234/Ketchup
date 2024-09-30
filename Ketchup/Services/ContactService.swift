@@ -10,11 +10,13 @@ import FirebaseAuth
 import Contacts
 import PhoneNumberKit
 import SwiftUI
+import CryptoKit
+
 class ContactService {
     static let shared = ContactService()
     private let db = Firestore.firestore()
     private let contactStore = CNContactStore()
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let batchSize = 50
     
     @Published var error: Error?
@@ -33,20 +35,24 @@ class ContactService {
         
         db.collection("users").document(userId).getDocument { [weak self] (document, error) in
             if let document = document, document.exists {
-                self?.hasSynced = document.data()?["hasContactsSynced"] as? Bool ?? false
+                self?.hasSynced = document.data()?["contactsSynced"] as? Bool ?? false
             }
         }
     }
-    
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+            let inputData = Data(phoneNumber.utf8)
+            let hashed = SHA256.hash(data: inputData)
+            return hashed.compactMap { String(format: "%02x", $0) }.joined()
+        }
+
     func syncDeviceContacts() {
         guard !isSyncing && !hasSynced else {
-            print("Sync is not needed or is already in progress.")
+            //print("Sync is not needed or is already in progress.")
             return
         }
         
         isSyncing = true
         syncProgress = 0.0
-        
         startBackgroundTask()
         
         Task {
@@ -58,13 +64,13 @@ class ContactService {
                     self.isSyncing = false
                     self.syncProgress = 1.0
                     self.hasSynced = true
-                    print("Contact sync completed")
+                    //print("Contact sync completed")
                 }
             } catch {
                 await MainActor.run {
                     self.error = error
                     self.isSyncing = false
-                    print("Failed to sync contacts: \(error.localizedDescription)")
+                    //print("Failed to sync contacts: \(error.localizedDescription)")
                 }
             }
             
@@ -97,7 +103,8 @@ class ContactService {
                       let formattedPhoneNumber = formatPhoneNumber(phoneNumber) else {
                     return nil
                 }
-                return Contact(phoneNumber: formattedPhoneNumber)
+                let hashedPhoneNumber = hashPhoneNumber(formattedPhoneNumber)
+                return Contact(phoneNumber: hashedPhoneNumber)
             }
             
             do {
@@ -106,7 +113,7 @@ class ContactService {
                     self.syncProgress = Float(batchIndex + 1) / Float(totalBatches)
                 }
             } catch {
-                print("Error syncing batch \(batchIndex + 1): \(error.localizedDescription)")
+                //print("Error syncing batch \(batchIndex + 1): \(error.localizedDescription)")
             }
             
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds delay between batches
@@ -131,7 +138,7 @@ class ContactService {
         
         let userRef = db.collection("users").document(userId)
         try await userRef.updateData([
-            "hasContactsSynced": true,
+            "contactsSynced": true,
             "contactsSyncedOn": Timestamp(date: Date())
         ])
     }
@@ -141,7 +148,7 @@ class ContactService {
             let parsedNumber = try phoneNumberKit.parse(phoneNumber)
             return phoneNumberKit.format(parsedNumber, toType: .international)
         } catch {
-            print("Error parsing phone number: \(error.localizedDescription)")
+            //print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }

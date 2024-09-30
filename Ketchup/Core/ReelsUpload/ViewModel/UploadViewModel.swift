@@ -9,7 +9,6 @@ import SwiftUI
 import Firebase
 import PhotosUI
 import YPImagePicker
-
 @MainActor
 class UploadViewModel: ObservableObject {
     @Published var isLoading = false
@@ -40,12 +39,15 @@ class UploadViewModel: ObservableObject {
     @Published var isAtmosphereNA: Bool = false
     @Published var isValueNA: Bool = false
     @Published var isFoodNA: Bool = false
+    @Published var isOverallNA: Bool = false
     @Published var MixedImages: [UIImage]?
     @Published var mixedMediaItems: [MixedMediaItemHolder] = []
     @Published var thumbnailImage: UIImage?
     @Published var dismissAll: Bool = false
     @Published var fromRestaurantProfile = false
     @Published var showSuccessMessage = false
+    @Published var uploadProgress: Double = 0.0
+
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
@@ -85,7 +87,7 @@ class UploadViewModel: ObservableObject {
         
     }
     
-    func uploadPost() async {
+    func uploadPost() async throws-> Post?{
         isLoading = true
         
         do {
@@ -98,14 +100,18 @@ class UploadViewModel: ObservableObject {
                 postRestaurant: postRestaurant,
                 mentionedUsers: mentionedUsers
             )
-            
+            AuthService.shared.userSession?.stats.posts += 1
             handleUploadSuccess(post: post)
+            isLoading = false
+            reset()
+            return post
+            
         } catch {
             handleUploadFailure(error: error)
+            isLoading = false
+            reset()
+            return nil
         }
-        
-        isLoading = false
-        reset()
     }
 
     private func createPostRestaurant() async throws -> PostRestaurant? {
@@ -171,26 +177,46 @@ class UploadViewModel: ObservableObject {
         guard !mixedMediaItems.isEmpty else { return nil }
         
         var uploadedItems: [MixedMediaItem] = []
-        for item in mixedMediaItems {
+        let totalItems = Double(mixedMediaItems.count)
+        
+        for (index, item) in mixedMediaItems.enumerated() {
+            let baseProgress = Double(index) / totalItems
+            
             switch item.type {
             case .photo:
-                if let image = item.localMedia as? UIImage,
-                   let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) {
-                    uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                if let image = item.localMedia as? UIImage {
+                    let imageUrl = try await ImageUploader.uploadImage(image: image, type: .post) { [baseProgress, totalItems] progress in
+                        DispatchQueue.main.async {
+                            let itemProgress = progress / totalItems
+                            self.uploadProgress = baseProgress + itemProgress
+                            print(self.uploadProgress)
+                        }
+                    }
+                    if let imageUrl = imageUrl {
+                        uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                    }
                 }
             case .video:
-                if let videoURL = item.localMedia as? URL,
-                   let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) {
-                    uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                if let videoURL = item.localMedia as? URL {
+                    let videoUrl = try await VideoUploader.uploadVideoToStorage(withUrl: videoURL) { [baseProgress, totalItems] progress in
+                        DispatchQueue.main.async {
+                            let itemProgress = progress / totalItems
+                            self.uploadProgress = baseProgress + itemProgress
+                            print(self.uploadProgress)
+                        }
+                    }
+                    if let videoUrl = videoUrl {
+                        uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                    }
                 }
             default:
-                break  // Handle other cases if necessary
+                break
             }
         }
         
         return uploadedItems
     }
-
+    
     private func uploadPostToService(
         mixedMediaItems: [MixedMediaItem]?,
         postRestaurant: PostRestaurant?,
@@ -200,33 +226,100 @@ class UploadViewModel: ObservableObject {
             throw UploadError.invalidMediaType
         }
         
+        // Calculate average rating
+        let ratings = [
+            isServiceNA ? nil : serviceRating,
+            isAtmosphereNA ? nil : atmosphereRating,
+            isValueNA ? nil : valueRating,
+            isFoodNA ? nil : foodRating
+        ].compactMap { $0 }
+        
+        let averageRating: Double?
+        if !ratings.isEmpty {
+            let sum = ratings.reduce(0, +)
+            averageRating = (sum / Double(ratings.count)).rounded(to: 1)
+        } else {
+            averageRating = nil
+        }
+        
         return try await UploadService.shared.uploadPost(
-            mixedMediaItems: mixedMediaItems,
-            mediaType: .mixed,
-            caption: caption,
-            postRestaurant: postRestaurant,
-            fromInAppCamera: fromInAppCamera,
-            overallRating: overallRating,
-            serviceRating: isServiceNA ? nil : serviceRating,
-            atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-            valueRating: isValueNA ? nil : valueRating,
-            foodRating: isFoodNA ? nil : foodRating,
-            taggedUsers: taggedUsers,
-            captionMentions: mentionedUsers,
-            thumbnailImage: thumbnailImage
-        )
+               mixedMediaItems: mixedMediaItems,
+               mediaType: .mixed,
+               caption: caption,
+               postRestaurant: postRestaurant,
+               fromInAppCamera: fromInAppCamera,
+               overallRating: averageRating, // Use calculated average rating
+               serviceRating: isServiceNA ? nil : serviceRating,
+               atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+               valueRating: isValueNA ? nil : valueRating,
+               foodRating: isFoodNA ? nil : foodRating,
+               taggedUsers: taggedUsers,
+               captionMentions: mentionedUsers,
+               thumbnailImage: thumbnailImage,
+               progressHandler: { progress in
+                   DispatchQueue.main.async {
+                       //self.uploadProgress = progress
+                   }
+               }
+           )
     }
 
     private func handleUploadSuccess(post: Post) {
         uploadSuccess = true
         feedViewModel.showPostAlert = true
         feedViewModel.posts.insert(post, at: 0)
+        
         if !fromRestaurantProfile{
             currentUserFeedViewModel.posts.insert(post, at: 0)
         }
+        if let currentUser = AuthService.shared.userSession {
+            let postDate = Date() // Or use the server timestamp if available
+            updateWeeklyStreak(for: currentUser, withPostDate: postDate)
+        }
         showSuccessMessage = true
     }
-
+    private func updateWeeklyStreak(for user: User, withPostDate postDate: Date) {
+        let calendar = Calendar.current
+        
+        // Calculate the start of the week for the current post
+        let currentWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: postDate))!
+        
+        var newStreak = user.weeklyStreak
+        
+        if let lastPostDate = user.mostRecentPost {
+            // Calculate the start of the week for the last post
+            let lastPostWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: lastPostDate))!
+            
+            if currentWeekStart > lastPostWeekStart {
+                // This is the first post of the new week
+                newStreak += 1
+            }
+        } else {
+            // This is the user's first post ever
+            newStreak = 1
+        }
+        
+        // Update user locally
+        var updatedUser = user
+        updatedUser.weeklyStreak = newStreak
+        updatedUser.mostRecentPost = postDate
+        
+        // Update AuthService.shared.userSession
+        AuthService.shared.userSession = updatedUser
+        
+        // Update user in Firestore
+        let userRef = Firestore.firestore().collection("users").document(user.id)
+        userRef.updateData([
+            "weeklyStreak": newStreak,
+            "mostRecentPost": Timestamp(date: postDate)
+        ]) { error in
+            if let error = error {
+                print("Error updating user streak: \(error.localizedDescription)")
+            } else {
+                print("Successfully updated user streak. New streak: \(newStreak)")
+            }
+        }
+    }
     private func handleUploadFailure(error: Error) {
         self.error = error
         uploadFailure = true
@@ -300,7 +393,7 @@ class UploadViewModel: ObservableObject {
                     self.mentionableUsers = users
                 }
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }

@@ -10,6 +10,7 @@ import Combine
 import FirebaseAuth
 import PhoneNumberKit
 import FirebaseFirestoreInternal
+import CryptoKit
 @MainActor
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber = ""
@@ -26,7 +27,7 @@ class PhoneAuthViewModel: ObservableObject {
     @Published var shouldNavigateToUsernameSelection = false
     @Published var isDelete: Bool = false
     private var cancellables = Set<AnyCancellable>()
-    private let phoneNumberKit = PhoneNumberKit()
+    private let phoneNumberKit = PhoneNumberUtility()
     private let debounceDuration: TimeInterval = 0.5
     @Published var deletionSuccessful: Bool = false
     
@@ -36,7 +37,7 @@ class PhoneAuthViewModel: ObservableObject {
     }
     
     private func setupPhoneNumberValidation() {
-    
+        //Auth.auth().settings?.isAppVerificationDisabledForTesting = true
         $phoneNumber
             .debounce(for: .seconds(debounceDuration), scheduler: RunLoop.main)
             .sink { [weak self] number in
@@ -51,7 +52,7 @@ class PhoneAuthViewModel: ObservableObject {
     }
     
     private func validatePhoneNumber(_ number: String) {
-        
+
         do {
             let parsedNumber = try phoneNumberKit.parse(number)
             phoneNumber = phoneNumberKit.format(parsedNumber, toType: .international)
@@ -67,7 +68,6 @@ class PhoneAuthViewModel: ObservableObject {
         
         isAuthenticating = true
         ///DELETE BEFORE PRODUCTION
-       
 
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
             DispatchQueue.main.async {
@@ -132,6 +132,7 @@ class PhoneAuthViewModel: ObservableObject {
             if let error = error {
                 self?.handleError(error)
             } else {
+                AuthService.shared.signout()
                 DispatchQueue.main.async {
                     self?.deletionSuccessful = true
                     self?.showAlert(title: "Account Deleted", message: "Your account has been successfully deleted.")
@@ -202,9 +203,9 @@ class PhoneAuthViewModel: ObservableObject {
         return false
     }
     private func handleError(_ error: Error) {
-        print("Detailed error: \(error)")
+        //print("Detailed error: \(error)")
         if let errCode = AuthErrorCode(rawValue: error._code) {
-            print("Firebase Auth Error Code: \(errCode.rawValue)")
+            //print("Firebase Auth Error Code: \(errCode.rawValue)")
             switch errCode {
             case .invalidVerificationCode:
                 showAlert(title: "Invalid Code", message: "The verification code entered is incorrect.")
@@ -235,13 +236,13 @@ class PhoneAuthViewModel: ObservableObject {
         
         do {
             let randomUsername = try await AuthService.shared.generateRandomUsername(prefix: "user")
-            print("PHONE NUMBER 1:", self.phoneNumber)
+            //print("PHONE NUMBER 1:", self.phoneNumber)
             let newUser = try await AuthService.shared.createFirestoreUser(
                 id: user.uid,
                 username: randomUsername,
                 fullname: "",
                 birthday: Date(),
-                phoneNumber: self.phoneNumber,
+                phoneNumber: hashPhoneNumber(self.phoneNumber),
                 privateMode: false
             )
             Task{
@@ -252,19 +253,20 @@ class PhoneAuthViewModel: ObservableObject {
             }
             self.shouldNavigateToUsernameSelection = true
         } catch {
-            print("Error creating basic user: \(error.localizedDescription)")
+            //print("Error creating basic user: \(error.localizedDescription)")
             showAlert(title: "Error", message: "Failed to create user. Please try again.")
         }
     }
     private func updateUserWithPhoneNumber() async {
         do {
             guard let userID = Auth.auth().currentUser?.uid else { return }
-            
+            let hashedPhoneNumber = hashPhoneNumber(self.phoneNumber)
+
             // Update the user's phone number in Firestore
-            print("PHONE NUMBER 2:", self.phoneNumber)
+            //print("PHONE NUMBER 2:", self.phoneNumber)
             try await AuthService.shared.updateFirestoreUser(
                 id: userID,
-                phoneNumber: self.phoneNumber,
+                phoneNumber: hashedPhoneNumber,
                 hasCompletedSetup: false
             )
             
@@ -279,10 +281,15 @@ class PhoneAuthViewModel: ObservableObject {
                         await updateFCMTokenForUser(userId: userID, token: token)
                     }
         } catch {
-            print("Error updating user with phone number: \(error.localizedDescription)")
+            //print("Error updating user with phone number: \(error.localizedDescription)")
             showAlert(title: "Error", message: "Failed to update user. Please try again.")
         }
     }
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+           let inputData = Data(phoneNumber.utf8)
+           let hashed = SHA256.hash(data: inputData)
+           return hashed.compactMap { String(format: "%02x", $0) }.joined()
+       }
     private func showAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message
@@ -297,10 +304,10 @@ class PhoneAuthViewModel: ObservableObject {
                 "fcmToken": token,
                 "lastUpdated": FieldValue.serverTimestamp()
             ])
-            print("Token saved successfully after login")
+            //print("Token saved successfully after login")
             UserDefaults.standard.removeObject(forKey: "fcmToken")
         } catch {
-            print("Error saving token: \(error)")
+            //print("Error saving token: \(error)")
         }
     }
 }

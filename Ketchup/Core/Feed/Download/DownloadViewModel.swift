@@ -22,27 +22,59 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
 
     private var mediaType: MediaType?
 
-    func downloadMedia(url: URL, mediaType: MediaType) {
-        self.mediaType = mediaType
-        
-        PHPhotoLibrary.requestAuthorization { status in
-            if status == .authorized {
-                self.isDownloading = true
-                let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
-                let task = session.dataTask(with: url) { (data, response, error) in
-                    guard error == nil else {
+    func downloadMedia(post: Post, currentMediaIndex: Int) {
+        Task {
+            let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+            await MainActor.run {
+                if status == .authorized {
+                    self.isDownloading = true
+                    
+                    let mediaURL: String?
+                    let mediaType: MediaType
+                    
+                    if post.mediaType == .mixed {
+                        mediaURL = post.mixedMediaUrls?[currentMediaIndex].url
+                        mediaType = post.mixedMediaUrls?[currentMediaIndex].type ?? .photo
+                    } else {
+                        mediaURL = post.mediaUrls[currentMediaIndex]
+                        mediaType = post.mediaType
+                    }
+                    
+                    self.mediaType = mediaType
+                    
+                    guard let mediaURLString = mediaURL, let url = URL(string: mediaURLString) else {
+                        self.isDownloading = false
+                        self.downloadFailure = true
                         return
                     }
-                    let downloadTask = session.downloadTask(with: url)
-                    downloadTask.resume()
+                    
+                    let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+                    let task = session.dataTask(with: url) { (data, response, error) in
+                        if let error = error {
+                            Task { @MainActor in
+                                self.isDownloading = false
+                                self.downloadFailure = true
+                            }
+                            return
+                        }
+                        let downloadTask = session.downloadTask(with: url)
+                        downloadTask.resume()
+                    }
+                    task.resume()
+                } else {
+                    self.isDownloading = false
+                    self.downloadFailure = true
                 }
-                task.resume()
             }
         }
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let data = try? Data(contentsOf: location), let mediaType = self.mediaType else {
+            Task { @MainActor in
+                self.isDownloading = false
+                self.downloadFailure = true
+            }
             return
         }
         
@@ -54,34 +86,37 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             destinationURL = documentsURL.appendingPathComponent("downloadedPhoto.jpg")
         case .video:
             destinationURL = documentsURL.appendingPathComponent("downloadedVideo.mp4")
-        case .written:
-            return
-        case .mixed:
+        case .written, .mixed:
+            Task { @MainActor in
+                self.isDownloading = false
+                self.downloadFailure = true
+            }
             return
         }
   
-        
         do {
             try data.write(to: destinationURL)
             saveMediaToAlbum(mediaURL: destinationURL, albumName: "Ketchup", mediaType: mediaType)
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.isDownloading = false
-                self.downloadSuccess.toggle()
+                self.downloadSuccess = true
             }
         } catch {
-            print("Error saving file:", error)
-            DispatchQueue.main.async {
+            //print("Error saving file:", error)
+            Task { @MainActor in
                 self.isDownloading = false
-                self.downloadFailure.toggle()
+                self.downloadFailure = true
             }
         }
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        DispatchQueue.main.async {
-            self.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        Task { @MainActor in
+            self.progress = calculatedProgress
         }
     }
+    
     
     private func saveMediaToAlbum(mediaURL: URL, albumName: String, mediaType: MediaType) {
         if albumExists(albumName: albumName) {
@@ -103,7 +138,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                     guard let album = collectionFetchResult.firstObject else { return }
                     self.saveMedia(mediaURL: mediaURL, to: album, mediaType: mediaType)
                 } else {
-                    print("Error creating album: \(error?.localizedDescription ?? "")")
+                    //print("Error creating album: \(error?.localizedDescription ?? "")")
                 }
             })
         }
@@ -127,7 +162,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             case .written:
                 return 
             case .mixed:
-                print("DEBUG")
+                //print("DEBUG")
                 return
             }
             
@@ -137,9 +172,9 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             }
         }, completionHandler: { success, error in
             if success {
-                print("Successfully saved media to album")
+                //print("Successfully saved media to album")
             } else {
-                print("Error saving media to album: \(error?.localizedDescription ?? "")")
+                //print("Error saving media to album: \(error?.localizedDescription ?? "")")
             }
         })
     }

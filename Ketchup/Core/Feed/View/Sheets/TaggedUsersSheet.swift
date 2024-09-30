@@ -10,12 +10,13 @@ import Kingfisher
 
 struct TaggedUsersSheetView: View {
     var taggedUsers: [PostUser]
+    var title: String = "Went With"
     @State private var selectedUser: PostUser? = nil
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Text("Went With")
+                Text(title)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                     .bold()
                     .padding()

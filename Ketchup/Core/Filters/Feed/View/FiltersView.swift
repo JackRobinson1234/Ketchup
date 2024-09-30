@@ -68,8 +68,7 @@ struct FiltersView: View {
                         else {
                             /// "Filter Price" if no options selected
                             CollapsedPickerView(title: "Restaurant Price", emptyDescription: "Filter by Price", count: filtersViewModel.selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
-                                .opacity(filtersViewModel.disableRestaurantFilters ? 0.5 : 1.0)
-                                .allowsHitTesting(!filtersViewModel.disableRestaurantFilters)
+                                
                                 .onTapGesture{
                                     withAnimation(.snappy){ selectedOption = .price}
                                 }
@@ -80,16 +79,7 @@ struct FiltersView: View {
 
             }
             //MARK: Navigation Title
-            .onChange(of: filtersViewModel.disableAtHomeFilters) {
-                print("AtHome disabled: ", filtersViewModel.disableAtHomeFilters)
-                print("Restaurant disabled: ",  filtersViewModel.disableRestaurantFilters)
-                
-            }
-            .onChange(of: filtersViewModel.disableRestaurantFilters) {
-                print("AtHome disabled: ",filtersViewModel.disableAtHomeFilters)
-                print("Restaurant disabled: ", filtersViewModel.disableRestaurantFilters)
-                
-            }
+            
 
                 .navigationTitle("Add Filters")
                 .navigationBarTitleDisplayMode(.inline)

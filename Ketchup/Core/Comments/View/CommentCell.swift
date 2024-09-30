@@ -8,10 +8,10 @@
 import SwiftUI
 import UIKit
 
-struct CommentCell: View {
+struct CommentCell<T: Commentable>: View {
     let comment: Comment
     let replies: [Comment]
-    @ObservedObject var viewModel: CommentViewModel
+    @ObservedObject var viewModel: CommentViewModel<T>
     let isReply: Bool
     @State private var parsedComment: AttributedString?
     @State private var selectedUser: PostUser?
@@ -22,13 +22,12 @@ struct CommentCell: View {
     @State private var showingDeleteAlert = false
     @State private var showReportDetails = false
     @Environment(\.openURL) private var openURL
-    
+    @State var isReported: Bool = false
     private let optionsWidth: CGFloat = 60
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             commentContent
-            
             if !isReply && !replies.isEmpty {
                 ForEach(replies) { reply in
                     CommentCell(comment: reply, replies: [], viewModel: viewModel, isReply: true)
@@ -37,7 +36,6 @@ struct CommentCell: View {
             }
         }
     }
-    
     private var commentContent: some View {
         ZStack(alignment: .trailing) {
             if comment.commentOwnerUsername == "Deleted" {
@@ -77,25 +75,27 @@ struct CommentCell: View {
         HStack(alignment: .top, spacing: 12) {
             Button {
                 viewModel.selectedUserComment = comment
-            }  label: {
+            } label: {
                 UserCircularProfileImageView(profileImageUrl: comment.commentOwnerProfileImageUrl, size: .small)
             }
             VStack(alignment: .leading, spacing: 0) {
-                HStack {
+                HStack (alignment: .bottom){
                     Button {
                         viewModel.selectedUserComment = comment
-                    }  label: {
+                    } label: {
                         Text("@\(comment.commentOwnerUsername)")
                             .fontWeight(.semibold)
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .foregroundColor(.black)
-
-                        
+                            .lineLimit(1) // Limit to one line
+                            .minimumScaleFactor(0.5) // Allow scaling down to 0.5
                     }
                     if isReply, let replyTo = comment.replyTo {
                         Text("replying to @\(replyTo.username)")
                             .foregroundColor(.gray)
                             .font(.custom("MuseoSansRounded-300", size: 12))
+                            .lineLimit(1) // Limit to one line
+                            .minimumScaleFactor(0.5) // Allow scaling down to 0.5
                     }
                     Text("\(comment.timestamp.timestampString())")
                         .foregroundColor(.gray)
@@ -103,10 +103,8 @@ struct CommentCell: View {
                 }
                 Spacer().frame(height: 6)
                 if let parsed = parsedComment {
-                    
                     Text(parsed)
                         .font(.custom("MuseoSansRounded-300", size: 14))
-                        
                 } else {
                     Text(comment.commentText)
                         .font(.custom("MuseoSansRounded-300", size: 14))
@@ -123,13 +121,8 @@ struct CommentCell: View {
                         Text("Reply")
                             .font(.custom("MuseoSansRounded-500", size: 12))
                             .foregroundColor(.gray)
-                        
                     }
-                    //.padding(.top, 3)
-                    
                     Spacer()
-                    
-                    
                 }
             }
             Spacer()
@@ -141,6 +134,7 @@ struct CommentCell: View {
             Rectangle()
                 .fill(comment.isHighlighted ? Color.red.opacity(0.1) : Color.clear)
         )
+    
         .environment(\.openURL, OpenURLAction { url in
                     if url.scheme == "user",
                        let userId = url.host,
@@ -163,13 +157,13 @@ struct CommentCell: View {
                 secondaryButton: .cancel()
             )
         }
-        .onChange(of: selectedUser) {
+        .onChange(of: selectedUser) {newValue in
             isShowingProfileSheet = selectedUser != nil
         }
         
         
         .sheet(isPresented: $showReportDetails) {
-            ReportingView(contentId: comment.id, objectType: "comment", dismissView: .constant(false))
+            ReportingView(contentId: comment.id, objectType: "comment",isReported: $isReported, dismissView: .constant(false))
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
         .sheet(isPresented: $isShowingProfileSheet) {

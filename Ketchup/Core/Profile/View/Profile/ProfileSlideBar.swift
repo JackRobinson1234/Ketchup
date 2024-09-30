@@ -26,28 +26,31 @@ enum PostDisplayMode: String, CaseIterable {
 
 struct ProfileSlideBar: View {
     @ObservedObject var viewModel: ProfileViewModel
-    @StateObject var collectionsViewModel: CollectionsViewModel
+    @ObservedObject var collectionsViewModel: CollectionsViewModel
     @ObservedObject var feedViewModel: FeedViewModel
     @Binding var scrollPosition: String?
     @Binding var scrollTarget: String?
     @State private var postDisplayMode: PostDisplayMode = .media
+
     @Binding var selectedBadge: Badge?
     @Binding var selectedBadgeType: BadgeType?
+
     
     private var isKetchupMediaUser: Bool {
         return viewModel.user.username == "ketchup_media"
     }
 
     init(viewModel: ProfileViewModel, feedViewModel: FeedViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>, selectedBadge: Binding<Badge?>, selectedBadgeType: Binding<BadgeType?>) {
+
         self.feedViewModel = feedViewModel
         self.viewModel = viewModel
-        self._collectionsViewModel = StateObject(wrappedValue: CollectionsViewModel())
+        self.collectionsViewModel =  collectionsViewModel
         self._scrollPosition = scrollPosition
         self._scrollTarget = scrollTarget
         self._selectedBadge = selectedBadge
         self._selectedBadgeType = selectedBadgeType
     }
-
+    
     var body: some View {
         VStack {
             // MARK: Images
@@ -63,7 +66,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .posts))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .map ? "location.fill" : "location")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -75,7 +78,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .map))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .collections ? "folder.fill" : "folder")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -87,7 +90,7 @@ struct ProfileSlideBar: View {
                     }
                     .modifier(UnderlineImageModifier(isSelected: viewModel.profileSection == .collections))
                     .frame(maxWidth: .infinity)
-
+                
                 Image(systemName: viewModel.profileSection == .bookmarks ? "bookmark.fill" : "bookmark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -115,7 +118,7 @@ struct ProfileSlideBar: View {
             }
             .padding()
             .padding(.bottom, 16)
-
+            
             // MARK: Section Logic
             if viewModel.profileSection == .posts {
                 VStack {
@@ -130,16 +133,25 @@ struct ProfileSlideBar: View {
                 }
             }
             if viewModel.profileSection == .map {
-                ProfileMapView(feedViewModel: feedViewModel)
-                    .id("map")
-                    .onAppear {
-                        scrollTarget = "map"
-                    }
+                
+                if #available(iOS 17, *) {
+                    ProfileMapView(feedViewModel: feedViewModel)
+                        .id("map")
+                        .onAppear {
+                            scrollTarget = "map"
+                        }
+                } else {
+                    Ios16ProfileMapView(feedViewModel: feedViewModel)
+                        .id("map")
+                        .onAppear {
+                            scrollTarget = "map"
+                        }
+                }
             }
             if viewModel.profileSection == .bookmarks {
                 BookmarksListView(profileViewModel: viewModel)
             }
-
+            
             if viewModel.profileSection == .collections {
                 CollectionsListView(viewModel: collectionsViewModel, user: viewModel.user)
             }

@@ -19,6 +19,7 @@ struct ProfileView: View {
     @State private var scrollPosition: String?
     @State private var scrollTarget: String?
     @State private var showZoomedProfileImage = false
+    @StateObject var collectionsViewModel = CollectionsViewModel()
     private let uid: String
     @State private var selectedBadge: Badge? = nil
     @State private var selectedBadgeType: BadgeType? = nil
@@ -32,7 +33,7 @@ struct ProfileView: View {
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
                     if profileViewModel.profileSection == .posts {
-                        print("DISMISSING FROM DRAG")
+                        //print("DISMISSING FROM DRAG")
                         dismiss()
                         
                     } else if profileViewModel.profileSection == .bookmarks{
@@ -96,48 +97,48 @@ struct ProfileView: View {
                                 }
                             }
                         }
-                    }
-                    .scrollPosition(id: $scrollPosition)
-                    .onChange(of: scrollTarget) {
-                        scrollPosition = scrollTarget
-                        withAnimation {
-                            print("SCROLLING")
-                            scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                        //.scrollPosition(id: $scrollPosition)
+                        .onChange(of: scrollTarget) {newValue in
+                            scrollPosition = scrollTarget
+                            withAnimation {
+                                //print("SCROLLING")
+                                scrollProxy.scrollTo(scrollTarget, anchor: .center)
+                            }
                         }
                     }
-                }
-                .gesture(drag)
-                .sheet(isPresented: $showingOptionsSheet) {
-                    ProfileOptionsSheet(user: profileViewModel.user)
-                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
-                }
-                .task { await profileViewModel.checkIfUserIsFollowed() }
-                .toolbar(.hidden, for: .tabBar)
-                .toolbarBackground(Color.white, for: .navigationBar)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.black)
-                        }
+                    .gesture(drag)
+                    .sheet(isPresented: $showingOptionsSheet) {
+                        ProfileOptionsSheet(user: profileViewModel.user)
+                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        if !profileViewModel.user.isCurrentUser {
+                    .task { await profileViewModel.checkIfUserIsFollowed() }
+                    .toolbar(.hidden, for: .tabBar)
+                    .toolbarBackground(Color.white, for: .navigationBar)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
                             Button {
-                                showingOptionsSheet = true
+                                dismiss()
                             } label: {
-                                ZStack{
-                                    Rectangle()
-                                        .fill(.clear)
-                                        .frame(width: 18, height: 14)
-                                    Image(systemName: "ellipsis")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 5, height: 5)
-                                        .foregroundStyle(.black)
-                                    
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(.black)
+                            }
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            if !profileViewModel.user.isCurrentUser {
+                                Button {
+                                    showingOptionsSheet = true
+                                } label: {
+                                    ZStack{
+                                        Rectangle()
+                                            .fill(.clear)
+                                            .frame(width: 18, height: 14)
+                                        Image(systemName: "ellipsis")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 5, height: 5)
+                                            .foregroundStyle(.black)
+                                        
+                                    }
                                 }
                             }
                         }
@@ -213,7 +214,16 @@ struct ProfileView: View {
                             .onTapGesture {
                                 showZoomedProfileImage = false
                             }
-                        Spacer()
+                        VStack {
+                            Spacer()
+                            UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
+                                .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .onTapGesture {
+                                    showZoomedProfileImage = false
+                                }
+                            Spacer()
+                        }
                     }
                 }
             }

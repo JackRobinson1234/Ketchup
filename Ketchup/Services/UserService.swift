@@ -24,7 +24,7 @@ class UserService {
     func fetchCurrentUser() async throws -> User {
         guard let uid = Auth.auth().currentUser?.uid else { throw UserError.unauthenticated }
         let user = try await FirestoreConstants.UserCollection.document(uid).getDocument(as: User.self)
-        print("DEBUG1: running fetched currentuser: \(user.fullname)")
+        //print("DEBUG1: running fetched currentuser: \(user.fullname)")
         return user
     }
     
@@ -36,7 +36,7 @@ class UserService {
     /// - Returns: list of users that the current user is following
     ///
     func fetchFollowingUsers() async throws -> [User] {
-        print("DEBUG: fetching following users")
+        //print("DEBUG: fetching following users")
         guard let currentUser = Auth.auth().currentUser else {
             throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
@@ -66,7 +66,7 @@ class UserService {
         }
     }
     func fetchFollowingUserIds() async throws -> [String] {
-        print("DEBUG: fetching following users")
+        //print("DEBUG: fetching following users")
         guard let currentUser = Auth.auth().currentUser else {
             throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
@@ -184,7 +184,7 @@ extension UserService {
     /// - Returns: boolean of if the user currently follows them or not
     func checkIfUserIsFollowed(uid: String) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
-        print("DEBUG: Ran checkIfUsersIsFollowed()")
+        //print("DEBUG: Ran checkIfUsersIsFollowed()")
         guard let snapshot = try? await FirestoreConstants
             .UserFollowingCollection(uid: currentUid)
             .document(uid)
@@ -202,7 +202,7 @@ extension UserService {
             
             return snapshot
         } catch {
-            print("Error fetching user bookmarks: \(error.localizedDescription)")
+            //print("Error fetching user bookmarks: \(error.localizedDescription)")
             throw error
         }
     }
@@ -215,7 +215,7 @@ extension UserService {
                 .getDocuments(as: Bookmark.self)
             return snapshot
         } catch {
-            print("Error fetching user bookmarks: \(error.localizedDescription)")
+            //print("Error fetching user bookmarks: \(error.localizedDescription)")
             throw error
         }
     }

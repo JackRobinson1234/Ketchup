@@ -142,8 +142,8 @@ struct CreateCollectionDetails: View {
                 }
             }
             .onAppear {
-                print("third viewModel post", collectionsViewModel.post)
-                print("third viewModel restaurant", collectionsViewModel.restaurant)
+                //print("third viewModel post", collectionsViewModel.post)
+                //print("third viewModel restaurant", collectionsViewModel.restaurant)
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("Create a New Collection")
@@ -286,7 +286,7 @@ struct EditorView: View {
                     }
                     
                 }
-                .onChange(of: text) {
+                .onChange(of: text) {newValue in
                     if text.count > maxCharacters {
                         text = String(text.prefix(maxCharacters))
                     }

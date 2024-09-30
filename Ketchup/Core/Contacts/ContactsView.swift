@@ -81,7 +81,7 @@ struct ContactsView: View {
             ForEach(filteredContacts) { contact in
                 ContactRow(viewModel: viewModel, contact: contact)
             }
-            
+
             if viewModel.hasMoreContacts {
                 ProgressView()
                     .onAppear {
@@ -205,7 +205,7 @@ struct ContactsView: View {
     }
     
     private func startContactSync() {
-        if AuthService.shared.userSession?.hasContactsSynced == false {
+        if AuthService.shared.userSession?.contactsSynced == false {
             isSyncingContacts = true
             Task {
                 try await ContactService.shared.syncDeviceContacts()
@@ -361,7 +361,7 @@ struct ContactRow: View {
                 isCheckingFollowStatus = false
                 hasCheckedFollowStatus = true
             } catch {
-                print("Error checking follow status: \(error.localizedDescription)")
+                //print("Error checking follow status: \(error.localizedDescription)")
                 isCheckingFollowStatus = false
             }
         }
@@ -379,7 +379,7 @@ struct ContactRow: View {
                 isFollowed.toggle()
                 viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
             } catch {
-                print("Failed to follow/unfollow: \(error.localizedDescription)")
+                //print("Failed to follow/unfollow: \(error.localizedDescription)")
             }
         }
     }

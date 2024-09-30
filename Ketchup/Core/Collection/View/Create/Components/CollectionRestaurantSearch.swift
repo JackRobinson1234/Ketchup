@@ -71,7 +71,7 @@ struct CollectionRestaurantSearch: View {
             }
             .toolbar(.hidden, for: .tabBar)
             .navigationBarBackButtonHidden()
-            .onChange(of: viewModel.searchQuery) {
+            .onChange(of: viewModel.searchQuery) {newValue in
                 debouncer.schedule {
                     viewModel.notifyQueryChanged()
                 }

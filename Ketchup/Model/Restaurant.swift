@@ -11,6 +11,9 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let name: String
     var geoPoint: GeoPoint?
     let geoHash: String?
+    let truncatedGeohash: String?
+    let truncatedGeohash5: String?
+    let truncatedGeohash6: String?
     let address: String?
     let city: String?
     let state: String?
@@ -19,7 +22,6 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var bio: String?
     let _geoloc: geoLoc?
     var stats: RestaurantStats?
-    // New fields
     let additionalInfo: AdditionalInfo?
     let categories: [String]?
     let containsMenuImage: Bool?
@@ -43,7 +45,9 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let temporarilyClosed: Bool?
     let url: String?
     let website: String?
-    
+    let reserveTableUrl: String?
+    var overallRating: OverallRating?
+
     // New mergedCategories field
     var mergedCategories: [String]?
     var ratingStats: RatingStats?
@@ -56,6 +60,9 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.name = try container.decode(String.self, forKey: .name)
         self.geoPoint = try container.decodeIfPresent(GeoPoint.self, forKey: .geoPoint)
         self.geoHash = try container.decodeIfPresent(String.self, forKey: .geoHash)
+        self.truncatedGeohash = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash)
+        self.truncatedGeohash5 = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash6)
+        self.truncatedGeohash6 = try container.decodeIfPresent(String.self, forKey: .truncatedGeohash6)
         self.address = try container.decodeIfPresent(String.self, forKey: .address)
         self.city = try container.decodeIfPresent(String.self, forKey: .city)
         self.state = try container.decodeIfPresent(String.self, forKey: .state)
@@ -64,7 +71,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
         self._geoloc = try container.decodeIfPresent(geoLoc.self, forKey: ._geoloc)
         self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats) ?? {
-            print("Warning: stats could not be decoded. Assigning default value with postCount 0 and collectionCount 0")
+            //print("Warning: stats could not be decoded. Assigning default value with postCount 0 and collectionCount 0")
             return RestaurantStats(postCount: 0, collectionCount: 0)
         }()
         
@@ -92,14 +99,14 @@ struct Restaurant: Identifiable, Codable, Hashable {
                 if hasAllKeys {
                     self.popularTimesHistogram = try PopularTimesHistogram(from: container.superDecoder(forKey: .popularTimesHistogram))
                 } else {
-                    // print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
+                    // //print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
                     self.popularTimesHistogram = nil
                 }
             } else {
                 self.popularTimesHistogram = nil
             }
         } catch {
-            print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
+            //print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
             self.popularTimesHistogram = nil
         }
         self.reviewsTags = try container.decodeIfPresent([ReviewTag].self, forKey: .reviewsTags)
@@ -114,16 +121,22 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.mergedCategories = try container.decodeIfPresent([String].self, forKey: .mergedCategories)
         self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats)
         self.ratingStats = try container.decodeIfPresent(RatingStats.self, forKey: .ratingStats)
-        
+        self.reserveTableUrl = try container.decodeIfPresent(String.self, forKey: .reserveTableUrl)
+        self.overallRating = try container.decodeIfPresent(OverallRating.self, forKey: .overallRating)
+
     }
     
-    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil) {
+    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, truncatedGeohash: String? = nil, truncatedGeohash5: String? = nil, truncatedGeohash6: String? = nil,  address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil, reserveTableUrl: String? = nil, overallRating: OverallRating? = nil) {
         self.id = id
         self.categoryName = categoryName
         self.price = price
         self.name = name
         self.geoPoint = geoPoint
         self.geoHash = geoHash
+        self.truncatedGeohash = truncatedGeohash
+        self.truncatedGeohash5 = truncatedGeohash5
+        self.truncatedGeohash6 = truncatedGeohash6
+
         self.address = address
         self.city = city
         self.state = state
@@ -158,9 +171,9 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.stats = stats
         self.mergedCategories = mergedCategories
         self.ratingStats = ratingStats
-        
+        self.reserveTableUrl = reserveTableUrl
+        self.overallRating = overallRating
     }
-    
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
@@ -181,80 +194,61 @@ struct RestaurantStats: Codable, Hashable {
 }
 
 struct AdditionalInfo: Codable, Hashable {
-    let accessibility: [AccessibilityItem]?
-    let amenities: [AmenityItem]?
-    let atmosphere: [AtmosphereItem]?
-    let children: [ChildrenItem]?
-    let crowd: [CrowdItem]?
-    let diningOptions: [DiningOptionItem]?
-    let highlights: [HighlightItem]?
-    let offerings: [OfferingItem]?
-    let payments: [PaymentItem]?
-    let planning: [PlanningItem]?
-    let popularFor: [PopularForItem]?
-    let serviceOptions: [ServiceOptionItem]?
+    let accessibility: [InfoItem]?
+    let amenities: [InfoItem]?
+    let atmosphere: [InfoItem]?
+    let crowd: [InfoItem]?
+    let diningOptions: [InfoItem]?
+    let payments: [InfoItem]?
+    let pets: [InfoItem]?
+    let popularFor: [InfoItem]?
+    let serviceOptions: [InfoItem]?
+    let highlights: [InfoItem]?
+    let offerings: [InfoItem]?
+    let parking: [InfoItem]?
+    let children: [InfoItem]?
+    let planning: [InfoItem]?
+    let fromTheBusiness: [InfoItem]?
+    
+    enum CodingKeys: String, CodingKey {
+        case accessibility = "Accessibility"
+        case amenities = "Amenities"
+        case atmosphere = "Atmosphere"
+        case crowd = "Crowd"
+        case diningOptions = "Dining options"
+        case payments = "Payments"
+        case pets = "Pets"
+        case popularFor = "Popular for"
+        case serviceOptions = "Service options"
+        case highlights = "Highlights"
+        case offerings = "Offerings"
+        case parking = "Parking"
+        case children = "Children"
+        case planning = "Planning"
+        case fromTheBusiness = "From the business"
+        
+    }
 }
 
-struct AccessibilityItem: Codable, Hashable, InfoItem {
+struct InfoItem: Codable, Hashable {
     let name: String?
     let value: Bool?
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let dict = try? container.decode([String: Bool].self),
+           let (key, value) = dict.first {
+            self.name = key
+            self.value = value
+        } else if container.decodeNil() {
+            self.name = nil
+            self.value = nil
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid InfoItem format")
+        }
+    }
 }
 
-struct AmenityItem: Codable, Hashable, InfoItem {
-    let name: String?
-    let value: Bool?
-}
-
-
-struct AtmosphereItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct ChildrenItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct CrowdItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct DiningOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct HighlightItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct OfferingItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PaymentItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PlanningItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct PopularForItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
-
-struct ServiceOptionItem: Codable, Hashable {
-    let name: String?
-    let value: Bool?
-}
 
 struct OpeningHour: Codable, Hashable {
     let day: String?
@@ -278,23 +272,7 @@ struct PopularTimesHistogram: Codable, Hashable {
     let mo, tu, we, th, fr, sa, su: [PopularTimeItem]?
     
     enum CodingKeys: String, CodingKey {
-        case mo, tu, we, th, fr, sa, su
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        func decodeDay(_ key: CodingKeys) -> [PopularTimeItem] {
-            (try? container.decodeIfPresent([PopularTimeItem].self, forKey: key)) ?? []
-        }
-        
-        mo = decodeDay(.mo)
-        tu = decodeDay(.tu)
-        we = decodeDay(.we)
-        th = decodeDay(.th)
-        fr = decodeDay(.fr)
-        sa = decodeDay(.sa)
-        su = decodeDay(.su)
+        case mo = "Mo", tu = "Tu", we = "We", th = "Th", fr = "Fr", sa = "Sa", su = "Su"
     }
 }
 struct PopularTimeItem: Codable, Hashable {
@@ -306,10 +284,7 @@ struct ReviewTag: Codable, Hashable {
     let count: Int?
     let title: String?
 }
-protocol InfoItem {
-    var name: String? { get }
-    var value: Bool? { get }
-}
+
 
 struct RatingCounts: Codable, Hashable {
     var overallRatings: [Double: Int] = [:]
@@ -330,5 +305,9 @@ struct RatingStats: Codable, Hashable {
 struct RatingCategory: Codable, Hashable {
     var ratings: [String: Int]?
     var totalCount: Int?
-    var sum: Double?
+    var average: Double?
+}
+struct OverallRating: Codable, Hashable {
+    var average: Double?
+    var totalCount: Int?
 }

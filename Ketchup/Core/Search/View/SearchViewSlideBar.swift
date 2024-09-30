@@ -13,49 +13,45 @@ struct SearchViewSlideBar: View {
     var body: some View {
         VStack{
             //ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    Text("Restaurants")
-                        .onTapGesture {
-                            withAnimation {
-                                viewModel.searchConfig = .restaurants
-                            }
+            HStack(spacing: 20) {
+                Text("Restaurants")
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.searchConfig = .restaurants
                         }
-                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .restaurants))
-
-                    
-                    Text("Users")
-                        .frame(width: 50, height: 25)
-                    
-                        .onTapGesture {
-                            withAnimation {
-                                viewModel.searchConfig = .users
-                            }
+                    }
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .restaurants))
+                
+                
+                Text("Users")
+                    .frame(width: 50, height: 25)
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.searchConfig = .users
                         }
-                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .users))
-                    //.frame(maxWidth: .infinity)
-                    
-                    
-                    //.frame(maxWidth: .infinity)
-                    
-                    Text("Collections")
-                        .onTapGesture {
-                            withAnimation {
-                                viewModel.searchConfig = .collections
-                            }
+                    }
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .users))
+                
+                Text("Collections")
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.searchConfig = .collections
                         }
-                        .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .collections))
-                    //.frame(maxWidth: .infinity)
-                    
-                }
-                .padding()
-            //}
+                    }
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .modifier(UnderlineImageModifier(isSelected: viewModel.searchConfig == .collections))
+                
+            }
+            .padding()
         }
     }
 }
 
 struct UnderlineTextModifier: ViewModifier {
     var isSelected: Bool
-
+    
     func body(content: Content) -> some View {
         content
             .overlay(

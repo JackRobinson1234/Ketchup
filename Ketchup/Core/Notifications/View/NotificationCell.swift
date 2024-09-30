@@ -10,15 +10,24 @@ import Kingfisher
 struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationsViewModel
     var notification: Notification
-    @State var isFollowed: Bool = false
-    @State var showRestaurant = false
-    @State var selectedRestaurantId: String? = nil
-    @State var post: Post?
-    @State var showPost: Bool = false
-    @State var showUserProfile = false // New state variable
+    @State private var isFollowed: Bool = false
+    @State private var showRestaurant = false
+    @State private var selectedRestaurantId: String? = nil
+    @State private var post: Post?
+    @State private var showPost: Bool = false
+    @State private var showUserProfile = false
     @ObservedObject var feedViewModel: FeedViewModel
     @ObservedObject var collectionsViewModel: CollectionsViewModel
-    
+    @State private var inviteStatus: InviteStatus
+    @State private var showRejectAlert: Bool = false
+
+    init(viewModel: NotificationsViewModel, notification: Notification, feedViewModel: FeedViewModel, collectionsViewModel: CollectionsViewModel) {
+        self.viewModel = viewModel
+        self.notification = notification
+        self.feedViewModel = feedViewModel
+        self.collectionsViewModel = collectionsViewModel
+        self._inviteStatus = State(initialValue: notification.inviteStatus ?? .pending)
+    }
     var body: some View {
         HStack(spacing: 12) {
             Button(action: {
@@ -31,16 +40,24 @@ struct NotificationCell: View {
                 notificationContent
                 timestampText
             }
+            
             Spacer()
+            
             actionButton
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .background(Color.white)
-        .onAppear(perform: checkFollowStatus)
-        .fullScreenCover(isPresented: $showUserProfile) {
+        .onAppear{
+            checkFollowStatus()
+            checkInviteStatus()
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { showUserProfile  },
+            set: { showUserProfile = $0 }
+        ))  {
             if let user = notification.user {
-                NavigationStack{
+                NavigationStack {
                     ProfileView(uid: user.id)
                 }
             }
@@ -59,11 +76,18 @@ struct NotificationCell: View {
         }
         .fullScreenCover(item: $collectionsViewModel.selectedCollection) { collection in
             CollectionView(collectionsViewModel: collectionsViewModel)
-                .onDisappear{
+                .onDisappear {
                     collectionsViewModel.selectedCollection = nil
                 }
         }
-    
+        .alert("Reject Invitation", isPresented: $showRejectAlert) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Reject", role: .destructive) {
+                        rejectInvite()
+                    }
+                } message: {
+                    Text("Are you sure you want to reject the invitation to collaborate on '\(notification.text ?? "this collection")'? This action cannot be undone.")
+                }
     }
     
     private var notificationContent: some View {
@@ -76,64 +100,87 @@ struct NotificationCell: View {
                 .multilineTextAlignment(.leading)
         }
     }
-    
-    
-        private var fullNotificationMessage: AttributedString {
-                let username = notification.user?.username ?? ""
-                var message = ""
-                
-                switch notification.type {
-                case .postBookmark:
-                    if let restaurantName = notification.restaurantName {
-                        message = " created a bookmark from your post of \(restaurantName)"
-                    } else {
-                        message = " bookmarked your post"
-                    }
-                default:
-                    message = notification.type.notificationMessage
-                }
-                
-                let additionalText = notification.type != .postWentWithMention ? (notification.text ?? "") : ""
-                
-                let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
-                
-                var result = AttributedString(fullText)
-                result.font = .custom("MuseoSansRounded-300", size: 14)
-                result.foregroundColor = .black
-                
-                if let usernameRange = result.range(of: "@\(username)") {
-                    result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)
-                }
-                
-                if let restaurantName = notification.restaurantName,
-                   let restaurantRange = result.range(of: "\"\(restaurantName)\"") {
-                    result[restaurantRange].font = .custom("MuseoSansRounded-700", size: 14)
-                }
+    private func checkInviteStatus() {
+        Task {
+            if let collectionId = notification.collectionId {
+                inviteStatus = await viewModel.checkCollectionStatus(collectionId: collectionId)
+            }
+        }
+    }
+    private var fullNotificationMessage: AttributedString {
+        let username = notification.user?.username ?? ""
+        let message = generateMessage(for: notification)
+        let additionalText = shouldAppendAdditionalText(notification) ? (notification.text ?? "") : ""
+        let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
         
+        var result = AttributedString(fullText)
+        result.font = .custom("MuseoSansRounded-300", size: 14)
+        result.foregroundColor = .black
+
+        applyBoldFontToUsername(&result, username: username)
+        applyBoldFontToRestaurantName(&result)
+        applyAccentColorToMentions(&result, fullText: fullText, username: username)
+
+        return result
+    }
+
+    private func generateMessage(for notification: Notification) -> String {
+        switch notification.type {
+        case .welcomeReferral:
+            return " referred you to Ketchup. Welcome!"
+        case .newReferral:
+            return " joined Ketchup using your referral!"
+        case .postBookmark:
+            if let restaurantName = notification.restaurantName {
+                return " created a bookmark from your post of \(restaurantName)"
+            } else {
+                return " bookmarked your post"
+            }
+        case .collectionInvite:
+            return " invited you to collaborate on \(notification.text ?? "a collection")"
+        case .newCollectionItem:
+            return " added \(notification.text ?? "an item") to \(notification.collectionName ?? "a collection")"
+        case .collectionInviteAccepted:
+            return " accepted your invitation to collaborate on \(notification.text ?? "a collection")"
+        default:
+            return notification.type.notificationMessage
+        }
+    }
+
+    private func shouldAppendAdditionalText(_ notification: Notification) -> Bool {
+        return ![.postWentWithMention, .newCollectionItem, .welcomeReferral, .newReferral].contains(notification.type)
+    }
+
+    private func applyBoldFontToUsername(_ result: inout AttributedString, username: String) {
         if let usernameRange = result.range(of: "@\(username)") {
             result[usernameRange].font = .custom("MuseoSansRounded-700", size: 14)
         }
-        
-        let pattern = "@\\w+"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
-            return result
+    }
+
+    private func applyBoldFontToRestaurantName(_ result: inout AttributedString) {
+        if let restaurantName = notification.restaurantName,
+           let restaurantRange = result.range(of: "\"\(restaurantName)\"") {
+            result[restaurantRange].font = .custom("MuseoSansRounded-700", size: 14)
         }
-        
-        let nsRange = NSRange(fullText.startIndex..., in: fullText)
-        let matches = regex.matches(in: fullText, range: nsRange)
-        
-        for match in matches {
-            guard let range = Range(match.range, in: fullText),
-                  let attributedRange = Range(range, in: result) else { continue }
+    }
+
+    private func applyAccentColorToMentions(_ result: inout AttributedString, fullText: String, username: String) {
+        let pattern = "@\\w+"
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let nsRange = NSRange(fullText.startIndex..., in: fullText)
+            let matches = regex.matches(in: fullText, range: nsRange)
             
-            let matchedUsername = String(fullText[range].dropFirst())
-            
-            if matchedUsername != username {
-                result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+            for match in matches {
+                guard let range = Range(match.range, in: fullText),
+                      let attributedRange = Range(range, in: result) else { continue }
+                
+                let matchedUsername = String(fullText[range].dropFirst())
+                
+                if matchedUsername != username {
+                    result[attributedRange].foregroundColor = Color("Colors/AccentColor")
+                }
             }
         }
-        
-        return result
     }
     
     private var timestampText: some View {
@@ -142,11 +189,17 @@ struct NotificationCell: View {
             .font(.custom("MuseoSansRounded-300", size: 12))
     }
     
+    @ViewBuilder
     private var actionButton: some View {
-        Group {
-            if notification.type == .follow || notification.type == .newUser {
-                followButton
-            } else if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
+        switch notification.type {
+        case .follow, .newUser, .welcomeReferral, .newReferral:
+            followButton
+        case .collectionInvite:
+            inviteActionButtons
+        case .collectionInviteAccepted:
+            collectionButton(notification.collectionCoverImage ?? [])
+        default:
+            if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
                 postThumbnailButton(postThumbnail)
             } else if let collectionImages = notification.collectionCoverImage {
                 collectionButton(collectionImages)
@@ -180,14 +233,41 @@ struct NotificationCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         }
     }
+    
     private func collectionButton(_ thumbnail: [String]) -> some View {
         Button(action: handleCollectionTap) {
             CollageImage(tempImageUrls: thumbnail, width: 44)
-                
         }
     }
+    
+    private var inviteActionButtons: some View {
+        Group {
+            switch inviteStatus {
+            case .pending:
+                HStack(spacing: 8) {
+                    Button(action: acceptInvite) {
+                        Image(systemName: "checkmark")
+                            .foregroundColor(.green)
+                    }
+                    Button(action: { showRejectAlert = true }) {  // Updated to show alert
+                        Image(systemName: "x.circle")
+                            .foregroundColor(.red)
+                    }
+                }
+            case .accepted:
+                Text("Accepted")
+                    .foregroundColor(.green)
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+            case .rejected:
+                Text("Rejected")
+                    .foregroundColor(.red)
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+            }
+        }
+    }
+    
     private func checkFollowStatus() {
-        if notification.type == .follow || notification.type == .newUser {
+        if notification.type == .follow || notification.type == .newUser || notification.type == .welcomeReferral || notification.type == .newReferral {
             Task {
                 self.isFollowed = await viewModel.checkIfUserIsFollowed(userId: notification.uid)
             }
@@ -195,15 +275,18 @@ struct NotificationCell: View {
     }
     
     private func handleNotificationTap() {
-        if let postId = notification.postId {
-            fetchPost(postId: postId)
-        } else if let restaurantId = notification.restaurantId {
-            self.selectedRestaurantId = restaurantId
-            self.showRestaurant = true
-        } else if notification.collectionId != nil {
+        switch notification.type {
+        case .collectionInvite, .collectionInviteAccepted, .newCollectionItem:
             handleCollectionTap()
-        } else {
-            showUserProfile = true
+        default:
+            if let postId = notification.postId {
+                fetchPost(postId: postId)
+            } else if let restaurantId = notification.restaurantId {
+                self.selectedRestaurantId = restaurantId
+                self.showRestaurant = true
+            } else {
+                showUserProfile = true
+            }
         }
     }
     
@@ -213,6 +296,7 @@ struct NotificationCell: View {
             self.isFollowed.toggle()
         }
     }
+    
     private func handleCollectionTap() {
         if let collectionId = notification.collectionId {
             Task {
@@ -220,6 +304,7 @@ struct NotificationCell: View {
             }
         }
     }
+    
     private func handlePostThumbnailTap() {
         if let postId = notification.postId {
             fetchPost(postId: postId)
@@ -228,39 +313,42 @@ struct NotificationCell: View {
     
     private func fetchPost(postId: String) {
         Task {
-            print("Fetching post with ID \(postId)")
+            //print("Fetching post with ID \(postId)")
             self.post = try await PostService.shared.fetchPost(postId: postId)
-            print("Fetched post: \(String(describing: self.post))")
-            if let post{
+            //print("Fetched post: \(String(describing: self.post))")
+            if let post = self.post {
                 feedViewModel.posts = [post]
             }
-            if let commentId = notification.commentId{
+            if let commentId = notification.commentId {
                 feedViewModel.selectedCommentId = commentId
             }
             showPost = true
-        
         }
     }
-    private func fetchCollection(collectionId: String) {
+    
+    private func acceptInvite() {
         Task {
-            print("Fetching collection with ID \(collectionId)")
-            
-            print("Fetched post: \(String(describing: self.post))")
-            if let post{
-                feedViewModel.posts = [post]
+            if let collectionId = notification.collectionId {
+                await viewModel.acceptCollectionInvite(notificationId: notification.id, collectionId: collectionId)
+                inviteStatus = .accepted
             }
-            if let commentId = notification.commentId{
-                feedViewModel.selectedCommentId = commentId
-            }
-            showPost = true
-        
         }
     }
+    
+    private func rejectInvite() {
+        Task {
+            if let collectionId = notification.collectionId {
+                await viewModel.rejectCollectionInvite(notificationId: notification.id, collectionId: collectionId)
+                inviteStatus = .rejected
+            }
+        }
+    }
+    
     @ViewBuilder
     private var restaurantProfileView: some View {
         NavigationStack {
             if let selectedRestaurantId = selectedRestaurantId {
-                let _ = print("Showing RestaurantProfileView for \(selectedRestaurantId)")
+                let _ = //print("Showing RestaurantProfileView for \(selectedRestaurantId)")
                 RestaurantProfileView(restaurantId: selectedRestaurantId)
             }
         }
@@ -270,9 +358,7 @@ struct NotificationCell: View {
     private var postView: some View {
         NavigationStack {
             if let post = post {
-               
-                
-                if post.mediaType == .written {
+                if let mediaUrls = post.mixedMediaUrls, post.mediaType == .written || mediaUrls.isEmpty{
                     NavigationView {
                         WrittenFeedCell(viewModel: feedViewModel, post: .constant(post), scrollPosition: .constant(nil), pauseVideo: .constant(false), selectedPost: .constant(nil), checkLikes: true)
                             .toolbar {
@@ -290,9 +376,13 @@ struct NotificationCell: View {
                             }
                     }
                 } else {
-                    SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                    if #available(iOS 17, *) {
+                        SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                    } else {
+                        IOS16SecondaryFeedView(viewModel: feedViewModel, hideFeedOptions: true, checkLikes: true)
+                    }
                 }
             }
-        } 
+        }
     }
 }

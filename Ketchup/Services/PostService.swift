@@ -19,7 +19,7 @@ class PostService {
     /// - Parameter postId: string id of the post that is to be fetched
     /// - Returns: post
     func fetchPost(postId: String) async throws -> Post {
-        //print("DEBUG: Ran fetchPost")
+        ////print("DEBUG: Ran fetchPost")
         let post = try await FirestoreConstants
             .PostsCollection
             .document(postId)
@@ -50,7 +50,7 @@ class PostService {
                 post.repost = true
                 reposts.append(post)
             } catch {
-                print("Error fetching repost with id \(postId): \(error.localizedDescription)")
+                //print("Error fetching repost with id \(postId): \(error.localizedDescription)")
             }
         }
         // Combine posts and reposts
@@ -73,7 +73,7 @@ class PostService {
     /// - Parameter restaurant: restaurant object that you want posts for
     /// - Returns: array of post objects
     func fetchRestaurantPosts(restaurant: Restaurant) async throws -> [Post] {
-        //print("DEBUG: Ran fetchRestaurantPosts")
+        ////print("DEBUG: Ran fetchRestaurantPosts")
         let posts = try await FirestoreConstants
             .PostsCollection
             .whereField("restaurant.id", isEqualTo: restaurant.id)
@@ -124,7 +124,7 @@ class PostService {
     ///
     /// Built a hacky solution where for cooking time posts, it fetches the matching postId, but for cooking it fetches the matching recipe Ids. Will probably want to look into a sql database for recipe storage.
     func applyFilters(toQuery query: Query, filters: [String: [Any]]) -> Query {
-        print("applying filters", filters)
+        //print("applying filters", filters)
         var updatedQuery = query
         for (field, value) in filters {
             switch field {
@@ -134,7 +134,7 @@ class PostService {
                 updatedQuery = updatedQuery.whereField(field, in: value)
             }
         }
-        print("final query", updatedQuery)
+        //print("final query", updatedQuery)
         return updatedQuery
     }
     
@@ -259,7 +259,7 @@ extension PostService {
                 let post = try await self.fetchPost(postId: postId)
                 likedPosts.append(post)
             } catch {
-                print("Error fetching post with id \(postId): \(error.localizedDescription)")
+                //print("Error fetching post with id \(postId): \(error.localizedDescription)")
             }
         }
         return likedPosts
@@ -269,10 +269,10 @@ extension PostService {
     func deletePost(_ post: Post) async throws  {
         do {
             try await FirestoreConstants.PostsCollection.document(post.id).delete()
-            print("Post deleted successfully")
+            //print("Post deleted successfully")
            
         } catch {
-            print("Error deleting post: \(error.localizedDescription)")
+            //print("Error deleting post: \(error.localizedDescription)")
             
         }
     }
@@ -410,8 +410,110 @@ extension PostService {
         // Commit the batch
         try await batch.commit()
     }
-    
-    
+    func fetchFriendsPosts(for restaurant: Restaurant, friendIds: [String]) async throws -> (
+        posts: [Post],
+        overallAverageRating: Double?,
+        averageFoodRating: Double?,
+        averageServiceRating: Double?,
+        averageAtmosphereRating: Double?,
+        averageValueRating: Double?
+    ) {
+        guard !friendIds.isEmpty else {
+            //print("Error: friendIds array is empty.")
+            return ([], nil, nil, nil, nil, nil) // Return empty array and nil ratings
+        }
+
+        let batchSize = 30
+        var allPosts: [Post] = []
+        var totalOverallRating: Double = 0.0
+        var totalFoodRating: Double = 0.0
+        var totalServiceRating: Double = 0.0
+        var totalAtmosphereRating: Double = 0.0
+        var totalValueRating: Double = 0.0
+        
+        var totalPostsWithRatings: Int = 0
+        var totalPostsWithFoodRating: Int = 0
+        var totalPostsWithServiceRating: Int = 0
+        var totalPostsWithAtmosphereRating: Int = 0
+        var totalPostsWithValueRating: Int = 0
+
+        for i in stride(from: 0, to: friendIds.count, by: batchSize) {
+            let end = min(i + batchSize, friendIds.count)
+            let batch = Array(friendIds[i..<end])
+
+            let posts = try await FirestoreConstants.PostsCollection
+                .whereField("restaurant.id", isEqualTo: restaurant.id)
+                .whereField("user.id", in: batch)
+                .order(by: "timestamp", descending: true)
+                .getDocuments(as: Post.self)
+
+            for post in posts {
+                if let overallRating = calculateOverallRating(for: post), overallRating > 0.0 {
+                    totalOverallRating += overallRating
+                    totalPostsWithRatings += 1
+                }
+                if let foodRating = post.foodRating, foodRating > 0.0 {
+                    totalFoodRating += foodRating
+                    totalPostsWithFoodRating += 1
+                }
+                if let serviceRating = post.serviceRating, serviceRating > 0.0 {
+                    totalServiceRating += serviceRating
+                    totalPostsWithServiceRating += 1
+                }
+                if let atmosphereRating = post.atmosphereRating, atmosphereRating > 0.0 {
+                    totalAtmosphereRating += atmosphereRating
+                    totalPostsWithAtmosphereRating += 1
+                }
+                if let valueRating = post.valueRating, valueRating > 0.0 {
+                    totalValueRating += valueRating
+                    totalPostsWithValueRating += 1
+                }
+            }
+
+            allPosts.append(contentsOf: posts)
+        }
+
+        // Sort all posts by timestamp descending
+        allPosts.sort { $0.timestamp ?? Timestamp() > $1.timestamp ?? Timestamp() }
+
+        // Calculate the overall average rating across all posts
+        let overallAverageRating: Double? = totalPostsWithRatings > 0 ? totalOverallRating / Double(totalPostsWithRatings) : nil
+        let averageFoodRating: Double? = totalPostsWithFoodRating > 0 ? totalFoodRating / Double(totalPostsWithFoodRating) : nil
+        let averageServiceRating: Double? = totalPostsWithServiceRating > 0 ? totalServiceRating / Double(totalPostsWithServiceRating) : nil
+        let averageAtmosphereRating: Double? = totalPostsWithAtmosphereRating > 0 ? totalAtmosphereRating / Double(totalPostsWithAtmosphereRating) : nil
+        let averageValueRating: Double? = totalPostsWithValueRating > 0 ? totalValueRating / Double(totalPostsWithValueRating) : nil
+
+        return (allPosts, overallAverageRating, averageFoodRating, averageServiceRating, averageAtmosphereRating, averageValueRating)
+    }
+    private func calculateOverallRating(for post: Post) -> Double? {
+        var ratings: [Double] = []
+        if let foodRating = post.foodRating, foodRating > 0 { ratings.append(foodRating) }
+        if let atmosphereRating = post.atmosphereRating, atmosphereRating > 0 { ratings.append(atmosphereRating) }
+        if let valueRating = post.valueRating, valueRating > 0 { ratings.append(valueRating) }
+        if let serviceRating = post.serviceRating, serviceRating > 0 { ratings.append(serviceRating) }
+
+        guard !ratings.isEmpty else {
+            return nil
+        }
+
+        let average = ratings.reduce(0, +) / Double(ratings.count)
+        return average
+    }
+    func fetchRemainingRestaurantPosts(for restaurant: Restaurant, excluding friendIds: [String]) async throws -> [Post] {
+        // Fetch all posts related to the restaurant
+        var posts: [Post] = try await FirestoreConstants.PostsCollection
+            .whereField("restaurant.id", isEqualTo: restaurant.id)
+            .whereField("user.privateMode", isEqualTo: false)
+            .order(by: "timestamp", descending: true)
+            .getDocuments(as: Post.self)
+        
+        // Filter out posts from users in the friendIds list
+        if !friendIds.isEmpty {
+            posts = posts.filter { !friendIds.contains($0.user.id) }
+        }
+        
+        return posts
+    }
     
     // MARK: - unbookmarkRestaurant
     /// Removes a restaurant from the user's bookmarks
@@ -426,7 +528,7 @@ extension PostService {
 //                .document(restaurantId)
 //                .delete()
 //        } catch {
-//            print("Error unbookmarking restaurant: \(error.localizedDescription)")
+//            //print("Error unbookmarking restaurant: \(error.localizedDescription)")
 //            throw error
 //        }
 //    }
@@ -447,7 +549,7 @@ extension PostService {
             
             return snapshot.exists
         } catch {
-            print("Error checking bookmark status: \(error.localizedDescription)")
+            //print("Error checking bookmark status: \(error.localizedDescription)")
             throw error
         }
     }

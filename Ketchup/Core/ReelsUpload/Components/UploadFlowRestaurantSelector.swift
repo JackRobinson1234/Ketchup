@@ -10,7 +10,7 @@ import InstantSearchSwiftUI
 import FirebaseFirestoreInternal
 
 struct UploadFlowRestaurantSelector: View {
-    @StateObject var viewModel = RestaurantListViewModel()
+    @StateObject var viewModel: SearchViewModel
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
     @Environment(\.dismiss) var dismiss
@@ -19,6 +19,12 @@ struct UploadFlowRestaurantSelector: View {
     @State var navigateToCamera = false
     @EnvironmentObject var tabBarController: TabBarController
     
+    @State var dragDirection = "left"
+    @State var isDragging = false
+    @State var inSearchView = false
+    @State private var isLocationSearchActive = false
+    @FocusState private var isSearchFocused: Bool
+    
     var debouncer = Debouncer(delay: 1.0)
     let isEditingRestaurant: Bool
     
@@ -26,55 +32,119 @@ struct UploadFlowRestaurantSelector: View {
         self.uploadViewModel = uploadViewModel
         self.cameraViewModel = cameraViewModel
         self.isEditingRestaurant = isEditingRestaurant
+        let initialSearchConfig = SearchModelConfig.restaurants
+        _viewModel = StateObject(wrappedValue: SearchViewModel(initialSearchConfig: initialSearchConfig))
     }
     
     var body: some View {
-        NavigationStack{
-            VStack {
-                Button {
-                    createRestaurantView.toggle()
-                } label: {
-                    VStack {
-                        Text("Can't find the restaurant you're looking for?")
-                            .foregroundStyle(.gray)
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                        Text("Add a New Restaurant")
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                            .font(.custom("MuseoSansRounded-300", size: 12))
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Custom Search Bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    ZStack(alignment: .leading) {
+                        TextField("", text: $viewModel.searchQuery)
+                            .focused($isSearchFocused)
+                            .onTapGesture {
+                                if isLocationSearchActive {
+                                    isLocationSearchActive = false
+                                    inSearchView = false
+                                    viewModel.clearLocationSearchTerm()
+                                }
+                            }
+                            .submitLabel(.done)
+                            .onSubmit {
+                                dismissKeyboard()
+                            }
+                        if viewModel.searchQuery.isEmpty {
+                            Text("Search")
+                                .font(.custom("MuseoSansRounded-500", size: 16))
+                                .foregroundStyle(.gray)
+                        }
                     }
-                    .padding(.top, 5)
+                    if !viewModel.searchQuery.isEmpty {
+                        Button(action: {
+                            viewModel.searchQuery = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                    }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isSearchFocused = true
+                }
+                .padding(8)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 2)
                 
-                InfiniteList(viewModel.hits, itemView: { hit in
-                    Button {
-                        uploadViewModel.restaurant = hit.object
-                        uploadViewModel.restaurantRequest = nil
-                        let restaurant = hit.object
-                        if let geopoint = restaurant.geoPoint {
-                            uploadViewModel.restaurant?.geoPoint = geopoint
-                        } else if let geoLoc = restaurant._geoloc {
-                            uploadViewModel.restaurant?.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+                VStack(spacing: 0) {
+                    RestaurantLocationSearchView(inSearchView: $inSearchView, isLocationSearchActive: $isLocationSearchActive, searchViewModel: viewModel)
+                    
+                    if !isLocationSearchActive {
+                        Button {
+                            createRestaurantView.toggle()
+                        } label: {
+                            VStack {
+                                Text("Can't find the restaurant you're looking for?")
+                                    .foregroundStyle(.gray)
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                                Text("Add a New Restaurant")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                            }
+                            .padding(.top, 5)
                         }
                         
+                        InfiniteList(viewModel.restaurantHits, itemView: { hit in
+                            Button {
+                                uploadViewModel.restaurant = hit.object
+                                uploadViewModel.restaurantRequest = nil
+                                let restaurant = hit.object
+                                if let geopoint = restaurant.geoPoint {
+                                    uploadViewModel.restaurant?.geoPoint = geopoint
+                                } else if let geoLoc = restaurant._geoloc {
+                                    uploadViewModel.restaurant?.geoPoint = GeoPoint(latitude: geoLoc.lat, longitude: geoLoc.lng)
+                                }
+                                
+                                if isEditingRestaurant {
+                                    dismiss()
+                                } else {
+                                    navigateToCamera = true
+                                }
+                            } label: {
+                                RestaurantCell(restaurant: hit.object)
+                                    .padding()
+                            }
+                            Divider()
+                        }, noResults: {
+                            Text("No Results Found")
+                        })
+                    } else {
+                        Spacer()
+                    }
+                }
+            }
+            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Choose a Restaurant To Review")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
                         if isEditingRestaurant {
                             dismiss()
                         } else {
-                            navigateToCamera = true
+                            uploadViewModel.reset()
+                            cameraViewModel.reset()
+                            tabBarController.selectedTab = 0
                         }
-                    } label: {
-                        RestaurantCell(restaurant: hit.object)
-                            .padding()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
                     }
-                    Divider()
-                }, noResults: {
-                    Text("No Results Found")
-                })
-            }
-            .navigationTitle(isEditingRestaurant ? "Edit Restaurant" : "Choose a Restaurant To Review")
-            .searchable(text: $viewModel.searchQuery, prompt: "Search")
-            .onChange(of: viewModel.searchQuery) {
-                debouncer.schedule {
-                    viewModel.notifyQueryChanged()
                 }
             }
             .fullScreenCover(isPresented: $createRestaurantView) {
@@ -93,23 +163,30 @@ struct UploadFlowRestaurantSelector: View {
             .fullScreenCover(isPresented: $navigateToCamera) {
                 CameraView(cameraViewModel: cameraViewModel, uploadViewModel: uploadViewModel)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        if isEditingRestaurant {
-                            dismiss()
-                        } else {
-                            uploadViewModel.reset()
-                            cameraViewModel.reset()
-                            tabBarController.selectedTab = 0
-                        }
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.black)
-                    }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    dismissKeyboard()
                 }
             }
         }
+        .onChange(of: viewModel.searchQuery) {newValue in
+            debouncer.schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
+        .onAppear {
+            isSearchFocused = true
+            Debouncer(delay: 0.3).schedule {
+                viewModel.notifyQueryChanged()
+            }
+        }
+    }
+    
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

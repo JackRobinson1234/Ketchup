@@ -9,6 +9,7 @@ import SwiftUI
 import AVKit
 import Combine
 import Contacts
+import CryptoKit
 
 struct PrimaryFeedView: View {
     @StateObject var viewModel: FeedViewModel
@@ -33,10 +34,13 @@ struct PrimaryFeedView: View {
     @State private var hideTopUI = false
     @State private var lastScrollOffset: CGFloat = 0
     @State private var debounceTask: Task<Void, Never>? = nil
-    private let scrollThreshold: CGFloat = 20 // Minimum scroll change to trigger updates
+    private let scrollThreshold: CGFloat = 20
     private let debounceDelay: TimeInterval = 0.2
     @State private var topBarHeight: CGFloat = 150 // Default height
     @State var showPostSuccess = false
+    @State private var newPostsCount: Int = 0
+    @State private var scrollOffset: CGFloat = 0
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -50,7 +54,8 @@ struct PrimaryFeedView: View {
             FastCrossfadeFoodImageView()
                 .onAppear {
                     Task {
-                        try await viewModel.fetchInitialPosts()
+                        updateNewPostsCount()
+                        viewModel.setupLocation()
                         isLoading = false
                     }
                 }
@@ -85,15 +90,29 @@ struct PrimaryFeedView: View {
                                 if viewModel.isInitialLoading {
                                     FastCrossfadeFoodImageView()
                                 } else {
-                                    ForEach($viewModel.posts) { post in
-                                        WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                                    ForEach($viewModel.posts) { $post in
+                                        WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                             .id(post.id)
-                                        
+                                            .onAppear {
+                                                
+                                                
+                                                // Update scrollPosition when this cell appears
+                                                scrollPosition = post.id
+                                                // Trigger pagination when reaching near the end
+                                                if let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                                                    if index >= viewModel.posts.count - 5 {
+                                                        Task {
+                                                            await viewModel.loadMoreContentIfNeeded(currentPost: post.id)
+                                                        }
+                                                    }
+                                                }
+                                            }
                                     }
                                     if viewModel.isLoadingMoreContent {
                                         FastCrossfadeFoodImageView()
                                             .padding()
                                     }
+                                    // Optional: A clear rectangle to detect when the user has scrolled to the bottom
                                     Rectangle()
                                         .foregroundStyle(.clear)
                                         .onAppear {
@@ -105,13 +124,14 @@ struct PrimaryFeedView: View {
                                         }
                                 }
                             }
-                            .scrollTargetLayout()
+                            .edgesIgnoringSafeArea(.top)
+                            .padding(.top, 160)
                         }
                         .refreshable {
                             await refreshFeed()
                         }
-                        .onAppear{
-                            if viewModel.showPostAlert{
+                        .onAppear {
+                            if viewModel.showPostAlert {
                                 withAnimation(.easeInOut(duration: 1.0)) {
                                     showPostSuccess = true
                                     viewModel.showPostAlert = false
@@ -119,23 +139,20 @@ struct PrimaryFeedView: View {
                                 triggerHapticFeedback()
                             }
                         }
-                        .safeAreaPadding(.top, 110)
-                        .transition(.slide)
-                        .scrollPosition(id: $scrollPosition)
-                        .onChange(of: viewModel.initialPrimaryScrollPosition) {
-                            scrollPosition = viewModel.initialPrimaryScrollPosition
-                            scrollProxy.scrollTo(viewModel.initialPrimaryScrollPosition, anchor: .center)
-                            
+                        .onChange(of: viewModel.initialPrimaryScrollPosition) { newValue in
+                            if let newPosition = newValue {
+                                scrollProxy.scrollTo(newPosition, anchor: .center)
+                            }
                         }
-                        .onChange(of: tabBarController.scrollToTop){
+                        .onChange(of: tabBarController.scrollToTop) { _ in
                             if let post = viewModel.posts.first {
                                 withAnimation(.smooth) {
                                     scrollProxy.scrollTo(post.id, anchor: .center)
                                 }
                             }
                         }
-                        .onChange(of: viewModel.isInitialLoading){
-                            if !viewModel.isInitialLoading{
+                        .onChange(of: viewModel.isInitialLoading) { newValue in
+                            if !viewModel.isInitialLoading {
                                 if let post = viewModel.posts.first {
                                     withAnimation(.smooth) {
                                         scrollProxy.scrollTo(post.id, anchor: .center)
@@ -146,6 +163,7 @@ struct PrimaryFeedView: View {
                     }
                     .background(.white)
                     
+                    // Top bar and other UI components
                     Rectangle()
                         .fill(Color.white)
                         .frame(height: topBarHeight)
@@ -156,25 +174,51 @@ struct PrimaryFeedView: View {
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
                     
-                    
-                    VStack(spacing: 0){
+                    VStack(spacing: 5) {
                         HStack(spacing: 0) {
+                            
+                            //                            actionButton(title: viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location", icon: "location") {
+                            //                                pauseVideo = true
+                            //                                showLocationFilter.toggle()
+                            //                            }
+                            
                             Button {
-                                showSearchView.toggle()
+                                pauseVideo = true
+                                showFilters.toggle()
                             } label: {
+                                
                                 VStack{
+                                    ZStack(alignment: . bottomTrailing){
+                                        Image(systemName: "slider.horizontal.3")
+                                            .font(.system(size: 27))
+                                            .foregroundStyle(.gray)
+                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(Color("Colors/AccentColor"))
+                                                    .frame(width: 16, height: 16)
+                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                                    .font(.custom("MuseoSansRounded-500", size: 10))
+                                                    .foregroundColor(.white)
+                                            }
+                                            .offset(x: 5, y: 5)
+                                            .padding(.leading, 1)
+                                        }
+                                    }
+                                        Text("Filter Feed")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                            .foregroundStyle(.gray)
                                     
-                                    Image(systemName: "magnifyingglass")
-                                        .font(.system(size: 27))
-                                        .frame(width: 60)
-                                    Text("Search")
-                                        .foregroundStyle(.gray)
-                                    
-                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                   
                                 }
+                                .frame(width: 100)
+                                
                             }
+                            
+                            
+                            
                             Spacer()
-                            Button{
+                            Button {
                                 tabBarController.scrollToTop.toggle()
                             } label: {
                                 Image("KetchupTextRed")
@@ -183,64 +227,124 @@ struct PrimaryFeedView: View {
                                     .frame(width: 60, height: 17)
                             }
                             Spacer()
+                            
                             Button {
-                                showFilters.toggle()
+                                pauseVideo = true
+                                showLocationFilter.toggle()
                             } label: {
+                                
                                 VStack{
-                                    ZStack {
-                                        
-                                        Image(systemName: "slider.horizontal.3")
-                                            .imageScale(.large)
-                                            .shadow(radius: 4)
-                                            .font(.system(size: 23))
-                                        if filtersViewModel.hasNonLocationFilters {
-                                            Circle()
-                                                .fill(Color("Colors/AccentColor"))
-                                                .frame(width: 12, height: 12)
-                                                .offset(x: 12, y: 12)
-                                        }
-                                        
-                                    }
-                                    Text("Filters")
+                                    Image(systemName: "location")
+                                        .font(.system(size: 24))
                                         .foregroundStyle(.gray)
-                                    
-                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                    Text(viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!) (\(abbreviatedDistance(viewModel.currentLocationFilter.rawValue)))" : "Any Location")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundStyle(.gray)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.5)
                                 }
-                                .frame(width: 60)
+                                .frame(width: 100)
                             }
+                            
+                            
                         }
+                        .padding(.horizontal, 3)
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 20)
                         .foregroundStyle(.black)
-                        if !hideTopUI{
+                        
+                        if !hideTopUI {
+                            // Search bar button
+                            Button(action: {
+                                showSearchView.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundColor(.black)
+                                    Text("Search restaurants, sushi, users, etc.")
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.5)
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                .padding(.horizontal)
+                                .padding(.top, 4)
+                            }
+                            HStack{
+                                HStack {
+                                    
+//                                                                        ZStack(alignment: .bottomTrailing){
+//                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
+//                                                                                pauseVideo = true
+//                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
+//                                                                            }
+//                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+//                                                                                ZStack {
+//                                                                                    Circle()
+//                                                                                        .fill(Color("Colors/AccentColor"))
+//                                                                                        .frame(width: 16, height: 16)
+//                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+//                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
+//                                                                                        .foregroundColor(.white)
+//                                                                                }
+//                                                                                .offset(x: 5, y: 5)
+//                                                                                .padding(.leading, 1)
+//                                                                            }
+//                                                                        }
+                                    
+                                }
+                                .padding(.horizontal)
+                            }
                             
                             HStack(spacing: 40) {
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .following
+                                HStack(spacing: 2) {
+                                    
+                                    
+                                    Button {
+                                        newPostsCount = 0
+                                        if canSwitchTab {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                viewModel.selectedTab = .following
+                                            }
+                                            canSwitchTab = false
+                                            
+                                            // Re-enable switching after a delay
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                canSwitchTab = true
+                                            }
                                         }
-                                        canSwitchTab = false
-                                        
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
+                                    } label: {
+                                        HStack(){
+                                            if newPostsCount > 0 && viewModel.selectedTab == .discover {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(Color("Colors/AccentColor"))
+                                                        .frame(width: 8, height: 8)
+                                                    //                                                        Text("\(newPostsCount)")
+                                                    //                                                            .font(.custom("MuseoSansRounded-500", size: 10))
+                                                    //                                                            .foregroundColor(.white)
+                                                }
+                                                //.offset(x: 5, y: -5)
+                                                .padding(.leading, 1)
+                                            }
+                                            Text("Following")
+                                                .font(.custom("MuseoSansRounded-500", size: 18))
+                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(height: 2)
+                                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                        .offset(y: 17)
+                                                )
+                                            
                                         }
                                     }
-                                } label: {
-                                    Text("Following")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
-                                        )
+                                    .disabled(viewModel.selectedTab == .following || !canSwitchTab)
+                                    
                                 }
-                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                
                                 Button {
                                     if canSwitchTab {
                                         withAnimation(.easeInOut(duration: 0.5)) {
@@ -257,115 +361,27 @@ struct PrimaryFeedView: View {
                                     Text("Discover")
                                         .font(.custom("MuseoSansRounded-500", size: 18))
                                         .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                        .padding(.bottom, 5)
                                         .overlay(
                                             Rectangle()
                                                 .frame(height: 2)
                                                 .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 12)
+                                                .offset(y: 17)
                                         )
                                 }
                                 .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                             }
                             .padding(.bottom, 6)
-                            Button {
-                                showLocationFilter.toggle()
-                            } label: {
-                                HStack {
-                                    if let cityFilter = viewModel.filters?.first(where: { $0.key == "restaurant.city" }) {
-                                        if let cities = cityFilter.value as? [String], !cities.isEmpty {
-                                            if cities.count > 1 {
-                                                HStack (spacing: 1){
-                                                    Image(systemName: "location")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                    Text("\(cities[0]) +\(cities.count - 1) more")
-                                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                                        .foregroundStyle(.gray)
-                                                    Image(systemName: "chevron.down")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                }
-                                            } else {
-                                                HStack(spacing: 1) {
-                                                    Image(systemName: "location")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                    Text(cities[0])
-                                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                                        .foregroundStyle(.gray)
-                                                    Image(systemName: "chevron.down")
-                                                        .foregroundStyle(.gray)
-                                                        .font(.caption)
-                                                }
-                                            }
-                                        } else {
-                                            HStack(spacing: 1) {
-                                                Image(systemName: "location")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
-                                                Text("Any Location")
-                                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                                    .foregroundStyle(.gray)
-                                                Image(systemName: "chevron.down")
-                                                    .foregroundStyle(.gray)
-                                                    .font(.caption)
-                                            }
-                                        }
-                                    } else {
-                                        HStack(spacing: 1) {
-                                            Image(systemName: "location")
-                                                .foregroundStyle(.gray)
-                                                .font(.caption)
-                                            Text("Any Location")
-                                                .font(.custom("MuseoSansRounded-300", size: 16))
-                                                .foregroundStyle(.gray)
-                                            Image(systemName: "chevron.down")
-                                                .foregroundStyle(.gray)
-                                                .font(.caption)
-                                        }
-                                    }
-                                }
-                            }
                         }
-                    }
-                    if showPostSuccess {
-                        ZStack {
-                            FallingFoodView(isStatic: false)
-                                .transition(.opacity)
-                                .opacity(showPostSuccess ? 1 : 0) // Set opacity based on the condition
-                                .animation(.easeInOut(duration: 1.0), value: showPostSuccess) // Animate opacity changes
-                                .onAppear {
-                                    triggerHapticFeedback() 
-                                    viewModel.showEmptyView = false
-                                    Debouncer(delay: 5.0).schedule {
-                                        withAnimation(.easeInOut(duration: 1.0)) {
-                                            showPostSuccess = false // Trigger fade-out animation
-                                        }
-                                    }
-                                }
-                            
-                            VStack{
-                                Image("Skip")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 150, height: 150)
-                                Text("Review Uploaded!")
-                                    .foregroundColor(.black)
-                                    .font(.custom("MuseoSansRounded-300", size: 16))
-                                
-                            }
-                            .background(Color.white.opacity(0.7))
-                            .cornerRadius(10)
-                            .shadow(radius: 10)
-                        }
+                        
                     }
                 }
                 .overlay {
-                    if viewModel.showEmptyView {
-                        ContentUnavailableView("No posts to show", systemImage: "eye.slash")
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                    }
+                    //                    if viewModel.showEmptyView {
+                    //                        VStack {
+                    //                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
+                    //                                .foregroundStyle(Color("Colors/AccentColor"))
+                    //                        }
+                    //                    }
                     
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
@@ -377,41 +393,31 @@ struct PrimaryFeedView: View {
                             }
                     }
                 }
-                .onChange(of: scrollPosition) { oldPostId, newPostId in
-                    if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                        if newIndex > oldIndex {
-                            Task {
-                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                            }
-                            viewModel.updateCache(scrollPosition: newPostId)
-                            
-                        } else {
-                        }
-                    }
-                }
-                .onChange(of: showSearchView) { oldValue, newValue in
+                .onChange(of: showSearchView) { newValue in
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showSearchView) {
                     SearchView(initialSearchConfig: .restaurants)
                 }
-                .onChange(of: showFilters) { oldValue, newValue in
+                .onChange(of: showFilters) { newValue in
                     pauseVideo = newValue
                 }
                 .fullScreenCover(isPresented: $showFilters) {
                     FiltersView(filtersViewModel: filtersViewModel)
                 }
                 .navigationBarHidden(true)
-
                 .fullScreenCover(item: $selectedPost) { post in
                     NavigationStack {
-                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        if #available(iOS 17, *) {
+                            SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        } else {
+                            IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        }
                     }
                 }
                 .sheet(isPresented: $showLocationFilter) {
                     NavigationStack {
-                        LocationFilter(filtersViewModel: filtersViewModel)
+                        LocationFilter(feedViewModel: viewModel)
                             .modifier(BackButtonModifier())
                     }
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
@@ -422,7 +428,7 @@ struct PrimaryFeedView: View {
                 .navigationDestination(for: PostRestaurant.self) { restaurant in
                     RestaurantProfileView(restaurantId: restaurant.id)
                 }
-                .onChange(of: showAddFriends) { oldValue, newValue in
+                .onChange(of: showAddFriends) { newValue in
                     pauseVideo = newValue
                 }
                 .sheet(isPresented: $showAddFriends) {
@@ -434,6 +440,9 @@ struct PrimaryFeedView: View {
             }
         }
     }
+    
+    // MARK: - Helper Functions
+    
     private func checkContactsPermissionAndSync() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         if authorizationStatus == .denied || authorizationStatus == .restricted {
@@ -453,21 +462,23 @@ struct PrimaryFeedView: View {
     }
     
     private func startContactSync() {
-        if AuthService.shared.userSession?.hasContactsSynced == false {
+        if AuthService.shared.userSession?.contactsSynced == false {
             Task {
                 try await ContactService.shared.syncDeviceContacts()
             }
         }
     }
+    
     private func refreshFeed() async {
         isRefreshing = true
         do {
-            try await viewModel.fetchInitialPosts(withFilters: viewModel.filters)
+            try await viewModel.fetchInitialPosts()
         } catch {
-            print("Error refreshing: \(error)")
+            // Handle error
         }
         isRefreshing = false
     }
+    
     private func debounceScrollUpdate(_ scrollOffset: CGFloat, _ scrollDifference: CGFloat) async {
         try? await Task.sleep(nanoseconds: UInt64(debounceDelay * 1_000_000_000))
         DispatchQueue.main.async {
@@ -475,22 +486,56 @@ struct PrimaryFeedView: View {
                 // Scrolling up
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
-                    
-                    topBarHeight = 160
+                    topBarHeight = 210
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = true
-                    
-                    
-                    topBarHeight = 105
+                    topBarHeight = 95
                 }
             }
             lastScrollOffset = scrollOffset
         }
     }
     
+    private func hashPhoneNumber(_ phoneNumber: String) -> String {
+        let inputData = Data(phoneNumber.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
+    }
+    
+    private func updateNewPostsCount() {
+        if let userSession = AuthService.shared.userSession {
+            if userSession.followingPosts > 0 {
+                newPostsCount = userSession.followingPosts
+            }
+        }
+    }
+    func abbreviatedDistance(_ distance: String) -> String {
+        return distance
+            .replacingOccurrences(of: " miles", with: "mi")
+            .replacingOccurrences(of: " mile", with: "mi")
+    }
+    private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 1) { // Horizontal stack to align icon and title
+                Image(systemName: icon)
+                    .font(.system(size: 16)) // Smaller icon size
+                Text(title)
+                    .font(.custom("MuseoSansRounded-500", size: 12))
+                    .padding(.horizontal, 8)
+            }
+            .padding(.horizontal, 5)
+            .padding(.vertical, 4)
+            .overlay(
+                Capsule()
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Rounded pill border
+            )
+        }
+        .foregroundColor(.black)
+        
+    }
 }
 
 struct SuccessMessageOverlay: View {
@@ -536,21 +581,3 @@ extension Color {
     }
 }
 
-struct ConditionalSafeAreaPadding: ViewModifier {
-    var condition: Bool
-    var padding: CGFloat
-    
-    func body(content: Content) -> some View {
-        if condition {
-            content.safeAreaPadding(.vertical, padding)
-        } else {
-            content
-        }
-    }
-}
-
-extension View {
-    func conditionalSafeAreaPadding(_ condition: Bool, padding: CGFloat) -> some View {
-        self.modifier(ConditionalSafeAreaPadding(condition: condition, padding: padding))
-    }
-}

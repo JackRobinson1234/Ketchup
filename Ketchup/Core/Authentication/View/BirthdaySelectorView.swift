@@ -22,7 +22,7 @@ struct BirthdaySelectorView: View {
                 .scaledToFit()
                 .frame(width: 200)
             
-            Text("Select Your Birthday")
+            Text("What's Your Birthday?")
                 .font(.custom("MuseoSansRounded-700", size: 26))
                 .foregroundColor(.black)
             

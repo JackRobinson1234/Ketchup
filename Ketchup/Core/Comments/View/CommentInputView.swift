@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct CommentInputView: View {
-    @ObservedObject var viewModel: CommentViewModel
+struct CommentInputView<T: Commentable>: View {
+    @ObservedObject var viewModel: CommentViewModel<T>
     @FocusState var isInputFocused: Bool
     
     var body: some View {

@@ -56,7 +56,7 @@ struct CaptionEditorView: View {
                     }
                     
                 }
-                .onChange(of: caption) {
+                .onChange(of: caption) {newValue in
                     if caption.count > maxCharacters {
                         caption = String(caption.prefix(maxCharacters))
                     }

@@ -69,10 +69,10 @@ struct AddItemCollectionList: View {
                 
             }
             .onAppear{
-                print("initial viewModel post", viewModel.post)
-                print("initial viewModel restaurant", viewModel.restaurant)
+                //print("initial viewModel post", viewModel.post)
+                //print("initial viewModel restaurant", viewModel.restaurant)
             }
-            .onChange(of: viewModel.dismissListView) {
+            .onChange(of: viewModel.dismissListView) {newValue in
                 if viewModel.dismissListView {
                     dismiss()
                     viewModel.dismissListView = false

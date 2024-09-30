@@ -28,6 +28,6 @@ struct SelectedRestaurantView: View {
     }
 }
 
-#Preview {
-    SelectedRestaurantView(restaurant: DeveloperPreview.restaurants[0])
-}
+//#Preview {
+//    SelectedRestaurantView(restaurant: DeveloperPreview.restaurants[0])
+//}

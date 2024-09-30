@@ -27,7 +27,7 @@ class TabBarController: ObservableObject {
             .sink { [weak self] newTab in
                 guard let self = self else { return }
                 if newTab == self.selectedTab && newTab == 0{
-                    print("SCROLL TO TOP TRUE")
+                    //print("SCROLL TO TOP TRUE")
                     scrollToTop.toggle()
                 }
             }

@@ -7,6 +7,7 @@
 import MapKit
 import Foundation
 import FirebaseFirestoreInternal
+import Firebase
 struct Cluster: Identifiable, Codable {
     let id: String
     let center: GeoPoint
@@ -98,4 +99,5 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
 }
 
 // In MapViewModel
+
 

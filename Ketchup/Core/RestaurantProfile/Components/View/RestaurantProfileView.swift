@@ -37,7 +37,8 @@ struct RestaurantProfileView: View {
                     }  else if viewModel.currentSection == .stats{
                         viewModel.currentSection = .posts
                     }
-                } else {
+                    
+                }else {
                     self.dragDirection = "right"
                     if viewModel.currentSection == .posts {
                         viewModel.currentSection = .stats
@@ -60,11 +61,14 @@ struct RestaurantProfileView: View {
                         do {
                             viewModel.restaurant = restaurant
                             try await viewModel.fetchRestaurant(id: restaurantId)
+                            await viewModel.fetchFriendsWhoPosted()
                             if let restaurant = viewModel.restaurant{
-                                try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant)
+                                try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant, friendIds: viewModel.friendsWhoPosted.map { $0.id })
+                                viewModel.calculateRatings(from: restaurant.ratingStats)
                             }
+                            
                         } catch {
-                            print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
+                            //print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
                         }
                         isLoading = false
                     }
@@ -84,13 +88,28 @@ struct RestaurantProfileView: View {
                                 
                             }
                         }
-                        
                     }
-                    .scrollPosition(id: $scrollPosition)
-                    .onChange(of: scrollTarget) {
-                        scrollPosition = scrollTarget
-                        scrollProxy.scrollTo(scrollTarget, anchor: .center)
-                    }
+                    
+                    .onChange(of: viewModel.scrollTarget) { newTarget in
+                                        //print("DEBUG: scrollTarget changed to \(String(describing: newTarget))")
+                                        scrollPosition = viewModel.scrollTarget
+                                        
+                                        if let target = viewModel.scrollTarget {
+                                            //print("DEBUG: Attempting to scroll to \(target)")
+                                            withAnimation {
+                                                scrollProxy.scrollTo(target, anchor: .top)
+                                            }
+                                            //print("DEBUG: Scroll animation triggered")
+                                        } else {
+                                            //print("DEBUG: scrollTarget is nil, no scrolling performed")
+                                        }
+                                        
+                                        DispatchQueue.main.async {
+                                            //print("DEBUG: Resetting scrollTarget to nil")
+                                            viewModel.scrollTarget = nil
+                                        }
+                                    }
+                    //.scrollPosition(id: $scrollPosition)
                 }
                 .gesture(drag)
                 .ignoresSafeArea(edges: .top)
@@ -125,8 +144,3 @@ struct RestaurantProfileView: View {
         }
     }
 }
-
-#Preview {
-    RestaurantProfileView(restaurantId: DeveloperPreview.restaurants[0].id)
-}
-

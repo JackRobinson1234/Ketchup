@@ -16,6 +16,8 @@ struct CollectionsListView: View {
     @State var dismissCollectionsList: Bool = false
     @StateObject var likedCollectionsViewModel = CollectionsViewModel()
     @State var navigateToLikedCollections = false
+    @State var showInvitesView = false
+
     let user: User
     @State var isSeeingLikedCollections = false
     
@@ -47,12 +49,16 @@ struct CollectionsListView: View {
                 }
             }
         }
-        .onChange(of: viewModel.dismissListView) {
+        .onChange(of: viewModel.dismissListView) {newValue in
             if viewModel.dismissListView {
                 viewModel.dismissListView = false
                 dismiss()
             }
         }
+        .sheet(isPresented: $showInvitesView) {
+            CollaborationInvitesView(viewModel: viewModel)
+        }
+
     }
     
     @ViewBuilder
@@ -66,6 +72,15 @@ struct CollectionsListView: View {
                 //MARK: Add Collection Button
                 LazyVStack {
                     if user.isCurrentUser && !isSeeingLikedCollections {
+                        if user.inviteCount > 0 {
+                            Button{
+                                showInvitesView = true
+                            } label: {
+                                Text("\(user.inviteCount) pending collab invitations")
+                                    .font(.custom("MuseoSansRounded-700", size: 16))
+                                    
+                            }
+                        }
                         Divider()
                         Button {
                             showAddCollection.toggle()

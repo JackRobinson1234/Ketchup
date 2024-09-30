@@ -1,15 +1,17 @@
 //
-//  ProfileMapView.swift
+//  IOS16MapView.swift
 //  Ketchup
 //
-//  Created by Jack Robinson on 7/2/24.
+//  Created by Jack Robinson on 9/21/24.
 //
 
 import SwiftUI
-import _MapKit_SwiftUI
 import Kingfisher
+import MapKit
 import ClusterMap
 import ClusterMapSwiftUI
+
+@available(iOS 17.0, *)
 struct ProfileMapView: View {
     @StateObject var viewModel = ProfileMapViewModel()
     @ObservedObject var feedViewModel: FeedViewModel
@@ -18,7 +20,7 @@ struct ProfileMapView: View {
     @State var selectedLocation: LocationWithPosts?
     @Environment(\.dismiss) var dismiss
     @StateObject var newFeedViewModel = FeedViewModel()
-    @State var selectedCluster: PostClusterAnnotation?
+    @State var selectedCluster: ProfilePostClusterAnnotation?
     // Filter posts to exclude those with restaurant IDs starting with "construction"
     var filteredPosts: [Post] {
         feedViewModel.posts.filter { !$0.restaurant.id.starts(with: "construction") }
@@ -36,19 +38,19 @@ struct ProfileMapView: View {
                 ForEach(viewModel.annotations, id: \.self) { item in
                     Annotation(item.post.restaurant.name, coordinate: item.coordinate) {
                         Button {
-                            print("DEBUG: Single post annotation tapped")
+                            //print("DEBUG: Single post annotation tapped")
                             selectedWrittenPost = item.post
                         } label: {
-                            SinglePostAnnotationView(post: item.post)
+                            ProfileSinglePostAnnotationView(post: item.post)
                         }
                     }
                 }
                 ForEach(viewModel.clusters) { cluster in
                     Annotation("", coordinate: cluster.coordinate) {
-                        PostClusterCell(cluster: cluster)
+                        ProfilePostClusterCell(cluster: cluster)
                             .onTapGesture {
                                 newFeedViewModel.posts = cluster.memberAnnotations.map { $0.post}
-                                print("DEBUG: Cluster tapped - \(cluster.count) posts")
+                                //print("DEBUG: Cluster tapped - \(cluster.count) posts")
                                 selectedCluster = cluster
                             }
                     }
@@ -56,20 +58,19 @@ struct ProfileMapView: View {
             }
             
             .readSize(onChange: { newValue in
-                print("DEBUG: Map size changed to \(newValue)")
+                //print("DEBUG: Map size changed to \(newValue)")
                 viewModel.mapSize = newValue
-                print(newValue)
+                //print(newValue)
             })
             .onAppear {
-                print("DEBUG: ProfileMapView appeared")
+                //print("DEBUG: ProfileMapView appeared")
                 viewModel.setPosts(posts: filteredPosts)
             }
             .onMapCameraChange { context in
-                print("DEBUG: Map camera changing - Center: \(context.region.center), Span: \(context.region.span)")
+                //print("DEBUG: Map camera changing - Center: \(context.region.center), Span: \(context.region.span)")
                 viewModel.currentRegion = context.region
             }
             .onMapCameraChange(frequency: .onEnd) { context in
-                print("DEBUG: Map camera change ended")
                 Task.detached { await viewModel.reloadAnnotations() }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
@@ -132,11 +133,11 @@ struct ProfileMapView: View {
 
 
 
-struct SinglePostAnnotationView: View {
+struct ProfileSinglePostAnnotationView: View {
     let post: Post
     
     var body: some View {
-        if post.mediaType == .written {
+        if post.mediaType == .written || post.mediaUrls.isEmpty{
             ZStack {
                 Rectangle()
                     .foregroundStyle(.white)
@@ -155,35 +156,35 @@ struct SinglePostAnnotationView: View {
     }
 }
 
-struct PostListItem: View {
-    let post: Post
-    
-    var body: some View {
-        HStack {
-            if let url = URL(string: post.thumbnailUrl) {
-                KFImage(url)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            } else {
-                Image(systemName: post.mediaType == .written ? "doc.text" : "photo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.gray)
-            }
-            
-            VStack(alignment: .leading) {
-                Text(post.restaurant.name)
-                    .font(.headline)
-                Text(post.caption)
-                    .font(.subheadline)
-                    .lineLimit(1)
-            }
-        }
-    }
-}
+//struct PostListItem: View {
+//    let post: Post
+//
+//    var body: some View {
+//        HStack {
+//            if let url = URL(string: post.thumbnailUrl) {
+//                KFImage(url)
+//                    .resizable()
+//                    .scaledToFill()
+//                    .frame(width: 50, height: 50)
+//                    .clipShape(RoundedRectangle(cornerRadius: 6))
+//            } else {
+//                Image(systemName: post.mediaType == .written ? "doc.text" : "photo")
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(width: 50, height: 50)
+//                    .foregroundColor(.gray)
+//            }
+//
+//            VStack(alignment: .leading) {
+//                Text(post.restaurant.name)
+//                    .font(.headline)
+//                Text(post.caption)
+//                    .font(.subheadline)
+//                    .lineLimit(1)
+//            }
+//        }
+//    }
+//}
 
 struct LocationWithPosts: Identifiable {
     let id = UUID()
@@ -223,10 +224,10 @@ struct PostAnnotationView: View {
 }
 
 class ProfileMapViewModel: ObservableObject {
-    let clusterManager = ClusterManager<PostMapAnnotation>()
+    let clusterManager = ClusterManager<ProfilePostMapAnnotation>()
     @Published var posts = [Post]()
-    var annotations: [PostMapAnnotation] = []
-    var clusters: [PostClusterAnnotation] = []
+    var annotations: [ProfilePostMapAnnotation] = []
+    var clusters: [ProfilePostClusterAnnotation] = []
     var mapSize: CGSize = .zero
     let initialUSRegion = MKCoordinateRegion(
            center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
@@ -237,36 +238,36 @@ class ProfileMapViewModel: ObservableObject {
            span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60)
        )
     func setPosts(posts: [Post]) {
-        print("DEBUG: Setting posts - Count: \(posts.count)")
+        //print("DEBUG: Setting posts - Count: \(posts.count)")
         annotations = []
         clusters = []
         self.posts = posts
-        let postAnnotations: [PostMapAnnotation] = self.posts.compactMap { post in
+        let postAnnotations: [ProfilePostMapAnnotation] = self.posts.compactMap { post in
             if let coordinates = post.coordinates {
-                return PostMapAnnotation(coordinate: coordinates, post: post)
+                return ProfilePostMapAnnotation(coordinate: coordinates, post: post)
             } else {
-                print("DEBUG: Post without coordinates - ID: \(post.id)")
+                //print("DEBUG: Post without coordinates - ID: \(post.id)")
                 return nil
             }
         }
         
-        print("DEBUG: Created \(postAnnotations.count) annotations")
+        //print("DEBUG: Created \(postAnnotations.count) annotations")
         
         Task {
             await clusterManager.add(postAnnotations)
-            print("DEBUG: Added annotations to cluster manager")
+            //print("DEBUG: Added annotations to cluster manager")
             await reloadAnnotations()
         }
     }
     
     func reloadAnnotations() async {
-        print("DEBUG: Reloading annotations - Map size: \(mapSize), Region center: \(currentRegion.center)")
+        //print("DEBUG: Reloading annotations - Map size: \(mapSize), Region center: \(currentRegion.center)")
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
-        print("DEBUG: Cluster manager reload complete")
+        //print("DEBUG: Cluster manager reload complete")
         applyChanges(changes)
     }
     
-    private func applyChanges(_ difference: ClusterManager<PostMapAnnotation>.Difference) {
+    private func applyChanges(_ difference: ClusterManager<ProfilePostMapAnnotation>.Difference) {
         for removal in difference.removals {
             switch removal {
             case .annotation(let annotation):
@@ -280,7 +281,7 @@ class ProfileMapViewModel: ObservableObject {
             case .annotation(let newItem):
                 annotations.append(newItem)
             case .cluster(let newItem):
-                clusters.append(PostClusterAnnotation(
+                clusters.append(ProfilePostClusterAnnotation(
                     id: newItem.id,
                     coordinate: newItem.coordinate,
                     count: newItem.memberAnnotations.count,
@@ -290,20 +291,20 @@ class ProfileMapViewModel: ObservableObject {
         }
     }
 }
-struct PostMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
+struct ProfilePostMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
     var post: Post
 }
-struct PostClusterAnnotation: Identifiable {
+struct ProfilePostClusterAnnotation: Identifiable {
     var id = UUID()
     var coordinate: CLLocationCoordinate2D
     var count: Int
-    var memberAnnotations: [PostMapAnnotation]
+    var memberAnnotations: [ProfilePostMapAnnotation]
 }
 
-struct PostClusterCell: View {
-    var cluster: PostClusterAnnotation
+struct ProfilePostClusterCell: View {
+    var cluster: ProfilePostClusterAnnotation
     var body: some View {
         ZStack {
             Circle()
@@ -319,3 +320,5 @@ struct PostClusterCell: View {
         }
     }
 }
+
+

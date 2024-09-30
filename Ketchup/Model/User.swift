@@ -20,14 +20,19 @@ struct User: Codable, Identifiable, Hashable {
     var lastActive: Date?
     var hasContactsSynced: Bool = false
     var statusImageName: String?
-    
-    
+    var contactsSynced: Bool = false
+    var inviteCount: Int = 0
+    var followingPosts: Int = 0
+    var referredBy: String? = nil
+    var totalReferrals: Int = 0
+    var weeklyStreak: Int = 0
+    var mostRecentPost: Date?
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, hasContactsSynced, statusImageName  // Updated CodingKeys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName
     }
 
     init(from decoder: Decoder) throws {
@@ -44,36 +49,64 @@ struct User: Codable, Identifiable, Hashable {
         self.notificationAlert = try container.decodeIfPresent(Int.self, forKey: .notificationAlert) ?? 0
         self.location = try container.decodeIfPresent(Location.self, forKey: .location)
         
-        // Decode new birthday property
         if let birthdayTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .birthday) {
             self.birthday = birthdayTimestamp.dateValue()
         } else {
             self.birthday = nil
         }
         
-        // Decode new hasCompletedSetup property, defaulting to false if not present
         self.hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? false
         
-        // Decode new createdAt property
         if let createdAtTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .createdAt) {
             self.createdAt = createdAtTimestamp.dateValue()
         } else {
             self.createdAt = nil
         }
         
-        // Decode new lastActive property
         if let lastActiveTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastActive) {
             self.lastActive = lastActiveTimestamp.dateValue()
         } else {
             self.lastActive = nil
         }
-
-        // Decode new hasContactsSynced property, defaulting to false if not present
+        self.contactsSynced = try container.decodeIfPresent(Bool.self, forKey: .contactsSynced) ?? false
+        self.inviteCount = try container.decodeIfPresent(Int.self, forKey: .inviteCount) ?? 0
+        self.followingPosts = try container.decodeIfPresent(Int.self, forKey: .followingPosts) ?? 0
+        self.referredBy = try container.decodeIfPresent(String.self, forKey: .referredBy)
+        self.totalReferrals = try container.decodeIfPresent(Int.self, forKey: .totalReferrals) ?? 0
+        self.weeklyStreak = try container.decodeIfPresent(Int.self, forKey: .weeklyStreak) ?? 0
+        
+        if let mostRecentPostTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .mostRecentPost) {
+            self.mostRecentPost = mostRecentPostTimestamp.dateValue()
+        } else {
+            self.mostRecentPost = nil
+        }
         self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
         self.statusImageName = try container.decodeIfPresent(String.self, forKey: .statusImageName) ?? "ADVANCED1"
     }
 
-    init(id: String, username: String, fullname: String, phoneNumber: String? = nil, profileImageUrl: String? = nil, privateMode: Bool, notificationAlert: Int = 0, location: Location? = nil, birthday: Date? = nil, hasCompletedSetup: Bool = false, createdAt: Date? = nil, lastActive: Date? = nil, hasContactsSynced: Bool = false, statusImageName: String? = "ADVANCED1") {
+    init(
+        id: String,
+        username: String,
+        fullname: String,
+        phoneNumber: String? = nil,
+        profileImageUrl: String? = nil,
+        privateMode: Bool,
+        notificationAlert: Int = 0,
+        location: Location? = nil,
+        birthday: Date? = nil,
+        hasCompletedSetup: Bool = false,
+        createdAt: Date? = nil,
+        lastActive: Date? = nil,
+        contactsSynced: Bool = false,
+        inviteCount: Int = 0,
+        followingPosts: Int = 0,
+        referredBy: String? = nil,
+        totalReferrals: Int = 0,
+        weeklyStreak: Int = 0,
+        mostRecentPost: Date? = nil,
+        hasContactsSynced: Bool = false, 
+        statusImageName: String? = "ADVANCED1"
+    ) {
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -94,6 +127,13 @@ struct User: Codable, Identifiable, Hashable {
         self.hasCompletedSetup = hasCompletedSetup
         self.createdAt = createdAt
         self.lastActive = lastActive
+        self.contactsSynced = contactsSynced
+        self.inviteCount = inviteCount
+        self.followingPosts = followingPosts
+        self.referredBy = referredBy
+        self.totalReferrals = totalReferrals
+        self.weeklyStreak = weeklyStreak
+        self.mostRecentPost = mostRecentPost
         self.hasContactsSynced = hasContactsSynced
         self.statusImageName = statusImageName
     }
@@ -112,25 +152,30 @@ struct User: Codable, Identifiable, Hashable {
         try container.encode(notificationAlert, forKey: .notificationAlert)
         try container.encodeIfPresent(location, forKey: .location)
         
-        // Encode new birthday property
         if let birthday = birthday {
             try container.encode(Timestamp(date: birthday), forKey: .birthday)
         }
         
-        // Encode new hasCompletedSetup property
         try container.encode(hasCompletedSetup, forKey: .hasCompletedSetup)
         
-        // Encode new createdAt property
         if let createdAt = createdAt {
             try container.encode(Timestamp(date: createdAt), forKey: .createdAt)
         }
         
-        // Encode new lastActive property
         if let lastActive = lastActive {
             try container.encode(Timestamp(date: lastActive), forKey: .lastActive)
         }
         
-        // Encode new hasContactsSynced property
+        try container.encode(contactsSynced, forKey: .contactsSynced)
+        try container.encode(inviteCount, forKey: .inviteCount)
+        try container.encode(followingPosts, forKey: .followingPosts)
+        try container.encodeIfPresent(referredBy, forKey: .referredBy)
+        try container.encode(totalReferrals, forKey: .totalReferrals)
+        try container.encode(weeklyStreak, forKey: .weeklyStreak)
+        
+        if let mostRecentPost = mostRecentPost {
+            try container.encode(Timestamp(date: mostRecentPost), forKey: .mostRecentPost)
+        }
         try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
         try container.encodeIfPresent(statusImageName, forKey: .statusImageName)
     }

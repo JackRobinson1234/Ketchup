@@ -33,8 +33,6 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
-    @Published var selectedCity: String = ""
-    @Published var selectedState: String = ""
     @Published var annotations: [RestaurantMapAnnotation] = []
     @Published var clusters: [ExampleClusterAnnotation] = []
     @Published var largeClusters: [LargeClusterAnnotation] = []
@@ -66,7 +64,7 @@ class MapViewModel: ObservableObject {
     }
     
     
-    func updateMapState(newRegion: MKCoordinateRegion) {
+    func updateMapState(newRegion: MKCoordinateRegion, shouldAutoFetch: Bool = false) {
         let newZoomLevel = determineZoomLevel(for: newRegion)
         
         fetchTask?.cancel()
@@ -78,7 +76,7 @@ class MapViewModel: ObservableObject {
                 
                 let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
                 
-                if shouldFetch {
+                if shouldFetch || shouldAutoFetch{
                     self.currentRegion = newRegion
                     self.currentZoomLevel = newZoomLevel
                     
@@ -93,7 +91,14 @@ class MapViewModel: ObservableObject {
             }
         }
     }
-    
+    func centerMapOnLocation(location: CLLocation) {
+           let newRegion = MKCoordinateRegion(
+               center: location.coordinate,
+               span: currentRegion.span // Keep the current span to maintain zoom level
+           )
+            selectedLocation = [location.coordinate]
+           currentRegion = newRegion
+       }
     func fetchFilteredClusters(limit: Int = 0) async {
         do {
             isLoading = true
@@ -107,7 +112,9 @@ class MapViewModel: ObservableObject {
                 isLoading = false
                 return
             }
-            
+            if determineZoomLevel(for: currentRegion) == .maxZoomOut {
+                return
+            }
             let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
                 filters: self.filters,
                 center: self.currentRegion.center,
@@ -123,7 +130,7 @@ class MapViewModel: ObservableObject {
             
             isLoading = false
         } catch {
-            print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
+            //print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
             isLoading = false
         }
     }
@@ -138,7 +145,6 @@ class MapViewModel: ObservableObject {
             visibleRestaurants = []
             largeClusters = allClusters.map { cluster in
                 LargeClusterAnnotation(
-                    id: UUID(),
                     coordinate: CLLocationCoordinate2D(latitude: cluster.center.latitude, longitude: cluster.center.longitude),
                     count: cluster.count,
                     memberAnnotations: cluster.restaurants
@@ -273,22 +279,51 @@ class MapViewModel: ObservableObject {
 
 
 
-struct RestaurantMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {
+class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
-    var restaurant: ClusterRestaurant
+    let restaurant: ClusterRestaurant
+    var title: String?
+
+    init(coordinate: CLLocationCoordinate2D, restaurant: ClusterRestaurant) {
+        self.coordinate = coordinate
+        self.restaurant = restaurant
+        self.title = restaurant.name
+        super.init()
+    }
 }
 
-struct ExampleClusterAnnotation: Identifiable {
-    var id = UUID()
+// MARK: - ExampleClusterAnnotation
+class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
+    let id: UUID
     var coordinate: CLLocationCoordinate2D
-    var count: Int
-    var memberAnnotations: [RestaurantMapAnnotation]
+    let count: Int
+    let memberAnnotations: [RestaurantMapAnnotation]
+    var title: String?
+
+    init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
+        self.id = id
+        self.coordinate = coordinate
+        self.count = count
+        self.memberAnnotations = memberAnnotations
+        self.title = "Cluster of \(count) Restaurants"
+        super.init()
+    }
 }
 
-struct LargeClusterAnnotation: Identifiable {
-    var id = UUID()
+// MARK: - LargeClusterAnnotation
+class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
+    let id = UUID()
     var coordinate: CLLocationCoordinate2D
-    var count: Int
-    var memberAnnotations: [ClusterRestaurant]
+    let count: Int
+    let memberAnnotations: [ClusterRestaurant]
+    var title: String? // Add this line
+
+    init(coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [ClusterRestaurant]) {
+        self.coordinate = coordinate
+        self.count = count
+        self.memberAnnotations = memberAnnotations
+        self.title = "Cluster of \(count) Restaurants" // Set an appropriate title
+        super.init()
+    }
 }

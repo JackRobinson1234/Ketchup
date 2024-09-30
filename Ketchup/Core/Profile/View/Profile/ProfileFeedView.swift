@@ -13,29 +13,46 @@ struct ProfileFeedView: View {
     @State var pauseVideo = false
     @State var selectedPost: Post?
     @Binding var scrollTarget: String?
+
     var body: some View {
-        if !viewModel.posts.isEmpty{
-            LazyVStack {
-                ForEach($viewModel.posts) { post in
-                    WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost, checkLikes: true)
-                        .id(post.id)
-                    
-                    
-                    
+        if !viewModel.posts.isEmpty {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack {
+                        ForEach($viewModel.posts) { post in
+                            WrittenFeedCell(viewModel: viewModel, post: post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost, checkLikes: true)
+                                .id(post.id)
+                        }
+                    }
                 }
-            }
-            .scrollTargetLayout()
-            
-            .onChange(of: viewModel.initialPrimaryScrollPosition) {
-                scrollTarget = viewModel.initialPrimaryScrollPosition
+                .onChange(of: scrollTarget) { newTarget in
+                    if let target = newTarget {
+                        // Scroll to the target post when the scrollTarget changes
+                        withAnimation {
+                            proxy.scrollTo(target, anchor: .top)
+                        }
+                    }
+                }
+                .onAppear {
+                    if let initialTarget = viewModel.initialPrimaryScrollPosition {
+                        // Scroll to the initial target when the view appears
+                        scrollTarget = initialTarget
+                        proxy.scrollTo(initialTarget, anchor: .top)
+                    }
+                }
             }
             .fullScreenCover(item: $selectedPost) { post in
                 NavigationStack {
-                    SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    if #available(iOS 17, *) {
+                        
+                        SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    } else {
+                        IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: true, initialScrollPosition: post.id, titleText: "Posts")
+                    }
                 }
             }
         } else {
-            HStack{
+            HStack {
                 Spacer()
                 Text("No Posts to Show")
                     .foregroundStyle(.gray)

@@ -24,7 +24,7 @@ class EditProfileViewModel: ObservableObject {
     @Published var profileImage: Image?
     @Published var favoritesPreview: [FavoriteRestaurant] {
         didSet {
-            print("Favorites Preview Changed: \(favoritesPreview)")
+            //print("Favorites Preview Changed: \(favoritesPreview)")
         }
     }
     @Published var validUsername: Bool? = true
@@ -61,7 +61,12 @@ class EditProfileViewModel: ObservableObject {
     }
     
     func updateProfileImage(_ uiImage: UIImage) async throws {
-        let imageUrl = try? await ImageUploader.uploadImage(image: uiImage, type: .profile)
+        let imageUrl = try? await ImageUploader.uploadImage(image: uiImage, type: .profile,
+                                                            progressHandler: { progress in
+            DispatchQueue.main.async {
+                //self.uploadProgress = progress
+            }
+        })
         self.user.profileImageUrl = imageUrl
     }
     @MainActor

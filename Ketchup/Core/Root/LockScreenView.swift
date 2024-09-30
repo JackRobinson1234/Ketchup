@@ -17,14 +17,14 @@ struct LockScreenView: View {
                     Text("This is the lock screen")
                         .foregroundColor(.white)
                     Button("Unlock") {
-                        print("LockScreenView: Unlock button tapped")
+                        //print("LockScreenView: Unlock button tapped")
                         overlayManager.dismissOverlay()
                     }
                     .foregroundColor(.green)
                 }
             )
             .onAppear {
-                print("LockScreenView: Appeared")
+                //print("LockScreenView: Appeared")
             }
     }
 }

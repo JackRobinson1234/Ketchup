@@ -41,6 +41,7 @@ class CollectionsViewModel: ObservableObject {
     @Published var notesPreview: CollectionItem?
     @Published var editItems: [CollectionItem] = []
     @Published var restaurantRequest: RestaurantRequest?
+    @Published var invites: [CollectionInvite] = []
     private var lastDocument: QueryDocumentSnapshot?
     private let limit = 10
     private var hasMoreCollections = true
@@ -69,7 +70,7 @@ class CollectionsViewModel: ObservableObject {
         currentTask = Task { @MainActor in
             do {
                 isLoading = true
-                print("Starting to fetch collections")
+                //print("Starting to fetch collections")
                 
                 let (newCollections, lastDoc) = try await CollectionService.shared.fetchPaginatedCollections(
                     lastDocument: lastDocument,
@@ -79,24 +80,41 @@ class CollectionsViewModel: ObservableObject {
                 collections.append(contentsOf: newCollections)
                 lastDocument = lastDoc
                 hasMoreCollections = newCollections.count == limit
-                print("Fetched \(newCollections.count) collections. Total: \(collections.count)")
+                //print("Fetched \(newCollections.count) collections. Total: \(collections.count)")
             } catch {
-                print("Error loading collections: \(error)")
+                //print("Error loading collections: \(error)")
             }
             isLoading = false
         }
     }
     func fetchCollections(user: String) async {
-        isLoading = true
-        print("fetching Collections")
-        do {
-            self.collections = try await CollectionService.shared.fetchCollections(user: user)
-            isLoading = false
-        } catch {
-            print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
-            isLoading = false
-        }
-    }
+          isLoading = true
+          //print("fetching Collections")
+          do {
+              // Fetch collections created by the user
+              let userCollections = try await CollectionService.shared.fetchCollections(user: user)
+
+              // Fetch collections where the user is a collaborator
+              let collaboratorCollections = try await CollectionService.shared.fetchCollectionsWhereUserIsCollaborator(user: user)
+
+              // Combine both sets of collections
+              var allCollections = userCollections + collaboratorCollections
+              
+              // Sort collections by timestamp in descending order
+              allCollections.sort(by: {
+                  ($0.timestamp ?? Timestamp(date: Date.distantPast)).dateValue() >
+                  ($1.timestamp ?? Timestamp(date: Date.distantPast)).dateValue()
+              })
+              
+              // Update the collections array with the sorted result
+              self.collections = allCollections
+              
+              isLoading = false
+          } catch {
+              //print("DEBUG: Failed to fetch collections with error: \(error.localizedDescription)")
+              isLoading = false
+          }
+      }
     func fetchItems() async throws{
         if let selectedCollection{
             let fetchedItems = try await CollectionService.shared.fetchItems(collection: selectedCollection)
@@ -107,29 +125,32 @@ class CollectionsViewModel: ObservableObject {
     /// Adds an item to selectedCollection and on firebase. Updates the selectedCollection variable as well, which is what is actually displayed for the user to reduce networking, Also updates the collections array to reduce networking.
     /// - Parameter item: Collection Item to be inserted into selectedCollection
     func addItemToCollection(collectionItem: CollectionItem) async throws {
-        guard var selectedCollection = self.selectedCollection else { return }
-        
-        var item = collectionItem
-        item.collectionId = selectedCollection.id
-        item.notes = notes
-        self.notes = ""
-        
-        try await CollectionService.shared.addItemToCollection(collectionItem: item)
-        
-        if !self.items.contains(item) {
-            self.items.append(item)
-            selectedCollection.restaurantCount += 1
-            selectedCollection.updatetempImageUrls(with: item)
-            
-            // Update the collections array
-            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
-                collections[index] = selectedCollection
-            }
-            
-            // Update the published selectedCollection
-            self.selectedCollection = selectedCollection
-        }
-    }
+           guard var selectedCollection = self.selectedCollection else { return }
+           guard let currentUser = AuthService.shared.userSession else { return }
+
+           var item = collectionItem
+           item.collectionId = selectedCollection.id
+           item.notes = notes
+           item.addedByUid = currentUser.id
+           item.addedByUsername = currentUser.username
+           self.notes = ""
+
+           try await CollectionService.shared.addItemToCollection(collectionItem: item)
+
+           if !self.items.contains(item) {
+               self.items.append(item)
+               selectedCollection.restaurantCount += 1
+               selectedCollection.updatetempImageUrls(with: item)
+
+               // Update the collections array
+               if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                   collections[index] = selectedCollection
+               }
+
+               // Update the published selectedCollection
+               self.selectedCollection = selectedCollection
+           }
+       }
     //MARK: addPostToCollection
     /// adds self.post as a CollectionItem to selectedCollection on Firebase
     func addPostToCollection() async throws{
@@ -137,7 +158,7 @@ class CollectionsViewModel: ObservableObject {
             if let collectionItem = convertPostToCollectionItem() {
                 try await addItemToCollection(collectionItem: collectionItem)
             } else {
-                print("Error converting post to collection Item")
+                //print("Error converting post to collection Item")
             }
         }
     }
@@ -188,10 +209,10 @@ class CollectionsViewModel: ObservableObject {
             if let collectionItem = convertRestaurantToCollectionItem() {
                 try await addItemToCollection(collectionItem: collectionItem)
             } else {
-                print("Error converting restaurant to collection Item")
+                //print("Error converting restaurant to collection Item")
             }
         } else {
-            print("No restaurant found")
+            //print("No restaurant found")
         }
     }
     //MARK: crateCollageImage
@@ -264,7 +285,7 @@ class CollectionsViewModel: ObservableObject {
             let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
             let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
             if let collection{
-                print(collection)
+                //print(collection)
                 self.collections.insert(collection, at: 0)
             }
             // Adds post if there is one selected
@@ -336,7 +357,12 @@ class CollectionsViewModel: ObservableObject {
         var data: [String: Any] = [:]
         
         if coverImage != nil, let uiImage = self.uiImage {
-            let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection)
+            let imageUrl = try await ImageUploader.uploadImage(image: uiImage, type: .collection,
+                                                               progressHandler: { progress in
+                                                                   DispatchQueue.main.async {
+//                                                                       self.uploadProgress = progress
+                                                                   }
+                                                               })
             data["coverImageUrl"] = imageUrl
             selectedCollection.coverImageUrl = imageUrl
             changed = true
@@ -421,7 +447,7 @@ class CollectionsViewModel: ObservableObject {
         do {
             try await CollectionService.shared.likeCollection(collection)
         } catch {
-            print("DEBUG: Failed to like collection with error \(error.localizedDescription)")
+            //print("DEBUG: Failed to like collection with error \(error.localizedDescription)")
             if let index = collections.firstIndex(where: { $0.id == collection.id }) {
                 collections[index].didLike = false
                 collections[index].likes -= 1
@@ -448,7 +474,7 @@ class CollectionsViewModel: ObservableObject {
         do {
             try await CollectionService.shared.unlikeCollection(collection)
         } catch {
-            print("DEBUG: Failed to unlike collection with error \(error.localizedDescription)")
+            //print("DEBUG: Failed to unlike collection with error \(error.localizedDescription)")
             if let index = collections.firstIndex(where: { $0.id == collection.id }) {
                 collections[index].didLike = true
                 collections[index].likes += 1
@@ -468,11 +494,11 @@ class CollectionsViewModel: ObservableObject {
                 
             }
         } catch {
-            print("failed to check if user liked collection")
+            //print("failed to check if user liked collection")
         }
-       
+        
     }
-
+    
     
     func fetchUserLikedCollections(userId: String) async {
         do {
@@ -481,8 +507,120 @@ class CollectionsViewModel: ObservableObject {
                 self.collections = likedCollections
             }
         } catch {
-            print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
+            //print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
+        }
+    }
+    
+    func inviteUserToCollection(inviteeUid: String) async throws {
+        guard let selectedCollection = self.selectedCollection else { return }
+        
+        // Delegate Firebase operations to the service layer
+        try await CollectionService.shared.inviteUserToCollection(
+            collectionId: selectedCollection.id,
+            collectionName: selectedCollection.name,
+            collectionCoverImageUrl: selectedCollection.coverImageUrl,
+            inviterUid: selectedCollection.uid,
+            inviterUsername: selectedCollection.username,
+            inviterProfileImageUrl: selectedCollection.profileImageUrl,
+            tempImageUrls: selectedCollection.tempImageUrls,
+            inviteeUid: inviteeUid
+        )
+        
+        // Update the local collection object
+        if !selectedCollection.pendingInvitations.contains(inviteeUid) {
+            var updatedCollection = selectedCollection
+            updatedCollection.pendingInvitations.append(inviteeUid)
+            
+            if let index = collections.firstIndex(where: { $0.id == selectedCollection.id }) {
+                collections[index] = updatedCollection
+            }
+            self.selectedCollection = updatedCollection
+        }
+    }
+    func fetchCollaborationInvites() async {
+            isLoading = true
+            do {
+                self.invites = try await CollectionService.shared.fetchCollaborationInvites()
+            } catch {
+                //print("Failed to fetch invites: \(error)")
+            }
+        isLoading = false
+    }
+    func acceptInvite(_ invite: CollectionInvite) async {
+        do {
+            // Accept the invite on the server
+            try await CollectionService.shared.acceptInvite(collectionId: invite.collectionId)
+            
+            // Remove the invite from the local list
+            invites.removeAll { $0.id == invite.id }
+            
+            // Fetch the full collection details
+            let acceptedCollection = try await CollectionService.shared.fetchCollection(withId: invite.collectionId)
+            await MainActor.run {
+                // Add the new collection to the list
+                insertCollection(acceptedCollection)
+                
+            }
+        } catch {
+            //print("Failed to accept invite: \(error)")
+        }
+    }
+
+    private func insertCollection(_ newCollection: Collection) {
+        // Find the correct position to insert the new collection based on its timestamp
+        let index = collections.firstIndex { collection in
+            guard let newTimestamp = newCollection.timestamp,
+                  let existingTimestamp = collection.timestamp else {
+                return false
+            }
+            return newTimestamp.dateValue() > existingTimestamp.dateValue()
+        } ?? collections.endIndex
+        
+        // Insert the new collection at the correct position
+        collections.insert(newCollection, at: index)
+    }
+        
+        // Reject an invite to collaborate on a collection
+        func rejectInvite(_ invite: CollectionInvite) async {
+            do {
+                try await CollectionService.shared.rejectInvite(collectionId: invite.collectionId)
+                invites.removeAll { $0.id == invite.id }
+            } catch {
+                //print("Failed to reject invite: \(error)")
+            }
+    }
+    func removeSelfAsCollaborator() async {
+        guard let collection = selectedCollection else {
+            //print("No collection selected")
+            return
+        }
+        
+        do {
+            try await CollectionService.shared.removeSelfAsCollaborator(collectionId: collection.id)
+            
+            // Update the selectedCollection
+            if var updatedCollection = selectedCollection {
+                updatedCollection.collaborators.removeAll { $0 == AuthService.shared.userSession?.id }
+                selectedCollection = updatedCollection
+            }
+            
+            // Update the collections array
+            if let index = collections.firstIndex(where: { $0.id == collection.id }) {
+                collections.remove(at: index)
+            }
+            
+            // Reset the selectedCollection if it's the one we just left
+         
+            
+            // Update the user's collection count locally
+            
+            
+            //print("Successfully removed self as collaborator from collection: \(collection.id)")
+            
+            
+        } catch {
+            //print("Failed to remove self as collaborator: \(error.localizedDescription)")
+            // Here you might want to show an error message to the user
         }
     }
 }
-

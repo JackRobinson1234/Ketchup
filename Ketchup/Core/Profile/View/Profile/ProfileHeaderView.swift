@@ -56,7 +56,9 @@ struct ProfileHeaderView: View {
                         Text("\(city), \(state)")
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .foregroundColor(.black)
+                        
                     }
+                    
                     if user.isCurrentUser {
                         Button {
                             showEditProfile.toggle()
@@ -73,7 +75,7 @@ struct ProfileHeaderView: View {
                                         .stroke(Color("Colors/AccentColor"), lineWidth: 1)
                                 }
                         }
-                    } else {
+                    } else if user.id != "6nLYduH5e0RtMvjhediR7GkaI003"{
                         Button {
                             handleFollowTapped()
                         } label: {
@@ -117,6 +119,12 @@ struct ProfileHeaderView: View {
                     UserStatView(value: user.stats.collections, title: "Collections")
                 }
             }
+            
+            Text("🔥\(user.weeklyStreak) week streak")
+                .font(.custom("MuseoSansRounded-700", size: 14))
+                .foregroundColor(.black)
+                .cornerRadius(12)
+            
             Text("Favorites")
                 .font(.custom("MuseoSansRounded-700", size: 14))
                 .foregroundStyle(.black)
@@ -162,7 +170,3 @@ struct UserStatView: View {
         .foregroundColor(.black)
     }
 }
-
-//#Preview {
-//    ProfileHeaderView(viewModel: ProfileViewModel(uid: "1234"), profileSection: .constant(.posts))
-//}

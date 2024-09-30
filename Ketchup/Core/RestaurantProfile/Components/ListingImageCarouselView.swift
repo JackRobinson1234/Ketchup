@@ -9,13 +9,12 @@ import SwiftUI
 import Kingfisher
 
 struct ListingImageCarouselView: View {
-    
     private var images: [String]?
     init(images: [String]? = nil) {
         self.images = images
     }
     
-    var height: CGFloat = 250
+    var height: CGFloat = 225
     var body: some View {
         if let unwrappedImages = images{
             TabView {
@@ -32,9 +31,10 @@ struct ListingImageCarouselView: View {
                 Image(systemName: "building.2.crop.circle")
                     .resizable()
                     .scaledToFill()
+                    .foregroundColor(.gray)
                     .frame(width: 20, height: 70)
-                    
-
+                
+                
             }
             .frame(height: height)
         }
@@ -44,4 +44,3 @@ struct ListingImageCarouselView: View {
 #Preview {
     ListingImageCarouselView()
 }
-

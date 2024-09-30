@@ -51,6 +51,7 @@ struct FeedCell: View {
     var checkLikes: Bool
     @State private var selectedUser: PostUser?
     @State private var isShowingProfileSheet = false
+    
     var overallRating: Double? {
         let ratings = [post.foodRating, post.atmosphereRating, post.valueRating, post.serviceRating].compactMap { $0 }
         guard !ratings.isEmpty else { return nil }
@@ -85,15 +86,10 @@ struct FeedCell: View {
             .onEnded { endedGesture in
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
-                    if self.currentImageIndex > 0 {
-                        withAnimation(.easeInOut) {
-                            self.currentImageIndex -= 1
-                        }
-                    } else {
-                        viewModel.initialPrimaryScrollPosition = scrollPosition
-                        dismiss()
+                    viewModel.initialPrimaryScrollPosition = scrollPosition
+                    dismiss()
                     }
-                } else {
+                 else {
                     self.dragDirection = "right"
                 }
                 self.isDragging = false
@@ -102,11 +98,11 @@ struct FeedCell: View {
     
     var body: some View {
         ZStack {
-            
             VStack() {
                 Spacer()
                 if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-                    
+                    var startingImageIndex = 0
+                   
                         CustomHorizontalScrollView(
                             content: {
                                 HStack(spacing: 0) {
@@ -118,13 +114,18 @@ struct FeedCell: View {
                             currentIndex: $currentIndex,
                             itemCount: mixedMediaUrls.count,
                             itemWidth: mediaWidth,
-                            initialIndex: viewModel.startingImageIndex,
+                            initialIndex:  viewModel.startingImageIndex,
                             onDismiss: {
                                 viewModel.initialPrimaryScrollPosition = scrollPosition
                                 dismiss()
                             }
                         )
-                        .onAppear { viewModel.startingImageIndex = 0 }
+                        
+                        //
+                        .onAppear {  if post.id == viewModel.startingPostId{
+                            viewModel.startingImageIndex = 0
+                        }
+                        }
                         .frame(height: mediaHeight)
                         .overlay(alignment: .top) { IndexIndicatorView(currentIndex: currentIndex, totalCount: mixedMediaUrls.count)
                         }
@@ -154,7 +155,7 @@ struct FeedCell: View {
         .onTapGesture {
             toggleVideoPlayback()
         }
-        .onChange(of: currentlyPlayingVideoId) { oldValue, newValue in
+        .onChange(of: currentlyPlayingVideoId) {newValue in
             if let newValue = newValue,
                let coordinator = videoCoordinators.first(where: { $0.0 == newValue })?.1 {
                 pauseAllVideos()
@@ -162,7 +163,7 @@ struct FeedCell: View {
                 isCurrentVideoPlaying = true
             }
         }
-        .onChange(of: scrollPosition) {
+        .onChange(of: scrollPosition) {newValue in
             if scrollPosition != post.id {
                 pauseAllVideos()
             } else {
@@ -176,7 +177,7 @@ struct FeedCell: View {
         .onDisappear {
             pauseAllVideos()
         }
-        .onChange(of: pauseVideo) {
+        .onChange(of: pauseVideo) {newValue in
             if pauseVideo {
                 pauseAllVideos()
             } else {
@@ -184,7 +185,7 @@ struct FeedCell: View {
             }
         }
         .sheet(isPresented: $showComments) {
-            CommentsView(post: $post, feedViewModel: viewModel)
+            CommentsView(commentable: Binding(get: { post }, set: { post = $0 }), feedViewModel: viewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
                 .onAppear {
                     pauseAllVideos()
@@ -194,7 +195,7 @@ struct FeedCell: View {
                 }
         }
         .sheet(isPresented: $showShareView) {
-            ShareView(post: post, currentImageIndex: currentImageIndex)
+            ShareView(post: post, currentMediaIndex: currentIndex)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.15)])
                 .onAppear {
                     pauseAllVideos()
@@ -224,7 +225,7 @@ struct FeedCell: View {
                     handleIndexChange(currentIndex)
                 }
         }
-        .onChange(of: currentIndex) { oldValue, newValue in
+        .onChange(of: currentIndex) { newValue in
             handleIndexChange(newValue)
         }
         .overlay(
@@ -244,11 +245,15 @@ struct FeedCell: View {
                 }
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
-        .sheet(isPresented: $isShowingProfileSheet) {
-            if let user = selectedUser {
-                NavigationStack {
-                    ProfileView(uid: user.id)
-                }
+        .sheet(item: $selectedUser) { user in
+            NavigationStack {
+                ProfileView(uid: user.id)
+            }
+            .onAppear {
+                pauseAllVideos()
+            }
+            .onDisappear {
+                handleIndexChange(currentIndex)
             }
         }
     }
@@ -364,6 +369,11 @@ struct FeedCell: View {
                             .lineLimit(1)
                     }
                     .disabled(post.user.username == "ketchup_media")
+                    if let timestamp = post.timestamp {
+                        Text(getTimeElapsedString(from: timestamp))
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .foregroundColor(.gray)
+                    }
                 }
                 Spacer()
                 if let overallRating = overallRating {
@@ -460,18 +470,14 @@ struct FeedCell: View {
                             }
                         }
                         
-                        if let timestamp = post.timestamp {
-                            Text(getTimeElapsedString(from: timestamp))
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                                .foregroundColor(.black)
-                        }
+                        
                         
                         Text("See less...")
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundColor(Color("Colors/AccentColor"))
                     }
                 }
-                .onChange(of: post.caption) {
+                .onChange(of: post.caption) {newValue in
                     parsedCaption = parseCaption(post.caption)
                 }
             }
@@ -771,7 +777,7 @@ struct FeedCell: View {
         Task {
             if post.didBookmark {
                 await viewModel.unbookmark(post)
-                post.bookmarkCount -= 1
+                //ost.bookmarkCount -= 1
             } else {
                 await viewModel.bookmark(post)
                 post.bookmarkCount += 1

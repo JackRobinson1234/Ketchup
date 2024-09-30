@@ -63,7 +63,7 @@ struct EditProfileView: View {
                     EditProfileRowView(title: "Username", placeholder: "Enter your username..", text: $viewModel.username)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
-                        .onChange(of: viewModel.username) { oldValue, newValue in
+                        .onChange(of: viewModel.username) { newValue in
                                // Remove any characters that are not allowed
                                let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._")
                                viewModel.username = newValue.filter { char in
@@ -125,7 +125,7 @@ struct EditProfileView: View {
 
                     //MARK: Fullname
                     EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
-                        .onChange(of: viewModel.fullname) { oldValue, newValue in
+                        .onChange(of: viewModel.fullname) { newValue in
                             if newValue.count > 64 {
                                 viewModel.fullname = String(newValue.prefix(64))
                             }
@@ -201,11 +201,11 @@ struct EditProfileView: View {
                      .onReceive(viewModel.$user, perform: { user in
                          self.user = user
                      })
-                     .onChange(of: viewModel.username) { _, _ in checkForChanges() }
-                     .onChange(of: viewModel.fullname) { _, _ in checkForChanges() }
-                     .onChange(of: viewModel.location) { _, _ in checkForChanges() }
-                     .onChange(of: viewModel.favoritesPreview) { _, _ in checkForChanges() }
-                     .onChange(of: viewModel.croppedImage) { _, _ in checkForChanges() }
+                     .onChange(of: viewModel.username) { _ in checkForChanges() }
+                     .onChange(of: viewModel.fullname) { _ in checkForChanges() }
+                     .onChange(of: viewModel.location) {  _ in checkForChanges() }
+                     .onChange(of: viewModel.favoritesPreview) { _ in checkForChanges() }
+                     .onChange(of: viewModel.croppedImage) {  _ in checkForChanges() }
                      .alert(isPresented: $showCancelAlert) {
                          Alert(
                              title: Text("Discard Changes?"),

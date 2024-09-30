@@ -13,10 +13,11 @@ import FirebaseAuth
 struct PhoneAuthView: View {
     @StateObject private var viewModel: PhoneAuthViewModel
     @Environment(\.dismiss) var dismiss
-    var isDelete: Bool = false
+    var isDelete: Bool
     init(isDelete: Bool = false) {
-            _viewModel = StateObject(wrappedValue: PhoneAuthViewModel(isDelete: isDelete))
-        }
+        _viewModel = StateObject(wrappedValue: PhoneAuthViewModel(isDelete: isDelete))
+        self.isDelete = isDelete
+    }
     //@StateObject var registrationViewModel = UserRegistrationViewModel()
     var body: some View {
         NavigationStack {
@@ -28,17 +29,14 @@ struct PhoneAuthView: View {
                 if isDelete {
                     deleteAccountMessage
                 } else if let userSession = AuthService.shared.userSession {
-                    Text("Hey @\(userSession.username), we're updating our sign in flow! Don't worry- this will be linked to your existing account")
-                        .font(.custom("MuseoSansRounded-500", size: 20))
+                   
                 }
                     
                 
-                Text("First, What's your phone number?")
+                Text("Welcome to Ketchup! First, What's your phone number?")
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
-                   
-
                 
                 HStack {
                     TextField("Phone number", text: $viewModel.phoneNumber)
@@ -75,10 +73,10 @@ struct PhoneAuthView: View {
                         Text(viewModel.isAuthenticating ? "Sending..." : "Submit")
                             .font(.custom("MuseoSansRounded-500", size: 20))
                             .foregroundStyle(viewModel.isPhoneNumberValid ? .white : .black)
-
+                        
                         if viewModel.isAuthenticating {
-                           ProgressView()
-                                
+                            ProgressView()
+                            
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -108,17 +106,17 @@ struct PhoneAuthView: View {
         }
     }
     private var deleteAccountMessage: some View {
-           VStack(alignment: .leading, spacing: 10) {
-               Text("Account Deletion Confirmation")
-                   .font(.custom("MuseoSansRounded-700", size: 22))
-                   .foregroundColor(.red)
-               
-               Text("For your security, we need to re-authenticate your account before proceeding with deletion. Please enter your phone number to receive a verification code.")
-                   .font(.custom("MuseoSansRounded-500", size: 16))
-                   .foregroundColor(.gray)
-           }
-           .padding()
-           .background(Color.red.opacity(0.1))
-           .cornerRadius(10)
-       }
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Account Deletion Confirmation")
+                .font(.custom("MuseoSansRounded-700", size: 22))
+                .foregroundColor(.red)
+            
+            Text("For your security, we need to re-authenticate your account before proceeding with deletion. Please enter your phone number to receive a verification code.")
+                .font(.custom("MuseoSansRounded-500", size: 16))
+                .foregroundColor(.gray)
+        }
+        .padding()
+        .background(Color.red.opacity(0.1))
+        .cornerRadius(10)
+    }
 }

@@ -8,11 +8,12 @@
 
 import Firebase
 import SwiftUI
-
-struct UploadService {
+import FirebaseFirestoreInternal
+class UploadService {
     static let shared = UploadService() // Singleton instance
     private init() {}
-    
+    @Published var newestPost: Post? = nil
+
     func uploadPost(
             mixedMediaItems: [MixedMediaItem]?,
             mediaType: MediaType,
@@ -26,22 +27,39 @@ struct UploadService {
             foodRating: Double?,
             taggedUsers: [PostUser],
             captionMentions: [PostUser],
-            thumbnailImage: UIImage?
+            thumbnailImage: UIImage?,
+            progressHandler: @escaping (Double) -> Void
         ) async throws -> Post {
             let user = try await UserService.shared.fetchCurrentUser()
             let ref = FirestoreConstants.PostsCollection.document()
             
             var thumbnailUrl = ""
+            var currentProgress = 0.0
+            let totalProgressSteps = 2.0 // Assuming two main steps: uploading thumbnail and uploading post data
+            
+            // Step 1: Upload Thumbnail Image
             if let thumbnailImage = thumbnailImage {
                 // Use the provided thumbnail image
-                thumbnailUrl = try await ImageUploader.uploadImage(image: thumbnailImage, type: .post) ?? ""
+                thumbnailUrl = try await ImageUploader.uploadImage(image: thumbnailImage, type: .post, progressHandler: { progress in
+                    let overallProgress = (progress / totalProgressSteps)
+                    progressHandler(overallProgress)
+                }) ?? ""
+                currentProgress += 1.0 / totalProgressSteps
             } else if let firstItem = mixedMediaItems?.first {
                 thumbnailUrl = firstItem.url
                 if firstItem.type == .video {
-                    thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl)
+                    thumbnailUrl = try await updateThumbnailUrl(fromVideoUrl: thumbnailUrl, progressHandler: { progress in
+                        let overallProgress = (progress / totalProgressSteps)
+                        progressHandler(overallProgress)
+                    })
+                    currentProgress += 1.0 / totalProgressSteps
                 }
+            } else {
+                // No thumbnail to upload
+                currentProgress += 1.0 / totalProgressSteps
             }
-
+            
+            // Step 2: Upload Post Data to Firestore
             let post = Post(
                 id: ref.documentID,
                 mediaType: mediaType,
@@ -75,28 +93,33 @@ struct UploadService {
             }
 
             try await ref.setData(postData)
-            print("Post created successfully")
+            
+            // Update progress after uploading post data
+            currentProgress += 1.0 / totalProgressSteps
+            progressHandler(currentProgress)
+            
+            newestPost = post
             return post
         }
-    
-    func updateThumbnailUrl(fromVideoUrl videoUrl: String) async throws -> String{
-        guard let image = MediaHelpers.generateThumbnail(path: videoUrl) else {
-            throw UploadError.thumbnailGenerationFailed
+        
+        func updateThumbnailUrl(fromVideoUrl videoUrl: String, progressHandler: @escaping (Double) -> Void) async throws -> String {
+            guard let image = MediaHelpers.generateThumbnail(path: videoUrl) else {
+                throw UploadError.thumbnailGenerationFailed
+            }
+            guard let thumbnailUrl = try await ImageUploader.uploadImage(image: image, type: .post, progressHandler: progressHandler) else {
+                throw UploadError.imageUploadFailed
+            }
+            return thumbnailUrl
         }
-        guard let thumbnailUrl = try await ImageUploader.uploadImage(image: image, type: .post) else {
-            throw UploadError.imageUploadFailed
-        }
-//        try await FirestoreConstants.PostsCollection.document(postId).updateData([
-//            "thumbnailUrl": thumbnailUrl
-//        ])
-        return thumbnailUrl
-    }
     func createPostRestaurant(from restaurant: Restaurant) -> PostRestaurant {
         return PostRestaurant(
             id: restaurant.id,
             name: restaurant.name,
             geoPoint: restaurant.geoPoint,
             geoHash: restaurant.geoHash,
+            truncatedGeohash: restaurant.geoHash.flatMap { String($0.prefix(4)) },
+            truncatedGeohash5: restaurant.geoHash.flatMap { String($0.prefix(5)) },
+            truncatedGeohash6: restaurant.geoHash.flatMap { String($0.prefix(6)) },
             address: restaurant.address,
             city: restaurant.city,
             state: restaurant.state,
@@ -132,19 +155,32 @@ struct ImageUploader {
     ///   - image: UIIMage to be uploaded
     ///   - type: File type that is to be uploaded (ex. "MP4")
     /// - Returns: Success: Download URL string, Failure: throws and returns nil
-    static func uploadImage(image: UIImage, type: UploadType) async throws -> String? {
-        guard let imageData = image.jpegData(compressionQuality: 0.5) else { return nil }
-        let ref = type.filePath
-        
-        do {
-            let _ = try await ref.putDataAsync(imageData)
-            let url = try await ref.downloadURL()
-            return url.absoluteString
-        } catch {
-            print("DEBUG: Failed to upload image \(error.localizedDescription)")
-            return nil
+    static func uploadImage(image: UIImage, type: UploadType, progressHandler: @escaping (Double) -> Void) async throws -> String? {
+            guard let imageData = image.jpegData(compressionQuality: 0.5) else { return nil }
+            let ref = type.filePath
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let uploadTask = ref.putData(imageData, metadata: nil) { metadata, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        ref.downloadURL { url, error in
+                            if let error = error {
+                                continuation.resume(throwing: error)
+                            } else if let url = url {
+                                continuation.resume(returning: url.absoluteString)
+                            }
+                        }
+                    }
+                }
+                
+                uploadTask.observe(.progress) { snapshot in
+                    let percentComplete = 100.0 * Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
+                    progressHandler(percentComplete)
+                }
+            }
         }
-    }
+    
     //MARK: deleteImage
     /// Deletes an image from firestore
     /// - Parameter urlString: download url of where the image can be found on firebase
@@ -168,22 +204,35 @@ struct VideoUploader {
     /// Uploads a video to storeage
     /// - Parameter url: url reference of the video to be uploaded to firebase
     /// - Returns: download url from firebase as a String
-    static func uploadVideoToStorage(withUrl url: URL) async throws -> String? {
-        let filename = NSUUID().uuidString
-        let ref = Storage.storage().reference(withPath: "/post_videos/").child(filename)
-        let metadata = StorageMetadata()
-        metadata.contentType = "video/quicktime"
-        
-        do {
+    static func uploadVideoToStorage(withUrl url: URL, progressHandler: @escaping (Double) -> Void) async throws -> String? {
+            let filename = NSUUID().uuidString
+            let ref = Storage.storage().reference(withPath: "/post_videos/").child(filename)
+            let metadata = StorageMetadata()
+            metadata.contentType = "video/quicktime"
+            
             let data = try Data(contentsOf: url)
-            let _ = try await ref.putDataAsync(data, metadata: metadata)
-            let url = try await ref.downloadURL()
-            return url.absoluteString
-        } catch {
-            print("DEBUG: Failed to upload video with error: \(error.localizedDescription)")
-            throw error
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let uploadTask = ref.putData(data, metadata: metadata) { metadata, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        ref.downloadURL { url, error in
+                            if let error = error {
+                                continuation.resume(throwing: error)
+                            } else if let url = url {
+                                continuation.resume(returning: url.absoluteString)
+                            }
+                        }
+                    }
+                }
+                
+                uploadTask.observe(.progress) { snapshot in
+                    let percentComplete = 100.0 * Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
+                    progressHandler(percentComplete)
+                }
+            }
         }
-    }
     //MARK: deleteVideo
     /// deletes a video from Firebase
     /// - Parameter urlString: string URL of the video that is to be deleted

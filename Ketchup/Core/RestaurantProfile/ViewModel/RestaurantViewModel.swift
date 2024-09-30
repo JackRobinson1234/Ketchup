@@ -7,6 +7,8 @@
 
 import AVFoundation
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestoreInternal
 
 @MainActor
 class RestaurantViewModel: ObservableObject {
@@ -23,62 +25,55 @@ class RestaurantViewModel: ObservableObject {
     @Published var atmosphereRating: Double?
     @Published var valueRating: Double?
     @Published var serviceRating: Double?
-    
+    @Published var friendsWhoPosted: [PostUser] = []
+    @Published var scrollTarget: String? = nil
     init(restaurantId: String) {
         self.restaurantId = restaurantId
         // DEBUG: see if you can delete this
     }
     func fetchRestaurant(id: String) async throws {
-        print("ATTEMPTED ID", id)
+        //print("ATTEMPTED ID", id)
         if self.restaurant == nil {
             do {
                 self.restaurant = try await RestaurantService.shared.fetchRestaurant(withId: id)
-                print("DEBUG: Fetched restaurant: \(String(describing: self.restaurant))")
+                //print("DEBUG: Fetched restaurant: \(String(describing: self.restaurant))")
                 if let restaurant = self.restaurant {
-                    print("DEBUG: Restaurant ratingStats: \(String(describing: restaurant.ratingStats))")
+                    //print("DEBUG: Restaurant ratingStats: \(String(describing: restaurant.ratingStats))")
                     calculateRatings(from: restaurant.ratingStats)
                 } else {
-                    print("DEBUG: Restaurant is nil after fetching")
+                    //print("DEBUG: Restaurant is nil after fetching")
                 }
             } catch {
-                print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
+                //print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
             }
         } else {
-            print("DEBUG: Restaurant already exists, not fetching")
+            //print("DEBUG: Restaurant already exists, not fetching")
         }
     }
-
-    private func calculateRatings(from ratingStats: RatingStats?) {
+    
+    func calculateRatings(from ratingStats: RatingStats?) {
         print("DEBUG: Calculating ratings from: \(String(describing: ratingStats))")
         guard let ratingStats = ratingStats else {
             print("DEBUG: RatingStats is nil")
             return
         }
         
-        self.foodRating = calculateAverageRating(ratingStats.food)
-        self.atmosphereRating = calculateAverageRating(ratingStats.atmosphere)
-        self.valueRating = calculateAverageRating(ratingStats.value)
-        self.serviceRating = calculateAverageRating(ratingStats.service)
+        self.foodRating = ratingStats.food?.average?.rounded(to: 1)
+        self.atmosphereRating = ratingStats.atmosphere?.average?.rounded(to: 1)
+        self.valueRating = ratingStats.value?.average?.rounded(to: 1)
+        self.serviceRating = ratingStats.service?.average?.rounded(to: 1)
         
         // Calculate overall rating
         var totalSum = 0.0
         var totalCount = 0
         
-        if let food = ratingStats.food, let foodSum = food.sum, let foodCount = food.totalCount {
-            totalSum += foodSum
-            totalCount += foodCount
-        }
-        if let atmosphere = ratingStats.atmosphere, let atmosphereSum = atmosphere.sum, let atmosphereCount = atmosphere.totalCount {
-            totalSum += atmosphereSum
-            totalCount += atmosphereCount
-        }
-        if let value = ratingStats.value, let valueSum = value.sum, let valueCount = value.totalCount {
-            totalSum += valueSum
-            totalCount += valueCount
-        }
-        if let service = ratingStats.service, let serviceSum = service.sum, let serviceCount = service.totalCount {
-            totalSum += serviceSum
-            totalCount += serviceCount
+        let categories = [ratingStats.food, ratingStats.atmosphere, ratingStats.value, ratingStats.service]
+        
+        for category in categories {
+            if let average = category?.average, let count = category?.totalCount {
+                totalSum += average * Double(count)
+                totalCount += count
+            }
         }
         
         if totalCount > 0 {
@@ -89,17 +84,8 @@ class RestaurantViewModel: ObservableObject {
         
         print("DEBUG: Calculated ratings - Overall: \(String(describing: overallRating)), Food: \(String(describing: foodRating)), Atmosphere: \(String(describing: atmosphereRating)), Value: \(String(describing: valueRating)), Service: \(String(describing: serviceRating))")
     }
+    
 
-    private func calculateAverageRating(_ category: RatingCategory?) -> Double? {
-        guard let category = category,
-              let totalCount = category.totalCount,
-              totalCount > 0,
-              let sum = category.sum else {
-            return nil
-        }
-        
-        return (sum / Double(totalCount)).rounded(to: 1)
-    }
     
     func fetchRestaurantCollections() async throws{
         if let restaurant = restaurant{
@@ -107,27 +93,56 @@ class RestaurantViewModel: ObservableObject {
         }
     }
     func checkBookmarkStatus() async {
-                guard let restaurant = restaurant else { return }
-                do {
-                    isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
-                } catch {
-                    print("Error checking bookmark status: \(error.localizedDescription)")
-                }
+        guard let restaurant = restaurant else { return }
+        do {
+            isBookmarked = try await RestaurantService.shared.isBookmarked(restaurant.id)
+        } catch {
+            //print("Error checking bookmark status: \(error.localizedDescription)")
+        }
+    }
+    
+    func toggleBookmark() async {
+        guard let restaurant = restaurant else { return }
+        do {
+            if isBookmarked {
+                try await RestaurantService.shared.removeBookmark(for: restaurant.id)
+            } else {
+                try await RestaurantService.shared.createBookmark(for: restaurant)
             }
-
-            func toggleBookmark() async {
-                guard let restaurant = restaurant else { return }
-                do {
-                    if isBookmarked {
-                        try await RestaurantService.shared.removeBookmark(for: restaurant.id)
-                    } else {
-                        try await RestaurantService.shared.createBookmark(for: restaurant)
-                    }
-                    isBookmarked.toggle()
-                } catch {
-                    print("Error toggling bookmark: \(error.localizedDescription)")
+            isBookmarked.toggle()
+        } catch {
+            //print("Error toggling bookmark: \(error.localizedDescription)")
+        }
+    }
+    func fetchFriendsWhoPosted() async {
+        guard let currentUserID = Auth.auth().currentUser?.uid,
+              let restaurant = restaurant else { return }
+        
+        do {
+            let followingPostsRef = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
+            let query = followingPostsRef
+                .whereField("restaurant.id", isEqualTo: restaurant.id)
+            
+            let snapshot = try await query.getDocuments()
+            
+            let users = snapshot.documents.compactMap { document -> PostUser? in
+                let data = document.data()
+                guard let userDict = data["user"] as? [String: Any],
+                      let id = userDict["id"] as? String,
+                      let fullname = userDict["fullname"] as? String,
+                      let username = userDict["username"] as? String,
+                      let privateMode = userDict["privateMode"] as? Bool else {
+                    return nil
                 }
+                let profileImageUrl = userDict["profileImageUrl"] as? String
+                return PostUser(id: id, fullname: fullname, profileImageUrl: profileImageUrl, privateMode: privateMode, username: username)
             }
+            
+            self.friendsWhoPosted = Array(Set(users))  // Remove duplicates
+        } catch {
+            //print("Error fetching friends who posted: \(error.localizedDescription)")
+        }
+    }
 }
 // MARK: - Posts
 
