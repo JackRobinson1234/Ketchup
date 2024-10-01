@@ -207,14 +207,7 @@ struct ProfileView: View {
                         .onTapGesture {
                             showZoomedProfileImage = false
                         }
-                    VStack {
-                        Spacer()
-                        UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
-                            .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.width * 0.8)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .onTapGesture {
-                                showZoomedProfileImage = false
-                            }
+                    
                         VStack {
                             Spacer()
                             UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
@@ -226,7 +219,7 @@ struct ProfileView: View {
                             Spacer()
                         }
                     }
-                }
+                
             }
         }
     }

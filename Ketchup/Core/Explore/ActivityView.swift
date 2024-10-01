@@ -30,7 +30,7 @@ struct ActivityView: View {
     @StateObject private var pollViewModel = PollViewModel()
     @State private var currentTabHeight: CGFloat = 650
     @State private var selectedPollIndex: Int = 0
-    
+    @StateObject var feedViewModel = FeedViewModel()
     enum Tab {
         case discover
         case leaderboards
@@ -82,7 +82,7 @@ struct ActivityView: View {
                         VStack(spacing: 10) {
                             TabView(selection: $selectedPollIndex) {
                                 ForEach(pollViewModel.polls.indices, id: \.self) { index in
-                                    PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel)
+                                    PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel, feedViewModel: feedViewModel)
                                         .background(
                                             GeometryReader { geometry in
                                                 Color.clear

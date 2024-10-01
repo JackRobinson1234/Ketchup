@@ -15,16 +15,19 @@ struct PollView: View {
     @State private var showChangeVoteAlert = false
     @State private var showExpiredPollAlert = false
     @State private var selectedOptionForChange: PollOption?
-    
+    @ObservedObject var feedViewModel: FeedViewModel
     @Binding var poll: Poll
+    @State private var showFriendsVotes = false
+    
     var isPreview: Bool = false
     var selectedImage: UIImage?
     
-    init(poll: Binding<Poll>, selectedImage: UIImage? = nil, isPreview: Bool = false, pollViewModel: PollViewModel) {
+    init(poll: Binding<Poll>, selectedImage: UIImage? = nil, isPreview: Bool = false, pollViewModel: PollViewModel, feedViewModel: FeedViewModel) {
         self._poll = poll
         self.pollViewModel = pollViewModel
         self.isPreview = isPreview
         self.selectedImage = selectedImage
+        self.feedViewModel = feedViewModel
     }
     
     
@@ -103,6 +106,7 @@ struct PollView: View {
                         let hasVotedInfo = pollViewModel.hasUserVotedPolls[poll.id]
                         let hasVoted = hasVotedInfo?.hasVoted ?? false
                         let userVotedOptionId = hasVotedInfo?.optionId
+                        let friendVotes = pollViewModel.friendVotes[poll.id]?[option.id] ?? []
                         
                         PollOptionView(
                             option: option,
@@ -111,6 +115,7 @@ struct PollView: View {
                             hasVoted: hasVoted,
                             isPreview: isPreview,
                             isActive: poll.isActive,
+                            friendVotes: friendVotes,
                             action: {
                                 triggerHapticFeedback()
                                 selectOption(option)
@@ -119,18 +124,23 @@ struct PollView: View {
                     }
                     
                     if !isPreview {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 6) {
                             // Interaction buttons and expiration info
                             HStack {
                                 let hasVotedInfo = pollViewModel.hasUserVotedPolls[poll.id]
                                 let hasVoted = hasVotedInfo?.hasVoted ?? false
                                 
                                 if hasVoted {
-                                    Text("Total votes: \(poll.totalVotes)")
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .foregroundColor(.secondary)
-                                } else {
-                                    Text("Vote to see results")
+                                    HStack(spacing: 8) {
+                                        Text("Total votes: \(poll.totalVotes)")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .foregroundColor(.secondary)
+                                        
+                                        // Check if there are any friends' votes
+                                        
+                                    }
+                                } else if poll.isActive {
+                                    Text("Vote to see results & friends votes")
                                         .font(.custom("MuseoSansRounded-300", size: 16))
                                         .foregroundColor(.secondary)
                                 }
@@ -143,9 +153,18 @@ struct PollView: View {
                                 }
                             }
                             .padding(.horizontal)
-                            
+                            if let friendsVotes = pollViewModel.friendVotes[poll.id], !friendsVotes.isEmpty {
+                                Button(action: {
+                                    showFriendsVotes.toggle()
+                                }) {
+                                    Text("See friends' votes")
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .foregroundColor(Color("Colors/AccentColor"))
+                                }
+                                .padding(.horizontal)
+                            }
                             // New live status indicator
-                            HStack (spacing: 1){
+                            HStack (spacing: 2){
                                 if poll.isActive {
                                     Text("LIVE")
                                         .font(.custom("MuseoSansRounded-700", size: 12))
@@ -166,17 +185,32 @@ struct PollView: View {
                 }
                 .padding(.vertical)
             }
+            .sheet(isPresented: $showFriendsVotes) {
+                           FriendVotesListView(poll: poll, friendVotes: pollViewModel.friendVotes[poll.id] ?? [:])
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
+
+                       }
             .background(Color.white)
             .cornerRadius(15)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
             .sheet(isPresented: $showComments) {
                 CommentsView(
                     commentable: $poll,
-                    feedViewModel: FeedViewModel()
+                    feedViewModel: feedViewModel
                 )
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
             }
         }
+        .onAppear {
+            if pollViewModel.hasUserVotedPolls[poll.id]?.hasVoted == true || !poll.isActive {
+                pollViewModel.fetchFriendsVotes(for: poll)
+            }
+            if feedViewModel.selectedCommentId != nil {
+                showComments = true
+            }
+        }
+        
+        
         .padding(.horizontal)
         .alert("Change Vote?", isPresented: $showChangeVoteAlert, presenting: selectedOptionForChange) { option in
             Button("Cancel", role: .cancel) { }
@@ -193,6 +227,7 @@ struct PollView: View {
         } message: {
             Text("This poll expired 😢, you can still comment and make sure to vote in future polls!")
         }
+        
     }
     
     // Helper functions
@@ -227,13 +262,10 @@ struct PollView: View {
         } else {
             Task {
                 await pollViewModel.voteForOption(option.id, in: poll)
+                // Fetch friends' votes after voting
+                pollViewModel.fetchFriendsVotes(for: poll)
             }
         }
-    }
-    
-    private func triggerHapticFeedback() {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
     }
 }
 
@@ -244,52 +276,122 @@ struct PollOptionView: View {
     let hasVoted: Bool
     let isPreview: Bool
     let isActive: Bool
-    
+    let friendVotes: [PostUser]
     let action: () -> Void
+    private let profileImageSize: CGFloat = 24
+    private let profileImageOverlap: CGFloat = 12
     
     var body: some View {
-        Button(action: action) {
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Background percentage bar
-                    if hasVoted && !isPreview {
-                        Rectangle()
-                            .fill(Color("Colors/AccentColor").opacity(0.4))
-                            .frame(width: geometry.size.width * CGFloat(calculatePercentage()) / 100)
-                    }
-                    
-                    // Content
-                    HStack {
-                        Text(option.text.isEmpty ? "Option" : option.text)
-                            .foregroundColor(.primary)
-                            .font(.custom("MuseoSansRounded-500", size: 16))
-                        
-                        Spacer()
-                        
-                        if hasVoted && !isPreview {
-                            Text("\(calculatePercentage())%")
-                                .foregroundColor(.secondary)
-                                .font(.custom("MuseoSansRounded-500", size: 16))
+        VStack(alignment: .leading, spacing: 4) {
+            Button(action: action) {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background percentage bar
+                        if (hasVoted || !isActive) && !isPreview {
+                            Rectangle()
+                                .fill(Color("Colors/AccentColor").opacity(0.4))
+                                .frame(width: geometry.size.width * CGFloat(calculatePercentage()) / 100)
                         }
+                        
+                        // Content
+                        HStack {
+                            VStack{
+                                Text(option.text.isEmpty ? "Option" : option.text)
+                                    .foregroundColor(.primary)
+                                    .font(.custom("MuseoSansRounded-500", size: 16))
+                                
+                            }
+                            
+                            Spacer()
+                            HStack{
+                                if (!isActive || hasVoted) && !friendVotes.isEmpty {
+                                    
+                                    HStack(spacing: -5) {
+                                        ForEach(friendVotes.prefix(5), id: \.id) { user in
+                                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
+                                        }
+                                        if friendVotes.count > 5 {
+                                            Text("+\(friendVotes.count - 5)")
+                                                .font(.custom("MuseoSansRounded-500", size: 14))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                    
+                                }
+                                
+                                if (hasVoted || !isActive) && !isPreview {
+                                    Text("\(calculatePercentage())%")
+                                        .foregroundColor(.secondary)
+                                        .font(.custom("MuseoSansRounded-500", size: 16))
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(height: 50)
+                .background(isSelected ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke((isSelected && (hasVoted || isActive)) ? Color("Colors/AccentColor") : Color.clear, lineWidth: 2)
+                )
             }
-            .frame(height: 50)  // Fixed height for consistency
-            .background(isSelected ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1))
-            .cornerRadius(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color("Colors/AccentColor") : Color.clear, lineWidth: 2)
-            )
+            .disabled(isPreview)
+            .padding(.horizontal)
+            
+            // Display friends' profile images with label
         }
-        .disabled(isPreview)
-        .padding(.horizontal)
     }
     
     private func calculatePercentage() -> Int {
         guard totalVotes > 0 else { return 0 }
         return Int((Double(option.voteCount) / Double(totalVotes)) * 100)
+    }
+}
+struct FriendVotesListView: View {
+    let poll: Poll
+    let friendVotes: [String: [PostUser]]
+    @State var selectedUser: PostUser?
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(poll.options) { option in
+                    ForEach(friendVotes[option.id] ?? [], id: \.id) { friend in
+                        Button{
+                            selectedUser = friend
+                        } label: {
+                            HStack {
+                                UserCircularProfileImageView(profileImageUrl: friend.profileImageUrl, size: .medium)
+                                
+                                VStack(alignment: .leading) {
+                                    Text(friend.fullname)
+                                        .font(.headline)
+                                    Text("@\(friend.username)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                Text(option.text)
+                                    .font(.subheadline)
+                                    .foregroundColor(Color("Colors/AccentColor"))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            }
+                        }
+                    }
+                }
+            }
+            .listStyle(PlainListStyle())
+                .fullScreenCover(item: $selectedUser) { user in
+                    NavigationStack{
+                        ProfileView(uid: user.id)
+                    }
+                }
+            .navigationTitle("Friends who voted")
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }

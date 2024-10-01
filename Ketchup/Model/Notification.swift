@@ -12,6 +12,7 @@ import FirebaseFirestoreInternal
 struct Notification: Identifiable, Codable {
     let id: String
     var postId: String?
+    var pollId: String?
     let timestamp: Timestamp
     let type: NotificationType
     let uid: String

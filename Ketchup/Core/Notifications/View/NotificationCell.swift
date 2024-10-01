@@ -6,6 +6,8 @@
 //
 import SwiftUI
 import Kingfisher
+import Combine
+import Foundation
 
 struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationsViewModel
@@ -21,13 +23,20 @@ struct NotificationCell: View {
     @State private var inviteStatus: InviteStatus
     @State private var showRejectAlert: Bool = false
 
-    init(viewModel: NotificationsViewModel, notification: Notification, feedViewModel: FeedViewModel, collectionsViewModel: CollectionsViewModel) {
-        self.viewModel = viewModel
-        self.notification = notification
-        self.feedViewModel = feedViewModel
-        self.collectionsViewModel = collectionsViewModel
-        self._inviteStatus = State(initialValue: notification.inviteStatus ?? .pending)
-    }
+    // New state variables for Poll
+    @State private var showPoll: Bool = false
+    @State private var poll: Poll?
+    @ObservedObject var pollViewModel: PollViewModel  // Add this line
+
+        init(viewModel: NotificationsViewModel, notification: Notification, feedViewModel: FeedViewModel, collectionsViewModel: CollectionsViewModel, pollViewModel: PollViewModel) {
+            self.viewModel = viewModel
+            self.notification = notification
+            self.feedViewModel = feedViewModel
+            self.collectionsViewModel = collectionsViewModel
+            self.pollViewModel = pollViewModel  // Initialize here
+            self._inviteStatus = State(initialValue: notification.inviteStatus ?? .pending)
+        }
+
     var body: some View {
         HStack(spacing: 12) {
             Button(action: {
@@ -35,14 +44,14 @@ struct NotificationCell: View {
             }) {
                 UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 notificationContent
                 timestampText
             }
-            
+
             Spacer()
-            
+
             actionButton
         }
         .padding(.vertical, 8)
@@ -51,6 +60,12 @@ struct NotificationCell: View {
         .onAppear{
             checkFollowStatus()
             checkInviteStatus()
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { showPoll  },
+            set: { showPoll = $0 }
+        ))  {
+            pollDetailView
         }
         .fullScreenCover(isPresented: Binding(
             get: { showUserProfile  },
@@ -80,16 +95,18 @@ struct NotificationCell: View {
                     collectionsViewModel.selectedCollection = nil
                 }
         }
+        // New fullScreenCover for Poll view
+       
         .alert("Reject Invitation", isPresented: $showRejectAlert) {
-                    Button("Cancel", role: .cancel) { }
-                    Button("Reject", role: .destructive) {
-                        rejectInvite()
-                    }
-                } message: {
-                    Text("Are you sure you want to reject the invitation to collaborate on '\(notification.text ?? "this collection")'? This action cannot be undone.")
-                }
+            Button("Cancel", role: .cancel) { }
+            Button("Reject", role: .destructive) {
+                rejectInvite()
+            }
+        } message: {
+            Text("Are you sure you want to reject the invitation to collaborate on '\(notification.text ?? "this collection")'? This action cannot be undone.")
+        }
     }
-    
+
     private var notificationContent: some View {
         Button {
             handleNotificationTap()
@@ -100,6 +117,7 @@ struct NotificationCell: View {
                 .multilineTextAlignment(.leading)
         }
     }
+
     private func checkInviteStatus() {
         Task {
             if let collectionId = notification.collectionId {
@@ -107,12 +125,13 @@ struct NotificationCell: View {
             }
         }
     }
+
     private var fullNotificationMessage: AttributedString {
         let username = notification.user?.username ?? ""
         let message = generateMessage(for: notification)
         let additionalText = shouldAppendAdditionalText(notification) ? (notification.text ?? "") : ""
         let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
-        
+
         var result = AttributedString(fullText)
         result.font = .custom("MuseoSansRounded-300", size: 14)
         result.foregroundColor = .black
@@ -146,7 +165,40 @@ struct NotificationCell: View {
             return notification.type.notificationMessage
         }
     }
-
+    @ViewBuilder
+    private var pollDetailView: some View {
+        NavigationStack {
+            if let pollIndex = pollViewModel.polls.firstIndex(where: { $0.id == poll?.id }),
+               let poll = pollViewModel.polls[safe: pollIndex] {
+                PollView(
+                    poll: Binding<Poll>(
+                        get: { poll },
+                        set: { pollViewModel.polls[pollIndex] = $0 }
+                    ),
+                    pollViewModel: pollViewModel,
+                    feedViewModel: feedViewModel
+                )
+                .navigationBarItems(leading: Button("Close") {
+                    showPoll = false
+                })
+            } else if let poll = poll {
+                // If poll is not in the polls array yet
+                PollView(
+                    poll: .constant(poll),
+                    pollViewModel: pollViewModel,
+                    feedViewModel: feedViewModel
+                )
+                .navigationBarItems(leading: Button("Close") {
+                    showPoll = false
+                })
+            } else {
+                Text("Poll not found")
+                    .onAppear {
+                        showPoll = false
+                    }
+            }
+        }
+    }
     private func shouldAppendAdditionalText(_ notification: Notification) -> Bool {
         return ![.postWentWithMention, .newCollectionItem, .welcomeReferral, .newReferral].contains(notification.type)
     }
@@ -169,26 +221,26 @@ struct NotificationCell: View {
         if let regex = try? NSRegularExpression(pattern: pattern) {
             let nsRange = NSRange(fullText.startIndex..., in: fullText)
             let matches = regex.matches(in: fullText, range: nsRange)
-            
+
             for match in matches {
                 guard let range = Range(match.range, in: fullText),
                       let attributedRange = Range(range, in: result) else { continue }
-                
+
                 let matchedUsername = String(fullText[range].dropFirst())
-                
+
                 if matchedUsername != username {
                     result[attributedRange].foregroundColor = Color("Colors/AccentColor")
                 }
             }
         }
     }
-    
+
     private var timestampText: some View {
         Text(notification.timestamp.timestampString())
             .foregroundColor(.gray)
             .font(.custom("MuseoSansRounded-300", size: 12))
     }
-    
+
     @ViewBuilder
     private var actionButton: some View {
         switch notification.type {
@@ -206,7 +258,7 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private var followButton: some View {
         Button(action: handleFollowAction) {
             Text(isFollowed ? "Following" : "Follow")
@@ -223,7 +275,7 @@ struct NotificationCell: View {
                 )
         }
     }
-    
+
     private func postThumbnailButton(_ thumbnail: String) -> some View {
         Button(action: handlePostThumbnailTap) {
             KFImage(URL(string: thumbnail))
@@ -233,13 +285,13 @@ struct NotificationCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         }
     }
-    
+
     private func collectionButton(_ thumbnail: [String]) -> some View {
         Button(action: handleCollectionTap) {
             CollageImage(tempImageUrls: thumbnail, width: 44)
         }
     }
-    
+
     private var inviteActionButtons: some View {
         Group {
             switch inviteStatus {
@@ -249,7 +301,7 @@ struct NotificationCell: View {
                         Image(systemName: "checkmark")
                             .foregroundColor(.green)
                     }
-                    Button(action: { showRejectAlert = true }) {  // Updated to show alert
+                    Button(action: { showRejectAlert = true }) {
                         Image(systemName: "x.circle")
                             .foregroundColor(.red)
                     }
@@ -265,7 +317,7 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private func checkFollowStatus() {
         if notification.type == .follow || notification.type == .newUser || notification.type == .welcomeReferral || notification.type == .newReferral {
             Task {
@@ -273,13 +325,15 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private func handleNotificationTap() {
         switch notification.type {
         case .collectionInvite, .collectionInviteAccepted, .newCollectionItem:
             handleCollectionTap()
         default:
-            if let postId = notification.postId {
+            if let pollId = notification.pollId {
+                fetchPoll(pollId: pollId)
+            } else if let postId = notification.postId {
                 fetchPost(postId: postId)
             } else if let restaurantId = notification.restaurantId {
                 self.selectedRestaurantId = restaurantId
@@ -289,14 +343,14 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private func handleFollowAction() {
         Task {
             isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId: notification.uid)
             self.isFollowed.toggle()
         }
     }
-    
+
     private func handleCollectionTap() {
         if let collectionId = notification.collectionId {
             Task {
@@ -304,18 +358,16 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private func handlePostThumbnailTap() {
         if let postId = notification.postId {
             fetchPost(postId: postId)
         }
     }
-    
+
     private func fetchPost(postId: String) {
         Task {
-            //print("Fetching post with ID \(postId)")
             self.post = try await PostService.shared.fetchPost(postId: postId)
-            //print("Fetched post: \(String(describing: self.post))")
             if let post = self.post {
                 feedViewModel.posts = [post]
             }
@@ -325,7 +377,24 @@ struct NotificationCell: View {
             showPost = true
         }
     }
-    
+
+    // New function to fetch the poll
+    private func fetchPoll(pollId: String) {
+        Task {
+            do {
+                if let poll = try await pollViewModel.fetchPoll(withId: pollId) {
+                    self.poll = poll
+                    self.showPoll = true
+                    if let commentId = notification.commentId {
+                        feedViewModel.selectedCommentId = commentId
+                    }
+                }
+                
+            } catch {
+                print("Failed to fetch poll: \(error.localizedDescription)")
+            }
+        }
+    }
     private func acceptInvite() {
         Task {
             if let collectionId = notification.collectionId {
@@ -334,7 +403,7 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     private func rejectInvite() {
         Task {
             if let collectionId = notification.collectionId {
@@ -343,17 +412,16 @@ struct NotificationCell: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var restaurantProfileView: some View {
         NavigationStack {
             if let selectedRestaurantId = selectedRestaurantId {
-                let _ = //print("Showing RestaurantProfileView for \(selectedRestaurantId)")
                 RestaurantProfileView(restaurantId: selectedRestaurantId)
             }
         }
     }
-    
+
     @ViewBuilder
     private var postView: some View {
         NavigationStack {
@@ -384,5 +452,10 @@ struct NotificationCell: View {
                 }
             }
         }
+    }
+}
+extension Swift.Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }

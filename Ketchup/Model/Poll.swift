@@ -50,8 +50,9 @@ extension Poll {
 
 struct PollVote: Identifiable, Codable {
     var id: String
+    let pollId: String
     let user: PostUser
-    let optionId: String
+    var optionId: String
     let timestamp: Date
 }
 extension Poll: Commentable {

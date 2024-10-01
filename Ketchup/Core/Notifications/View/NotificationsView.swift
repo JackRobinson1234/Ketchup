@@ -13,7 +13,7 @@ struct NotificationsView: View {
     @State var isDragging = false
     @StateObject var feedViewModel = FeedViewModel()
     @StateObject var collectionsViewModel = CollectionsViewModel()
-    
+    @StateObject var pollViewModel = PollViewModel()
     var drag: some Gesture {
         DragGesture(minimumDistance: 15)
             .onChanged { _ in self.isDragging = true }
@@ -31,7 +31,7 @@ struct NotificationsView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.notifications) { notification in
-                        NotificationCell(viewModel: viewModel, notification: notification, feedViewModel: feedViewModel, collectionsViewModel: collectionsViewModel)
+                        NotificationCell(viewModel: viewModel, notification: notification, feedViewModel: feedViewModel, collectionsViewModel: collectionsViewModel, pollViewModel: pollViewModel)
                             .padding(.top)
                     }
                 }
@@ -43,13 +43,13 @@ struct NotificationsView: View {
                 if viewModel.isLoading {
                     FastCrossfadeFoodImageView()
                 } else if viewModel.showEmptyView {
-//                    if #available(iOS 17, *) {
-//                        
-//                        ContentUnavailableView("No notifications to show", systemImage: "bubble.middle.bottom")
-//                            .foregroundStyle(.gray)
-//                    } else {
-//                        CustomUnavailableView(text: "No notifications to show",image: "bubble.middle.bottom")
-//                    }
+                    if #available(iOS 17, *) {
+                        
+                        ContentUnavailableView("No notifications to show", systemImage: "bubble.middle.bottom")
+                            .foregroundStyle(.gray)
+                    } else {
+                        CustomUnavailableView(text: "No notifications to show",image: "bubble.middle.bottom")
+                    }
                 }
             }
             .navigationDestination(for: User.self, destination: { user in
@@ -88,3 +88,22 @@ struct NotificationsView: View {
         }
     }
 }
+struct CustomUnavailableView: View {
+    let text: String
+    let image: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: image)
+                .font(.system(size: 50))
+                .foregroundColor(.gray)
+
+            Text(text)
+                .font(.headline)
+                .foregroundColor(.gray)
+        }
+        .padding()
+    }
+}
+
+

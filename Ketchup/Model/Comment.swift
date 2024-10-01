@@ -49,6 +49,5 @@ struct Comment: Identifiable, Codable, Equatable, Hashable {
     }
 }
 
-
 // PostUser struct (if not already defined)
 

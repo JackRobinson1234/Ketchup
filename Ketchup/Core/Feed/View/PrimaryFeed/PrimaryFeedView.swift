@@ -376,12 +376,12 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .overlay {
-                    //                    if viewModel.showEmptyView {
-                    //                        VStack {
-                    //                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
-                    //                                .foregroundStyle(Color("Colors/AccentColor"))
-                    //                        }
-                    //                    }
+                                        if viewModel.showEmptyView {
+                                            VStack {
+                                                CustomUnavailableView(text: "No posts to show", image: "eye.slash")
+                                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                            }
+                                        }
                     
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
@@ -492,7 +492,7 @@ struct PrimaryFeedView: View {
                 // Scrolling down
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = true
-                    topBarHeight = 95
+                    topBarHeight = 100
                 }
             }
             lastScrollOffset = scrollOffset

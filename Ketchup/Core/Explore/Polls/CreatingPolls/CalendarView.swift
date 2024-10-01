@@ -92,7 +92,8 @@ struct PollPreviewView: View {
             PollView(
                 poll: .constant(poll),
                 selectedImage: selectedImage,
-                isPreview: true, pollViewModel: PollViewModel()
+                isPreview: true, pollViewModel: PollViewModel(),
+                feedViewModel: FeedViewModel()
             )
             .navigationTitle("Poll Preview")
             .navigationBarTitleDisplayMode(.inline)

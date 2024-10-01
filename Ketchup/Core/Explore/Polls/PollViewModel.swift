@@ -13,7 +13,8 @@ import Firebase
 class PollViewModel: ObservableObject {
     @Published var polls: [Poll] = []
     @Published var hasUserVotedPolls: [String: (hasVoted: Bool, optionId: String?)] = [:]
-    
+    @Published var friendVotes: [String: [String: [PostUser]]] = [:]
+
     private var lastDocumentSnapshot: DocumentSnapshot?
     private var isFetching = false
         private let pageSize = 5
@@ -108,6 +109,7 @@ class PollViewModel: ObservableObject {
                     DispatchQueue.main.async {
                         self.hasUserVotedPolls[poll.id] = (true, vote.optionId)
                     }
+                    self.fetchFriendsVotes(for: poll)
                 } catch {
                     print("Error decoding user vote: \(error.localizedDescription)")
                 }
@@ -146,6 +148,7 @@ class PollViewModel: ObservableObject {
             // Create or update the PollVote object
             let pollVote = PollVote(
                 id: user.id,
+                pollId: poll.id,
                 user: PostUser(
                     id: user.id,
                     fullname: user.fullname,
@@ -212,4 +215,48 @@ class PollViewModel: ObservableObject {
             print("Error updating poll in Firestore: \(error.localizedDescription)")
         }
     }
+    func fetchPoll(withId pollId: String) async throws -> Poll? {
+        let db = Firestore.firestore()
+        let pollRef = db.collection("polls").document(pollId)
+        let poll = try await pollRef.getDocument(as: Poll.self)
+        
+        // Update local polls array if needed
+      
+        return poll
+    }
+    func fetchFriendsVotes(for poll: Poll) {
+        guard let currentUser = AuthService.shared.userSession else { return }
+        let db = Firestore.firestore()
+        let friendsVotesRef = db.collection("users").document(currentUser.id).collection("friend-votes")
+        
+        // Fetch friends' votes for the specific poll
+        friendsVotesRef
+            .whereField("pollId", isEqualTo: poll.id)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching friends' votes: \(error.localizedDescription)")
+                    return
+                }
+                
+                var votesByOption: [String: [PostUser]] = [:]
+                
+                if let documents = snapshot?.documents {
+                    for doc in documents {
+                        if let vote = try? doc.data(as: PollVote.self) {
+                            // Append the friend to the corresponding option
+                            if votesByOption[vote.optionId] != nil {
+                                votesByOption[vote.optionId]?.append(vote.user)
+                            } else {
+                                votesByOption[vote.optionId] = [vote.user]
+                            }
+                        }
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    self.friendVotes[poll.id] = votesByOption
+                }
+            }
+    }
+    
 }
