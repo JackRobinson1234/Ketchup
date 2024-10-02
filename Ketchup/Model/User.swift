@@ -27,13 +27,14 @@ struct User: Codable, Identifiable, Hashable {
     var totalReferrals: Int = 0
     var weeklyStreak: Int = 0
     var mostRecentPost: Date?
+    var pollStreak: Int = 0  // New property
+    var lastVotedPoll: Date?  // New property
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
-    
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak, lastVotedPoll // Added new keys
     }
 
     init(from decoder: Decoder) throws {
@@ -83,6 +84,14 @@ struct User: Codable, Identifiable, Hashable {
         }
         self.hasContactsSynced = try container.decodeIfPresent(Bool.self, forKey: .hasContactsSynced) ?? false
         self.statusImageName = try container.decodeIfPresent(String.self, forKey: .statusImageName) ?? "ADVANCED1"
+        
+        // Decode new properties
+        self.pollStreak = try container.decodeIfPresent(Int.self, forKey: .pollStreak) ?? 0
+        if let lastVotedPollTimestamp = try container.decodeIfPresent(Timestamp.self, forKey: .lastVotedPoll) {
+            self.lastVotedPoll = lastVotedPollTimestamp.dateValue()
+        } else {
+            self.lastVotedPoll = nil
+        }
     }
 
     init(
@@ -105,8 +114,10 @@ struct User: Codable, Identifiable, Hashable {
         totalReferrals: Int = 0,
         weeklyStreak: Int = 0,
         mostRecentPost: Date? = nil,
-        hasContactsSynced: Bool = false, 
-        statusImageName: String? = "ADVANCED1"
+        hasContactsSynced: Bool = false,
+        statusImageName: String? = "ADVANCED1",
+        pollStreak: Int = 0,  // New parameter
+        lastVotedPoll: Date? = nil // New parameter
     ) {
         self.id = id
         self.username = username
@@ -137,6 +148,8 @@ struct User: Codable, Identifiable, Hashable {
         self.mostRecentPost = mostRecentPost
         self.hasContactsSynced = hasContactsSynced
         self.statusImageName = statusImageName
+        self.pollStreak = pollStreak  // Assigning new parameter
+        self.lastVotedPoll = lastVotedPoll  // Assigning new parameter
     }
 
     func encode(to encoder: Encoder) throws {
@@ -179,24 +192,31 @@ struct User: Codable, Identifiable, Hashable {
         }
         try container.encode(hasContactsSynced, forKey: .hasContactsSynced)
         try container.encodeIfPresent(statusImageName, forKey: .statusImageName)
+        
+        // Encode new properties
+        try container.encode(pollStreak, forKey: .pollStreak)
+        if let lastVotedPoll = lastVotedPoll {
+            try container.encode(Timestamp(date: lastVotedPoll), forKey: .lastVotedPoll)
+        }
     }
+
     
     // Add a method to fetch badges from Firestore sub-collection
-        func fetchBadges(completion: @escaping ([Badge]) -> Void) {
-            let db = Firestore.firestore()
-            let badgesRef = db.collection("users").document(self.id).collection("user-badges")
+    func fetchBadges(completion: @escaping ([Badge]) -> Void) {
+        let db = Firestore.firestore()
+        let badgesRef = db.collection("users").document(self.id).collection("user-badges")
 
-            badgesRef.getDocuments { snapshot, error in
-                guard let documents = snapshot?.documents, error == nil else {
-                    completion([])  // Return an empty array if there's an error
-                    return
-                }
-                let badges = documents.compactMap { doc -> Badge? in
-                    try? doc.data(as: Badge.self)
-                }
-                completion(badges)
+        badgesRef.getDocuments { snapshot, error in
+            guard let documents = snapshot?.documents, error == nil else {
+                completion([])  // Return an empty array if there's an error
+                return
             }
+            let badges = documents.compactMap { doc -> Badge? in
+                try? doc.data(as: Badge.self)
+            }
+            completion(badges)
         }
+    }
 }
 
 // Other structs remain unchanged

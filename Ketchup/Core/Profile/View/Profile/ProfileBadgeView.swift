@@ -118,6 +118,7 @@ struct BadgeGridView: View {
                     
                     // Progress bar
                     if let totalProgress = calculateTotalProgress(badge: badge) {
+                        let progress = min(totalProgress, 1)
                         ProgressView(value: totalProgress)
                             .progressViewStyle(LinearProgressViewStyle(tint: totalProgress >= 1.0 ? .green : Color("Colors/AccentColor")))
                             .frame(width: 40, height: 4)

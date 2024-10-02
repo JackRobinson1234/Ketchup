@@ -90,6 +90,9 @@ struct PrimaryFeedView: View {
                                 if viewModel.isInitialLoading {
                                     FastCrossfadeFoodImageView()
                                 } else {
+                                    if isRefreshing{
+                                        FastCrossfadeFoodImageView()
+                                    }
                                     ForEach($viewModel.posts) { $post in
                                         WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                             .id(post.id)

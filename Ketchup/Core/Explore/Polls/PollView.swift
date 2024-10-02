@@ -302,10 +302,11 @@ struct PollOptionView: View {
                         // Content
                         HStack {
                             VStack{
+                                Spacer()
                                 Text(option.text.isEmpty ? "Option" : option.text)
                                     .foregroundColor(.primary)
                                     .font(.custom("MuseoSansRounded-500", size: 16))
-                                
+                                Spacer()
                             }
                             
                             Spacer()
