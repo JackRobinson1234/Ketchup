@@ -36,10 +36,10 @@ struct ProfileHeaderView: View {
                             showZoomedProfileImage.toggle()
                         }
                     
-                    Image(user.statusImageName!)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: frameWidth)
+//                    Image(user.statusImageName!)
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: frameWidth)
                 }
                 
                 VStack(alignment: .leading) {

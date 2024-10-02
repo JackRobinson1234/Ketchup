@@ -30,6 +30,7 @@ struct User: Codable, Identifiable, Hashable {
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
+    
 
     enum CodingKeys: String, CodingKey {
         case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName

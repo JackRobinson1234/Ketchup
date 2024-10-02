@@ -28,7 +28,8 @@ struct Notification: Identifiable, Codable {
     var collectionCoverImage: [String]?
     var inviteStatus: InviteStatus?
     var collectionName: String?
-    
+    var badgeName: String?
+    var newTier: String?
 }
 
 enum NotificationType: Int, Codable {
@@ -49,6 +50,8 @@ enum NotificationType: Int, Codable {
     case newCollectionItem
     case welcomeReferral  // New case for welcome notification to new user
     case newReferral
+    case badgeUpgrade = 17
+
     var notificationMessage: String {
         switch self {
         case .postLike: return " liked one of your posts."
@@ -68,6 +71,7 @@ enum NotificationType: Int, Codable {
         case .newCollectionItem: return " added an item to "
         case .welcomeReferral: return "Welcome to Ketchup! Do you want to follow the person who referred you?"
         case .newReferral: return "mentioned you as a referral!"
+        case .badgeUpgrade: return "Congratulations! You've upgraded your"
 
         }
     }

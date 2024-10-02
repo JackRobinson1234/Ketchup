@@ -177,7 +177,10 @@ struct BadgeDetailView: View {
                         .font(.custom("MuseoSansRounded-300", size: 30))
                         .bold()
                         .opacity(badge.tier == .locked ? 0.10 : 1.0)
+                        .padding(.horizontal)
                 }
+              
+                
                 
                 // Badge image
                 Image(badge.imageName) // Use the image name from your asset catalog
@@ -278,6 +281,7 @@ struct BadgeTypeInfoView: View {
                 .font(.custom("MuseoSansRounded-300", size: 25))
                 .bold()
                 .padding(.bottom, 8)
+                .padding(.horizontal)
 
             // Description
             Text(badgeTypeDescription())

@@ -39,24 +39,34 @@ struct UserCircularProfileImageView: View {
     var profileImageUrl: String?
     let size: ProfileImageSize
     var color: Color? = nil
-    
+    var pinnedBadge: Badge?
     var body: some View {
-        ZStack {
-            if let color = color {
-                Circle()
-                    .fill(color)
-                    .frame(width: size.dimension + 4, height: size.dimension + 4)
+        ZStack(alignment: .bottomTrailing){
+            ZStack {
+                if let color = color {
+                    Circle()
+                        .fill(color)
+                        .frame(width: size.dimension + 4, height: size.dimension + 4)
+                }
+                
+                if let imageUrl = profileImageUrl {
+                    KFImage(URL(string: imageUrl))
+                        .resizable()
+                        .circularProfileStyle(size: size)
+                } else {
+                    
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .circularProfileStyle(size: size)
+                        .foregroundColor(Color(.systemGray5))
+                }
             }
-            
-            if let imageUrl = profileImageUrl {
-                KFImage(URL(string: imageUrl))
+            if let badge = pinnedBadge{
+                Image(badge.imageName)
                     .resizable()
-                    .circularProfileStyle(size: size)
-            } else {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .circularProfileStyle(size: size)
-                    .foregroundColor(Color(.systemGray5))
+                    .scaledToFit()
+                    .frame(width: 23, height: 23) // Adjust the size as needed
+                    .offset(x: 30, y: 5)
             }
         }
     }

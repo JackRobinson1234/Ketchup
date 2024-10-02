@@ -157,9 +157,15 @@ struct PollView: View {
                                 Button(action: {
                                     showFriendsVotes.toggle()
                                 }) {
-                                    Text("See friends' votes")
-                                        .font(.custom("MuseoSansRounded-500", size: 14))
-                                        .foregroundColor(Color("Colors/AccentColor"))
+                                    HStack{
+                                        Text("See friends' votes")
+                                            .font(.custom("MuseoSansRounded-500", size: 14))
+                                            .foregroundColor(Color("Colors/AccentColor"))
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundColor(Color("Colors/AccentColor"))
+
+                                    }
                                 }
                                 .padding(.horizontal)
                             }

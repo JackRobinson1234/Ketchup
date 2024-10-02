@@ -141,15 +141,7 @@ struct SecondaryFeedView: View {
                 ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
-            if viewModel.showPostAlert {
-                SuccessMessageOverlay(text: "Post Uploaded!")
-                    .transition(.opacity)
-                    .onAppear{
-                        Debouncer(delay: 2.0).schedule{
-                            viewModel.showPostAlert = false
-                        }
-                    }
-            }
+           
             if viewModel.showRepostAlert {
                 SuccessMessageOverlay(text: "Reposted!")
                     .transition(.opacity)
@@ -161,21 +153,17 @@ struct SecondaryFeedView: View {
             }
         }
         .onChange(of: scrollPosition) { oldPostId, newPostId in
-            if let oldIndex = viewModel.posts.firstIndex(where: { $0.id == oldPostId }),
-               let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                if newIndex > oldIndex {
-                    viewModel.updateCache(scrollPosition: newPostId)
-                    
-                    if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 { // Load when 5 items from the end
-                        Task {
-                            
-                            await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                            
+                    if let newPostId = newPostId,
+                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+                        viewModel.updateCache(scrollPosition: newPostId)
+                        
+                        if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 {
+                            Task {
+                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
+                            }
                         }
                     }
                 }
-            }
-        }
         
         .background(Color("Colors/HingeGray"))
         .ignoresSafeArea()

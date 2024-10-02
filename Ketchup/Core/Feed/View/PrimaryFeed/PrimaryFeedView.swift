@@ -205,11 +205,11 @@ struct PrimaryFeedView: View {
                                             .padding(.leading, 1)
                                         }
                                     }
-                                        Text("Filter Feed")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundStyle(.gray)
+                                    Text("Filter Feed")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundStyle(.gray)
                                     
-                                   
+                                    
                                 }
                                 .frame(width: 100)
                                 
@@ -276,24 +276,24 @@ struct PrimaryFeedView: View {
                             HStack{
                                 HStack {
                                     
-//                                                                        ZStack(alignment: .bottomTrailing){
-//                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
-//                                                                                pauseVideo = true
-//                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
-//                                                                            }
-//                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-//                                                                                ZStack {
-//                                                                                    Circle()
-//                                                                                        .fill(Color("Colors/AccentColor"))
-//                                                                                        .frame(width: 16, height: 16)
-//                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-//                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
-//                                                                                        .foregroundColor(.white)
-//                                                                                }
-//                                                                                .offset(x: 5, y: 5)
-//                                                                                .padding(.leading, 1)
-//                                                                            }
-//                                                                        }
+                                    //                                                                        ZStack(alignment: .bottomTrailing){
+                                    //                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
+                                    //                                                                                pauseVideo = true
+                                    //                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
+                                    //                                                                            }
+                                    //                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                    //                                                                                ZStack {
+                                    //                                                                                    Circle()
+                                    //                                                                                        .fill(Color("Colors/AccentColor"))
+                                    //                                                                                        .frame(width: 16, height: 16)
+                                    //                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                    //                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                    //                                                                                        .foregroundColor(.white)
+                                    //                                                                                }
+                                    //                                                                                .offset(x: 5, y: 5)
+                                    //                                                                                .padding(.leading, 1)
+                                    //                                                                            }
+                                    //                                                                        }
                                     
                                 }
                                 .padding(.horizontal)
@@ -376,12 +376,12 @@ struct PrimaryFeedView: View {
                     }
                 }
                 .overlay {
-                                        if viewModel.showEmptyView {
-                                            VStack {
-                                                CustomUnavailableView(text: "No posts to show", image: "eye.slash")
-                                                    .foregroundStyle(Color("Colors/AccentColor"))
-                                            }
-                                        }
+                    if viewModel.showEmptyView {
+                        VStack {
+                            CustomUnavailableView(text: "No posts to show", image: "eye.slash")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                        }
+                    }
                     
                     if viewModel.showRepostAlert {
                         SuccessMessageOverlay(text: "Reposted!")
@@ -580,4 +580,3 @@ extension Color {
         )
     }
 }
-

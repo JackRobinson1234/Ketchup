@@ -86,15 +86,11 @@ struct WrittenFeedCell: View {
                 Button(action: {
                     showUserProfile = true
                 }) {
-                    ZStack(alignment: .bottomLeading) {
+                    
                         UserCircularProfileImageView(profileImageUrl: post.user.profileImageUrl, size: .medium)
                         
-                        Image("BETA")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 23, height: 23) // Adjust the size as needed
-                            .offset(x: 30, y: 5)
-                    }
+                       
+                    
                 }
                 .disabled(hideActionButtons)
 

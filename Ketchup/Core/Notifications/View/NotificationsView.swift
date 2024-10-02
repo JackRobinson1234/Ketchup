@@ -94,9 +94,10 @@ struct CustomUnavailableView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: image)
-                .font(.system(size: 50))
-                .foregroundColor(.gray)
+            Image("Skip")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
 
             Text(text)
                 .font(.headline)

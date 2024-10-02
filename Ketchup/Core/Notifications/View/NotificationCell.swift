@@ -161,6 +161,8 @@ struct NotificationCell: View {
             return " added \(notification.text ?? "an item") to \(notification.collectionName ?? "a collection")"
         case .collectionInviteAccepted:
             return " accepted your invitation to collaborate on \(notification.text ?? "a collection")"
+        case .badgeUpgrade:
+            return " \(notification.type.notificationMessage) \(notification.badgeName ?? "new") badge to \(notification.newTier ?? "a new tier")"
         default:
             return notification.type.notificationMessage
         }
@@ -250,6 +252,14 @@ struct NotificationCell: View {
             inviteActionButtons
         case .collectionInviteAccepted:
             collectionButton(notification.collectionCoverImage ?? [])
+        case .badgeUpgrade:
+            if let image = notification.postThumbnail {
+                Image(image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
         default:
             if let postThumbnail = notification.postThumbnail, !postThumbnail.isEmpty {
                 postThumbnailButton(postThumbnail)

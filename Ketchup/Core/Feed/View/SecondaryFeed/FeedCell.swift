@@ -575,8 +575,14 @@ struct FeedCell: View {
     private func handleIndexChange(_ index: Int) {
         pauseAllVideos()
         
-        if post.mediaType == .mixed, let mixedMediaUrls = post.mixedMediaUrls {
-            let safeIndex = min(max(index, 0), mixedMediaUrls.count - 1)
+        switch post.mediaType {
+        case .mixed:
+            guard let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty else {
+                currentlyPlayingVideoId = nil
+                return
+            }
+            
+            let safeIndex = max(0, min(index, mixedMediaUrls.count - 1))
             let mediaItem = mixedMediaUrls[safeIndex]
             
             if mediaItem.type == .video {
@@ -585,16 +591,19 @@ struct FeedCell: View {
             } else {
                 currentlyPlayingVideoId = nil
             }
-        } else if post.mediaType == .video {
+            
+        case .video:
             if let firstVideoId = videoCoordinators.first?.0 {
                 currentlyPlayingVideoId = firstVideoId
                 playVideo(id: firstVideoId)
+            } else {
+                currentlyPlayingVideoId = nil
             }
-        } else {
+            
+        default:
             currentlyPlayingVideoId = nil
         }
     }
-    
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
         ZStack {
             if mediaItem.type == .photo {
