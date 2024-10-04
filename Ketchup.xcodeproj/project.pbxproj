@@ -26,6 +26,7 @@
 		F82EC7432C9249DF00DDA688 /* GeohashKit in Frameworks */ = {isa = PBXBuildFile; productRef = F82EC7422C9249DF00DDA688 /* GeohashKit */; };
 		F82EC7452C939ACA00DDA688 /* RestaurantLeaderboardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */; };
 		F82F29F82C8A6BF500F385C1 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82F29F72C8A6BF500F385C1 /* SafariView.swift */; };
+		F832AD562CADF9EB00A5C7BD /* WelcomeTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832AD552CADF9EB00A5C7BD /* WelcomeTabView.swift */; };
 		F832F97D2BCF73D100EE7336 /* EditCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */; };
 		F832F9822BD3053900EE7336 /* AddItemCollectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */; };
 		F83380F42C28B31F0056C973 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83380F32C28B31E0056C973 /* CustomFont.swift */; };
@@ -338,6 +339,7 @@
 		F82BFF2F2C719C20001F296F /* ContactsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModel.swift; sourceTree = "<group>"; };
 		F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLeaderboardsView.swift; sourceTree = "<group>"; };
 		F82F29F72C8A6BF500F385C1 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
+		F832AD552CADF9EB00A5C7BD /* WelcomeTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeTabView.swift; sourceTree = "<group>"; };
 		F832F97C2BCF73D100EE7336 /* EditCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCollectionView.swift; sourceTree = "<group>"; };
 		F832F9812BD3053800EE7336 /* AddItemCollectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionList.swift; sourceTree = "<group>"; };
 		F83380F32C28B31E0056C973 /* CustomFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
@@ -946,6 +948,7 @@
 				F84FE2922B6A55E200144F01 /* Protocols */,
 				F84FE28F2B6A55D200144F01 /* ViewModel */,
 				F84FE28E2B6A55CC00144F01 /* View */,
+				F832AD552CADF9EB00A5C7BD /* WelcomeTabView.swift */,
 			);
 			path = Authentication;
 			sourceTree = "<group>";
@@ -2161,6 +2164,7 @@
 				F8D62A152C8FBE0700E40B45 /* RestaurantLeaderboard.swift in Sources */,
 				F83ED9B52BEAA356000B2F30 /* RestaurantCollectionListView.swift in Sources */,
 				F8CC21A72BD58AB200B4B329 /* CameraViewModel.swift in Sources */,
+				F832AD562CADF9EB00A5C7BD /* WelcomeTabView.swift in Sources */,
 				F8D1CD3B2B6A5A3C00CEBE76 /* LoginViewModel.swift in Sources */,
 				F84069912C6AEAF200C31433 /* PhoneAuthView.swift in Sources */,
 				F871B0082B8C7F3000E4EB5F /* LikedPostsView.swift in Sources */,
@@ -2367,6 +2371,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup needs access to your camera to take photos and videos from the in-app camera features. This data is only stored if you upload it for a post, profile, or collection.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup needs access to your microphone to record audio from the in-app camera feature. This data is only stored if you upload it for a post, profile, or collection.";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -2425,6 +2431,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup needs access to your camera to take photos and videos from the in-app camera features. This data is only stored if you upload it for a post, profile, or collection.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup needs access to your microphone to record audio from the in-app camera feature. This data is only stored if you upload it for a post, profile, or collection.";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2452,11 +2460,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow Permission to Access Camera";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allow Permission to Access Microphone";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup uses your device's camera to do things like help you take photos and record videos from the in-app camera feature";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Ketchup uses your contacts to help you find friends on the app by syncing your contacts to our servers. No personal contact details are stored. You can always opt out in settings on your profile.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Ketchup uses your location to show you restaurants near your location and to see nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup uses your device's microphone to help you record videos";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Ketchup uses access to your camera roll to save videos and images from the feed to your camera roll.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Ketchup uses access to your camera roll to do things like help you share photos and videos to Ketchup, change your profile images and collection cover images.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -2472,7 +2481,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2503,11 +2512,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow Permission to Access Camera";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you nearby places on the map.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allow Permission to Access Microphone";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow Permission to Save Videos";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup uses your device's camera to do things like help you take photos and record videos from the in-app camera feature";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Ketchup uses your contacts to help you find friends on the app by syncing your contacts to our servers. No personal contact details are stored. You can always opt out in settings on your profile.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Ketchup uses your location to show you restaurants near your location and to see nearby places on the map.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup uses your device's microphone to help you record videos";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Ketchup uses access to your camera roll to save videos and images from the feed to your camera roll.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Ketchup uses access to your camera roll to do things like help you share photos and videos to Ketchup, change your profile images and collection cover images.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -2523,7 +2533,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -56,9 +56,9 @@ struct PhoneAuthView: View {
                         .foregroundColor(.red)
                 }
                 
-                Text("By submitting your phone number, you consent to receive informational messages at that number from Ketchup. Message and data rates may apply. See our Privacy Policy and Terms of Service for more information.")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                Text("By submitting your phone number, you consent to receive informational messages at that number from Ketchup. Message and data rates may apply. You also agree to our [Privacy Policy](https://ketchup-app.com/privacy-policy/), [Terms of Service](https://ketchup-app.com/terms-of-service/), and [End User License Agreement](https://ketchup-app.com/end-user-license-agreement/).")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
                 
                 Spacer()
                 

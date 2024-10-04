@@ -18,6 +18,8 @@ struct LocationSelectionView: View {
     @FocusState private var isFocused: Bool
     @ObservedObject var registrationViewModel: UserRegistrationViewModel
     @State private var showReferrerSearch = false
+    @State private var showAlert = false  // New state for showing alert
+    @State private var proceedWithoutReferrer = false  // New state for confirmation
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -32,6 +34,7 @@ struct LocationSelectionView: View {
             Text("You will see restaurants near this location, you can always change it in your profile later")
                 .font(.custom("MuseoSansRounded-500", size: 14))
                 .foregroundColor(.gray)
+            
             if showSearchBar {
                 HStack {
                     Image(systemName: "magnifyingglass")
@@ -43,7 +46,7 @@ struct LocationSelectionView: View {
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(10)
-            
+                
                 if !mapSearch.searchTerm.isEmpty {
                     List(mapSearch.locationResults.prefix(5), id: \.self) { location in
                         Button(action: {
@@ -56,7 +59,6 @@ struct LocationSelectionView: View {
                                 Text(location.subtitle)
                                     .font(.custom("MuseoSansRounded-300", size: 14))
                                     .foregroundColor(.gray)
-                                
                             }
                         }
                     }
@@ -91,58 +93,61 @@ struct LocationSelectionView: View {
             Button(action: {
                 showReferrerSearch = true
             }) {
-               
-                    if registrationViewModel.referrer == nil{
-                        HStack{
-                            Spacer()
-                            Text("Referred by someone? Click here to add them")
-                                .font(.custom("MuseoSansRounded-500", size: 16))
-                                .foregroundStyle(Color("Colors/AccentColor"))
-                                .multilineTextAlignment(.leading)
-                            Spacer()
-
-                        }
-                    
-                    
-                } else if let referrer = registrationViewModel.referrer{
-                    VStack(spacing: 0){
-                    UserCell(user: referrer)
-                    Text("Referred by @\(referrer.username)! Click to change.")
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                        .foregroundStyle(Color("Colors/AccentColor"))
+                if registrationViewModel.referrer == nil {
+                    HStack {
+                        Spacer()
+                        Text("Referred by someone? Click here to add them")
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .multilineTextAlignment(.leading)
+                        Spacer()
+                    }
+                } else if let referrer = registrationViewModel.referrer {
+                    VStack(spacing: 0) {
+                        UserCell(user: referrer)
+                        Text("Referred by @\(referrer.username)! Click to change.")
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundStyle(Color("Colors/AccentColor"))
                     }
                 }
             }
+            
             Button(action: {
-                selectedLocation = localSelectedLocation
-                registrationViewModel.location = localSelectedLocation
-               
-                Task{
-                    try await registrationViewModel.updateUser()
+                if registrationViewModel.referrer == nil {
+                    showAlert = true  // Trigger alert if no referrer is selected
+                } else {
+                    saveLocationAndProfile()
                 }
             }) {
                 if let userSession = AuthService.shared.userSession, userSession.birthday == nil {
-                        Text("Save Location + Update Profile")
-                            .font(.custom("MuseoSansRounded-500", size: 20))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
-                            .cornerRadius(25)
-                    } else {
-                        Text("Save Location + Create Profile")
-                            .font(.custom("MuseoSansRounded-500", size: 20))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
-                            .cornerRadius(25)
-                    
+                    Text("Save Location + Update Profile")
+                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                        .cornerRadius(25)
+                } else {
+                    Text("Save Location + Create Profile")
+                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(localSelectedLocation != nil ? Color("Colors/AccentColor") : Color.gray)
+                        .cornerRadius(25)
                 }
-                
-                        
             }
             .disabled(localSelectedLocation == nil)
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("No Referral Selected"),
+                    message: Text("Do you want to proceed without adding someone as a referral?"),
+                    primaryButton: .default(Text("Proceed")) {
+                        saveLocationAndProfile()
+                    },
+                    secondaryButton: .cancel()
+                )
+            }
         }
         .padding()
         .navigationBarBackButtonHidden(true)
@@ -163,10 +168,7 @@ struct LocationSelectionView: View {
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
-                guard let placemark = placemarks?.first else {
-                    //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
+                guard let placemark = placemarks?.first else { return }
                 
                 let city = placemark.locality ?? ""
                 let state = placemark.administrativeArea ?? ""
@@ -181,6 +183,35 @@ struct LocationSelectionView: View {
                     self.mapSearch.searchTerm = ""
                     self.isFocused = false
                 }
+            }
+        }
+    }
+    
+    private func saveLocationAndProfile() {
+        selectedLocation = localSelectedLocation
+        registrationViewModel.location = localSelectedLocation
+        
+        Task {
+            try await registrationViewModel.updateUser()
+        }
+        
+        Task {
+            do {
+                try await registrationViewModel.updateUser()
+                requestNotificationPermissions()  // Request notifications
+            } catch {
+                // Handle error if necessary
+            }
+        }
+    }
+}
+
+func requestNotificationPermissions() {
+    let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+    UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+        if granted {
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
             }
         }
     }

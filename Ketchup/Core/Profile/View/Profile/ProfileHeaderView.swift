@@ -120,10 +120,6 @@ struct ProfileHeaderView: View {
                 }
             }
             
-            Text("🔥\(user.weeklyStreak) week streak")
-                .font(.custom("MuseoSansRounded-700", size: 14))
-                .foregroundColor(.black)
-                .cornerRadius(12)
             
             Text("Favorites")
                 .font(.custom("MuseoSansRounded-700", size: 14))
@@ -132,6 +128,19 @@ struct ProfileHeaderView: View {
             if user.privateMode == false || user.isCurrentUser {
                 FavoriteRestaurantsView(user: user, favorites: user.favorites)
             }
+            VStack{
+                Text("🔥\(user.weeklyStreak) week post streak")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundColor(.black)
+                    .cornerRadius(12)
+                Text("🔥\(user.pollStreak) day poll streak")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundColor(.black)
+                    .cornerRadius(12)
+            }
+            .padding()
+            .background(.gray.opacity(0.1))
+            .cornerRadius(12)
             
             // Additional components if needed
         }

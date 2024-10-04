@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestoreInternal
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
@@ -14,127 +15,168 @@ struct SettingsView: View {
     @State var needsReauth = false
     @State private var showPrivateModeDropdown = false
     @State var showDeleteAccountAlert: Bool = false
+    @State var showOptOutAlert: Bool = false
     @State private var toggleEnabled = true
     var privateRateDebouncer = Debouncer(delay: 1.0)
 
-    
     init(profileViewModel: ProfileViewModel) {
         self.profileViewModel = profileViewModel
         self._viewModel = StateObject(wrappedValue: SettingsViewModel(profileViewModel: profileViewModel))
     }
-    
+
+   
     var body: some View {
-        NavigationStack{
-            VStack{
-                //MARK: Private Mode
-                Button{
+        NavigationStack {
+            List {
+                // Privacy Policy
+                Button(action: {
+                    if let url = URL(string: "https://ketchup-app.com/privacy-policy/") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Privacy Policy", systemImage: "lock.shield")
+                        .foregroundColor(.black)
+                }
+
+                // Terms of Service
+                Button(action: {
+                    if let url = URL(string: "https://ketchup-app.com/terms-of-service/") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Terms of Service", systemImage: "doc.text")
+                        .foregroundColor(.black)
+                }
+
+                // End User License Agreement
+                Button(action: {
+                    if let url = URL(string: "https://ketchup-app.com/end-user-license-agreement/") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("End User License Agreement", systemImage: "signature")
+                        .foregroundColor(.black)
+                }
+
+                // Private Mode
+                Button {
                     showPrivateModeDropdown.toggle()
                 } label: {
                     HStack {
-                        Text("Private Mode")
-                            .foregroundStyle(.black)
+                        Label("Private Mode", systemImage: "eye.slash")
                         Spacer()
                         Text(viewModel.privateMode ? "On" : "Off")
-                               .foregroundColor(.gray)
-                        if showPrivateModeDropdown == false {
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.black)
-                        } else {
-                            Image(systemName: "chevron.down")
-                                .foregroundStyle(.black)
-                        }
+                            .foregroundColor(.gray)
+                        Image(systemName: showPrivateModeDropdown ? "chevron.down" : "chevron.right")
                     }
-                    .padding()
                 }
-                
-                //MARK: Private Mode Dropdown
+
                 if showPrivateModeDropdown {
-                        HStack {
-                            Text("When in private mode, ALL users will not be able to see any of your posts, collections, or liked posts")
-                                .foregroundColor(.gray)
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                            Spacer()
-                            Toggle("", isOn: $viewModel.privateMode)
-                                .labelsHidden()
-                                .disabled(!toggleEnabled) // Disable the toggle based on the toggleEnabled state
-                                .onChange(of: viewModel.privateMode) {newValue in
-                                    Task {
-                                        // Disable the toggle for 20 seconds
-                                        toggleEnabled = false
-                                        try await viewModel.updatePrivateMode()
-                                    }
-                                    privateRateDebouncer.schedule{
-                                        toggleEnabled = true
-                                    }
+                    HStack {
+                        Text("When in private mode, ALL users will not be able to see any of your posts, collections, or liked posts.")
+                            .foregroundColor(.gray)
+                            .font(.footnote)
+                        Spacer()
+                        Toggle("", isOn: $viewModel.privateMode)
+                            .labelsHidden()
+                            .disabled(!toggleEnabled)
+                            .onChange(of: viewModel.privateMode) { newValue in
+                                Task {
+                                    toggleEnabled = false
+                                    try await viewModel.updatePrivateMode()
                                 }
-                        }
-                        .padding()
+                                privateRateDebouncer.schedule {
+                                    toggleEnabled = true
+                                }
+                            }
                     }
-                
-                
-                
-                Divider()
-                Spacer()
-                //MARK: Sign Out
-                Button{
+                }
+
+                // Opt Out
+                Button {
+                    showOptOutAlert = true
+                } label: {
+                    Label("Opt out of data storage", systemImage: "trash")
+                        .foregroundColor(.black)
+                }
+                .alert("Opt out of data storage", isPresented: $showOptOutAlert) {
+                    Button("Confirm", role: .destructive) {
+                        Task {
+                            await viewModel.createOptOutDocument()
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Are you sure you want to opt out of your personal data being stored on Ketchup's servers?")
+                }
+
+                // Sign Out
+                Button {
                     AuthService.shared.signout()
                 } label: {
-                    Text("Sign Out")
-                        .foregroundStyle(.black)
-                        .padding()
+                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        .foregroundColor(.black)
                 }
-                .font(.custom("MuseoSansRounded-300", size: 16))
-                .fontWeight(.semibold)
-                .padding()
-                Divider()
-                
-                //MARK: Delete Account
-                Button{
+
+                // Delete Account
+                Button {
                     showDeleteAccountAlert = true
                 } label: {
-                    Text("Delete Account")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundStyle(Color("Colors/AccentColor"))
+                    Label("Delete Account", systemImage: "person.crop.circle.badge.minus")
+                        .foregroundColor(.red)
                 }
-                //MARK: Delete Account Alert
                 .alert("Delete account", isPresented: $showDeleteAccountAlert, presenting: profileViewModel.user) { user in
                     Button("Delete Account", role: .destructive) {
-                        Task{
+                        Task {
                             needsReauth = try await viewModel.checkAuthStatusForDeletion()
                         }
                     }
                     Button("Cancel", role: .cancel) {}
                 } message: { user in
-                    Text("Confirm account deletion for \(user.username). This action can not be undone.")
+                    Text("Confirm account deletion for \(user.username). This action cannot be undone.")
                 }
             }
-            .sheet(isPresented: $needsReauth) {
-                PhoneAuthView(isDelete: true)
-            }
-           
+            .listStyle(PlainListStyle())
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundStyle(.white)
+                            .foregroundColor(.white)
                             .background(
                                 Circle()
-                                    .fill(Color.gray.opacity(0.5)) // Adjust the opacity as needed
-                                    .frame(width: 30, height: 30) // Adjust the size as needed
+                                    .fill(Color.gray.opacity(0.5))
+                                    .frame(width: 30, height: 30)
                             )
                             .padding()
                     }
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+        }
+        .sheet(isPresented: $needsReauth) {
+            PhoneAuthView(isDelete: true)
         }
     }
 }
-
-
-#Preview {
-    SettingsView(profileViewModel: ProfileViewModel(uid: ""))
+extension SettingsViewModel {
+    // Firestore logic for creating an opt-out document
+    func createOptOutDocument() async {
+        let db = Firestore.firestore()
+        let userId = profileViewModel.user.id
+        
+        let data = [
+            "userId": userId,
+            "optOut": true,
+            "timestamp": FieldValue.serverTimestamp()
+        ] as [String : Any]
+        
+        do {
+            try await db.collection("optOuts").document(userId).setData(data)
+        } catch {
+            print("Error creating opt-out document: \(error.localizedDescription)")
+        }
+    }
 }

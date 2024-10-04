@@ -272,7 +272,6 @@ class UploadViewModel: ObservableObject {
             currentUserFeedViewModel.posts.insert(post, at: 0)
         }
         if let currentUser = AuthService.shared.userSession {
-            AuthService.shared.userSession?.stats.posts += 1
             let postDate = Date() // Or use the server timestamp if available
             updateWeeklyStreak(for: currentUser, withPostDate: postDate)
         }
@@ -301,6 +300,7 @@ class UploadViewModel: ObservableObject {
         
         // Update user locally
         var updatedUser = user
+        updatedUser.stats.posts += 1
         updatedUser.weeklyStreak = newStreak
         updatedUser.mostRecentPost = postDate
         
@@ -324,8 +324,6 @@ class UploadViewModel: ObservableObject {
         self.error = error
         uploadFailure = true
     }
-
-    
     
     func checkForMentioning() {
         let words = caption.split(separator: " ")

@@ -25,6 +25,7 @@ enum PostDisplayMode: String, CaseIterable {
 }
 
 struct ProfileSlideBar: View {
+    @EnvironmentObject var tabBarController: TabBarController
     @ObservedObject var viewModel: ProfileViewModel
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @ObservedObject var feedViewModel: FeedViewModel
@@ -128,8 +129,20 @@ struct ProfileSlideBar: View {
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
-                        PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
-                    }
+                        if feedViewModel.posts.isEmpty && viewModel.user.isCurrentUser{
+                            Button{
+                                tabBarController.selectedTab = 2
+                            } label: {
+                                Text("+ Create your first post!")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.custom("MuseoSansRounded-700", size: 14))
+                                
+                                
+                            }
+                        }
+                            PostGridView(feedViewModel: feedViewModel, feedTitleText: "Posts by @\(viewModel.user.username)", showNames: true, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                        }
+                    
                 }
             }
             if viewModel.profileSection == .map {
@@ -159,7 +172,7 @@ struct ProfileSlideBar: View {
             // Add BadgeListView when badges are selected
             if viewModel.profileSection == .badges {
                 
-                ProfileBadgeView(user: viewModel.user, selectedBadge: $selectedBadge, selectedBadgeType: $selectedBadgeType)
+                ProfileBadgeView(user: viewModel.user, selectedBadge: $selectedBadge, selectedBadgeType: $selectedBadgeType, profileViewModel: viewModel)
             }
         }
     }

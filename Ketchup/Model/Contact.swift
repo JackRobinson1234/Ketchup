@@ -15,6 +15,7 @@ struct Contact: Codable, Identifiable, Hashable {
     var isFollowed: Bool?
     var user: User?
     var deviceContactName: String?
+    var deviceContactNumber: String?  // New property for the actual device contact number
 
     enum CodingKeys: String, CodingKey {
         case phoneNumber, userCount, hasExistingAccount, isFollowed

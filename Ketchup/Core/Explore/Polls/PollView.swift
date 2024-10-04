@@ -158,7 +158,7 @@ struct PollView: View {
                                     showFriendsVotes.toggle()
                                 }) {
                                     HStack{
-                                        Text("See friends' votes")
+                                        Text("See friends votes")
                                             .font(.custom("MuseoSansRounded-500", size: 14))
                                             .foregroundColor(Color("Colors/AccentColor"))
                                         Image(systemName: "chevron.right")
@@ -231,7 +231,7 @@ struct PollView: View {
         .alert("Poll expired", isPresented: $showExpiredPollAlert) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text("This poll expired 😢, you can still comment and make sure to vote in future polls!")
+            Text("This poll expired 😅, you can still comment and make sure to vote in future polls!")
         }
         
     }

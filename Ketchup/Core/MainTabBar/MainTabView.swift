@@ -116,6 +116,7 @@ struct MainTabView: View {
                 .tag(3)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
+                .badge(badgeValue ?? 0)
                 .onAppear {
                     tabBarController.selectedTab = 3
                     tabBarController.visibility = .visible
@@ -137,6 +138,7 @@ struct MainTabView: View {
                 .onAppear {
                     tabBarController.selectedTab = 4
                     tabBarController.visibility = .visible
+                    
                 }
                 .badge(AuthService.shared.userSession?.notificationAlert ?? 0)
                 .tag(4)
@@ -188,6 +190,22 @@ struct MainTabView: View {
         guard let startTime = tabStartTime else { return }
         let timeSpent = Date().timeIntervalSince(startTime)
         sessionTimeSpent[tab, default: 0] += timeSpent
+    }
+    private var badgeValue: Int? {
+        guard let lastVotedDate = AuthService.shared.userSession?.lastVotedPoll else {
+            return 1 // Show badge if user has never voted
+        }
+        
+        let calendar = Calendar.current
+        let losAngelesTimeZone = TimeZone(identifier: "America/Los_Angeles")!
+        
+        let lastVotedDateLA = calendar.date(byAdding: .hour, value: losAngelesTimeZone.secondsFromGMT() / 3600, to: lastVotedDate)!
+        let nowLA = calendar.date(byAdding: .hour, value: losAngelesTimeZone.secondsFromGMT() / 3600, to: Date())!
+        
+        let lastVotedDay = calendar.startOfDay(for: lastVotedDateLA)
+        let todayLA = calendar.startOfDay(for: nowLA)
+        
+        return calendar.isDate(lastVotedDay, inSameDayAs: todayLA) ? nil : 1
     }
 
     private func sendSessionAnalytics() {

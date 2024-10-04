@@ -155,7 +155,13 @@ struct PostGridView: View {
                             }
                             .padding(4)
                         }
+                        
+                            
+                           
                     }
+                    
+                    .opacity(post.isReported ? 0 : 1)
+                    .disabled(post.isReported)
                 }
             }
             .padding(spacing / 2)
@@ -186,7 +192,7 @@ struct PostGridView: View {
         } else {
             HStack {
                 Spacer()
-                Text("No Posts to Show")
+                Text("No Posts to Show 😢")
                     .foregroundStyle(.gray)
                     .font(.custom("MuseoSansRounded-300", size: 16))
                 Spacer()

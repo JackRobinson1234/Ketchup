@@ -38,23 +38,23 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             return false
         }
     private func setupNotifications(_ application: UIApplication) {
-        //print("Setting up notifications...")
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
-            if granted {
-                //print("Notification authorization granted")
-                DispatchQueue.main.async {
-                    //print("Registering for remote notifications...")
-                    application.registerForRemoteNotifications()
-                }
-            } else {
-                //print("Notification authorization denied")
-                if let error = error {
-                    //print("Authorization error: \(error.localizedDescription)")
-                }
-            }
-        }
+//        //print("Setting up notifications...")
+//        UNUserNotificationCenter.current().delegate = self
+//        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+//        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+//            if granted {
+//                //print("Notification authorization granted")
+//                DispatchQueue.main.async {
+//                    //print("Registering for remote notifications...")
+//                    application.registerForRemoteNotifications()
+//                }
+//            } else {
+//                //print("Notification authorization denied")
+//                if let error = error {
+//                    //print("Authorization error: \(error.localizedDescription)")
+//                }
+//            }
+//        }
         resetBadgeCount()
     }
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

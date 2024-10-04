@@ -116,7 +116,6 @@ struct CameraView: View {
                 }
                 .onAppear {
                     setupKeyboardObservers()
-                    cameraViewModel.checkPermission()
                     cameraViewModel.setUp()
                     cameraViewModel.togglePreview(true)
                 }

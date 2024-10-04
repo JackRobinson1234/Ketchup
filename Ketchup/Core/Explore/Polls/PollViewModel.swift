@@ -184,20 +184,25 @@ class PollViewModel: ObservableObject {
             var totalVotes = poll.totalVotes
             if previousOptionId == nil {
                 totalVotes += 1
+                Task{
+                    
+                    AuthService.shared.userSession?.pollStreak += 1
+                    AuthService.shared.userSession?.lastVotedPoll = Date()
+                    
+                }
             }
 
             // Update the poll document
-            let updatedData: [String: Any] = [
-                "options": updatedOptions.map { option in
-                    [
-                        "id": option.id,
-                        "text": option.text,
-                        "voteCount": option.voteCount
-                    ]
-                },
-                "totalVotes": totalVotes
-            ]
-            batch.updateData(updatedData, forDocument: pollRef)
+//            let updatedData: [String: Any] = [
+//                "options": updatedOptions.map { option in
+//                    [
+//                        "id": option.id,
+//                        "text": option.text,
+//                        "voteCount": option.voteCount
+//                    ]
+//                }
+//            ]
+//            batch.updateData(updatedData, forDocument: pollRef)
 
             // Commit the batch
             try await batch.commit()
@@ -258,5 +263,18 @@ class PollViewModel: ObservableObject {
                 }
             }
     }
+    func fetchPolls() {
+            // Reset all polling-related state
+            polls = []
+            hasUserVotedPolls = [:]
+            friendVotes = [:]
+            lastDocumentSnapshot = nil
+            isFetching = false
+            hasMorePolls = true
+
+            // Fetch initial set of polls
+            fetchPreviousPolls()
+        }
+
     
 }

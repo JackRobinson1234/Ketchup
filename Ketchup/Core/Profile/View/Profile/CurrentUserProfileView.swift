@@ -124,6 +124,10 @@ struct CurrentUserProfileView: View {
                                     await collectionsViewModel.fetchCollections(user: user)
                                 }
                             }
+                        } else if profileViewModel.profileSection == .badges {
+                            Task{
+                                try await profileViewModel.fetchBadges()
+                            }
                         }
                     }
                     .sheet(isPresented: $showNotifications) {

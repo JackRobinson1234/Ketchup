@@ -13,6 +13,7 @@ import ClusterMapSwiftUI
 
 @available(iOS 17.0, *)
 struct ProfileMapView: View {
+    @EnvironmentObject var tabBarController: TabBarController
     @StateObject var viewModel = ProfileMapViewModel()
     @ObservedObject var feedViewModel: FeedViewModel
     @State var selectedPost: Post?
@@ -115,9 +116,20 @@ struct ProfileMapView: View {
         } else {
             HStack{
                 Spacer()
-                Text("No Posts to Show")
-                    .foregroundStyle(.gray)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
+                VStack{
+                    Button{
+                        tabBarController.selectedTab = 2
+                    } label: {
+                        Text("+ Create your first post!")
+                            .foregroundStyle(Color("Colors/AccentColor"))
+                            .font(.custom("MuseoSansRounded-700", size: 14))
+                        
+                        
+                    }
+                    Text("No Posts to Show 😢")
+                        .foregroundStyle(.gray)
+                        .font(.custom("MuseoSansRounded-300", size: 16))
+                }
                 Spacer()
             }
         }

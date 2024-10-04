@@ -202,6 +202,8 @@ struct WrittenFeedCell: View {
                     .padding(.top, 5)
             }
         }
+        .opacity(post.isReported ? 0 : 1)
+        .disabled(post.isReported)
         .onAppear(perform: onAppear)
         .onChange(of: scrollPosition) { _ in handleScrollPositionChange() }
         .onDisappear(perform: pauseAllVideos)

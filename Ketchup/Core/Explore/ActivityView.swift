@@ -32,7 +32,9 @@ struct ActivityView: View {
     @State private var selectedPollIndex: Int = 0
     @StateObject var feedViewModel = FeedViewModel()
     enum Tab {
+        case dailyPoll
         case discover
+        case friends
         case leaderboards
     }
     
@@ -57,83 +59,43 @@ struct ActivityView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    tabButtons
-                    
-                    
-                    if let userId = AuthService.shared.userSession?.id,
-                       ["uydfmAuFmCWOvSuLaGYuSKQO8Qn2", "cQlKGlOWTOSeZcsqObd4Iuy6jr93", "4lwAIMZ8zqgoIljiNQmqANMpjrk2"].contains(userId) {
-                        Button{
-                            showPollUploadView = true
-                        } label:{
-                            HStack{
-                                Spacer()
-                                Text("Poll Manager")
-                                    .font(.custom("MuseoSansRounded-300", size: 12))
-                                    .modifier(StandardButtonModifier(width: 80))
-                                Spacer()
-                            }
-                        }
-                        
-                    }
-                    if !pollViewModel.polls.isEmpty {
-                        VStack(spacing: 10) {
-                            TabView(selection: $selectedPollIndex) {
-                                ForEach(pollViewModel.polls.indices, id: \.self) { index in
-                                    PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel, feedViewModel: feedViewModel)
-                                        .background(
-                                            GeometryReader { geometry in
-                                                Color.clear
-                                                    .onAppear {
-                                                        if index == selectedPollIndex {
-                                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                                currentTabHeight = geometry.size.height + 15
-                                                            }
-                                                        }
-                                                    }
-                                                    .onChange(of: selectedPollIndex) { _ in
-                                                        if index == selectedPollIndex {
-                                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                                currentTabHeight = geometry.size.height + 15
-                                                            }
-                                                        }
-                                                    }
-                                            }
-                                        )
-                                        .tag(index)
-                                }
-                            }
-                            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                            .frame(height: currentTabHeight)
-                            Text("Swipe to see previous polls")
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                                .foregroundColor(.gray.opacity(0.8))
-                                .padding(.bottom, 5)
-                        }
-                    }
-                    if isLoading {
-                        FastCrossfadeFoodImageView()
-                    } else {
-                        if selectedTab == .discover {
-                            discoverContent
-                        } else {
-                            leaderboardsContent
-                        }
-                    }
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    HStack {
-                        toolbarLogoView
-                        Spacer()
-                        locationButton
-                    }
-                }
-            }
+           NavigationStack {
+               ZStack(alignment: .top) {
+                           ScrollView {
+                               VStack(alignment: .leading, spacing: 20) {
+                                   Color.clear
+                                       .frame(height: 100) // Adjust this value based on the combined height of your header and tab buttons
+                                   contentBasedOnSelectedTab
+                               }
+                           }
+
+                           VStack(spacing: 0) {
+                               customHeader
+                                   
+                                   .background(Color.white)
+                                   .zIndex(2)
+                               
+                               tabButtons
+                                   .padding(.bottom, 6)
+                                   .background(Color.white)
+                                   .zIndex(1)
+                                   .padding(.bottom, 10)
+                           }
+                       }
+               .navigationBarHidden(true)
+
+               //.navigationBarTitleDisplayMode(.inline)
+//               .toolbar {
+//                   ToolbarItem(placement: .principal) {
+//                       VStack {
+//                           HStack {
+//                               toolbarLogoView
+//                               Spacer()
+//                               locationButton
+//                           }
+//                       }
+//                   }
+//               }
             .refreshable { await refreshData() }
             .fullScreenCover(item: Binding(
                 get: { selectedLeaderboard?.category },
@@ -175,18 +137,46 @@ struct ActivityView: View {
             }
         }
     }
-    
+    private var contentBasedOnSelectedTab: some View {
+           Group {
+               if selectedTab == .dailyPoll {
+                   dailyPollContent
+               } else if selectedTab == .discover {
+                   discoverContent
+               } else if selectedTab == .friends {
+                   friendsContent
+               } else {
+                   if isLoading {
+                       FastCrossfadeFoodImageView()
+                   } else {
+                       leaderboardsContent
+                   }
+               }
+           }
+       }
     private var tabButtons: some View {
-        HStack {
-            actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
-                selectedTab = .discover
-            }
-            actionButton(title: "Top Rated Restaurants", icon: "trophy", isSelected: selectedTab == .leaderboards) {
-                selectedTab = .leaderboards
+        VStack{
+            ScrollView(.horizontal, showsIndicators: false){
+                HStack {
+                    
+                    actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
+                        selectedTab = .discover
+                    }
+                    
+                    actionButton(title: "Daily Poll", icon: "list.bullet.clipboard", isSelected: selectedTab == .dailyPoll) {
+                        selectedTab = .dailyPoll
+                    }
+                    actionButton(title: "Find Friends", icon: "person.2", isSelected: selectedTab == .friends) {
+                        selectedTab = .friends
+                    }
+                    actionButton(title: "Top Rated Restaurants", icon: "trophy", isSelected: selectedTab == .leaderboards) {
+                        selectedTab = .leaderboards
+                    }
+                }
+                .padding(.horizontal)
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 8)
+       
     }
     
     private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -209,27 +199,43 @@ struct ActivityView: View {
     }
     
     private var discoverContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            if let user = viewModel.user, user.contactsSynced, viewModel.isContactPermissionGranted {
-                contactsSection
-            }
-            
+        VStack(alignment: .leading, spacing: 25) {
             inviteContactsButton
-            RestaurantLeaderboardsView(
-                viewModel: leaderboardViewModel,
-                leaderboardData: $leaderboardData,
-                selectedLeaderboard: $selectedLeaderboard,
+            dailyPollContent
+            Divider()
+                contactsSection
+            Divider()
+            if !isLoading{
+                RestaurantLeaderboardsView(
+                    viewModel: leaderboardViewModel,
+                    leaderboardData: $leaderboardData,
+                    selectedLeaderboard: $selectedLeaderboard,
+                    
+                    city: city,
+                    state: state,
+                    surroundingGeohash: surroundingGeohash,
+                    surroundingCounty: surroundingCounty
+                )
                 
-                city: city,
-                state: state,
-                surroundingGeohash: surroundingGeohash,
-                surroundingCounty: surroundingCounty
-            )
-            mostLikedPostsSection
+                mostLikedPostsSection
+            }
             
         }
     }
-    
+    private var customHeader: some View {
+            HStack {
+                toolbarLogoView
+                Spacer()
+                locationButton
+            }
+            .padding()
+        }
+    private var friendsContent: some View {
+        VStack{
+            inviteContactsButton
+            contactsSection
+        }
+    }
     private var leaderboardsContent: some View {
         VStack(alignment: .leading, spacing: 20) {
             RestaurantLeaderboardsView(
@@ -272,7 +278,84 @@ struct ActivityView: View {
             .minimumScaleFactor(0.5)
         }
     }
-    
+    private var dailyPollContent: some View {
+            VStack(alignment: .leading) {
+                HStack{
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text("Daily Poll")
+                                .font(.custom("MuseoSansRounded-700", size: 25))
+                                .foregroundColor(.black)
+                            
+                            if !hasUserVotedToday() {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 8, height: 8)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        HStack(spacing: 2) {
+                            Text("🔥\(AuthService.shared.userSession?.pollStreak ?? 0) day streak")
+                                .font(.custom("MuseoSansRounded-500", size: 14))
+                                .foregroundColor(.black)
+                        }
+                        .padding(.horizontal)
+                    }
+                    Spacer()
+                    if let userId = AuthService.shared.userSession?.id,
+                       ["uydfmAuFmCWOvSuLaGYuSKQO8Qn2", "cQlKGlOWTOSeZcsqObd4Iuy6jr93", "4lwAIMZ8zqgoIljiNQmqANMpjrk2"].contains(userId) {
+                        Button {
+                            showPollUploadView = true
+                        } label: {
+                           
+                                Text("Poll Manager")
+                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                                    .modifier(StandardButtonModifier(width: 80))
+                                    .padding(.trailing)
+                                
+                        }
+                    }
+                }
+
+                if !pollViewModel.polls.isEmpty {
+                    VStack(spacing: 10) {
+                        TabView(selection: $selectedPollIndex) {
+                            ForEach(pollViewModel.polls.indices, id: \.self) { index in
+                                PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel, feedViewModel: feedViewModel)
+                                    .background(
+                                        GeometryReader { geometry in
+                                            Color.clear
+                                                .onAppear {
+                                                    if index == selectedPollIndex {
+                                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                                            currentTabHeight = geometry.size.height + 15
+                                                        }
+                                                    }
+                                                }
+                                                .onChange(of: selectedPollIndex) { _ in
+                                                    if index == selectedPollIndex {
+                                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                                            currentTabHeight = geometry.size.height + 15
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    )
+                                    .tag(index)
+                            }
+                        }
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                        .frame(height: currentTabHeight)
+                        Text("Swipe to see previous polls")
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .foregroundColor(.gray.opacity(0.8))
+                            .padding(.bottom, 5)
+                    }
+                }
+            }
+        }
+
     private var mostLikedPostsSection: some View {
         VStack(alignment: .leading) {
             Text("Most Liked Posts")
@@ -296,6 +379,7 @@ struct ActivityView: View {
     private var contactsSection: some View {
         VStack(alignment: .leading) {
             HStack {
+                
                 Text("Friends on Ketchup")
                     .font(.custom("MuseoSansRounded-700", size: 25))
                     .foregroundColor(.black)
@@ -308,58 +392,150 @@ struct ActivityView: View {
                 .foregroundStyle(.gray)
             }
             .padding(.horizontal)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
-                    ForEach(viewModel.topContacts) { contact in
-                        ActivityContactRow(viewModel: viewModel, contact: contact)
-                            .onAppear {
-                                if contact == viewModel.topContacts.last {
-                                    viewModel.loadMoreContacts()
-                                }
+            if let user = viewModel.user, user.contactsSynced, viewModel.isContactPermissionGranted {
+                if !viewModel.topContacts.isEmpty{
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: 16) {
+                            ForEach(viewModel.topContacts) { contact in
+                                ActivityContactRow(viewModel: viewModel, contact: contact)
+                                    .onAppear {
+                                        if contact == viewModel.topContacts.last {
+                                            viewModel.loadMoreContacts()
+                                        }
+                                    }
                             }
+                            if viewModel.isLoadingMore {
+                                FastCrossfadeFoodImageView()
+                                    .frame(width: 50, height: 50)
+                            }
+                            if viewModel.hasMoreContacts {
+                                Color.clear
+                                    .frame(width: 1, height: 1)
+                                    .onAppear { viewModel.loadMoreContacts() }
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    if viewModel.isLoadingMore {
-                        FastCrossfadeFoodImageView()
-                            .frame(width: 50, height: 50)
-                    }
-                    if viewModel.hasMoreContacts {
-                        Color.clear
-                            .frame(width: 1, height: 1)
-                            .onAppear { viewModel.loadMoreContacts() }
+                } else {
+                    Button {
+                        shouldShowExistingUsersOnContacts = false
+                        showContacts = true
+                    } label: {
+                        Text("We couldn't find any friends in your contacts, invite them!")
+                            .foregroundStyle(Color("Black"))
+                            .font(.custom("MuseoSansRounded-700", size: 14))
                     }
                 }
-                .padding(.horizontal)
+            } else {
+                Button{
+                    openSettings()
+                } label: {
+                    HStack{
+                        Spacer()
+                        VStack{
+                            Text("Allow Ketchup to access your contacts to make finding friends easier!")
+                                .foregroundStyle(.black)
+                                .font(.custom("MuseoSansRounded-500", size: 14))
+                                .padding(.vertical)
+                            Text("Go to settings")
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .font(.custom("MuseoSansRounded-700", size: 14))
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                }
             }
         }
     }
     
     private var inviteContactsButton: some View {
-        Button {
-            shouldShowExistingUsersOnContacts = false
-            showContacts = true
-        } label: {
-            VStack{
-                Divider()
-                HStack {
-                    Image(systemName: "envelope")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30)
-                        .foregroundStyle(.black)
-                    Text("Invite your friends to Ketchup!")
-                        .font(.custom("MuseoSansRounded-700", size: 16))
-                        .foregroundStyle(.black)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.gray)
+        VStack(spacing: 0) {
+            Button {
+                shouldShowExistingUsersOnContacts = false
+                showContacts = true
+            } label: {
+                VStack {
+                    Divider()
+                    HStack {
+                        Image(systemName: "envelope")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .foregroundStyle(.black)
+                        VStack (alignment: .leading){
+                            Text("Invite your friends to Ketchup!")
+                                .font(.custom("MuseoSansRounded-700", size: 16))
+                            VStack(alignment: .leading, spacing: 3) {
+                                        
+                                        GeometryReader { geometry in
+                                            ZStack(alignment: .leading) {
+                                                Rectangle()
+                                                    .fill(Color.gray.opacity(0.3))
+                                                    .frame(height: 4)
+                                                    .cornerRadius(4)
+                                                
+                                                Rectangle()
+                                                    .fill(Color("Colors/AccentColor"))
+                                                    .frame(width: min(CGFloat(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10)) / 10.0 * geometry.size.width, geometry.size.width), height: 4)
+                                                    .cornerRadius(4)
+                                            }
+                                        }
+                                        .frame(height: 8)
+                                        
+                                HStack (spacing: 1){
+                                            Text("You have \(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10))/10 referrals to earn the launch badge")
+                                                .font(.custom("MuseoSansRounded-500", size: 10))
+                                                .foregroundColor(.gray)
+                                          
+                                            if let totalReferrals = AuthService.shared.userSession?.totalReferrals, totalReferrals >= 10 {
+                                                Image("LAUNCH")
+                                               
+                                            } else {
+                                                HStack(spacing: 4) {
+                                                   
+                                                    Image("LAUNCHBLACK")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(height: 12)
+                                                        .opacity(0.5)
+                                                }
+                                            }
+                                        }
+                                    }
+                                
+                        }
+                            .foregroundStyle(.black)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.gray)
+                    }
+                    .padding()
+                    Divider()
                 }
-                .padding()
-                Divider()
+                
             }
+            
+            // Referral Progress Bar
+            
         }
     }
-    
+    private func hasUserVotedToday() -> Bool {
+        guard let lastVotedDate = AuthService.shared.userSession?.lastVotedPoll else {
+            return false // User has never voted
+        }
+        
+        let calendar = Calendar.current
+        let losAngelesTimeZone = TimeZone(identifier: "America/Los_Angeles")!
+        
+        let lastVotedDateLA = calendar.date(byAdding: .hour, value: losAngelesTimeZone.secondsFromGMT() / 3600, to: lastVotedDate)!
+        let nowLA = calendar.date(byAdding: .hour, value: losAngelesTimeZone.secondsFromGMT() / 3600, to: Date())!
+        
+        let lastVotedDay = calendar.startOfDay(for: lastVotedDateLA)
+        let todayLA = calendar.startOfDay(for: nowLA)
+        
+        return calendar.isDate(lastVotedDay, inSameDayAs: todayLA)
+    }
     private func leaderboardButton(for category: LeaderboardCategory, locationType: LocationType, data: Any) -> some View {
         Button {
             selectedLeaderboard = (category: category, location: locationType)
@@ -371,7 +547,11 @@ struct ActivityView: View {
             )
         }
     }
-    
+    private func openSettings() {
+        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+        }
+    }
     private func subtitleForLeaderboard(locationType: LocationType) -> String {
         switch locationType {
         case .city:
@@ -465,7 +645,7 @@ struct ActivityView: View {
                 await fetchLeaderboardData(for: category, locationType: locationType)
             }
         }
-        
+        pollViewModel.fetchPolls()
         do {
             try await viewModel.fetchTopContacts()
         } catch {

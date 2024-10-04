@@ -147,8 +147,16 @@ struct FeedCell: View {
             }
             .padding(.bottom, 137)
         }
+        .opacity(post.isReported ? 0 : 1)
+        .disabled(post.isReported)
         .padding(.top, 35)
-        .overlay(heartOverlay)
+        .overlay(
+            VStack{heartOverlay
+                if post.isReported{
+                    Text("Content under review")
+                }
+            }
+        )
         .onTapGesture(count: 2) {
             handleLikeTapped()
         }
@@ -484,10 +492,14 @@ struct FeedCell: View {
         }
         .padding(.horizontal)
         .padding(.top, 10)
+        .frame(maxWidth: .infinity)
+        .background(.white)
+        .cornerRadius(12)
+       
         .font(.custom("MuseoSansRounded-300", size: 16))
         .foregroundStyle(.black)
-        .background(Color("Colors/HingeGray"))
         .frame(width: UIScreen.main.bounds.width)
+        
     }
     
     private func togglePlayPause() {

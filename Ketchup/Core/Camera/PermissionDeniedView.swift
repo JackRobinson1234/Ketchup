@@ -16,11 +16,11 @@ struct PermissionDeniedView: View {
                 .font(.custom("MuseoSansRounded-300", size: 22))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.white)
+                .foregroundColor(.red)
             
             Text("This will let you use the in app camera")
                 .multilineTextAlignment(.center)
-                .foregroundColor(.white)
+                .foregroundColor(.red)
                 .opacity(0.8)
                 .padding()
             Button(action: {

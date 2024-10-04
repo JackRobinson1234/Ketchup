@@ -8,8 +8,6 @@
 import SwiftUI
 import InstantSearchSwiftUI
 
-
-
 struct ReferUserListView: View {
     @StateObject var viewModel = SearchViewModel(initialSearchConfig: .users)
     @ObservedObject var usernameRegistrationViewModel: UserRegistrationViewModel

@@ -219,7 +219,73 @@ extension UserService {
             throw error
         }
     }
-    
+    func isUserBlocked(currentUserId: String, blockedUserId: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        let blockedUsersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("blocked-users")
+        
+        blockedUsersRef.document(blockedUserId).getDocument { (document, error) in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            let isBlocked = document?.exists ?? false
+            completion(.success(isBlocked))
+        }
+    }
+
+    func blockUser(currentUserId: String, userToBlockId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let blockedUsersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("blocked-users")
+        
+        blockedUsersRef.document(userToBlockId).setData([:]) { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
+    func isUserBlocked(currentUserId: String, blockedUserId: String) async throws -> Bool {
+            let blockedUsersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("blocked-users")
+            let document = try await blockedUsersRef.document(blockedUserId).getDocument()
+            return document.exists
+        }
+
+    func unblockUser(currentUserId: String, userToUnblockId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let blockedUsersRef = FirestoreConstants.UserCollection.document(currentUserId).collection("blocked-users")
+        
+        blockedUsersRef.document(userToUnblockId).delete { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
+
+    // MARK: - Fetch Blocked Users
+
+    func fetchBlockedUsers(forUserId userId: String) async throws -> [User] {
+        let blockedUsersRef = FirestoreConstants.UserCollection.document(userId).collection("blocked-users")
+        let snapshot = try await blockedUsersRef.getDocuments()
+
+        return try await withThrowingTaskGroup(of: User?.self) { group in
+            var blockedUsers = [User]()
+
+            for document in snapshot.documents {
+                group.addTask {
+                    try? await self.fetchUser(withUid: document.documentID)
+                }
+            }
+
+            for try await user in group {
+                if let user = user {
+                    blockedUsers.append(user)
+                }
+            }
+
+            return blockedUsers
+        }
+    }
 }
 
 

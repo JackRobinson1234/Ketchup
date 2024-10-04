@@ -31,7 +31,7 @@ class ContactsViewModel: ObservableObject {
 
     private let phoneNumberKit = PhoneNumberUtility()
     private let contactStore = CNContactStore()
-    private var deviceContacts: [String: String] = [:] // [PhoneNumber: Name]
+    private var deviceContacts: [String: (name: String, realPhoneNumber: String)] = [:] // [Hashed PhoneNumber: (Name, Real PhoneNumber)]
     private var currentPage = 0
     private var existingAccountContactsFetched = false
     private var shouldFetchExistingUsers: Bool
@@ -47,61 +47,80 @@ class ContactsViewModel: ObservableObject {
     @MainActor
     var inviteMessage: String {
             if let username = AuthService.shared.userSession?.username {
-                return "Hey! Sharing an invite to the beta for Ketchup —no, not the condiment, but a new social restaurant rating app. Use this link to check it out: https://testflight.apple.com/join/ki6ajEz9 (P.S. Follow me @\(username))"
+                return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store (P.S. Follow me @\(username))"
             } else {
-                return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
+                return "Hey! Sharing an invite to the beta for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store"
             }
         }
     func fetchContacts() {
-          guard !isLoading else { return }
-          isLoading = true
-          
-          Task {
-              do {
-                  if deviceContacts.isEmpty {
-                      try await loadDeviceContacts()
-                  }
-                  
-                  if hasMoreExistingContacts && shouldFetchExistingUsers {
-                      await MainActor.run { self.isLoadingExistingUsers = true }
-                      let (existingContacts, lastDoc) = try await fetchExistingAccountContacts()
-                      let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
-                      let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
-                      
-                      await MainActor.run {
-                          self.contacts.append(contentsOf: matchedExistingContacts)
-                          self.lastExistingDocument = lastDoc
-                          self.hasMoreExistingContacts = existingContacts.count == self.pageSize
-                          self.currentExistingPage += 1
-                          self.isLoading = false
-                          self.isLoadingExistingUsers = false
-                      }
-                  } else if hasMoreNewContacts {
-                      let (newContacts, lastDoc) = try await fetchContactsToInvite()
-                      let matchedNewContacts = matchWithDeviceContacts(newContacts)
-                      
-                      await MainActor.run {
-                          self.contacts.append(contentsOf: matchedNewContacts)
-                          self.lastNewDocument = lastDoc
-                          self.hasMoreNewContacts = newContacts.count == self.pageSize
-                          self.currentNewPage += 1
-                          self.isLoading = false
-                      }
-                  } else {
-                      await MainActor.run {
-                          self.hasMoreContacts = false
-                          self.isLoading = false
-                      }
-                  }
-              } catch {
-                  await MainActor.run {
-                      self.error = error
-                      self.isLoading = false
-                      self.isLoadingExistingUsers = false
-                  }
-              }
-          }
-      }
+            guard !isLoading else { return }
+            isLoading = true
+            
+            Task {
+                do {
+                    if deviceContacts.isEmpty {
+                        try await loadDeviceContacts()
+                    }
+                    
+                    if shouldFetchExistingUsers {
+                        await fetchExistingUsers()
+                    } else {
+                        await fetchInviteList()
+                    }
+                    
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.error = error
+                        self.isLoading = false
+                        self.isLoadingExistingUsers = false
+                    }
+                }
+            }
+        }
+        
+        private func fetchExistingUsers() async {
+            await MainActor.run { self.isLoadingExistingUsers = true }
+            
+            do {
+                let (existingContacts, lastDoc) = try await fetchExistingAccountContacts()
+                let updatedExistingContacts = try await fetchUserDetailsForContacts(existingContacts)
+                let matchedExistingContacts = matchWithDeviceContacts(updatedExistingContacts)
+                
+                await MainActor.run {
+                    self.contacts.append(contentsOf: matchedExistingContacts)
+                    self.lastExistingDocument = lastDoc
+                    self.hasMoreContacts = existingContacts.count == self.pageSize
+                    self.currentExistingPage += 1
+                    self.isLoadingExistingUsers = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error
+                    self.isLoadingExistingUsers = false
+                }
+            }
+        }
+        
+        private func fetchInviteList() async {
+            do {
+                let (newContacts, lastDoc) = try await fetchContactsToInvite()
+                let matchedNewContacts = matchWithDeviceContacts(newContacts)
+                
+                await MainActor.run {
+                    self.contacts.append(contentsOf: matchedNewContacts)
+                    self.lastNewDocument = lastDoc
+                    self.hasMoreContacts = newContacts.count == self.pageSize
+                    self.currentNewPage += 1
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error
+                }
+            }
+        }
        
        private func fetchExistingAccountContacts() async throws -> ([Contact], DocumentSnapshot?) {
            guard let userId = Auth.auth().currentUser?.uid else {
@@ -156,9 +175,9 @@ class ContactsViewModel: ObservableObject {
         try await contactStore.enumerateContacts(with: request) { contact, _ in
             for phoneNumber in contact.phoneNumbers {
                 if let formattedNumber = formatPhoneNumber(phoneNumber.value.stringValue) {
-                    let formattedNumber = hashPhoneNumber(formattedNumber)
+                    let hashedNumber = hashPhoneNumber(formattedNumber) // Hash the formatted number
                     let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespacesAndNewlines)
-                    self.deviceContacts[formattedNumber] = name
+                    self.deviceContacts[hashedNumber] = (name: name, realPhoneNumber: formattedNumber) // Store the real number with the hash
                 }
             }
         }
@@ -190,11 +209,21 @@ class ContactsViewModel: ObservableObject {
     private func matchWithDeviceContacts(_ contacts: [Contact]) -> [Contact] {
         return contacts.map { contact in
             var updatedContact = contact
-            if let name = deviceContacts[contact.phoneNumber] {
-                updatedContact.deviceContactName = name
+            if let deviceContactInfo = deviceContacts[contact.phoneNumber] {
+                updatedContact.deviceContactName = deviceContactInfo.name
+                updatedContact.deviceContactNumber = deviceContactInfo.realPhoneNumber // Store the real phone number
             }
             return updatedContact
         }
+    }
+
+    private func getRealPhoneNumber(for hashedPhoneNumber: String) -> String? {
+        for (realPhoneNumber, hashedNumber) in deviceContacts {
+            if hashPhoneNumber(realPhoneNumber) == hashedPhoneNumber {
+                return realPhoneNumber
+            }
+        }
+        return nil
     }
     
     

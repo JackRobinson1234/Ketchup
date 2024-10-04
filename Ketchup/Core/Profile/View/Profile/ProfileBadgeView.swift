@@ -9,10 +9,10 @@ import Kingfisher
 
 struct ProfileBadgeView: View {
     var user: User  // Pass the user to fetch badges
-    @State private var badges: [Badge] = []  // Use a state variable to store fetched badges
+      // Use a state variable to store fetched badges
     @Binding var selectedBadge: Badge?
     @Binding var selectedBadgeType: BadgeType?  // Binding to the selected badge type
-
+    @ObservedObject var profileViewModel: ProfileViewModel
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -41,20 +41,19 @@ struct ProfileBadgeView: View {
                 })
             }
             .onAppear {
-                fetchUserBadges()
+                Task{
+                    try await profileViewModel.fetchBadges()
+                }
+                
             }
         }
     }
 
     // Helper function to fetch badges for the current user
-    private func fetchUserBadges() {
-        user.fetchBadges { fetchedBadges in
-            self.badges = fetchedBadges
-        }
-    }
+    
 
     private func badgesForType(_ type: BadgeType) -> [Badge]? {
-        let filteredBadges = badges.filter { $0.type == type }
+        let filteredBadges =  profileViewModel.badges.filter { $0.type == type }
         if filteredBadges.isEmpty { return nil }
         let sortedBadges = filteredBadges.sorted { $0.tier > $1.tier }
         return sortedBadges

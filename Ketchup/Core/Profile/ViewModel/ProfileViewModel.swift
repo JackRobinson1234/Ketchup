@@ -13,6 +13,7 @@ import FirebaseAuth
 
 @MainActor
 class ProfileViewModel: ObservableObject {
+    @Published var isUserBlocked = false
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
     var annotations: [RestaurantMapAnnotation] = []
     var clusters: [ExampleClusterAnnotation] = []
@@ -24,6 +25,7 @@ class ProfileViewModel: ObservableObject {
     private var didCompleteStatsFetch = false
     var mapSize: CGSize = .zero
     @Published var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
+    @Published var badges: [Badge] = []
     
     init(uid: String) {
         self.uid = uid
@@ -36,7 +38,11 @@ class ProfileViewModel: ObservableObject {
             //print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
     }
-    
+    func fetchBadges() async throws{
+        user.fetchBadges { fetchedBadges in
+            self.badges = fetchedBadges
+        }
+    }
     func fetchCurrentUser() async {
         do {
             if let currentUser = Auth.auth().currentUser?.uid {
@@ -101,6 +107,17 @@ extension ProfileViewModel {
             //print("Error clearing notification alert")
         }
     }
+    func checkIfUserIsBlocked() async {
+            guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+            do {
+                let result = try await UserService.shared.isUserBlocked(currentUserId: currentUserId, blockedUserId: uid)
+                DispatchQueue.main.async {
+                    self.isUserBlocked = result
+                }
+            } catch {
+                print("Error checking if user is blocked: \(error.localizedDescription)")
+            }
+        }
 }
 
 struct PostRestaurantMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {

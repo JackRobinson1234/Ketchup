@@ -40,7 +40,7 @@ struct PrimaryFeedView: View {
     @State var showPostSuccess = false
     @State private var newPostsCount: Int = 0
     @State private var scrollOffset: CGFloat = 0
-    
+    @State private var showFindFriends = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -94,22 +94,22 @@ struct PrimaryFeedView: View {
                                         FastCrossfadeFoodImageView()
                                     }
                                     ForEach($viewModel.posts) { $post in
-                                        WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
-                                            .id(post.id)
-                                            .onAppear {
-                                                
-                                                
-                                                // Update scrollPosition when this cell appears
-                                                scrollPosition = post.id
-                                                // Trigger pagination when reaching near the end
-                                                if let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
-                                                    if index >= viewModel.posts.count - 5 {
-                                                        Task {
-                                                            await viewModel.loadMoreContentIfNeeded(currentPost: post.id)
+                                        if !post.isReported{
+                                            WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
+                                                .id(post.id)
+                                                .onAppear {
+                                                    // Update scrollPosition when this cell appears
+                                                    scrollPosition = post.id
+                                                    // Trigger pagination when reaching near the end
+                                                    if let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                                                        if index >= viewModel.posts.count - 5 {
+                                                            Task {
+                                                                await viewModel.loadMoreContentIfNeeded(currentPost: post.id)
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
+                                        }
                                     }
                                     if viewModel.isLoadingMoreContent {
                                         FastCrossfadeFoodImageView()
@@ -165,7 +165,9 @@ struct PrimaryFeedView: View {
                         }
                     }
                     .background(.white)
-                    
+                    .sheet(isPresented: $showFindFriends) {
+                        ContactsView(shouldFetchExistingUsers: true)
+                    }
                     // Top bar and other UI components
                     Rectangle()
                         .fill(Color.white)
@@ -378,11 +380,21 @@ struct PrimaryFeedView: View {
                         
                     }
                 }
+                
                 .overlay {
                     if viewModel.showEmptyView {
                         VStack {
                             CustomUnavailableView(text: "No posts to show", image: "eye.slash")
                                 .foregroundStyle(Color("Colors/AccentColor"))
+                            if viewModel.selectedTab == .following {
+                                Button{
+                                    showFindFriends = true
+                                } label: {
+                                    Text("Find your friends!")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.custom("MuseoSansRounded-700", size: 14))
+                                }
+                            }
                         }
                     }
                     

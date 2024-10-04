@@ -18,10 +18,6 @@ class AuthService {
     @Published var userSession: User?
     private init() {}
     
-    //MARK: updateUserSession
-    /// Updates the user session based on the current authentication status.
-    /// This method first checks if there is a user session stored in UserDefaults. If found and the stored user ID matches the currently authenticated user ID, it sets the user session to the stored user data. If not found or the IDs don't match, it fetches the user data from Firestore and updates the user session accordingly.
-    /// - Throws: An error if there's a problem decoding user data from UserDefaults or fetching user data from Firestore.
     func updateUserSession() async throws {
         guard let authUser = Auth.auth().currentUser?.uid else {
             self.userSession = nil
@@ -293,13 +289,7 @@ class AuthService {
             return false
             // Handle reauthentication failure here, such as showing an alert to the user
             
-            
         }
-        //        } catch {
-        //            //print(error.localizedDescription)
-        //            //self.authError = AuthError(authErrorCode: error.localizedDescription)
-        //        }
-        //try await deleteAccount()
     }
     //MARK: reAuth
     func reAuth(withEmail email: String, password: String) async throws {

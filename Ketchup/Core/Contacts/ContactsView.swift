@@ -52,7 +52,6 @@ struct ContactsView: View {
             .navigationBarItems(trailing: copyInviteLinkButton)
             .navigationTitle("Friends on Ketchup")
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search contacts")
             .onAppear {
                 checkContactsPermissionAndSync()
             }
@@ -178,9 +177,9 @@ struct ContactsView: View {
     
     private var inviteMessage: String {
         if let username = AuthService.shared.userSession?.username {
-            return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it and selfishly I want you on the app so I can see where you eat at. Use this link to get on: https://testflight.apple.com/join/ki6ajEz9  (P.S. Follow me @\(username))"
+            return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store (P.S. Follow me @\(username))"
         } else {
-            return "Hey! Sharing an invite to the beta for Ketchup - a new restaurant rating app. I think you would love it! Use this link to get on: https://testflight.apple.com/join/ki6ajEz9"
+            return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store)"
         }
     }
     
@@ -273,7 +272,7 @@ struct ContactRow: View {
                     Button(action: {
                         isShowingProfile = true
                     }) {
-                        Text(contact.user?.fullname ?? contact.deviceContactName ?? contact.phoneNumber)
+                        Text(contact.user?.fullname ?? contact.deviceContactName ?? "unknown")
                             .font(.custom("MuseoSansRounded-500", size: 16))
                             .foregroundStyle(.black)
                     }
@@ -292,7 +291,7 @@ struct ContactRow: View {
                     }
                     locationText
                 } else {
-                    Text(contact.deviceContactName ?? contact.phoneNumber)
+                    Text(contact.deviceContactName ?? "unknown")
                         .font(.custom("MuseoSansRounded-500", size: 16))
                         .foregroundStyle(.black)
                     
@@ -319,11 +318,15 @@ struct ContactRow: View {
         .onAppear(perform: checkFollowStatus)
         .sheet(isPresented: $isShowingMessageComposer) {
             if MFMessageComposeViewController.canSendText() {
-                ContactMessageComposeView(
-                    isShowing: $isShowingMessageComposer,
-                    recipient: contact.phoneNumber,
-                    body: viewModel.inviteMessage
-                )
+                if let deviceContactNumber = contact.deviceContactNumber{
+                    ContactMessageComposeView(
+                        isShowing: $isShowingMessageComposer,
+                        recipient: deviceContactNumber,
+                        body: viewModel.inviteMessage
+                    )
+                } else {
+                    Text("Error finding phone number")
+                }
             } else {
                 Text("This device cannot send text messages")
             }

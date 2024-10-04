@@ -33,8 +33,9 @@ struct LocationSearchView: View {
                         .focused($isFocused)
                 }
                 .frame(height: 44)
-                .padding()
-                .background(Color.gray)
+                
+                .background(Color.gray.opacity(0.1))
+                .padding(.horizontal)
                 .cornerRadius(8)
                 
                 List {

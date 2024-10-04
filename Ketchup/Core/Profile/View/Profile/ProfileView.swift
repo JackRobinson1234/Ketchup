@@ -73,141 +73,145 @@ struct ProfileView: View {
                     }
                 }
         } else{
-            ZStack{
-                ScrollViewReader{ scrollProxy in
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 2) {
-                            ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
-                            if !profileViewModel.user.privateMode {
-                                ProfileSlideBar(
-                                    viewModel: profileViewModel,
-                                    feedViewModel: feedViewModel,
-                                    collectionsViewModel: collectionsViewModel,
-                                    scrollPosition: $scrollPosition,
-                                    scrollTarget: $scrollTarget,
-                                    selectedBadge: $selectedBadge,
-                                    selectedBadgeType: $selectedBadgeType
-                                )
-                            } else {
-                                VStack {
-                                    Image(systemName: "lock.fill")
-                                        .font(.largeTitle)
-                                        .padding()
-                                    Text("Account is private")
-                                        .font(.custom("MuseoSansRounded-300", size: 18))
+            NavigationStack{
+                ZStack{
+                    ScrollViewReader{ scrollProxy in
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 2) {
+                                ProfileHeaderView(viewModel: profileViewModel,  showZoomedProfileImage: $showZoomedProfileImage)
+                                if !profileViewModel.user.privateMode && !profileViewModel.isUserBlocked {
+
+                                    ProfileSlideBar(
+                                        viewModel: profileViewModel,
+                                        feedViewModel: feedViewModel,
+                                        collectionsViewModel: collectionsViewModel,
+                                        scrollPosition: $scrollPosition,
+                                        scrollTarget: $scrollTarget,
+                                        selectedBadge: $selectedBadge,
+                                        selectedBadgeType: $selectedBadgeType
+                                    )
+                                } else {
+                                    VStack {
+                                        Image(systemName: "lock.fill")
+                                            .font(.largeTitle)
+                                            .padding()
+                                        Text("Account is private")
+                                            .font(.custom("MuseoSansRounded-300", size: 18))
+                                    }
+                                }
+                            }
+                            //.scrollPosition(id: $scrollPosition)
+                            .onChange(of: scrollTarget) {newValue in
+                                scrollPosition = scrollTarget
+                                withAnimation {
+                                    //print("SCROLLING")
+                                    scrollProxy.scrollTo(scrollTarget, anchor: .center)
                                 }
                             }
                         }
-                        //.scrollPosition(id: $scrollPosition)
-                        .onChange(of: scrollTarget) {newValue in
-                            scrollPosition = scrollTarget
-                            withAnimation {
-                                //print("SCROLLING")
-                                scrollProxy.scrollTo(scrollTarget, anchor: .center)
-                            }
+                        .gesture(drag)
+                        .sheet(isPresented: $showingOptionsSheet) {
+                            ProfileOptionsSheet(user: profileViewModel.user)
+                                .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
                         }
-                    }
-                    .gesture(drag)
-                    .sheet(isPresented: $showingOptionsSheet) {
-                        ProfileOptionsSheet(user: profileViewModel.user)
-                            .presentationDetents([.height(UIScreen.main.bounds.height * 0.10)])
-                    }
-                    .task { await profileViewModel.checkIfUserIsFollowed() }
-                    .toolbar(.hidden, for: .tabBar)
-                    .toolbarBackground(Color.white, for: .navigationBar)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(.black)
-                            }
-                        }
-                        ToolbarItem(placement: .topBarTrailing) {
-                            if !profileViewModel.user.isCurrentUser {
+                        .task { await profileViewModel.checkIfUserIsFollowed()
+                            await profileViewModel.checkIfUserIsBlocked()
+}
+                        .toolbar(.hidden, for: .tabBar)
+                        .toolbarBackground(Color.white, for: .navigationBar)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
                                 Button {
-                                    showingOptionsSheet = true
+                                    dismiss()
                                 } label: {
-                                    ZStack{
-                                        Rectangle()
-                                            .fill(.clear)
-                                            .frame(width: 18, height: 14)
-                                        Image(systemName: "ellipsis")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 5, height: 5)
-                                            .foregroundStyle(.black)
-                                        
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(.black)
+                                }
+                            }
+                            ToolbarItem(placement: .topBarTrailing) {
+                                if !profileViewModel.user.isCurrentUser {
+                                    Button {
+                                        showingOptionsSheet = true
+                                    } label: {
+                                        ZStack{
+                                            Rectangle()
+                                                .fill(.clear)
+                                                .frame(width: 18, height: 14)
+                                            Image(systemName: "ellipsis")
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 5, height: 5)
+                                                .foregroundStyle(.black)
+                                            
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                .navigationBarBackButtonHidden()
-                .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
-                    RestaurantProfileView(restaurantId: restaurant.id ?? "")
-                }
-                if let badge = selectedBadge {
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation {
-                                selectedBadge = nil
-                            }
-                        }
-                    
-                    VStack {
-                        Spacer()
-                        BadgeDetailView(badge: badge, onDismiss: {
-                            withAnimation {
-                                selectedBadge = nil
-                            }
-                        })
-                        .frame(width: UIScreen.main.bounds.width * 0.8,
-                               height: UIScreen.main.bounds.height * 0.6)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(radius: 20)
-                        Spacer()
+                    .navigationBarBackButtonHidden()
+                    .navigationDestination(for: FavoriteRestaurant.self) { restaurant in
+                        RestaurantProfileView(restaurantId: restaurant.id ?? "")
                     }
-                }
-                
-                // Overlay for Badge Type Info View
-                if let badgeType = selectedBadgeType {
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation {
-                                selectedBadgeType = nil
+                    if let badge = selectedBadge {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation {
+                                    selectedBadge = nil
+                                }
                             }
+                        
+                        VStack {
+                            Spacer()
+                            BadgeDetailView(badge: badge, onDismiss: {
+                                withAnimation {
+                                    selectedBadge = nil
+                                }
+                            })
+                            .frame(width: UIScreen.main.bounds.width * 0.8,
+                                   height: UIScreen.main.bounds.height * 0.6)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 20)
+                            Spacer()
                         }
-                    
-                    VStack {
-                        Spacer()
-                        BadgeTypeInfoView(badgeType: badgeType, onDismiss: {
-                            withAnimation {
-                                selectedBadgeType = nil
-                            }
-                        })
-                        .frame(width: UIScreen.main.bounds.width * 0.8,
-                               height: UIScreen.main.bounds.height * 0.4)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(radius: 20)
-                        Spacer()
                     }
-                }
-                
-                
-                if showZoomedProfileImage {
-                    Color.black.opacity(0.7)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            showZoomedProfileImage = false
-                        }
                     
+                    // Overlay for Badge Type Info View
+                    if let badgeType = selectedBadgeType {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation {
+                                    selectedBadgeType = nil
+                                }
+                            }
+                        
+                        VStack {
+                            Spacer()
+                            BadgeTypeInfoView(badgeType: badgeType, onDismiss: {
+                                withAnimation {
+                                    selectedBadgeType = nil
+                                }
+                            })
+                            .frame(width: UIScreen.main.bounds.width * 0.8,
+                                   height: UIScreen.main.bounds.height * 0.4)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 20)
+                            Spacer()
+                        }
+                    }
+                    
+                    
+                    if showZoomedProfileImage {
+                        Color.black.opacity(0.7)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                showZoomedProfileImage = false
+                            }
+                        
                         VStack {
                             Spacer()
                             UserCircularProfileImageView(profileImageUrl: profileViewModel.user.profileImageUrl, size: .xxxLarge)
@@ -219,7 +223,7 @@ struct ProfileView: View {
                             Spacer()
                         }
                     }
-                
+                }
             }
         }
     }
