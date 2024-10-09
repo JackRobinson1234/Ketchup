@@ -281,6 +281,7 @@
 		F8DA34592C877A7B00660978 /* SimplifiedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34582C877A7B00660978 /* SimplifiedPost.swift */; };
 		F8DA345B2C87935D00660978 /* MapUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA345A2C87935D00660978 /* MapUtils.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
+		F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 		F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */; };
@@ -591,6 +592,7 @@
 		F8DA34582C877A7B00660978 /* SimplifiedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPost.swift; sourceTree = "<group>"; };
 		F8DA345A2C87935D00660978 /* MapUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUtils.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
+		F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsButton.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySelectorView.swift; sourceTree = "<group>"; };
@@ -1631,6 +1633,7 @@
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
+				F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2112,6 +2115,7 @@
 				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
 				F88E0B2A2B6CA03900EC159B /* FirestoreConstants.swift in Sources */,
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
+				F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
 				F87987472C56F451007BAAB4 /* ZoomableViews.swift in Sources */,
 				F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */,

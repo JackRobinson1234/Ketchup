@@ -348,11 +348,14 @@ class RestaurantService {
     func fetchRestaurantsServingMeal(mealTime: String, location: CLLocationCoordinate2D) async throws -> [Restaurant] {
         let db = Firestore.firestore()
         let geohash = GFUtils.geoHash(forLocation: location)
-        let truncatedGeohash = String(geohash.prefix(5)) // Adjust precision as needed
-        let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash)
+        let truncatedGeohash6 = String(geohash.prefix(6)) // Adjust precision as needed
+        let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash6)
+      
+        print(mealTime)
         let query = db.collection("restaurants")
-            .whereField("truncatedGeohash5", in: geohashNeighbors)
-//            .whereField("additionalInfo.diningOptions.dinner", isEqualTo: true)
+            .whereField("truncatedGeohash6", in: geohashNeighbors)
+            .whereField("servesMeals", arrayContains: mealTime.capitalized)
+            .order(by: "stats.postCount", descending: true)
             .limit(to: 10)
         
         let snapshot = try await query.getDocuments()

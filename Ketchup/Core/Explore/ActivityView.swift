@@ -215,10 +215,13 @@ struct ActivityView: View {
     private var discoverContent: some View {
         VStack(alignment: .leading, spacing: 25) {
             inviteContactsButton
-            Text("\(greeting), \(viewModel.user?.fullname ?? "")!")
-                .font(.custom("MuseoSansRounded-700", size: 25))
-                .padding(.horizontal)
-
+            if let user = AuthService.shared.userSession {
+                Text("\(greeting), \(user.fullname)!")
+                    .font(.custom("MuseoSansRounded-700", size: 25))
+                    .padding(.horizontal)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }
             if !viewModel.mealRestaurants.isEmpty {
                 Text("\(greetingType.mealTime.capitalized) Restaurants Near You")
                     .font(.custom("MuseoSansRounded-700", size: 25))
@@ -862,39 +865,15 @@ enum RestaurantLeaderboardType: Identifiable {
 }
 
 
-struct InviteContactsButton: View {
-    var body: some View {
-        VStack {
-            Divider()
-            HStack {
-                Image(systemName: "envelope")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30)
-                    .foregroundStyle(.black)
-                Text("Invite your friends to Beta!")
-                    .font(.custom("MuseoSansRounded-700", size: 16))
-                    .foregroundStyle(.black)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.gray)
-                    .padding(.horizontal)
-            }
-            .padding(.horizontal)
-            .padding(.vertical)
-            Divider()
-        }
-    }
-}
 
 enum GreetingType {
     case morning, afternoon, evening
     
     var mealTime: String {
         switch self {
-        case .morning: return "breakfast"
-        case .afternoon: return "lunch"
-        case .evening: return "dinner"
+        case .morning: return "Breakfast"
+        case .afternoon: return "Lunch"
+        case .evening: return "Dinner"
         }
     }
 }
