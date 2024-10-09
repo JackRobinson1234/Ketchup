@@ -47,7 +47,7 @@ class ContactService {
 
     func syncDeviceContacts() {
         guard !isSyncing && !hasSynced else {
-            //print("Sync is not needed or is already in progress.")
+            ////print("Sync is not needed or is already in progress.")
             return
         }
         
@@ -64,13 +64,13 @@ class ContactService {
                     self.isSyncing = false
                     self.syncProgress = 1.0
                     self.hasSynced = true
-                    //print("Contact sync completed")
+                    ////print("Contact sync completed")
                 }
             } catch {
                 await MainActor.run {
                     self.error = error
                     self.isSyncing = false
-                    //print("Failed to sync contacts: \(error.localizedDescription)")
+                    ////print("Failed to sync contacts: \(error.localizedDescription)")
                 }
             }
             
@@ -113,7 +113,7 @@ class ContactService {
                     self.syncProgress = Float(batchIndex + 1) / Float(totalBatches)
                 }
             } catch {
-                //print("Error syncing batch \(batchIndex + 1): \(error.localizedDescription)")
+                ////print("Error syncing batch \(batchIndex + 1): \(error.localizedDescription)")
             }
             
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds delay between batches
@@ -148,7 +148,7 @@ class ContactService {
             let parsedNumber = try phoneNumberKit.parse(phoneNumber)
             return phoneNumberKit.format(parsedNumber, toType: .international)
         } catch {
-            //print("Error parsing phone number: \(error.localizedDescription)")
+            ////print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }

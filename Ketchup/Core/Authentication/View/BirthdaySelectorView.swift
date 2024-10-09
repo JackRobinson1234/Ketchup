@@ -12,7 +12,7 @@ struct BirthdaySelectorView: View {
     @State private var navigateToLocationSelection = false
     @State private var showAgeRestrictionAlert = false
     @ObservedObject var registrationViewModel: UserRegistrationViewModel
-
+    @State var oldEnough = false
     private let minimumAge: Int = 13
 
     var body: some View {
@@ -55,10 +55,13 @@ struct BirthdaySelectorView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(isUserOldEnough(birthday: tempBirthday) ? Color("Colors/AccentColor") : Color.gray)
+                    .background(oldEnough ? Color("Colors/AccentColor") : Color.gray)
                     .cornerRadius(25)
             }
-            .disabled(!isUserOldEnough(birthday: tempBirthday))
+            .disabled(!oldEnough)
+        }
+        .onChange(of: tempBirthday) { newValue in
+            oldEnough = isUserOldEnough(birthday: tempBirthday)
         }
         .padding()
         .navigationBarBackButtonHidden(true)

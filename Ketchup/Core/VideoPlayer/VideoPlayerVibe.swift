@@ -161,7 +161,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     @State var prefetching = false
 
     func resetPlayer() {
-        //print("Resetting player")
+        ////print("Resetting player")
         player.pause()
         player.removeAllItems()
         player.replaceCurrentItem(with: nil)
@@ -177,7 +177,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func configurePlayer() {
         if configured {
-            //print("Player is already configured for this post.")
+            ////print("Player is already configured for this post.")
             return
         }
         
@@ -189,7 +189,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             looper = AVPlayerLooper(player: player, templateItem: playerItem)
             configured = true
         } else {
-            //print("Error: Failed to create player item.")
+            ////print("Error: Failed to create player item.")
         }
         
         setupTimeObserver()
@@ -197,14 +197,14 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     
     func prefetch(url: URL?, mediaItemId: String, completion: @escaping () -> Void) {
         if prefetching {
-            //print("Already prefetching")
+            ////print("Already prefetching")
             completion()
             return
         }
         prefetching = true
         
         guard let url = url else {
-            //print("URL Error")
+            ////print("URL Error")
             prefetching = false
             completion()
             return
@@ -219,12 +219,12 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             saveFilePath.appendPathExtension("mp4")
             
             if FileManager.default.fileExists(atPath: saveFilePath.path) {
-                //print("Using cached file for mediaItemId: \(mediaItemId)")
+                ////print("Using cached file for mediaItemId: \(mediaItemId)")
                 playerItem = CachingPlayerItem(filePathURL: saveFilePath)
                 playerItem?.delegate = self
                 player.replaceCurrentItem(with: playerItem)
             } else {
-                //print("Downloading file for mediaItemId: \(mediaItemId)")
+                ////print("Downloading file for mediaItemId: \(mediaItemId)")
                 playerItem = CachingPlayerItem(url: url, saveFilePath: saveFilePath.path, customFileExtension: "mp4")
                 playerItem?.delegate = self
                 playerItem?.download()
@@ -233,7 +233,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
             configurePlayer()
             completion()
         } catch {
-            //print("File path error for mediaItemId \(mediaItemId): \(error)")
+            ////print("File path error for mediaItemId \(mediaItemId): \(error)")
             prefetching = false
             completion()
         }
@@ -243,7 +243,7 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
         let seekTime = CMTime(seconds: seconds, preferredTimescale: 1)
         player.seek(to: seekTime) { completed in
             if completed {
-                //print("Successfully seeked to \(seconds) seconds.")
+                ////print("Successfully seeked to \(seconds) seconds.")
             }
         }
     }
@@ -262,24 +262,24 @@ class VideoPlayerCoordinator: NSObject, AVPlayerViewControllerDelegate, Observab
     }
     
     func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
-        //print("Caching player item ready to play.")
+        ////print("Caching player item ready to play.")
         readyToPlay = true
     }
     
     func playerItemDidFailToPlay(_ playerItem: CachingPlayerItem, withError error: Error?) {
-        //print("**************************ERROR*************************")
+        ////print("**************************ERROR*************************")
     }
     
     func playerItemPlaybackStalled(_ playerItem: CachingPlayerItem) {
-        //print("Not enough data for playback. Probably because of the poor network. Wait a bit and try to play later.")
+        ////print("Not enough data for playback. Probably because of the poor network. Wait a bit and try to play later.")
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingFileAt filePath: String) {
-        //print("Caching player item file downloaded.", filePath)
+        ////print("Caching player item file downloaded.", filePath)
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
-        //print("Caching player item file download failed with error: \(error.localizedDescription).")
+        ////print("Caching player item file download failed with error: \(error.localizedDescription).")
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {

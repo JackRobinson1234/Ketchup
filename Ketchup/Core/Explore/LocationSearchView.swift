@@ -75,7 +75,7 @@ struct LocationSearchView: View {
         
         search.start { (response, error) in
             if let error = error {
-                print("Error searching for location: \(error.localizedDescription)")
+                //print("Error searching for location: \(error.localizedDescription)")
                 return
             }
             
@@ -100,7 +100,7 @@ struct LocationSearchView: View {
         
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
-                print("Reverse geocoding error: \(error.localizedDescription)")
+                //print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
             
@@ -110,7 +110,7 @@ struct LocationSearchView: View {
                         surroundingCounty = county
                     }
                 } else {
-                    print("County information not available")
+                    //print("County information not available")
                     DispatchQueue.main.async {
                         surroundingCounty = "Nearby"
                     }

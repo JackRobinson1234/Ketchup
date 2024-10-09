@@ -68,7 +68,7 @@ class FiltersViewModel: ObservableObject {
             guard let self = self else { return }
             
             if let error = error {
-                print("Reverse geocoding error: \(error.localizedDescription)")
+                //print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
             if let placemark = placemarks?.first {
@@ -96,14 +96,14 @@ class FiltersViewModel: ObservableObject {
                 filters["restaurant.price"] = selectedPrice
             }
             ///Dietary checking if there are any selected
-            //print("Filters", filters)
+            ////print("Filters", filters)
             do{
                 feedViewModel.filters = filters
                 feedViewModel.isInitialLoading = true
                 try await feedViewModel.fetchInitialPosts(withFilters: filters)
                 feedViewModel.isInitialLoading = false
             } catch {
-                //print("Error")
+                ////print("Error")
             }
         }
     }

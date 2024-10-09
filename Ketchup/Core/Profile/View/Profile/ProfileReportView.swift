@@ -100,9 +100,9 @@ struct ProfileOptionsSheet: View {
             switch result {
             case .success:
                 self.isUserBlocked = true
-                print("User blocked successfully")
+                //print("User blocked successfully")
             case .failure(let error):
-                print("Error blocking user: \(error.localizedDescription)")
+             print("Error blocking user: \(error.localizedDescription)")
             }
         }
     }
@@ -114,7 +114,7 @@ struct ProfileOptionsSheet: View {
             switch result {
             case .success:
                 self.isUserBlocked = false
-                print("User unblocked successfully")
+                //print("User unblocked successfully")
             case .failure(let error):
                 print("Error unblocking user: \(error.localizedDescription)")
             }

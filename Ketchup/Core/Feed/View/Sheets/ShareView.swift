@@ -138,7 +138,7 @@ struct ShareView: View {
                 downloadedMediaData = data
                 //isShowingMessageView = true // Show the message compose view after download
             } catch {
-                //print("Error downloading Media:", error.localizedDescription)
+                ////print("Error downloading Media:", error.localizedDescription)
             }
         }
     }

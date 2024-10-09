@@ -185,7 +185,7 @@ struct MapRestaurantProfileView: View {
                     }
                 }
             } catch {
-                //print("Error calculating directions: \(error.localizedDescription)")
+                ////print("Error calculating directions: \(error.localizedDescription)")
             }
         }
     }
@@ -321,7 +321,7 @@ struct Ios16MapRestaurantProfileView: View {
         directions.calculate { response, error in
             if let error = error {
                 // Handle error
-                print("Error calculating directions: \(error.localizedDescription)")
+                //print("Error calculating directions: \(error.localizedDescription)")
                 return
             }
             if let route = response?.routes.first {

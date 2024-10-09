@@ -41,9 +41,9 @@ class ReportService {
             // Commit the batch
             try await batch.commit()
             
-            print("Report uploaded and post updated successfully")
+            //print("Report uploaded and post updated successfully")
         } catch {
-            print("Error uploading report and updating post: \(error.localizedDescription)")
+            //print("Error uploading report and updating post: \(error.localizedDescription)")
             throw error
         }
     }

@@ -130,7 +130,7 @@ class MapViewModel: ObservableObject {
             
             isLoading = false
         } catch {
-            //print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
             isLoading = false
         }
     }

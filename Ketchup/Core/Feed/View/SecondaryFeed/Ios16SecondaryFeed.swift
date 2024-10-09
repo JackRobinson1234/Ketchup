@@ -88,7 +88,7 @@ struct IOS16SecondaryFeedView: View {
             }
         }
 //        .onChange(of: scrollPosition) { newPostId in
-//            print("SCROLL POSITION", scrollPosition)
+//            //print("SCROLL POSITION", scrollPosition)
 //            if let newPostId{
 //                handleScrollPositionChange(newPostId: newPostId)
 //            }

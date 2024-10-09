@@ -84,7 +84,7 @@ struct NotificationsView: View {
             AuthService.shared.userSession?.notificationAlert = 0
             try await UserService.shared.clearNotificationAlert()
         } catch {
-            //print("Error clearing notification alert")
+            ////print("Error clearing notification alert")
         }
     }
 }

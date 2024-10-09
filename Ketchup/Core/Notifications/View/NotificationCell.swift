@@ -54,6 +54,14 @@ struct NotificationCell: View {
 
             actionButton
         }
+        .onChange(of: viewModel.mostRecentlyUpdatedFollow){ newValue in
+            if newValue == self.notification.uid{
+                checkFollowStatus()
+                
+            }
+            viewModel.mostRecentlyUpdatedFollow = nil
+            
+        }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .background(Color.white)
@@ -358,6 +366,7 @@ struct NotificationCell: View {
         Task {
             isFollowed ? try await viewModel.unfollow(userId: notification.uid) : try await viewModel.follow(userId: notification.uid)
             self.isFollowed.toggle()
+            viewModel.mostRecentlyUpdatedFollow = notification.uid
         }
     }
 
@@ -401,7 +410,7 @@ struct NotificationCell: View {
                 }
                 
             } catch {
-                print("Failed to fetch poll: \(error.localizedDescription)")
+                //print("Failed to fetch poll: \(error.localizedDescription)")
             }
         }
     }

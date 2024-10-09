@@ -30,6 +30,7 @@ struct RestaurantProfileHeaderView: View {
     @State var showFriendsList = false
     @State private var highlightsAndTags: [String] = []
     @State private var showOrderSheet = false
+    
     init(feedViewModel: FeedViewModel, viewModel: RestaurantViewModel, scrollPosition: Binding<String?>, scrollTarget: Binding<String?>) {
         self._feedViewModel = ObservedObject(wrappedValue: feedViewModel)
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -262,26 +263,26 @@ struct RestaurantProfileHeaderView: View {
                 
                 
                 VStack(alignment: .leading){
-                                    HStack(spacing: 2) {
-                                        Text("Scores")
-                                            .font(.custom("MuseoSansRounded-900", size: 14))
-                                            .foregroundColor(.black)
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 10))
-                                            .foregroundStyle(.gray)
-                                    }
-                                    HStack(spacing: 10) {
-                                        overallScoreSection
-                                        friendsScoreSection
-                                    }
-                                }
-                                .onTapGesture {
-                                    withAnimation {
-                                        showRatingDetails.toggle()
-                                    }
-                                }
-                               
+                    HStack(spacing: 2) {
+                        Text("Scores")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.gray)
+                    }
+                    HStack(spacing: 10) {
+                        overallScoreSection
+                        friendsScoreSection
+                    }
+                }
+                .onTapGesture {
+                    withAnimation {
+                        showRatingDetails.toggle()
+                    }
+                }
+                
                 
                 
                 
@@ -327,6 +328,20 @@ struct RestaurantProfileHeaderView: View {
                 }
                 VStack (alignment: .leading){
                     
+                    Text("People Also Search")
+                        .font(.custom("MuseoSansRounded-900", size: 14))
+                        .foregroundColor(.black)
+                    
+                        .padding(.horizontal)
+                    peopleAlsoSearchSection
+                    
+                    
+                    // Rating details dropdown
+                    
+                }
+                .padding(.vertical)
+                VStack (alignment: .leading){
+                    
                     Text("Info")
                         .font(.custom("MuseoSansRounded-900", size: 14))
                         .foregroundColor(.black)
@@ -334,11 +349,12 @@ struct RestaurantProfileHeaderView: View {
                     
                         .padding(.horizontal)
                     actionButtonsView(restaurant: restaurant)
-                                          
+                    
                     
                     // Rating details dropdown
                     
                 }
+                
                 
                 
                 Divider()
@@ -384,10 +400,10 @@ struct RestaurantProfileHeaderView: View {
                 }
             }
             .sheet(isPresented: $showMapView) {
-//                if #available(iOS 17, *) {
-//                    MapRestaurantProfileView(viewModel: viewModel)
-//                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
-//                }
+                //                if #available(iOS 17, *) {
+                //                    MapRestaurantProfileView(viewModel: viewModel)
+                //                        .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
+                //                }
                 Ios16MapRestaurantProfileView(viewModel: viewModel)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
@@ -398,9 +414,9 @@ struct RestaurantProfileHeaderView: View {
                 }
             }
             .sheet(isPresented: $showOrderSheet) {
-                            OrderSheetView(restaurant: restaurant)
-                                .presentationDetents([.fraction(0.25)])
-                        }
+                OrderSheetView(restaurant: restaurant)
+                    .presentationDetents([.fraction(0.25)])
+            }
         }
     }
     @ViewBuilder
@@ -410,7 +426,7 @@ struct RestaurantProfileHeaderView: View {
                 HStack(spacing: 8) {
                     if let menuUrl = restaurant.menuUrl, !menuUrl.isEmpty, let url = URL(string: menuUrl) {
                         actionButton(title: "Menu", icon: "menucard") {
-                            //print("Menu URL:", menuUrl)
+                            ////print("Menu URL:", menuUrl)
                             urlToShow = url
                         }
                     }
@@ -452,6 +468,27 @@ struct RestaurantProfileHeaderView: View {
             }
         }
         .padding(.horizontal)
+    }
+    private var peopleAlsoSearchSection: some View {
+        VStack{
+            if !viewModel.similarRestaurants.isEmpty {
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        ForEach(viewModel.similarRestaurants.indices, id: \.self) { index in
+                            
+                            SimilarRestaurantCell(restaurant: viewModel.similarRestaurants[index])
+                            
+                            
+                            if index < viewModel.similarRestaurants.count - 1 {
+                                Divider()
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
     }
     private func calculateHighlightsAndTags(restaurant: Restaurant) {
         var items = [String]()
@@ -533,76 +570,76 @@ struct RestaurantProfileHeaderView: View {
         .padding()
     }
     private var overallScoreSection: some View {
-            VStack(alignment: .leading) {
-                if let overallRating = viewModel.overallRating {
-                    HStack(alignment: .center, spacing: 6) {
-                        FeedOverallRatingView(rating: overallRating, font: .black)
-                        VStack(alignment: .leading){
-                            Text("Overall Score")
-                                .font(.custom("MuseoSansRounded-700", size: 14))
-                                .foregroundColor(.black)
-                            if let stats = viewModel.restaurant?.stats {
-                                Text("\(stats.postCount) posts")
-                                    .font(.custom("MuseoSansRounded-500", size: 12))
-                                    .foregroundColor(.gray)
-                                Text("\(stats.collectionCount) Collections")
-                                    .font(.custom("MuseoSansRounded-500", size: 12))
-                                    .foregroundColor(.gray)
-                            }
+        VStack(alignment: .leading) {
+            if let overallRating = viewModel.overallRating {
+                HStack(alignment: .center, spacing: 6) {
+                    FeedOverallRatingView(rating: overallRating, font: .black)
+                    VStack(alignment: .leading){
+                        Text("Overall Score")
+                            .font(.custom("MuseoSansRounded-700", size: 14))
+                            .foregroundColor(.black)
+                        if let stats = viewModel.restaurant?.stats {
+                            Text("\(stats.postCount) posts")
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                            Text("\(stats.collectionCount) Collections")
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
                         }
                     }
-                } else {
-                    Text("No reviews yet")
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                        .foregroundColor(.gray)
                 }
+            } else {
+                Text("No reviews yet")
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.gray)
             }
-            .frame(maxWidth: .infinity, minHeight: 70)
-            .padding(2)
-            .background(Color.secondary.opacity(0.1))
-            .cornerRadius(8)
         }
-
-        private var friendsScoreSection: some View {
-            VStack(alignment: .leading) {
-                if let friendsOverallRating = feedViewModel.friendsOverallRating {
-                    HStack(alignment: .center, spacing: 6) {
-                        FeedOverallRatingView(rating: friendsOverallRating, font: .black)
-                        VStack(alignment: .leading, spacing: 0){
-                            Text("Friends Score")
-                                .font(.custom("MuseoSansRounded-700", size: 14))
-                                .foregroundColor(.black)
-                            if !viewModel.friendsWhoPosted.isEmpty {
-                                HStack(spacing: -10) {
-                                    ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
-                                        UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
-                                            .overlay(
-                                                Circle()
-                                                    .stroke(Color.white, lineWidth: 2)
-                                            )
-                                    }
-                                    
-                                    if viewModel.friendsWhoPosted.count > 3 {
-                                        Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
-                                            .font(.custom("MuseoSansRounded-300", size: 10))
-                                            .foregroundColor(.gray)
-                                            .padding(.leading, 10)
-                                    }
+        .frame(maxWidth: .infinity, minHeight: 70)
+        .padding(2)
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(8)
+    }
+    
+    private var friendsScoreSection: some View {
+        VStack(alignment: .leading) {
+            if let friendsOverallRating = feedViewModel.friendsOverallRating {
+                HStack(alignment: .center, spacing: 6) {
+                    FeedOverallRatingView(rating: friendsOverallRating, font: .black)
+                    VStack(alignment: .leading, spacing: 0){
+                        Text("Friends Score")
+                            .font(.custom("MuseoSansRounded-700", size: 14))
+                            .foregroundColor(.black)
+                        if !viewModel.friendsWhoPosted.isEmpty {
+                            HStack(spacing: -10) {
+                                ForEach(viewModel.friendsWhoPosted.prefix(3)) { user in
+                                    UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 2)
+                                        )
+                                }
+                                
+                                if viewModel.friendsWhoPosted.count > 3 {
+                                    Text("+ \(viewModel.friendsWhoPosted.count - 3) others")
+                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 10)
                                 }
                             }
                         }
                     }
-                } else {
-                    Text("No reviews from friends")
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                        .foregroundColor(.gray)
                 }
+            } else {
+                Text("No reviews from friends")
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .foregroundColor(.gray)
             }
-            .frame(maxWidth: .infinity, minHeight: 70)
-            .padding(2)
-            .background(Color.secondary.opacity(0.1))
-            .cornerRadius(8)
         }
+        .frame(maxWidth: .infinity, minHeight: 70)
+        .padding(2)
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(8)
+    }
     private func featureItem(icon: String, title: String, isAvailable: Bool) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
@@ -638,6 +675,7 @@ struct RestaurantProfileHeaderView: View {
         .foregroundColor(.black)
         
     }
+    
 }
 extension URL: Identifiable {
     public var id: String {

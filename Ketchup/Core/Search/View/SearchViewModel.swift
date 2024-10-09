@@ -29,7 +29,7 @@ final class SearchViewModel: ObservableObject {
     
     init(initialSearchConfig: SearchModelConfig) {
         self.searchConfig = initialSearchConfig
-        self.restaurantItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "restaurants2")
+        self.restaurantItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "restaurants7")
         self.collectionsItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "collections")
         self.usersItemsSearcher = HitsSearcher(appID: appID, apiKey: apiKey, indexName: "users")
         
@@ -52,7 +52,7 @@ final class SearchViewModel: ObservableObject {
             restaurantItemsSearcher.request.query.query = searchQuery
             // Add location-based filtering here if needed
             if let location = selectedLocation {
-                print("LOCATION", location)
+                //print("LOCATION", location)
                 restaurantItemsSearcher.request.query.aroundLatLng = .init(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
             }
             restaurantItemsSearcher.search()
@@ -77,7 +77,7 @@ final class SearchViewModel: ObservableObject {
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
             guard let self = self, let placemark = placemarks?.first else {
-                print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
+                //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             
@@ -91,3 +91,4 @@ final class SearchViewModel: ObservableObject {
         }
     }
 }
+

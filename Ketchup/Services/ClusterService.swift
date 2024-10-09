@@ -16,7 +16,7 @@ class ClusterService {
     private init() {}
     
     func fetchClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, zoomLevel: String, limit: Int = 0) async throws -> [Cluster] {
-        //print("DEBUG: Fetching clusters around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
+        ////print("DEBUG: Fetching clusters around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
         
         let queryBounds = GFUtils.queryBounds(forLocation: center, withRadius: radiusInM)
         let clustersCollection = Firestore.firestore().collection("mapClusters")
@@ -29,7 +29,7 @@ class ClusterService {
                 .end(at: [bound.endValue])
             
             query = applyFilters(toQuery: query, filters: filters)
-            //print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
+            ////print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
             return query
         }
         
@@ -38,23 +38,23 @@ class ClusterService {
                 for query in queries {
                     group.addTask {
                         let snapshot = try await query.getDocuments()
-                        //print("DEBUG: Executing query for clusters")
+                        ////print("DEBUG: Executing query for clusters")
                         let clusters = snapshot.documents.compactMap { document -> Cluster? in
                             do {
                                 var cluster = try document.data(as: Cluster.self)
                                 // Apply filtering and adjust cluster
                                 if let adjustedCluster = self.adjustClusterForFilters(cluster, filters: filters) {
-                                    //print("DEBUG: Successfully decoded and filtered cluster with id: \(adjustedCluster.id)")
+                                    ////print("DEBUG: Successfully decoded and filtered cluster with id: \(adjustedCluster.id)")
                                     return adjustedCluster
                                 }
                                 return nil
                             } catch {
-                                //print("ERROR: Failed to decode cluster from document \(document.documentID). Error: \(error)")
-                                //print("DEBUG: Raw document data: \(document.data())")
+                                ////print("ERROR: Failed to decode cluster from document \(document.documentID). Error: \(error)")
+                                ////print("DEBUG: Raw document data: \(document.data())")
                                 return nil
                             }
                         }
-                        //print("DEBUG: Fetched and filtered \(clusters.count) clusters from bounds")
+                        ////print("DEBUG: Fetched and filtered \(clusters.count) clusters from bounds")
                         return (clusters, snapshot.documents.count)
                     }
                 }
@@ -65,15 +65,15 @@ class ClusterService {
                     allMatchingDocs.append(contentsOf: documents)
                     totalDocumentCount += count
                 }
-                //print("DEBUG: Total filtered clusters fetched: \(allMatchingDocs.count)")
+                ////print("DEBUG: Total filtered clusters fetched: \(allMatchingDocs.count)")
                 return (allMatchingDocs, totalDocumentCount)
             }
             
-            //print("Total number of documents fetched: \(totalDocuments)")
-            //print("Total number of successfully decoded and filtered clusters: \(matchingDocs.count)")
+            ////print("Total number of documents fetched: \(totalDocuments)")
+            ////print("Total number of successfully decoded and filtered clusters: \(matchingDocs.count)")
             return matchingDocs
         } catch {
-            //print("ERROR: Failed to fetch clusters with error \(error)")
+            ////print("ERROR: Failed to fetch clusters with error \(error)")
             throw error
         }
     }
@@ -127,7 +127,7 @@ class ClusterService {
     func fetchFollowerPostsWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, zoomLevel: String, limit: Int = 0) async throws -> [SimplifiedPost] {
         guard let currentUserID = Auth.auth().currentUser?.uid else { return [] }
         
-        //print("DEBUG: Fetching posts around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
+        ////print("DEBUG: Fetching posts around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
         
         let queryBounds = GFUtils.queryBounds(forLocation: center, withRadius: radiusInM)
         let followingPostsRef = Firestore.firestore().collection("followingposts").document(currentUserID).collection("posts")
@@ -139,7 +139,7 @@ class ClusterService {
                 .end(at: [bound.endValue])
             
             query = applyFiltersToPost(toQuery: query, filters: filters)
-            //print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
+            ////print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
             return query
         }
         
@@ -148,19 +148,19 @@ class ClusterService {
                 for query in queries {
                     group.addTask {
                         let snapshot = try await query.getDocuments()
-                        //print("DEBUG: Executing query for posts")
+                        ////print("DEBUG: Executing query for posts")
                         let posts = snapshot.documents.compactMap { document -> SimplifiedPost? in
                             do {
                                 let post = try document.data(as: SimplifiedPost.self)
-                                //print("DEBUG: Successfully decoded post with id: \(post.id)")
+                                ////print("DEBUG: Successfully decoded post with id: \(post.id)")
                                 return post
                             } catch {
-                                //print("ERROR: Failed to decode post from document \(document.documentID). Error: \(error)")
-                                //print("DEBUG: Raw document data: \(document.data())")
+                                ////print("ERROR: Failed to decode post from document \(document.documentID). Error: \(error)")
+                                ////print("DEBUG: Raw document data: \(document.data())")
                                 return nil
                             }
                         }
-                        //print("DEBUG: Fetched and filtered \(posts.count) posts from bounds")
+                        ////print("DEBUG: Fetched and filtered \(posts.count) posts from bounds")
                         return (posts, snapshot.documents.count)
                     }
                 }
@@ -171,15 +171,15 @@ class ClusterService {
                     allMatchingDocs.append(contentsOf: documents)
                     totalDocumentCount += count
                 }
-                //print("DEBUG: Total filtered posts fetched: \(allMatchingDocs.count)")
+                ////print("DEBUG: Total filtered posts fetched: \(allMatchingDocs.count)")
                 return (allMatchingDocs, totalDocumentCount)
             }
             
-            //print("Total number of documents fetched: \(totalDocuments)")
-            //print("Total number of successfully decoded and filtered posts: \(matchingDocs.count)")
+            ////print("Total number of documents fetched: \(totalDocuments)")
+            ////print("Total number of successfully decoded and filtered posts: \(matchingDocs.count)")
             return matchingDocs
         } catch {
-            //print("ERROR: Failed to fetch posts with error \(error)")
+            ////print("ERROR: Failed to fetch posts with error \(error)")
             throw error
         }
     }

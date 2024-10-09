@@ -127,7 +127,7 @@ struct CollectionInviteUserList: View {
                 let users = try await UserService.shared.fetchFollowingUsers()
                 followingUsers = users
             } catch {
-                //print("Error fetching following users: \(error)")
+                ////print("Error fetching following users: \(error)")
             }
         }
     }
@@ -138,7 +138,7 @@ struct CollectionInviteUserList: View {
                 try await collectionsViewModel.inviteUserToCollection(inviteeUid: user.id)
                 showSuccessAlert = true
             } catch {
-                //print("Failed to send invite: \(error)")
+                ////print("Failed to send invite: \(error)")
                 // Optionally: Show an error alert here
             }
         }

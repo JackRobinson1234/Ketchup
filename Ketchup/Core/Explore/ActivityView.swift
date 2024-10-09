@@ -9,9 +9,8 @@ import SwiftUI
 import FirebaseAuth
 import GeoFire
 import Firebase
-enum LetsKetchupOptions {
-    case friends, trending
-}
+import Kingfisher
+
 struct ActivityView: View {
     @StateObject private var viewModel = ActivityViewModel()
     @StateObject private var leaderboardViewModel = LeaderboardViewModel()
@@ -31,6 +30,10 @@ struct ActivityView: View {
     @State private var currentTabHeight: CGFloat = 650
     @State private var selectedPollIndex: Int = 0
     @StateObject var feedViewModel = FeedViewModel()
+    @State private var greetingType: GreetingType = .morning
+    @State private var greeting: String = ""
+    @StateObject private var locationManager = LocationManager()
+
     enum Tab {
         case dailyPoll
         case discover
@@ -59,43 +62,32 @@ struct ActivityView: View {
     }
     
     var body: some View {
-           NavigationStack {
-               ZStack(alignment: .top) {
-                           ScrollView {
-                               VStack(alignment: .leading, spacing: 20) {
-                                   Color.clear
-                                       .frame(height: 100) // Adjust this value based on the combined height of your header and tab buttons
-                                   contentBasedOnSelectedTab
-                               }
-                           }
-
-                           VStack(spacing: 0) {
-                               customHeader
-                                   
-                                   .background(Color.white)
-                                   .zIndex(2)
-                               
-                               tabButtons
-                                   .padding(.bottom, 6)
-                                   .background(Color.white)
-                                   .zIndex(1)
-                                   .padding(.bottom, 10)
-                           }
-                       }
-               .navigationBarHidden(true)
-
-               //.navigationBarTitleDisplayMode(.inline)
-//               .toolbar {
-//                   ToolbarItem(placement: .principal) {
-//                       VStack {
-//                           HStack {
-//                               toolbarLogoView
-//                               Spacer()
-//                               locationButton
-//                           }
-//                       }
-//                   }
-//               }
+        NavigationStack {
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Color.clear
+                            .frame(height: 100) // Adjust this value based on the combined height of your header and tab buttons
+                        contentBasedOnSelectedTab
+                    }
+                }
+                
+                VStack(spacing: 0) {
+                    customHeader
+                    
+                        .background(Color.white)
+                        .zIndex(2)
+                    
+                    tabButtons
+                        .padding(.bottom, 6)
+                        .background(Color.white)
+                        .zIndex(1)
+                        .padding(.bottom, 10)
+                }
+            }
+            .navigationBarHidden(true)
+            
+           
             .refreshable { await refreshData() }
             .fullScreenCover(item: Binding(
                 get: { selectedLeaderboard?.category },
@@ -132,28 +124,50 @@ struct ActivityView: View {
         }
         .onAppear {
             loadInitialLocation()
-            Task {
-                await loadInitialData()
+            computeGreeting()
+            if let location = locationManager.userLocation?.coordinate {
+                Task {
+                    do {
+                        try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+                    } catch {
+                        print("Error fetching meal restaurants: \(error)")
+                    }
+                }
+            } else {
+                // Request location if not available
+                locationManager.requestLocation { success in
+                    if success, let location = locationManager.userLocation?.coordinate {
+                        Task {
+                            do {
+                                try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+                            } catch {
+                                print("Error fetching meal restaurants: \(error)")
+                            }
+                        }
+                    } else {
+                        print("User location not available.")
+                    }
+                }
             }
         }
     }
     private var contentBasedOnSelectedTab: some View {
-           Group {
-               if selectedTab == .dailyPoll {
-                   dailyPollContent
-               } else if selectedTab == .discover {
-                   discoverContent
-               } else if selectedTab == .friends {
-                   friendsContent
-               } else {
-                   if isLoading {
-                       FastCrossfadeFoodImageView()
-                   } else {
-                       leaderboardsContent
-                   }
-               }
-           }
-       }
+        Group {
+            if selectedTab == .dailyPoll {
+                dailyPollContent
+            } else if selectedTab == .discover {
+                discoverContent
+            } else if selectedTab == .friends {
+                friendsContent
+            } else {
+                if isLoading {
+                    FastCrossfadeFoodImageView()
+                } else {
+                    leaderboardsContent
+                }
+            }
+        }
+    }
     private var tabButtons: some View {
         VStack{
             ScrollView(.horizontal, showsIndicators: false){
@@ -176,7 +190,7 @@ struct ActivityView: View {
                 .padding(.horizontal)
             }
         }
-       
+        
     }
     
     private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -201,35 +215,89 @@ struct ActivityView: View {
     private var discoverContent: some View {
         VStack(alignment: .leading, spacing: 25) {
             inviteContactsButton
+            Text("\(greeting), \(viewModel.user?.fullname ?? "")!")
+                .font(.custom("MuseoSansRounded-700", size: 25))
+                .padding(.horizontal)
+
+            if !viewModel.mealRestaurants.isEmpty {
+                Text("\(greetingType.mealTime.capitalized) Restaurants Near You")
+                    .font(.custom("MuseoSansRounded-700", size: 25))
+                    .padding(.horizontal)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(viewModel.mealRestaurants) { restaurant in
+                            RestaurantCardView(restaurant: restaurant)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+
             dailyPollContent
             Divider()
-                contactsSection
+            contactsSection
             Divider()
-            if !isLoading{
+            if !isLoading {
                 RestaurantLeaderboardsView(
                     viewModel: leaderboardViewModel,
                     leaderboardData: $leaderboardData,
                     selectedLeaderboard: $selectedLeaderboard,
-                    
                     city: city,
                     state: state,
                     surroundingGeohash: surroundingGeohash,
                     surroundingCounty: surroundingCounty
                 )
-                
                 mostLikedPostsSection
             }
-            
+        }
+    }
+    struct RestaurantCardView: View {
+        let restaurant: Restaurant
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                if let imageUrl = restaurant.profileImageUrl {
+                    KFImage(URL(string: imageUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 100)
+                        .cornerRadius(8)
+                        .clipped()
+                } else {
+                    Image("placeholderImage")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 100)
+                        .cornerRadius(8)
+                        .clipped()
+                }
+                Text(restaurant.name)
+                    .font(.custom("MuseoSansRounded-700", size: 14))
+                    .foregroundColor(.black)
+                    .lineLimit(1)
+                    .frame(width: 120, alignment: .leading)
+                if let city = restaurant.city {
+                    Text(city)
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 120)
+            .onTapGesture {
+                // Navigate to restaurant detail view
+            }
         }
     }
     private var customHeader: some View {
-            HStack {
-                toolbarLogoView
-                Spacer()
-                locationButton
-            }
-            .padding()
+        HStack {
+            toolbarLogoView
+            Spacer()
+            locationButton
         }
+        .padding()
+    }
     private var friendsContent: some View {
         VStack{
             inviteContactsButton
@@ -258,7 +326,24 @@ struct ActivityView: View {
             .scaledToFit()
             .frame(width: 100)
     }
-    
+    private func computeGreeting() {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greetingType: GreetingType
+        let greeting: String
+        switch hour {
+        case 5..<12:
+            greetingType = .morning
+            greeting = "Good morning"
+        case 12..<17:
+            greetingType = .afternoon
+            greeting = "Good afternoon"
+        default:
+            greetingType = .evening
+            greeting = "Good evening"
+        }
+        self.greetingType = greetingType
+        self.greeting = greeting
+    }
     private var locationButton: some View {
         Button(action: {
             showLocationSearch = true
@@ -279,83 +364,83 @@ struct ActivityView: View {
         }
     }
     private var dailyPollContent: some View {
-            VStack(alignment: .leading) {
-                HStack{
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text("Daily Poll")
-                                .font(.custom("MuseoSansRounded-700", size: 25))
-                                .foregroundColor(.black)
-                            
-                            if !hasUserVotedToday() {
-                                Circle()
-                                    .fill(Color.red)
-                                    .frame(width: 8, height: 8)
-                            }
-                        }
-                        .padding(.horizontal)
+        VStack(alignment: .leading) {
+            HStack{
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Daily Poll")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .foregroundColor(.black)
                         
-                        HStack(spacing: 2) {
-                            Text("🔥\(AuthService.shared.userSession?.pollStreak ?? 0) day streak")
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                                .foregroundColor(.black)
-                        }
-                        .padding(.horizontal)
-                    }
-                    Spacer()
-                    if let userId = AuthService.shared.userSession?.id,
-                       ["uydfmAuFmCWOvSuLaGYuSKQO8Qn2", "cQlKGlOWTOSeZcsqObd4Iuy6jr93", "4lwAIMZ8zqgoIljiNQmqANMpjrk2"].contains(userId) {
-                        Button {
-                            showPollUploadView = true
-                        } label: {
-                           
-                                Text("Poll Manager")
-                                    .font(.custom("MuseoSansRounded-300", size: 12))
-                                    .modifier(StandardButtonModifier(width: 80))
-                                    .padding(.trailing)
-                                
+                        if !hasUserVotedToday() {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 8, height: 8)
                         }
                     }
+                    .padding(.horizontal)
+                    
+                    HStack(spacing: 2) {
+                        Text("🔥\(AuthService.shared.userSession?.pollStreak ?? 0) day streak")
+                            .font(.custom("MuseoSansRounded-500", size: 14))
+                            .foregroundColor(.black)
+                    }
+                    .padding(.horizontal)
                 }
-
-                if !pollViewModel.polls.isEmpty {
-                    VStack(spacing: 10) {
-                        TabView(selection: $selectedPollIndex) {
-                            ForEach(pollViewModel.polls.indices, id: \.self) { index in
-                                PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel, feedViewModel: feedViewModel)
-                                    .background(
-                                        GeometryReader { geometry in
-                                            Color.clear
-                                                .onAppear {
-                                                    if index == selectedPollIndex {
-                                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                                            currentTabHeight = geometry.size.height + 15
-                                                        }
-                                                    }
-                                                }
-                                                .onChange(of: selectedPollIndex) { _ in
-                                                    if index == selectedPollIndex {
-                                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                                            currentTabHeight = geometry.size.height + 15
-                                                        }
-                                                    }
-                                                }
-                                        }
-                                    )
-                                    .tag(index)
-                            }
-                        }
-                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                        .frame(height: currentTabHeight)
-                        Text("Swipe to see previous polls")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundColor(.gray.opacity(0.8))
-                            .padding(.bottom, 5)
+                Spacer()
+                if let userId = AuthService.shared.userSession?.id,
+                   ["uydfmAuFmCWOvSuLaGYuSKQO8Qn2", "cQlKGlOWTOSeZcsqObd4Iuy6jr93", "4lwAIMZ8zqgoIljiNQmqANMpjrk2"].contains(userId) {
+                    Button {
+                        showPollUploadView = true
+                    } label: {
+                        
+                        Text("Poll Manager")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .modifier(StandardButtonModifier(width: 80))
+                            .padding(.trailing)
+                        
                     }
                 }
             }
+            
+            if !pollViewModel.polls.isEmpty {
+                VStack(spacing: 10) {
+                    TabView(selection: $selectedPollIndex) {
+                        ForEach(pollViewModel.polls.indices, id: \.self) { index in
+                            PollView(poll: $pollViewModel.polls[index], pollViewModel: pollViewModel, feedViewModel: feedViewModel)
+                                .background(
+                                    GeometryReader { geometry in
+                                        Color.clear
+                                            .onAppear {
+                                                if index == selectedPollIndex {
+                                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                                        currentTabHeight = geometry.size.height + 15
+                                                    }
+                                                }
+                                            }
+                                            .onChange(of: selectedPollIndex) { _ in
+                                                if index == selectedPollIndex {
+                                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                                        currentTabHeight = geometry.size.height + 15
+                                                    }
+                                                }
+                                            }
+                                    }
+                                )
+                                .tag(index)
+                        }
+                    }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    .frame(height: currentTabHeight)
+                    Text("Swipe to see previous polls")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray.opacity(0.8))
+                        .padding(.bottom, 5)
+                }
+            }
         }
-
+    }
+    
     private var mostLikedPostsSection: some View {
         VStack(alignment: .leading) {
             Text("Most Liked Posts")
@@ -422,7 +507,7 @@ struct ActivityView: View {
                         showContacts = true
                     } label: {
                         Text("We couldn't find any friends in your contacts, invite them!")
-                            .foregroundStyle(Color("Black"))
+                            .foregroundStyle(.black)
                             .font(.custom("MuseoSansRounded-700", size: 14))
                     }
                 }
@@ -467,45 +552,45 @@ struct ActivityView: View {
                             Text("Invite your friends to Ketchup!")
                                 .font(.custom("MuseoSansRounded-700", size: 16))
                             VStack(alignment: .leading, spacing: 3) {
+                                
+                                GeometryReader { geometry in
+                                    ZStack(alignment: .leading) {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(height: 4)
+                                            .cornerRadius(4)
                                         
-                                        GeometryReader { geometry in
-                                            ZStack(alignment: .leading) {
-                                                Rectangle()
-                                                    .fill(Color.gray.opacity(0.3))
-                                                    .frame(height: 4)
-                                                    .cornerRadius(4)
-                                                
-                                                Rectangle()
-                                                    .fill(Color("Colors/AccentColor"))
-                                                    .frame(width: min(CGFloat(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10)) / 10.0 * geometry.size.width, geometry.size.width), height: 4)
-                                                    .cornerRadius(4)
-                                            }
-                                        }
-                                        .frame(height: 8)
-                                        
+                                        Rectangle()
+                                            .fill(Color("Colors/AccentColor"))
+                                            .frame(width: min(CGFloat(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10)) / 10.0 * geometry.size.width, geometry.size.width), height: 4)
+                                            .cornerRadius(4)
+                                    }
+                                }
+                                .frame(height: 8)
+                                
                                 HStack (spacing: 1){
-                                            Text("You have \(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10))/10 referrals to earn the launch badge")
-                                                .font(.custom("MuseoSansRounded-500", size: 10))
-                                                .foregroundColor(.gray)
-                                          
-                                            if let totalReferrals = AuthService.shared.userSession?.totalReferrals, totalReferrals >= 10 {
-                                                Image("LAUNCH")
-                                               
-                                            } else {
-                                                HStack(spacing: 4) {
-                                                   
-                                                    Image("LAUNCHBLACK")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(height: 12)
-                                                        .opacity(0.5)
-                                                }
-                                            }
+                                    Text("You have \(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10))/10 referrals to earn the launch badge")
+                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                        .foregroundColor(.gray)
+                                    
+                                    if let totalReferrals = AuthService.shared.userSession?.totalReferrals, totalReferrals >= 10 {
+                                        Image("LAUNCH")
+                                        
+                                    } else {
+                                        HStack(spacing: 4) {
+                                            
+                                            Image("LAUNCHBLACK")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: 12)
+                                                .opacity(0.5)
                                         }
                                     }
-                                
+                                }
+                            }
+                            
                         }
-                            .foregroundStyle(.black)
+                        .foregroundStyle(.black)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.gray)
@@ -612,12 +697,37 @@ struct ActivityView: View {
     }
     
     private func loadInitialLocation() {
-        city = AuthService.shared.userSession?.location?.city
-        if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
-            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude))
-            reverseGeocodeLocation(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+        if let userLocation = locationManager.userLocation {
+            // Use the current location
+            let latitude = userLocation.coordinate.latitude
+            let longitude = userLocation.coordinate.longitude
+            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+            reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+        } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+            // Use the user's selected location
+            let latitude = geoPoint.latitude
+            let longitude = geoPoint.longitude
+            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+            reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+            city = AuthService.shared.userSession?.location?.city
+            state = AuthService.shared.userSession?.location?.state
+        } else {
+            // No location available
+            city = nil
+            state = nil
+            surroundingGeohash = nil
+            // Optionally request location
+            locationManager.requestLocation { success in
+                if success, let userLocation = locationManager.userLocation {
+                    let latitude = userLocation.coordinate.latitude
+                    let longitude = userLocation.coordinate.longitude
+                    surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+                    reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+                } else {
+                    print("User location not available.")
+                }
+            }
         }
-        state = AuthService.shared.userSession?.location?.state
     }
     
     private func loadInitialData() async {
@@ -633,7 +743,7 @@ struct ActivityView: View {
         do {
             try await viewModel.fetchTopContacts()
         } catch {
-            print("Error fetching top contacts: \(error)")
+            //print("Error fetching top contacts: \(error)")
         }
         
         isLoading = false
@@ -649,7 +759,7 @@ struct ActivityView: View {
         do {
             try await viewModel.fetchTopContacts()
         } catch {
-            print("Error refreshing top contacts: \(error)")
+            //print("Error refreshing top contacts: \(error)")
         }
     }
     
@@ -694,7 +804,7 @@ struct ActivityView: View {
                 leaderboardData[category]?[locationType] = data
             }
         } catch {
-            print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
+            //print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
         }
     }
     
@@ -704,7 +814,7 @@ struct ActivityView: View {
         
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
-                print("Reverse geocoding error: \(error.localizedDescription)")
+                //print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
             
@@ -713,7 +823,7 @@ struct ActivityView: View {
                     self.surroundingCounty = county
                 }
             } else {
-                print("County information not available")
+                //print("County information not available")
             }
         }
     }
@@ -777,3 +887,14 @@ struct InviteContactsButton: View {
     }
 }
 
+enum GreetingType {
+    case morning, afternoon, evening
+    
+    var mealTime: String {
+        switch self {
+        case .morning: return "breakfast"
+        case .afternoon: return "lunch"
+        case .evening: return "dinner"
+        }
+    }
+}

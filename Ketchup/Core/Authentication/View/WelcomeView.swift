@@ -74,21 +74,21 @@ struct WelcomeView: View {
                                     .cornerRadius(10)
                             }
                             
-                            // Login option
-//                            HStack {
-//                                
-//                                Text("Beta user before 8/16?")
-//                                    .font(.custom("MuseoSansRounded-300", size: 16))
-//                                
-//                                Button(action: {
-//                                    showLogin = true
-//                                }) {
-//                                    Text("Log in")
-//                                        .font(.custom("MuseoSansRounded-300", size: 16))
-//                                        .fontWeight(.semibold)
-//                                        .foregroundColor(Color("Colors/AccentColor"))
-//                                }
-//                            }
+                            
+                            HStack {
+                                
+                                Text("")
+                                    .font(.custom("MuseoSansRounded-300", size: 16))
+                                
+                                Button(action: {
+                                    showLogin = true
+                                }) {
+                                    Text("Log in with email")
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(Color("Colors/AccentColor"))
+                                }
+                            }
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 20)

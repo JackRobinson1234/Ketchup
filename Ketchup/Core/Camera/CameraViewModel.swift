@@ -64,7 +64,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             device.videoZoomFactor = factor
             device.unlockForConfiguration()
         } catch {
-            //print("Failed to set zoom factor: \(error)")
+            ////print("Failed to set zoom factor: \(error)")
         }
     }
     
@@ -168,7 +168,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                 self.session.commitConfiguration()
                 self.startCameraSession()
             } catch {
-                //print(error.localizedDescription)
+                ////print(error.localizedDescription)
             }
         }
     }
@@ -219,7 +219,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if let error = error {
-            //print("Error recording video: \(error.localizedDescription)")
+            ////print("Error recording video: \(error.localizedDescription)")
             return
         }
         
@@ -231,7 +231,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
             Task {
                 do {
                     guard let exporter = try await mergeVideos(assets: assets) else {
-                        //print("Failed to create exporter")
+                        ////print("Failed to create exporter")
                         return
                     }
                     
@@ -267,7 +267,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)),
               let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: Int32(kCMPersistentTrackID_Invalid)) else {
-            //print("Failed to add tracks to the composition")
+            ////print("Failed to add tracks to the composition")
             return nil
         }
         
@@ -288,7 +288,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
                     try audioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: lastTime)
                 }
             } catch {
-                //print("Error during composition: \(error)")
+                ////print("Error during composition: \(error)")
                 continue
             }
             
@@ -317,7 +317,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
         
         let tempURL = URL(fileURLWithPath: NSTemporaryDirectory() + "Reel-\(Date()).mp4")
         guard let exporter = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
-            //print("Failed to create export session")
+            ////print("Failed to create export session")
             return nil
         }
         
@@ -367,12 +367,12 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
-            //print("Error capturing photo: \(error.localizedDescription)")
+            ////print("Error capturing photo: \(error.localizedDescription)")
             return
         }
 
         guard let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData) else {
-            //print("Failed to convert photo to UIImage.")
+            ////print("Failed to convert photo to UIImage.")
             return
         }
         
@@ -477,7 +477,7 @@ class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate
 
             device.unlockForConfiguration()
         } catch {
-            //print("Flash could not be configured: \(error)")
+            ////print("Flash could not be configured: \(error)")
         }
     }
     

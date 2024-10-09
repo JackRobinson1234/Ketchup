@@ -60,7 +60,7 @@
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
 	<key>NSRemoteNotificationUsageDescription</key>
-	<string>We use notifications to keep you updated with the latest news and important alerts.</string>
+	<string>We use notifications to keep you updated with the latest restaurant news and important alerts.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Ketchup needs access to your camera to take photos and videos from the in-app camera features. This data is only stored if you upload it for a post, profile, or collection.</string>
 	<key>NSMicrophoneUsageDescription</key>

@@ -111,7 +111,7 @@ struct SelectFollowingView: View {
                 let users = try await UserService.shared.fetchFollowingUsers()
                 followingUsers = users
             } catch {
-                //print("Error fetching following users: \(error)")
+                ////print("Error fetching following users: \(error)")
             }
         }
     }

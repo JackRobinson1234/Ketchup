@@ -61,10 +61,10 @@ class LeaderboardViewModel: ObservableObject {
                 .limit(to: count)
                 .getDocuments(as: Restaurant.self)
             
-            print("Successfully fetched \(restaurants.count) top restaurants")
+            //print("Successfully fetched \(restaurants.count) top restaurants")
             return restaurants
         } catch {
-            print("Error fetching top restaurants: \(error.localizedDescription)")
+            //print("Error fetching top restaurants: \(error.localizedDescription)")
             throw error
         }
     }
@@ -93,7 +93,7 @@ class LeaderboardViewModel: ObservableObject {
             lastRestaurantDocument = snapshot.documents.last
             hasMoreRestaurants = newRestaurants.count == pageSize
         } catch {
-            print("Error fetching more restaurants: \(error.localizedDescription)")
+            //print("Error fetching more restaurants: \(error.localizedDescription)")
             throw error
         }
     }
@@ -119,10 +119,10 @@ class LeaderboardViewModel: ObservableObject {
                 .limit(to: count)
                 .getDocuments(as: Restaurant.self)
             
-            print("Successfully fetched \(restaurants.count) highest \(category.rawValue) rated restaurants")
+            //print("Successfully fetched \(restaurants.count) highest \(category.rawValue) rated restaurants")
             return restaurants
         } catch {
-            print("Error fetching highest \(category.rawValue) rated restaurants: \(error.localizedDescription)")
+            //print("Error fetching highest \(category.rawValue) rated restaurants: \(error.localizedDescription)")
             throw error
         }
     }
@@ -161,7 +161,7 @@ class LeaderboardViewModel: ObservableObject {
             lastRestaurantDocument = snapshot.documents.last
             hasMoreRestaurants = newRestaurants.count == pageSize
         } catch {
-            print("Error fetching more highest \(category.rawValue) rated restaurants: \(error.localizedDescription)")
+            //print("Error fetching more highest \(category.rawValue) rated restaurants: \(error.localizedDescription)")
             throw error
         }
     }
@@ -182,7 +182,7 @@ class LeaderboardViewModel: ObservableObject {
             let neighbors = geoHash.neighbors
             if let neighbors {
                 let neighborGeohashes = neighbors.all.map { $0.geohash }
-                print([geohash] + neighborGeohashes)
+                //print([geohash] + neighborGeohashes)
                 return [geohash] + neighborGeohashes
             }
         }
@@ -226,7 +226,7 @@ class LeaderboardViewModel: ObservableObject {
             lastPostDocument = snapshot.documents.last
             hasMorePosts = newPosts.count == pageSize
         } catch {
-            print("Error fetching more posts: \(error.localizedDescription)")
+            //print("Error fetching more posts: \(error.localizedDescription)")
             throw error
         }
     }
@@ -267,7 +267,7 @@ class LeaderboardViewModel: ObservableObject {
             
             return posts
         } catch {
-            print("Error fetching top posts: \(error.localizedDescription)")
+            //print("Error fetching top posts: \(error.localizedDescription)")
             return []
         }
     }

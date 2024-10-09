@@ -219,7 +219,7 @@ struct LocationFilter: View {
         let search = MKLocalSearch(request: searchRequest)
         search.start { response, error in
             guard let coordinate = response?.mapItems.first?.placemark.coordinate else {
-                print("Failed to get coordinates: \(error?.localizedDescription ?? "Unknown error")")
+                //print("Failed to get coordinates: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             tempSelectedLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
@@ -233,7 +233,7 @@ struct LocationFilter: View {
         guard let location = tempSelectedLocation else { return }
         CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
             guard let placemark = placemarks?.first else {
-                print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
+                //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             DispatchQueue.main.async {

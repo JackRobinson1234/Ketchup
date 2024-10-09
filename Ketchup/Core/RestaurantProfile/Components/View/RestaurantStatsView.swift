@@ -228,7 +228,6 @@ struct RestaurantStatsView: View {
                                NavigationLink(destination: RestaurantProfileView(restaurantId: similarRestaurants[index].id, restaurant: similarRestaurants[index])) {
                                    SimilarRestaurantCell(restaurant: similarRestaurants[index])
                                }
-                               .buttonStyle(PlainButtonStyle())
                                
                                if index < similarRestaurants.count - 1 {
                                    Divider()
@@ -359,7 +358,7 @@ struct RestaurantStatsView: View {
                 self.isLoadingSimilarRestaurants = false
                 
             } catch {
-                //print("Error fetching similar restaurants: \(error)")
+                ////print("Error fetching similar restaurants: \(error)")
                 await MainActor.run {
                     self.isLoadingSimilarRestaurants = false
                 }
@@ -467,74 +466,7 @@ struct DaySelectionView: View {
         }
     }
 }
-import Kingfisher
-struct SimilarRestaurantCell: View {
-    let restaurant: Restaurant
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Restaurant image
-            if let imageURL = restaurant.profileImageUrl {
-                KFImage(URL(string: imageURL))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            } else {
-                Image(systemName: "fork.knife")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(.gray)
-                    .frame(width: 56, height: 56)
-                    .background(Color.gray.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-            }
-            
-            // Restaurant details
-            VStack(alignment: .leading, spacing: 4) {
-                Text(restaurant.name)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.black)
-                    .lineLimit(1)
-                
-                if let city = restaurant.city, let state = restaurant.state {
-                    Text("\(city), \(state)")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-                
-                Text(combineRestaurantDetails(restaurant: restaurant))
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-                    .lineLimit(1)
-            }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 16)
-        .frame(height: 80)  // Increased height to accommodate the new line
-        .contentShape(Rectangle())
-    }
-    
-    private func combineRestaurantDetails(restaurant: Restaurant) -> String {
-        var details = [String]()
-        
-        if let cuisine = restaurant.categoryName {
-            details.append(cuisine)
-        }
-        if let price = restaurant.price {
-            details.append(price)
-        }
-        
-        return details.joined(separator: " | ")
-    }
-}
+
 struct BarChart: View {
     let data: [PopularTimeItem]
     

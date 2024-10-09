@@ -14,7 +14,6 @@ class PollViewModel: ObservableObject {
     @Published var polls: [Poll] = []
     @Published var hasUserVotedPolls: [String: (hasVoted: Bool, optionId: String?)] = [:]
     @Published var friendVotes: [String: [String: [PostUser]]] = [:]
-
     private var lastDocumentSnapshot: DocumentSnapshot?
     private var isFetching = false
         private let pageSize = 5
@@ -48,7 +47,7 @@ class PollViewModel: ObservableObject {
 
             query.getDocuments { snapshot, error in
                 if let error = error {
-                    print("Error fetching previous polls: \(error.localizedDescription)")
+                    //print("Error fetching previous polls: \(error.localizedDescription)")
                     self.isFetching = false
                     return
                 }
@@ -68,7 +67,7 @@ class PollViewModel: ObservableObject {
                             fetchedPolls.append(poll)
                         }
                     } catch {
-                        print("Error decoding poll: \(error.localizedDescription)")
+                        //print("Error decoding poll: \(error.localizedDescription)")
                     }
                 }
                 
@@ -99,7 +98,7 @@ class PollViewModel: ObservableObject {
         
         votesRef.getDocument { snapshot, error in
             if let error = error {
-                print("Error checking vote: \(error.localizedDescription)")
+                //print("Error checking vote: \(error.localizedDescription)")
                 return
             }
             
@@ -111,7 +110,7 @@ class PollViewModel: ObservableObject {
                     }
                     self.fetchFriendsVotes(for: poll)
                 } catch {
-                    print("Error decoding user vote: \(error.localizedDescription)")
+                    //print("Error decoding user vote: \(error.localizedDescription)")
                 }
             } else {
                 DispatchQueue.main.async {
@@ -217,7 +216,7 @@ class PollViewModel: ObservableObject {
             }
 
         } catch {
-            print("Error updating poll in Firestore: \(error.localizedDescription)")
+            //print("Error updating poll in Firestore: \(error.localizedDescription)")
         }
     }
     func fetchPoll(withId pollId: String) async throws -> Poll? {
@@ -230,35 +229,56 @@ class PollViewModel: ObservableObject {
         return poll
     }
     func fetchFriendsVotes(for poll: Poll) {
-        guard let currentUser = AuthService.shared.userSession else { return }
+        guard let currentUser = AuthService.shared.userSession else {
+            //print("No user session found. Exiting fetchFriendsVotes.")
+            return
+        }
+        
         let db = Firestore.firestore()
         let friendsVotesRef = db.collection("users").document(currentUser.id).collection("friend-votes")
+        
+        //print("Fetching friends' votes for poll with ID: \(poll.id)")
         
         // Fetch friends' votes for the specific poll
         friendsVotesRef
             .whereField("pollId", isEqualTo: poll.id)
             .getDocuments { snapshot, error in
                 if let error = error {
-                    print("Error fetching friends' votes: \(error.localizedDescription)")
+                    //print("Error fetching friends' votes: \(error.localizedDescription)")
                     return
                 }
+                
+                //print("Successfully fetched documents. Processing votes...")
                 
                 var votesByOption: [String: [PostUser]] = [:]
                 
                 if let documents = snapshot?.documents {
+                    //print("Found \(documents.count) friend votes for poll.")
+                    
                     for doc in documents {
+                        //print("Processing document with ID: \(doc.documentID)")
+                        
                         if let vote = try? doc.data(as: PollVote.self) {
+                            //print("Parsed vote for option ID: \(vote.optionId) by user: \(vote.user.id)")
+                            
                             // Append the friend to the corresponding option
                             if votesByOption[vote.optionId] != nil {
                                 votesByOption[vote.optionId]?.append(vote.user)
+                                //print("Added user to existing option: \(vote.optionId)")
                             } else {
                                 votesByOption[vote.optionId] = [vote.user]
+                                //print("Created new option entry for option ID: \(vote.optionId)")
                             }
+                        } else {
+                            //print("Error parsing document with ID: \(doc.documentID)")
                         }
                     }
+                } else {
+                    //print("No documents found for friends' votes.")
                 }
                 
                 DispatchQueue.main.async {
+                    //print("Updating friendVotes dictionary for poll ID: \(poll.id)")
                     self.friendVotes[poll.id] = votesByOption
                 }
             }
@@ -275,6 +295,4 @@ class PollViewModel: ObservableObject {
             // Fetch initial set of polls
             fetchPreviousPolls()
         }
-
-    
 }

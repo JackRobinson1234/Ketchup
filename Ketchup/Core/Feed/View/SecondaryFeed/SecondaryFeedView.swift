@@ -66,9 +66,9 @@ struct SecondaryFeedView: View {
                     Button{
                         if let scrollPosition = scrollPosition{
                             viewModel.initialPrimaryScrollPosition = scrollPosition
-                            //print("Assigning SCROLL", scrollPosition)
+                            ////print("Assigning SCROLL", scrollPosition)
                         }
-                        //print("DISMISSING SCROLL")
+                        ////print("DISMISSING SCROLL")
                         dismiss()
                         
                     } label: {

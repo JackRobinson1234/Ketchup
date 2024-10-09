@@ -66,9 +66,10 @@ struct RestaurantProfileView: View {
                                 try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant, friendIds: viewModel.friendsWhoPosted.map { $0.id })
                                 viewModel.calculateRatings(from: restaurant.ratingStats)
                             }
+                           await viewModel.fetchSimilarRestaurants()
                             
                         } catch {
-                            //print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
+                            ////print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
                         }
                         isLoading = false
                     }
@@ -91,21 +92,21 @@ struct RestaurantProfileView: View {
                     }
                     
                     .onChange(of: viewModel.scrollTarget) { newTarget in
-                                        //print("DEBUG: scrollTarget changed to \(String(describing: newTarget))")
+                                        ////print("DEBUG: scrollTarget changed to \(String(describing: newTarget))")
                                         scrollPosition = viewModel.scrollTarget
                                         
                                         if let target = viewModel.scrollTarget {
-                                            //print("DEBUG: Attempting to scroll to \(target)")
+                                            ////print("DEBUG: Attempting to scroll to \(target)")
                                             withAnimation {
                                                 scrollProxy.scrollTo(target, anchor: .top)
                                             }
-                                            //print("DEBUG: Scroll animation triggered")
+                                            ////print("DEBUG: Scroll animation triggered")
                                         } else {
-                                            //print("DEBUG: scrollTarget is nil, no scrolling performed")
+                                            ////print("DEBUG: scrollTarget is nil, no scrolling performed")
                                         }
                                         
                                         DispatchQueue.main.async {
-                                            //print("DEBUG: Resetting scrollTarget to nil")
+                                            ////print("DEBUG: Resetting scrollTarget to nil")
                                             viewModel.scrollTarget = nil
                                         }
                                     }

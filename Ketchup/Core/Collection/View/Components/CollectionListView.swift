@@ -19,7 +19,7 @@ struct CollectionListView: View {
         if isLoading {
             FastCrossfadeFoodImageView()
                 .onAppear {
-                    //print("FETCHING ITEMS")
+                    ////print("FETCHING ITEMS")
                     Task {
                         try await collectionsViewModel.fetchItems()
                         isLoading = false

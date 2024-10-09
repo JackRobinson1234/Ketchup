@@ -33,7 +33,7 @@ struct ProfileView: View {
                 if (endedGesture.location.x - endedGesture.startLocation.x) > 0 {
                     self.dragDirection = "left"
                     if profileViewModel.profileSection == .posts {
-                        //print("DISMISSING FROM DRAG")
+                        ////print("DISMISSING FROM DRAG")
                         dismiss()
                         
                     } else if profileViewModel.profileSection == .bookmarks{
@@ -104,7 +104,7 @@ struct ProfileView: View {
                             .onChange(of: scrollTarget) {newValue in
                                 scrollPosition = scrollTarget
                                 withAnimation {
-                                    //print("SCROLLING")
+                                    ////print("SCROLLING")
                                     scrollProxy.scrollTo(scrollTarget, anchor: .center)
                                 }
                             }

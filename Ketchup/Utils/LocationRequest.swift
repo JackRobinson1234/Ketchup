@@ -40,7 +40,7 @@ class LocationManager: NSObject, ObservableObject {
     
     func fetchRoute(coordinates: CLLocationCoordinate2D) async -> (MKRoute?, TimeInterval?) {
         guard let userLocation = userLocation else {
-            print("User location not available")
+            //print("User location not available")
             return (nil, nil)
         }
         
@@ -54,11 +54,11 @@ class LocationManager: NSObject, ObservableObject {
             if let firstRoute = result.routes.first {
                 return (firstRoute, firstRoute.expectedTravelTime)
             } else {
-                print("No routes found")
+                //print("No routes found")
                 return (nil, nil)
             }
         } catch {
-            print("Failed to calculate route: \(error)")
+            //print("Failed to calculate route: \(error)")
             return (nil, nil)
         }
     }
@@ -88,7 +88,7 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location manager failed with error: \(error)")
+        //print("Location manager failed with error: \(error)")
         locationCompletion?(false)
         locationCompletion = nil
     }

@@ -136,7 +136,7 @@ class BookmarksViewModel: ObservableObject {
             bookmarks = try await UserService.shared.fetchUserBookmarks(uid: uid)
             isLoading = false
         } catch {
-            //print("Error fetching bookmarks: \(error)")
+            ////print("Error fetching bookmarks: \(error)")
             isLoading = false
         }
     }
@@ -148,7 +148,7 @@ class BookmarksViewModel: ObservableObject {
                 bookmarks.remove(at: index)
             }
         } catch {
-            //print("Error deleting bookmark: \(error)")
+            ////print("Error deleting bookmark: \(error)")
         }
     }
     

@@ -701,7 +701,7 @@ class Ios16ClusterAnnotationView: MKAnnotationView {
     }
     
     private func configure(with cluster: ExampleClusterAnnotation) {
-        print("SHOULD BE CONFIGURING CLUSTER")
+        //print("SHOULD BE CONFIGURING CLUSTER")
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
         

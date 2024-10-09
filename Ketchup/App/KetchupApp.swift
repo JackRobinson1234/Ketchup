@@ -38,23 +38,23 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             return false
         }
     private func setupNotifications(_ application: UIApplication) {
-//        //print("Setting up notifications...")
-//        UNUserNotificationCenter.current().delegate = self
-//        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-//        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
-//            if granted {
-//                //print("Notification authorization granted")
-//                DispatchQueue.main.async {
-//                    //print("Registering for remote notifications...")
-//                    application.registerForRemoteNotifications()
-//                }
-//            } else {
-//                //print("Notification authorization denied")
-//                if let error = error {
-//                    //print("Authorization error: \(error.localizedDescription)")
-//                }
-//            }
-//        }
+        ////print("Setting up notifications...")
+        UNUserNotificationCenter.current().delegate = self
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+            if granted {
+                ////print("Notification authorization granted")
+                DispatchQueue.main.async {
+                    ////print("Registering for remote notifications...")
+                    application.registerForRemoteNotifications()
+                }
+            } else {
+                ////print("Notification authorization denied")
+                if let error = error {
+                    ////print("Authorization error: \(error.localizedDescription)")
+                }
+            }
+        }
         resetBadgeCount()
     }
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -67,9 +67,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
             if let error = error {
-                //print("Error fetching FCM registration token: \(error)")
+                ////print("Error fetching FCM registration token: \(error)")
             } else if let token = token {
-                print("FCM registration token: \(token)")
+                //print("FCM registration token: \(token)")
             }
         }
     }
@@ -77,7 +77,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private func resetBadgeCount() {
         UNUserNotificationCenter.current().setBadgeCount(0) { error in
             if let error = error {
-                //print("Error setting badge count: \(error)")
+                ////print("Error setting badge count: \(error)")
             }
         }
     }
@@ -87,9 +87,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let userRef = FirestoreConstants.UserCollection.document(userId)
         do {
             try await userRef.updateData(["lastActive": Timestamp(date: lastActive)])
-            //print("DEBUG: Successfully updated lastActive timestamp.")
+            ////print("DEBUG: Successfully updated lastActive timestamp.")
         } catch {
-            //print("DEBUG: Failed to update lastActive timestamp with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to update lastActive timestamp with error: \(error.localizedDescription)")
         }
     }
     private func setupAudioSession() {
@@ -97,20 +97,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            //print("Failed to set the audio session category and mode: \(error.localizedDescription)")
+            ////print("Failed to set the audio session category and mode: \(error.localizedDescription)")
         }
     }
     
     func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        //print("Failed to register for remote notifications: \(error)")
+        ////print("Failed to register for remote notifications: \(error)")
     }
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        //print("Successfully registered for remote notifications with token:")
+        ////print("Successfully registered for remote notifications with token:")
         Messaging.messaging().apnsToken = deviceToken
         Auth.auth().setAPNSToken(deviceToken, type: .prod)
-        //print("FETCHING FCM TOKEN")
+        ////print("FETCHING FCM TOKEN")
         fetchFCMToken()
     }
     
@@ -139,7 +139,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        //print("Firebase token: \(String(describing: fcmToken))")
+        ////print("Firebase token: \(String(describing: fcmToken))")
         if let token = fcmToken {
             saveTokenToFirestore(token: token)
         }
@@ -154,15 +154,15 @@ extension AppDelegate: MessagingDelegate {
                 "lastUpdated": FieldValue.serverTimestamp()
             ]) { error in
                 if let error = error {
-                    //print("Error saving token: \(error)")
+                    ////print("Error saving token: \(error)")
                 } else {
-                    //print("Token saved successfully")
+                    ////print("Token saved successfully")
                 }
             }
         } else {
             // Save the token locally until the user signs in
             UserDefaults.standard.set(token, forKey: "fcmToken")
-            //print("Token saved locally")
+            ////print("Token saved locally")
         }
     }
 }
@@ -273,7 +273,7 @@ struct InAppNotificationViewModifier: ViewModifier {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .navigateToProfile)) { _ in
-                //print("Received navigate to profile notification")
+                ////print("Received navigate to profile notification")
                 DispatchQueue.main.async {
                     showNotifications = true
                 }

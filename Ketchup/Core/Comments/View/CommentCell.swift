@@ -24,7 +24,8 @@ struct CommentCell<T: Commentable>: View {
     @Environment(\.openURL) private var openURL
     @State var isReported: Bool = false
     private let optionsWidth: CGFloat = 60
-    
+    @State private var isOptionsVisible = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             commentContent
@@ -126,7 +127,20 @@ struct CommentCell<T: Commentable>: View {
                 }
             }
             Spacer()
-            likeButton
+            VStack{
+                likeButton
+                
+                Button{
+                    toggleOptions()
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.caption)
+                        
+                        .frame(width: 6, height: 6)
+                        .foregroundStyle(.gray)
+                }
+            }
+            
         }
         .padding(.horizontal)
         .padding(.vertical, 3)
@@ -183,7 +197,12 @@ struct CommentCell<T: Commentable>: View {
         }
     }
     
-    
+    private func toggleOptions() {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8, blendDuration: 0)) {
+                isOptionsVisible.toggle()
+                offset = isOptionsVisible ? -optionsWidth : 0
+            }
+        }
     private var likeButton: some View {
         VStack(spacing: 4) {
             Button(action: {

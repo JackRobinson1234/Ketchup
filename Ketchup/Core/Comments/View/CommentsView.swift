@@ -38,7 +38,7 @@ struct CommentsView<T: Commentable>: View {
                         }
                     }
                     .onChange(of: viewModel.lastAddedCommentId) { commentId in
-                        print("UPDATING", commentId)
+                        //print("UPDATING", commentId)
                             if let commentId = feedViewModel.selectedCommentId {
                                 scrollViewProxy.scrollTo(commentId)
                                 viewModel.highlightComment(commentId)

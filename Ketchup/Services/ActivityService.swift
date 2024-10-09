@@ -76,7 +76,7 @@ class ActivityService {
            // Get the last document snapshot from this batch
            let lastDocument = snapshot.documents.last
            
-           //print("kechup activities fetched")
+           ////print("kechup activities fetched")
            
            return (activities, lastDocument)
         }

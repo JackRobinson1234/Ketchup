@@ -13,6 +13,7 @@ class NotificationsViewModel: ObservableObject {
     @Published var notifications = [Notification]()
     @Published var isLoading = false
     @Published var showEmptyView = false
+    @Published var mostRecentlyUpdatedFollow: String? = nil
     
     private let service: NotificationService
     
@@ -29,15 +30,17 @@ class NotificationsViewModel: ObservableObject {
             self.showEmptyView = notifications.isEmpty
             isLoading = false
         } catch {
-            //print("DEBUG: Failed to fetch notifications with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch notifications with error \(error.localizedDescription)")
             isLoading = false
         }
     }
     func follow(userId: String) async throws {
+        
         try await UserService.shared.follow(uid: userId)
     }
     
     func unfollow(userId: String) async throws {
+        
         try await UserService.shared.unfollow(uid: userId)
     }
     
@@ -60,7 +63,7 @@ class NotificationsViewModel: ObservableObject {
             // Fetch the updated collection and add it to the user's collections
             
         } catch {
-            //print("DEBUG: Failed to accept collection invite with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to accept collection invite with error \(error.localizedDescription)")
         }
     }
     
@@ -77,7 +80,7 @@ class NotificationsViewModel: ObservableObject {
             // Update the notification in Firestore
             
         } catch {
-            //print("DEBUG: Failed to reject collection invite with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to reject collection invite with error \(error.localizedDescription)")
         }
     }
     
@@ -102,7 +105,7 @@ class NotificationsViewModel: ObservableObject {
                 return .rejected // Or maybe a new status like .notInvolved
             }
         } catch {
-            //print("DEBUG: Failed to fetch collection status with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch collection status with error \(error.localizedDescription)")
             return .rejected // Or maybe a new status like .unknown
         }
     }

@@ -146,27 +146,30 @@ struct LoginView: View {
                 Divider()
                 Text("or")
                     .font(.custom("MuseoSansRounded-300", size: 10))
+                Text("You should be able to log in with phone number.This is only accessible for early users.")
+                    .foregroundStyle(Color("Colors/AccentColor"))
+                    .font(.custom("MuseoSansRounded-300", size: 10))
                 //MARK: Google Sign In
-                Button{
-                    Task{
-                        if let reAuthDelete = reAuthDelete {
-                            if !reAuthDelete{
-                                try await AuthService.shared.signInWithGoogle()
-                            } else if reAuthDelete{
-                                try await viewModel.reAuthDeleteWithGoogle()
-                            }
-                        }
-                    }
-                } label: {
-                    Image("Google-SignIn")
-                        .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 50) 
-                            .scaledToFit()
-                            .frame(width: 200)// Adjust these dimensions as needed
-                            //.clipped()
-                        
-                }
+//                Button{
+//                    Task{
+//                        if let reAuthDelete = reAuthDelete {
+//                            if !reAuthDelete{
+//                                try await AuthService.shared.signInWithGoogle()
+//                            } else if reAuthDelete{
+//                                try await viewModel.reAuthDeleteWithGoogle()
+//                            }
+//                        }
+//                    }
+//                } label: {
+//                    Image("Google-SignIn")
+//                        .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 100, height: 50) 
+//                            .scaledToFit()
+//                            .frame(width: 200)// Adjust these dimensions as needed
+//                            //.clipped()
+//                        
+//                }
                 Spacer()
                 if let reAuthDelete = reAuthDelete, !reAuthDelete {
                     Divider()

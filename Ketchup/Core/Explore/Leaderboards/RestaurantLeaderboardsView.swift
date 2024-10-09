@@ -138,7 +138,7 @@ struct RestaurantLeaderboardsView: View {
                 leaderboardData[category]?[locationType] = data
             }
         } catch {
-            print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
+            //print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
         }
     }
 }

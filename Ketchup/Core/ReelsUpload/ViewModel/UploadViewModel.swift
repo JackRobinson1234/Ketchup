@@ -188,7 +188,7 @@ class UploadViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             let itemProgress = progress / totalItems
                             self.uploadProgress = baseProgress + itemProgress
-                            print(self.uploadProgress)
+                            //print(self.uploadProgress)
                         }
                     }
                     if let imageUrl = imageUrl {
@@ -201,7 +201,7 @@ class UploadViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             let itemProgress = progress / totalItems
                             self.uploadProgress = baseProgress + itemProgress
-                            print(self.uploadProgress)
+                            //print(self.uploadProgress)
                         }
                     }
                     if let videoUrl = videoUrl {
@@ -314,9 +314,9 @@ class UploadViewModel: ObservableObject {
             "mostRecentPost": Timestamp(date: postDate)
         ]) { error in
             if let error = error {
-                print("Error updating user streak: \(error.localizedDescription)")
+                //print("Error updating user streak: \(error.localizedDescription)")
             } else {
-                print("Successfully updated user streak. New streak: \(newStreak)")
+                //print("Successfully updated user streak. New streak: \(newStreak)")
             }
         }
     }
@@ -391,7 +391,7 @@ class UploadViewModel: ObservableObject {
                     self.mentionableUsers = users
                 }
             } catch {
-                //print("Error fetching following users: \(error)")
+                ////print("Error fetching following users: \(error)")
             }
         }
     }

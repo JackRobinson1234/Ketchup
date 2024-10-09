@@ -114,6 +114,7 @@
 		F871CE102BCE00B1003C9BE8 /* AddItemCollectionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CE0F2BCE00B1003C9BE8 /* AddItemCollectionButton.swift */; };
 		F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */; };
 		F8726DC82BC214CE0091AD77 /* LocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8726DC72BC214CE0091AD77 /* LocationFilter.swift */; };
+		F8753F7D2CB5A36400171B59 /* SimilarRestaurantCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8753F7C2CB5A36400171B59 /* SimilarRestaurantCell.swift */; };
 		F875AA352C458F2700CB14E6 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA342C458F2700CB14E6 /* Bookmark.swift */; };
 		F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */; };
 		F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */; };
@@ -432,6 +433,7 @@
 		F871CE0F2BCE00B1003C9BE8 /* AddItemCollectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCollectionButton.swift; sourceTree = "<group>"; };
 		F871CE182BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionRestaurantSearch.swift; sourceTree = "<group>"; };
 		F8726DC72BC214CE0091AD77 /* LocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationFilter.swift; sourceTree = "<group>"; };
+		F8753F7C2CB5A36400171B59 /* SimilarRestaurantCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarRestaurantCell.swift; sourceTree = "<group>"; };
 		F875AA342C458F2700CB14E6 /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
 		F875AA362C45A13C00CB14E6 /* BookmarksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksListView.swift; sourceTree = "<group>"; };
 		F875D7EF2BAB930E00FC32C8 /* VideoPlayerVibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerVibe.swift; sourceTree = "<group>"; };
@@ -886,6 +888,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F8753F7E2CB5DEE700171B59 /* Discover */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F8A98C262B9A668D00D399AB /* Explore */,
 				F82BFF2B2C719B98001F296F /* Contacts */,
@@ -1302,6 +1305,13 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		F8753F7E2CB5DEE700171B59 /* Discover */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Discover;
+			sourceTree = "<group>";
+		};
 		F8760EF52BD34E5B00C4EAB9 /* Unused */ = {
 			isa = PBXGroup;
 			children = (
@@ -1436,6 +1446,7 @@
 				F88E0ACD2B6B060200EC159B /* MapRestaurantProfileView.swift */,
 				F83ED9B42BEAA356000B2F30 /* RestaurantCollectionListView.swift */,
 				6FDB8A2B2C363D1200B75C4A /* RestaurantStatsView.swift */,
+				F8753F7C2CB5A36400171B59 /* SimilarRestaurantCell.swift */,
 			);
 			name = View;
 			path = Components/View;
@@ -2137,6 +2148,7 @@
 				F8564C062CA8729100A9DAD8 /* PollUploadView.swift in Sources */,
 				F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */,
 				F8670A5E2BF3FBC800F527D9 /* FinalPhotoPreview.swift in Sources */,
+				F8753F7D2CB5A36400171B59 /* SimilarRestaurantCell.swift in Sources */,
 				F88E0B152B6B0AD300EC159B /* Firestore+Timestamp.swift in Sources */,
 				F88E0B192B6B0AF900EC159B /* Restaurant.swift in Sources */,
 				F840698F2C6AEAD300C31433 /* PhoneAuthViewModel.swift in Sources */,
@@ -2481,7 +2493,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2533,7 +2545,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

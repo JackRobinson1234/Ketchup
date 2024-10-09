@@ -30,7 +30,6 @@ struct PollView: View {
         self.feedViewModel = feedViewModel
     }
     
-    
     var body: some View {
         VStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -54,7 +53,7 @@ struct PollView: View {
                             Spacer()
                             HStack {
                                 Spacer()
-                                Image("Skip") // Replace with your placeholder image name
+                                Image("Skip")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 100, height: 100)
@@ -132,12 +131,22 @@ struct PollView: View {
                                 
                                 if hasVoted {
                                     HStack(spacing: 8) {
-                                        Text("Total votes: \(poll.totalVotes)")
-                                            .font(.custom("MuseoSansRounded-300", size: 16))
-                                            .foregroundColor(.secondary)
-                                        
-                                        // Check if there are any friends' votes
-                                        
+                                        if let friendsVotes = pollViewModel.friendVotes[poll.id], !friendsVotes.isEmpty {
+                                            let totalFriendsVoted = friendsVotes.values.reduce(0) { $0 + $1.count }
+                                            Button(action: {
+                                                showFriendsVotes.toggle()
+                                            }) {
+                                                HStack (spacing: 2) {
+                                                    Text("See \(totalFriendsVoted) friends' votes")
+                                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                                        .foregroundColor(Color("Colors/AccentColor"))
+                                                    Image(systemName: "chevron.right")
+                                                        .font(.caption)
+                                                        .foregroundColor(Color("Colors/AccentColor"))
+                                                }
+                                            }
+                                            
+                                        }
                                     }
                                 } else if poll.isActive {
                                     Text("Vote to see results & friends votes")
@@ -153,24 +162,11 @@ struct PollView: View {
                                 }
                             }
                             .padding(.horizontal)
-                            if let friendsVotes = pollViewModel.friendVotes[poll.id], !friendsVotes.isEmpty {
-                                Button(action: {
-                                    showFriendsVotes.toggle()
-                                }) {
-                                    HStack{
-                                        Text("See friends votes")
-                                            .font(.custom("MuseoSansRounded-500", size: 14))
-                                            .foregroundColor(Color("Colors/AccentColor"))
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                            .foregroundColor(Color("Colors/AccentColor"))
-
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
+                            
+                          
+                            
                             // New live status indicator
-                            HStack (spacing: 2){
+                            HStack(spacing: 2) {
                                 if poll.isActive {
                                     Text("LIVE")
                                         .font(.custom("MuseoSansRounded-700", size: 12))
@@ -192,10 +188,9 @@ struct PollView: View {
                 .padding(.vertical)
             }
             .sheet(isPresented: $showFriendsVotes) {
-                           FriendVotesListView(poll: poll, friendVotes: pollViewModel.friendVotes[poll.id] ?? [:])
+                FriendVotesListView(poll: poll, friendVotes: pollViewModel.friendVotes[poll.id] ?? [:])
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.8)])
-
-                       }
+            }
             .background(Color.white)
             .cornerRadius(15)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
@@ -215,8 +210,6 @@ struct PollView: View {
                 showComments = true
             }
         }
-        
-        
         .padding(.horizontal)
         .alert("Change Vote?", isPresented: $showChangeVoteAlert, presenting: selectedOptionForChange) { option in
             Button("Cancel", role: .cancel) { }
@@ -233,7 +226,6 @@ struct PollView: View {
         } message: {
             Text("This poll expired 😅, you can still comment and make sure to vote in future polls!")
         }
-        
     }
     
     // Helper functions
@@ -285,8 +277,8 @@ struct PollOptionView: View {
     let friendVotes: [PostUser]
     let action: () -> Void
     private let profileImageSize: CGFloat = 24
-    private let profileImageOverlap: CGFloat = 12
-    
+    private let profileImageOverlap: CGFloat = 15 // Adjusted for better overlap
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Button(action: action) {
@@ -298,44 +290,50 @@ struct PollOptionView: View {
                                 .fill(Color("Colors/AccentColor").opacity(0.4))
                                 .frame(width: geometry.size.width * CGFloat(calculatePercentage()) / 100)
                         }
-                        
+
                         // Content
                         HStack {
-                            VStack{
-                                Spacer()
-                                Text(option.text.isEmpty ? "Option" : option.text)
-                                    .foregroundColor(.primary)
-                                    .font(.custom("MuseoSansRounded-500", size: 16))
-                                Spacer()
-                            }
-                            
+                            // Option text
+                            Text(option.text.isEmpty ? "Option" : option.text)
+                                .foregroundColor(.primary)
+                                .font(.custom("MuseoSansRounded-500", size: 16))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+
                             Spacer()
-                            HStack{
+
+                            // Friend votes and percentage
+                            HStack(spacing: 4) {
+                                // Friend votes images
                                 if (!isActive || hasVoted) && !friendVotes.isEmpty {
-                                    
-                                    HStack(spacing: -5) {
-                                        ForEach(friendVotes.prefix(5), id: \.id) { user in
+                                    HStack(spacing: -profileImageOverlap) {
+                                        ForEach(friendVotes.prefix(3), id: \.id) { user in
                                             UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xSmall)
                                         }
-                                        if friendVotes.count > 5 {
-                                            Text("+\(friendVotes.count - 5)")
+                                        if friendVotes.count > 3 {
+                                            Text("+\(friendVotes.count - 3)")
                                                 .font(.custom("MuseoSansRounded-500", size: 14))
                                                 .foregroundColor(.secondary)
+                                                .frame(width: profileImageSize, height: profileImageSize)
+                                                .background(Color.gray.opacity(0.2))
+                                                .clipShape(Circle())
                                         }
+
+                                       
                                     }
-                                    .padding(.horizontal)
-                                    
                                 }
-                                
+
+                                // Percentage text
                                 if (hasVoted || !isActive) && !isPreview {
                                     Text("\(calculatePercentage())%")
                                         .foregroundColor(.secondary)
                                         .font(.custom("MuseoSansRounded-500", size: 16))
+                                        .padding(.leading, 4)
                                 }
                             }
                         }
                         .padding(.horizontal)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: 50)
                     }
                 }
                 .frame(height: 50)
@@ -348,11 +346,9 @@ struct PollOptionView: View {
             }
             .disabled(isPreview)
             .padding(.horizontal)
-            
-            // Display friends' profile images with label
         }
     }
-    
+
     private func calculatePercentage() -> Int {
         guard totalVotes > 0 else { return 0 }
         return Int((Double(option.voteCount) / Double(totalVotes)) * 100)

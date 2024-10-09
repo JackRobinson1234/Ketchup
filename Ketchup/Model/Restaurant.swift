@@ -71,7 +71,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.bio = try container.decodeIfPresent(String.self, forKey: .bio)
         self._geoloc = try container.decodeIfPresent(geoLoc.self, forKey: ._geoloc)
         self.stats = try container.decodeIfPresent(RestaurantStats.self, forKey: .stats) ?? {
-            //print("Warning: stats could not be decoded. Assigning default value with postCount 0 and collectionCount 0")
+            ////print("Warning: stats could not be decoded. Assigning default value with postCount 0 and collectionCount 0")
             return RestaurantStats(postCount: 0, collectionCount: 0)
         }()
         
@@ -99,14 +99,14 @@ struct Restaurant: Identifiable, Codable, Hashable {
                 if hasAllKeys {
                     self.popularTimesHistogram = try PopularTimesHistogram(from: container.superDecoder(forKey: .popularTimesHistogram))
                 } else {
-                    // //print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
+                    // ////print("Warning: popularTimesHistogram does not contain all required keys. Setting to nil.")
                     self.popularTimesHistogram = nil
                 }
             } else {
                 self.popularTimesHistogram = nil
             }
         } catch {
-            //print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
+            ////print("Warning: Unable to decode popularTimesHistogram. Error: \(error)")
             self.popularTimesHistogram = nil
         }
         self.reviewsTags = try container.decodeIfPresent([ReviewTag].self, forKey: .reviewsTags)

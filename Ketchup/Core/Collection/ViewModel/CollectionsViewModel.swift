@@ -70,7 +70,7 @@ class CollectionsViewModel: ObservableObject {
         currentTask = Task { @MainActor in
             do {
                 isLoading = true
-                //print("Starting to fetch collections")
+                ////print("Starting to fetch collections")
                 
                 let (newCollections, lastDoc) = try await CollectionService.shared.fetchPaginatedCollections(
                     lastDocument: lastDocument,
@@ -80,16 +80,16 @@ class CollectionsViewModel: ObservableObject {
                 collections.append(contentsOf: newCollections)
                 lastDocument = lastDoc
                 hasMoreCollections = newCollections.count == limit
-                //print("Fetched \(newCollections.count) collections. Total: \(collections.count)")
+                ////print("Fetched \(newCollections.count) collections. Total: \(collections.count)")
             } catch {
-                //print("Error loading collections: \(error)")
+                ////print("Error loading collections: \(error)")
             }
             isLoading = false
         }
     }
     func fetchCollections(user: String) async {
           isLoading = true
-          //print("fetching Collections")
+          ////print("fetching Collections")
           do {
               // Fetch collections created by the user
               let userCollections = try await CollectionService.shared.fetchCollections(user: user)
@@ -111,7 +111,7 @@ class CollectionsViewModel: ObservableObject {
               
               isLoading = false
           } catch {
-              //print("DEBUG: Failed to fetch collections with error: \(error.localizedDescription)")
+              ////print("DEBUG: Failed to fetch collections with error: \(error.localizedDescription)")
               isLoading = false
           }
       }
@@ -158,7 +158,7 @@ class CollectionsViewModel: ObservableObject {
             if let collectionItem = convertPostToCollectionItem() {
                 try await addItemToCollection(collectionItem: collectionItem)
             } else {
-                //print("Error converting post to collection Item")
+                ////print("Error converting post to collection Item")
             }
         }
     }
@@ -209,10 +209,10 @@ class CollectionsViewModel: ObservableObject {
             if let collectionItem = convertRestaurantToCollectionItem() {
                 try await addItemToCollection(collectionItem: collectionItem)
             } else {
-                //print("Error converting restaurant to collection Item")
+                ////print("Error converting restaurant to collection Item")
             }
         } else {
-            //print("No restaurant found")
+            ////print("No restaurant found")
         }
     }
     //MARK: crateCollageImage
@@ -285,7 +285,7 @@ class CollectionsViewModel: ObservableObject {
             let descriptionToSend: String? = editDescription.isEmpty ? nil : editDescription
             let collection = try await CollectionService.shared.uploadCollection(uid: user.id, title: editTitle, description: descriptionToSend, username: user.username, uiImage: uiImage, profileImageUrl: user.profileImageUrl, fullname: user.fullname)
             if let collection{
-                //print(collection)
+                ////print(collection)
                 self.collections.insert(collection, at: 0)
             }
             // Adds post if there is one selected
@@ -447,7 +447,7 @@ class CollectionsViewModel: ObservableObject {
         do {
             try await CollectionService.shared.likeCollection(collection)
         } catch {
-            //print("DEBUG: Failed to like collection with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to like collection with error \(error.localizedDescription)")
             if let index = collections.firstIndex(where: { $0.id == collection.id }) {
                 collections[index].didLike = false
                 collections[index].likes -= 1
@@ -474,7 +474,7 @@ class CollectionsViewModel: ObservableObject {
         do {
             try await CollectionService.shared.unlikeCollection(collection)
         } catch {
-            //print("DEBUG: Failed to unlike collection with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to unlike collection with error \(error.localizedDescription)")
             if let index = collections.firstIndex(where: { $0.id == collection.id }) {
                 collections[index].didLike = true
                 collections[index].likes += 1
@@ -494,7 +494,7 @@ class CollectionsViewModel: ObservableObject {
                 
             }
         } catch {
-            //print("failed to check if user liked collection")
+            ////print("failed to check if user liked collection")
         }
         
     }
@@ -507,7 +507,7 @@ class CollectionsViewModel: ObservableObject {
                 self.collections = likedCollections
             }
         } catch {
-            //print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch liked collections with error: \(error.localizedDescription)")
         }
     }
     
@@ -542,7 +542,7 @@ class CollectionsViewModel: ObservableObject {
             do {
                 self.invites = try await CollectionService.shared.fetchCollaborationInvites()
             } catch {
-                //print("Failed to fetch invites: \(error)")
+                ////print("Failed to fetch invites: \(error)")
             }
         isLoading = false
     }
@@ -562,7 +562,7 @@ class CollectionsViewModel: ObservableObject {
                 
             }
         } catch {
-            //print("Failed to accept invite: \(error)")
+            ////print("Failed to accept invite: \(error)")
         }
     }
 
@@ -586,12 +586,12 @@ class CollectionsViewModel: ObservableObject {
                 try await CollectionService.shared.rejectInvite(collectionId: invite.collectionId)
                 invites.removeAll { $0.id == invite.id }
             } catch {
-                //print("Failed to reject invite: \(error)")
+                ////print("Failed to reject invite: \(error)")
             }
     }
     func removeSelfAsCollaborator() async {
         guard let collection = selectedCollection else {
-            //print("No collection selected")
+            ////print("No collection selected")
             return
         }
         
@@ -615,11 +615,11 @@ class CollectionsViewModel: ObservableObject {
             // Update the user's collection count locally
             
             
-            //print("Successfully removed self as collaborator from collection: \(collection.id)")
+            ////print("Successfully removed self as collaborator from collection: \(collection.id)")
             
             
         } catch {
-            //print("Failed to remove self as collaborator: \(error.localizedDescription)")
+            ////print("Failed to remove self as collaborator: \(error.localizedDescription)")
             // Here you might want to show an error message to the user
         }
     }

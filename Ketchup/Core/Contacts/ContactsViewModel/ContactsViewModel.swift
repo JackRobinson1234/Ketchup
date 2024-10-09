@@ -46,12 +46,24 @@ class ContactsViewModel: ObservableObject {
     }
     @MainActor
     var inviteMessage: String {
-            if let username = AuthService.shared.userSession?.username {
-                return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store (P.S. Follow me @\(username))"
-            } else {
-                return "Hey! Sharing an invite to the beta for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store"
-            }
+        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
+        if let username = AuthService.shared.userSession?.username {
+            return """
+            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+
+            \(appStoreLink)
+
+            (P.S. Follow me @\(username))
+            """
+        } else {
+            return """
+            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+
+            \(appStoreLink)
+            """
         }
+    }
+
     func fetchContacts() {
             guard !isLoading else { return }
             isLoading = true
@@ -189,7 +201,7 @@ class ContactsViewModel: ObservableObject {
             let number = phoneNumberKit.format(parsedNumber, toType: .international)
             return number
         } catch {
-            //print("Error parsing phone number: \(error.localizedDescription)")
+            ////print("Error parsing phone number: \(error.localizedDescription)")
             return nil
         }
     }
@@ -287,8 +299,8 @@ class ContactsViewModel: ObservableObject {
 
 struct ContactMessageComposeView: UIViewControllerRepresentable {
     @Binding var isShowing: Bool
-    let recipient: String
-    let body: String
+    var recipient: String
+    var body: String
     
     func makeUIViewController(context: Context) -> MFMessageComposeViewController {
         let controller = MFMessageComposeViewController()
@@ -315,5 +327,4 @@ struct ContactMessageComposeView: UIViewControllerRepresentable {
             parent.isShowing = false
         }
     }
-   
 }

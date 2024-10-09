@@ -122,7 +122,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
                 }
             } else {
                 Task{
-                    print("Failed to get user location")
+                    //print("Failed to get user location")
                     self.loadLocationFromUserSession()
                     try await self.fetchInitialPosts()
                     self.isInitialLoading = false
@@ -148,7 +148,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     
     func updateLocation(latitude: Double, longitude: Double) {
         surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-        print(surroundingGeohash, "2")
+        //print(surroundingGeohash, "2")
         reverseGeocodeLocation(latitude: latitude, longitude: longitude)
         //        Task{
         //            try await fetchInitialPosts()
@@ -163,7 +163,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             guard let self = self else { return }
             
             if let error = error {
-                print("Reverse geocoding error: \(error.localizedDescription)")
+                //print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
             
@@ -264,7 +264,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             await checkPostInteractions(for: &newPosts)
             handleFetchedPosts(newPosts, isInitialLoad: true)
         } catch {
-            //print("Error handling tab change: \(error)")
+            ////print("Error handling tab change: \(error)")
         }
     }
     @MainActor
@@ -276,7 +276,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             await checkPostInteractions(for: &newPosts)
             handleFetchedPosts(newPosts, isInitialLoad: true)
         } catch {
-            //print("Error fetching initial posts: \(error)")
+            ////print("Error fetching initial posts: \(error)")
         }
     }
     
@@ -298,7 +298,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             await checkPostInteractions(for: &newPosts)
             handleFetchedPosts(newPosts, isInitialLoad: false)
         } catch {
-            print("DEBUG: Error fetching more posts: \(error)")
+            //print("DEBUG: Error fetching more posts: \(error)")
         }
         isFetching = false
     }
@@ -337,7 +337,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     
     private func fetchRegularPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
         applyLocationFilter()
-        print("FETCHING WITH FILTERS", filters)
+        //print("FETCHING WITH FILTERS", filters)
         var updatedFilters = filters ?? [:]
         updatedFilters["user.privateMode"] = [false]
         
@@ -421,7 +421,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             let userIds = try await UserService.shared.fetchFollowingUserIds()
             self.followingUsers = userIds
         } catch {
-            //print("Error fetching following users: \(error)")
+            ////print("Error fetching following users: \(error)")
             self.followingUsers = []
         }
     }
@@ -432,7 +432,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
                 self.posts = try await PostService.shared.fetchUserPosts(user: user)
             }
         } catch {
-            //print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
     }
     func fetchUserLikedPosts(user: User) async throws {
@@ -440,7 +440,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             self.posts = try await PostService.shared.fetchUserLikedPosts(user: user)
             
         } catch {
-            //print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
         
     }
@@ -451,7 +451,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
         }
         await MainActor.run {
             if !hasMorePosts {
-                //print("Doesn't have any more posts")
+                ////print("Doesn't have any more posts")
                 return
             }
             
@@ -517,7 +517,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
                     newPosts[i].didLike = try await PostService.shared.checkIfUserLikedPost(newPosts[i])
                     newPosts[i].didBookmark = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: newPosts[i].restaurant.id)
                 } catch {
-                    //print("DEBUG: Failed to check if user liked or bookmarked post")
+                    ////print("DEBUG: Failed to check if user liked or bookmarked post")
                 }
             }
             
@@ -537,7 +537,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
                 self.isInitialLoading = false // Set loading to false
             }
         } catch {
-            //print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch posts \(error.localizedDescription)")
             await MainActor.run {
                 self.isInitialLoading = false // Set loading to false in case of error
             }
@@ -568,40 +568,40 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             }
             
         } catch {
-            //print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
     }
     func updateCache(scrollPosition: String?) {
         guard !posts.isEmpty, let scrollPosition = scrollPosition else {
-            //print("Posts array is empty or scroll position is nil")
+            ////print("Posts array is empty or scroll position is nil")
             return
         }
         
         guard let currentIndex = posts.firstIndex(where: { $0.id == scrollPosition }) else {
-            //print("Current index not found in posts array")
+            ////print("Current index not found in posts array")
             return
         }
         
-        //print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
+        ////print("Updating cache. Current index: \(currentIndex), Posts count: \(posts.count)")
         
         let startIndex = min(currentIndex + 1, posts.count - 1)
         let endIndex = min(currentIndex + 6, posts.count)
         
         guard startIndex < endIndex else {
-            //print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
+            ////print("Invalid range: startIndex \(startIndex) is not less than endIndex \(endIndex)")
             return
         }
         
         let postsToPreload = Array(posts[startIndex..<endIndex])
         
-        //print("Preloading \(postsToPreload.count) posts")
+        ////print("Preloading \(postsToPreload.count) posts")
         
         DispatchQueue.global().async {
             for post in postsToPreload {
                 Task {
                     if post.mediaType == .video {
                         if let videoURL = post.mediaUrls.first, let url = URL(string: videoURL) {
-                            //print("Running prefetch for video")
+                            ////print("Running prefetch for video")
                             VideoPrefetcher.shared.prefetchPosts([post])
                         }
                     } else if post.mediaType == .photo {
@@ -633,7 +633,7 @@ extension FeedViewModel {
         do {
             try await PostService.shared.likePost(post)
         } catch {
-            //print("DEBUG: Failed to like post with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to like post with error \(error.localizedDescription)")
             posts[index].didLike = false
             posts[index].likes -= 1
         }
@@ -647,7 +647,7 @@ extension FeedViewModel {
         do {
             try await PostService.shared.unlikePost(post)
         } catch {
-            //print("DEBUG: Failed to unlike post with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to unlike post with error \(error.localizedDescription)")
             posts[index].didLike = true
             posts[index].likes += 1
         }
@@ -665,7 +665,7 @@ extension FeedViewModel {
                     copy[i].didLike = didLike
                 }
             } catch {
-                //print("DEBUG: Failed to check if user liked post")
+                ////print("DEBUG: Failed to check if user liked post")
             }
         }
         
@@ -674,24 +674,24 @@ extension FeedViewModel {
     
     func loadMoreContentIfNeeded(currentPost: String?) async {
         guard let currentPost = currentPost, !posts.isEmpty else {
-            //print("No current post or posts array is empty")
+            ////print("No current post or posts array is empty")
             return
         }
         
         guard !isFetching && hasMorePosts else {
-            //print("Already fetching or no more posts to fetch")
+            ////print("Already fetching or no more posts to fetch")
             return
         }
         
         guard let currentIndex = posts.firstIndex(where: { $0.id == currentPost }) else {
-            //print("Error: Current post not found in the posts array")
+            ////print("Error: Current post not found in the posts array")
             return
         }
         
         let thresholdIndex = max(0, posts.count - abs(fetchingThreshold))
         
         if currentIndex >= thresholdIndex && currentIndex > lastFetched {
-            //print("Fetching more posts. Current index: \(currentIndex), Last fetched: \(lastFetched)")
+            ////print("Fetching more posts. Current index: \(currentIndex), Last fetched: \(lastFetched)")
             lastFetched = currentIndex
             
             Task {
@@ -700,7 +700,7 @@ extension FeedViewModel {
                 isLoadingMoreContent = false
             }
         } else {
-            //print("Not yet reached the threshold for fetching more posts. Current index: \(currentIndex), Threshold: \(thresholdIndex), Last fetched: \(lastFetched)")
+            ////print("Not yet reached the threshold for fetching more posts. Current index: \(currentIndex), Threshold: \(thresholdIndex), Last fetched: \(lastFetched)")
         }
     }
     
@@ -728,7 +728,7 @@ extension FeedViewModel {
             AuthService.shared.userSession?.stats.posts -= 1
 
         } catch {
-            //print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to delete post with error \(error.localizedDescription)")
         }
     }
     
@@ -741,7 +741,7 @@ extension FeedViewModel {
         do {
             try await PostService.shared.repostPost(post)
         } catch {
-            //print("DEBUG: Failed to like post with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to like post with error \(error.localizedDescription)")
             posts[index].didRepost = false
             posts[index].repostCount -= 1
             AuthService.shared.userSession?.stats.posts -= 1
@@ -756,7 +756,7 @@ extension FeedViewModel {
         do {
             try await PostService.shared.removeRepost(post)
         } catch {
-            //print("DEBUG: Failed to removeRepost with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to removeRepost with error \(error.localizedDescription)")
             posts[index].didRepost = true
             posts[index].repostCount += 1
             AuthService.shared.userSession?.stats.posts += 1
@@ -768,7 +768,7 @@ extension FeedViewModel {
                 posts[i].didLike = try await PostService.shared.checkIfUserLikedPost(posts[i])
                 posts[i].didBookmark = try await PostService.shared.checkIfUserBookmarkedRestaurant(restaurantId: posts[i].restaurant.id)
             } catch {
-                //print("DEBUG: Failed to check if user liked or bookmarked post \(posts[i].id)")
+                ////print("DEBUG: Failed to check if user liked or bookmarked post \(posts[i].id)")
             }
         }
     }
@@ -776,8 +776,8 @@ extension FeedViewModel {
 extension FeedViewModel {
     func updatePost(_ updatedPost: Post) {
         if let index = posts.firstIndex(where: { $0.id == updatedPost.id }) {
-            //print("FOUND INDEX")
-            //print("updatedPost", updatedPost.caption)
+            ////print("FOUND INDEX")
+            ////print("updatedPost", updatedPost.caption)
             posts[index] = updatedPost
         } else {
             
@@ -792,7 +792,7 @@ extension FeedViewModel {
             // Update all posts with the same restaurant.id
             updateBookmarkStatus(for: post.restaurant.id, isBookmarked: true)
         } catch {
-            //print("DEBUG: Failed to bookmark restaurant with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to bookmark restaurant with error \(error.localizedDescription)")
         }
     }
     
@@ -803,7 +803,7 @@ extension FeedViewModel {
             // Update all posts with the same restaurant.id
             updateBookmarkStatus(for: post.restaurant.id, isBookmarked: false)
         } catch {
-            //print("DEBUG: Failed to unbookmark restaurant with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to unbookmark restaurant with error \(error.localizedDescription)")
         }
     }
     
@@ -826,7 +826,7 @@ extension FeedViewModel {
             let snapshot = try await bookmarkRef.getDocument()
             return snapshot.exists
         } catch {
-            //print("DEBUG: Failed to check if user bookmarked post with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to check if user bookmarked post with error \(error.localizedDescription)")
             return false
         }
     }
@@ -844,9 +844,9 @@ extension FeedViewModel {
         let userRef = Firestore.firestore().collection("users").document(userId)
         userRef.updateData(["followingPosts": 0]) { error in
             if let error = error {
-                print("Error resetting followingPosts in Firebase: \(error.localizedDescription)")
+                //print("Error resetting followingPosts in Firebase: \(error.localizedDescription)")
             } else {
-                print("Successfully reset followingPosts in Firebase")
+                //print("Successfully reset followingPosts in Firebase")
             }
         }
         

@@ -36,9 +36,9 @@ struct GeoFireScripts: View {
                 let restaurantRef = FirestoreConstants.RestaurantCollection.document(restaurant.id)
                 restaurantRef.setData(documentData, merge: true) { error in
                     if let error = error {
-                        //print("Error updating geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
+                        ////print("Error updating geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
                     } else {
-                        //print("Geohash updated successfully for restaurant \(restaurant.id)")
+                        ////print("Geohash updated successfully for restaurant \(restaurant.id)")
                     }
                 }
             }
@@ -72,7 +72,7 @@ struct GeoFireScripts: View {
                     }
                     return matchingDocs
                 }
-                //print(matchingDocs)
+                ////print(matchingDocs)
                 return matchingDocs
             } catch {
                 throw error
@@ -80,10 +80,10 @@ struct GeoFireScripts: View {
         }
     func fetchAllRestaurants() async throws{
         Task{
-            //print("Running Fetch Restaurants")
+            ////print("Running Fetch Restaurants")
             restaurants = try await RestaurantService.shared.fetchRestaurants()
-            //print("Finished Running Fetch Restaurants")
-            //print(restaurants.count)
+            ////print("Finished Running Fetch Restaurants")
+            ////print(restaurants.count)
         }
     }
     func deleteOld() async {
@@ -91,9 +91,9 @@ struct GeoFireScripts: View {
             let restaurantRef = FirestoreConstants.RestaurantCollection.document(restaurant.id)
             restaurantRef.updateData(["geohash": FieldValue.delete()]) { error in
                 if let error = error {
-                    //print("Error deleting geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
+                    ////print("Error deleting geohash for restaurant \(restaurant.id): \(error.localizedDescription)")
                 } else {
-                    //print("Geohash deleted successfully for restaurant \(restaurant.id)")
+                    ////print("Geohash deleted successfully for restaurant \(restaurant.id)")
                 }
             }
         }

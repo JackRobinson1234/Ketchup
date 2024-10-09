@@ -126,7 +126,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                 updateCommentLikeStatus(comment, didLike: true, likesChange: 1)
             }
         } catch {
-            print("Failed to like comment with error \(error.localizedDescription)")
+            //print("Failed to like comment with error \(error.localizedDescription)")
         }
     }
 
@@ -137,7 +137,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                 updateCommentLikeStatus(comment, didLike: false, likesChange: -1)
             }
         } catch {
-            print("Failed to unlike comment with error \(error.localizedDescription)")
+            //print("Failed to unlike comment with error \(error.localizedDescription)")
         }
     }
 
@@ -166,7 +166,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                 comment.didLike = didLike
                 updatedComments.append(comment)
             } catch {
-                print("Failed to check if user liked comment")
+                //print("Failed to check if user liked comment")
                 updatedComments.append(comment) // Append the comment even if there's an error
             }
            
@@ -182,7 +182,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                     self.taggedUsers = users
                 }
             } catch {
-                print("Error fetching following users: \(error)")
+                //print("Error fetching following users: \(error)")
             }
         }
     }
@@ -307,7 +307,7 @@ class CommentViewModel<T: Commentable>: ObservableObject {
                 self.highlightComment(comment.id)
             }
         } catch {
-            print("Failed to upload comment with error \(error.localizedDescription)")
+            //print("Failed to upload comment with error \(error.localizedDescription)")
         }
     }
 

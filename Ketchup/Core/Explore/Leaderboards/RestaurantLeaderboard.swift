@@ -284,7 +284,7 @@ struct RestaurantLeaderboard: View {
             case .surrounding:
                 locationFilter = .geohash(surrounding ?? "")
             }
-            print("LEADERBOARD LOCATION FILTER", locationFilter)
+            //print("LEADERBOARD LOCATION FILTER", locationFilter)
             switch leaderboardType {
             case .mostPosts:
                 self.restaurants = try await viewModel.fetchTopRestaurants(count: 20, locationFilter: locationFilter)
@@ -292,7 +292,7 @@ struct RestaurantLeaderboard: View {
                 self.restaurants = try await viewModel.fetchHighestRatedRestaurants(category: category, count: 20, locationFilter: locationFilter)
             }
         } catch {
-            print("Error fetching more restaurants: \(error.localizedDescription)")
+            //print("Error fetching more restaurants: \(error.localizedDescription)")
         }
     }
     private func getRatingDescription() -> String {

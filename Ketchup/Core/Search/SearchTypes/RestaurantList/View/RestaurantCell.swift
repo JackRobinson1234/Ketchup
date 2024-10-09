@@ -12,6 +12,8 @@ struct RestaurantCell: View {
     let restaurant: Restaurant
     @State var userLocation: CLLocation? = LocationManager.shared.userLocation
     
+    @State private var highlightsAndTags: String = ""
+
     init(restaurant: Restaurant, userLocation: CLLocation? = nil) {
         self.restaurant = restaurant
         self.userLocation = userLocation
@@ -23,7 +25,6 @@ struct RestaurantCell: View {
               let restaurantLon = restaurant._geoloc?.lng else {
             return nil
         }
-        
         let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
         let distanceInMeters = userLocation.distance(from: restaurantLocation)
         let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
@@ -46,6 +47,7 @@ struct RestaurantCell: View {
                 Text("\(combineRestaurantDetails(restaurant: restaurant))")
                     .font(.custom("MuseoSansRounded-300", size: 12))
                     .foregroundColor(.gray)
+               
                 let address = restaurant.address ?? "Unknown Address"
                 let addressWithoutZip = removeZipCode(from: address)
                 Text("\(addressWithoutZip)")
@@ -68,12 +70,35 @@ struct RestaurantCell: View {
             .foregroundStyle(.black)
             
             Spacer()
-            
+
+                        
             Image(systemName: "chevron.right")
                 .foregroundStyle(.gray)
             
         }
+        .onAppear{
+            calculateHighlightsAndTags(restaurant: restaurant)
+        }
+
     }
+    private func calculateHighlightsAndTags(restaurant: Restaurant) {
+           var items = [String]()
+           
+           // Add highlights from additional info
+           if let highlights = restaurant.additionalInfo?.highlights {
+               items.append(contentsOf: highlights.compactMap { $0.name })
+           }
+           
+           // Add review tags (without count)
+           if let reviewTags = restaurant.reviewsTags {
+               items.append(contentsOf: reviewTags.compactMap { $0.title })
+           }
+           
+           // Remove duplicates, capitalize first letter of each item, and join with commas
+           highlightsAndTags = Array(Set(items))
+               .map { $0.capitalized }
+               .joined(separator: ", ")
+       }
     private func removeZipCode(from address: String) -> String {
         let components = address.components(separatedBy: ", ")
         if components.count > 1 {

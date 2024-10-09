@@ -167,7 +167,7 @@ struct CollectionAddRestaurantView: View {
                 case .failure(let error):
                     showAlert = true
                     alertMessage = "Error: \(error.localizedDescription)"
-                    //print("Error scraping restaurant: \(error.localizedDescription)")
+                    ////print("Error scraping restaurant: \(error.localizedDescription)")
                 }
             }
         }
@@ -190,7 +190,7 @@ struct CollectionAddRestaurantView: View {
             dismissListView = true
             dismiss()
         } catch {
-            //print("Failed to add restaurant to collection: \(error.localizedDescription)")
+            ////print("Failed to add restaurant to collection: \(error.localizedDescription)")
             // You can show an alert here if needed
             alertMessage = "Failed to add restaurant to collection."
             showAlert = true
@@ -227,7 +227,7 @@ struct CollectionAddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                //print("Scrape request was cancelled.")
+                ////print("Scrape request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -260,7 +260,7 @@ struct CollectionAddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: statusUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                //print("Polling request was cancelled.")
+                ////print("Polling request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -282,7 +282,7 @@ struct CollectionAddRestaurantView: View {
                     } else if status == "ABORTED" {
                       return
                     } else {
-                        //print("Run is still in progress...")
+                        ////print("Run is still in progress...")
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             self.pollRunStatus(runId: runId, completion: completion)
                         }
@@ -303,7 +303,7 @@ struct CollectionAddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: statusUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                //print("Data fetch request was cancelled.")
+                ////print("Data fetch request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -335,7 +335,7 @@ struct CollectionAddRestaurantView: View {
         
         scrapeTask = URLSession.shared.dataTask(with: dataUrl) { data, response, error in
             if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                //print("Data fetch request was cancelled.")
+                ////print("Data fetch request was cancelled.")
                 return
             } else if let error = error {
                 completion(.failure(error))
@@ -368,7 +368,7 @@ struct CollectionAddRestaurantView: View {
         }
         isScraping = false
         buttonText = "Search"
-        //print("Scraping process has been canceled.")
+        ////print("Scraping process has been canceled.")
     }
     
     func abortActorRun(runId: String) {
@@ -379,9 +379,9 @@ struct CollectionAddRestaurantView: View {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                //print("Error aborting actor run: \(error.localizedDescription)")
+                ////print("Error aborting actor run: \(error.localizedDescription)")
             } else {
-                //print("Actor run \(runId) aborted successfully.")
+                ////print("Actor run \(runId) aborted successfully.")
             }
         }
         

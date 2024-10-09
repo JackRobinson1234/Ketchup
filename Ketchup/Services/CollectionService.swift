@@ -20,7 +20,7 @@ class CollectionService {
     /// - Parameter user: user you want the collections for
     /// - Returns: array of collections
     func fetchCollections(user: String) async throws -> [Collection] {
-        ////print("DEBUG: Ran fetchUserPost")
+        //////print("DEBUG: Ran fetchUserPost")
         let collections = try await FirestoreConstants
             .CollectionsCollection
             .whereField("uid", isEqualTo: user)
@@ -67,7 +67,7 @@ class CollectionService {
         let subCollectionRef = collectionRef.collection("items")
         
         guard let itemData = try? Firestore.Encoder().encode(collectionItem) else {
-            //print("not encoding collection item right")
+            ////print("not encoding collection item right")
             return
         }
         
@@ -129,20 +129,20 @@ class CollectionService {
                                                                        }
                                                                    })
                 } catch {
-                    //print("Error uploading image: \(error)")
+                    ////print("Error uploading image: \(error)")
                     // Handle the error, such as showing an alert to the user
                     return nil
                 }
             }
             let collection = Collection(id: ref.documentID, name: title, timestamp: Timestamp(), description: description, username: username, fullname: fullname, uid: uid, coverImageUrl: imageUrl, restaurantCount: 0, privateMode: false, profileImageUrl: profileImageUrl)
-            //print(collection)
+            ////print(collection)
             guard let collectionData = try? Firestore.Encoder().encode(collection) else {
-                //print("not encoding collection right")
+                ////print("not encoding collection right")
                 return nil}
             try await ref.setData(collectionData)
             return collection
         } catch {
-            //print("DEBUG: Failed to upload Collection with error \(error.localizedDescription)")
+            ////print("DEBUG: Failed to upload Collection with error \(error.localizedDescription)")
             throw error
         }
     }
@@ -151,22 +151,22 @@ class CollectionService {
     /// - Parameter selectedCollection: collection to be deleted
     func deleteCollection(selectedCollection: Collection) async throws {
         try await FirestoreConstants.CollectionsCollection.document(selectedCollection.id).delete()
-        //print("Collection deleted successfully.")
+        ////print("Collection deleted successfully.")
     }
     
     
     func fetchRestaurantCollections(restaurantId: String) async throws -> [Collection] {
         var fetchedCollections: [Collection] = []
         let collectionIds = try await FirestoreConstants.RestaurantCollection.document(restaurantId).collection("collections").getDocuments()
-        //print(collectionIds)
+        ////print(collectionIds)
         for collectionId in collectionIds.documents {
-            //print(collectionId)
+            ////print(collectionId)
             let collectionRef = FirestoreConstants.CollectionsCollection.document(collectionId.documentID)
             let collection = try await collectionRef.getDocument(as: Collection.self)
             fetchedCollections.append(collection)
             
         }
-        //print("fetchedCollections", fetchedCollections)
+        ////print("fetchedCollections", fetchedCollections)
         return fetchedCollections
     }
     func fetchPaginatedCollections(lastDocument: QueryDocumentSnapshot?, limit: Int) async throws -> (collections: [Collection], lastDocument: QueryDocumentSnapshot?) {
@@ -217,7 +217,7 @@ class CollectionService {
                 let collection = try await self.fetchCollection(withId: collectionId)
                 likedCollections.append(collection)
             } catch {
-                //print("Error fetching collection with id \(collectionId): \(error.localizedDescription)")
+                ////print("Error fetching collection with id \(collectionId): \(error.localizedDescription)")
             }
         }
         return likedCollections
@@ -370,6 +370,6 @@ class CollectionService {
             }
         }
 
-        //print("Successfully removed self as collaborator from collection: \(collectionId)")
+        ////print("Successfully removed self as collaborator from collection: \(collectionId)")
     }
 }

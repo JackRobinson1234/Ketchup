@@ -40,7 +40,8 @@ class ActivityViewModel: ObservableObject {
     private var lastContactDocumentSnapshot: DocumentSnapshot? = nil
     @Published var hasMoreContacts: Bool = true
     @Published var currentPoll: Poll?
-    
+    @Published var mealRestaurants: [Restaurant] = []
+
     
     private var contactsPageSize = 10
     
@@ -53,20 +54,16 @@ class ActivityViewModel: ObservableObject {
         }
     }
     
-    
-    func loadMore() {
-        guard !isFetching, hasMoreActivities, !isLoadingMore else { return }
-        
-        isLoadingMore = true
-        Task {
-            do {
-                try await fetchFollowingActivities()
-            } catch {
-                //print("Error fetching more activities: \(error)")
+    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?) async throws {
+            guard let location = location else { return }
+        print("FETCHING RESTAURANTS")
+            let restaurants = try await RestaurantService.shared.fetchRestaurantsServingMeal(mealTime: mealTime, location: location)
+        print("Fetched Restaurants", restaurants)
+        DispatchQueue.main.async {
+                self.mealRestaurants = restaurants
             }
-            isLoadingMore = false
         }
-    }
+   
     func loadMoreContacts() {
         guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
         
@@ -75,27 +72,12 @@ class ActivityViewModel: ObservableObject {
             do {
                 try await fetchTopContacts()
             } catch {
-                //print("Error fetching more contacts: \(error)")
+                ////print("Error fetching more contacts: \(error)")
             }
             isLoadingMore = false
         }
     }
-    func fetchFollowingActivities() async throws {
-        guard !isFetching else { return }
-        isFetching = true
-        defer { isFetching = false }
-        
-        let (activities, lastSnapshot) = try await service.fetchFollowingActivities(lastDocumentSnapshot: lastDocumentSnapshot, pageSize: pageSize)
-        
-        DispatchQueue.main.async {
-            if activities.isEmpty {
-                self.hasMoreActivities = false
-            } else {
-                self.followingActivity.append(contentsOf: activities)
-                self.lastDocumentSnapshot = lastSnapshot
-            }
-        }
-    }
+    
     func fetchTopContacts() async throws {
         guard isContactPermissionGranted else { return }
         guard let userId = Auth.auth().currentUser?.uid else { return }
@@ -182,15 +164,5 @@ class ActivityViewModel: ObservableObject {
             }
         }
     }
-    func fetchInitialActivities() async throws {
-        guard !isFetching else { return }
-        
-        // Reset pagination state
-        lastDocumentSnapshot = nil
-        hasMoreActivities = true
-        followingActivity = []
-        
-        // Fetch the initial activities
-        try await fetchFollowingActivities()
-    }
+    
 }

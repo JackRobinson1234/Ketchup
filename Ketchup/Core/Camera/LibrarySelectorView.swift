@@ -155,10 +155,10 @@ import PhotosUI
 //                    uploadViewModel.navigateToUpload = true
 //                }
 //            } else {
-//                //print("No URL available for the video item")
+//                ////print("No URL available for the video item")
 //            }
 //        } catch {
-//            //print("Error loading video URL: \(error)")
+//            ////print("Error loading video URL: \(error)")
 //        }
 //    }
 //    
@@ -171,7 +171,7 @@ import PhotosUI
 //                    images.append(image)
 //                }
 //            } catch {
-//                //print("Error loading image: \(error)")
+//                ////print("Error loading image: \(error)")
 //            }
 //        }
 //        DispatchQueue.main.async {

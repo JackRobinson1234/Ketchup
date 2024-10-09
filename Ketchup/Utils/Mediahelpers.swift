@@ -19,7 +19,7 @@ struct MediaHelpers {
             let cgImage = try imgGenerator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil)
             return UIImage(cgImage: cgImage)
         } catch {
-            //print("DEBUG: Error generating thumbnail: \(error.localizedDescription)")
+            ////print("DEBUG: Error generating thumbnail: \(error.localizedDescription)")
             return nil
         }
     }

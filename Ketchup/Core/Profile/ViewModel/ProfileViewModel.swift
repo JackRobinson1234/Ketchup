@@ -35,7 +35,7 @@ class ProfileViewModel: ObservableObject {
         do {
             self.user = try await UserService.shared.fetchUser(withUid: uid)
         } catch {
-            //print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch user \(uid) with error: \(error.localizedDescription)")
         }
     }
     func fetchBadges() async throws{
@@ -49,7 +49,7 @@ class ProfileViewModel: ObservableObject {
                 self.user = try await UserService.shared.fetchUser(withUid: currentUser)
             }
         } catch {
-            //print("DEBUG: Failed to fetch current user with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch current user with error: \(error.localizedDescription)")
         }
     }
     
@@ -58,7 +58,7 @@ class ProfileViewModel: ObservableObject {
             self.user = try await UserService.shared.fetchCurrentUser()
             AuthService.shared.userSession = self.user
         } catch {
-            //print("Failed to refresh the current user")
+            ////print("Failed to refresh the current user")
         }
     }
 }
@@ -94,7 +94,7 @@ extension ProfileViewModel {
         do {
             self.likedPosts = try await PostService.shared.fetchUserLikedPosts(user: user)
         } catch {
-            //print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
+            ////print("DEBUG: Failed to fetch posts with error: \(error.localizedDescription)")
         }
     }
     
@@ -104,7 +104,7 @@ extension ProfileViewModel {
             AuthService.shared.userSession?.notificationAlert = 0
             try await UserService.shared.clearNotificationAlert()
         } catch {
-            //print("Error clearing notification alert")
+            ////print("Error clearing notification alert")
         }
     }
     func checkIfUserIsBlocked() async {
@@ -115,7 +115,7 @@ extension ProfileViewModel {
                     self.isUserBlocked = result
                 }
             } catch {
-                print("Error checking if user is blocked: \(error.localizedDescription)")
+                //print("Error checking if user is blocked: \(error.localizedDescription)")
             }
         }
 }

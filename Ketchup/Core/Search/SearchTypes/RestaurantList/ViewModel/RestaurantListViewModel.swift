@@ -27,7 +27,7 @@ final class RestaurantListViewModel: ObservableObject {
         let apiKey: APIKey = "d7d6db8cc90a900cd8fa87fb302b3448"
         let itemsSearcher = HitsSearcher(appID: appID,
                                          apiKey: apiKey,
-                                         indexName: "restaurants2")
+                                         indexName: "restaurants7")
         self.itemsSearcher = itemsSearcher
         self.searchQuery = ""
         self.hits =  itemsSearcher.paginatedData(of: Hit<Restaurant>.self)

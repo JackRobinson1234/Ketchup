@@ -20,11 +20,11 @@ struct CameraView: View {
     @State private var isKeyboardVisible = false
     @State private var cameraMode: CameraMode = .video
     @Environment(\.dismiss) var dismiss
-
+    
     enum CameraMode {
         case video, photo
     }
-
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -73,10 +73,10 @@ struct CameraView: View {
                                 
                             }
                         } else if cameraViewModel.selectedCamTab == 0 {
-                                ImagePicker(isPresented: $isImagePickerPresented, uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                            } else if cameraViewModel.selectedCamTab == 3 {
-                                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
-                            }
+                            ImagePicker(isPresented: $isImagePickerPresented, uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                        } else if cameraViewModel.selectedCamTab == 3 {
+                            ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, writtenReview: true)
+                        }
                         
                         topControls
                             .padding(.top, geometry.safeAreaInsets.top)
@@ -94,43 +94,43 @@ struct CameraView: View {
             .edgesIgnoringSafeArea(.vertical)
         }
         .gesture(
-                    cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
-                )
-                .fullScreenCover(isPresented: $cameraViewModel.navigateToUpload) {
-                    NavigationStack {
-                        ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
-                            .toolbar(.hidden, for: .tabBar)
-                            .onAppear {
-                                cameraViewModel.stopCameraSession()
-                            }
-                            .onDisappear {
-                                if !uploadViewModel.dismissAll{
-                                    cameraViewModel.restartCameraSession()
-                                }
-                            }
+            cameraViewModel.isPhotoTaken || cameraViewModel.previewURL != nil || cameraViewModel.isRecording || uploadViewModel.restaurant != nil ? nil : drag
+        )
+        .fullScreenCover(isPresented: $cameraViewModel.navigateToUpload) {
+            NavigationStack {
+                ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
+                    .toolbar(.hidden, for: .tabBar)
+                    .onAppear {
+                        cameraViewModel.stopCameraSession()
                     }
-                }
-                .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
-                .onChange(of: tabBarController.selectedTab) {newValue in
-                    cameraViewModel.reset()
-                }
-                .onAppear {
-                    setupKeyboardObservers()
-                    cameraViewModel.setUp()
-                    cameraViewModel.togglePreview(true)
-                }
-                .onDisappear {
-                    removeKeyboardObservers()
-                    cameraViewModel.stopCameraSession()
-                }
-                .onChange(of: uploadViewModel.dismissAll) {newValue in
-                    if newValue {
-                        uploadViewModel.dismissAll = false
-                        dismiss()
-                        //cameraViewModel.restartCameraSession()
+                    .onDisappear {
+                        if !uploadViewModel.dismissAll{
+                            cameraViewModel.restartCameraSession()
+                        }
                     }
-                }
             }
+        }
+        .animation(.easeInOut, value: cameraViewModel.navigateToUpload)
+        .onChange(of: tabBarController.selectedTab) {newValue in
+            cameraViewModel.reset()
+        }
+        .onAppear {
+            setupKeyboardObservers()
+            cameraViewModel.setUp()
+            cameraViewModel.togglePreview(true)
+        }
+        .onDisappear {
+            removeKeyboardObservers()
+            cameraViewModel.stopCameraSession()
+        }
+        .onChange(of: uploadViewModel.dismissAll) {newValue in
+            if newValue {
+                uploadViewModel.dismissAll = false
+                dismiss()
+                //cameraViewModel.restartCameraSession()
+            }
+        }
+    }
     
     private var cameraModeSelector: some View {
         HStack(spacing: 0) {
@@ -170,7 +170,7 @@ struct CameraView: View {
                         uploadViewModel.reset()
                         dismiss()
                         //tabBarController.selectedTab = 0
-                     
+                        
                     } label: {
                         Image(systemName: "xmark")
                             .font(.custom("MuseoSansRounded-300", size: 28))

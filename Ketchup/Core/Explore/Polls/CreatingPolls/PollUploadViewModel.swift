@@ -33,7 +33,7 @@ class PollUploadViewModel: ObservableObject {
             .whereField("scheduledDate", isGreaterThanOrEqualTo: oneDayAgo)
             .getDocuments { snapshot, error in
                 if let error = error {
-                    print("Error fetching scheduled polls: \(error)")
+                    //print("Error fetching scheduled polls: \(error)")
                     return
                 }
 
@@ -68,7 +68,7 @@ class PollUploadViewModel: ObservableObject {
             let db = Firestore.firestore()
         db.collection("polls").document(poll.id).delete { error in
                 if let error = error {
-                    print("Error deleting poll: \(error.localizedDescription)")
+                    //print("Error deleting poll: \(error.localizedDescription)")
                     DispatchQueue.main.async {
                         self.alertMessage = "Failed to delete poll: \(error.localizedDescription)"
                         self.showAlert = true

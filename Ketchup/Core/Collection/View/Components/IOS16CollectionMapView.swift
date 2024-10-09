@@ -315,7 +315,7 @@ class Ios16CollectionItemMapView: MKAnnotationView {
     }
     
     private func configure(with annotation: Ios16CollectionItemAnnotation) {
-        print("SHOULD BE CONFIGURING CLUSTER")
+        //print("SHOULD BE CONFIGURING CLUSTER")
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
         
@@ -352,7 +352,7 @@ class Ios16CollectionItemClusterAnnotationView: MKAnnotationView {
     }
     
     private func configure(with cluster: Ios16CollectionItemClusterAnnotation) {
-        print("SHOULD BE CONFIGURING CLUSTER")
+        //print("SHOULD BE CONFIGURING CLUSTER")
         canShowCallout = false
         self.subviews.forEach { $0.removeFromSuperview() }
         

@@ -18,7 +18,7 @@ class PostClusterService {
     private init() {}
     
     func fetchPostClustersWithLocation(filters: [String: [Any]], center: CLLocationCoordinate2D, radiusInM: Double = 500, zoomLevel: String, limit: Int = 0) async throws -> [PostCluster] {
-        //print("DEBUG: Fetching post clusters around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
+        ////print("DEBUG: Fetching post clusters around center: \(center), with radius: \(radiusInM), with filters: \(filters) meters at zoom level: \(zoomLevel)")
         
         let queryBounds = GFUtils.queryBounds(forLocation: center, withRadius: radiusInM)
         guard let currentId = Auth.auth().currentUser?.uid else {
@@ -34,7 +34,7 @@ class PostClusterService {
                 .end(at: [bound.endValue])
             
             query = applyFilters(toQuery: query, filters: filters)
-            //print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
+            ////print("DEBUG: Constructed query for bounds start at: \(bound.startValue) and end at: \(bound.endValue)")
             return query
         }
         
@@ -43,23 +43,23 @@ class PostClusterService {
                 for query in queries {
                     group.addTask {
                         let snapshot = try await query.getDocuments()
-                        //print("DEBUG: Executing query for post clusters")
+                        ////print("DEBUG: Executing query for post clusters")
                         let clusters = snapshot.documents.compactMap { document -> PostCluster? in
                             do {
                                 var cluster = try document.data(as: PostCluster.self)
                                 // Apply filtering and adjust cluster
                                 if let adjustedCluster = self.adjustPostClusterForFilters(cluster, filters: filters) {
-                                    //print("DEBUG: Successfully decoded and filtered post cluster with id: \(adjustedCluster.id)")
+                                    ////print("DEBUG: Successfully decoded and filtered post cluster with id: \(adjustedCluster.id)")
                                     return adjustedCluster
                                 }
                                 return nil
                             } catch {
-                                //print("ERROR: Failed to decode post cluster from document \(document.documentID). Error: \(error)")
-                                //print("DEBUG: Raw document data: \(document.data())")
+                                ////print("ERROR: Failed to decode post cluster from document \(document.documentID). Error: \(error)")
+                                ////print("DEBUG: Raw document data: \(document.data())")
                                 return nil
                             }
                         }
-                        //print("DEBUG: Fetched and filtered \(clusters.count) post clusters from bounds")
+                        ////print("DEBUG: Fetched and filtered \(clusters.count) post clusters from bounds")
                         return (clusters, snapshot.documents.count)
                     }
                 }
@@ -70,15 +70,15 @@ class PostClusterService {
                     allMatchingDocs.append(contentsOf: documents)
                     totalDocumentCount += count
                 }
-                //print("DEBUG: Total filtered post clusters fetched: \(allMatchingDocs.count)")
+                ////print("DEBUG: Total filtered post clusters fetched: \(allMatchingDocs.count)")
                 return (allMatchingDocs, totalDocumentCount)
             }
             
-            //print("Total number of documents fetched: \(totalDocuments)")
-            //print("Total number of successfully decoded and filtered post clusters: \(matchingDocs.count)")
+            ////print("Total number of documents fetched: \(totalDocuments)")
+            ////print("Total number of successfully decoded and filtered post clusters: \(matchingDocs.count)")
             return matchingDocs
         } catch {
-            //print("ERROR: Failed to fetch post clusters with error \(error)")
+            ////print("ERROR: Failed to fetch post clusters with error \(error)")
             throw error
         }
     }

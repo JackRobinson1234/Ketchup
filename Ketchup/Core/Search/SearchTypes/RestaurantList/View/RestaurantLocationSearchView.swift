@@ -134,7 +134,7 @@ struct RestaurantLocationSearchView: View {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
             guard let placemark = placemarks?.first else {
-                print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
+                //print("Reverse geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             
@@ -162,7 +162,7 @@ struct RestaurantLocationSearchView: View {
         let search = MKLocalSearch(request: searchRequest)
         search.start { (response, error) in
             guard let coordinate = response?.mapItems.first?.placemark.coordinate else {
-                print("Failed to get coordinates: \(error?.localizedDescription ?? "Unknown error")")
+                //print("Failed to get coordinates: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             

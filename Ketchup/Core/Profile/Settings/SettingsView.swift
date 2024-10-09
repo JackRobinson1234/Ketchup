@@ -176,7 +176,7 @@ extension SettingsViewModel {
         do {
             try await db.collection("optOuts").document(userId).setData(data)
         } catch {
-            print("Error creating opt-out document: \(error.localizedDescription)")
+            //print("Error creating opt-out document: \(error.localizedDescription)")
         }
     }
 }

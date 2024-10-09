@@ -22,7 +22,6 @@ struct ContactsView: View {
     init(shouldFetchExistingUsers: Bool = true) {
         _viewModel = StateObject(wrappedValue: ContactsViewModel(shouldFetchExistingUsers: shouldFetchExistingUsers))
     }
-    
     var body: some View {
         NavigationView {
             ZStack {
@@ -175,11 +174,22 @@ struct ContactsView: View {
         }
     }
     
-    private var inviteMessage: String {
+    var inviteMessage: String {
+        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
         if let username = AuthService.shared.userSession?.username {
-            return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store (P.S. Follow me @\(username))"
+            return """
+            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+
+            \(appStoreLink)
+
+            (P.S. Follow me @\(username))
+            """
         } else {
-            return "Hey! Sharing an invite to for Ketchup —no, not the condiment, it's an app which is basically Instagram + Yelp combined. Check it out on the app store)"
+            return """
+            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+
+            \(appStoreLink)
+            """
         }
     }
     
@@ -364,7 +374,7 @@ struct ContactRow: View {
                 isCheckingFollowStatus = false
                 hasCheckedFollowStatus = true
             } catch {
-                //print("Error checking follow status: \(error.localizedDescription)")
+                ////print("Error checking follow status: \(error.localizedDescription)")
                 isCheckingFollowStatus = false
             }
         }
@@ -382,7 +392,7 @@ struct ContactRow: View {
                 isFollowed.toggle()
                 viewModel.updateContactFollowStatus(contact: contact, isFollowed: isFollowed)
             } catch {
-                //print("Failed to follow/unfollow: \(error.localizedDescription)")
+                ////print("Failed to follow/unfollow: \(error.localizedDescription)")
             }
         }
     }

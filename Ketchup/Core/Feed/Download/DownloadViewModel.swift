@@ -102,7 +102,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                 self.downloadSuccess = true
             }
         } catch {
-            //print("Error saving file:", error)
+            ////print("Error saving file:", error)
             Task { @MainActor in
                 self.isDownloading = false
                 self.downloadFailure = true
@@ -138,7 +138,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                     guard let album = collectionFetchResult.firstObject else { return }
                     self.saveMedia(mediaURL: mediaURL, to: album, mediaType: mediaType)
                 } else {
-                    //print("Error creating album: \(error?.localizedDescription ?? "")")
+                    ////print("Error creating album: \(error?.localizedDescription ?? "")")
                 }
             })
         }
@@ -162,7 +162,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             case .written:
                 return 
             case .mixed:
-                //print("DEBUG")
+                ////print("DEBUG")
                 return
             }
             
@@ -172,9 +172,9 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             }
         }, completionHandler: { success, error in
             if success {
-                //print("Successfully saved media to album")
+                ////print("Successfully saved media to album")
             } else {
-                //print("Error saving media to album: \(error?.localizedDescription ?? "")")
+                ////print("Error saving media to album: \(error?.localizedDescription ?? "")")
             }
         })
     }

@@ -112,7 +112,7 @@ struct SelectFollowingEditPostView: View {
                 let users = try await UserService.shared.fetchFollowingUsers()
                 followingUsers = users
             } catch {
-                //print("Error fetching following users: \(error)")
+                ////print("Error fetching following users: \(error)")
             }
         }
     }
@@ -126,7 +126,7 @@ struct SelectFollowingEditPostView: View {
                                     username: user.username,
                                     statusNameImage: user.statusImageName)
             editViewModel.taggedUsers.append(postUser)
-            //print("User tagged: \(user.username)")
+            ////print("User tagged: \(user.username)")
         } else {
             untagUser(PostUser(id: user.id,
                                fullname: user.fullname,
@@ -142,7 +142,7 @@ struct SelectFollowingEditPostView: View {
     private func untagUser(_ postUser: PostUser) {
         if let index = editViewModel.taggedUsers.firstIndex(where: { $0.id == postUser.id }) {
             editViewModel.taggedUsers.remove(at: index)
-            //print("User untagged: \(postUser.username)")
+            ////print("User untagged: \(postUser.username)")
         }
     }
 }

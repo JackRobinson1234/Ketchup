@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import MapKit
 import GeoFire
+import GeohashKit
 
 class RestaurantService {
     static let shared = RestaurantService() // Singleton instance
@@ -20,52 +21,52 @@ class RestaurantService {
     /// - Parameter id: String of an ID for a restaurant
     /// - Returns: RestaurantObject
     func fetchRestaurant(withId id: String) async throws -> Restaurant {
-        //print("DEBUG: Fetching restaurant with ID: \(id)")
+        ////print("DEBUG: Fetching restaurant with ID: \(id)")
         
         do {
             let documentSnapshot = try await FirestoreConstants.RestaurantCollection.document(id).getDocument()
-            //print("DEBUG: Successfully fetched document")
+            ////print("DEBUG: Successfully fetched document")
             
             // Print raw data
             if let data = documentSnapshot.data() {
-                //print("DEBUG: Raw document data:")
-                //print(data)
+                ////print("DEBUG: Raw document data:")
+                ////print(data)
             } else {
-                //print("DEBUG: Document data is nil")
+                ////print("DEBUG: Document data is nil")
             }
             
             // Attempt to decode
             do {
                 let restaurant = try documentSnapshot.data(as: Restaurant.self)
-                //print("DEBUG: Successfully decoded Restaurant")
-                //print("DEBUG: Restaurant name: \(restaurant.name)")
-                //print("DEBUG: Restaurant additionalInfo: \(String(describing: restaurant.additionalInfo))")
+                ////print("DEBUG: Successfully decoded Restaurant")
+                ////print("DEBUG: Restaurant name: \(restaurant.name)")
+                ////print("DEBUG: Restaurant additionalInfo: \(String(describing: restaurant.additionalInfo))")
                 return restaurant
             } catch {
-                //print("DEBUG: Failed to decode Restaurant")
-                //print("DEBUG: Decoding error: \(error)")
+                ////print("DEBUG: Failed to decode Restaurant")
+                ////print("DEBUG: Decoding error: \(error)")
                 
                 // If it's a DecodingError, print more details
-//                if let decodingError = error as? DecodingError {
-//                    switch decodingError {
-//                    case .keyNotFound(let key, let context):
-//                        //print("DEBUG: Key '\(key)' not found: \(context.debugDescription)")
-//                    case .valueNotFound(let type, let context):
-//                        //print("DEBUG: Value of type '\(type)' not found: \(context.debugDescription)")
-//                    case .typeMismatch(let type, let context):
-//                        //print("DEBUG: Type mismatch for type '\(type)': \(context.debugDescription)")
-//                    case .dataCorrupted(let context):
-//                        //print("DEBUG: Data corrupted: \(context.debugDescription)")
-//                    @unknown default:
-//                        //print("DEBUG: Unknown decoding error")
-//                    }
-//                }
+                //                if let decodingError = error as? DecodingError {
+                //                    switch decodingError {
+                //                    case .keyNotFound(let key, let context):
+                //                        ////print("DEBUG: Key '\(key)' not found: \(context.debugDescription)")
+                //                    case .valueNotFound(let type, let context):
+                //                        ////print("DEBUG: Value of type '\(type)' not found: \(context.debugDescription)")
+                //                    case .typeMismatch(let type, let context):
+                //                        ////print("DEBUG: Type mismatch for type '\(type)': \(context.debugDescription)")
+                //                    case .dataCorrupted(let context):
+                //                        ////print("DEBUG: Data corrupted: \(context.debugDescription)")
+                //                    @unknown default:
+                //                        ////print("DEBUG: Unknown decoding error")
+                //                    }
+                //                }
                 
                 throw error
             }
         } catch {
-            //print("DEBUG: Failed to fetch document")
-            //print("DEBUG: Fetch error: \(error)")
+            ////print("DEBUG: Failed to fetch document")
+            ////print("DEBUG: Fetch error: \(error)")
             throw error
         }
     }
@@ -75,7 +76,7 @@ class RestaurantService {
     /// - Returns: array of restaurants
     func fetchRestaurants(withFilters filters: [String: [Any]]? = nil, limit: Int = 1000) async throws -> [Restaurant] {
         var query = FirestoreConstants.RestaurantCollection.order(by: "id", descending: true)
-        //print("DEBUG: Initial query created with descending order by id")
+        ////print("DEBUG: Initial query created with descending order by id")
         
         // Fetch a sample of restaurants to see if any exist in the collection
         let sampleSnapshot = try await query.limit(to: 1).getDocuments()
@@ -83,35 +84,35 @@ class RestaurantService {
             do {
                 return try document.data(as: Restaurant.self)
             } catch {
-                //print("DEBUG: Error decoding sample restaurant document:", document.documentID, error)
+                ////print("DEBUG: Error decoding sample restaurant document:", document.documentID, error)
                 return nil
             }
         }
-        //print("DEBUG: Sample restaurants fetched to check existence:", sampleRestaurants.count)
+        ////print("DEBUG: Sample restaurants fetched to check existence:", sampleRestaurants.count)
         
         if let filters = filters, !filters.isEmpty {
-            //print("DEBUG: Filters are provided:", filters)
+            ////print("DEBUG: Filters are provided:", filters)
             
             if let locationFilters = filters["location"],
                let coordinates = locationFilters.first as? CLLocationCoordinate2D,
                let radiusInM = locationFilters[1] as? Double {
-                //print("DEBUG: Location filters found - Coordinates:", coordinates, "Radius (m):", radiusInM)
+                ////print("DEBUG: Location filters found - Coordinates:", coordinates, "Radius (m):", radiusInM)
                 let restaurants = try await fetchRestaurantsWithLocation(filters: filters, center: coordinates, radiusInM: radiusInM, limit: limit)
-                //print("DEBUG: Restaurants fetched with location filters:", restaurants.count)
+                ////print("DEBUG: Restaurants fetched with location filters:", restaurants.count)
                 if restaurants.isEmpty {
-                    //print("DEBUG: No restaurants found within the location filters")
+                    ////print("DEBUG: No restaurants found within the location filters")
                 } else {
-                    //print("DEBUG: Restaurants within location filters:")
+                    ////print("DEBUG: Restaurants within location filters:")
                 }
                 return restaurants
             } else {
-                //print("DEBUG: No valid location filters found in filters")
+                ////print("DEBUG: No valid location filters found in filters")
             }
             
             query = applyFilters(toQuery: query, filters: filters)
-            //print("DEBUG: Query after applying filters:", query)
+            ////print("DEBUG: Query after applying filters:", query)
         } else {
-            //print("DEBUG: No filters provided or filters are empty")
+            ////print("DEBUG: No filters provided or filters are empty")
         }
         
         var allRestaurants: [Restaurant] = []
@@ -128,20 +129,20 @@ class RestaurantService {
                 do {
                     return try document.data(as: Restaurant.self)
                 } catch {
-                    //print("DEBUG: Error decoding restaurant document:", document.documentID, error)
+                    ////print("DEBUG: Error decoding restaurant document:", document.documentID, error)
                     return nil
                 }
             }
             allRestaurants.append(contentsOf: restaurants)
             lastDocument = snapshot.documents.last
-            //print("DEBUG: Fetched \(restaurants.count) restaurants, total so far: \(allRestaurants.count)")
+            ////print("DEBUG: Fetched \(restaurants.count) restaurants, total so far: \(allRestaurants.count)")
         } while lastDocument != nil
         
-        //print("DEBUG: Total restaurants fetched:", allRestaurants.count)
+        ////print("DEBUG: Total restaurants fetched:", allRestaurants.count)
         if allRestaurants.isEmpty {
-            //print("DEBUG: No restaurants found in the collection")
+            ////print("DEBUG: No restaurants found in the collection")
         } else {
-            //print("DEBUG: Fetched restaurants:")
+            ////print("DEBUG: Fetched restaurants:")
         }
         return allRestaurants
     }
@@ -210,99 +211,99 @@ class RestaurantService {
     func requestRestaurant(requestRestaurant: RestaurantRequest) async throws {
         let ref = FirestoreConstants.RequestRestaurantCollection.document(requestRestaurant.id)
         guard let requestData = try? Firestore.Encoder().encode(requestRestaurant) else {
-            //print("not encoding request right")
+            ////print("not encoding request right")
             return
         }
         do {
             try await ref.setData(requestData)
         } catch {
-            //print("uploading a request failed")
+            ////print("uploading a request failed")
         }
     }
     func createBookmark(for restaurant: Restaurant) async throws {
-            guard let uid = Auth.auth().currentUser?.uid else {
-                throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-            }
-            
-            let db = Firestore.firestore()
-            let batch = db.batch()
-            
-            let bookmark = Bookmark(
-                id: restaurant.id,
-                restaurantName: restaurant.name,
-                restaurantCity: restaurant.city,
-                restaurantState: restaurant.state,
-                geoPoint: restaurant.geoPoint,
-                timestamp: Timestamp(),
-                image: restaurant.profileImageUrl
-            )
-            
-            // User's bookmark
-            let userBookmarkRef = FirestoreConstants.UserCollection
-                .document(uid)
-                .collection("user-bookmarks")
-                .document(restaurant.id)
-            
-            try batch.setData(from: bookmark, forDocument: userBookmarkRef)
-            
-            // Restaurant's bookmark
-            let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
-                .document(restaurant.id)
-                .collection("user-bookmarks")
-                .document(uid)
-            
-            let restaurantBookmarkData = [
-                "userId": uid,
-                "timestamp": Timestamp()
-            ] as [String : Any]
-            
-            batch.setData(restaurantBookmarkData, forDocument: restaurantBookmarkRef)
-            
-            do {
-                try await batch.commit()
-                //print("Bookmark created successfully for restaurant: \(restaurant.name)")
-            } catch {
-                //print("Error creating bookmark: \(error.localizedDescription)")
-                throw error
-            }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
+        
+        let db = Firestore.firestore()
+        let batch = db.batch()
+        
+        let bookmark = Bookmark(
+            id: restaurant.id,
+            restaurantName: restaurant.name,
+            restaurantCity: restaurant.city,
+            restaurantState: restaurant.state,
+            geoPoint: restaurant.geoPoint,
+            timestamp: Timestamp(),
+            image: restaurant.profileImageUrl
+        )
+        
+        // User's bookmark
+        let userBookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(restaurant.id)
+        
+        try batch.setData(from: bookmark, forDocument: userBookmarkRef)
+        
+        // Restaurant's bookmark
+        let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+            .document(restaurant.id)
+            .collection("user-bookmarks")
+            .document(uid)
+        
+        let restaurantBookmarkData = [
+            "userId": uid,
+            "timestamp": Timestamp()
+        ] as [String : Any]
+        
+        batch.setData(restaurantBookmarkData, forDocument: restaurantBookmarkRef)
+        
+        do {
+            try await batch.commit()
+            ////print("Bookmark created successfully for restaurant: \(restaurant.name)")
+        } catch {
+            ////print("Error creating bookmark: \(error.localizedDescription)")
+            throw error
+        }
+    }
     
     // MARK: - removeBookmark
     /// Removes a bookmark for a restaurant
     /// - Parameter restaurantId: The ID of the restaurant to unbookmark
     /// - Throws: An error if the bookmark removal fails
     func removeBookmark(for restaurantId: String) async throws {
-           guard let uid = Auth.auth().currentUser?.uid else {
-               throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
-           }
-           
-           let db = Firestore.firestore()
-           let batch = db.batch()
-           
-           // Remove from user's bookmarks
-           let userBookmarkRef = FirestoreConstants.UserCollection
-               .document(uid)
-               .collection("user-bookmarks")
-               .document(restaurantId)
-           
-           batch.deleteDocument(userBookmarkRef)
-           
-           // Remove from restaurant's bookmarks
-           let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
-               .document(restaurantId)
-               .collection("restaurant-bookmarks")
-               .document(uid)
-           
-           batch.deleteDocument(restaurantBookmarkRef)
-           
-           do {
-               try await batch.commit()
-               //print("Bookmark removed successfully for restaurant ID: \(restaurantId)")
-           } catch {
-               //print("Error removing bookmark: \(error.localizedDescription)")
-               throw error
-           }
-       }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "RestaurantService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        let db = Firestore.firestore()
+        let batch = db.batch()
+        
+        // Remove from user's bookmarks
+        let userBookmarkRef = FirestoreConstants.UserCollection
+            .document(uid)
+            .collection("user-bookmarks")
+            .document(restaurantId)
+        
+        batch.deleteDocument(userBookmarkRef)
+        
+        // Remove from restaurant's bookmarks
+        let restaurantBookmarkRef = FirestoreConstants.RestaurantCollection
+            .document(restaurantId)
+            .collection("restaurant-bookmarks")
+            .document(uid)
+        
+        batch.deleteDocument(restaurantBookmarkRef)
+        
+        do {
+            try await batch.commit()
+            ////print("Bookmark removed successfully for restaurant ID: \(restaurantId)")
+        } catch {
+            ////print("Error removing bookmark: \(error.localizedDescription)")
+            throw error
+        }
+    }
     
     // MARK: - isBookmarked
     /// Checks if a restaurant is bookmarked by the current user
@@ -323,16 +324,41 @@ class RestaurantService {
         return snapshot.exists
     }
     func fetchRestaurant(byName name: String, nearGeoHash: String) async throws -> Restaurant? {
-            let endGeohash = String(nearGeoHash.dropLast(4))
-            let endValue = endGeohash
-
-            let query = FirestoreConstants.RestaurantCollection
-                .whereField("name", isEqualTo: name)
-                .order(by: "geoHash")
-                .start(at: [endGeohash])
-                .limit(to: 1)
-
-            let snapshot = try await query.getDocuments()
-            return try? snapshot.documents.first?.data(as: Restaurant.self)
+        
+        let geohashPrefix = String(nearGeoHash.prefix(4)) // Using first 5 characters of the geohash
+        let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+        let query = FirestoreConstants.RestaurantCollection
+            .whereField("name", isEqualTo: name)
+            .whereField("truncatedGeohash", in: geohashNeighbors)
+            .limit(to: 1)
+        let snapshot = try await query.getDocuments()
+        return try? snapshot.documents.first?.data(as: Restaurant.self)
+    }
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            let neighbors = geoHash.neighbors
+            if let neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                //print([geohash] + neighborGeohashes)
+                return [geohash] + neighborGeohashes
+            }
         }
+        return [geohash]
+    }
+    func fetchRestaurantsServingMeal(mealTime: String, location: CLLocationCoordinate2D) async throws -> [Restaurant] {
+        let db = Firestore.firestore()
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let truncatedGeohash = String(geohash.prefix(5)) // Adjust precision as needed
+        let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash)
+        let query = db.collection("restaurants")
+            .whereField("truncatedGeohash5", in: geohashNeighbors)
+//            .whereField("additionalInfo.diningOptions.dinner", isEqualTo: true)
+            .limit(to: 10)
+        
+        let snapshot = try await query.getDocuments()
+        let restaurants = snapshot.documents.compactMap { document -> Restaurant? in
+            try? document.data(as: Restaurant.self)
+        }
+        return restaurants
+    }
 }
