@@ -22,11 +22,9 @@ class RestaurantService {
     /// - Returns: RestaurantObject
     func fetchRestaurant(withId id: String) async throws -> Restaurant {
         ////print("DEBUG: Fetching restaurant with ID: \(id)")
-        
         do {
             let documentSnapshot = try await FirestoreConstants.RestaurantCollection.document(id).getDocument()
             ////print("DEBUG: Successfully fetched document")
-            
             // Print raw data
             if let data = documentSnapshot.data() {
                 ////print("DEBUG: Raw document data:")
@@ -326,7 +324,7 @@ class RestaurantService {
     func fetchRestaurant(byName name: String, nearGeoHash: String) async throws -> Restaurant? {
         
         let geohashPrefix = String(nearGeoHash.prefix(4)) // Using first 5 characters of the geohash
-        let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+        let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: geohashPrefix)
         let query = FirestoreConstants.RestaurantCollection
             .whereField("name", isEqualTo: name)
             .whereField("truncatedGeohash", in: geohashNeighbors)
@@ -345,23 +343,78 @@ class RestaurantService {
         }
         return [geohash]
     }
-    func fetchRestaurantsServingMeal(mealTime: String, location: CLLocationCoordinate2D) async throws -> [Restaurant] {
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
+            }
+        }
+        
+        return Array(resultSet)
+    }
+    func fetchRestaurantsServingMeal(mealTime: String, location: CLLocationCoordinate2D, lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Restaurant], DocumentSnapshot?) {
         let db = Firestore.firestore()
         let geohash = GFUtils.geoHash(forLocation: location)
-        let truncatedGeohash6 = String(geohash.prefix(6)) // Adjust precision as needed
+        let truncatedGeohash6 = String(geohash.prefix(6))
         let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash6)
-      
-        print(mealTime)
-        let query = db.collection("restaurants")
+        
+        var query = db.collection("restaurants")
             .whereField("truncatedGeohash6", in: geohashNeighbors)
             .whereField("servesMeals", arrayContains: mealTime.capitalized)
             .order(by: "stats.postCount", descending: true)
-            .limit(to: 10)
+            .limit(to: limit)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
         
         let snapshot = try await query.getDocuments()
         let restaurants = snapshot.documents.compactMap { document -> Restaurant? in
             try? document.data(as: Restaurant.self)
         }
-        return restaurants
+        let newLastDocument = snapshot.documents.last
+        return (restaurants, newLastDocument)
+    }
+    func fetchRestaurantsForCuisine(
+        cuisine: String,
+        location: CLLocationCoordinate2D,
+        lastDocument: DocumentSnapshot? = nil,
+        limit: Int = 5
+    ) async throws -> ([Restaurant], DocumentSnapshot?) {
+        
+        let db = Firestore.firestore()
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let truncatedGeohash6 = String(geohash.prefix(6))
+        let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: truncatedGeohash6)
+        print(cuisine, "cuisine")
+        var query = db.collection("restaurants")
+            .whereField("truncatedGeohash6", in: geohashNeighbors)
+            .whereField("macrocategory", isEqualTo: cuisine)
+            .order(by: "stats.postCount", descending: true)
+            .limit(to: limit)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
+        let snapshot = try await query.getDocuments()
+        let restaurants = snapshot.documents.compactMap { document -> Restaurant? in
+            try? document.data(as: Restaurant.self)
+        }
+        print(restaurants, "restaurants")
+        let newLastDocument = snapshot.documents.last
+        return (restaurants, newLastDocument)
     }
 }

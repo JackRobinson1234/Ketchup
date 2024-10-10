@@ -13,7 +13,6 @@ import Kingfisher
 
 struct ActivityView: View {
     @StateObject private var viewModel = ActivityViewModel()
-    @StateObject private var leaderboardViewModel = LeaderboardViewModel()
     @State private var isLoading = true
     @State private var showContacts = false
     @State private var shouldShowExistingUsersOnContacts = false
@@ -23,8 +22,6 @@ struct ActivityView: View {
     @State private var state: String?
     @State private var surroundingCounty: String = "Nearby"
     @State private var selectedTab: Tab = .discover
-    @State private var leaderboardData: [LeaderboardCategory: [LocationType: Any]] = [:]
-    @State private var selectedLeaderboard: (category: LeaderboardCategory?, location: LocationType?)?
     @State private var showPollUploadView = false
     @StateObject private var pollViewModel = PollViewModel()
     @State private var currentTabHeight: CGFloat = 650
@@ -33,34 +30,15 @@ struct ActivityView: View {
     @State private var greetingType: GreetingType = .morning
     @State private var greeting: String = ""
     @StateObject private var locationManager = LocationManager()
+    @State private var selectedCuisine: String?
+    @State private var mealTime: MealTime = .breakfast
 
     enum Tab {
         case dailyPoll
         case discover
         case friends
-        case leaderboards
     }
-    
-    enum LeaderboardCategory: String, CaseIterable, Identifiable {
-        case mostPosts = "Most Posted"
-        case mostLikes = "Posts - Most Likes"
-        case highestOverallRated = "Best Overall"
-        case highestFoodRated = "Best Food"
-        case highestAtmosphereRated = "Best Atmosphere"
-        case highestValueRated = "Best Value"
-        case highestServiceRated = "Best Service"
-        
-        var id: String { self.rawValue }
-    }
-    
-    enum LocationType: String, CaseIterable, Identifiable {
-        case city = "City"
-        case surrounding = "Surrounding"
-        case usa = "USA"
-        
-        var id: String { self.rawValue }
-    }
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -74,7 +52,6 @@ struct ActivityView: View {
                 
                 VStack(spacing: 0) {
                     customHeader
-                    
                         .background(Color.white)
                         .zIndex(2)
                     
@@ -86,21 +63,7 @@ struct ActivityView: View {
                 }
             }
             .navigationBarHidden(true)
-            
-           
             .refreshable { await refreshData() }
-            .fullScreenCover(item: Binding(
-                get: { selectedLeaderboard?.category },
-                set: { newValue in
-                    if let newValue = newValue {
-                        selectedLeaderboard?.category = newValue
-                    } else {
-                        selectedLeaderboard = nil
-                    }
-                }
-            )) { category in
-                leaderboardView(for: category)
-            }
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchView(
                     city: $city,
@@ -118,39 +81,48 @@ struct ActivityView: View {
             .sheet(isPresented: $showContacts) {
                 ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts)
             }
-            .sheet(isPresented: $showPollUploadView){
+            .sheet(isPresented: $showPollUploadView) {
                 PollUploadView()
             }
         }
         .onAppear {
-            loadInitialLocation()
-            computeGreeting()
-            if let location = locationManager.userLocation?.coordinate {
-                Task {
-                    do {
-                        try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
-                    } catch {
-                        print("Error fetching meal restaurants: \(error)")
-                    }
-                }
-            } else {
-                // Request location if not available
-                locationManager.requestLocation { success in
-                    if success, let location = locationManager.userLocation?.coordinate {
-                        Task {
-                            do {
-                                try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
-                            } catch {
-                                print("Error fetching meal restaurants: \(error)")
-                            }
-                        }
-                    } else {
-                        print("User location not available.")
-                    }
-                }
-            }
-        }
+                       loadInitialLocation()
+                       computeGreeting()
+                       if let location = locationManager.userLocation?.coordinate {
+                           Task {
+                               do {
+                                   try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+                                   if let cuisine = selectedCuisine {
+                                       try await viewModel.fetchCuisineRestaurants(cuisine: cuisine, location: location)
+                                   }
+                               } catch {
+                                   print("Error fetching meal or cuisine restaurants: \(error)")
+                               }
+                           }
+                       } else {
+                           // Request location if not available
+                           locationManager.requestLocation { success in
+                               if success, let location = locationManager.userLocation?.coordinate {
+                                   Task {
+                                       do {
+                                           try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+                                           if let cuisine = selectedCuisine {
+                                               try await viewModel.fetchCuisineRestaurants(cuisine: cuisine, location: location)
+                                           }
+                                       } catch {
+                                           print("Error fetching meal or cuisine restaurants: \(error)")
+                                       }
+                                   }
+                               } else {
+                                   print("User location not available.")
+                               }
+                           }
+                       }
+                   }
+                
+
     }
+
     private var contentBasedOnSelectedTab: some View {
         Group {
             if selectedTab == .dailyPoll {
@@ -159,40 +131,29 @@ struct ActivityView: View {
                 discoverContent
             } else if selectedTab == .friends {
                 friendsContent
-            } else {
-                if isLoading {
-                    FastCrossfadeFoodImageView()
-                } else {
-                    leaderboardsContent
-                }
             }
         }
     }
+
     private var tabButtons: some View {
-        VStack{
-            ScrollView(.horizontal, showsIndicators: false){
+        VStack {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    
                     actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
                         selectedTab = .discover
                     }
-                    
                     actionButton(title: "Daily Poll", icon: "list.bullet.clipboard", isSelected: selectedTab == .dailyPoll) {
                         selectedTab = .dailyPoll
                     }
                     actionButton(title: "Find Friends", icon: "person.2", isSelected: selectedTab == .friends) {
                         selectedTab = .friends
                     }
-                    actionButton(title: "Top Rated Restaurants", icon: "trophy", isSelected: selectedTab == .leaderboards) {
-                        selectedTab = .leaderboards
-                    }
                 }
                 .padding(.horizontal)
             }
         }
-        
     }
-    
+
     private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
@@ -211,60 +172,90 @@ struct ActivityView: View {
             .cornerRadius(20)
         }
     }
-    
-    private var discoverContent: some View {
-        VStack(alignment: .leading, spacing: 25) {
-            inviteContactsButton
-            if let user = AuthService.shared.userSession {
-                Text("\(greeting), \(user.fullname)!")
-                    .font(.custom("MuseoSansRounded-700", size: 25))
-                    .padding(.horizontal)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }
-            if !viewModel.mealRestaurants.isEmpty {
-                Text("\(greetingType.mealTime.capitalized) Restaurants Near You")
-                    .font(.custom("MuseoSansRounded-700", size: 25))
-                    .padding(.horizontal)
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(viewModel.mealRestaurants) { restaurant in
-                            RestaurantCardView(restaurant: restaurant)
+    private var discoverContent: some View {
+            NavigationStack {
+                VStack(alignment: .leading, spacing: 25) {
+                    inviteContactsButton
+                    if let user = AuthService.shared.userSession {
+                        Text("\(greeting), \(user.fullname)!")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    if !viewModel.mealRestaurants.isEmpty {
+                        Text("Popular \(greetingType.mealTime.capitalized) Near You")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
+                                    let restaurant = viewModel.mealRestaurants[index]
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                        RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
+                                    }
+                                    .onAppear {
+                                        if index == viewModel.mealRestaurants.count - 1 && viewModel.hasMoreMealRestaurants {
+                                            Task {
+                                                await viewModel.fetchMoreMealRestaurants()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                    }
+
+                    // New Section for Random Cuisine
+                    if let cuisine = selectedCuisine, !viewModel.cuisineRestaurants.isEmpty {
+                        Text("Best \(cuisine) Near You")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(viewModel.cuisineRestaurants.indices, id: \.self) { index in
+                                    let restaurant = viewModel.cuisineRestaurants[index]
+                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                        RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
+                                    }
+                                    .onAppear {
+                                        if index == viewModel.cuisineRestaurants.count - 1 && viewModel.hasMoreCuisineRestaurants {
+                                            Task {
+                                                await viewModel.fetchMoreCuisineRestaurants()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.horizontal)
                 }
-            }
-
-            dailyPollContent
-            Divider()
-            contactsSection
-            Divider()
-            if !isLoading {
-                RestaurantLeaderboardsView(
-                    viewModel: leaderboardViewModel,
-                    leaderboardData: $leaderboardData,
-                    selectedLeaderboard: $selectedLeaderboard,
-                    city: city,
-                    state: state,
-                    surroundingGeohash: surroundingGeohash,
-                    surroundingCounty: surroundingCounty
-                )
-                mostLikedPostsSection
+              
+                dailyPollContent
+                Divider()
+                contactsSection
+                Divider()
             }
         }
-    }
+
     struct RestaurantCardView: View {
+        
+           let userLocation: CLLocation?
         let restaurant: Restaurant
 
         var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading) {
                 if let imageUrl = restaurant.profileImageUrl {
                     KFImage(URL(string: imageUrl))
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 120, height: 100)
+                        .frame(width: 150, height: 120)
                         .cornerRadius(8)
                         .clipped()
                 } else {
@@ -282,17 +273,61 @@ struct ActivityView: View {
                     .frame(width: 120, alignment: .leading)
                 if let city = restaurant.city {
                     Text(city)
-                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .font(.custom("MuseoSansRounded-300", size: 12))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                 }
+                if let cuisine = restaurant.categoryName, let price = restaurant.price {
+                    Text("\(cuisine), \(price)")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                } else if let cuisine = restaurant.categoryName {
+                    Text(cuisine)
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                } else if let price = restaurant.price {
+                    Text(price)
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                if let count = restaurant.stats?.postCount {
+                    Text("\(count) posts")
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                if let distance = distanceString {
+                                Text(distance)
+                                    .font(.custom("MuseoSansRounded-300", size: 10))
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                            }
+                
             }
-            .frame(width: 120)
-            .onTapGesture {
-                // Navigate to restaurant detail view
-            }
+            .frame(width: 150)
         }
+        private var distanceString: String? {
+                guard let userLocation = userLocation,
+                      let restaurantLat = restaurant.geoPoint?.latitude,
+                      let restaurantLon = restaurant.geoPoint?.longitude else {
+                    return nil
+                }
+                let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
+                let distanceInMeters = userLocation.distance(from: restaurantLocation)
+                let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
+
+                return String(format: "%.1f mi", distanceInMiles)
+            }
     }
+
     private var customHeader: some View {
         HStack {
             toolbarLogoView
@@ -301,74 +336,73 @@ struct ActivityView: View {
         }
         .padding()
     }
+
     private var friendsContent: some View {
-        VStack{
+        VStack {
             inviteContactsButton
             contactsSection
         }
     }
-    private var leaderboardsContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            RestaurantLeaderboardsView(
-                viewModel: leaderboardViewModel,
-                leaderboardData: $leaderboardData,
-                selectedLeaderboard: $selectedLeaderboard,
-                
-                city: city,
-                state: state,
-                surroundingGeohash: surroundingGeohash,
-                surroundingCounty: surroundingCounty
-            )
-            mostLikedPostsSection
-        }
-    }
-    
+
     private var toolbarLogoView: some View {
         Image("KetchupTextRed")
             .resizable()
             .scaledToFit()
             .frame(width: 100)
     }
+
     private func computeGreeting() {
-        let hour = Calendar.current.component(.hour, from: Date())
-        let greetingType: GreetingType
-        let greeting: String
-        switch hour {
-        case 5..<12:
-            greetingType = .morning
-            greeting = "Good morning"
-        case 12..<17:
-            greetingType = .afternoon
-            greeting = "Good afternoon"
-        default:
-            greetingType = .evening
-            greeting = "Good evening"
+            let hour = Calendar.current.component(.hour, from: Date())
+            let greetingType: GreetingType
+            let greeting: String
+            switch hour {
+            case 5..<12:
+                greetingType = .morning
+                greeting = "Good morning"
+                mealTime = .breakfast
+            case 12..<17:
+                greetingType = .afternoon
+                greeting = "Good afternoon"
+                mealTime = .lunch
+            default:
+                greetingType = .evening
+                greeting = "Good evening"
+                mealTime = .dinner
+            }
+            self.greetingType = greetingType
+            self.greeting = greeting
+
+            // Select a random cuisine based on the current meal time
+            if let cuisines = mealTimeCuisineMap[mealTime], !cuisines.isEmpty {
+                selectedCuisine = cuisines.randomElement()
+            } else {
+                selectedCuisine = nil
+            }
         }
-        self.greetingType = greetingType
-        self.greeting = greeting
-    }
+
     private var locationButton: some View {
         Button(action: {
             showLocationSearch = true
         }) {
             HStack(spacing: 1) {
                 Image(systemName: "location")
-                    .foregroundStyle(.gray)
+                    .foregroundColor(.gray)
                     .font(.caption)
                 Text(city != nil && state != nil ? "\(city!), \(state!)" : "Set Location")
                     .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundStyle(.gray)
+                    .foregroundColor(.gray)
                 Image(systemName: "chevron.down")
-                    .foregroundStyle(.gray)
+                    .foregroundColor(.gray)
                     .font(.caption)
             }
             .lineLimit(2)
             .minimumScaleFactor(0.5)
         }
     }
+
     private var dailyPollContent: some View {
         VStack(alignment: .leading) {
-            HStack{
+            HStack {
                 VStack(alignment: .leading) {
                     HStack {
                         Text("Daily Poll")
@@ -396,12 +430,10 @@ struct ActivityView: View {
                     Button {
                         showPollUploadView = true
                     } label: {
-                        
                         Text("Poll Manager")
                             .font(.custom("MuseoSansRounded-300", size: 12))
                             .modifier(StandardButtonModifier(width: 80))
                             .padding(.trailing)
-                        
                     }
                 }
             }
@@ -443,31 +475,10 @@ struct ActivityView: View {
             }
         }
     }
-    
-    private var mostLikedPostsSection: some View {
-        VStack(alignment: .leading) {
-            Text("Most Liked Posts")
-                .font(.custom("MuseoSansRounded-700", size: 25))
-                .foregroundColor(.black)
-                .padding(.horizontal)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(LocationType.allCases) { locationType in
-                        if let data = leaderboardData[.mostLikes]?[locationType] {
-                            leaderboardButton(for: .mostLikes, locationType: locationType, data: data)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-    }
-    
+
     private var contactsSection: some View {
         VStack(alignment: .leading) {
             HStack {
-                
                 Text("Friends on Ketchup")
                     .font(.custom("MuseoSansRounded-700", size: 25))
                     .foregroundColor(.black)
@@ -477,11 +488,11 @@ struct ActivityView: View {
                     showContacts = true
                 }
                 .font(.custom("MuseoSansRounded-300", size: 12))
-                .foregroundStyle(.gray)
+                .foregroundColor(.gray)
             }
             .padding(.horizontal)
             if let user = viewModel.user, user.contactsSynced, viewModel.isContactPermissionGranted {
-                if !viewModel.topContacts.isEmpty{
+                if !viewModel.topContacts.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(spacing: 16) {
                             ForEach(viewModel.topContacts) { contact in
@@ -510,23 +521,23 @@ struct ActivityView: View {
                         showContacts = true
                     } label: {
                         Text("We couldn't find any friends in your contacts, invite them!")
-                            .foregroundStyle(.black)
+                            .foregroundColor(.black)
                             .font(.custom("MuseoSansRounded-700", size: 14))
                     }
                 }
             } else {
-                Button{
+                Button {
                     openSettings()
                 } label: {
-                    HStack{
+                    HStack {
                         Spacer()
-                        VStack{
+                        VStack {
                             Text("Allow Ketchup to access your contacts to make finding friends easier!")
-                                .foregroundStyle(.black)
+                                .foregroundColor(.black)
                                 .font(.custom("MuseoSansRounded-500", size: 14))
                                 .padding(.vertical)
                             Text("Go to settings")
-                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .foregroundColor(Color("Colors/AccentColor"))
                                 .font(.custom("MuseoSansRounded-700", size: 14))
                         }
                         Spacer()
@@ -536,7 +547,7 @@ struct ActivityView: View {
             }
         }
     }
-    
+
     private var inviteContactsButton: some View {
         VStack(spacing: 0) {
             Button {
@@ -550,19 +561,17 @@ struct ActivityView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 30)
-                            .foregroundStyle(.black)
-                        VStack (alignment: .leading){
+                            .foregroundColor(.black)
+                        VStack(alignment: .leading) {
                             Text("Invite your friends to Ketchup!")
                                 .font(.custom("MuseoSansRounded-700", size: 16))
                             VStack(alignment: .leading, spacing: 3) {
-                                
                                 GeometryReader { geometry in
                                     ZStack(alignment: .leading) {
                                         Rectangle()
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(height: 4)
                                             .cornerRadius(4)
-                                        
                                         Rectangle()
                                             .fill(Color("Colors/AccentColor"))
                                             .frame(width: min(CGFloat(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10)) / 10.0 * geometry.size.width, geometry.size.width), height: 4)
@@ -570,44 +579,34 @@ struct ActivityView: View {
                                     }
                                 }
                                 .frame(height: 8)
-                                
-                                HStack (spacing: 1){
+                                HStack(spacing: 1) {
                                     Text("You have \(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10))/10 referrals to earn the launch badge")
                                         .font(.custom("MuseoSansRounded-500", size: 10))
                                         .foregroundColor(.gray)
-                                    
                                     if let totalReferrals = AuthService.shared.userSession?.totalReferrals, totalReferrals >= 10 {
                                         Image("LAUNCH")
-                                        
                                     } else {
-                                        HStack(spacing: 4) {
-                                            
-                                            Image("LAUNCHBLACK")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(height: 12)
-                                                .opacity(0.5)
-                                        }
+                                        Image("LAUNCHBLACK")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 12)
+                                            .opacity(0.5)
                                     }
                                 }
                             }
-                            
                         }
-                        .foregroundStyle(.black)
+                        .foregroundColor(.black)
                         Spacer()
                         Image(systemName: "chevron.right")
-                            .foregroundStyle(.gray)
+                            .foregroundColor(.gray)
                     }
                     .padding()
                     Divider()
                 }
-                
             }
-            
-            // Referral Progress Bar
-            
         }
     }
+
     private func hasUserVotedToday() -> Bool {
         guard let lastVotedDate = AuthService.shared.userSession?.lastVotedPoll else {
             return false // User has never voted
@@ -624,81 +623,13 @@ struct ActivityView: View {
         
         return calendar.isDate(lastVotedDay, inSameDayAs: todayLA)
     }
-    private func leaderboardButton(for category: LeaderboardCategory, locationType: LocationType, data: Any) -> some View {
-        Button {
-            selectedLeaderboard = (category: category, location: locationType)
-        } label: {
-            LeaderboardCover(
-                imageUrl: (data as? [Post])?.first?.thumbnailUrl,
-                title: "Most Liked Posts",
-                subtitle: subtitleForLeaderboard(locationType: locationType)
-            )
-        }
-    }
+
     private func openSettings() {
         if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
     }
-    private func subtitleForLeaderboard(locationType: LocationType) -> String {
-        switch locationType {
-        case .city:
-            return city ?? "City"
-        case .surrounding:
-            return surroundingCounty
-        case .usa:
-            return "USA"
-        }
-    }
-    
-    private func leaderboardView(for category: LeaderboardCategory) -> some View {
-        Group {
-            if category == .mostLikes {
-                PostLeaderboard(
-                    viewModel: leaderboardViewModel,
-                    topImage: (leaderboardData[category]?[.usa] as? [Post])?.first?.thumbnailUrl,
-                    title: category.rawValue,
-                    state: state,
-                    city: city,
-                    surrounding: surroundingGeohash
-                )
-            } else {
-                if let location = selectedLeaderboard?.location{
-                    RestaurantLeaderboard(
-                        viewModel: leaderboardViewModel,
-                        topImage: (leaderboardData[category]?[location] as? [Restaurant])?.first?.profileImageUrl,
-                        title: subtitleForLeaderboard(locationType: location),
-                        state: state,
-                        city: city,
-                        surrounding: surroundingGeohash,
-                        leaderboardType: leaderboardTypeFor(category),
-                        selectedLocation: location
-                        
-                    )
-                }
-            }
-        }
-    }
-    
-    private func leaderboardTypeFor(_ category: LeaderboardCategory) -> RestaurantLeaderboard.RestaurantLeaderboardType {
-        switch category {
-        case .mostPosts:
-            return .mostPosts
-        case .highestOverallRated:
-            return .highestRated(.overall)
-        case .highestFoodRated:
-            return .highestRated(.food)
-        case .highestAtmosphereRated:
-            return .highestRated(.atmosphere)
-        case .highestValueRated:
-            return .highestRated(.value)
-        case .highestServiceRated:
-            return .highestRated(.service)
-        case .mostLikes:
-            fatalError("Unexpected category for RestaurantLeaderboard")
-        }
-    }
-    
+
     private func loadInitialLocation() {
         if let userLocation = locationManager.userLocation {
             // Use the current location
@@ -732,101 +663,35 @@ struct ActivityView: View {
             }
         }
     }
-    
-    private func loadInitialData() async {
-        viewModel.user = AuthService.shared.userSession
-        viewModel.checkContactPermission()
-        
-        for category in LeaderboardCategory.allCases {
-            for locationType in LocationType.allCases {
-                await fetchLeaderboardData(for: category, locationType: locationType)
-            }
-        }
-        
-        do {
-            try await viewModel.fetchTopContacts()
-        } catch {
-            //print("Error fetching top contacts: \(error)")
-        }
-        
-        isLoading = false
-    }
-    
+
     private func refreshData() async {
-        for category in LeaderboardCategory.allCases {
-            for locationType in LocationType.allCases {
-                await fetchLeaderboardData(for: category, locationType: locationType)
-            }
-        }
         pollViewModel.fetchPolls()
         do {
             try await viewModel.fetchTopContacts()
         } catch {
-            //print("Error refreshing top contacts: \(error)")
+            // Handle error
         }
     }
-    
+
     private func refreshLocationData() async {
         await refreshData()
     }
-    
-    private func fetchLeaderboardData(for category: LeaderboardCategory, locationType: LocationType) async {
-        do {
-            let locationFilter: LeaderboardViewModel.LocationFilter
-            switch locationType {
-            case .usa:
-                locationFilter = .anywhere
-            case .city:
-                locationFilter = .city(city ?? "")
-            case .surrounding:
-                locationFilter = .geohash(surroundingGeohash ?? "")
-            }
-            
-            let data: Any
-            switch category {
-            case .mostPosts:
-                data = try await leaderboardViewModel.fetchTopRestaurants(count: 1, locationFilter: locationFilter)
-            case .mostLikes:
-                data = try await leaderboardViewModel.fetchTopPosts(count: 1)
-            case .highestOverallRated:
-                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .overall, count: 1, locationFilter: locationFilter)
-            case .highestFoodRated:
-                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .food, count: 1, locationFilter: locationFilter)
-            case .highestAtmosphereRated:
-                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .atmosphere, count: 1, locationFilter: locationFilter)
-            case .highestValueRated:
-                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .value, count: 1, locationFilter: locationFilter)
-            case .highestServiceRated:
-                data = try await leaderboardViewModel.fetchHighestRatedRestaurants(category: .service, count: 1, locationFilter: locationFilter)
-            }
-            
-            if (data as? [Any])?.isEmpty == false {
-                if leaderboardData[category] == nil {
-                    leaderboardData[category] = [:]
-                }
-                leaderboardData[category]?[locationType] = data
-            }
-        } catch {
-            //print("Error fetching data for \(category) - \(locationType): \(error.localizedDescription)")
-        }
-    }
-    
+
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         let geocoder = CLGeocoder()
         
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
-                //print("Reverse geocoding error: \(error.localizedDescription)")
+                // Handle error
                 return
             }
-            
             if let placemark = placemarks?.first, let county = placemark.subAdministrativeArea {
                 DispatchQueue.main.async {
                     self.surroundingCounty = county
                 }
             } else {
-                //print("County information not available")
+                // County information not available
             }
         }
     }

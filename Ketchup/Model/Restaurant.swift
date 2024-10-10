@@ -51,7 +51,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     var mergedCategories: [String]?
     var ratingStats: RatingStats?
     var servesMeals: [String]?
-    
+    var macrocategory: String?
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -124,9 +124,11 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.reserveTableUrl = try container.decodeIfPresent(String.self, forKey: .reserveTableUrl)
         self.overallRating = try container.decodeIfPresent(OverallRating.self, forKey: .overallRating)
         self.servesMeals = try container.decodeIfPresent([String].self, forKey: .servesMeals)
+        self.macrocategory = try container.decodeIfPresent(String.self, forKey: .macrocategory)
+
     }
     
-    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, truncatedGeohash: String? = nil, truncatedGeohash5: String? = nil, truncatedGeohash6: String? = nil,  address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil, reserveTableUrl: String? = nil, overallRating: OverallRating? = nil, servesMeals: [String]? = nil) {
+    init(id: String, categoryName: String? = nil, price: String? = nil, name: String, geoPoint: GeoPoint? = nil, geoHash: String? = nil, truncatedGeohash: String? = nil, truncatedGeohash5: String? = nil, truncatedGeohash6: String? = nil,  address: String? = nil, city: String? = nil, state: String? = nil, imageURLs: [String]? = nil, profileImageUrl: String? = nil, bio: String? = nil, _geoloc: geoLoc? = nil, stats: RestaurantStats, additionalInfo: AdditionalInfo? = nil, categories: [String]? = nil, cid: Int? = nil, containsMenuImage: Bool? = nil, countryCode: String? = nil, googleFoodUrl: String? = nil, locatedIn: String? = nil, menuUrl: String? = nil, neighborhood: String? = nil, openingHours: [OpeningHour]? = nil, orderBy: [OrderBy]? = nil, parentPlaceUrl: String? = nil, peopleAlsoSearch: [PeopleAlsoSearch]? = nil, permanentlyClosed: Bool? = nil, phone: String? = nil, plusCode: String? = nil, popularTimesHistogram: PopularTimesHistogram? = nil, reviewsTags: [ReviewTag]? = nil, scrapedAt: String? = nil, street: String? = nil, subCategories: [String]? = nil, temporarilyClosed: Bool? = nil, url: String? = nil, website: String? = nil, mergedCategories: [String]? = nil, ratingStats: RatingStats? = nil, reserveTableUrl: String? = nil, overallRating: OverallRating? = nil, servesMeals: [String]? = nil, macrocategory: String? = nil) {
         self.id = id
         self.categoryName = categoryName
         self.price = price
@@ -174,6 +176,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         self.reserveTableUrl = reserveTableUrl
         self.overallRating = overallRating
         self.servesMeals = servesMeals
+        self.macrocategory = macrocategory
     }
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.geoPoint {
