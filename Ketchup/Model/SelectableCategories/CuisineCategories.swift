@@ -20,7 +20,6 @@ let cuisineGroupKeys = [
     "African",
     "Fast Food",
     "Cafes and Bakeries",
-    "Bars and Pubs",
     "Seafood",
     "Vegetarian and Vegan",
     "Barbecue and Grill",
@@ -43,10 +42,12 @@ enum MealTime: String {
     case dinner
     case dessert
 }
+
 let mealTimeCuisineMap: [MealTime: [String]] = [
     .breakfast: [
         "Cafes and Bakeries",
-        "Breakfast and Brunch"
+        "Breakfast and Brunch",
+        "Vegetarian and Vegan"
     ],
     .lunch: [
         "Asian",
@@ -55,8 +56,16 @@ let mealTimeCuisineMap: [MealTime: [String]] = [
         "Latin American",
         "Middle Eastern",
         "Fast Food",
+        "Cafes and Bakeries",
         "Vegetarian and Vegan",
-        "Cafes and Bakeries"
+        "Noodles and Pasta",
+        "Sandwich and Deli",
+        "Street Food and Food Trucks",
+        "Family and Casual Dining",
+        "Markets and Shops",
+        "Fusion and International",
+        "Barbecue and Grill",
+        "Bars and Pubs",
     ],
     .dinner: [
         "Asian",
@@ -65,10 +74,20 @@ let mealTimeCuisineMap: [MealTime: [String]] = [
         "Latin American",
         "Middle Eastern",
         "Seafood",
+        "Barbecue and Grill",
         "Vegetarian and Vegan",
-        "Barbecue and Grill"
+        "Fusion and International",
+        "Street Food and Food Trucks",
+        "Buffet and All-You-Can-Eat",
+        "Family and Casual Dining",
+        "Markets and Shops",
+        "Soup and Hotpot",
+        "Noodles and Pasta",
+        "Bars and Pubs"
     ],
     .dessert: [
-        "Desserts and Sweets"
+        "Desserts and Sweets",
+        "Cafes and Bakeries",
+        "Fusion and International"
     ]
 ]

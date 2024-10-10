@@ -30,15 +30,13 @@ struct ActivityView: View {
     @State private var greetingType: GreetingType = .morning
     @State private var greeting: String = ""
     @StateObject private var locationManager = LocationManager()
-    @State private var selectedCuisine: String?
+    @State private var selectedCuisines: [String] = []
     @State private var mealTime: MealTime = .breakfast
-
     enum Tab {
         case dailyPoll
         case discover
         case friends
     }
-
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -86,43 +84,49 @@ struct ActivityView: View {
             }
         }
         .onAppear {
-                       loadInitialLocation()
-                       computeGreeting()
-                       if let location = locationManager.userLocation?.coordinate {
-                           Task {
-                               do {
-                                   try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
-                                   if let cuisine = selectedCuisine {
-                                       try await viewModel.fetchCuisineRestaurants(cuisine: cuisine, location: location)
-                                   }
-                               } catch {
-                                   print("Error fetching meal or cuisine restaurants: \(error)")
-                               }
-                           }
-                       } else {
-                           // Request location if not available
-                           locationManager.requestLocation { success in
-                               if success, let location = locationManager.userLocation?.coordinate {
-                                   Task {
-                                       do {
-                                           try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
-                                           if let cuisine = selectedCuisine {
-                                               try await viewModel.fetchCuisineRestaurants(cuisine: cuisine, location: location)
-                                           }
-                                       } catch {
-                                           print("Error fetching meal or cuisine restaurants: \(error)")
-                                       }
-                                   }
-                               } else {
-                                   print("User location not available.")
-                               }
-                           }
+                   loadInitialLocation()
+                   computeGreeting()
+//                   if let location = locationManager.userLocation?.coordinate {
+//                       Task {
+//                           await loadAllRestaurants(location: location)
+//                       }
+//                   } else {
+//                       // Handle location not available
+//                       locationManager.requestLocation { success in
+//                           if success, let location = locationManager.userLocation?.coordinate {
+//                               Task {
+//                                   await loadAllRestaurants(location: location)
+//                               }
+//                           } else {
+//                               print("User location not available.")
+//                           }
+//                       }
+//                   }
+               }
+    }
+    private func loadAllRestaurants(location: CLLocationCoordinate2D) async {
+           // Load meal restaurants
+           Task {
+               do {
+                   try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+               } catch {
+                   print("Error fetching meal restaurants: \(error)")
+               }
+           }
+
+           // Load cuisine restaurants concurrently
+           await withTaskGroup(of: Void.self) { group in
+               for cuisine in selectedCuisines {
+                   group.addTask {
+                       do {
+                           try await viewModel.fetchCuisineRestaurants(cuisine: cuisine, location: location)
+                       } catch {
+                           print("Error fetching \(cuisine) restaurants: \(error)")
                        }
                    }
-                
-
-    }
-
+               }
+           }
+       }
     private var contentBasedOnSelectedTab: some View {
         Group {
             if selectedTab == .dailyPoll {
@@ -134,7 +138,7 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private var tabButtons: some View {
         VStack {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -153,7 +157,7 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
@@ -172,61 +176,65 @@ struct ActivityView: View {
             .cornerRadius(20)
         }
     }
-
+    
     private var discoverContent: some View {
-            NavigationStack {
-                VStack(alignment: .leading, spacing: 25) {
-                    inviteContactsButton
-                    if let user = AuthService.shared.userSession {
-                        Text("\(greeting), \(user.fullname)!")
-                            .font(.custom("MuseoSansRounded-700", size: 25))
-                            .padding(.horizontal)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    if !viewModel.mealRestaurants.isEmpty {
-                        Text("Popular \(greetingType.mealTime.capitalized) Near You")
-                            .font(.custom("MuseoSansRounded-700", size: 25))
-                            .padding(.horizontal)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
-                                    let restaurant = viewModel.mealRestaurants[index]
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
-                                        RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
-                                    }
-                                    .onAppear {
-                                        if index == viewModel.mealRestaurants.count - 1 && viewModel.hasMoreMealRestaurants {
-                                            Task {
-                                                await viewModel.fetchMoreMealRestaurants()
-                                            }
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 25) {
+                inviteContactsButton
+                dailyPollContent
+                if let user = AuthService.shared.userSession {
+                    Text("\(greeting), \(user.fullname)!")
+                        .font(.custom("MuseoSansRounded-700", size: 25))
+                        .padding(.horizontal)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                if !viewModel.mealRestaurants.isEmpty {
+                    Text("Popular \(greetingType.mealTime.capitalized) Near You")
+                        .font(.custom("MuseoSansRounded-700", size: 25))
+                        .padding(.horizontal)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
+                                let restaurant = viewModel.mealRestaurants[index]
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                    RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
+                                }
+                                .onAppear {
+                                    if index == viewModel.mealRestaurants.count - 1 && viewModel.hasMoreMealRestaurants {
+                                        Task {
+                                            await viewModel.fetchMoreMealRestaurants()
                                         }
                                     }
                                 }
                             }
-                            .padding(.horizontal)
                         }
-                        
+                        .padding(.horizontal)
                     }
-
-                    // New Section for Random Cuisine
-                    if let cuisine = selectedCuisine, !viewModel.cuisineRestaurants.isEmpty {
-                        Text("Best \(cuisine) Near You")
+                }
+                
+                // Iterate over each selected cuisine
+                ForEach(selectedCuisines, id: \.self) { cuisine in
+                    if let restaurants = viewModel.cuisineRestaurants[cuisine], !restaurants.isEmpty {
+                        Text("Popular \(cuisine)")
                             .font(.custom("MuseoSansRounded-700", size: 25))
                             .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
-                                ForEach(viewModel.cuisineRestaurants.indices, id: \.self) { index in
-                                    let restaurant = viewModel.cuisineRestaurants[index]
+                                ForEach(restaurants.indices, id: \.self) { index in
+                                    let restaurant = restaurants[index]
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                         RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
                                     }
                                     .onAppear {
-                                        if index == viewModel.cuisineRestaurants.count - 1 && viewModel.hasMoreCuisineRestaurants {
+                                        if index == restaurants.count - 1,
+                                           let hasMore = viewModel.hasMoreCuisineRestaurants[cuisine],
+                                           hasMore {
                                             Task {
-                                                await viewModel.fetchMoreCuisineRestaurants()
+                                                do {
+                                                    await viewModel.fetchMoreCuisineRestaurants(for: cuisine, location: locationManager.userLocation!.coordinate)
+                                                }
                                             }
                                         }
                                     }
@@ -236,19 +244,18 @@ struct ActivityView: View {
                         }
                     }
                 }
-              
-                dailyPollContent
-                Divider()
-                contactsSection
-                Divider()
             }
+            Divider()
+            contactsSection
+            Divider()
         }
-
+    }
+    
     struct RestaurantCardView: View {
         
-           let userLocation: CLLocation?
+        let userLocation: CLLocation?
         let restaurant: Restaurant
-
+        
         var body: some View {
             VStack(alignment: .leading) {
                 if let imageUrl = restaurant.profileImageUrl {
@@ -304,30 +311,30 @@ struct ActivityView: View {
                         .minimumScaleFactor(0.7)
                 }
                 if let distance = distanceString {
-                                Text(distance)
-                                    .font(.custom("MuseoSansRounded-300", size: 10))
-                                    .foregroundColor(.gray)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                            }
+                    Text(distance)
+                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
                 
             }
             .frame(width: 150)
         }
         private var distanceString: String? {
-                guard let userLocation = userLocation,
-                      let restaurantLat = restaurant.geoPoint?.latitude,
-                      let restaurantLon = restaurant.geoPoint?.longitude else {
-                    return nil
-                }
-                let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
-                let distanceInMeters = userLocation.distance(from: restaurantLocation)
-                let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-
-                return String(format: "%.1f mi", distanceInMiles)
+            guard let userLocation = userLocation,
+                  let restaurantLat = restaurant.geoPoint?.latitude,
+                  let restaurantLon = restaurant.geoPoint?.longitude else {
+                return nil
             }
+            let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
+            let distanceInMeters = userLocation.distance(from: restaurantLocation)
+            let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
+            
+            return String(format: "%.1f mi", distanceInMiles)
+        }
     }
-
+    
     private var customHeader: some View {
         HStack {
             toolbarLogoView
@@ -336,50 +343,49 @@ struct ActivityView: View {
         }
         .padding()
     }
-
+    
     private var friendsContent: some View {
         VStack {
             inviteContactsButton
             contactsSection
         }
     }
-
+    
     private var toolbarLogoView: some View {
         Image("KetchupTextRed")
             .resizable()
             .scaledToFit()
             .frame(width: 100)
     }
-
+    
     private func computeGreeting() {
-            let hour = Calendar.current.component(.hour, from: Date())
-            let greetingType: GreetingType
-            let greeting: String
-            switch hour {
-            case 5..<12:
-                greetingType = .morning
-                greeting = "Good morning"
-                mealTime = .breakfast
-            case 12..<17:
-                greetingType = .afternoon
-                greeting = "Good afternoon"
-                mealTime = .lunch
-            default:
-                greetingType = .evening
-                greeting = "Good evening"
-                mealTime = .dinner
-            }
-            self.greetingType = greetingType
-            self.greeting = greeting
-
-            // Select a random cuisine based on the current meal time
-            if let cuisines = mealTimeCuisineMap[mealTime], !cuisines.isEmpty {
-                selectedCuisine = cuisines.randomElement()
-            } else {
-                selectedCuisine = nil
-            }
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greetingType: GreetingType
+        let greeting: String
+        switch hour {
+        case 5..<12:
+            greetingType = .morning
+            greeting = "Good morning"
+            mealTime = .breakfast
+        case 12..<17:
+            greetingType = .afternoon
+            greeting = "Good afternoon"
+            mealTime = .lunch
+        default:
+            greetingType = .evening
+            greeting = "Good evening"
+            mealTime = .dinner
         }
-
+        self.greetingType = greetingType
+        self.greeting = greeting
+        
+        // Assign all cuisines for the current meal time
+        if let cuisines = mealTimeCuisineMap[mealTime], !cuisines.isEmpty {
+            selectedCuisines = cuisines
+        } else {
+            selectedCuisines = []
+        }
+    }
     private var locationButton: some View {
         Button(action: {
             showLocationSearch = true
@@ -399,7 +405,7 @@ struct ActivityView: View {
             .minimumScaleFactor(0.5)
         }
     }
-
+    
     private var dailyPollContent: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -475,7 +481,7 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private var contactsSection: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -547,7 +553,7 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private var inviteContactsButton: some View {
         VStack(spacing: 0) {
             Button {
@@ -606,7 +612,7 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private func hasUserVotedToday() -> Bool {
         guard let lastVotedDate = AuthService.shared.userSession?.lastVotedPoll else {
             return false // User has never voted
@@ -623,13 +629,13 @@ struct ActivityView: View {
         
         return calendar.isDate(lastVotedDay, inSameDayAs: todayLA)
     }
-
+    
     private func openSettings() {
         if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
     }
-
+    
     private func loadInitialLocation() {
         if let userLocation = locationManager.userLocation {
             // Use the current location
@@ -663,20 +669,20 @@ struct ActivityView: View {
             }
         }
     }
-
+    
     private func refreshData() async {
         pollViewModel.fetchPolls()
-        do {
-            try await viewModel.fetchTopContacts()
-        } catch {
-            // Handle error
-        }
+//        do {
+//            //try await viewModel.fetchTopContacts()
+//        } catch {
+//            // Handle error
+//        }
     }
-
+    
     private func refreshLocationData() async {
         await refreshData()
     }
-
+    
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         let geocoder = CLGeocoder()
@@ -697,43 +703,10 @@ struct ActivityView: View {
     }
 }
 
-enum LeaderboardType: Identifiable {
-    case usa
-    case state(String)
-    case city(String)
-    case surrounding(String)
-    
-    var id: String {
-        switch self {
-        case .usa: return "usa"
-        case .state(let state): return "state_\(state)"
-        case .city(let city): return "city_\(city)"
-        case .surrounding(let surrounding): return "surrounding"
-        }
-    }
-}
-
-enum RestaurantLeaderboardType: Identifiable {
-    case usa
-    case state
-    case city
-    case surrounding
-    
-    var id: String {
-        switch self {
-        case .usa: return "usa"
-        case .state: return "state"
-        case .city: return "city"
-        case .surrounding: return "surrounding"
-        }
-    }
-}
-
 
 
 enum GreetingType {
     case morning, afternoon, evening
-    
     var mealTime: String {
         switch self {
         case .morning: return "Breakfast"

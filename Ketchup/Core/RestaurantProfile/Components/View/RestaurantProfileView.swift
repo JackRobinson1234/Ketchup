@@ -38,14 +38,12 @@ struct RestaurantProfileView: View {
                         viewModel.currentSection = .posts
                     }
                     
-                }else {
+                } else {
                     self.dragDirection = "right"
                     if viewModel.currentSection == .posts {
                         viewModel.currentSection = .stats
-                        
                     }  else if viewModel.currentSection == .stats {
                         viewModel.currentSection = .collections
-                        
                     }
                     self.isDragging = false
                 }
@@ -66,7 +64,7 @@ struct RestaurantProfileView: View {
                                 try await feedViewModel.fetchRestaurantPosts(restaurant: restaurant, friendIds: viewModel.friendsWhoPosted.map { $0.id })
                                 viewModel.calculateRatings(from: restaurant.ratingStats)
                             }
-                           await viewModel.fetchSimilarRestaurants()
+                           
                             
                         } catch {
                             ////print("DEBUG: Failed to fetch restaurant with error: \(error.localizedDescription)")
@@ -85,6 +83,13 @@ struct RestaurantProfileView: View {
                         VStack{
                             if viewModel.restaurant != nil {
                                 RestaurantProfileHeaderView(feedViewModel: feedViewModel, viewModel: viewModel, scrollPosition: $scrollPosition, scrollTarget: $scrollTarget)
+                                    .onAppear{
+                                        Task{
+                                            viewModel.isLoadingSimilarRestaurants = true
+                                            await viewModel.fetchSimilarRestaurants()
+                                            viewModel.isLoadingSimilarRestaurants = false
+                                        }
+                                    }
                             } else {
                                 
                             }

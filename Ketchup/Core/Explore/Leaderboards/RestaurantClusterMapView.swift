@@ -19,7 +19,37 @@ struct RestaurantClusterMapView: View {
     init(restaurants: [Restaurant]) {
         _viewModel = StateObject(wrappedValue: RestaurantMapViewModel(restaurants: restaurants))
     }
+    enum LeaderboardType: Identifiable {
+        case usa
+        case state(String)
+        case city(String)
+        case surrounding(String)
+        
+        var id: String {
+            switch self {
+            case .usa: return "usa"
+            case .state(let state): return "state_\(state)"
+            case .city(let city): return "city_\(city)"
+            case .surrounding(let surrounding): return "surrounding"
+            }
+        }
+    }
 
+    enum RestaurantLeaderboardType: Identifiable {
+        case usa
+        case state
+        case city
+        case surrounding
+        
+        var id: String {
+            switch self {
+            case .usa: return "usa"
+            case .state: return "state"
+            case .city: return "city"
+            case .surrounding: return "surrounding"
+            }
+        }
+    }
     var body: some View {
         if !viewModel.restaurants.isEmpty {
             Map(initialPosition: .region(viewModel.initialUSRegion)) {
