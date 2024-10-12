@@ -281,6 +281,7 @@
 		F8DA34592C877A7B00660978 /* SimplifiedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34582C877A7B00660978 /* SimplifiedPost.swift */; };
 		F8DA345B2C87935D00660978 /* MapUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA345A2C87935D00660978 /* MapUtils.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
+		F8EACE7E2CB88F0E004B0181 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */; };
 		F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
@@ -592,6 +593,7 @@
 		F8DA34582C877A7B00660978 /* SimplifiedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPost.swift; sourceTree = "<group>"; };
 		F8DA345A2C87935D00660978 /* MapUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUtils.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
+		F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
 		F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsButton.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
@@ -1634,6 +1636,7 @@
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
 				F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */,
+				F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2057,6 +2060,7 @@
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
 				F80886352C6FC7710089E71B /* SelectFollowingEditPostView.swift in Sources */,
 				F8B6FB612CA88243006CCE2D /* CalendarView.swift in Sources */,
+				F8EACE7E2CB88F0E004B0181 /* ExploreView.swift in Sources */,
 				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F866CA4D2C6D62A000B4536E /* UsernameSelectionViewModel.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,

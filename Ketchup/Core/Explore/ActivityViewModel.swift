@@ -51,10 +51,11 @@ class ActivityViewModel: ObservableObject {
     @Published var cuisineRestaurants: [String: [Restaurant]] = [:]
     private var cuisineRestaurantsLastSnapshots: [String: DocumentSnapshot?] = [:]
     @Published var hasMoreCuisineRestaurants: [String: Bool] = [:]
-    private var isFetchingCuisineRestaurants: Set<String> = []
+    @Published var isFetchingCuisineRestaurants: [String: Bool] = [:]
     private var currentCuisineLocation: CLLocationCoordinate2D?
     let contactsViewModel = ContactsViewModel()
     private let userService = UserService.shared
+    
     func checkContactPermission() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         DispatchQueue.main.async {
@@ -66,12 +67,29 @@ class ActivityViewModel: ObservableObject {
     @Published var cuisinesFetched: Set<String> = []
     @Published var hasFetchedMealRestaurants = false
     @Published var isFetchingMealRestaurants = false
+    
+    @Published var topRestaurants: [Restaurant] = []
+    private var topRestaurantsLastSnapshot: DocumentSnapshot?
+    @Published var hasMoreTopRestaurants: Bool = true
+    private var isFetchingTopRestaurants = false
+    @Published var fetchedRestaurants: [Restaurant] = []
+        private var restaurantsLastSnapshot: DocumentSnapshot?
+        @Published var hasMoreRestaurants: Bool = true
+        private var isFetchingRestaurants: Bool = false
+
     func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 3) async throws {
         guard !isFetchingMealRestaurants else { return }
         guard let location = location else { return }
         isFetchingMealRestaurants = true
         self.currentMealTime = mealTime
         self.currentLocation = location
+
+        // Check if we've already fetched the meal restaurants
+        if hasFetchedMealRestaurants {
+            isFetchingMealRestaurants = false
+            return
+        }
+
         let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchRestaurantsServingMeal(
             mealTime: mealTime,
             location: location,
@@ -97,12 +115,12 @@ class ActivityViewModel: ObservableObject {
    
 
     func fetchMoreCuisineRestaurants(for cuisine: String, location: CLLocationCoordinate2D) async {
-            do {
-                try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 3)
-            } catch {
-                print("Error fetching more \(cuisine) restaurants: \(error)")
-            }
-        }
+           do {
+               try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 5)
+           } catch {
+               print("Error fetching more \(cuisine) restaurants: \(error)")
+           }
+       }
     func loadMoreContacts() {
         guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
         
@@ -116,7 +134,27 @@ class ActivityViewModel: ObservableObject {
             isLoadingMore = false
         }
     }
-    
+//    func fetchTopRestaurants(location: CLLocationCoordinate2D, limit: Int = 15) async throws {
+//        guard !isFetchingTopRestaurants else { return }
+//        isFetchingTopRestaurants = true
+//
+//        do {
+//            let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
+//                location: location,
+//                lastDocument: topRestaurantsLastSnapshot,
+//                limit: limit
+//            )
+//            DispatchQueue.main.async {
+//                self.topRestaurants.append(contentsOf: restaurants)
+//                self.topRestaurantsLastSnapshot = lastSnapshot
+//                self.hasMoreTopRestaurants = lastSnapshot != nil
+//            }
+//        } catch {
+//            print("Error fetching top restaurants: \(error)")
+//        }
+//
+//        isFetchingTopRestaurants = false
+//    }
     func fetchTopContacts() async throws {
         guard isContactPermissionGranted else { return }
         guard let userId = Auth.auth().currentUser?.uid else { return }
@@ -204,29 +242,74 @@ class ActivityViewModel: ObservableObject {
         }
     }
     func fetchCuisineRestaurants(cuisine: String, location: CLLocationCoordinate2D, pageSize: Int = 5) async throws {
-           guard !isFetchingCuisineRestaurants.contains(cuisine) else { return }
-           isFetchingCuisineRestaurants.insert(cuisine)
-           
-           let lastSnapshot = self.cuisineRestaurantsLastSnapshots[cuisine] ?? nil
+        // Check if a fetch is already in progress for this cuisine
+        if isFetchingCuisineRestaurants[cuisine] == true {
+            return
+        }
+        isFetchingCuisineRestaurants[cuisine] = true
+        defer {
+            isFetchingCuisineRestaurants[cuisine] = false
+        }
+
+        // Fetch pageSize + 1 documents
+        let limit = pageSize + 1
+        let lastSnapshot = self.cuisineRestaurantsLastSnapshots[cuisine]
+        do {
+            let (restaurants, newLastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
+                cuisine: cuisine,
+                location: location,
+                lastDocument: lastSnapshot ?? nil,
+                limit: limit
+            )
+
+            DispatchQueue.main.async {
+                var fetchedRestaurants = restaurants
+                var hasMore = false
+
+                // Check if we fetched more than pageSize documents
+                if fetchedRestaurants.count > pageSize {
+                    hasMore = true
+                    // Remove the extra document before appending to your list
+                    fetchedRestaurants.removeLast()
+                    self.cuisineRestaurantsLastSnapshots[cuisine] = newLastSnapshot
+                } else {
+                    // No more documents
+                    hasMore = false
+                }
+
+                if self.cuisineRestaurants[cuisine] != nil {
+                    self.cuisineRestaurants[cuisine]?.append(contentsOf: fetchedRestaurants)
+                } else {
+                    self.cuisineRestaurants[cuisine] = fetchedRestaurants
+                }
+
+                self.hasMoreCuisineRestaurants[cuisine] = hasMore
+            }
+        } catch {
+            print("Error fetching cuisine restaurants for \(cuisine): \(error)")
+        }
+    }
+    func fetchRestaurants(location: CLLocationCoordinate2D, limit: Int = 50) async throws {
+           guard !isFetchingRestaurants else { return }
+         
+           isFetchingRestaurants = true
+
            do {
-               let (restaurants, newLastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
-                   cuisine: cuisine,
+               let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
                    location: location,
-                   lastDocument: lastSnapshot,
-                   limit: pageSize
+                   lastDocument: restaurantsLastSnapshot,
+                   limit: limit
                )
                DispatchQueue.main.async {
-                   if self.cuisineRestaurants[cuisine] != nil {
-                       self.cuisineRestaurants[cuisine]?.append(contentsOf: restaurants)
-                   } else {
-                       self.cuisineRestaurants[cuisine] = restaurants
-                   }
-                   self.cuisineRestaurantsLastSnapshots[cuisine] = newLastSnapshot
-                   self.hasMoreCuisineRestaurants[cuisine] = newLastSnapshot != nil
+                   self.fetchedRestaurants.append(contentsOf: restaurants)
+                   self.restaurantsLastSnapshot = lastSnapshot
+                   self.hasMoreRestaurants = lastSnapshot != nil
                }
+               print(restaurants, fetchedRestaurants)
            } catch {
-               print("Error fetching cuisine restaurants for \(cuisine): \(error)")
+               print("Error fetching restaurants: \(error)")
            }
-           isFetchingCuisineRestaurants.remove(cuisine)
+
+           isFetchingRestaurants = false
        }
 }

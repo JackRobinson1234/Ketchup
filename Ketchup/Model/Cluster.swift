@@ -60,6 +60,9 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
     var geoPoint: GeoPoint
     var fullGeoHash: String?
     var attributes: [String: Bool]?
+    var postCount: Int?  // Changed to optional
+    var overallRating: Double?
+    var macrocategory: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -70,10 +73,15 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         case geoPoint
         case fullGeoHash
         case attributes
+        case postCount
+        case overallRating
+        case macrocategory
     }
 
     // Custom initializer
-    init(id: String, name: String, geoPoint: GeoPoint, cuisine: String? = nil, price: String? = nil, profileImageUrl: String? = nil, fullGeoHash: String? = nil, attributes: [String: Bool]? = nil) {
+    init(id: String, name: String, geoPoint: GeoPoint, cuisine: String? = nil, price: String? = nil,
+         profileImageUrl: String? = nil, fullGeoHash: String? = nil, attributes: [String: Bool]? = nil,
+         postCount: Int? = nil, overallRating: Double? = nil, macrocategory: String? = nil) {
         self.id = id
         self.name = name
         self.geoPoint = geoPoint
@@ -82,6 +90,9 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         self.profileImageUrl = profileImageUrl
         self.fullGeoHash = fullGeoHash
         self.attributes = attributes
+        self.postCount = postCount
+        self.overallRating = overallRating
+        self.macrocategory = macrocategory
     }
 
     // Decoding function
@@ -95,9 +106,8 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         profileImageUrl = try container.decodeIfPresent(String.self, forKey: .profileImageUrl)
         fullGeoHash = try container.decodeIfPresent(String.self, forKey: .fullGeoHash)
         attributes = try container.decodeIfPresent([String: Bool].self, forKey: .attributes)
+        postCount = try container.decodeIfPresent(Int.self, forKey: .postCount)
+        overallRating = try container.decodeIfPresent(Double.self, forKey: .overallRating)
+        macrocategory = try container.decodeIfPresent(String.self, forKey: .macrocategory)
     }
 }
-
-// In MapViewModel
-
-
