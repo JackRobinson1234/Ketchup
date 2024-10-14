@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5E10AEB0-C452-496A-B01E-EBBFE983A89C"
+            uuid = "1F48090B-3E1E-4261-AEE1-0860E654345D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Ketchup/Core/Explore/Leaderboards/LeaderboardViewModel.swift"
+            filePath = "Ketchup/Core/Explore/ActivityViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
-            landmarkName = "fetchMorePosts(state:city:geohash:)"
+            startingLineNumber = "338"
+            endingLineNumber = "338"
+            landmarkName = "unfollow(userId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

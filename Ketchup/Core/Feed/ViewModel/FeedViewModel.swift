@@ -148,7 +148,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     
     func updateLocation(latitude: Double, longitude: Double) {
         surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-        //print(surroundingGeohash, "2")
+        // print(surroundingGeohash, "2")
         reverseGeocodeLocation(latitude: latitude, longitude: longitude)
         //        Task{
         //            try await fetchInitialPosts()

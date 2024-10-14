@@ -367,11 +367,11 @@ class RestaurantService {
     func fetchRestaurantsServingMeal(mealTime: String, location: CLLocationCoordinate2D, lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Restaurant], DocumentSnapshot?) {
         let db = Firestore.firestore()
         let geohash = GFUtils.geoHash(forLocation: location)
-        let truncatedGeohash6 = String(geohash.prefix(6))
-        let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash6)
+        let truncatedGeohash5 = String(geohash.prefix(5))
+        let geohashNeighbors = geohashNeighbors(geohash: truncatedGeohash5)
         
         var query = db.collection("restaurants")
-            .whereField("truncatedGeohash6", in: geohashNeighbors)
+            .whereField("truncatedGeohash5", in: geohashNeighbors)
             .whereField("servesMeals", arrayContains: mealTime.capitalized)
             .order(by: "stats.postCount", descending: true)
             .limit(to: limit)
@@ -396,11 +396,11 @@ class RestaurantService {
         
         let db = Firestore.firestore()
         let geohash = GFUtils.geoHash(forLocation: location)
-        let truncatedGeohash6 = String(geohash.prefix(6))
-        let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: truncatedGeohash6)
+        let truncatedGeohash5 = String(geohash.prefix(5))
+        let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
         print(cuisine, "cuisine")
         var query = db.collection("restaurants")
-            .whereField("truncatedGeohash6", in: geohashNeighbors)
+            .whereField("truncatedGeohash5", in: geohashNeighbors)
             .whereField("macrocategory", isEqualTo: cuisine)
             .order(by: "stats.postCount", descending: true)
             .limit(to: limit)
@@ -416,5 +416,56 @@ class RestaurantService {
         print(restaurants, "restaurants")
         let newLastDocument = snapshot.documents.last
         return (restaurants, newLastDocument)
+    }
+    func fetchTopRestaurants(
+        location: CLLocationCoordinate2D,
+        lastDocument: DocumentSnapshot? = nil,
+        limit: Int = 30
+    ) async throws -> ([Restaurant], DocumentSnapshot?) {
+        let db = Firestore.firestore()
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let truncatedGeohash5 = String(geohash.prefix(5))
+        let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
+        var query = db.collection("mapClusters")
+            .whereField("truncatedGeoHash", in: geohashNeighbors)
+
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+
+        let snapshot = try await query.getDocuments()
+        var allRestaurants: [Restaurant] = []
+
+        for document in snapshot.documents {
+            if let clusterData = try? document.data(as: Cluster.self) {
+                let clusterRestaurants = clusterData.restaurants.sorted { $0.postCount ?? 0 > $1.postCount ?? 0 }
+                let convertedRestaurants = clusterRestaurants.compactMap { convertToRestaurant($0) }
+                allRestaurants.append(contentsOf: convertedRestaurants)
+            }
+        }
+
+        // Sort all restaurants by post count and take the top 'limit' restaurants
+        let topRestaurants = Array(allRestaurants.sorted { $0.stats?.postCount ?? 0 > $1.stats?.postCount ?? 0 })
+
+        let newLastDocument = snapshot.documents.last
+        return (topRestaurants, newLastDocument)
+    }
+
+    func convertToRestaurant(_ clusterRestaurant: ClusterRestaurant) -> Restaurant? {
+        let stats = RestaurantStats(postCount: clusterRestaurant.postCount ?? 0, collectionCount: 0)
+        let overallRating = OverallRating(average: clusterRestaurant.overallRating, totalCount: nil)
+
+        return Restaurant(
+            id: clusterRestaurant.id,
+            categoryName: clusterRestaurant.cuisine,
+            price: clusterRestaurant.price,
+            name: clusterRestaurant.name,
+            geoPoint: clusterRestaurant.geoPoint,
+            geoHash: clusterRestaurant.fullGeoHash,
+            profileImageUrl: clusterRestaurant.profileImageUrl,
+            stats: stats,
+            overallRating: overallRating,
+            macrocategory: clusterRestaurant.macrocategory
+        )
     }
 }

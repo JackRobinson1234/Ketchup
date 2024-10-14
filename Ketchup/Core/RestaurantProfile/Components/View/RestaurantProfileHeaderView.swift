@@ -471,7 +471,10 @@ struct RestaurantProfileHeaderView: View {
     }
     private var peopleAlsoSearchSection: some View {
         VStack{
-            if !viewModel.similarRestaurants.isEmpty {
+            if viewModel.isLoadingSimilarRestaurants {
+               ProgressView()
+                    .foregroundColor(Color("Colors/AccentColor"))
+            } else if !viewModel.similarRestaurants.isEmpty {
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 0) {
@@ -485,7 +488,6 @@ struct RestaurantProfileHeaderView: View {
                             }
                         }
                     }
-                    
                 }
             }
         }
@@ -664,7 +666,6 @@ struct RestaurantProfileHeaderView: View {
                     .font(.custom("MuseoSansRounded-300", size: 12))
                     .padding(.horizontal, 8)
             }
-            
             .padding(.horizontal, 5)
             .padding(.vertical, 3)
             .overlay(
@@ -673,10 +674,9 @@ struct RestaurantProfileHeaderView: View {
             )
         }
         .foregroundColor(.black)
-        
     }
-    
 }
+
 extension URL: Identifiable {
     public var id: String {
         self.absoluteString

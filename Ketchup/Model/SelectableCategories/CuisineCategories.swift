@@ -12,29 +12,37 @@ let cuisineCategories = [
 
 
 let cuisineGroupKeys = [
-    "Asian",
-    "European",
-    "American",
-    "Latin American",
-    "Middle Eastern",
-    "African",
-    "Fast Food",
-    "Cafes and Bakeries",
-    "Bars and Pubs",
-    "Seafood",
-    "Vegetarian and Vegan",
-    "Barbecue and Grill",
-    "Fusion and International",
-    "Street Food and Food Trucks",
-    "Specialty and Dietary",
-    "Breakfast and Brunch",
-    "Noodles and Pasta",
-    "Soup and Hotpot",
-    "Sandwich and Deli",
-    "Desserts and Sweets",
-    "Buffet and All-You-Can-Eat",
-    "Family and Casual Dining",
-    "Markets and Shops"
+    "Italian",
+       "Chinese",
+       "Japanese",
+       "Korean",
+       "Other Asian",
+       "Mexican",
+       "American",
+       "French",
+       "Spanish",
+       "Greek",
+       "Middle Eastern",
+       "German",
+       "Caribbean",
+       "African",
+       "South American",
+       "Central American",
+       "Eastern European",
+       "Seafood",
+       "Vegetarian and Vegan",
+       "Fusion and International",
+       "Fast Food and Casual",
+       "Breakfast and Brunch",
+       "Barbecue and Grill",
+       "Noodles",
+       "Specialty and Dietary",
+       "Cafes and Bakeries",
+       "Bars and Pubs",
+       "Desserts and Sweets",
+       "Street Food and Food Trucks",
+       "Buffet and All-You-Can-Eat",
+       "Markets and Specialty Shops"
 ]
 
 enum MealTime: String {
@@ -43,10 +51,12 @@ enum MealTime: String {
     case dinner
     case dessert
 }
+
 let mealTimeCuisineMap: [MealTime: [String]] = [
     .breakfast: [
         "Cafes and Bakeries",
-        "Breakfast and Brunch"
+        "Breakfast and Brunch",
+        "Vegetarian and Vegan"
     ],
     .lunch: [
         "Asian",
@@ -55,8 +65,16 @@ let mealTimeCuisineMap: [MealTime: [String]] = [
         "Latin American",
         "Middle Eastern",
         "Fast Food",
+        "Cafes and Bakeries",
         "Vegetarian and Vegan",
-        "Cafes and Bakeries"
+        "Noodles and Pasta",
+        "Sandwich and Deli",
+        "Street Food and Food Trucks",
+        "Family and Casual Dining",
+        "Markets and Shops",
+        "Fusion and International",
+        "Barbecue and Grill",
+        "Bars and Pubs",
     ],
     .dinner: [
         "Asian",
@@ -65,10 +83,20 @@ let mealTimeCuisineMap: [MealTime: [String]] = [
         "Latin American",
         "Middle Eastern",
         "Seafood",
+        "Barbecue and Grill",
         "Vegetarian and Vegan",
-        "Barbecue and Grill"
+        "Fusion and International",
+        "Street Food and Food Trucks",
+        "Buffet and All-You-Can-Eat",
+        "Family and Casual Dining",
+        "Markets and Shops",
+        "Soup and Hotpot",
+        "Noodles and Pasta",
+        "Bars and Pubs"
     ],
     .dessert: [
-        "Desserts and Sweets"
+        "Desserts and Sweets",
+        "Cafes and Bakeries",
+        "Fusion and International"
     ]
 ]

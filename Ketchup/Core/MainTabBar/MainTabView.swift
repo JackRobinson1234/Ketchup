@@ -163,19 +163,7 @@ struct MainTabView: View {
             stopTracking(tab: tabBarController.selectedTab)
             sendSessionAnalytics()
         }
-//        .onChange(of: tabBarController.selectedTab) { oldTab, newTab in
-//            stopTracking(tab: oldTab)
-//            startTracking(tab: newTab)
-//        }
-//        .onChange(of: scenePhase) { oldPhase, newPhase in
-//            if newPhase == .background {
-//                stopTracking(tab: tabBarController.selectedTab)
-//                sendSessionAnalytics()
-//            } else if newPhase == .active {
-//                sessionStartTime = Date()
-//                startTracking(tab: tabBarController.selectedTab)
-//            }
-//        }
+
         .sheet(isPresented: $tabBarController.showContacts){
             ContactsView()
         }

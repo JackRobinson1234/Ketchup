@@ -12,6 +12,8 @@ import FirebaseFirestore
 import FirebaseAuth
 import Firebase
 import Contacts
+import GeoFire
+import GeohashKit
 @MainActor
 class ActivityViewModel: ObservableObject {
     @Published var followingActivity: [Activity] = []
@@ -44,17 +46,18 @@ class ActivityViewModel: ObservableObject {
     @Published var mealRestaurants: [Restaurant] = []
     private var mealRestaurantsLastSnapshot: DocumentSnapshot?
     @Published var hasMoreMealRestaurants: Bool = true
-    private var isFetchingMealRestaurants: Bool = false
     private let mealRestaurantsPageSize = 5
     private var currentMealTime: String?
     private var currentLocation: CLLocationCoordinate2D?
-    private var contactsPageSize = 10
-    @Published var cuisineRestaurants: [Restaurant] = []
-        private var isFetchingCuisineRestaurants: Bool = false
-        private var currentCuisine: String?
-        private var currentCuisineLocation: CLLocationCoordinate2D?
+    private var contactsPageSize = 5
+    @Published var cuisineRestaurants: [String: [Restaurant]] = [:]
+    private var cuisineRestaurantsLastSnapshots: [String: DocumentSnapshot?] = [:]
+    @Published var hasMoreCuisineRestaurants: [String: Bool] = [:]
+    @Published var isFetchingCuisineRestaurants: [String: Bool] = [:]
+    private var currentCuisineLocation: CLLocationCoordinate2D?
     let contactsViewModel = ContactsViewModel()
     private let userService = UserService.shared
+    
     func checkContactPermission() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         DispatchQueue.main.async {
@@ -63,14 +66,37 @@ class ActivityViewModel: ObservableObject {
     }
     
         private var cuisineRestaurantsLastSnapshot: DocumentSnapshot?
-        @Published var hasMoreCuisineRestaurants: Bool = true
+    @Published var cuisinesFetched: Set<String> = []
+    @Published var hasFetchedMealRestaurants = false
+    @Published var isFetchingMealRestaurants = false
     
-    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 5) async throws {
+    @Published var topRestaurants: [Restaurant] = []
+    private var topRestaurantsLastSnapshot: DocumentSnapshot?
+    @Published var hasMoreTopRestaurants: Bool = true
+    private var isFetchingTopRestaurants = false
+    @Published var fetchedRestaurants: [Restaurant] = []
+        private var restaurantsLastSnapshot: DocumentSnapshot?
+        @Published var hasMoreRestaurants: Bool = true
+        private var isFetchingRestaurants: Bool = false
+    @Published var friendPostsRestaurants: [Restaurant] = []
+      private var lastFriendPostDocument: DocumentSnapshot?
+      @Published var hasMoreFriendPosts: Bool = true
+      private var isFetchingFriendPosts: Bool = false
+      private let friendPostsPageSize: Int = 10
+
+    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 3) async throws {
         guard !isFetchingMealRestaurants else { return }
         guard let location = location else { return }
         isFetchingMealRestaurants = true
         self.currentMealTime = mealTime
         self.currentLocation = location
+
+        // Check if we've already fetched the meal restaurants
+        if hasFetchedMealRestaurants {
+            isFetchingMealRestaurants = false
+            return
+        }
+
         let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchRestaurantsServingMeal(
             mealTime: mealTime,
             location: location,
@@ -81,6 +107,7 @@ class ActivityViewModel: ObservableObject {
             self.mealRestaurants.append(contentsOf: restaurants)
             self.mealRestaurantsLastSnapshot = lastSnapshot
             self.hasMoreMealRestaurants = lastSnapshot != nil
+            self.hasFetchedMealRestaurants = true
         }
         isFetchingMealRestaurants = false
     }
@@ -92,16 +119,103 @@ class ActivityViewModel: ObservableObject {
             print("Error fetching more meal restaurants: \(error)")
         }
     }
-   
+    func fetchFriendPostsNearby(location: CLLocationCoordinate2D) async {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        guard !isFetchingFriendPosts else { return }
+        isFetchingFriendPosts = true
 
-        func fetchMoreCuisineRestaurants() async {
-            guard let cuisine = currentCuisine, let location = currentCuisineLocation else { return }
-            do {
-                try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 5)
-            } catch {
-                print("Error fetching more cuisine restaurants: \(error)")
+        // Compute the geohash and its neighbors
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let truncatedGeohash5 = String(geohash.prefix(5))
+        let geohashNeighborsList = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
+
+        // Reference to the posts subcollection
+        let db = Firestore.firestore()
+        let postsRef = db.collection("followingposts").document(currentUserId).collection("posts")
+
+        // Build the query using 'in' on truncatedGeohash5
+        var query: Query = postsRef
+            .whereField("restaurant.truncatedGeohash5", in: geohashNeighborsList)
+            .order(by: "timestamp", descending: true)
+            .limit(to: friendPostsPageSize)
+
+        // If we have a last document, start after it
+        if let lastDocument = lastFriendPostDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+
+        do {
+            let snapshot = try await query.getDocuments()
+            let posts = snapshot.documents.compactMap { try? $0.data(as: SimplifiedPost.self) }
+
+            // Update pagination variables
+            if let lastSnapshot = snapshot.documents.last {
+                self.lastFriendPostDocument = lastSnapshot
+            } else {
+                self.hasMoreFriendPosts = false
+            }
+
+            // Group posts by restaurant
+            let groupedPosts = Dictionary(grouping: posts) { $0.restaurant.id }
+
+            // Map to restaurants
+            var newRestaurants: [Restaurant] = []
+            for (restaurantId, posts) in groupedPosts {
+                if let firstPost = posts.first {
+                    let restaurant = Restaurant(
+                        id: firstPost.restaurant.id,
+                        categoryName: firstPost.restaurant.cuisine,
+                        price: firstPost.restaurant.price,
+                        name: firstPost.restaurant.name,
+                        geoPoint: firstPost.restaurant.geoPoint,
+                        profileImageUrl: firstPost.restaurant.profileImageUrl,
+                        stats: RestaurantStats(postCount: 0, collectionCount: 0)
+                    )
+                    newRestaurants.append(restaurant)
+                }
+            }
+
+            // Update the published property
+            await MainActor.run {
+                self.friendPostsRestaurants.append(contentsOf: newRestaurants)
+            }
+
+        } catch {
+            print("Error fetching friend posts: \(error)")
+            self.hasMoreFriendPosts = false
+        }
+
+        isFetchingFriendPosts = false
+    }
+
+    
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
             }
         }
+        return Array(resultSet)
+    }
+    
+    func fetchMoreCuisineRestaurants(for cuisine: String, location: CLLocationCoordinate2D) async {
+           do {
+               try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 5)
+           } catch {
+               print("Error fetching more \(cuisine) restaurants: \(error)")
+           }
+       }
     func loadMoreContacts() {
         guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
         
@@ -115,7 +229,27 @@ class ActivityViewModel: ObservableObject {
             isLoadingMore = false
         }
     }
-    
+//    func fetchTopRestaurants(location: CLLocationCoordinate2D, limit: Int = 15) async throws {
+//        guard !isFetchingTopRestaurants else { return }
+//        isFetchingTopRestaurants = true
+//
+//        do {
+//            let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
+//                location: location,
+//                lastDocument: topRestaurantsLastSnapshot,
+//                limit: limit
+//            )
+//            DispatchQueue.main.async {
+//                self.topRestaurants.append(contentsOf: restaurants)
+//                self.topRestaurantsLastSnapshot = lastSnapshot
+//                self.hasMoreTopRestaurants = lastSnapshot != nil
+//            }
+//        } catch {
+//            print("Error fetching top restaurants: \(error)")
+//        }
+//
+//        isFetchingTopRestaurants = false
+//    }
     func fetchTopContacts() async throws {
         guard isContactPermissionGranted else { return }
         guard let userId = Auth.auth().currentUser?.uid else { return }
@@ -149,7 +283,17 @@ class ActivityViewModel: ObservableObject {
             self.hasMoreContacts = !snapshot.documents.isEmpty
         }
     }
-    
+    func resetData() {
+           // Reset variables related to meal restaurants
+           mealRestaurantsLastSnapshot = nil
+           hasMoreMealRestaurants = true
+           hasFetchedMealRestaurants = false
+
+           restaurantsLastSnapshot = nil
+           hasMoreRestaurants = true
+
+           // Reset any other variables as needed
+       }
     func resetContactsPagination() {
         topContacts = []
         lastContactDocumentSnapshot = nil
@@ -203,27 +347,73 @@ class ActivityViewModel: ObservableObject {
         }
     }
     func fetchCuisineRestaurants(cuisine: String, location: CLLocationCoordinate2D, pageSize: Int = 5) async throws {
-        guard !isFetchingCuisineRestaurants else { return }
-        isFetchingCuisineRestaurants = true
-        self.currentCuisine = cuisine
-        self.currentCuisineLocation = location
-      
-        print("limitedCategories")
+        // Check if a fetch is already in progress for this cuisine
+        if isFetchingCuisineRestaurants[cuisine] == true {
+            return
+        }
+        isFetchingCuisineRestaurants[cuisine] = true
+        defer {
+            isFetchingCuisineRestaurants[cuisine] = false
+        }
+
+        // Fetch pageSize + 1 documents
+        let limit = pageSize + 1
+        let lastSnapshot = self.cuisineRestaurantsLastSnapshots[cuisine]
         do {
-            let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
+            let (restaurants, newLastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
                 cuisine: cuisine,
                 location: location,
-                lastDocument: cuisineRestaurantsLastSnapshot,
-                limit: pageSize
+                lastDocument: lastSnapshot ?? nil,
+                limit: limit
             )
+
             DispatchQueue.main.async {
-                self.cuisineRestaurants.append(contentsOf: restaurants)
-                self.cuisineRestaurantsLastSnapshot = lastSnapshot
-                self.hasMoreCuisineRestaurants = lastSnapshot != nil
+                var fetchedRestaurants = restaurants
+                var hasMore = false
+
+                // Check if we fetched more than pageSize documents
+                if fetchedRestaurants.count > pageSize {
+                    hasMore = true
+                    // Remove the extra document before appending to your list
+                    fetchedRestaurants.removeLast()
+                    self.cuisineRestaurantsLastSnapshots[cuisine] = newLastSnapshot
+                } else {
+                    // No more documents
+                    hasMore = false
+                }
+
+                if self.cuisineRestaurants[cuisine] != nil {
+                    self.cuisineRestaurants[cuisine]?.append(contentsOf: fetchedRestaurants)
+                } else {
+                    self.cuisineRestaurants[cuisine] = fetchedRestaurants
+                }
+
+                self.hasMoreCuisineRestaurants[cuisine] = hasMore
             }
         } catch {
-            print("Error fetching cuisine restaurants: \(error)")
+            print("Error fetching cuisine restaurants for \(cuisine): \(error)")
         }
-        isFetchingCuisineRestaurants = false
     }
+    func fetchRestaurants(location: CLLocationCoordinate2D, limit: Int = 50) async throws {
+           guard !isFetchingRestaurants else { return }
+         
+           isFetchingRestaurants = true
+
+           do {
+               let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
+                   location: location,
+                   lastDocument: restaurantsLastSnapshot,
+                   limit: limit
+               )
+               DispatchQueue.main.async {
+                   self.fetchedRestaurants.append(contentsOf: restaurants)
+                   self.restaurantsLastSnapshot = lastSnapshot
+                   self.hasMoreRestaurants = lastSnapshot != nil
+               }
+           } catch {
+               print("Error fetching restaurants: \(error)")
+           }
+
+           isFetchingRestaurants = false
+       }
 }

@@ -28,7 +28,6 @@ struct RestaurantListView: View {
                     .foregroundStyle(.black)
             })
         }
-       
     }
 }
 struct IdentifiableCoordinate: Identifiable {
