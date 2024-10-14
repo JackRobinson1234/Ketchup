@@ -18,7 +18,8 @@ struct LocationSearchView: View {
     @StateObject private var mapSearch = MapSearch()
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    
+    @Binding var selectedLocationCoordinate: CLLocationCoordinate2D?
+
     private var originalCity: String? { AuthService.shared.userSession?.location?.city }
     private var originalState: String? { AuthService.shared.userSession?.location?.state }
     
@@ -75,7 +76,7 @@ struct LocationSearchView: View {
         
         search.start { (response, error) in
             if let error = error {
-                //print("Error searching for location: \(error.localizedDescription)")
+                // Handle error
                 return
             }
             
@@ -84,6 +85,7 @@ struct LocationSearchView: View {
                 state = placemark.administrativeArea
                 
                 if let coordinate = placemark.location?.coordinate {
+                    selectedLocationCoordinate = coordinate
                     surroundingGeohash = GFUtils.geoHash(forLocation: coordinate)
                     reverseGeocodeForCounty(latitude: coordinate.latitude, longitude: coordinate.longitude)
                 }

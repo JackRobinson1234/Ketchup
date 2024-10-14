@@ -35,6 +35,8 @@ struct ActivityView: View {
     @State private var mealTime: MealTime = .breakfast
     @State private var showCuisineSheet: Bool = false
     @State private var selectedCuisineForSheet: String? = nil
+    @State private var selectedLocationCoordinate: CLLocationCoordinate2D?
+
     enum Tab {
         case dailyPoll
         case discover
@@ -75,7 +77,9 @@ struct ActivityView: View {
                         Task {
                             await refreshLocationData()
                         }
-                    }
+                    },
+                    selectedLocationCoordinate: $selectedLocationCoordinate
+                    
                 )
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
@@ -85,29 +89,33 @@ struct ActivityView: View {
             .sheet(isPresented: $showPollUploadView) {
                 PollUploadView()
             }
-        }
-        .onAppear {
-            loadInitialLocation()
-            computeGreeting()
-            if let location = locationManager.userLocation?.coordinate {
-                if !viewModel.hasFetchedMealRestaurants {
-                    Task {
-                        await loadAllRestaurants(location: location)
-                    }
-                }
-            } else {
-                // Handle location not available
-                locationManager.requestLocation { success in
-                    if success, let location = locationManager.userLocation?.coordinate {
-                        if !viewModel.hasFetchedMealRestaurants {
+            .onAppear {
+                computeGreeting()
+                    // Handle location not available
+                    locationManager.requestLocation { success in
+                        if success, let coordinate = locationManager.userLocation?.coordinate {
+                            selectedLocationCoordinate = coordinate
+                            reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                            if !viewModel.hasFetchedMealRestaurants {
+                                Task {
+                                    await loadAllRestaurants(location: coordinate)
+                                }
+                            }
+                        } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+                            // Use the user's selected location
+                            let latitude = geoPoint.latitude
+                            let longitude = geoPoint.longitude
+                            selectedLocationCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                            surroundingGeohash = GFUtils.geoHash(forLocation: selectedLocationCoordinate!)
+                            reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+                            // Now that we have the location, we can call loadAllRestaurants
                             Task {
-                                await loadAllRestaurants(location: location)
+                                await loadAllRestaurants(location: selectedLocationCoordinate!)
+                                
                             }
                         }
-                    } else {
-                        print("User location not available.")
                     }
-                }
+                
             }
         }
     }
@@ -189,6 +197,7 @@ struct ActivityView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
             }
+            
             if !viewModel.mealRestaurants.isEmpty {
                 Text("Popular \(greetingType.mealTime.capitalized) Near You")
                     .font(.custom("MuseoSansRounded-700", size: 25))
@@ -658,37 +667,39 @@ struct ActivityView: View {
             UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
     }
-    
     private func loadInitialLocation() {
-        if let userLocation = locationManager.userLocation {
-            // Use the current location
-            let latitude = userLocation.coordinate.latitude
-            let longitude = userLocation.coordinate.longitude
-            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-            reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-        } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
-            // Use the user's selected location
-            let latitude = geoPoint.latitude
-            let longitude = geoPoint.longitude
-            surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-            reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-            city = AuthService.shared.userSession?.location?.city
-            state = AuthService.shared.userSession?.location?.state
-        } else {
-            // No location available
-            city = nil
-            state = nil
-            surroundingGeohash = nil
-            // Optionally request location
-            locationManager.requestLocation { success in
-                if success, let userLocation = locationManager.userLocation {
-                    let latitude = userLocation.coordinate.latitude
-                    let longitude = userLocation.coordinate.longitude
-                    surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-                    reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-                } else {
-                    print("User location not available.")
+        // Request the user's location
+        locationManager.requestLocation { success in
+            if success, let userLocation = locationManager.userLocation {
+                // Use the current location
+                print("SHOULD BE UPDATING INITIAL LOCATION")
+                let latitude = userLocation.coordinate.latitude
+                let longitude = userLocation.coordinate.longitude
+                selectedLocationCoordinate = userLocation.coordinate
+                surroundingGeohash = GFUtils.geoHash(forLocation: userLocation.coordinate)
+                reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+                // Now that we have the location, we can call loadAllRestaurants
+                Task {
+                    await loadAllRestaurants(location: selectedLocationCoordinate!)
                 }
+            } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+                // Use the user's selected location
+                let latitude = geoPoint.latitude
+                let longitude = geoPoint.longitude
+                selectedLocationCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                surroundingGeohash = GFUtils.geoHash(forLocation: selectedLocationCoordinate!)
+                reverseGeocodeLocation(latitude: latitude, longitude: longitude)
+                // Now that we have the location, we can call loadAllRestaurants
+                Task {
+                    await loadAllRestaurants(location: selectedLocationCoordinate!)
+                }
+            } else {
+                // No location available
+                city = nil
+                state = nil
+                surroundingGeohash = nil
+                // Handle no location
+                print("User location not available.")
             }
         }
     }
@@ -703,7 +714,22 @@ struct ActivityView: View {
     }
     
     private func refreshLocationData() async {
-        await refreshData()
+        viewModel.resetData()
+        if let coordinate = selectedLocationCoordinate {
+            reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            await loadAllRestaurants(location: coordinate)
+        } else if let location = locationManager.userLocation?.coordinate {
+            selectedLocationCoordinate = location
+            reverseGeocodeLocation(latitude: location.latitude, longitude: location.longitude)
+            await loadAllRestaurants(location: location)
+        } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
+            let coordinate = CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+            selectedLocationCoordinate = coordinate
+            reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            await loadAllRestaurants(location: coordinate)
+        } else {
+            // No location available
+        }
     }
     
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
@@ -713,14 +739,20 @@ struct ActivityView: View {
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
                 // Handle error
+                print("Reverse geocoding error: \(error.localizedDescription)")
                 return
             }
-            if let placemark = placemarks?.first, let county = placemark.subAdministrativeArea {
+            
+            if let placemark = placemarks?.first {
                 DispatchQueue.main.async {
-                    self.surroundingCounty = county
+                    self.city = placemark.locality
+                    self.state = placemark.administrativeArea
+                    self.surroundingCounty = placemark.subAdministrativeArea ?? "Nearby"
+                    print("Setting city", city)
                 }
             } else {
-                // County information not available
+                // Placemark not available
+                print("Placemark not available.")
             }
         }
     }

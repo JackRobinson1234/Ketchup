@@ -426,7 +426,6 @@ class RestaurantService {
         let geohash = GFUtils.geoHash(forLocation: location)
         let truncatedGeohash5 = String(geohash.prefix(5))
         let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
-
         var query = db.collection("mapClusters")
             .whereField("truncatedGeoHash", in: geohashNeighbors)
 
@@ -453,8 +452,6 @@ class RestaurantService {
     }
 
     func convertToRestaurant(_ clusterRestaurant: ClusterRestaurant) -> Restaurant? {
-        
-        
         let stats = RestaurantStats(postCount: clusterRestaurant.postCount ?? 0, collectionCount: 0)
         let overallRating = OverallRating(average: clusterRestaurant.overallRating, totalCount: nil)
 

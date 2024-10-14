@@ -12,6 +12,8 @@ import FirebaseFirestore
 import FirebaseAuth
 import Firebase
 import Contacts
+import GeoFire
+import GeohashKit
 @MainActor
 class ActivityViewModel: ObservableObject {
     @Published var followingActivity: [Activity] = []
@@ -76,6 +78,11 @@ class ActivityViewModel: ObservableObject {
         private var restaurantsLastSnapshot: DocumentSnapshot?
         @Published var hasMoreRestaurants: Bool = true
         private var isFetchingRestaurants: Bool = false
+    @Published var friendPostsRestaurants: [Restaurant] = []
+      private var lastFriendPostDocument: DocumentSnapshot?
+      @Published var hasMoreFriendPosts: Bool = true
+      private var isFetchingFriendPosts: Bool = false
+      private let friendPostsPageSize: Int = 10
 
     func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 3) async throws {
         guard !isFetchingMealRestaurants else { return }
@@ -112,8 +119,96 @@ class ActivityViewModel: ObservableObject {
             print("Error fetching more meal restaurants: \(error)")
         }
     }
-   
+    func fetchFriendPostsNearby(location: CLLocationCoordinate2D) async {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        guard !isFetchingFriendPosts else { return }
+        isFetchingFriendPosts = true
 
+        // Compute the geohash and its neighbors
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let truncatedGeohash5 = String(geohash.prefix(5))
+        let geohashNeighborsList = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
+
+        // Reference to the posts subcollection
+        let db = Firestore.firestore()
+        let postsRef = db.collection("followingposts").document(currentUserId).collection("posts")
+
+        // Build the query using 'in' on truncatedGeohash5
+        var query: Query = postsRef
+            .whereField("restaurant.truncatedGeohash5", in: geohashNeighborsList)
+            .order(by: "timestamp", descending: true)
+            .limit(to: friendPostsPageSize)
+
+        // If we have a last document, start after it
+        if let lastDocument = lastFriendPostDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+
+        do {
+            let snapshot = try await query.getDocuments()
+            let posts = snapshot.documents.compactMap { try? $0.data(as: SimplifiedPost.self) }
+
+            // Update pagination variables
+            if let lastSnapshot = snapshot.documents.last {
+                self.lastFriendPostDocument = lastSnapshot
+            } else {
+                self.hasMoreFriendPosts = false
+            }
+
+            // Group posts by restaurant
+            let groupedPosts = Dictionary(grouping: posts) { $0.restaurant.id }
+
+            // Map to restaurants
+            var newRestaurants: [Restaurant] = []
+            for (restaurantId, posts) in groupedPosts {
+                if let firstPost = posts.first {
+                    let restaurant = Restaurant(
+                        id: firstPost.restaurant.id,
+                        categoryName: firstPost.restaurant.cuisine,
+                        price: firstPost.restaurant.price,
+                        name: firstPost.restaurant.name,
+                        geoPoint: firstPost.restaurant.geoPoint,
+                        profileImageUrl: firstPost.restaurant.profileImageUrl,
+                        stats: RestaurantStats(postCount: 0, collectionCount: 0)
+                    )
+                    newRestaurants.append(restaurant)
+                }
+            }
+
+            // Update the published property
+            await MainActor.run {
+                self.friendPostsRestaurants.append(contentsOf: newRestaurants)
+            }
+
+        } catch {
+            print("Error fetching friend posts: \(error)")
+            self.hasMoreFriendPosts = false
+        }
+
+        isFetchingFriendPosts = false
+    }
+
+    
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
+            }
+        }
+        return Array(resultSet)
+    }
+    
     func fetchMoreCuisineRestaurants(for cuisine: String, location: CLLocationCoordinate2D) async {
            do {
                try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 5)
@@ -188,7 +283,17 @@ class ActivityViewModel: ObservableObject {
             self.hasMoreContacts = !snapshot.documents.isEmpty
         }
     }
-    
+    func resetData() {
+           // Reset variables related to meal restaurants
+           mealRestaurantsLastSnapshot = nil
+           hasMoreMealRestaurants = true
+           hasFetchedMealRestaurants = false
+
+           restaurantsLastSnapshot = nil
+           hasMoreRestaurants = true
+
+           // Reset any other variables as needed
+       }
     func resetContactsPagination() {
         topContacts = []
         lastContactDocumentSnapshot = nil
@@ -305,7 +410,6 @@ class ActivityViewModel: ObservableObject {
                    self.restaurantsLastSnapshot = lastSnapshot
                    self.hasMoreRestaurants = lastSnapshot != nil
                }
-               print(restaurants, fetchedRestaurants)
            } catch {
                print("Error fetching restaurants: \(error)")
            }
