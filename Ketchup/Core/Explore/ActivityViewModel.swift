@@ -84,7 +84,7 @@ class ActivityViewModel: ObservableObject {
       private var isFetchingFriendPosts: Bool = false
       private let friendPostsPageSize: Int = 10
 
-    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 3) async throws {
+    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 5) async throws {
         guard !isFetchingMealRestaurants else { return }
         guard let location = location else { return }
         isFetchingMealRestaurants = true
@@ -104,7 +104,7 @@ class ActivityViewModel: ObservableObject {
             limit: pageSize
         )
         DispatchQueue.main.async {
-            self.mealRestaurants.append(contentsOf: restaurants)
+            self.mealRestaurants = restaurants
             self.mealRestaurantsLastSnapshot = lastSnapshot
             self.hasMoreMealRestaurants = lastSnapshot != nil
             self.hasFetchedMealRestaurants = true
@@ -363,7 +363,7 @@ class ActivityViewModel: ObservableObject {
             let (restaurants, newLastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
                 cuisine: cuisine,
                 location: location,
-                lastDocument: lastSnapshot ?? nil,
+                lastDocument: nil,
                 limit: limit
             )
 
@@ -375,18 +375,15 @@ class ActivityViewModel: ObservableObject {
                 if fetchedRestaurants.count > pageSize {
                     hasMore = true
                     // Remove the extra document before appending to your list
-                    fetchedRestaurants.removeLast()
                     self.cuisineRestaurantsLastSnapshots[cuisine] = newLastSnapshot
                 } else {
                     // No more documents
                     hasMore = false
                 }
 
-                if self.cuisineRestaurants[cuisine] != nil {
-                    self.cuisineRestaurants[cuisine]?.append(contentsOf: fetchedRestaurants)
-                } else {
-                    self.cuisineRestaurants[cuisine] = fetchedRestaurants
-                }
+               
+                self.cuisineRestaurants[cuisine] = fetchedRestaurants
+                
 
                 self.hasMoreCuisineRestaurants[cuisine] = hasMore
             }
@@ -406,7 +403,7 @@ class ActivityViewModel: ObservableObject {
                    limit: limit
                )
                DispatchQueue.main.async {
-                   self.fetchedRestaurants.append(contentsOf: restaurants)
+                   self.fetchedRestaurants = restaurants
                    self.restaurantsLastSnapshot = lastSnapshot
                    self.hasMoreRestaurants = lastSnapshot != nil
                }

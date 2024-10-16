@@ -44,29 +44,42 @@ struct ActivityView: View {
     }
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        Color.clear
-                            .frame(height: 100) // Adjust this value based on the combined height of your header and tab buttons
-                        contentBasedOnSelectedTab
+            VStack{
+                if !isLoading{
+                    ZStack(alignment: .top) {
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: 20) {
+                                Color.clear
+                                    .frame(height: 100) // Adjust this value based on the combined height of your header and tab buttons
+                                contentBasedOnSelectedTab
+                            }
+                        }
+                        
+                        VStack(spacing: 0) {
+                            customHeader
+                                .background(Color.white)
+                                .zIndex(2)
+                            
+                            tabButtons
+                                .padding(.bottom, 6)
+                                .background(Color.white)
+                                .zIndex(1)
+                                .padding(.bottom, 10)
+                        }
                     }
+                } else {
+                    FastCrossfadeFoodImageView()
                 }
                 
-                VStack(spacing: 0) {
-                    customHeader
-                        .background(Color.white)
-                        .zIndex(2)
-                    
-                    tabButtons
-                        .padding(.bottom, 6)
-                        .background(Color.white)
-                        .zIndex(1)
-                        .padding(.bottom, 10)
-                }
             }
             .navigationBarHidden(true)
-            .refreshable { await refreshData() }
+            .refreshable {
+                Task{
+                    isLoading = true
+                    await refreshData()
+                    isLoading = false
+                }
+            }
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchView(
                     city: $city,
@@ -74,8 +87,11 @@ struct ActivityView: View {
                     surroundingGeohash: $surroundingGeohash,
                     surroundingCounty: $surroundingCounty,
                     onLocationSelected: {
+                        viewModel.resetData()
                         Task {
+                            isLoading = true
                             await refreshLocationData()
+                            isLoading = false
                         }
                     },
                     selectedLocationCoordinate: $selectedLocationCoordinate
@@ -90,6 +106,7 @@ struct ActivityView: View {
                 PollUploadView()
             }
             .onAppear {
+
                 computeGreeting()
                     // Handle location not available
                     locationManager.requestLocation { success in
@@ -98,7 +115,9 @@ struct ActivityView: View {
                             reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
                             if !viewModel.hasFetchedMealRestaurants {
                                 Task {
+                                    isLoading = true
                                     await loadAllRestaurants(location: coordinate)
+                                    isLoading = false
                                 }
                             }
                         } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
@@ -110,12 +129,13 @@ struct ActivityView: View {
                             reverseGeocodeLocation(latitude: latitude, longitude: longitude)
                             // Now that we have the location, we can call loadAllRestaurants
                             Task {
+                                isLoading = true
                                 await loadAllRestaurants(location: selectedLocationCoordinate!)
-                                
+                                isLoading = false
                             }
                         }
                     }
-                
+               
             }
         }
     }
@@ -199,28 +219,22 @@ struct ActivityView: View {
             }
             
             if !viewModel.mealRestaurants.isEmpty {
-                Text("Popular \(greetingType.mealTime.capitalized) Near You")
-                    .font(.custom("MuseoSansRounded-700", size: 25))
-                    .padding(.horizontal)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
-                            let restaurant = viewModel.mealRestaurants[index]
-                            NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
-                                RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
-                            }
-                            .onAppear {
-                                if index == viewModel.mealRestaurants.count - 1 &&
-                                   viewModel.hasMoreMealRestaurants &&
-                                   !viewModel.isFetchingMealRestaurants {
-                                    Task {
-                                        await viewModel.fetchMoreMealRestaurants()
-                                    }
+                VStack{
+                    Text("Popular \(greetingType.mealTime.capitalized) Near You")
+                        .font(.custom("MuseoSansRounded-700", size: 25))
+                        .padding(.horizontal)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
+                                let restaurant = viewModel.mealRestaurants[index]
+                                NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                    RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
                                 }
+                                
                             }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
             }
 
@@ -231,29 +245,32 @@ struct ActivityView: View {
             if !groupedRestaurants.isEmpty {
                 ForEach(groupedRestaurants.keys.sorted(), id: \.self) { cuisine in
                     if let restaurants = groupedRestaurants[cuisine], !restaurants.isEmpty {
-                        HStack {
-                            Text("Popular \(cuisine)")
-                                .font(.custom("MuseoSansRounded-700", size: 25))
-                            Spacer()
-                            Button(action: {
-                                selectedCuisineForSheet = cuisine
-                            }) {
-                                Text("See more >")
-                                    .font(.custom("MuseoSansRounded-500", size: 14))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding(.horizontal)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(restaurants.prefix(10), id: \.id) { restaurant in
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
-                                        RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
-                                    }
+                        VStack{
+                            HStack {
+                                Text("Popular \(cuisine)")
+                                    .font(.custom("MuseoSansRounded-700", size: 25))
+                                Spacer()
+                                Button(action: {
+                                    selectedCuisineForSheet = cuisine
+                                }) {
+                                    Text("See more >")
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .foregroundColor(.gray)
                                 }
                             }
                             .padding(.horizontal)
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(restaurants.prefix(10), id: \.id) { restaurant in
+                                        NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
+                                            RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
+                                            
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -283,89 +300,7 @@ struct ActivityView: View {
 
     }
     
-    struct RestaurantCardView: View {
-        
-        let userLocation: CLLocation?
-        let restaurant: Restaurant
-        
-        var body: some View {
-            VStack(alignment: .leading) {
-                if let imageUrl = restaurant.profileImageUrl {
-                    KFImage(URL(string: imageUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 150, height: 120)
-                        .cornerRadius(8)
-                        .clipped()
-                } else {
-                    Image("placeholderImage")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 120, height: 100)
-                        .cornerRadius(8)
-                        .clipped()
-                }
-                Text(restaurant.name)
-                    .font(.custom("MuseoSansRounded-700", size: 14))
-                    .foregroundColor(.black)
-                    .lineLimit(1)
-                    .frame(width: 120, alignment: .leading)
-                if let city = restaurant.city {
-                    Text(city)
-                        .font(.custom("MuseoSansRounded-300", size: 12))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                }
-                if let cuisine = restaurant.categoryName, let price = restaurant.price {
-                    Text("\(cuisine), \(price)")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                } else if let cuisine = restaurant.categoryName {
-                    Text(cuisine)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                } else if let price = restaurant.price {
-                    Text(price)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                if let count = restaurant.stats?.postCount {
-                    Text("\(count) posts")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                if let distance = distanceString {
-                    Text(distance)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                
-            }
-            .frame(width: 150)
-        }
-        private var distanceString: String? {
-            guard let userLocation = userLocation,
-                  let restaurantLat = restaurant.geoPoint?.latitude,
-                  let restaurantLon = restaurant.geoPoint?.longitude else {
-                return nil
-            }
-            let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
-            let distanceInMeters = userLocation.distance(from: restaurantLocation)
-            let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-            
-            return String(format: "%.1f mi", distanceInMiles)
-        }
-    }
+   
     
     private var customHeader: some View {
         HStack {
@@ -397,15 +332,15 @@ struct ActivityView: View {
         switch hour {
         case 5..<12:
             greetingType = .morning
-            greeting = "Good morning"
+            greeting = "🍳 Good morning"
             mealTime = .breakfast
         case 12..<17:
             greetingType = .afternoon
-            greeting = "Good afternoon"
+            greeting = "☀️ Good afternoon"
             mealTime = .lunch
         default:
             greetingType = .evening
-            greeting = "Good evening"
+            greeting = "🌟 Good evening"
             mealTime = .dinner
         }
         self.greetingType = greetingType
@@ -706,11 +641,6 @@ struct ActivityView: View {
     
     private func refreshData() async {
         pollViewModel.fetchPolls()
-//        do {
-//            //try await viewModel.fetchTopContacts()
-//        } catch {
-//            // Handle error
-//        }
     }
     
     private func refreshLocationData() async {
@@ -766,147 +696,6 @@ enum GreetingType {
         case .afternoon: return "Lunch"
         case .evening: return "Dinner"
         }
-    }
-}
-struct CuisineRestaurantsView: View {
-    let cuisine: String
-    let location: CLLocationCoordinate2D?
-    @StateObject private var viewModel = CuisineRestaurantsViewModel()
-    @Environment(\.dismiss) var dismiss // To dismiss the sheet if needed
-
-    var body: some View {
-        NavigationView {
-            VStack {
-                if viewModel.restaurants.isEmpty && !viewModel.isFetching {
-                    Text("No restaurants found for \(cuisine)")
-                        .padding()
-                } else {
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(viewModel.restaurants.indices, id: \.self) { index in
-                                let restaurant = viewModel.restaurants[index]
-                                let userLocation = location.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
-                                                               
-                                                               NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
-                                                                   RestaurantCell(restaurant: restaurant, userLocation: userLocation, showFullAddress: false)
-                                                                       .padding(.horizontal)
-                                                               }
-                                .onAppear {
-                                    if index == viewModel.restaurants.count - 1 && viewModel.hasMoreRestaurants && !viewModel.isFetching {
-                                        Task {
-                                            await viewModel.fetchMoreRestaurants(cuisine: cuisine, location: location)
-                                        }
-                                    }
-                                }
-                            }
-                            if viewModel.isFetching {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity)
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Popular \(cuisine) Nearby")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-            .onAppear {
-                Task {
-                    await viewModel.fetchRestaurants(cuisine: cuisine, location: location)
-                }
-            }
-        }
-    }
-}
-
-
-struct CuisineRestaurantRowView: View {
-    let restaurant: Restaurant
-
-    var body: some View {
-        HStack {
-            if let imageUrl = restaurant.profileImageUrl {
-                KFImage(URL(string: imageUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(8)
-                    .clipped()
-            } else {
-                Image("placeholderImage")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(8)
-                    .clipped()
-            }
-            VStack(alignment: .leading) {
-                Text(restaurant.name)
-                    .font(.headline)
-                if let city = restaurant.city {
-                    Text(city)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                if let price = restaurant.price, let category = restaurant.categoryName {
-                    Text("\(category), \(price)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                } else if let category = restaurant.categoryName {
-                    Text(category)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                } else if let price = restaurant.price {
-                    Text(price)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-            }
-            Spacer()
-        }
-        .padding(.vertical, 4)
-    }
-}
-@MainActor
-class CuisineRestaurantsViewModel: ObservableObject {
-    @Published var restaurants: [Restaurant] = []
-    @Published var isFetching: Bool = false
-    @Published var hasMoreRestaurants: Bool = true
-
-    private var lastDocumentSnapshot: DocumentSnapshot?
-
-    func fetchRestaurants(cuisine: String, location: CLLocationCoordinate2D?, limit: Int = 20) async {
-        guard !isFetching else { return }
-        isFetching = true
-
-        do {
-            let (newRestaurants, lastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
-                cuisine: cuisine,
-                location: location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0),
-                lastDocument: lastDocumentSnapshot,
-                limit: limit
-            )
-            if newRestaurants.isEmpty {
-                hasMoreRestaurants = false
-            }
-            lastDocumentSnapshot = lastSnapshot
-            restaurants.append(contentsOf: newRestaurants)
-        } catch {
-            print("Error fetching restaurants for cuisine \(cuisine): \(error)")
-            hasMoreRestaurants = false
-        }
-
-        isFetching = false
-    }
-
-    func fetchMoreRestaurants(cuisine: String, location: CLLocationCoordinate2D?) async {
-        await fetchRestaurants(cuisine: cuisine, location: location)
     }
 }
 

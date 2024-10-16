@@ -275,6 +275,9 @@
 		F8D62A242C92006F00E40B45 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A232C92006F00E40B45 /* PollView.swift */; };
 		F8D62A262C92014900E40B45 /* PollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A252C92014900E40B45 /* PollViewModel.swift */; };
 		F8D62A282C92383E00E40B45 /* ActivityContactRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */; };
+		F8D6353A2CC0490F00F3377E /* CuisineRestaruantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D635392CC0490F00F3377E /* CuisineRestaruantsView.swift */; };
+		F8D6353C2CC0496A00F3377E /* RestaurantCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */; };
+		F8D6353E2CC04A3100F3377E /* DailyPollContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -587,6 +590,9 @@
 		F8D62A232C92006F00E40B45 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
 		F8D62A252C92014900E40B45 /* PollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollViewModel.swift; sourceTree = "<group>"; };
 		F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityContactRow.swift; sourceTree = "<group>"; };
+		F8D635392CC0490F00F3377E /* CuisineRestaruantsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuisineRestaruantsView.swift; sourceTree = "<group>"; };
+		F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCardView.swift; sourceTree = "<group>"; };
+		F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPollContentView.swift; sourceTree = "<group>"; };
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
@@ -1637,6 +1643,9 @@
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
 				F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */,
 				F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */,
+				F8D635392CC0490F00F3377E /* CuisineRestaruantsView.swift */,
+				F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */,
+				F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2063,6 +2072,7 @@
 				F8EACE7E2CB88F0E004B0181 /* ExploreView.swift in Sources */,
 				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F866CA4D2C6D62A000B4536E /* UsernameSelectionViewModel.swift in Sources */,
+				F8D6353C2CC0496A00F3377E /* RestaurantCardView.swift in Sources */,
 				F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */,
 				F8BFEC252C59947700812232 /* PrimaryFeedHelpers.swift in Sources */,
 				F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */,
@@ -2249,6 +2259,7 @@
 				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
+				F8D6353A2CC0490F00F3377E /* CuisineRestaruantsView.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
 				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
 				F8B6995C2C2A3BE400EE5C19 /* SearchViewModel.swift in Sources */,
@@ -2279,6 +2290,7 @@
 				F8CC219E2BD5879900B4B329 /* UploadViewModel.swift in Sources */,
 				F88E0AFD2B6B094400EC159B /* PostListViewModel.swift in Sources */,
 				F8A96F212C3C958A009E67A9 /* VideoCameraControls.swift in Sources */,
+				F8D6353E2CC04A3100F3377E /* DailyPollContentView.swift in Sources */,
 				F88E0A402B6A5E9B00EC159B /* CommentsView.swift in Sources */,
 				6FDB8A2C2C363D1200B75C4A /* RestaurantStatsView.swift in Sources */,
 				F8760EF72BD3905B00C4EAB9 /* ActivityView.swift in Sources */,
@@ -2480,12 +2492,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup uses your device's camera to do things like help you take photos and record videos from the in-app camera feature";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup needs access to your camera to take photos and videos from the in-app camera features. This data is only stored if you upload it for a post, profile, or collection.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Ketchup uses your contacts to help you find friends on the app by syncing your contacts to our servers. No personal contact details are stored. You can always opt out in settings on your profile.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Ketchup uses your location to show you restaurants near your location and to see nearby places on the map.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup uses your device's microphone to help you record videos";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to provide personalized content and services based on where you are.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup needs access to your microphone to record audio from the in-app camera feature. This data is only stored if you upload it for a post, profile, or collection.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Ketchup uses access to your camera roll to save videos and images from the feed to your camera roll.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Ketchup uses access to your camera roll to do things like help you share photos and videos to Ketchup, change your profile images and collection cover images.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photo library to allow you to choose photos for your profile and posts.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -2532,12 +2544,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ketchup/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Ketchup;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup uses your device's camera to do things like help you take photos and record videos from the in-app camera feature";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Ketchup needs access to your camera to take photos and videos from the in-app camera features. This data is only stored if you upload it for a post, profile, or collection.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Ketchup uses your contacts to help you find friends on the app by syncing your contacts to our servers. No personal contact details are stored. You can always opt out in settings on your profile.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Ketchup uses your location to show you restaurants near your location and to see nearby places on the map.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup uses your device's microphone to help you record videos";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to provide personalized content and services based on where you are.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Ketchup needs access to your microphone to record audio from the in-app camera feature. This data is only stored if you upload it for a post, profile, or collection.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Ketchup uses access to your camera roll to save videos and images from the feed to your camera roll.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Ketchup uses access to your camera roll to do things like help you share photos and videos to Ketchup, change your profile images and collection cover images.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photo library to allow you to choose photos for your profile and posts.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
