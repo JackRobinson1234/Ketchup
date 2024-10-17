@@ -36,7 +36,8 @@ struct ActivityView: View {
     @State private var showCuisineSheet: Bool = false
     @State private var selectedCuisineForSheet: String? = nil
     @State private var selectedLocationCoordinate: CLLocationCoordinate2D?
-
+    @State private var initialLoad: Bool = true
+    @State var selectedPost: Post? = nil
     enum Tab {
         case dailyPoll
         case discover
@@ -87,7 +88,6 @@ struct ActivityView: View {
                     surroundingGeohash: $surroundingGeohash,
                     surroundingCounty: $surroundingCounty,
                     onLocationSelected: {
-                        viewModel.resetData()
                         Task {
                             isLoading = true
                             await refreshLocationData()
@@ -106,9 +106,9 @@ struct ActivityView: View {
                 PollUploadView()
             }
             .onAppear {
-
-                computeGreeting()
-                    // Handle location not available
+                if initialLoad {
+                    initialLoad = false
+                    computeGreeting()
                     locationManager.requestLocation { success in
                         if success, let coordinate = locationManager.userLocation?.coordinate {
                             selectedLocationCoordinate = coordinate
@@ -131,31 +131,24 @@ struct ActivityView: View {
                             Task {
                                 isLoading = true
                                 await loadAllRestaurants(location: selectedLocationCoordinate!)
+        
                                 isLoading = false
                             }
                         }
                     }
-               
+                }
             }
         }
     }
     private func loadAllRestaurants(location: CLLocationCoordinate2D) async {
-        // Load meal restaurants only if not already fetched
-        if !viewModel.hasFetchedMealRestaurants {
             do {
                 try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+                try await viewModel.fetchRestaurants(location: location)
+                try await viewModel.fetchTrendingPosts(location: location)
             } catch {
-                print("Error fetching meal restaurants: \(error)")
+                print("Error fetching restaurants: \(error)")
             }
         }
-
-        // Fetch restaurants once and store them
-        do {
-            try await viewModel.fetchRestaurants(location: location, limit: 30)
-        } catch {
-            print("Error fetching restaurants: \(error)")
-        }
-    }
     private var contentBasedOnSelectedTab: some View {
         Group {
             if selectedTab == .dailyPoll {
@@ -218,19 +211,36 @@ struct ActivityView: View {
                     .minimumScaleFactor(0.5)
             }
             
-            if !viewModel.mealRestaurants.isEmpty {
-                VStack{
-                    Text("Popular \(greetingType.mealTime.capitalized) Near You")
+            if !viewModel.trendingPosts.isEmpty {
+                VStack (alignment: .leading){
+                    Text("Nearby Trending Posts")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .padding(.horizontal)
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(viewModel.mealRestaurants.indices, id: \.self) { index in
-                                let restaurant = viewModel.mealRestaurants[index]
+                        LazyHStack(spacing: 16) {
+                            ForEach(viewModel.trendingPosts, id: \.id) { post in
+                                Button{
+                                    selectedPost = post
+                                } label:{
+                                    PostCardView(post: post, cornerRadius: 12, showNames: true)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            if !viewModel.mealRestaurants.isEmpty {
+                VStack (alignment: .leading){
+                    Text("Popular \(greetingType.mealTimeDisplay.capitalized)")
+                        .font(.custom("MuseoSansRounded-700", size: 25))
+                        .padding(.horizontal)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: 16) {
+                            ForEach(viewModel.mealRestaurants, id: \.id) { restaurant in
                                 NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                     RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
                                 }
-                                
                             }
                         }
                         .padding(.horizontal)
@@ -247,25 +257,24 @@ struct ActivityView: View {
                     if let restaurants = groupedRestaurants[cuisine], !restaurants.isEmpty {
                         VStack{
                             HStack {
-                                Text("Popular \(cuisine)")
+                                Text("Popular \(cuisine) \(cuisineEmojis[cuisine] ?? "")")
                                     .font(.custom("MuseoSansRounded-700", size: 25))
                                 Spacer()
                                 Button(action: {
                                     selectedCuisineForSheet = cuisine
                                 }) {
                                     Text("See more >")
-                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
                                         .foregroundColor(.gray)
                                 }
                             }
                             .padding(.horizontal)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 16) {
-                                    ForEach(restaurants.prefix(10), id: \.id) { restaurant in
+                                LazyHStack(spacing: 16) {
+                                    ForEach(restaurants, id: \.id) { restaurant in
                                         NavigationLink(destination: RestaurantProfileView(restaurantId: restaurant.id)) {
                                             RestaurantCardView(userLocation: locationManager.userLocation, restaurant: restaurant)
-                                            
                                         }
                                     }
                                 }
@@ -297,7 +306,6 @@ struct ActivityView: View {
         .sheet(item: $selectedCuisineForSheet) { cuisine in
             CuisineRestaurantsView(cuisine: cuisine, location: locationManager.userLocation?.coordinate)
         }
-
     }
     
    
@@ -644,18 +652,20 @@ struct ActivityView: View {
     }
     
     private func refreshLocationData() async {
-        viewModel.resetData()
         if let coordinate = selectedLocationCoordinate {
             reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            viewModel.resetData() // Reset data when location changes
             await loadAllRestaurants(location: coordinate)
         } else if let location = locationManager.userLocation?.coordinate {
             selectedLocationCoordinate = location
             reverseGeocodeLocation(latitude: location.latitude, longitude: location.longitude)
+            viewModel.resetData() // Reset data when location changes
             await loadAllRestaurants(location: location)
         } else if let geoPoint = AuthService.shared.userSession?.location?.geoPoint {
             let coordinate = CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
             selectedLocationCoordinate = coordinate
             reverseGeocodeLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            viewModel.resetData() // Reset data when location changes
             await loadAllRestaurants(location: coordinate)
         } else {
             // No location available
@@ -690,6 +700,15 @@ struct ActivityView: View {
 
 enum GreetingType {
     case morning, afternoon, evening
+    
+    var mealTimeDisplay: String {
+        switch self {
+        case .morning: return "Breakfast 🍳"
+        case .afternoon: return "Lunch 🥪"
+        case .evening: return "Dinner 🍽️ "
+        }
+    }
+    
     var mealTime: String {
         switch self {
         case .morning: return "Breakfast"
@@ -702,3 +721,153 @@ enum GreetingType {
 extension String: Identifiable {
     public var id: String { self }
 }
+
+
+struct PostCardView: View {
+    var post: Post
+    private let spacing: CGFloat = 8
+    private var width: CGFloat {
+        (UIScreen.main.bounds.width - (spacing * 2)) / 3
+    }
+    var cornerRadius: CGFloat
+    var showNames: Bool
+
+    var body: some View {
+        ZStack {
+            if post.mediaType != .written, !post.thumbnailUrl.isEmpty {
+                KFImage(URL(string: post.thumbnailUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: width, height: 160)
+                    .cornerRadius(cornerRadius)
+                    .clipped()
+                    .overlay(
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Spacer()
+                                if post.repost {
+                                    Image(systemName: "arrow.2.squarepath")
+                                        .foregroundStyle(.white)
+                                        .font(.custom("MuseoSansRounded-300", size: 16))
+                                }
+                            }
+                            Spacer()
+                        }
+                    )
+            } else {
+                VStack {
+                    if let profileImageUrl = post.restaurant.profileImageUrl {
+                        RestaurantCircularProfileImageView(imageUrl: profileImageUrl, size: .large)
+                    }
+                    if !post.caption.isEmpty {
+                        Image(systemName: "line.3.horizontal")
+                            .resizable()
+                            .foregroundStyle(.gray)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 45, height: 15)
+                    }
+                }
+                .frame(width: width, height: 160)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(cornerRadius)
+                .clipped()
+            }
+            
+            VStack(alignment: .leading) {
+                HStack {
+                    
+                        HStack(spacing: 1) {
+                            
+                            
+                            Text("@\(post.user.username)")
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                                .foregroundColor(.white)
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .bold()
+                                .shadow(color: .black, radius: 2, x: 0, y: 1)
+                                .multilineTextAlignment(.leading)
+                                .minimumScaleFactor(0.5)
+                        }
+                    
+                    Spacer()
+                    HStack(spacing: 1) {
+                        Image(systemName: "heart")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                        Text("\(post.likes)")
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .bold()
+                            .foregroundColor(.white)
+                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                    }
+                }
+                Spacer()
+                HStack(alignment: .bottom) {
+                    if showNames {
+                        Text("\(post.restaurant.name)")
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .foregroundColor(.white)
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .bold()
+                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                            .multilineTextAlignment(.leading)
+                            .minimumScaleFactor(0.5)
+                    }
+                    
+                    Spacer()
+                    if let rating = post.overallRating{
+                        let formatted =  String(format: "%.1f", rating)
+                        Text("\(formatted)")
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .foregroundColor(.white)
+                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .bold()
+                            .shadow(color: .black, radius: 2, x: 0, y: 1)
+                            .multilineTextAlignment(.leading)
+                            .minimumScaleFactor(0.5)
+                    }
+                }
+            }
+            .padding(4)
+        }
+    }
+}
+let cuisineEmojis: [String: String] = [
+    "Italian": "🍝",
+    "Chinese": "🥡",
+    "Japanese": "🍣",
+    "Korean": "🍜",
+    "Mexican": "🌮",
+    "American": "🍔",
+    "French": "🥖",
+    "Spanish": "🍤",
+    "Greek": "🥙",
+    "Middle Eastern": "🥙",
+    "German": "🍖",
+    "Caribbean": "🍲",
+    "African": "🍛",
+    "South American": "🥩",
+    "Central American": "🍲",
+    "Eastern European": "🥟",
+    "Seafood": "🦞",
+    "Vegetarian and Vegan": "🥗",
+    "Fusion and International": "🌍",
+    "Fast Food and Casual": "🍟",
+    "Breakfast and Brunch": "🥞",
+    "Barbecue and Grill": "🍖",
+    "Noodles": "🍜",
+    "Specialty and Dietary": "🥬",
+    "Cafes and Bakeries": "☕️",
+    "Bars and Pubs": "🍻",
+    "Desserts and Sweets": "🍩",
+    "Street Food and Food Trucks": "🚚",
+    "Buffet and All-You-Can-Eat": "🍽️",
+    "Markets and Specialty Shops": "🛒",
+    "European": "🥐",
+    "Vietnamese": "🍜",
+    "Indian": "🍛"
+]

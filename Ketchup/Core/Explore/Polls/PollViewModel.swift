@@ -19,10 +19,7 @@ class PollViewModel: ObservableObject {
         private let pageSize = 5
         private var hasMorePolls = true
 
-    init() {
-        // Fetch initial set of polls
-        fetchPreviousPolls()
-    }
+    
 
     func fetchPreviousPolls() {
             guard !isFetching && hasMorePolls else { return }

@@ -10,6 +10,7 @@ import Firebase
 import MapKit
 import GeoFire
 import FirebaseFirestoreInternal
+import GeohashKit
 
 class PostService {
     static let shared = PostService() // Singleton instance
@@ -552,5 +553,60 @@ extension PostService {
             ////print("Error checking bookmark status: \(error.localizedDescription)")
             throw error
         }
+    }
+    func fetchTopPosts(count: Int = 5, state: String? = nil, city: String? = nil, geohash: String? = nil) async throws -> [Post] {
+        do {
+            let startDate = getStartOfWeek() 
+            
+            var query = FirestoreConstants.PostsCollection
+                .whereField("timestamp", isGreaterThanOrEqualTo: startDate)
+                .order(by: "likes", descending: true)
+            
+            if let state = state, state != "All States" {
+                let stateAbbreviation = StateNameConverter.fullName(for: state)
+                query = query.whereField("restaurant.state", isEqualTo: stateAbbreviation)
+            }
+            if let geohash = geohash {
+                let geohashPrefix = String(geohash.prefix(5)) // Using first 5 characters of the geohash
+                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
+                query = query.whereField("restaurant.truncatedGeohash5", in: geohashNeighbors)
+            }
+            // Add city logic if necessary:
+            if let city = city, !city.isEmpty {
+                query = query.whereField("restaurant.city", isEqualTo: city)
+            }
+            
+            let posts = try await query
+                .limit(to: count)
+                .getDocuments(as: Post.self)
+            
+            return posts
+        } catch {
+            //print("Error fetching top posts: \(error.localizedDescription)")
+            return []
+        }
+    }
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            let neighbors = geoHash.neighbors
+            if let neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                //print([geohash] + neighborGeohashes)
+                return [geohash] + neighborGeohashes
+            }
+        }
+        return [geohash]
+    }
+    func getStartOfWeek() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate)) ?? currentDate
+        return Timestamp(date: startOfWeek)
+    }
+    private func getStartOfMonth() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) ?? currentDate
+        return Timestamp(date: startOfMonth)
     }
 }

@@ -18,6 +18,8 @@
 		F80886332C6FB6270089E71B /* EditLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80886322C6FB6270089E71B /* EditLocationView.swift */; };
 		F80886352C6FC7710089E71B /* SelectFollowingEditPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80886342C6FC7700089E71B /* SelectFollowingEditPostView.swift */; };
 		F819BD042C683194001247A9 /* TriggerHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F819BD032C683194001247A9 /* TriggerHaptics.swift */; };
+		F81C464A2CC0B5A800DB736F /* Social Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81C46492CC0B5A800DB736F /* Social Page.swift */; };
+		F81C464C2CC0B6C900DB736F /* SocialViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81C464B2CC0B6C900DB736F /* SocialViewModel.swift */; };
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
@@ -338,6 +340,8 @@
 		F80886322C6FB6270089E71B /* EditLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLocationView.swift; sourceTree = "<group>"; };
 		F80886342C6FC7700089E71B /* SelectFollowingEditPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectFollowingEditPostView.swift; sourceTree = "<group>"; };
 		F819BD032C683194001247A9 /* TriggerHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerHaptics.swift; sourceTree = "<group>"; };
+		F81C46492CC0B5A800DB736F /* Social Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Social Page.swift"; sourceTree = "<group>"; };
+		F81C464B2CC0B6C900DB736F /* SocialViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialViewModel.swift; sourceTree = "<group>"; };
 		F81D30E52BB72FFC008673E6 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
@@ -676,6 +680,15 @@
 			path = SelectableCategories;
 			sourceTree = "<group>";
 		};
+		F81C46482CC0B59B00DB736F /* Social */ = {
+			isa = PBXGroup;
+			children = (
+				F81C46492CC0B5A800DB736F /* Social Page.swift */,
+				F81C464B2CC0B6C900DB736F /* SocialViewModel.swift */,
+			);
+			path = Social;
+			sourceTree = "<group>";
+		};
 		F823E1862B74D3D100E18135 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -898,6 +911,7 @@
 		F84FE27A2B6A541900144F01 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				F81C46482CC0B59B00DB736F /* Social */,
 				F8753F7E2CB5DEE700171B59 /* Discover */,
 				F84FE27E2B6A54D700144F01 /* Authentication */,
 				F8A98C262B9A668D00D399AB /* Explore */,
@@ -2259,6 +2273,7 @@
 				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
+				F81C464A2CC0B5A800DB736F /* Social Page.swift in Sources */,
 				F8D6353A2CC0490F00F3377E /* CuisineRestaruantsView.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
 				F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */,
@@ -2282,6 +2297,7 @@
 				F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */,
 				F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */,
 				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
+				F81C464C2CC0B6C900DB736F /* SocialViewModel.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
 				F88E0A8E2B6B01F100EC159B /* FeedCell.swift in Sources */,
 				F84FE24C2B6A531200144F01 /* KetchupApp.swift in Sources */,

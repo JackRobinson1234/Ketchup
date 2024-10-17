@@ -23,16 +23,17 @@ struct RestaurantCardView: View {
                     KFImage(URL(string: imageUrl))
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 220, height: 130)
+                        .frame(width: 240, height: 140)
                         .clipped()
                 } else {
-                    Image("placeholderImage")
+                    Image("Skip")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 220, height: 130)
+                        .frame(width: 240, height: 140)
                         .cornerRadius(8)
                         .clipped()
                 }
+                
                 if friendsPostCount > 0 {
                     Text("\(friendsPostCount) friend\(friendsPostCount > 1 ? "s" : "")")
                         .font(.custom("MuseoSansRounded-300", size: 10))
@@ -44,65 +45,69 @@ struct RestaurantCardView: View {
                         .padding(8)
                 }
             }
-            VStack(alignment: .leading){
-                Text(restaurant.name)
-                    .font(.custom("MuseoSansRounded-700", size: 14))
-                    .foregroundColor(.black)
-                    .lineLimit(1)
-                if let city = restaurant.city {
-                    Text(city)
-                        .font(.custom("MuseoSansRounded-500", size: 12))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                }
-                if let cuisine = restaurant.categoryName, let price = restaurant.price {
-                    Text("\(cuisine), \(price)")
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                } else if let cuisine = restaurant.categoryName {
-                    Text(cuisine)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                } else if let price = restaurant.price {
-                    Text(price)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                if let count = restaurant.stats?.postCount {
-                    HStack {
-                        Text("\(count) posts")
+            HStack(alignment: .top){
+                VStack(alignment: .leading){
+                    Text(restaurant.name)
+                        .font(.custom("MuseoSansRounded-700", size: 14))
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    if let city = restaurant.city {
+                        Text(city)
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                    }
+                    if let cuisine = restaurant.categoryName, let price = restaurant.price {
+                        Text("\(cuisine), \(price)")
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    } else if let cuisine = restaurant.categoryName {
+                        Text(cuisine)
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    } else if let price = restaurant.price {
+                        Text(price)
+                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    if let count = restaurant.stats?.postCount {
+                        HStack {
+//                            Text("\(count) posts")
+//                                .font(.custom("MuseoSansRounded-300", size: 10))
+//                                .foregroundColor(.gray)
+//                                .lineLimit(1)
+//                                .minimumScaleFactor(0.7)
+                            
+                           
+                        }
+                    }
+                    if let distance = distanceString {
+                        Text(distance)
                             .font(.custom("MuseoSansRounded-300", size: 10))
                             .foregroundColor(.gray)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        
-                        if let overallRating = restaurant.overallRating?.average {
-                            Text("(\(String(format: "%.1f", overallRating)))")
-                                .font(.custom("MuseoSansRounded-300", size: 10))
-                                .foregroundColor(.gray)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
                     }
+                    
                 }
-                if let distance = distanceString {
-                    Text(distance)
-                        .font(.custom("MuseoSansRounded-300", size: 10))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                Spacer()
+                if let overallRating = restaurant.overallRating?.average {
+                    ScrollFeedOverallRatingView(rating: overallRating, font: .black, size: 30)
+                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }
             }
+            
             .padding(.horizontal)
-            .padding(.bottom)
+            .padding(.bottom, 6)
         }
-        .frame(width: 220)
+        .frame(width: 240)
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)

@@ -5,18 +5,30 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
+         <BreakpointContent
+            uuid = "39D5FE8C-4FE3-4AD9-8D45-312A099A7CD3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            breakpointStackSelectionBehavior = "1"
+            scope = "1"
+            stopOnStyle = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1F48090B-3E1E-4261-AEE1-0860E654345D"
+            uuid = "C05F1F65-00A4-43A0-804D-16D136D59838"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Ketchup/Core/Explore/ActivityViewModel.swift"
+            filePath = "Ketchup/Services/PostService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "338"
-            endingLineNumber = "338"
-            landmarkName = "unfollow(userId:)"
+            startingLineNumber = "560"
+            endingLineNumber = "560"
+            landmarkName = "fetchTopPosts(count:state:city:geohash:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
