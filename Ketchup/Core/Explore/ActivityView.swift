@@ -95,7 +95,6 @@ struct ActivityView: View {
                         }
                     },
                     selectedLocationCoordinate: $selectedLocationCoordinate
-                    
                 )
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
@@ -130,6 +129,8 @@ struct ActivityView: View {
                             // Now that we have the location, we can call loadAllRestaurants
                             Task {
                                 isLoading = true
+                                pollViewModel.fetchPolls()
+
                                 await loadAllRestaurants(location: selectedLocationCoordinate!)
         
                                 isLoading = false
@@ -201,8 +202,6 @@ struct ActivityView: View {
     
     private var discoverContent: some View {
         VStack(alignment: .leading, spacing: 25) {
-            inviteContactsButton
-            dailyPollContent
             if let user = AuthService.shared.userSession {
                 Text("\(greeting), \(user.fullname)!")
                     .font(.custom("MuseoSansRounded-700", size: 25))
@@ -247,6 +246,8 @@ struct ActivityView: View {
                     }
                 }
             }
+            dailyPollContent
+            inviteContactsButton
 
             // Group restaurants by macrocategory (cuisine)
             let groupedRestaurants = Dictionary(grouping: viewModel.fetchedRestaurants) { $0.macrocategory ?? "" }
