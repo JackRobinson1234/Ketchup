@@ -121,7 +121,6 @@ struct SearchView: View {
                     }
                 }
             }
-            .modifier(BackButtonModifier())
             .navigationBarBackButtonHidden()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -554,37 +554,50 @@ extension PostService {
             throw error
         }
     }
-    func fetchTopPosts(count: Int = 5, state: String? = nil, city: String? = nil, geohash: String? = nil) async throws -> [Post] {
+    func fetchTopPosts(geohash: String, lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Post], DocumentSnapshot?) {
         do {
-            let startDate = getStartOfWeek() 
-            
+            let startDate = getDate30DaysAgo()
+            let geohashPrefix = String(geohash.prefix(5))
+            let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: geohashPrefix)
+
             var query = FirestoreConstants.PostsCollection
                 .whereField("timestamp", isGreaterThanOrEqualTo: startDate)
+                .whereField("restaurant.truncatedGeohash5", in: geohashNeighbors)
                 .order(by: "likes", descending: true)
-            
-            if let state = state, state != "All States" {
-                let stateAbbreviation = StateNameConverter.fullName(for: state)
-                query = query.whereField("restaurant.state", isEqualTo: stateAbbreviation)
+                .limit(to: limit)
+
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
             }
-            if let geohash = geohash {
-                let geohashPrefix = String(geohash.prefix(5)) // Using first 5 characters of the geohash
-                let geohashNeighbors = geohashNeighbors(geohash: geohashPrefix)
-                query = query.whereField("restaurant.truncatedGeohash5", in: geohashNeighbors)
-            }
-            // Add city logic if necessary:
-            if let city = city, !city.isEmpty {
-                query = query.whereField("restaurant.city", isEqualTo: city)
-            }
-            
-            let posts = try await query
-                .limit(to: count)
-                .getDocuments(as: Post.self)
-            
-            return posts
+
+            let snapshot = try await query.getDocuments()
+            let posts = try snapshot.documents.compactMap { try $0.data(as: Post.self) }
+            let lastDocumentSnapshot = snapshot.documents.last
+
+            return (posts, lastDocumentSnapshot)
         } catch {
-            //print("Error fetching top posts: \(error.localizedDescription)")
-            return []
+            print("Error fetching top posts: \(error.localizedDescription)")
+            return ([], nil)
         }
+    }
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
+            }
+        }
+        return Array(resultSet)
     }
     private func geohashNeighbors(geohash: String) -> [String] {
         if let geoHash = Geohash(geohash: geohash) {
@@ -596,6 +609,12 @@ extension PostService {
             }
         }
         return [geohash]
+    }
+    func getDate30DaysAgo() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let date30DaysAgo = calendar.date(byAdding: .day, value: -30, to: currentDate) ?? currentDate
+        return Timestamp(date: date30DaysAgo)
     }
     func getStartOfWeek() -> Timestamp {
         let calendar = Calendar.current

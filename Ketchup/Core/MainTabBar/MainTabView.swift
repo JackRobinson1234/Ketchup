@@ -43,53 +43,29 @@ struct MainTabView: View {
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-                
-            if #available(iOS 17, *) {
-                MapView()
-                    .tabItem {
-                        VStack(spacing:1){
-                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                                .foregroundStyle(.black)
-                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                                .padding()
-                            Text("Map")
-                                .font(.custom("MuseoSansRounded-500", size: 8))
-                                .foregroundStyle(.gray)
-                        }
+            SearchView(initialSearchConfig: .restaurants)
+                .tabItem {
+                    VStack(spacing:1){
+                        Image(systemName: tabBarController.selectedTab == 1 ? "magnifyingglass" : "magnifyingglass")
+                            .foregroundStyle(.black)
+                            .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
+                            .padding()
+                        Text("Search")
+                            .font(.custom("MuseoSansRounded-500", size: 8))
+                            .foregroundStyle(.gray)
                     }
-                
-                    .onAppear {
-                        tabBarController.selectedTab = 1
-                        tabBarController.visibility = .visible
-                    }
-                    .tag(1)
-                    .toolbarBackground(.visible, for: .tabBar)
-                    .toolbar(tabBarController.visibility, for: .tabBar)
-            } else {
-                Ios16MapView()
-                    .tabItem {
-                        VStack(spacing:1){
-                            Image(systemName: tabBarController.selectedTab == 1 ? "location.fill" : "location")
-                                .foregroundStyle(.black)
-                                .environment(\.symbolVariants, tabBarController.selectedTab == 1 ? .none : .none)
-                                .padding()
-                            Text("Map")
-                                .font(.custom("MuseoSansRounded-500", size: 8))
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                
-                    .onAppear {
-                        tabBarController.selectedTab = 1
-                        tabBarController.visibility = .visible
-                    }
-                    .tag(1)
-                    .toolbarBackground(.visible, for: .tabBar)
-                    .toolbar(tabBarController.visibility, for: .tabBar)
-            }
+                }
+                .tag(1)
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbar(tabBarController.visibility, for: .tabBar)
+                .onAppear {
+                    tabBarController.selectedTab = 1
+                    tabBarController.visibility = .visible
+                }
+            
             UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
                 .tabItem {
-                    Image(systemName: "plus.app")
+                    Image(systemName: "plus.rectangle")
                         .foregroundStyle(.black)
                         .padding()
                 }
@@ -101,27 +77,50 @@ struct MainTabView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
 
-            ActivityView()
-                .tabItem {
-                    VStack(spacing:1){
-                        Image(systemName: tabBarController.selectedTab == 3 ? "flame.fill" : "flame")
-                            .foregroundStyle(.black)
-                            .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
-                            .padding()
-                        Text("Discover")
-                            .font(.custom("MuseoSansRounded-500", size: 8))
-                            .foregroundStyle(.gray)
+           
+            if #available(iOS 17, *) {
+                MapView()
+                    .tabItem {
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 3 ? "location.fill" : "location")
+                                .foregroundStyle(.black)
+                                .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
+                                .padding()
+                            Text("Map")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
                     }
-                }
-                .tag(3)
-                .toolbarBackground(.visible, for: .tabBar)
-                .toolbar(tabBarController.visibility, for: .tabBar)
-                .badge(badgeValue ?? 0)
-                .onAppear {
-                    tabBarController.selectedTab = 3
-                    tabBarController.visibility = .visible
-                }
-
+                
+                    .onAppear {
+                        tabBarController.selectedTab = 3
+                        tabBarController.visibility = .visible
+                    }
+                    .tag(3)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .toolbar(tabBarController.visibility, for: .tabBar)
+            } else {
+                Ios16MapView()
+                    .tabItem {
+                        VStack(spacing:1){
+                            Image(systemName: tabBarController.selectedTab == 3 ? "location.fill" : "location")
+                                .foregroundStyle(.black)
+                                .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
+                                .padding()
+                            Text("Map")
+                                .font(.custom("MuseoSansRounded-500", size: 8))
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                
+                    .onAppear {
+                        tabBarController.selectedTab = 3
+                        tabBarController.visibility = .visible
+                    }
+                    .tag(3)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .toolbar(tabBarController.visibility, for: .tabBar)
+            }
             CurrentUserProfileView( feedViewModel: currentUserFeedViewModel)
                 .tabItem {
                     

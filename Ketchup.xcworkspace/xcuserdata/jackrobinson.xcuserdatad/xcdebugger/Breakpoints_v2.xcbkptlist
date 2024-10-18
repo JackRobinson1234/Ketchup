@@ -19,16 +19,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C05F1F65-00A4-43A0-804D-16D136D59838"
+            uuid = "F820E02C-F9BD-436A-8425-518C8F0D2CEE"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Ketchup/Services/PostService.swift"
+            filePath = "Ketchup/Core/Explore/ActivityView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "560"
-            endingLineNumber = "560"
-            landmarkName = "fetchTopPosts(count:state:city:geohash:)"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
+            landmarkName = "actionButton(title:icon:isSelected:action:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

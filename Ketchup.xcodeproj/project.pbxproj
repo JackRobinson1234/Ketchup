@@ -20,6 +20,7 @@
 		F819BD042C683194001247A9 /* TriggerHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F819BD032C683194001247A9 /* TriggerHaptics.swift */; };
 		F81C464A2CC0B5A800DB736F /* Social Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81C46492CC0B5A800DB736F /* Social Page.swift */; };
 		F81C464C2CC0B6C900DB736F /* SocialViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81C464B2CC0B6C900DB736F /* SocialViewModel.swift */; };
+		F81C464E2CC193B800DB736F /* LocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81C464D2CC193B800DB736F /* LocationViewModel.swift */; };
 		F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81D30E52BB72FFC008673E6 /* Debouncer.swift */; };
 		F823E17E2B70BCF900E18135 /* SelectedRestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */; };
 		F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F823E1812B71D32200E18135 /* BackButtonModifier.swift */; };
@@ -72,6 +73,7 @@
 		F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */; };
 		F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E542BDAAD8200A48565 /* SettingsView.swift */; };
 		F8631E572BDAADE800A48565 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8631E562BDAADE800A48565 /* SettingsViewModel.swift */; };
+		F863531A2CC2DE25003E9ACC /* TrendingPostsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86353192CC2DE25003E9ACC /* TrendingPostsListView.swift */; };
 		F86508702C8CACE200E59B5C /* CuratedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F865086F2C8CACE200E59B5C /* CuratedList.swift */; };
 		F86508732C8CAF8D00E59B5C /* PostLeaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86508722C8CAF8D00E59B5C /* PostLeaderboard.swift */; };
 		F86508752C8CAFB100E59B5C /* LeaderboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */; };
@@ -286,7 +288,6 @@
 		F8DA34592C877A7B00660978 /* SimplifiedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34582C877A7B00660978 /* SimplifiedPost.swift */; };
 		F8DA345B2C87935D00660978 /* MapUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA345A2C87935D00660978 /* MapUtils.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
-		F8EACE7E2CB88F0E004B0181 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */; };
 		F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
@@ -342,6 +343,7 @@
 		F819BD032C683194001247A9 /* TriggerHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerHaptics.swift; sourceTree = "<group>"; };
 		F81C46492CC0B5A800DB736F /* Social Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Social Page.swift"; sourceTree = "<group>"; };
 		F81C464B2CC0B6C900DB736F /* SocialViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialViewModel.swift; sourceTree = "<group>"; };
+		F81C464D2CC193B800DB736F /* LocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewModel.swift; sourceTree = "<group>"; };
 		F81D30E52BB72FFC008673E6 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		F823E17D2B70BCF900E18135 /* SelectedRestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRestaurantView.swift; sourceTree = "<group>"; };
 		F823E1812B71D32200E18135 /* BackButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButtonModifier.swift; sourceTree = "<group>"; };
@@ -396,6 +398,7 @@
 		F8631E512BD9A38F00A48565 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		F8631E542BDAAD8200A48565 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F8631E562BDAADE800A48565 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		F86353192CC2DE25003E9ACC /* TrendingPostsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingPostsListView.swift; sourceTree = "<group>"; };
 		F865086F2C8CACE200E59B5C /* CuratedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedList.swift; sourceTree = "<group>"; };
 		F86508722C8CAF8D00E59B5C /* PostLeaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLeaderboard.swift; sourceTree = "<group>"; };
 		F86508742C8CAFB100E59B5C /* LeaderboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardViewModel.swift; sourceTree = "<group>"; };
@@ -603,7 +606,6 @@
 		F8DA34582C877A7B00660978 /* SimplifiedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPost.swift; sourceTree = "<group>"; };
 		F8DA345A2C87935D00660978 /* MapUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUtils.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
-		F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
 		F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsButton.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
@@ -1178,6 +1180,7 @@
 				F8D62A142C8FBE0700E40B45 /* RestaurantLeaderboard.swift */,
 				F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */,
 				F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */,
+				F86353192CC2DE25003E9ACC /* TrendingPostsListView.swift */,
 			);
 			path = Leaderboards;
 			sourceTree = "<group>";
@@ -1656,10 +1659,10 @@
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
 				F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */,
-				F8EACE7D2CB88F0E004B0181 /* ExploreView.swift */,
 				F8D635392CC0490F00F3377E /* CuisineRestaruantsView.swift */,
 				F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */,
 				F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */,
+				F81C464D2CC193B800DB736F /* LocationViewModel.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2083,7 +2086,6 @@
 				F8670A602BF3FC9600F527D9 /* FinalVideoPreview.swift in Sources */,
 				F80886352C6FC7710089E71B /* SelectFollowingEditPostView.swift in Sources */,
 				F8B6FB612CA88243006CCE2D /* CalendarView.swift in Sources */,
-				F8EACE7E2CB88F0E004B0181 /* ExploreView.swift in Sources */,
 				F875AA372C45A13C00CB14E6 /* BookmarksListView.swift in Sources */,
 				F866CA4D2C6D62A000B4536E /* UsernameSelectionViewModel.swift in Sources */,
 				F8D6353C2CC0496A00F3377E /* RestaurantCardView.swift in Sources */,
@@ -2104,6 +2106,7 @@
 				F85E8B122C3DD37100B5F79E /* ImageCropper.swift in Sources */,
 				F86508732C8CAF8D00E59B5C /* PostLeaderboard.swift in Sources */,
 				F88E0AAE2B6B03E900EC159B /* NotificationsViewModel.swift in Sources */,
+				F81C464E2CC193B800DB736F /* LocationViewModel.swift in Sources */,
 				F8D62A242C92006F00E40B45 /* PollView.swift in Sources */,
 				F846F4532BFBD534009D1303 /* Review.swift in Sources */,
 				F8631E522BD9A38F00A48565 /* ForgotPasswordView.swift in Sources */,
@@ -2326,6 +2329,7 @@
 				F871CE102BCE00B1003C9BE8 /* AddItemCollectionButton.swift in Sources */,
 				F8631E352BD6E49E00A48565 /* PostListCell.swift in Sources */,
 				F875D7F02BAB930E00FC32C8 /* VideoPlayerVibe.swift in Sources */,
+				F863531A2CC2DE25003E9ACC /* TrendingPostsListView.swift in Sources */,
 				F8B6FB632CA8831F006CCE2D /* PollUploadViewModel.swift in Sources */,
 				F82BFF2D2C719BA7001F296F /* ContactsView.swift in Sources */,
 				F83F40382C6C4E86006BCEE9 /* PhoneVerificationView.swift in Sources */,

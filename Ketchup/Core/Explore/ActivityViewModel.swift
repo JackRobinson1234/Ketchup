@@ -57,7 +57,10 @@ class ActivityViewModel: ObservableObject {
     private var currentCuisineLocation: CLLocationCoordinate2D?
     let contactsViewModel = ContactsViewModel()
     private let userService = UserService.shared
-    
+    @Published var isLoadingMoreTrendingPosts = false
+        @Published var hasMoreTrendingPosts = true
+        private var lastTrendingPostDocument: DocumentSnapshot?
+
     func checkContactPermission() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         DispatchQueue.main.async {
@@ -420,8 +423,35 @@ class ActivityViewModel: ObservableObject {
 
            isFetchingRestaurants = false
        }
-    func fetchTrendingPosts(location: CLLocationCoordinate2D) async throws{
+   
+    func fetchTrendingPosts(location: CLLocationCoordinate2D) async throws {
         let geohash = GFUtils.geoHash(forLocation: location)
-        self.trendingPosts = try await PostService.shared.fetchTopPosts(geohash: geohash)
+        let (posts, lastDocument) = try await PostService.shared.fetchTopPosts(geohash: geohash, lastDocument: nil, limit: 5)
+        DispatchQueue.main.async {
+            self.trendingPosts = posts
+            self.lastTrendingPostDocument = lastDocument
+            self.hasMoreTrendingPosts = lastDocument != nil
+        }
+        self.currentLocation = location // Store current location for pagination
+    }
+
+    func fetchMoreTrendingPosts() async {
+        guard !isLoadingMoreTrendingPosts, hasMoreTrendingPosts else { return }
+        isLoadingMoreTrendingPosts = true
+        defer { isLoadingMoreTrendingPosts = false }
+
+        do {
+            if let location = currentLocation {
+                let geohash = GFUtils.geoHash(forLocation: location)
+                let (posts, lastDocument) = try await PostService.shared.fetchTopPosts(geohash: geohash, lastDocument: lastTrendingPostDocument, limit: 10)
+                DispatchQueue.main.async {
+                    self.trendingPosts.append(contentsOf: posts)
+                    self.lastTrendingPostDocument = lastDocument
+                    self.hasMoreTrendingPosts = lastDocument != nil
+                }
+            }
+        } catch {
+            print("Error fetching more trending posts: \(error)")
+        }
     }
 }
