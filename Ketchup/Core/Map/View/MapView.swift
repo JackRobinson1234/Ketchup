@@ -408,6 +408,7 @@ struct MapView: View {
         let distanceInMeters = location1.distance(from: location2)
         return distanceInMeters / 1000
     }
+        
 }
 @available(iOS 17.0, *)
 extension MapView {

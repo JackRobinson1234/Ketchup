@@ -814,8 +814,9 @@ struct TrendingPostRow: View {
                     .frame(width: 60, height: 60)
                     .cornerRadius(8)
             }
-            VStack{
-                if let rating = post.overallRating{
+
+            VStack(spacing:6) {
+                if let rating = post.overallRating {
                     ScrollFeedOverallRatingView(rating: rating, font: .black, size: 30)
                         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }
@@ -823,23 +824,32 @@ struct TrendingPostRow: View {
                     Image(systemName: "heart")
                         .font(.footnote)
                         .foregroundColor(.gray)
-                        
+
                     Text("\(post.likes)")
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundColor(.gray)
                 }
             }
+
             VStack(alignment: .leading, spacing: 0) {
-                // Username and restaurant name
+                // Restaurant name
                 Text(post.restaurant.name)
                     .font(.custom("MuseoSansRounded-700", size: 14))
                     .foregroundColor(.black)
 
-                Text("@\(post.user.username)")                    .font(.custom("MuseoSansRounded-500", size: 12))
+                // City and state (new addition)
+                if let city = post.restaurant.city, let state = post.restaurant.state {
+                    Text("\(city), \(state)")
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.gray)
+                }
+
+                // Username
+                Text("@\(post.user.username)")
+                    .font(.custom("MuseoSansRounded-500", size: 12))
                     .foregroundColor(.gray)
 
                 // Rating and caption
-
                 Text(post.caption)
                     .font(.custom("MuseoSansRounded-300", size: 12))
                     .foregroundColor(.black)
