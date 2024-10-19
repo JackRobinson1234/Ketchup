@@ -628,4 +628,27 @@ extension PostService {
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) ?? currentDate
         return Timestamp(date: startOfMonth)
     }
+    func fetchGlobalTopPosts(lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Post], DocumentSnapshot?) {
+            do {
+                let startDate = getDate30DaysAgo()
+
+                var query = FirestoreConstants.PostsCollection
+                    .whereField("timestamp", isGreaterThanOrEqualTo: startDate)
+                    .order(by: "likes", descending: true)
+                    .limit(to: limit)
+
+                if let lastDocument = lastDocument {
+                    query = query.start(afterDocument: lastDocument)
+                }
+
+                let snapshot = try await query.getDocuments()
+                let posts = try snapshot.documents.compactMap { try $0.data(as: Post.self) }
+                let lastDocumentSnapshot = snapshot.documents.last
+
+                return (posts, lastDocumentSnapshot)
+            } catch {
+                print("Error fetching global top posts: \(error.localizedDescription)")
+                return ([], nil)
+            }
+        }
 }

@@ -276,7 +276,7 @@ struct PrimaryFeedView: View {
                             
                             
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 10)
                         .foregroundStyle(.black)
                         
                         if !hideTopUI {
@@ -331,7 +331,7 @@ struct PrimaryFeedView: View {
                                                 .offset(y: 17)
                                         )
                                 }
-                                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 3)
+                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
                                 .disabled(viewModel.selectedTab == .dashboard || !canSwitchTab)
 
                                 // Following Tab
@@ -368,7 +368,7 @@ struct PrimaryFeedView: View {
                                             )
                                     }
                                 }
-                                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 3)
+                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
                                 .disabled(viewModel.selectedTab == .following || !canSwitchTab)
 
                                 // Discover Tab
@@ -384,7 +384,7 @@ struct PrimaryFeedView: View {
                                         }
                                     }
                                 } label: {
-                                    Text("Community")
+                                    Text("Explore")
                                         .font(.custom("MuseoSansRounded-500", size: 18))
                                         .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
                                         .overlay(
@@ -394,7 +394,7 @@ struct PrimaryFeedView: View {
                                                 .offset(y: 17)
                                         )
                                 }
-                                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 3)
+                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
                                 .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                             }
                             .padding(.bottom, 6)

@@ -19,7 +19,7 @@ struct ActivityView: View {
     @State private var showContacts = false
     @State private var shouldShowExistingUsersOnContacts = false
     @State private var showLocationSearch = false
-    @State private var selectedTab: Tab = .discover
+    @State private var selectedTab: Tab = .restaurants // Default to restaurants
     @State private var showPollUploadView = false
     @StateObject private var pollViewModel = PollViewModel()
     @State private var currentTabHeight: CGFloat = 650
@@ -35,51 +35,73 @@ struct ActivityView: View {
     @State var selectedPost: Post? = nil
     @Binding var newPostsCount: Int
     @EnvironmentObject var tabController: TabBarController
-    private var randomRestaurantFact: String {
-        restaurantFacts.randomElement() ?? "Restaurants are fascinating!"
-    }
+    @State private var randomRestaurantFact: String = ""
     @State private var showTrendingPostsSheet = false
+    @State private var showGlobalTrendingPostsSheet = false
 
     enum Tab {
-        case dailyPoll
-        case discover
-        case friends
+        case restaurants
+        case leaderboards
+        case poll
     }
     
     var body: some View {
-        VStack {
+        LazyVStack {
             if !isLoading {
-                ZStack(alignment: .top) {
-                    LazyVStack(alignment: .leading, spacing: 20) {
-                        Color.clear
-                            .frame(height: 100) // Adjust based on your header and tab buttons
-                        contentBasedOnSelectedTab
+                Color.clear
+                    .frame(height: 100)
+                userUpdatesSection
+                Button(action: {
+                    showLocationSearch.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: "location")
+                            .font(.system(size: 11))
+                            .foregroundColor(.gray)
+                        Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                     }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
                     
                 }
+                tabButtons
+                ScrollView {
+                    LazyVStack{
+                        contentBasedOnSelectedTab
+                    }
+                }
+                .refreshable {
+                    Task {
+                        isLoading = true
+                        await refreshData()
+                        isLoading = false
+                    }
+                }
             } else {
-                
-                VStack{
+                VStack {
                     Color.clear
                         .frame(height: 100)
                         .edgesIgnoringSafeArea(.top)
                     FastCrossfadeFoodImageView()
                 }
-                
             }
         }
         .navigationBarHidden(true)
-        .refreshable {
-            Task {
-                isLoading = true
-                await refreshData()
-                isLoading = false
-            }
-        }
         .sheet(isPresented: $showLocationSearch) {
             LocationSearchView(locationViewModel: locationViewModel)
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
+        .sheet(isPresented: $showGlobalTrendingPostsSheet) {
+                    TrendingPostsListView(viewModel: viewModel, isGlobal: true)
+                }
         .sheet(item: $selectedPost) { post in
             NavigationStack {
                 ScrollView {
@@ -98,18 +120,20 @@ struct ActivityView: View {
             PollUploadView()
         }
         .sheet(isPresented: $showTrendingPostsSheet) {
-                    TrendingPostsListView(viewModel: viewModel, location: locationViewModel.selectedLocationCoordinate)
-                }
+            TrendingPostsListView(viewModel: viewModel, location: locationViewModel.selectedLocationCoordinate)
+        }
         .onAppear {
             if initialLoad {
                 initialLoad = false
                 computeGreeting()
+                randomRestaurantFact = restaurantFacts.randomElement() ?? "Restaurants are fascinating!"
                 if let coordinate = locationViewModel.selectedLocationCoordinate {
                     // Use the selected coordinate
                     Task {
                         isLoading = true
                         await pollViewModel.fetchPolls()
                         await loadAllRestaurants(location: coordinate)
+                        
                         isLoading = false
                     }
                 } else {
@@ -123,72 +147,13 @@ struct ActivityView: View {
                 Task {
                     isLoading = true
                     viewModel.resetData()
-                    await pollViewModel.fetchPolls()// Reset data when location changes
+                    await pollViewModel.fetchPolls() // Reset data when location changes
                     await loadAllRestaurants(location: coordinate)
                     isLoading = false
                 }
             }
         }
-    }
-    
-    private func loadAllRestaurants(location: CLLocationCoordinate2D) async {
-        do {
-            try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
-            try await viewModel.fetchRestaurants(location: location)
-            try await viewModel.fetchTrendingPosts(location: location)
-        } catch {
-            print("Error fetching restaurants: \(error)")
-        }
-    }
-    
-    private var contentBasedOnSelectedTab: some View {
-        Group {
-            if selectedTab == .dailyPoll {
-                dailyPollContent
-            } else if selectedTab == .discover {
-                discoverContent
-            } else if selectedTab == .friends {
-                friendsContent
-            }
-        }
-    }
-    
-    private var tabButtons: some View {
-        VStack {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    actionButton(title: "Discover", icon: "globe", isSelected: selectedTab == .discover) {
-                        selectedTab = .discover
-                    }
-                    actionButton(title: "Daily Poll", icon: "list.bullet.clipboard", isSelected: selectedTab == .dailyPoll) {
-                        selectedTab = .dailyPoll
-                    }
-                    actionButton(title: "Find Friends", icon: "person.2", isSelected: selectedTab == .friends) {
-                        selectedTab = .friends
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-    }
-    
-    private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 16))
-                Text(title)
-                    .font(.custom("MuseoSansRounded-500", size: 12))
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .foregroundColor(isSelected ? Color("Colors/AccentColor") : .black)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? Color("Colors/AccentColor") : Color.gray.opacity(0.5), lineWidth: 1)
-            )
-            .cornerRadius(20)
-        }
+        
     }
     private var userUpdatesSection: some View {
         VStack{
@@ -275,7 +240,7 @@ struct ActivityView: View {
                                 .font(.custom("MuseoSansRounded-500", size: 14))
                             
                             // Call to action for review streak
-                            Text("Post review")
+                            Text("Post a review")
                                 .font(.custom("MuseoSansRounded-300", size: 12))
                                 .foregroundColor(.gray)
                         }
@@ -287,69 +252,95 @@ struct ActivityView: View {
         .padding()
         .background(Color.gray.opacity(0.1)) // Light gray background
         .cornerRadius(10)
-        .padding(.vertical, 8)
+        .padding(.bottom, 8)
+        .padding(.horizontal)
     }
-    private var discoverContent: some View {
-        VStack(alignment: .leading, spacing: 25) {
-            VStack(alignment: .leading){
-                userUpdatesSection
-                    .id("userUpdates")
-                Button(action: {
-                    showLocationSearch.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: "location")
-                            .font(.system(size: 11))
-                            .foregroundColor(.gray)
-                        Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")
-                            .font(.custom("MuseoSansRounded-500", size: 12))
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
-                    
-                }
+    private func loadAllRestaurants(location: CLLocationCoordinate2D) async {
+        do {
+            try await viewModel.fetchMealRestaurants(mealTime: greetingType.mealTime, location: location)
+            try await viewModel.fetchRestaurants(location: location)
+            try await viewModel.fetchTrendingPosts(location: location)
+            await viewModel.fetchTopGlobalTrendingPosts() // Fetch top 5 global trending posts
+
+        } catch {
+            print("Error fetching restaurants: \(error)")
+        }
+    }
+    
+    private var contentBasedOnSelectedTab: some View {
+        Group {
+            if selectedTab == .restaurants {
+                restaurantsContent
+            } else if selectedTab == .leaderboards {
+                leaderboardsContent
+            } else if selectedTab == .poll {
+                dailyPollContent
             }
-            .padding(.horizontal)
-            
-            if !viewModel.trendingPosts.isEmpty {
-                           VStack(alignment: .leading) {
-                               HStack {
-                                   Text("Nearby Trending Posts")
-                                       .font(.custom("MuseoSansRounded-700", size: 25))
-                                       .padding(.horizontal)
-                                   Spacer()
-                                   Button(action: {
-                                       showTrendingPostsSheet = true
-                                   }) {
-                                       Text("See all >")
-                                           .font(.custom("MuseoSansRounded-300", size: 12))
-                                           .foregroundColor(.gray)
-                                   }
-                                   .padding(.trailing)
-                               }
-
-                               VStack {
-                                   ForEach(Array(viewModel.trendingPosts.prefix(5).enumerated()), id: \.element.id) { index, post in
-                                       Button(action: {
-                                           selectedPost = post
-                                       }) {
-                                           TrendingPostRow(index: index, post: post)
-                                               .padding(.vertical, 8)
-                                               .padding(.horizontal)
-                                       }
-                                       Divider()
-                                   }
-                               }
-                           }
-                       }
-
+        }
+    }
+    
+    private var tabButtons: some View {
+        VStack {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    actionButton(title: "Nearby Restaurants", icon: "fork.knife", isSelected: selectedTab == .restaurants) {
+                        selectedTab = .restaurants
+                    }
+                    actionButton(title: "Leaderboards", icon: "chart.bar", isSelected: selectedTab == .leaderboards) {
+                        selectedTab = .leaderboards
+                    }
+                    actionButton(title: "Poll", icon: "list.bullet.clipboard", isSelected: selectedTab == .poll) {
+                        selectedTab = .poll
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    private func actionButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text(title)
+                    .font(.custom("MuseoSansRounded-500", size: 12))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .foregroundColor(isSelected ? Color("Colors/AccentColor") : .black)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(isSelected ? Color("Colors/AccentColor") : Color.gray.opacity(0.5), lineWidth: 1)
+            )
+            .cornerRadius(20)
+        }
+    }
+    
+   
+    
+    private var locationButton: some View {
+        Button(action: {
+            showLocationSearch = true
+        }) {
+            HStack(spacing: 1) {
+                Image(systemName: "location")
+                    .foregroundColor(.gray)
+                    .font(.caption)
+                Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Set Location")
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .foregroundColor(.gray)
+                Image(systemName: "chevron.down")
+                    .foregroundColor(.gray)
+                    .font(.caption)
+            }
+            .lineLimit(2)
+            .minimumScaleFactor(0.5)
+        }
+    }
+    
+    private var restaurantsContent: some View {
+        VStack(alignment: .leading, spacing: 25) {
             if !viewModel.mealRestaurants.isEmpty {
                 VStack(alignment: .leading) {
                     Text("Popular \(greetingType.mealTimeDisplay.capitalized)")
@@ -373,9 +364,6 @@ struct ActivityView: View {
                     }
                 }
             }
-            dailyPollContent
-                .id("DailyPoll")
-            inviteContactsButton
             
             // Group restaurants by macrocategory (cuisine)
             let groupedRestaurants = Dictionary(grouping: viewModel.fetchedRestaurants) { $0.macrocategory ?? "" }
@@ -448,33 +436,122 @@ struct ActivityView: View {
         }
     }
     
-    private var customHeader: some View {
-        HStack {
-            toolbarLogoView
-            Spacer()
-            locationButton
+    private var leaderboardsContent: some View {
+        VStack(alignment: .leading, spacing: 25) {
+            // Nearby Trending Posts Section
+            if !viewModel.trendingPosts.isEmpty {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Nearby Trending Posts")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                        Spacer()
+                        Button(action: {
+                            showTrendingPostsSheet = true
+                        }) {
+                            Text("See all >")
+                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.trailing)
+                    }
+                    
+                    VStack {
+                        ForEach(Array(viewModel.trendingPosts.prefix(5).enumerated()), id: \.element.id) { index, post in
+                            Button(action: {
+                                selectedPost = post
+                            }) {
+                                TrendingPostRow(index: index, post: post)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal)
+                            }
+                            Divider()
+                        }
+                    }
+                }
+            } else {
+                // No trending posts message
+                Text("No trending posts available.")
+                    .padding()
+            }
+            
+            // Global Trending Posts Section
+            if !viewModel.globalTrendingPosts.isEmpty {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Global Trending Posts")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                        Spacer()
+                        Button(action: {
+                            showGlobalTrendingPostsSheet = true
+                        }) {
+                            Text("See all >")
+                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.trailing)
+                    }
+                    
+                    VStack {
+                        ForEach(Array(viewModel.globalTrendingPosts.enumerated()), id: \.element.id) { index, post in
+                            Button(action: {
+                                selectedPost = post
+                            }) {
+                                TrendingPostRow(index: index, post: post)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal)
+                            }
+                            Divider()
+                        }
+                    }
+                }
+            }  else {
+                // No global trending posts message
+                Text("No global trending posts available.")
+                    .padding()
+            }
         }
-        .padding()
     }
     
-    private var locationButton: some View {
-        Button(action: {
-            showLocationSearch = true
-        }) {
-            HStack(spacing: 1) {
-                Image(systemName: "location")
-                    .foregroundColor(.gray)
-                    .font(.caption)
-                Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Set Location")
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundColor(.gray)
-                Image(systemName: "chevron.down")
-                    .foregroundColor(.gray)
-                    .font(.caption)
-            }
-            .lineLimit(2)
-            .minimumScaleFactor(0.5)
+    private var toolbarLogoView: some View {
+        Image("KetchupTextRed")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 100)
+    }
+    
+    private func computeGreeting() {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greetingType: GreetingType
+        let greeting: String
+        switch hour {
+        case 5..<12:
+            greetingType = .morning
+            greeting = "🍳 Good morning"
+            mealTime = .breakfast
+        case 12..<17:
+            greetingType = .afternoon
+            greeting = "☀️ Good afternoon"
+            mealTime = .lunch
+        default:
+            greetingType = .evening
+            greeting = "🌟 Good evening"
+            mealTime = .dinner
         }
+        self.greetingType = greetingType
+        self.greeting = greeting
+        
+        // Assign all cuisines for the current meal time
+        if let cuisines = mealTimeCuisineMap[mealTime], !cuisines.isEmpty {
+            selectedCuisines = cuisines
+        } else {
+            selectedCuisines = []
+        }
+    }
+    
+    private func refreshData() async {
+        await pollViewModel.fetchPolls()
     }
     
     private var dailyPollContent: some View {
@@ -553,49 +630,6 @@ struct ActivityView: View {
         }
     }
     
-    private var friendsContent: some View {
-        VStack {
-            inviteContactsButton
-            contactsSection
-        }
-    }
-    
-    private var toolbarLogoView: some View {
-        Image("KetchupTextRed")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 100)
-    }
-    
-    private func computeGreeting() {
-        let hour = Calendar.current.component(.hour, from: Date())
-        let greetingType: GreetingType
-        let greeting: String
-        switch hour {
-        case 5..<12:
-            greetingType = .morning
-            greeting = "🍳 Good morning"
-            mealTime = .breakfast
-        case 12..<17:
-            greetingType = .afternoon
-            greeting = "☀️ Good afternoon"
-            mealTime = .lunch
-        default:
-            greetingType = .evening
-            greeting = "🌟 Good evening"
-            mealTime = .dinner
-        }
-        self.greetingType = greetingType
-        self.greeting = greeting
-        
-        // Assign all cuisines for the current meal time
-        if let cuisines = mealTimeCuisineMap[mealTime], !cuisines.isEmpty {
-            selectedCuisines = cuisines
-        } else {
-            selectedCuisines = []
-        }
-    }
-    
     private func hasUserVotedToday() -> Bool {
         guard let lastVotedDate = AuthService.shared.userSession?.lastVotedPoll else {
             return false // User has never voted
@@ -612,148 +646,8 @@ struct ActivityView: View {
         
         return calendar.isDate(lastVotedDay, inSameDayAs: todayLA)
     }
-    
-    private func openSettings() {
-        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
-        }
-    }
-    
-    private func refreshData() async {
-        pollViewModel.fetchPolls()
-    }
-    
-    private var contactsSection: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Friends on Ketchup")
-                    .font(.custom("MuseoSansRounded-700", size: 25))
-                    .foregroundColor(.black)
-                Spacer()
-                Button("See All") {
-                    shouldShowExistingUsersOnContacts = true
-                    showContacts = true
-                }
-                .font(.custom("MuseoSansRounded-300", size: 12))
-                .foregroundColor(.gray)
-            }
-            .padding(.horizontal)
-            if let user = viewModel.user, user.contactsSynced, viewModel.isContactPermissionGranted {
-                if !viewModel.topContacts.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack(spacing: 16) {
-                            ForEach(viewModel.topContacts) { contact in
-                                ActivityContactRow(viewModel: viewModel, contact: contact)
-                                    .onAppear {
-                                        if contact == viewModel.topContacts.last {
-                                            viewModel.loadMoreContacts()
-                                        }
-                                    }
-                            }
-                            if viewModel.isLoadingMore {
-                                FastCrossfadeFoodImageView()
-                                    .frame(width: 50, height: 50)
-                            }
-                            if viewModel.hasMoreContacts {
-                                Color.clear
-                                    .frame(width: 1, height: 1)
-                                    .onAppear { viewModel.loadMoreContacts() }
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                } else {
-                    Button {
-                        shouldShowExistingUsersOnContacts = false
-                        showContacts = true
-                    } label: {
-                        Text("We couldn't find any friends in your contacts, invite them!")
-                            .foregroundColor(.black)
-                            .font(.custom("MuseoSansRounded-700", size: 14))
-                    }
-                }
-            } else {
-                Button {
-                    openSettings()
-                } label: {
-                    HStack {
-                        Spacer()
-                        VStack {
-                            Text("Allow Ketchup to access your contacts to make finding friends easier!")
-                                .foregroundColor(.black)
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                                .padding(.vertical)
-                            Text("Go to settings")
-                                .foregroundColor(Color("Colors/AccentColor"))
-                                .font(.custom("MuseoSansRounded-700", size: 14))
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                }
-            }
-        }
-    }
-    
-    private var inviteContactsButton: some View {
-        VStack(spacing: 0) {
-            Button {
-                shouldShowExistingUsersOnContacts = false
-                showContacts = true
-            } label: {
-                VStack {
-                    Divider()
-                    HStack {
-                        Image(systemName: "envelope")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 30)
-                            .foregroundColor(.black)
-                        VStack(alignment: .leading) {
-                            Text("Invite your friends to Ketchup!")
-                                .font(.custom("MuseoSansRounded-700", size: 16))
-                            VStack(alignment: .leading, spacing: 3) {
-                                GeometryReader { geometry in
-                                    ZStack(alignment: .leading) {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(height: 4)
-                                            .cornerRadius(4)
-                                        Rectangle()
-                                            .fill(Color("Colors/AccentColor"))
-                                            .frame(width: min(CGFloat(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10)) / 10.0 * geometry.size.width, geometry.size.width), height: 4)
-                                            .cornerRadius(4)
-                                    }
-                                }
-                                .frame(height: 8)
-                                HStack(spacing: 1) {
-                                    Text("You have \(min(AuthService.shared.userSession?.totalReferrals ?? 0, 10))/10 referrals to earn the launch badge")
-                                        .font(.custom("MuseoSansRounded-500", size: 10))
-                                        .foregroundColor(.gray)
-                                    if let totalReferrals = AuthService.shared.userSession?.totalReferrals, totalReferrals >= 10 {
-                                        Image("LAUNCH")
-                                    } else {
-                                        Image("LAUNCHBLACK")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 12)
-                                            .opacity(0.5)
-                                    }
-                                }
-                            }
-                        }
-                        .foregroundColor(.black)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
-                    }
-                    .padding()
-                    Divider()
-                }
-            }
-        }
-    }
 }
+
 
 enum GreetingType {
     case morning, afternoon, evening

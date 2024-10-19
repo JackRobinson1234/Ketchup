@@ -12,13 +12,14 @@ struct TrendingPostsListView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: ActivityViewModel
     var location: CLLocationCoordinate2D?
-    @State private var isLoading = false
+    var isGlobal: Bool = false
+    @State private var isLoading = true
     @State private var selectedPost: Post?
 
     var body: some View {
         NavigationView {
             VStack {
-                if viewModel.trendingPosts.isEmpty && isLoading {
+                if isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                         .onAppear {
@@ -28,21 +29,21 @@ struct TrendingPostsListView: View {
                         }
                 } else {
                     List {
-                        ForEach(viewModel.trendingPosts, id: \.id) { post in
+                        ForEach(currentPosts, id: \.id) { post in
                             Button(action: {
                                 selectedPost = post
                             }) {
-                                TrendingPostRow(index: viewModel.trendingPosts.firstIndex(of: post) ?? 0, post: post)
+                                TrendingPostRow(index: currentPosts.firstIndex(of: post) ?? 0, post: post)
                             }
                             .onAppear {
-                                if post == viewModel.trendingPosts.last {
+                                if post == currentPosts.last {
                                     Task {
                                         await fetchMoreTrendingPosts()
                                     }
                                 }
                             }
                         }
-                        if viewModel.isLoadingMoreTrendingPosts {
+                        if isGlobal ? viewModel.isLoadingMoreGlobalTrendingPosts : viewModel.isLoadingMoreTrendingPosts {
                             HStack {
                                 Spacer()
                                 ProgressView()
@@ -53,7 +54,7 @@ struct TrendingPostsListView: View {
                     .listStyle(PlainListStyle())
                 }
             }
-            .navigationTitle("Trending Posts")
+            .navigationTitle(isGlobal ? "Global Trending Posts" : "Nearby Trending Posts")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -71,26 +72,34 @@ struct TrendingPostsListView: View {
                     .navigationDestination(for: PostRestaurant.self) { restaurant in
                         RestaurantProfileView(restaurantId: restaurant.id)
                     }
-                    
+                }
+            }
+            .onAppear {
+                if isGlobal {
+                    viewModel.resetGlobalTrendingPostsPagination()
                 }
             }
         }
     }
 
+    private var currentPosts: [Post] {
+        isGlobal ? viewModel.globalTrendingPostsFullList : viewModel.trendingPosts
+    }
+
     private func fetchTrendingPosts() async {
         isLoading = true
-        do {
-            if let location = location {
-                try await viewModel.fetchTrendingPosts(location: location)
-            }
-        } catch {
-            print("Error fetching trending posts: \(error)")
+        if isGlobal {
+            await viewModel.fetchGlobalTrendingPostsForFullList()
+        } else if let location = location {
+            try? await viewModel.fetchTrendingPosts(location: location)
         }
         isLoading = false
     }
 
     private func fetchMoreTrendingPosts() async {
-        if !viewModel.isLoadingMoreTrendingPosts && viewModel.hasMoreTrendingPosts {
+        if isGlobal {
+            await viewModel.fetchGlobalTrendingPostsForFullList()
+        } else {
             await viewModel.fetchMoreTrendingPosts()
         }
     }
