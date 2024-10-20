@@ -29,17 +29,17 @@ struct ReelsUploadView: View {
     private var width: CGFloat {
         (UIScreen.main.bounds.width - (spacing * 2)) / 3
     }
-    
     private var expandedWidth: CGFloat {
         UIScreen.main.bounds.width * 5/6
     }
-    
     @Namespace private var animationNamespace
     @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
     @State private var isPlaying: Bool = false
     @State private var volume: Float = 0.5
     @State private var showingWarningAlert = false
-    
+    @State private var isShowingGoodForSelection = false
+    @State private var showConfirmationAlert = false
+
     var overallRatingPercentage: Double {
         ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
     }
@@ -90,7 +90,7 @@ struct ReelsUploadView: View {
                                 mentionsList
                             }
                             Divider()
-                            
+                            goodForButton
                             tagUsersButton
                                 .padding(.vertical)
                             Divider()
@@ -167,7 +167,51 @@ struct ReelsUploadView: View {
             Text("All progress will be lost.")
         }
     }
-    
+    var goodForButton: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Button(action: {
+                isShowingGoodForSelection = true
+            }) {
+                HStack {
+                    Text("What is this place good for?")
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundColor(.black)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(Color("Colors/AccentColor"))
+                        .padding(.trailing)
+                }
+            }
+
+            if uploadViewModel.goodFor.isEmpty {
+                Text("0/5 selected")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundColor(.red)
+                    .padding(.top, 8)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(uploadViewModel.goodFor, id: \.self) { option in
+                            Text(option)
+                                .font(.custom("MuseoSansRounded-500", size: 14))
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.top, 8)
+            }
+            Divider()
+        }
+        .padding(.vertical)
+        .sheet(isPresented: $isShowingGoodForSelection) {
+            GoodForSelectionView(selectedOptions: $uploadViewModel.goodFor)
+        }
+    }
     var restaurantSelector: some View {
         Button {
             isPickingRestaurant = true
@@ -462,77 +506,51 @@ struct ReelsUploadView: View {
                 alertMessage = "Please select a restaurant."
                 showAlert = true
             } else {
-                Task {
-                    let overallRating = calculateOverallRating()
-                    let post = try await uploadViewModel.uploadPost()
-                    UploadService.shared.newestPost = post
-                    NotificationCenter.default.post(name: .presentUploadView, object: nil)
-                    if !uploadViewModel.fromRestaurantProfile{
-                        tabBarController.selectedTab = 0
-                    }
-                    uploadViewModel.reset()
-                    cameraViewModel.reset()
-                    uploadViewModel.dismissAll = true
-                    
+                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
+                    showConfirmationAlert = true
+                } else {
+                    uploadPost()
                 }
             }
         } label: {
-            VStack{
-//                VStack {
-//                    ZStack {
-//                        // Button background
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .fill(Color("Colors/AccentColor"))
-//                            .frame(width: 190, height: 50)
-//                        
-//                        // Progress indicator around the button
-//                        PerimeterProgressView(progress: uploadViewModel.uploadProgress / 100)
-//                            .stroke(Color.white, lineWidth: 3)
-//                            .frame(width: 190, height: 50)
-//                        
-//                        // Button text
-//                        Text("Post")
-//                            .foregroundColor(.white)
-//                            .font(.headline)
-//                    }
-//                    .frame(width: 190, height: 50)
-//                }
-                ProgressButton(uploadViewModel: uploadViewModel)
-
-           
-//                ZStack {
-//                        // Button background
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .fill(Color("Colors/AccentColor"))
-//                            .frame(height: 50)
-//                        
-//                        // Button text
-//                        Text("Post")
-//                            .foregroundColor(.white)
-//                            .font(.headline)
-//                        
-//                        // Progress indicator at the bottom of the button
-//                        GeometryReader { geometry in
-//                            Rectangle()
-//                                .fill(Color.white)
-//                                .frame(width: geometry.size.width * CGFloat(uploadViewModel.uploadProgress / 100), height: 4)
-//                                .position(x: geometry.size.width / 2, y: geometry.size.height - 2)
-//                        }
-//                    }
-//                    .frame(width: 190, height: 50)
-//                    .animation(.linear(duration: 0.2), value: uploadViewModel.uploadProgress)
-                
-            }
-            
-            
+            ProgressButton(uploadViewModel: uploadViewModel)
         }
         .disabled(uploadViewModel.isLoading)
         .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
+        .alert(isPresented: $showConfirmationAlert) {
+            Alert(
+                title: Text("Confirm Post"),
+                message: Text("You haven't tagged any users or selected any 'Good For' options. Are you sure you want to post without them?"),
+                primaryButton: .default(Text("Yes, Post")) {
+                    uploadPost()
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
-    
+    func uploadPost() {
+        Task {
+            do {
+                let overallRating = calculateOverallRating()
+                let post = try await uploadViewModel.uploadPost()
+                UploadService.shared.newestPost = post
+                NotificationCenter.default.post(name: .presentUploadView, object: nil)
+                if !uploadViewModel.fromRestaurantProfile{
+                    tabBarController.selectedTab = 0
+                }
+                uploadViewModel.reset()
+                cameraViewModel.reset()
+                uploadViewModel.dismissAll = true
+            } catch {
+                alertMessage = "Failed to upload post: \(error.localizedDescription)"
+                showAlert = true
+            }
+        }
+    }
+
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

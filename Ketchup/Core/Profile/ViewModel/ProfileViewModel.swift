@@ -108,16 +108,16 @@ extension ProfileViewModel {
         }
     }
     func checkIfUserIsBlocked() async {
-            guard let currentUserId = Auth.auth().currentUser?.uid else { return }
-            do {
-                let result = try await UserService.shared.isUserBlocked(currentUserId: currentUserId, blockedUserId: uid)
-                DispatchQueue.main.async {
-                    self.isUserBlocked = result
-                }
-            } catch {
-                //print("Error checking if user is blocked: \(error.localizedDescription)")
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        do {
+            let result = try await UserService.shared.isUserBlocked(currentUserId: currentUserId, blockedUserId: uid)
+            DispatchQueue.main.async {
+                self.isUserBlocked = result
             }
+        } catch {
+            //print("Error checking if user is blocked: \(error.localizedDescription)")
         }
+    }
 }
 
 struct PostRestaurantMapAnnotation: CoordinateIdentifiable, Identifiable, Hashable, Equatable {

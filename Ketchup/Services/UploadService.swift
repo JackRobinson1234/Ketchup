@@ -27,6 +27,7 @@ class UploadService {
             foodRating: Double?,
             taggedUsers: [PostUser],
             captionMentions: [PostUser],
+            goodFor: [String]?,
             thumbnailImage: UIImage?,
             progressHandler: @escaping (Double) -> Void
         ) async throws -> Post {
@@ -85,7 +86,8 @@ class UploadService {
                 valueRating: valueRating,
                 foodRating: foodRating,
                 taggedUsers: taggedUsers,
-                captionMentions: captionMentions
+                captionMentions: captionMentions,
+                goodFor: goodFor
             )
 
             guard let postData = try? Firestore.Encoder().encode(post) else {

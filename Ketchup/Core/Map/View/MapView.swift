@@ -28,6 +28,8 @@ struct MapView: View {
     @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
+    @State private var selectedLargeCluster: LargeClusterAnnotation?
+
     @State private var selectedFollowingCluster: GroupedPostClusterAnnotation?
     @State private var hasAppeared = false
     @State private var showMoveWarning = false
@@ -93,7 +95,7 @@ struct MapView: View {
                                 Annotation("", coordinate: cluster.coordinate) {
                                     NewClusterCell(cluster: cluster)
                                         .onTapGesture {
-                                            // Handle large cluster tap
+                                            selectedLargeCluster = cluster
                                         }
                                 }
                             }
@@ -152,7 +154,6 @@ struct MapView: View {
                     .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
                 
-             
                         
                         topRow
                    
@@ -170,9 +171,14 @@ struct MapView: View {
                     }
                 }
             }
+            
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
             }
+            .sheet(item: $selectedLargeCluster) { cluster in
+                ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
+            }
+
             .sheet(item: $selectedFollowingCluster) { cluster in
                 GroupedPostClusterListView(groupedPosts: cluster.memberAnnotations)
             }
@@ -230,7 +236,23 @@ struct MapView: View {
         }
         .padding([.bottom, .trailing], 20)
     }
-    
+    func convertToRestaurant(_ clusterRestaurant: ClusterRestaurant) -> Restaurant? {
+        let stats = RestaurantStats(postCount: clusterRestaurant.postCount ?? 0, collectionCount: 0)
+        let overallRating = OverallRating(average: clusterRestaurant.overallRating, totalCount: nil)
+
+        return Restaurant(
+            id: clusterRestaurant.id,
+            categoryName: clusterRestaurant.cuisine,
+            price: clusterRestaurant.price,
+            name: clusterRestaurant.name,
+            geoPoint: clusterRestaurant.geoPoint,
+            geoHash: clusterRestaurant.fullGeoHash,
+            profileImageUrl: clusterRestaurant.profileImageUrl,
+            stats: stats,
+            overallRating: overallRating,
+            macrocategory: clusterRestaurant.macrocategory
+        )
+    }
     private var topRow: some View {
         
         VStack{
@@ -386,6 +408,7 @@ struct MapView: View {
         let distanceInMeters = location1.distance(from: location2)
         return distanceInMeters / 1000
     }
+        
 }
 @available(iOS 17.0, *)
 extension MapView {

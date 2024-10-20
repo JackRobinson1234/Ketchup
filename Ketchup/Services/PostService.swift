@@ -10,6 +10,7 @@ import Firebase
 import MapKit
 import GeoFire
 import FirebaseFirestoreInternal
+import GeohashKit
 
 class PostService {
     static let shared = PostService() // Singleton instance
@@ -553,4 +554,101 @@ extension PostService {
             throw error
         }
     }
+    func fetchTopPosts(geohash: String, lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Post], DocumentSnapshot?) {
+        do {
+            let startDate = getDate30DaysAgo()
+            let geohashPrefix = String(geohash.prefix(5))
+            let geohashNeighbors = geohashNeighborsOfNeighbors(geohash: geohashPrefix)
+
+            var query = FirestoreConstants.PostsCollection
+                .whereField("timestamp", isGreaterThanOrEqualTo: startDate)
+                .whereField("restaurant.truncatedGeohash5", in: geohashNeighbors)
+                .order(by: "likes", descending: true)
+                .limit(to: limit)
+
+            if let lastDocument = lastDocument {
+                query = query.start(afterDocument: lastDocument)
+            }
+
+            let snapshot = try await query.getDocuments()
+            let posts = try snapshot.documents.compactMap { try $0.data(as: Post.self) }
+            let lastDocumentSnapshot = snapshot.documents.last
+
+            return (posts, lastDocumentSnapshot)
+        } catch {
+            print("Error fetching top posts: \(error.localizedDescription)")
+            return ([], nil)
+        }
+    }
+    private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
+        var resultSet: Set<String> = [geohash]  // Start with the original geohash
+        // Get immediate neighbors of the original geohash
+        if let geoHash = Geohash(geohash: geohash) {
+            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
+                
+                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
+                for neighborGeohash in immediateNeighbors {
+                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
+                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
+                        }
+                    }
+                }
+            }
+        }
+        return Array(resultSet)
+    }
+    private func geohashNeighbors(geohash: String) -> [String] {
+        if let geoHash = Geohash(geohash: geohash) {
+            let neighbors = geoHash.neighbors
+            if let neighbors {
+                let neighborGeohashes = neighbors.all.map { $0.geohash }
+                //print([geohash] + neighborGeohashes)
+                return [geohash] + neighborGeohashes
+            }
+        }
+        return [geohash]
+    }
+    func getDate30DaysAgo() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let date30DaysAgo = calendar.date(byAdding: .day, value: -30, to: currentDate) ?? currentDate
+        return Timestamp(date: date30DaysAgo)
+    }
+    func getStartOfWeek() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate)) ?? currentDate
+        return Timestamp(date: startOfWeek)
+    }
+    private func getStartOfMonth() -> Timestamp {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) ?? currentDate
+        return Timestamp(date: startOfMonth)
+    }
+    func fetchGlobalTopPosts(lastDocument: DocumentSnapshot? = nil, limit: Int = 5) async throws -> ([Post], DocumentSnapshot?) {
+            do {
+                let startDate = getDate30DaysAgo()
+
+                var query = FirestoreConstants.PostsCollection
+                    .whereField("timestamp", isGreaterThanOrEqualTo: startDate)
+                    .order(by: "likes", descending: true)
+                    .limit(to: limit)
+
+                if let lastDocument = lastDocument {
+                    query = query.start(afterDocument: lastDocument)
+                }
+
+                let snapshot = try await query.getDocuments()
+                let posts = try snapshot.documents.compactMap { try $0.data(as: Post.self) }
+                let lastDocumentSnapshot = snapshot.documents.last
+
+                return (posts, lastDocumentSnapshot)
+            } catch {
+                print("Error fetching global top posts: \(error.localizedDescription)")
+                return ([], nil)
+            }
+        }
 }

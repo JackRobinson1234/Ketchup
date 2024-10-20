@@ -274,6 +274,14 @@ class MapViewModel: ObservableObject {
         selectedCuisines = []
         selectedPrice = []
     }
+    func clearData() {
+            visibleRestaurants = []
+            annotations = []
+            clusters = []
+            largeClusters = []
+            allClusters = []
+            // Reset other properties if necessary
+        }
     
 }
 

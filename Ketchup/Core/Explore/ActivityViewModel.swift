@@ -16,86 +16,96 @@ import GeoFire
 import GeohashKit
 @MainActor
 class ActivityViewModel: ObservableObject {
+    // MARK: - Published Properties (used in the UI)
     @Published var followingActivity: [Activity] = []
-    private var pageSize = 30
+    @Published var topContacts: [Contact] = []
+    @Published var mealRestaurants: [Restaurant] = []
+    @Published var cuisineRestaurants: [String: [Restaurant]] = [:]
+    @Published var trendingPosts: [Post] = []
+    @Published var globalTrendingPosts: [Post] = []
+    @Published var globalTrendingPostsFullList: [Post] = []
+    @Published var friendPostsRestaurants: [Restaurant] = []
+    @Published var fetchedRestaurants: [Restaurant] = []
+    @Published var topRestaurants: [Restaurant] = []
+
+    // UI State Properties
     @Published var isFetching: Bool = false
     @Published var isLoadingMore: Bool = false
-    @Published var hasMoreActivities: Bool = true
-    private let loadThreshold = 5
-    private var lastDocumentSnapshot: DocumentSnapshot? = nil
-    var user: User?
-    private var service = ActivityService()
-    @Published var topContacts: [Contact] = []
-    // Sheet state properties
-    @Published var collectionsViewModel = CollectionsViewModel()
+    @Published var isContactPermissionGranted: Bool = false
+    @Published var hasMoreContacts: Bool = true
+    @Published var hasMoreMealRestaurants: Bool = true
+    @Published var hasMoreRestaurants: Bool = true
+    @Published var hasMoreFriendPosts: Bool = true
+    @Published var hasMoreTrendingPosts: Bool = true
+    @Published var hasMoreGlobalTrendingPosts: Bool = true
+
+    @Published var isLoadingMoreTrendingPosts = false
+    @Published var isLoadingGlobalTrendingPosts = false
+    @Published var isLoadingMoreGlobalTrendingPosts = false
     @Published var showWrittenPost: Bool = false
     @Published var showPost: Bool = false
     @Published var showCollection: Bool = false
     @Published var showUserProfile: Bool = false
     @Published var showRestaurant = false
+
+    // Selected Items
     @Published var post: Post?
     @Published var writtenPost: Post?
     @Published var collection: Collection?
     @Published var selectedRestaurantId: String? = nil
     @Published var selectedUid: String? = nil
-    @Published var isContactPermissionGranted: Bool = false
-    private var lastContactDocumentSnapshot: DocumentSnapshot? = nil
-    @Published var hasMoreContacts: Bool = true
-    @Published var currentPoll: Poll?
 
-    @Published var mealRestaurants: [Restaurant] = []
+    // Private Properties
+    private let pageSize = 30
+    private let loadThreshold = 5
+    private var lastDocumentSnapshot: DocumentSnapshot? = nil
+    private var lastContactDocumentSnapshot: DocumentSnapshot? = nil
     private var mealRestaurantsLastSnapshot: DocumentSnapshot?
-    @Published var hasMoreMealRestaurants: Bool = true
-    private let mealRestaurantsPageSize = 5
+    private var cuisineRestaurantsLastSnapshots: [String: DocumentSnapshot?] = [:]
+    private var restaurantsLastSnapshot: DocumentSnapshot?
+    private var lastFriendPostDocument: DocumentSnapshot?
+    private var lastTrendingPostDocument: DocumentSnapshot?
+    private var lastGlobalTrendingPostDocument: DocumentSnapshot?
+    private var topRestaurantsLastSnapshot: DocumentSnapshot?
+
     private var currentMealTime: String?
     private var currentLocation: CLLocationCoordinate2D?
-    private var contactsPageSize = 5
-    @Published var cuisineRestaurants: [String: [Restaurant]] = [:]
-    private var cuisineRestaurantsLastSnapshots: [String: DocumentSnapshot?] = [:]
-    @Published var hasMoreCuisineRestaurants: [String: Bool] = [:]
-    @Published var isFetchingCuisineRestaurants: [String: Bool] = [:]
     private var currentCuisineLocation: CLLocationCoordinate2D?
-    let contactsViewModel = ContactsViewModel()
+
+    private var currentPoll: Poll?
+    private var user: User?
+    private let mealRestaurantsPageSize = 5
+    private let contactsPageSize = 5
+    private let friendPostsPageSize: Int = 10
+
+    // Service Instances
+    private let service = ActivityService()
     private let userService = UserService.shared
-    
+
+    // Fetching States
+    private var isFetchingMealRestaurants = false
+    private var isFetchingCuisineRestaurants: [String: Bool] = [:]
+    private var isFetchingFriendPosts: Bool = false
+    private var isFetchingRestaurants: Bool = false
+    private var isFetchingTopRestaurants = false
+
+    // MARK: - Methods
+
     func checkContactPermission() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
-        DispatchQueue.main.async {
-            self.isContactPermissionGranted = authorizationStatus == .authorized
-        }
+        self.isContactPermissionGranted = authorizationStatus == .authorized
     }
-    
-        private var cuisineRestaurantsLastSnapshot: DocumentSnapshot?
-    @Published var cuisinesFetched: Set<String> = []
-    @Published var hasFetchedMealRestaurants = false
-    @Published var isFetchingMealRestaurants = false
-    
-    @Published var topRestaurants: [Restaurant] = []
-    private var topRestaurantsLastSnapshot: DocumentSnapshot?
-    @Published var hasMoreTopRestaurants: Bool = true
-    private var isFetchingTopRestaurants = false
-    @Published var fetchedRestaurants: [Restaurant] = []
-        private var restaurantsLastSnapshot: DocumentSnapshot?
-        @Published var hasMoreRestaurants: Bool = true
-        private var isFetchingRestaurants: Bool = false
-    @Published var friendPostsRestaurants: [Restaurant] = []
-      private var lastFriendPostDocument: DocumentSnapshot?
-      @Published var hasMoreFriendPosts: Bool = true
-      private var isFetchingFriendPosts: Bool = false
-      private let friendPostsPageSize: Int = 10
 
-    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 3) async throws {
+    func fetchMealRestaurants(mealTime: String, location: CLLocationCoordinate2D?, pageSize: Int = 5) async throws {
+        print("Fetching meal restaurants")
+
         guard !isFetchingMealRestaurants else { return }
         guard let location = location else { return }
         isFetchingMealRestaurants = true
+        defer { isFetchingMealRestaurants = false }
+
         self.currentMealTime = mealTime
         self.currentLocation = location
-
-        // Check if we've already fetched the meal restaurants
-        if hasFetchedMealRestaurants {
-            isFetchingMealRestaurants = false
-            return
-        }
 
         let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchRestaurantsServingMeal(
             mealTime: mealTime,
@@ -103,14 +113,12 @@ class ActivityViewModel: ObservableObject {
             lastDocument: mealRestaurantsLastSnapshot,
             limit: pageSize
         )
-        DispatchQueue.main.async {
-            self.mealRestaurants.append(contentsOf: restaurants)
-            self.mealRestaurantsLastSnapshot = lastSnapshot
-            self.hasMoreMealRestaurants = lastSnapshot != nil
-            self.hasFetchedMealRestaurants = true
-        }
-        isFetchingMealRestaurants = false
+
+        self.mealRestaurants.append(contentsOf: restaurants)
+        self.mealRestaurantsLastSnapshot = lastSnapshot
+        self.hasMoreMealRestaurants = lastSnapshot != nil
     }
+
     func fetchMoreMealRestaurants() async {
         guard let mealTime = currentMealTime, let location = currentLocation else { return }
         do {
@@ -119,27 +127,27 @@ class ActivityViewModel: ObservableObject {
             print("Error fetching more meal restaurants: \(error)")
         }
     }
+
     func fetchFriendPostsNearby(location: CLLocationCoordinate2D) async {
+        print("Fetching friend posts")
+
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         guard !isFetchingFriendPosts else { return }
         isFetchingFriendPosts = true
+        defer { isFetchingFriendPosts = false }
 
-        // Compute the geohash and its neighbors
         let geohash = GFUtils.geoHash(forLocation: location)
         let truncatedGeohash5 = String(geohash.prefix(5))
         let geohashNeighborsList = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
 
-        // Reference to the posts subcollection
         let db = Firestore.firestore()
         let postsRef = db.collection("followingposts").document(currentUserId).collection("posts")
 
-        // Build the query using 'in' on truncatedGeohash5
         var query: Query = postsRef
             .whereField("restaurant.truncatedGeohash5", in: geohashNeighborsList)
             .order(by: "timestamp", descending: true)
             .limit(to: friendPostsPageSize)
 
-        // If we have a last document, start after it
         if let lastDocument = lastFriendPostDocument {
             query = query.start(afterDocument: lastDocument)
         }
@@ -148,19 +156,16 @@ class ActivityViewModel: ObservableObject {
             let snapshot = try await query.getDocuments()
             let posts = snapshot.documents.compactMap { try? $0.data(as: SimplifiedPost.self) }
 
-            // Update pagination variables
             if let lastSnapshot = snapshot.documents.last {
                 self.lastFriendPostDocument = lastSnapshot
             } else {
                 self.hasMoreFriendPosts = false
             }
 
-            // Group posts by restaurant
             let groupedPosts = Dictionary(grouping: posts) { $0.restaurant.id }
 
-            // Map to restaurants
             var newRestaurants: [Restaurant] = []
-            for (restaurantId, posts) in groupedPosts {
+            for (_, posts) in groupedPosts {
                 if let firstPost = posts.first {
                     let restaurant = Restaurant(
                         id: firstPost.restaurant.id,
@@ -175,245 +180,228 @@ class ActivityViewModel: ObservableObject {
                 }
             }
 
-            // Update the published property
-            await MainActor.run {
-                self.friendPostsRestaurants.append(contentsOf: newRestaurants)
-            }
+            self.friendPostsRestaurants.append(contentsOf: newRestaurants)
 
         } catch {
             print("Error fetching friend posts: \(error)")
             self.hasMoreFriendPosts = false
         }
-
-        isFetchingFriendPosts = false
     }
 
-    
     private func geohashNeighborsOfNeighbors(geohash: String) -> [String] {
-        var resultSet: Set<String> = [geohash]  // Start with the original geohash
-        // Get immediate neighbors of the original geohash
-        if let geoHash = Geohash(geohash: geohash) {
-            if let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
-                resultSet.formUnion(immediateNeighbors)  // Add immediate neighbors to the set
-                
-                // For each immediate neighbor, get its immediate neighbors (neighbors of neighbors)
-                for neighborGeohash in immediateNeighbors {
-                    if let neighborGeoHash = Geohash(geohash: neighborGeohash) {
-                        if let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
-                            resultSet.formUnion(neighborNeighbors)  // Add neighbors of neighbors to the set
-                        }
-                    }
+        var resultSet: Set<String> = [geohash]
+        if let geoHash = Geohash(geohash: geohash),
+           let immediateNeighbors = geoHash.neighbors?.all.map({ $0.geohash }) {
+            resultSet.formUnion(immediateNeighbors)
+            for neighborGeohash in immediateNeighbors {
+                if let neighborGeoHash = Geohash(geohash: neighborGeohash),
+                   let neighborNeighbors = neighborGeoHash.neighbors?.all.map({ $0.geohash }) {
+                    resultSet.formUnion(neighborNeighbors)
                 }
             }
         }
         return Array(resultSet)
     }
-    
-    func fetchMoreCuisineRestaurants(for cuisine: String, location: CLLocationCoordinate2D) async {
-           do {
-               try await fetchCuisineRestaurants(cuisine: cuisine, location: location, pageSize: 5)
-           } catch {
-               print("Error fetching more \(cuisine) restaurants: \(error)")
-           }
-       }
+
     func loadMoreContacts() {
         guard !isFetching, hasMoreContacts, !isLoadingMore else { return }
-        
+
         isLoadingMore = true
         Task {
             do {
                 try await fetchTopContacts()
             } catch {
-                ////print("Error fetching more contacts: \(error)")
+                print("Error fetching more contacts: \(error)")
             }
             isLoadingMore = false
         }
     }
-//    func fetchTopRestaurants(location: CLLocationCoordinate2D, limit: Int = 15) async throws {
-//        guard !isFetchingTopRestaurants else { return }
-//        isFetchingTopRestaurants = true
-//
-//        do {
-//            let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
-//                location: location,
-//                lastDocument: topRestaurantsLastSnapshot,
-//                limit: limit
-//            )
-//            DispatchQueue.main.async {
-//                self.topRestaurants.append(contentsOf: restaurants)
-//                self.topRestaurantsLastSnapshot = lastSnapshot
-//                self.hasMoreTopRestaurants = lastSnapshot != nil
-//            }
-//        } catch {
-//            print("Error fetching top restaurants: \(error)")
-//        }
-//
-//        isFetchingTopRestaurants = false
-//    }
+
     func fetchTopContacts() async throws {
+        print("Fetching contacts")
+
         guard isContactPermissionGranted else { return }
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
+
         let db = Firestore.firestore()
         var query = db.collection("users").document(userId).collection("contacts")
             .whereField("hasExistingAccount", isEqualTo: true)
             .order(by: "userCount", descending: true)
             .limit(to: contactsPageSize)
-        
+
         if let lastSnapshot = lastContactDocumentSnapshot {
             query = query.start(afterDocument: lastSnapshot)
         }
-        
+
         let snapshot = try await query.getDocuments()
-        
+
         var newContacts = snapshot.documents.compactMap { document -> Contact? in
             try? document.data(as: Contact.self)
         }
-        
-        // Fetch user details for each contact
+
         for i in 0..<newContacts.count {
             if let user = try await userService.fetchUser(withPhoneNumber: newContacts[i].phoneNumber) {
                 newContacts[i].user = user
             }
         }
-        
-        DispatchQueue.main.async {
-            self.topContacts.append(contentsOf: newContacts)
-            self.lastContactDocumentSnapshot = snapshot.documents.last
-            self.hasMoreContacts = !snapshot.documents.isEmpty
-        }
+
+        self.topContacts.append(contentsOf: newContacts)
+        self.lastContactDocumentSnapshot = snapshot.documents.last
+        self.hasMoreContacts = !snapshot.documents.isEmpty
     }
+
     func resetData() {
-           // Reset variables related to meal restaurants
-           mealRestaurantsLastSnapshot = nil
-           hasMoreMealRestaurants = true
-           hasFetchedMealRestaurants = false
+        mealRestaurantsLastSnapshot = nil
+        hasMoreMealRestaurants = true
+        mealRestaurants = []
 
-           restaurantsLastSnapshot = nil
-           hasMoreRestaurants = true
+        restaurantsLastSnapshot = nil
+        hasMoreRestaurants = true
+        fetchedRestaurants = []
 
-           // Reset any other variables as needed
-       }
+        lastTrendingPostDocument = nil
+        hasMoreTrendingPosts = true
+        trendingPosts = []
+
+        lastGlobalTrendingPostDocument = nil
+        hasMoreGlobalTrendingPosts = true
+        globalTrendingPosts = []
+        globalTrendingPostsFullList = []
+
+        lastFriendPostDocument = nil
+        hasMoreFriendPosts = true
+        friendPostsRestaurants = []
+    }
+
     func resetContactsPagination() {
         topContacts = []
         lastContactDocumentSnapshot = nil
         hasMoreContacts = true
     }
-    
+
     func checkIfUserIsFollowed(contact: Contact) async throws -> Bool {
         guard let userId = contact.user?.id else { return false }
-        
-        // If we've already checked the follow status, return the stored value
+
         if let isFollowed = contact.isFollowed {
             return isFollowed
         }
-        
-        // If we haven't checked yet, fetch the status from the server
+
         let isFollowed = try await userService.checkIfUserIsFollowed(uid: userId)
-        
-        // Update the contact in the topContacts array
+
         if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
-            DispatchQueue.main.async {
-                self.topContacts[index].isFollowed = isFollowed
-            }
+            self.topContacts[index].isFollowed = isFollowed
         }
-        
+
         return isFollowed
     }
-    
+
     func updateContactFollowStatus(contact: Contact, isFollowed: Bool) {
         if let index = topContacts.firstIndex(where: { $0.id == contact.id }) {
-            DispatchQueue.main.async {
-                self.topContacts[index].isFollowed = isFollowed
-            }
+            self.topContacts[index].isFollowed = isFollowed
         }
     }
-    
+
     func follow(userId: String) async throws {
         try await userService.follow(uid: userId)
         updateFollowStatus(for: userId, isFollowed: true)
     }
-    
+
     func unfollow(userId: String) async throws {
         try await userService.unfollow(uid: userId)
         updateFollowStatus(for: userId, isFollowed: false)
     }
-    
+
     private func updateFollowStatus(for userId: String, isFollowed: Bool) {
         if let index = topContacts.firstIndex(where: { $0.user?.id == userId }) {
-            DispatchQueue.main.async {
-                self.topContacts[index].isFollowed = isFollowed
-            }
+            self.topContacts[index].isFollowed = isFollowed
         }
     }
-    func fetchCuisineRestaurants(cuisine: String, location: CLLocationCoordinate2D, pageSize: Int = 5) async throws {
-        // Check if a fetch is already in progress for this cuisine
-        if isFetchingCuisineRestaurants[cuisine] == true {
-            return
-        }
-        isFetchingCuisineRestaurants[cuisine] = true
-        defer {
-            isFetchingCuisineRestaurants[cuisine] = false
-        }
 
-        // Fetch pageSize + 1 documents
-        let limit = pageSize + 1
-        let lastSnapshot = self.cuisineRestaurantsLastSnapshots[cuisine]
+    func fetchRestaurants(location: CLLocationCoordinate2D, limit: Int = 50) async throws {
+        print("Fetching restaurants")
+        guard !isFetchingRestaurants else { return }
+        isFetchingRestaurants = true
+        defer { isFetchingRestaurants = false }
+
         do {
-            let (restaurants, newLastSnapshot) = try await RestaurantService.shared.fetchRestaurantsForCuisine(
-                cuisine: cuisine,
+            let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
                 location: location,
-                lastDocument: lastSnapshot ?? nil,
+                lastDocument: restaurantsLastSnapshot,
                 limit: limit
             )
-
-            DispatchQueue.main.async {
-                var fetchedRestaurants = restaurants
-                var hasMore = false
-
-                // Check if we fetched more than pageSize documents
-                if fetchedRestaurants.count > pageSize {
-                    hasMore = true
-                    // Remove the extra document before appending to your list
-                    fetchedRestaurants.removeLast()
-                    self.cuisineRestaurantsLastSnapshots[cuisine] = newLastSnapshot
-                } else {
-                    // No more documents
-                    hasMore = false
-                }
-
-                if self.cuisineRestaurants[cuisine] != nil {
-                    self.cuisineRestaurants[cuisine]?.append(contentsOf: fetchedRestaurants)
-                } else {
-                    self.cuisineRestaurants[cuisine] = fetchedRestaurants
-                }
-
-                self.hasMoreCuisineRestaurants[cuisine] = hasMore
-            }
+            self.fetchedRestaurants.append(contentsOf: restaurants)
+            self.restaurantsLastSnapshot = lastSnapshot
+            self.hasMoreRestaurants = lastSnapshot != nil
         } catch {
-            print("Error fetching cuisine restaurants for \(cuisine): \(error)")
+            print("Error fetching restaurants: \(error)")
         }
     }
-    func fetchRestaurants(location: CLLocationCoordinate2D, limit: Int = 50) async throws {
-           guard !isFetchingRestaurants else { return }
-         
-           isFetchingRestaurants = true
 
-           do {
-               let (restaurants, lastSnapshot) = try await RestaurantService.shared.fetchTopRestaurants(
-                   location: location,
-                   lastDocument: restaurantsLastSnapshot,
-                   limit: limit
-               )
-               DispatchQueue.main.async {
-                   self.fetchedRestaurants.append(contentsOf: restaurants)
-                   self.restaurantsLastSnapshot = lastSnapshot
-                   self.hasMoreRestaurants = lastSnapshot != nil
-               }
-           } catch {
-               print("Error fetching restaurants: \(error)")
-           }
+    func fetchTrendingPosts(location: CLLocationCoordinate2D) async throws {
+        let geohash = GFUtils.geoHash(forLocation: location)
+        let (posts, lastDocument) = try await PostService.shared.fetchTopPosts(geohash: geohash, lastDocument: nil, limit: 5)
+        self.trendingPosts = posts
+        self.lastTrendingPostDocument = lastDocument
+        self.hasMoreTrendingPosts = lastDocument != nil
+        self.currentLocation = location
+    }
 
-           isFetchingRestaurants = false
-       }
+    func fetchMoreTrendingPosts() async {
+        guard !isLoadingMoreTrendingPosts, hasMoreTrendingPosts else { return }
+        isLoadingMoreTrendingPosts = true
+        defer { isLoadingMoreTrendingPosts = false }
+
+        do {
+            if let location = currentLocation {
+                let geohash = GFUtils.geoHash(forLocation: location)
+                let (posts, lastDocument) = try await PostService.shared.fetchTopPosts(geohash: geohash, lastDocument: lastTrendingPostDocument, limit: 10)
+                self.trendingPosts.append(contentsOf: posts)
+                self.lastTrendingPostDocument = lastDocument
+                self.hasMoreTrendingPosts = lastDocument != nil
+            }
+        } catch {
+            print("Error fetching more trending posts: \(error)")
+        }
+    }
+
+    // MARK: - Global Trending Posts
+    func fetchTopGlobalTrendingPosts() async {
+        guard !isLoadingGlobalTrendingPosts else { return }
+        isLoadingGlobalTrendingPosts = true
+        defer { isLoadingGlobalTrendingPosts = false }
+
+        do {
+            let (posts, _) = try await PostService.shared.fetchGlobalTopPosts(
+                lastDocument: nil,
+                limit: 5
+            )
+            self.globalTrendingPosts = posts
+        } catch {
+            print("Error fetching global trending posts: \(error)")
+        }
+    }
+
+    func fetchGlobalTrendingPostsForFullList() async {
+        guard !isLoadingMoreGlobalTrendingPosts, hasMoreGlobalTrendingPosts else { return }
+        isLoadingMoreGlobalTrendingPosts = true
+        defer { isLoadingMoreGlobalTrendingPosts = false }
+
+        do {
+            let (posts, lastDocument) = try await PostService.shared.fetchGlobalTopPosts(
+                lastDocument: lastGlobalTrendingPostDocument,
+                limit: 10
+            )
+            self.globalTrendingPostsFullList.append(contentsOf: posts)
+            self.lastGlobalTrendingPostDocument = lastDocument
+            self.hasMoreGlobalTrendingPosts = lastDocument != nil
+        } catch {
+            print("Error fetching more global trending posts: \(error)")
+        }
+    }
+
+    func resetGlobalTrendingPostsPagination() {
+        globalTrendingPostsFullList = []
+        lastGlobalTrendingPostDocument = nil
+        hasMoreGlobalTrendingPosts = true
+    }
 }

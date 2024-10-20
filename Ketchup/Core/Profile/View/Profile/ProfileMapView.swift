@@ -79,9 +79,9 @@ struct ProfileMapView: View {
             .cornerRadius(10)
             .sheet(item: $selectedCluster) { locationWithPosts in
                 NavigationStack{
-                    ScrollView{
+                 
                         ProfileFeedView(viewModel: newFeedViewModel, scrollPosition: .constant(nil), scrollTarget: .constant(nil))
-                    }
+                    
                     .modifier(BackButtonModifier())
                     
                 }

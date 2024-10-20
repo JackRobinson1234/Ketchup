@@ -421,7 +421,7 @@ class RestaurantService {
         location: CLLocationCoordinate2D,
         lastDocument: DocumentSnapshot? = nil,
         limit: Int = 30
-    ) async throws -> ([Restaurant], DocumentSnapshot?) {
+    ) async throws -> ([Restaurant], DocumentSnapshot?){
         let db = Firestore.firestore()
         let geohash = GFUtils.geoHash(forLocation: location)
         let truncatedGeohash5 = String(geohash.prefix(5))

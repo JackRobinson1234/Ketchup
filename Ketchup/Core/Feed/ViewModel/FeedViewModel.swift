@@ -21,6 +21,7 @@ enum FeedType: String, CaseIterable {
 }
 
 enum FeedTab {
+    case dashboard
     case discover
     case following
 }
@@ -69,7 +70,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     @Published var isLoadingMoreContent = false
     private var fetchTask: Task<Void, Error>?
     @Published var isShowingProfileSheet: Bool = false
-    @Published var selectedTab: FeedTab = .discover {
+    @Published var selectedTab: FeedTab = .dashboard {
         didSet {
             Task {
                 if selectedTab == .following {
@@ -79,7 +80,6 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
                 await handleTabChange()
                 isInitialLoading = false
                 resetNewPostsCount()
-                
             }
         }
     }
