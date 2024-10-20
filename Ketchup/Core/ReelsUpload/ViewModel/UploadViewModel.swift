@@ -47,7 +47,7 @@ class UploadViewModel: ObservableObject {
     @Published var fromRestaurantProfile = false
     @Published var showSuccessMessage = false
     @Published var uploadProgress: Double = 0.0
-
+    @Published var goodFor: [String] = [] // Add this line
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
@@ -254,6 +254,7 @@ class UploadViewModel: ObservableObject {
                foodRating: isFoodNA ? nil : foodRating,
                taggedUsers: taggedUsers,
                captionMentions: mentionedUsers,
+               goodFor: self.goodFor.isEmpty ? nil : self.goodFor, // Add this line
                thumbnailImage: thumbnailImage,
                progressHandler: { progress in
                    DispatchQueue.main.async {
@@ -395,6 +396,7 @@ class UploadViewModel: ObservableObject {
             }
         }
     }
+    
 }
 struct MixedMediaItemHolder: Identifiable {
     let id = UUID()

@@ -38,7 +38,8 @@ struct Post: Identifiable, Codable {
     var foodRating: Double?
     var taggedUsers: [PostUser]
     var captionMentions: [PostUser]
-    var isReported: Bool // New property for reported status
+    var isReported: Bool // Property for reported status
+    var goodFor: [String]? // New optional array of strings
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.restaurant.geoPoint {
             return CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
@@ -46,7 +47,8 @@ struct Post: Identifiable, Codable {
             return nil
         }
     }
-    
+
+    // Decoding initializer
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -75,8 +77,10 @@ struct Post: Identifiable, Codable {
         self.taggedUsers = try container.decodeIfPresent([PostUser].self, forKey: .taggedUsers) ?? []
         self.captionMentions = try container.decodeIfPresent([PostUser].self, forKey: .captionMentions) ?? []
         self.isReported = try container.decodeIfPresent(Bool.self, forKey: .isReported) ?? false
+        self.goodFor = try container.decodeIfPresent([String].self, forKey: .goodFor) // Decode new property
     }
-    
+
+    // New initializer with goodFor array
     init(
         id: String,
         mediaType: MediaType,
@@ -103,7 +107,8 @@ struct Post: Identifiable, Codable {
         foodRating: Double? = nil,
         taggedUsers: [PostUser] = [],
         captionMentions: [PostUser] = [],
-        isReported: Bool = false  // Default value set here
+        isReported: Bool = false,
+        goodFor: [String]? = nil // New parameter with default value
     ) {
         self.id = id
         self.mediaType = mediaType
@@ -131,6 +136,7 @@ struct Post: Identifiable, Codable {
         self.taggedUsers = taggedUsers
         self.captionMentions = captionMentions
         self.isReported = isReported
+        self.goodFor = goodFor // Set new property
     }
 }
 extension Post: Hashable { }
@@ -185,11 +191,13 @@ struct MixedMediaItem: Codable, Hashable, Identifiable {
     let id: String
     var url: String
     var type: MediaType
+    var description: String?
     
-    init(id: String = NSUUID().uuidString, url: String, type: MediaType) {
+    init(id: String = NSUUID().uuidString, url: String, type: MediaType, description: String? = nil) {
         self.id = id
         self.url = url
         self.type = type
+        self.description = description
     }
 }
 extension Post: Commentable {
