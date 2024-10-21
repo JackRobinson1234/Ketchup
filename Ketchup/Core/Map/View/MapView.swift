@@ -14,8 +14,8 @@ import ClusterMap
 import ClusterMapSwiftUI
 @available(iOS 17.0, *)
 struct MapView: View {
-    @StateObject var viewModel: MapViewModel = MapViewModel()
-    @StateObject var followingViewModel = FollowingPostsMapViewModel()
+    @ObservedObject var viewModel: MapViewModel = MapViewModel()
+    @ObservedObject var followingViewModel = FollowingPostsMapViewModel()
     @State var position: MapCameraPosition
     @State private var selectedRestaurant: RestaurantMapAnnotation?
     @State private var selectedGroupedPost: GroupedPostMapAnnotation?
@@ -50,10 +50,9 @@ struct MapView: View {
         }
     }
     init() {
-        self._viewModel = StateObject(wrappedValue: MapViewModel())
         self._position = State(initialValue: .userLocation(fallback: .automatic))
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {

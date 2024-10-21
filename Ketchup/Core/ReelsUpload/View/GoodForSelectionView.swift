@@ -13,7 +13,7 @@ struct GoodForSelectionView: View {
     @State private var optionsSelected: Set<String> = []
     @State private var showingLimitAlert = false
     let goodForOptions: [String: [String]] = [
-        "Activity": ["Bars with Food", "Working", "Live Music", "People Watching", "Watching Sports", "Perfect Noise Level", "New Friends", "Dancing", "Views"],
+        "Activity": ["Bars with Food", "Working", "Live Music", "People Watching", "Watching Sports", "Meeting New Friends", "Dancing", "Good Views"],
         "Dietary": ["Gluten-Free", "Healthy", "Vegan", "Vegetarian", "Seed-oil free"],
         "Occasion": ["Big Groups", "Birthdays", "Corporate Card", "Date Nights", "Dinner with the Parents", "First Dates", "Impressing visitors", "Out of Towners", "Dinner Pregame", "Private Dining", "Celebrate", "Late Night Eats", "Takeout"],
         "Price": ["BYOB", "Cheap Eats", "Fine Dining", "Happy Hours", "Not Worth It"],

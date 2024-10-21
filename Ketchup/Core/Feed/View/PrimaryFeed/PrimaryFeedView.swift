@@ -95,9 +95,9 @@ struct PrimaryFeedView: View {
                                     }
                                     .onChange(of: tabBarController.scrollToTop) { _ in
                                         
-                                            withAnimation(.smooth) {
-                                                scrollProxy.scrollTo("userUpdates", anchor: .center)
-                                            }
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo("userUpdates", anchor: .center)
+                                        }
                                         
                                     }
                             }
@@ -229,38 +229,38 @@ struct PrimaryFeedView: View {
                             //                                showLocationFilter.toggle()
                             //                            }
                             
-//                            Button {
-//                                pauseVideo = true
-//                                showFilters.toggle()
-//                            } label: {
-//                                
-//                                VStack{
-//                                    ZStack(alignment: . bottomTrailing){
-//                                        Image(systemName: "slider.horizontal.3")
-//                                            .font(.system(size: 27))
-//                                            .foregroundStyle(.gray)
-//                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-//                                            ZStack {
-//                                                Circle()
-//                                                    .fill(Color("Colors/AccentColor"))
-//                                                    .frame(width: 16, height: 16)
-//                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-//                                                    .font(.custom("MuseoSansRounded-500", size: 10))
-//                                                    .foregroundColor(.white)
-//                                            }
-//                                            .offset(x: 5, y: 5)
-//                                            .padding(.leading, 1)
-//                                        }
-//                                    }
-//                                    Text("Filter Feed")
-//                                        .font(.custom("MuseoSansRounded-300", size: 10))
-//                                        .foregroundStyle(.gray)
-//                                    
-//                                    
-//                                }
-//                                .frame(width: 100)
-//                                
-//                            }
+                            //                            Button {
+                            //                                pauseVideo = true
+                            //                                showFilters.toggle()
+                            //                            } label: {
+                            //
+                            //                                VStack{
+                            //                                    ZStack(alignment: . bottomTrailing){
+                            //                                        Image(systemName: "slider.horizontal.3")
+                            //                                            .font(.system(size: 27))
+                            //                                            .foregroundStyle(.gray)
+                            //                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                            //                                            ZStack {
+                            //                                                Circle()
+                            //                                                    .fill(Color("Colors/AccentColor"))
+                            //                                                    .frame(width: 16, height: 16)
+                            //                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                            //                                                    .font(.custom("MuseoSansRounded-500", size: 10))
+                            //                                                    .foregroundColor(.white)
+                            //                                            }
+                            //                                            .offset(x: 5, y: 5)
+                            //                                            .padding(.leading, 1)
+                            //                                        }
+                            //                                    }
+                            //                                    Text("Filter Feed")
+                            //                                        .font(.custom("MuseoSansRounded-300", size: 10))
+                            //                                        .foregroundStyle(.gray)
+                            //
+                            //
+                            //                                }
+                            //                                .frame(width: 100)
+                            //
+                            //                            }
                             Spacer()
                             Button {
                                 tabBarController.scrollToTop.toggle()
@@ -272,7 +272,7 @@ struct PrimaryFeedView: View {
                             }
                             Spacer()
                             
-                           
+                            
                             
                             
                         }
@@ -280,7 +280,7 @@ struct PrimaryFeedView: View {
                         .foregroundStyle(.black)
                         
                         if !hideTopUI {
-
+                            
                             HStack{
                                 HStack {
                                     
@@ -333,7 +333,7 @@ struct PrimaryFeedView: View {
                                 }
                                 .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
                                 .disabled(viewModel.selectedTab == .dashboard || !canSwitchTab)
-
+                                
                                 // Following Tab
                                 Button {
                                     newPostsCount = 0
@@ -370,7 +370,7 @@ struct PrimaryFeedView: View {
                                 }
                                 .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
                                 .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-
+                                
                                 // Discover Tab
                                 Button {
                                     if canSwitchTab {
@@ -414,8 +414,8 @@ struct PrimaryFeedView: View {
                                     showFindFriends = true
                                 } label: {
                                     Text("Find your friends!")
-                                    .foregroundStyle(Color("Colors/AccentColor"))
-                                    .font(.custom("MuseoSansRounded-700", size: 14))
+                                        .foregroundStyle(Color("Colors/AccentColor"))
+                                        .font(.custom("MuseoSansRounded-700", size: 14))
                                 }
                             }
                         }
