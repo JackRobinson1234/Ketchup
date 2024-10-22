@@ -84,10 +84,12 @@ struct RestaurantProfileHeaderView: View {
                     HStack(alignment: .bottom){
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(restaurant.name)")
-                                .font(.custom("MuseoSansRounded-300", size: 20))
+                                .font(.custom("MuseoSansRounded-300", size: 24))
                                 .fontWeight(.semibold)
                                 .multilineTextAlignment(.leading)
                                 .foregroundStyle(.white)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.5)
                             
                             if let city = restaurant.city, !city.isEmpty, let state = restaurant.state, !state.isEmpty {
                                 Text("\(city), \(state)")
@@ -162,27 +164,21 @@ struct RestaurantProfileHeaderView: View {
                             .padding(.horizontal)
                     }
                 }
-                if !highlightsAndTags.isEmpty{
-                    VStack( alignment: .leading, spacing: 0){
-                        Text("Known for")
+                if let topGoodFor = restaurant.topGoodFor, !topGoodFor.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Perfect For")
                             .font(.custom("MuseoSansRounded-900", size: 14))
                             .foregroundColor(.black)
                             .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(highlightsAndTags, id: \.self) { item in
-                                    HStack(spacing: 4) {
-                                        Text(item)
-                                            .font(.custom("MuseoSansRounded-300", size: 14))
-                                            .foregroundColor(.gray)
-                                        
-                                        if item != highlightsAndTags.last {
-                                            Circle()
-                                                .fill(Color.gray)
-                                                .frame(width: 3, height: 3)
-                                        }
-                                    }
+                                ForEach(topGoodFor.prefix(5), id: \.self) { tag in
+                                    Text(tag)
+                                        .font(.custom("MuseoSansRounded-500", size: 14))
+                                        .padding(.vertical, 6)
+                                        .underline(true, color: .red) // Underline the text with black color
+                                        .foregroundColor(.gray)
                                 }
                             }
                             .padding(.horizontal)
@@ -190,78 +186,6 @@ struct RestaurantProfileHeaderView: View {
                         }
                     }
                 }
-                
-                
-                
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    VStack(alignment: .leading){
-                        HStack(spacing: 2) {
-                            Text("Features")
-                                .font(.custom("MuseoSansRounded-900", size: 14))
-                                .foregroundColor(.black)
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.gray)
-                            
-                        }
-                        
-                        
-                    }
-                    .padding(.horizontal)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack{
-                                HStack(spacing: 6) {
-                                    featureItem(icon: "sun.max", title: "Breakfast", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Breakfast" && $0.value == true } ?? false)
-                                    featureItem(icon: "fork.knife", title: "Lunch", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Lunch" && $0.value == true } ?? false)
-                                    featureItem(icon: "moon.stars", title: "Dinner", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dinner" && $0.value == true } ?? false)
-                                    featureItem(icon: "birthday.cake", title: "Dessert", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dessert" && $0.value == true } ?? false)
-                                    featureItem(icon: "wineglass", title: "Alcohol", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Alcohol" && $0.value == true } ?? false)
-                                    featureItem(icon: "beach.umbrella", title: "Outdoor Seating", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Outdoor seating" && $0.value == true } ?? false)
-                                    featureItem(icon: "calendar.badge.clock", title: "Accepts Reservations", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Accepts reservations" && $0.value == true } ?? false)
-                                    featureItem(icon: "calendar.badge.checkmark", title: "Reservations Required", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Reservations required" && $0.value == true } ?? false)
-                                    featureItem(icon: "bicycle", title: "Delivery", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Delivery" && $0.value == true } ?? false)
-                                    featureItem(icon: "leaf", title: "Vegetarian options", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Vegetarian options" && $0.value == true } ?? false)
-                                    featureItem(icon: "wineglass", title: "Happy Hour", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Happy hour drinks" && $0.value == true } ?? false)
-                                    featureItem(icon: "parkingsign", title: "Parking Lot", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Free parking lot" && $0.value == true } ?? false)
-                                    featureItem(icon: "pawprint", title: "Dogs Allowed", isAvailable: restaurant.additionalInfo?.pets?.contains { $0.name == "Dogs allowed" && $0.value == true } ?? false)
-                                    featureItem(icon: "wifi", title: "Wi-Fi", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Wi-Fi" && $0.value == true } ?? false)
-                                    featureItem(icon: "car", title: "Valet Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Valet parking" && $0.value == true } ?? false)
-                                    featureItem(icon: "calendar.badge.clock", title: "Lunch Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Lunch reservations recommended" && $0.value == true } ?? false)
-                                    featureItem(icon: "calendar.badge.clock", title: "Dinner Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Dinner reservations recommended" && $0.value == true } ?? false)
-                                    featureItem(icon: "figure.roll", title: "Wheelchair Seating", isAvailable: restaurant.additionalInfo?.accessibility?.contains { $0.name == "Wheelchair accessible seating" && $0.value == true } ?? false)
-                                    featureItem(icon: "creditcard", title: "Credit Cards", isAvailable: restaurant.additionalInfo?.payments?.contains { $0.name == "Credit cards" && $0.value == true } ?? false)
-                                    featureItem(icon: "toilet", title: "Restroom", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Restroom" && $0.value == true } ?? false)
-                                }
-                                HStack (spacing: 2){
-                                    Text("See all")
-                                        .font(.custom("MuseoSansRounded-300", size: 12))
-                                        .foregroundColor(.gray)
-                                        .padding(.leading, 10)
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 10))
-                                        .foregroundStyle(.gray)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                    }
-                    
-                    
-                }
-                .onTapGesture{
-                    viewModel.currentSection = .stats
-                    viewModel.scrollTarget = "additionalInfo"
-                    scrollPosition = "additionalInfo"
-                }
-                
-                
-                
-                
-                
                 VStack(alignment: .leading){
                     HStack(spacing: 2) {
                         Text("Scores")
@@ -288,6 +212,80 @@ struct RestaurantProfileHeaderView: View {
                 
                 
                 .padding(.horizontal)
+               
+                
+                
+                
+                
+                //                VStack(alignment: .leading, spacing: 0) {
+                //                    VStack(alignment: .leading){
+                //                        HStack(spacing: 2) {
+                //                            Text("Features")
+                //                                .font(.custom("MuseoSansRounded-900", size: 14))
+                //                                .foregroundColor(.black)
+                //                            Image(systemName: "chevron.right")
+                //                                .font(.system(size: 10))
+                //                                .foregroundStyle(.gray)
+                //
+                //                        }
+                //
+                //
+                //                    }
+                //                    .padding(.horizontal)
+                //
+                //                    ScrollView(.horizontal, showsIndicators: false) {
+                //                        VStack(alignment: .leading, spacing: 2) {
+                //                            HStack{
+                //                                HStack(spacing: 6) {
+                //                                    featureItem(icon: "sun.max", title: "Breakfast", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Breakfast" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "fork.knife", title: "Lunch", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Lunch" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "moon.stars", title: "Dinner", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dinner" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "birthday.cake", title: "Dessert", isAvailable: restaurant.additionalInfo?.diningOptions?.contains { $0.name == "Dessert" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "wineglass", title: "Alcohol", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Alcohol" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "beach.umbrella", title: "Outdoor Seating", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Outdoor seating" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "calendar.badge.clock", title: "Accepts Reservations", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Accepts reservations" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "calendar.badge.checkmark", title: "Reservations Required", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Reservations required" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "bicycle", title: "Delivery", isAvailable: restaurant.additionalInfo?.serviceOptions?.contains { $0.name == "Delivery" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "leaf", title: "Vegetarian options", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Vegetarian options" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "wineglass", title: "Happy Hour", isAvailable: restaurant.additionalInfo?.offerings?.contains { $0.name == "Happy hour drinks" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "parkingsign", title: "Parking Lot", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Free parking lot" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "pawprint", title: "Dogs Allowed", isAvailable: restaurant.additionalInfo?.pets?.contains { $0.name == "Dogs allowed" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "wifi", title: "Wi-Fi", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Wi-Fi" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "car", title: "Valet Parking", isAvailable: restaurant.additionalInfo?.parking?.contains { $0.name == "Valet parking" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "calendar.badge.clock", title: "Lunch Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Lunch reservations recommended" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "calendar.badge.clock", title: "Dinner Reservations Recommended", isAvailable: restaurant.additionalInfo?.planning?.contains { $0.name == "Dinner reservations recommended" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "figure.roll", title: "Wheelchair Seating", isAvailable: restaurant.additionalInfo?.accessibility?.contains { $0.name == "Wheelchair accessible seating" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "creditcard", title: "Credit Cards", isAvailable: restaurant.additionalInfo?.payments?.contains { $0.name == "Credit cards" && $0.value == true } ?? false)
+                //                                    featureItem(icon: "toilet", title: "Restroom", isAvailable: restaurant.additionalInfo?.amenities?.contains { $0.name == "Restroom" && $0.value == true } ?? false)
+                //                                }
+                //                                HStack (spacing: 2){
+                //                                    Text("See all")
+                //                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                //                                        .foregroundColor(.gray)
+                //                                        .padding(.leading, 10)
+                //                                    Image(systemName: "chevron.right")
+                //                                        .font(.system(size: 10))
+                //                                        .foregroundStyle(.gray)
+                //                                }
+                //                            }
+                //                        }
+                //                        .padding(.horizontal)
+                //
+                //                    }
+                //
+                //
+                //                }
+                //                .onTapGesture{
+                //                    viewModel.currentSection = .stats
+                //                    viewModel.scrollTarget = "additionalInfo"
+                //                    scrollPosition = "additionalInfo"
+                //                }
+                
+                
+                
+                
+                
+                
                 if showRatingDetails {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Average Ratings")
@@ -327,12 +325,13 @@ struct RestaurantProfileHeaderView: View {
                     }
                 }
                 VStack (alignment: .leading){
-                    
-                    Text("People Also Search")
-                        .font(.custom("MuseoSansRounded-900", size: 14))
-                        .foregroundColor(.black)
-                    
-                        .padding(.horizontal)
+                    if !viewModel.similarRestaurants.isEmpty {
+                        Text("People Also Search")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                        
+                            .padding(.horizontal)
+                    }
                     peopleAlsoSearchSection
                     
                     
@@ -340,6 +339,34 @@ struct RestaurantProfileHeaderView: View {
                     
                 }
                 .padding(.vertical)
+                if !highlightsAndTags.isEmpty{
+                    VStack( alignment: .leading, spacing: 0){
+                        Text("Known for")
+                            .font(.custom("MuseoSansRounded-900", size: 14))
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(highlightsAndTags, id: \.self) { item in
+                                    HStack(spacing: 4) {
+                                        Text(item)
+                                            .font(.custom("MuseoSansRounded-500", size: 14))
+                                            .foregroundColor(.gray)
+                                        
+                                        if item != highlightsAndTags.last {
+                                            Circle()
+                                                .fill(Color.gray)
+                                                .frame(width: 3, height: 3)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .frame(height: 40)
+                        }
+                    }
+                }
                 VStack (alignment: .leading){
                     
                     Text("Info")
@@ -439,7 +466,7 @@ struct RestaurantProfileHeaderView: View {
                     }
                     
                     if restaurant.geoPoint != nil {
-                        actionButton(title: "Map", icon: "map") {
+                        actionButton(title: "Directions", icon: "map") {
                             showMapView.toggle()
                         }
                     }
@@ -452,30 +479,31 @@ struct RestaurantProfileHeaderView: View {
                         }
                     }
                 }
+                .padding(.horizontal)
+
             }
-            
-            HStack(spacing: 8) {
-                if let orderBy = restaurant.orderBy, !orderBy.isEmpty {
-                    actionButton(title: "Order", icon: "bag") {
-                        showOrderSheet = true
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if let orderBy = restaurant.orderBy, !orderBy.isEmpty {
+                        actionButton(title: "Delivery", icon: "bag") {
+                            showOrderSheet = true
+                        }
+                    }
+                    
+                    if let website = restaurant.reserveTableUrl, !website.isEmpty, let url = URL(string: website) {
+                        actionButton(title: "Reservations", icon: "calendar") {
+                            urlToShow = url
+                        }
                     }
                 }
-                
-                if let website = restaurant.reserveTableUrl, !website.isEmpty, let url = URL(string: website) {
-                    actionButton(title: "Reserve", icon: "calendar") {
-                        urlToShow = url
-                    }
-                }
+                .padding(.horizontal)
             }
+
         }
-        .padding(.horizontal)
     }
     private var peopleAlsoSearchSection: some View {
         VStack{
-            if viewModel.isLoadingSimilarRestaurants {
-               ProgressView()
-                    .foregroundColor(Color("Colors/AccentColor"))
-            } else if !viewModel.similarRestaurants.isEmpty {
+             if !viewModel.similarRestaurants.isEmpty {
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 0) {
@@ -660,21 +688,20 @@ struct RestaurantProfileHeaderView: View {
     }
     private func actionButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 1) { // Horizontal stack to align icon and title
+            HStack(spacing: 5) {
                 Image(systemName: icon)
-                    .font(.system(size: 16)) // Smaller icon size
+                    .font(.system(size: 14)) // Adjusted icon size for better visibility
                 Text(title)
-                    .font(.custom("MuseoSansRounded-300", size: 12))
-                    .padding(.horizontal, 8)
+                    .font(.custom("MuseoSansRounded-500", size: 14)) // Adjusted font size
             }
-            .padding(.horizontal, 5)
-            .padding(.vertical, 3)
-            .overlay(
-                Capsule()
-                    .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Rounded pill border
-            )
+            .padding(6) 
+            .padding(.horizontal, 3)// Add padding for better spacing inside the outline
         }
         .foregroundColor(.black)
+        .background(
+            Capsule()
+                .stroke(Color.gray.opacity(0.2), lineWidth: 1) // Super light grey rounded pill outline
+        )
     }
 }
 

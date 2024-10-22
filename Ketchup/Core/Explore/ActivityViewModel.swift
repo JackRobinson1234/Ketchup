@@ -88,7 +88,9 @@ class ActivityViewModel: ObservableObject {
     private var isFetchingFriendPosts: Bool = false
     private var isFetchingRestaurants: Bool = false
     private var isFetchingTopRestaurants = false
-
+    @Published var recentFriendPost: Post?
+        @Published var recentGlobalPost: Post?
+        @Published var hasUnseenFriendPosts: Bool = false
     // MARK: - Methods
 
     func checkContactPermission() {
@@ -404,4 +406,50 @@ class ActivityViewModel: ObservableObject {
         lastGlobalTrendingPostDocument = nil
         hasMoreGlobalTrendingPosts = true
     }
+    func fetchRecentPosts(unseenCount: Int) async {
+            do {
+                // Check if the user has unseen friend posts
+                if unseenCount > 0 {
+                    hasUnseenFriendPosts = true
+                    // Fetch the most recent friend post
+                    recentFriendPost = try await fetchMostRecentFriendPost()
+                } else {
+                    hasUnseenFriendPosts = false
+                    // Fetch the most recent global post
+                    recentGlobalPost = try await fetchMostRecentGlobalPost()
+                }
+            } catch {
+                print("Error fetching recent posts: \(error)")
+            }
+        }
+
+        private func fetchMostRecentFriendPost() async throws -> Post? {
+            // Fetch the most recent post from friends
+            guard let currentUserId = Auth.auth().currentUser?.uid else { return nil }
+            let db = Firestore.firestore()
+            let followingRef = db.collection("followingposts").document(currentUserId).collection("posts")
+            let query = followingRef
+                .order(by: "timestamp", descending: true)
+                .limit(to: 1)
+
+            let snapshot = try await query.getDocuments()
+            if let document = snapshot.documents.first {
+                let simplifiedPost = try document.data(as: SimplifiedPost.self)
+                return simplifiedPost.toPost()
+                // Fetch full post details
+            }
+            return nil
+        }
+
+        private func fetchMostRecentGlobalPost() async throws -> Post? {
+            // Fetch the most recent post from the app
+            let db = Firestore.firestore()
+            let query = db.collection("posts")
+                .order(by: "timestamp", descending: true)
+                .limit(to: 1)
+
+            let snapshot = try await query.getDocuments()
+            return snapshot.documents.first.flatMap { try? $0.data(as: Post.self) }
+        }
+    
 }

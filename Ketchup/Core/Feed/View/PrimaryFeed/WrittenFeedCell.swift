@@ -186,9 +186,10 @@ struct WrittenFeedCell: View {
 
             // Restaurant info and ratings
             restaurantInfoView()
-
+           
             // Caption
             captionView()
+            goodForTagsView()
 
             // Tagged users
             taggedUsersView()
@@ -309,6 +310,26 @@ struct WrittenFeedCell: View {
         }
     }
     
+    private func goodForTagsView() -> some View {
+        VStack{
+            if let goodFor = post.goodFor, !goodFor.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(goodFor, id: \.self) { tag in
+                            Text(tag)
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+    }
 
     private func videoView() -> some View {
         HStack(alignment: .bottom) {

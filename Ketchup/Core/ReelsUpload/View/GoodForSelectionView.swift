@@ -13,18 +13,16 @@ struct GoodForSelectionView: View {
     @State private var optionsSelected: Set<String> = []
     @State private var showingLimitAlert = false
     let goodForOptions: [String: [String]] = [
-        "Activity": ["Bars with Food", "Working", "Live Music", "People Watching", "Watching Sports", "Meeting New Friends", "Dancing", "Good Views"],
-        "Dietary": ["Gluten-Free", "Healthy", "Vegan", "Vegetarian", "Seed-oil free"],
-        "Occasion": ["Big Groups", "Birthdays", "Corporate Card", "Date Nights", "Dinner with the Parents", "First Dates", "Impressing visitors", "Out of Towners", "Dinner Pregame", "Private Dining", "Celebrate", "Late Night Eats", "Takeout"],
-        "Price": ["BYOB", "Cheap Eats", "Fine Dining", "Happy Hours", "Not Worth It"],
-        "Time of day": ["Afternoon Tea", "Breakfast", "Brunch", "Casual Dinners", "Day Drinking", "Late Nights", "Lunch"],
-        "Vibe": ["Iconic", "Viral", "Coffee Date", "Dogs", "Great Cocktails", "Great Mocktails", "Great Wine", "Kids", "Sitting Outside", "Walk-Ins", "Street Eats"]
+        "Activity": ["Bars with Food", "Working Remote", "Live Music", "People Watching", "Watching Sports", "Meeting New Friends", "Catching up with Friends", "Dancing", "Feeling like an Influencer"],
+        "Dietary": ["Gluten-Free", "Healthy", "Vegan", "Vegetarian", "Seed-Oil Free"],
+        "Occasion": ["Big Groups", "Birthdays", "Spending Corporate Card", "Date Nights", "First Dates", "Solo Dining", "Out of Towners", "Private Dining", "Special Occasions", "Late Night Munchies", "Takeout", "Family Dinner"],
+        "Price": ["Cheap Eats", "Fine Dining", "Happy Hours", "Not Worth It", "BYOB",],
+        "Time of day": ["Afternoon Tea", "Breakfast", "Brunch", "Casual Dinners", "Day Drinking", "Late Night Munchies", "Lunch"],
+        "Vibe": ["Iconic", "Viral", "Coffee Date", "Dogs", "Great Cocktails", "Great Mocktails", "Great Wine", "Kids", "Sitting Outside", "Walk-Ins", "Street Eats", "Incredible Views"]
     ]
-    
     let columns = [
         GridItem(.adaptive(minimum: 150), spacing: 10)
     ]
-
     var body: some View {
         NavigationView {
             ScrollView {

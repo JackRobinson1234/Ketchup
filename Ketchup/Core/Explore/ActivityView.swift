@@ -49,42 +49,59 @@ struct ActivityView: View {
         LazyVStack {
             if !isLoading {
                 Color.clear
-                    .frame(height: 100)
+                    .frame(height: 80)
                 userUpdatesSection
-                Button(action: {
-                    showLocationSearch.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: "location")
-                            .font(.system(size: 11))
-                            .foregroundColor(.gray)
-                        Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")
-                            .font(.custom("MuseoSansRounded-500", size: 12))
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
-                    
+                
+                if !hasUserVotedToday() {
+                    dailyPollContent
                 }
-                tabButtons
-                ScrollView {
-                    LazyVStack{
-                        contentBasedOnSelectedTab
-                    }
+                
+                let groupedRestaurants = Dictionary(grouping: viewModel.fetchedRestaurants) { $0.macrocategory ?? "" }
+                let sortedCuisines = groupedRestaurants.keys.sorted { cuisine1, cuisine2 in
+                    let index1 = selectedCuisines.firstIndex(of: cuisine1) ?? selectedCuisines.count
+                    let index2 = selectedCuisines.firstIndex(of: cuisine2) ?? selectedCuisines.count
+                    return index1 < index2
                 }
-                .refreshable {
-                    Task {
-                        isLoading = true
-                        await refreshData()
-                        isLoading = false
+                CuisineCategoryView(selectedCuisines: $selectedCuisines,
+                                    groupedRestaurants: groupedRestaurants,
+                                    cuisineEmojis: cuisineEmojis,
+                                    locationViewModel: locationViewModel)
+                    .padding(.top)
+                
+                if let recentPost = viewModel.hasUnseenFriendPosts ? viewModel.recentFriendPost : viewModel.recentGlobalPost {
+                    VStack(alignment: .leading) {
+                        Text(viewModel.hasUnseenFriendPosts ? "New from friends" : "Latest Posts")
+                            .font(.custom("MuseoSansRounded-700", size: 25))
+                            .padding(.horizontal)
+                        
+                        Button(action: {
+                            feedViewModel.selectedMainTab = .feed
+                            if viewModel.hasUnseenFriendPosts {
+                                feedViewModel.selectedFeedSubTab = .following
+                            } else {
+                                feedViewModel.selectedFeedSubTab = .discover
+                            }
+                            
+                        }) {
+                            PostPreview(post: recentPost)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal)
+                        }
                     }
+                    .padding(.top)
                 }
+                
+                if hasUserVotedToday() {
+                    dailyPollContent
+                }
+                
+//                .refreshable {
+//                    Task {
+//                        isLoading = true
+//                        await refreshData()
+//                        isLoading = false
+//                    }
+//                }
             } else {
                 VStack {
                     Color.clear
@@ -113,6 +130,7 @@ struct ActivityView: View {
                 }
             }
         }
+        
         .sheet(isPresented: $showContacts) {
             ContactsView(shouldFetchExistingUsers: shouldShowExistingUsersOnContacts)
         }
@@ -131,9 +149,9 @@ struct ActivityView: View {
                     // Use the selected coordinate
                     Task {
                         isLoading = true
-                        await pollViewModel.fetchPolls()
+                        pollViewModel.fetchPolls()
                         await loadAllRestaurants(location: coordinate)
-                        
+                        await viewModel.fetchRecentPosts(unseenCount: newPostsCount)
                         isLoading = false
                     }
                 } else {
@@ -147,8 +165,9 @@ struct ActivityView: View {
                 Task {
                     isLoading = true
                     viewModel.resetData()
-                    await pollViewModel.fetchPolls() // Reset data when location changes
+                    pollViewModel.fetchPolls() // Reset data when location changes
                     await loadAllRestaurants(location: coordinate)
+                    await viewModel.fetchRecentPosts(unseenCount: newPostsCount)
                     isLoading = false
                 }
             }
@@ -159,7 +178,7 @@ struct ActivityView: View {
         VStack{
             VStack(alignment: .leading, spacing: 2){
                 if let user = AuthService.shared.userSession {
-                    Text("\(greeting), \(user.fullname)!")
+                    Text("\(greeting), @\(user.username)!")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
@@ -170,84 +189,108 @@ struct ActivityView: View {
                     .foregroundColor(.black)
                     .padding(.top, 5)
             }
-            HStack(alignment: .top) {
-                
-                // Number of new friends' posts
+            HStack{
                 Button(action: {
-                    if newPostsCount == 0 {
-                        showContacts = true
-                    } else {
-                        feedViewModel.selectedTab = .following
-                    }
+                    showLocationSearch.toggle()
                 }) {
-                    VStack {
-                        Text("😎") // Replacing with emoji
-                            .font(.largeTitle)
-                        Text("\(newPostsCount) new friend posts")
-                            .font(.custom("MuseoSansRounded-500", size: 14))
-                        
-                        // Call to action based on friend count
-                        if newPostsCount == 0 {
-                            Text("Find friends")
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
-                        } else {
-                            Text("See posts")
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
-                        }
+                    HStack(spacing: 2) {
+                        Image(systemName: "location")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                        Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundColor(.black)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                     }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+                    
                 }
-                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
                 Spacer()
-                
-                // Whether they've voted in the daily poll
-                Button(action: {
-                    feedViewModel.initialPrimaryScrollPosition = "DailyPoll"
-                }) {
-                    VStack {
-                        Text(hasUserVotedToday() ? "📊" : "📊") // Replacing with emoji
-                            .font(.largeTitle)
-                        Text(hasUserVotedToday() ? "Voted in Poll 🎉" : "New Daily Poll!")
-                            .font(.custom("MuseoSansRounded-500", size: 14))
-                        
-                        // Call to action based on poll status
-                        if hasUserVotedToday() {
-                            if let pollStreak = AuthService.shared.userSession?.pollStreak {
-                                Text("🔥 streak: \(pollStreak) days")
-                                    .font(.custom("MuseoSansRounded-300", size: 12))
-                                    .foregroundColor(.gray)
-                            }
-                        } else {
-                            Text("Vote now")
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
-                        }
-                    }
-                }
-                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
-                Spacer()
-                
-                // Weekly posting streak
-                if let postStreak = AuthService.shared.userSession?.weeklyStreak {
-                    Button(action: {
-                        tabController.selectedTab = 2
-                    }) {
-                        VStack {
-                            Text("🔥") // Replacing with emoji
-                                .font(.largeTitle)
-                            Text("\(postStreak) week review streak")
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                            
-                            // Call to action for review streak
-                            Text("Post a review")
-                                .font(.custom("MuseoSansRounded-300", size: 12))
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
-                }
             }
+//            HStack(alignment: .top) {
+//                
+//                // Number of new friends' posts
+//                Button(action: {
+//                    if newPostsCount == 0 {
+//                        showContacts = true
+//                    } else {
+//                        feedViewModel.selectedTab = .following
+//                    }
+//                }) {
+//                    VStack {
+//                        Text("😎") // Replacing with emoji
+//                            .font(.largeTitle)
+//                        Text("\(newPostsCount) new friend posts")
+//                            .font(.custom("MuseoSansRounded-500", size: 14))
+//                        
+//                        // Call to action based on friend count
+//                        if newPostsCount == 0 {
+//                            Text("Find friends")
+//                                .font(.custom("MuseoSansRounded-300", size: 12))
+//                                .foregroundColor(.gray)
+//                        } else {
+//                            Text("See posts")
+//                                .font(.custom("MuseoSansRounded-300", size: 12))
+//                                .foregroundColor(.gray)
+//                        }
+//                    }
+//                }
+//                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
+//                Spacer()
+//                
+//                // Whether they've voted in the daily poll
+//                Button(action: {
+//                    feedViewModel.initialPrimaryScrollPosition = "DailyPoll"
+//                }) {
+//                    VStack {
+//                        Text(hasUserVotedToday() ? "📊" : "📊") // Replacing with emoji
+//                            .font(.largeTitle)
+//                        Text(hasUserVotedToday() ? "Voted in Poll 🎉" : "New Daily Poll!")
+//                            .font(.custom("MuseoSansRounded-500", size: 14))
+//                        
+//                        // Call to action based on poll status
+//                        if hasUserVotedToday() {
+//                            if let pollStreak = AuthService.shared.userSession?.pollStreak {
+//                                Text("🔥 streak: \(pollStreak) days")
+//                                    .font(.custom("MuseoSansRounded-300", size: 12))
+//                                    .foregroundColor(.gray)
+//                            }
+//                        } else {
+//                            Text("Vote now")
+//                                .font(.custom("MuseoSansRounded-300", size: 12))
+//                                .foregroundColor(.gray)
+//                        }
+//                    }
+//                }
+//                .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
+//                Spacer()
+//                
+//                // Weekly posting streak
+//                if let postStreak = AuthService.shared.userSession?.weeklyStreak {
+//                    Button(action: {
+//                        tabController.selectedTab = 2
+//                    }) {
+//                        VStack {
+//                            Text("🔥") // Replacing with emoji
+//                                .font(.largeTitle)
+//                            Text("\(postStreak) week review streak")
+//                                .font(.custom("MuseoSansRounded-500", size: 14))
+//                            
+//                            // Call to action for review streak
+//                            Text("Post a review")
+//                                .font(.custom("MuseoSansRounded-300", size: 12))
+//                                .foregroundColor(.gray)
+//                        }
+//                    }
+//                    .frame(width:(UIScreen.main.bounds.width - (8 * 2)) / 4)
+//                }
+//            }
         }
         .padding()
         .background(Color.gray.opacity(0.1)) // Light gray background
@@ -267,17 +310,7 @@ struct ActivityView: View {
         }
     }
     
-    private var contentBasedOnSelectedTab: some View {
-        Group {
-            if selectedTab == .restaurants {
-                restaurantsContent
-            } else if selectedTab == .leaderboards {
-                leaderboardsContent
-            } else if selectedTab == .poll {
-                dailyPollContent
-            }
-        }
-    }
+   
     
     private var tabButtons: some View {
         VStack {
@@ -1008,3 +1041,86 @@ let restaurantFacts = [
     "McDonald’s once tested spaghetti on its menu.",
     "The phrase 'fine dining' refers to restaurants that offer high-quality service and more elaborate menus."
 ]
+struct CuisineCategoryView: View {
+    @Binding var selectedCuisines: [String]
+    let groupedRestaurants: [String: [Restaurant]]
+    let cuisineEmojis: [String: String]
+    @ObservedObject var locationViewModel: LocationViewModel
+    private let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 2)
+    
+    private var sortedCuisines: [String] {
+        groupedRestaurants.keys.sorted { cuisine1, cuisine2 in
+            let isCuisine1Selected = selectedCuisines.contains(cuisine1)
+            let isCuisine2Selected = selectedCuisines.contains(cuisine2)
+            
+            if isCuisine1Selected && !isCuisine2Selected {
+                return true // cuisine1 comes before cuisine2
+            } else if !isCuisine1Selected && isCuisine2Selected {
+                return false // cuisine2 comes before cuisine1
+            } else if isCuisine1Selected && isCuisine2Selected {
+                // Both cuisines are selected, preserve order from selectedCuisines
+                let index1 = selectedCuisines.firstIndex(of: cuisine1) ?? 0
+                let index2 = selectedCuisines.firstIndex(of: cuisine2) ?? 0
+                return index1 < index2
+            } else {
+                // Neither cuisine is selected, sort alphabetically
+                return cuisine1 < cuisine2
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VStack (alignment: .leading){
+                Text("Explore Cuisines")
+                    .font(.custom("MuseoSansRounded-700", size: 25))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal)
+                Text("Near \(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")")
+                    .font(.custom("MuseoSansRounded-500", size: 12))
+                    .foregroundStyle(.gray)
+                    .padding(.horizontal)
+            }
+            LazyVGrid(columns: columns, spacing: 10) {
+                ForEach(sortedCuisines.prefix(8), id: \.self) { cuisine in
+                    //NavigationLink(destination: CuisineRestaurantsView(cuisine: cuisine)) {
+                        CuisineCell(
+                            imageUrl: groupedRestaurants[cuisine]?.randomElement()?.profileImageUrl ?? "",
+                            cuisineName: cuisine,
+                            cuisineEmoji: cuisineEmojis[cuisine] ?? ""
+                        )
+                    //}
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+struct CuisineCell: View {
+    let imageUrl: String
+    let cuisineName: String
+    let cuisineEmoji: String
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            KFImage(URL(string: imageUrl))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 50, height: 50)
+                .clipped()
+            
+            VStack(alignment: .leading) {
+                Text(cuisineName)
+                    .font(.custom("MuseoSansRounded-700", size: 12))
+                    .foregroundStyle(.black)
+                    .multilineTextAlignment(.leading)
+                
+            }
+            .padding(.horizontal, 4)
+            
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(6)
+    }
+}

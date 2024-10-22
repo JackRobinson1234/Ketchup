@@ -32,22 +32,22 @@ struct SimilarRestaurantCell: View {
                 }
                 
                 // Restaurant details
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(restaurant.name)
-                        .font(.custom("MuseoSansRounded-300", size: 12))
+                        .font(.custom("MuseoSansRounded-700", size: 12))
                         .foregroundColor(.black)
                         .lineLimit(1)
                     
                     if let city = restaurant.city, let state = restaurant.state {
                         Text("\(city), \(state)")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .font(.custom("MuseoSansRounded-300", size: 12))
                         
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                     }
                     
                     Text(combineRestaurantDetails(restaurant: restaurant))
-                        .font(.custom("MuseoSansRounded-300", size: 10))
+                        .font(.custom("MuseoSansRounded-300", size: 12))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                 }

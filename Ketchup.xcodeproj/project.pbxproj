@@ -289,7 +289,7 @@
 		F8DA34592C877A7B00660978 /* SimplifiedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34582C877A7B00660978 /* SimplifiedPost.swift */; };
 		F8DA345B2C87935D00660978 /* MapUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA345A2C87935D00660978 /* MapUtils.swift */; };
 		F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */; };
-		F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */; };
+		F8E47CD32CC72987001A97F2 /* PostPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E47CD22CC72987001A97F2 /* PostPreview.swift */; };
 		F8F494F12BBF8C190043B515 /* PriceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F494F02BBF8C190043B515 /* PriceFilter.swift */; };
 		F8FAE30D2BBB93EB00E35ADB /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */; };
 		F8FB355E2BEECF7D0079DE6D /* LibrarySelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */; };
@@ -608,7 +608,7 @@
 		F8DA34582C877A7B00660978 /* SimplifiedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPost.swift; sourceTree = "<group>"; };
 		F8DA345A2C87935D00660978 /* MapUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUtils.swift; sourceTree = "<group>"; };
 		F8DC87EF2C0820FD00CBB8A2 /* DownloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewModel.swift; sourceTree = "<group>"; };
-		F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsButton.swift; sourceTree = "<group>"; };
+		F8E47CD22CC72987001A97F2 /* PostPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPreview.swift; sourceTree = "<group>"; };
 		F8F494F02BBF8C190043B515 /* PriceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceFilter.swift; sourceTree = "<group>"; };
 		F8FAE30C2BBB93EB00E35ADB /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		F8FB355D2BEECF7D0079DE6D /* LibrarySelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySelectorView.swift; sourceTree = "<group>"; };
@@ -1183,6 +1183,7 @@
 				F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */,
 				F82EC7442C939ACA00DDA688 /* RestaurantLeaderboardsView.swift */,
 				F86353192CC2DE25003E9ACC /* TrendingPostsListView.swift */,
+				F8E47CD22CC72987001A97F2 /* PostPreview.swift */,
 			);
 			path = Leaderboards;
 			sourceTree = "<group>";
@@ -1661,7 +1662,6 @@
 				F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */,
 				F8D60B012C432E5100D6DF6D /* HorizontalCollectionView.swift */,
 				F865086F2C8CACE200E59B5C /* CuratedList.swift */,
-				F8EB299C2CB71BEF00C3D23A /* InviteContactsButton.swift */,
 				F8D635392CC0490F00F3377E /* CuisineRestaruantsView.swift */,
 				F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */,
 				F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */,
@@ -2149,7 +2149,6 @@
 				F8D1CD3D2B6A5A5700CEBE76 /* RegistrationViewModel.swift in Sources */,
 				F88E0B2A2B6CA03900EC159B /* FirestoreConstants.swift in Sources */,
 				F84FE29A2B6A58B900144F01 /* AuthenticationFormProtocol.swift in Sources */,
-				F8EB299D2CB71BEF00C3D23A /* InviteContactsButton.swift in Sources */,
 				F871AFF22B7978A200E4EB5F /* MapRestaurantView.swift in Sources */,
 				F87987472C56F451007BAAB4 /* ZoomableViews.swift in Sources */,
 				F8631E552BDAAD8200A48565 /* SettingsView.swift in Sources */,
@@ -2234,6 +2233,7 @@
 				F88E0AEE2B6B085600EC159B /* UserListViewModel.swift in Sources */,
 				F8D62A172C8FC32B00E40B45 /* StateNameConverter.swift in Sources */,
 				F88E0ABE2B6B051200EC159B /* ProfileHeaderView.swift in Sources */,
+				F8E47CD32CC72987001A97F2 /* PostPreview.swift in Sources */,
 				F81D30E62BB72FFC008673E6 /* Debouncer.swift in Sources */,
 				F8BE0C0A2C58A66800770E3F /* CombinedCameraControls.swift in Sources */,
 				F89F28742BE3F4F300E670E0 /* ActivityCell.swift in Sources */,

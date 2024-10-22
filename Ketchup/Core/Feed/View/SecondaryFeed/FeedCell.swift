@@ -18,6 +18,7 @@ import Photos
 import Kingfisher
 import FirebaseAuth
 import UIKit
+
 struct FeedCell: View {
     @Binding var post: Post
     @State private var isPlaying: Bool = false
@@ -330,9 +331,8 @@ struct FeedCell: View {
     
     private var captionAndRatingsBox: some View {
         VStack(alignment: .leading, spacing: 7) {
-            
             actionButtons
-                
+
             if post.repost {
                 HStack(spacing: 1){
                     Image(systemName: "arrow.2.squarepath")
@@ -400,7 +400,8 @@ struct FeedCell: View {
                     }
                 }
             }
-            
+            goodForTagsView()
+
             Button(action: {
                 withAnimation(.spring()) { expandCaption.toggle() }
             }) {
@@ -643,7 +644,26 @@ struct FeedCell: View {
         }
         .frame(width: mediaWidth)
     }
-    
+    private func goodForTagsView() -> some View {
+        VStack{
+            if let goodFor = post.goodFor, !goodFor.isEmpty {
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(goodFor, id: \.self) { tag in
+                            Text(tag)
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+        }
+    }
     @ViewBuilder
     private func singleMediaItemView(coordinator: VideoPlayerCoordinator? = nil, imageURL: String? = nil) -> some View {
         ZStack {

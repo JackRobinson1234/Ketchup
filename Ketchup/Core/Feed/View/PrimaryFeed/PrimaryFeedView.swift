@@ -34,7 +34,6 @@ struct PrimaryFeedView: View {
     @State var showPostSuccess = false
     @State private var newPostsCount: Int = 0
     @State private var scrollOffset: CGFloat = 0
-    @State private var showFindFriends = false
     @StateObject var locationViewModel = LocationViewModel()
     
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
@@ -43,6 +42,7 @@ struct PrimaryFeedView: View {
         self._scrollPosition = State(initialValue: initialScrollPosition)
         self.titleText = titleText
         self.startingPostId = viewModel.startingPostId
+        
     }
     
     var body: some View {
@@ -60,7 +60,7 @@ struct PrimaryFeedView: View {
         } else {
             NavigationStack {
                 ZStack(alignment: .top) {
-                    if viewModel.selectedTab == .dashboard {
+                    if viewModel.selectedMainTab == .dashboard {
                         ScrollViewReader { scrollProxy in
                             ScrollView(showsIndicators: false) {
                                 GeometryReader { geometry in
@@ -133,6 +133,7 @@ struct PrimaryFeedView: View {
                                         if isRefreshing{
                                             FastCrossfadeFoodImageView()
                                         }
+                                        Spacer()
                                         ForEach($viewModel.posts) { $post in
                                             if !post.isReported{
                                                 WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
@@ -206,9 +207,7 @@ struct PrimaryFeedView: View {
                         }
                         
                         .background(.white)
-                        .sheet(isPresented: $showFindFriends) {
-                            ContactsView(shouldFetchExistingUsers: true)
-                        }
+                        
                     }
                     // Top bar and other UI components
                     Rectangle()
@@ -224,44 +223,8 @@ struct PrimaryFeedView: View {
                     VStack(spacing: 5) {
                         HStack(spacing: 0) {
                             
-                            //                            actionButton(title: viewModel.currentLocationFilter != .anywhere && viewModel.city != nil && viewModel.state != nil ? "\(viewModel.city!), \(viewModel.state!)" : "Any Location", icon: "location") {
-                            //                                pauseVideo = true
-                            //                                showLocationFilter.toggle()
-                            //                            }
                             
-                            //                            Button {
-                            //                                pauseVideo = true
-                            //                                showFilters.toggle()
-                            //                            } label: {
-                            //
-                            //                                VStack{
-                            //                                    ZStack(alignment: . bottomTrailing){
-                            //                                        Image(systemName: "slider.horizontal.3")
-                            //                                            .font(.system(size: 27))
-                            //                                            .foregroundStyle(.gray)
-                            //                                        if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-                            //                                            ZStack {
-                            //                                                Circle()
-                            //                                                    .fill(Color("Colors/AccentColor"))
-                            //                                                    .frame(width: 16, height: 16)
-                            //                                                Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-                            //                                                    .font(.custom("MuseoSansRounded-500", size: 10))
-                            //                                                    .foregroundColor(.white)
-                            //                                            }
-                            //                                            .offset(x: 5, y: 5)
-                            //                                            .padding(.leading, 1)
-                            //                                        }
-                            //                                    }
-                            //                                    Text("Filter Feed")
-                            //                                        .font(.custom("MuseoSansRounded-300", size: 10))
-                            //                                        .foregroundStyle(.gray)
-                            //
-                            //
-                            //                                }
-                            //                                .frame(width: 100)
-                            //
-                            //                            }
-                            Spacer()
+                          
                             Button {
                                 tabBarController.scrollToTop.toggle()
                             } label: {
@@ -271,149 +234,216 @@ struct PrimaryFeedView: View {
                                     .frame(width: 100)
                             }
                             Spacer()
-                            
-                            
-                            
-                            
+                            Button{
+                                showAddFriends = true
+                            } label: {
+                                Text("Invite Friends")
+                                    .foregroundStyle(Color("Colors/AccentColor"))
+                                    .font(.custom("MuseoSansRounded-700", size: 14))
+                            }
                         }
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 20)
                         .foregroundStyle(.black)
                         
                         if !hideTopUI {
-                            
-                            HStack{
-                                HStack {
-                                    
-                                    //                                                                        ZStack(alignment: .bottomTrailing){
-                                    //                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
-                                    //                                                                                pauseVideo = true
-                                    //                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
-                                    //                                                                            }
-                                    //                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-                                    //                                                                                ZStack {
-                                    //                                                                                    Circle()
-                                    //                                                                                        .fill(Color("Colors/AccentColor"))
-                                    //                                                                                        .frame(width: 16, height: 16)
-                                    //                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-                                    //                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
-                                    //                                                                                        .foregroundColor(.white)
-                                    //                                                                                }
-                                    //                                                                                .offset(x: 5, y: 5)
-                                    //                                                                                .padding(.leading, 1)
-                                    //                                                                            }
-                                    //                                                                        }
-                                    
-                                }
-                                .padding(.horizontal)
-                            }
-                            
-                            HStack {
-                                // Dashboard Tab
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .dashboard
-                                        }
-                                        canSwitchTab = false
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
-                                        }
+                            VStack{
+                                HStack{
+                                    HStack {
+                                        
+                                        //                                                                        ZStack(alignment: .bottomTrailing){
+                                        //                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
+                                        //                                                                                pauseVideo = true
+                                        //                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
+                                        //                                                                            }
+                                        //                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
+                                        //                                                                                ZStack {
+                                        //                                                                                    Circle()
+                                        //                                                                                        .fill(Color("Colors/AccentColor"))
+                                        //                                                                                        .frame(width: 16, height: 16)
+                                        //                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
+                                        //                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
+                                        //                                                                                        .foregroundColor(.white)
+                                        //                                                                                }
+                                        //                                                                                .offset(x: 5, y: 5)
+                                        //                                                                                .padding(.leading, 1)
+                                        //                                                                            }
+                                        //                                                                        }
+                                        
                                     }
-                                } label: {
-                                    Text("Dashboard")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .dashboard ? Color("Colors/AccentColor") : .gray)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .dashboard ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 17)
-                                        )
+                                    .padding(.horizontal)
                                 }
-                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
-                                .disabled(viewModel.selectedTab == .dashboard || !canSwitchTab)
                                 
-                                // Following Tab
-                                Button {
-                                    newPostsCount = 0
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .following
-                                        }
-                                        canSwitchTab = false
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
-                                        }
-                                    }
-                                } label: {
-                                    HStack{
-                                        if newPostsCount > 0  {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color("Colors/AccentColor"))
-                                                    .frame(width: 8, height: 8)
+                                HStack {
+                                    // Dashboard Tab
+                                    Button {
+                                        if canSwitchTab {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                viewModel.selectedMainTab = .dashboard
                                             }
-                                            .padding(.leading, 1)
+                                            canSwitchTab = false
+                                            // Re-enable switching after a delay
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                canSwitchTab = true
+                                            }
                                         }
-                                        Text("Following")
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            hideTopUI = false
+                                            topBarHeight = 120
+                                        }
+                                    } label: {
+                                        Text("Home")
                                             .font(.custom("MuseoSansRounded-500", size: 18))
-                                            .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .gray)
+                                            .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .gray)
                                             .overlay(
                                                 Rectangle()
                                                     .frame(height: 2)
-                                                    .foregroundColor(viewModel.selectedTab == .following ? Color("Colors/AccentColor") : .clear)
+                                                    .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .clear)
                                                     .offset(y: 17)
                                             )
                                     }
-                                }
-                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
-                                .disabled(viewModel.selectedTab == .following || !canSwitchTab)
-                                
-                                // Discover Tab
-                                Button {
-                                    if canSwitchTab {
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            viewModel.selectedTab = .discover
+                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
+                                    .disabled(viewModel.selectedMainTab == .dashboard || !canSwitchTab)
+                                    
+                                    // Following Tab
+                                    Button {
+                                        newPostsCount = 0
+                                        if canSwitchTab {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                viewModel.selectedMainTab = .feed
+                                            }
+                                            canSwitchTab = false
+                                            // Re-enable switching after a delay
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                canSwitchTab = true
+                                            }
                                         }
-                                        canSwitchTab = false
-                                        // Re-enable switching after a delay
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            canSwitchTab = true
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            hideTopUI = false
+                                            topBarHeight = 160
+                                        }
+                                    } label: {
+                                        HStack{
+                                            if newPostsCount > 0  {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(Color("Colors/AccentColor"))
+                                                        .frame(width: 8, height: 8)
+                                                }
+                                                .padding(.leading, 1)
+                                            }
+                                            Text("Feed")
+                                                .font(.custom("MuseoSansRounded-500", size: 18))
+                                                .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .gray)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(height: 2)
+                                                        .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .clear)
+                                                        .offset(y: 17)
+                                                )
                                         }
                                     }
-                                } label: {
-                                    Text("Explore")
-                                        .font(.custom("MuseoSansRounded-500", size: 18))
-                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(height: 2)
-                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
-                                                .offset(y: 17)
-                                        )
+                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
+                                    .disabled(viewModel.selectedMainTab == .feed || !canSwitchTab)
+                                    
+                                    // Discover Tab
+                                    //                                Button {
+                                    //                                    if canSwitchTab {
+                                    //                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                    //                                            viewModel.selectedTab = .discover
+                                    //                                        }
+                                    //                                        canSwitchTab = false
+                                    //                                        // Re-enable switching after a delay
+                                    //                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    //                                            canSwitchTab = true
+                                    //                                        }
+                                    //                                    }
+                                    //                                } label: {
+                                    //                                    Text("Explore")
+                                    //                                        .font(.custom("MuseoSansRounded-500", size: 18))
+                                    //                                        .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .gray)
+                                    //                                        .overlay(
+                                    //                                            Rectangle()
+                                    //                                                .frame(height: 2)
+                                    //                                                .foregroundColor(viewModel.selectedTab == .discover ? Color("Colors/AccentColor") : .clear)
+                                    //                                                .offset(y: 17)
+                                    //                                        )
+                                    //                                }
+                                    //                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
+                                    //                                .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
                                 }
-                                .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 3)
-                                .disabled(viewModel.selectedTab == .discover || !canSwitchTab)
+                                .padding(.bottom, 6)
+                                .padding(.bottom, 6)
+                                if viewModel.selectedMainTab == .feed {
+                                    HStack {
+                                        // Left side: Filters button
+                                        Button {
+                                            pauseVideo = true
+                                            showFilters.toggle()
+                                        } label: {
+                                            HStack(spacing: 1) {
+                                                Image(systemName: "slider.horizontal.3")
+                                                    .font(.system(size: 16))
+                                                Text("Filters")
+                                                    .font(.custom("MuseoSansRounded-500", size: 12))
+                                            }
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 4)
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                            )
+                                        }
+                                        .foregroundColor(.black)
+                                        
+                                        
+                                        // Right side: Followers or Anyone
+                                        Button {
+                                            // Toggle between following and discover
+                                            withAnimation {
+                                                if viewModel.selectedFeedSubTab == .following {
+                                                    viewModel.selectedFeedSubTab = .discover
+                                                } else {
+                                                    viewModel.selectedFeedSubTab = .following
+                                                }
+                                            }
+                                        } label: {
+                                            HStack(spacing: 1) {
+                                                Image(systemName: "person.2")
+                                                
+                                                Text(viewModel.selectedFeedSubTab == .following ? "Following only" : "See following only")
+                                            }
+                                            .font(.custom("MuseoSansRounded-500", size: 12))
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 4)
+                                            .background(
+                                                viewModel.selectedFeedSubTab == .following ? Color.red : Color.clear
+                                            )
+                                            .cornerRadius(15)
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(viewModel.selectedFeedSubTab == .following ? Color.red : Color.gray.opacity(0.5), lineWidth: 1)
+                                            )
+                                        }
+                                        .foregroundColor(viewModel.selectedFeedSubTab == .following ? .white : .black)
+                                        .animation(.easeInOut, value: viewModel.selectedFeedSubTab)
+                                    }
+                                    .padding(.horizontal, 16)
+                                }
                             }
-                            .padding(.bottom, 6)
-                            .padding(.bottom, 6)
                         }
-                        
                     }
                 }
                 
                 .overlay {
-                    if viewModel.showEmptyView {
+                    if viewModel.showEmptyView && viewModel.selectedMainTab == .feed {
                         VStack {
                             CustomUnavailableView(text: "No posts to show", image: "eye.slash")
                                 .foregroundStyle(Color("Colors/AccentColor"))
-                            if viewModel.selectedTab == .following {
+                            if viewModel.selectedFeedSubTab == .following {
                                 Button{
-                                    showFindFriends = true
+                                    showAddFriends = true
                                 } label: {
-                                    Text("Find your friends!")
+                                    Text("Invite your friends!")
                                         .foregroundStyle(Color("Colors/AccentColor"))
                                         .font(.custom("MuseoSansRounded-700", size: 14))
                                 }
@@ -521,7 +551,11 @@ struct PrimaryFeedView: View {
                 // Scrolling up
                 withAnimation(.easeInOut(duration: 0.3)) {
                     hideTopUI = false
-                    topBarHeight = 120
+                    if viewModel.selectedMainTab == .dashboard{
+                        topBarHeight = 120
+                    } else {
+                        topBarHeight = 160
+                    }
                 }
             } else if scrollDifference < -60 {
                 // Scrolling down
