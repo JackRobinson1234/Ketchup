@@ -247,31 +247,7 @@ struct PrimaryFeedView: View {
                         
                         if !hideTopUI {
                             VStack{
-                                HStack{
-                                    HStack {
-                                        
-                                        //                                                                        ZStack(alignment: .bottomTrailing){
-                                        //                                                                            actionButton(title: "Filter Feed", icon: "slider.horizontal.3") {
-                                        //                                                                                pauseVideo = true
-                                        //                                                                                showFilters.toggle() // Toggle the search view or feed filter when tapped
-                                        //                                                                            }
-                                        //                                                                            if viewModel.activeCuisineAndPriceFiltersCount > 0 {
-                                        //                                                                                ZStack {
-                                        //                                                                                    Circle()
-                                        //                                                                                        .fill(Color("Colors/AccentColor"))
-                                        //                                                                                        .frame(width: 16, height: 16)
-                                        //                                                                                    Text("\(viewModel.activeCuisineAndPriceFiltersCount)")
-                                        //                                                                                        .font(.custom("MuseoSansRounded-500", size: 10))
-                                        //                                                                                        .foregroundColor(.white)
-                                        //                                                                                }
-                                        //                                                                                .offset(x: 5, y: 5)
-                                        //                                                                                .padding(.leading, 1)
-                                        //                                                                            }
-                                        //                                                                        }
-                                        
-                                    }
-                                    .padding(.horizontal)
-                                }
+                                
                                 
                                 HStack {
                                     // Dashboard Tab

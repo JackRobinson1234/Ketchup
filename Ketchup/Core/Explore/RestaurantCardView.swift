@@ -17,19 +17,22 @@ struct RestaurantCardView: View {
     @State private var friendsPostCount: Int = 0
     
     var body: some View {
+        let screenWidth = UIScreen.main.bounds.width
+        let cardWidth = (screenWidth / 2) - 20 // Adjust padding as needed
+        
         VStack(alignment: .leading) {
             ZStack(alignment: .bottomLeading){
                 if let imageUrl = restaurant.profileImageUrl {
                     KFImage(URL(string: imageUrl))
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 240, height: 140)
+                        .frame(width: cardWidth, height: 140)
                         .clipped()
                 } else {
                     Image("Skip")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 240, height: 140)
+                        .frame(width: cardWidth, height: 140)
                         .cornerRadius(8)
                         .clipped()
                 }
@@ -96,13 +99,11 @@ struct RestaurantCardView: View {
                     }
                     if let count = restaurant.stats?.postCount {
                         HStack {
-//                            Text("\(count) posts")
-//                                .font(.custom("MuseoSansRounded-300", size: 10))
-//                                .foregroundColor(.gray)
-//                                .lineLimit(1)
-//                                .minimumScaleFactor(0.7)
-                            
-                           
+                            // Text("\(count) posts")
+                            //    .font(.custom("MuseoSansRounded-300", size: 10))
+                            //    .foregroundColor(.gray)
+                            //    .lineLimit(1)
+                            //    .minimumScaleFactor(0.7)
                         }
                     }
                     if let distance = distanceString {
@@ -112,7 +113,6 @@ struct RestaurantCardView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                    
                 }
                 Spacer()
                 if let overallRating = restaurant.overallRating?.average {
@@ -120,16 +120,15 @@ struct RestaurantCardView: View {
                         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }
             }
-            
             .padding(.horizontal)
             .padding(.bottom, 6)
         }
-        .frame(width: 240)
+        .frame(width: cardWidth)
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         .padding(5)
-        .onAppear{
+        .onAppear {
             Task {
                 await fetchFriendsPostCount()
             }

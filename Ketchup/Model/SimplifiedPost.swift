@@ -21,6 +21,7 @@ struct SimplifiedPost: Identifiable, Codable, Hashable {
     let atmosphereRating: Double?
     let valueRating: Double?
     let foodRating: Double?
+    let caption: String?
 
     var coordinates: CLLocationCoordinate2D? {
         if let point = self.restaurant.geoPoint {
@@ -43,7 +44,7 @@ extension SimplifiedPost {
             mediaType: .photo,  // Default to photo since we have thumbnailUrl
             mediaUrls: [self.thumbnailUrl],  // Use thumbnailUrl as the only media
             mixedMediaUrls: nil,  // Default to nil since simplified doesn't have this
-            caption: "",  // Empty caption since simplified doesn't have this
+            caption: self.caption ?? "",  // Empty caption since simplified doesn't have this
             likes: 0,  // Default to 0
             commentCount: 0,  // Default to 0
             bookmarkCount: 0,  // Default to 0

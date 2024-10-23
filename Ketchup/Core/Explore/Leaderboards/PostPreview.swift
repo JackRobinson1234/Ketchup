@@ -55,6 +55,7 @@ struct PostPreview: View {
                 Text(post.restaurant.name)
                     .font(.custom("MuseoSansRounded-700", size: 14))
                     .foregroundColor(.black)
+                    .multilineTextAlignment(.leading)
 
                 // City and state (new addition)
                 if let city = post.restaurant.city, let state = post.restaurant.state {
@@ -81,7 +82,7 @@ struct PostPreview: View {
                         .font(.custom("MuseoSansRounded-700", size: 14))
                         .foregroundColor(.red)
                 }
-                .padding(.top)
+                
             }
 
             Spacer()
