@@ -29,7 +29,8 @@ struct ActivityView: View {
     @State private var initialLoad: Bool = true
     @Binding var newPostsCount: Int
     @State private var randomRestaurantFact: String = ""
-    
+    @Binding var hideTopUI: Bool
+    @Binding var topBarHeight: CGFloat
     var body: some View {
         LazyVStack {
             if !isLoading {
@@ -47,7 +48,7 @@ struct ActivityView: View {
                     let index2 = selectedCuisines.firstIndex(of: cuisine2) ?? selectedCuisines.count
                     return index1 < index2
                 }
-                CuisineCategoryView(selectedCuisines: $selectedCuisines,
+                CuisineCategoryView(selectedCuisines: selectedCuisines,
                                     groupedRestaurants: groupedRestaurants,
                                     locationViewModel: locationViewModel)
                     .padding(.top)
@@ -57,9 +58,19 @@ struct ActivityView: View {
                         Text(viewModel.hasUnseenFriendPosts ? "New from friends" : "Featured Post")
                             .font(.custom("MuseoSansRounded-700", size: 25))
                             .padding(.horizontal)
-                        
+                        if newPostsCount > 0 {
+                        Text("\(newPostsCount) new posts from friends")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundStyle(.gray)
+                            .padding(.horizontal)
+                            }
                         Button(action: {
-                            feedViewModel.selectedMainTab = .feed
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                feedViewModel.selectedMainTab = .feed
+                                hideTopUI = false
+                                topBarHeight = 160
+                            }
+                           
                             if viewModel.hasUnseenFriendPosts {
                                 feedViewModel.selectedFeedSubTab = .following
                             } else {

@@ -200,8 +200,9 @@ struct ReelsUploadView: View {
                                 .cornerRadius(20)
                         }
                     }
+                    .padding(.horizontal)
+
                 }
-                .padding(.horizontal)
                 .padding(.top, 8)
             }
 
@@ -478,6 +479,20 @@ struct ReelsUploadView: View {
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .foregroundColor(Color("Colors/AccentColor"))
                             .frame(alignment: .trailing)
+                    } else {
+                        HStack{
+                            ForEach(uploadViewModel.taggedUsers.prefix(3), id: \.id) { user in
+                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                            }
+                            if uploadViewModel.taggedUsers.count > 3 {
+                                VStack {
+                                    Spacer()
+                                    Text("and \(uploadViewModel.taggedUsers.count - 3) others")
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                }
+                            }
+                            Spacer()
+                        }
                     }
                 }
                 
@@ -490,9 +505,9 @@ struct ReelsUploadView: View {
                         .padding(.trailing, 10)
                 } else {
                     HStack {
-                        Text("\(uploadViewModel.taggedUsers.count) \(uploadViewModel.taggedUsers.count == 1 ? "person" : "people")")
-                              .font(.custom("MuseoSansRounded-300", size: 16))
-                              .foregroundColor(.black)
+//                        Text("\(uploadViewModel.taggedUsers.count) \(uploadViewModel.taggedUsers.count == 1 ? "person" : "people")")
+//                              .font(.custom("MuseoSansRounded-300", size: 16))
+//                              .foregroundColor(.black)
                         
                         Image(systemName: "chevron.right")
                             .frame(width: 25, height: 25)

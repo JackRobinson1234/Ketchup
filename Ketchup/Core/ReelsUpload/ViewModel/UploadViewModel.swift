@@ -16,7 +16,6 @@ class UploadViewModel: ObservableObject {
     @Published var caption = ""
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
-    // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
     @Published var images: [UIImage]?
     @Published var mediaType: MediaType = .video
@@ -112,7 +111,7 @@ class UploadViewModel: ObservableObject {
             return nil
         }
     }
-
+    
     private func createPostRestaurant() async throws -> PostRestaurant? {
         if let restaurant = restaurant {
             return UploadService.shared.createPostRestaurant(from: restaurant)
@@ -132,7 +131,7 @@ class UploadViewModel: ObservableObject {
         }
         return nil
     }
-
+    
     private func extractMentionedUsers(from caption: String) async throws -> [PostUser] {
         var mentionedUsers: [PostUser] = []
         let words = caption.split(separator: " ")
@@ -171,7 +170,7 @@ class UploadViewModel: ObservableObject {
         
         return mentionedUsers
     }
-
+    
     private func uploadMixedMediaItems() async throws -> [MixedMediaItem]? {
         guard !mixedMediaItems.isEmpty else { return nil }
         
@@ -242,31 +241,32 @@ class UploadViewModel: ObservableObject {
         }
         
         return try await UploadService.shared.uploadPost(
-               mixedMediaItems: mixedMediaItems,
-               mediaType: .mixed,
-               caption: caption,
-               postRestaurant: postRestaurant,
-               fromInAppCamera: fromInAppCamera,
-               overallRating: averageRating, // Use calculated average rating
-               serviceRating: isServiceNA ? nil : serviceRating,
-               atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-               valueRating: isValueNA ? nil : valueRating,
-               foodRating: isFoodNA ? nil : foodRating,
-               taggedUsers: taggedUsers,
-               captionMentions: mentionedUsers,
-               goodFor: self.goodFor.isEmpty ? nil : self.goodFor, // Add this line
-               thumbnailImage: thumbnailImage,
-               progressHandler: { progress in
-                   DispatchQueue.main.async {
-                       //self.uploadProgress = progress
-                   }
-               }
-           )
+            mixedMediaItems: mixedMediaItems,
+            mediaType: .mixed,
+            caption: caption,
+            postRestaurant: postRestaurant,
+            fromInAppCamera: fromInAppCamera,
+            overallRating: averageRating, // Use calculated average rating
+            serviceRating: isServiceNA ? nil : serviceRating,
+            atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+            valueRating: isValueNA ? nil : valueRating,
+            foodRating: isFoodNA ? nil : foodRating,
+            taggedUsers: taggedUsers,
+            captionMentions: mentionedUsers,
+            goodFor: self.goodFor.isEmpty ? nil : self.goodFor, // Add this line
+            thumbnailImage: thumbnailImage,
+            progressHandler: { progress in
+                DispatchQueue.main.async {
+                    //self.uploadProgress = progress
+                }
+            }
+        )
     }
 
     private func handleUploadSuccess(post: Post) {
         uploadSuccess = true
         feedViewModel.showPostAlert = true
+        feedViewModel.selectedMainTab = .feed
         feedViewModel.posts.insert(post, at: 0)
         
         if !fromRestaurantProfile{

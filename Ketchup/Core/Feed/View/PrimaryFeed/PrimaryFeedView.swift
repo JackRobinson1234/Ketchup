@@ -84,7 +84,7 @@ struct PrimaryFeedView: View {
                                             }
                                         }
                                 }
-                                ActivityView(locationViewModel: locationViewModel, feedViewModel: viewModel, newPostsCount: $newPostsCount)
+                                ActivityView(locationViewModel: locationViewModel, feedViewModel: viewModel, newPostsCount: $newPostsCount, hideTopUI: $hideTopUI, topBarHeight: $topBarHeight)
                                     .onChange(of: viewModel.initialPrimaryScrollPosition) { newValue in
                                         if let newPosition = newValue {
                                             withAnimation(.smooth) {
@@ -255,6 +255,8 @@ struct PrimaryFeedView: View {
                                         if canSwitchTab {
                                             withAnimation(.easeInOut(duration: 0.5)) {
                                                 viewModel.selectedMainTab = .dashboard
+                                                hideTopUI = false
+                                                topBarHeight = 120
                                             }
                                             canSwitchTab = false
                                             // Re-enable switching after a delay
@@ -262,10 +264,7 @@ struct PrimaryFeedView: View {
                                                 canSwitchTab = true
                                             }
                                         }
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            hideTopUI = false
-                                            topBarHeight = 120
-                                        }
+                                       
                                     } label: {
                                         Text("Home")
                                             .font(.custom("MuseoSansRounded-500", size: 18))
@@ -286,6 +285,8 @@ struct PrimaryFeedView: View {
                                         if canSwitchTab {
                                             withAnimation(.easeInOut(duration: 0.5)) {
                                                 viewModel.selectedMainTab = .feed
+                                                hideTopUI = false
+                                                topBarHeight = 160
                                             }
                                             canSwitchTab = false
                                             // Re-enable switching after a delay
@@ -293,10 +294,7 @@ struct PrimaryFeedView: View {
                                                 canSwitchTab = true
                                             }
                                         }
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            hideTopUI = false
-                                            topBarHeight = 160
-                                        }
+                                        
                                     } label: {
                                         HStack{
                                             if newPostsCount > 0  {

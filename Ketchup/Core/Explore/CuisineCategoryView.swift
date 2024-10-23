@@ -10,35 +10,18 @@ import Kingfisher
 import CoreLocation
 
 struct CuisineCategoryView: View {
-    @Binding var selectedCuisines: [String]
+    var selectedCuisines: [String]
     let groupedRestaurants: [String: [Restaurant]]
     @ObservedObject var locationViewModel: LocationViewModel
     private let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 2)
-    @State private var showAllCuisines = false  // State variable for full-screen cover
-
-    private var sortedCuisines: [String] {
-        groupedRestaurants.keys.sorted { cuisine1, cuisine2 in
-            let isCuisine1Selected = selectedCuisines.contains(cuisine1)
-            let isCuisine2Selected = selectedCuisines.contains(cuisine2)
-            
-            if isCuisine1Selected && !isCuisine2Selected {
-                return true
-            } else if !isCuisine1Selected && isCuisine2Selected {
-                return false
-            } else if isCuisine1Selected && isCuisine2Selected {
-                let index1 = selectedCuisines.firstIndex(of: cuisine1) ?? 0
-                let index2 = selectedCuisines.firstIndex(of: cuisine2) ?? 0
-                return index1 < index2
-            } else {
-                return cuisine1 < cuisine2
-            }
-        }
-    }
+    @State private var showAllCuisines = false
+    @State private var sortedCuisinesWithImages: [(cuisine: String, imageUrl: String)] = []
+    @State private var hasCalculatedCuisines = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack{
-                VStack (alignment: .leading){
+            HStack {
+                VStack(alignment: .leading) {
                     Text("Explore Restaurants")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .foregroundStyle(.black)
@@ -49,7 +32,7 @@ struct CuisineCategoryView: View {
                 }
                 Spacer()
                 Button(action: {
-                    showAllCuisines = true  // Show the full-screen cover
+                    showAllCuisines = true
                 }) {
                     Text("See all")
                         .font(.custom("MuseoSansRounded-500", size: 12))
@@ -59,15 +42,15 @@ struct CuisineCategoryView: View {
             .padding(.horizontal)
             
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(sortedCuisines.prefix(8), id: \.self) { cuisine in
+                ForEach(sortedCuisinesWithImages.prefix(8), id: \.cuisine) { cuisineData in
                     NavigationLink(destination: CuisineRestaurantsView(
-                        cuisineName: cuisine,
-                        restaurants: groupedRestaurants[cuisine] ?? [],
+                        cuisineName: cuisineData.cuisine,
+                        restaurants: groupedRestaurants[cuisineData.cuisine] ?? [],
                         locationViewModel: locationViewModel
                     )) {
                         CuisineCell(
-                            imageUrl: groupedRestaurants[cuisine]?.randomElement()?.profileImageUrl ?? "",
-                            cuisineName: cuisine
+                            imageUrl: cuisineData.imageUrl,  // Use the pre-computed image URL
+                            cuisineName: cuisineData.cuisine
                         )
                     }
                 }
@@ -78,8 +61,30 @@ struct CuisineCategoryView: View {
             AllCuisinesView(
                 groupedRestaurants: groupedRestaurants,
                 locationViewModel: locationViewModel,
-                showAllCuisines: $showAllCuisines  // Pass the binding to dismiss the cover
+                showAllCuisines: $showAllCuisines
             )
+        }
+        .onAppear {
+            // Calculate cuisines and images only if it hasn't been done yet
+            if !hasCalculatedCuisines {
+                computeSortedCuisinesAndImages()
+                hasCalculatedCuisines = true
+            }
+        }
+    }
+    
+    private func computeSortedCuisinesAndImages() {
+        let allCuisines = Array(groupedRestaurants.keys)
+        let selectedCuisinesInOrder = selectedCuisines.filter { allCuisines.contains($0) }
+        let unselectedCuisines = allCuisines.filter { !selectedCuisines.contains($0) }.shuffled()
+
+        // Combine selected cuisines and shuffled unselected cuisines
+        let sortedCuisines = selectedCuisinesInOrder + unselectedCuisines
+
+        // Store a random image URL for each cuisine
+        sortedCuisinesWithImages = sortedCuisines.map { cuisine in
+            let randomImageUrl = groupedRestaurants[cuisine]?.randomElement()?.profileImageUrl ?? ""
+            return (cuisine: cuisine, imageUrl: randomImageUrl)
         }
     }
 }
@@ -136,8 +141,8 @@ struct AllCuisinesView: View {
                             )
                         }
                     }
-                    .padding()
                 }
+                .padding(.horizontal)
                 .navigationTitle("All Cuisines")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
