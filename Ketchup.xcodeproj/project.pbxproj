@@ -302,6 +302,8 @@
 		F8FB356D2BF10A910079DE6D /* CollectionReportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */; };
 		F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */; };
 		F8FB43D22C94BBE2003D8384 /* RestaurantLocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FB43D12C94BBE2003D8384 /* RestaurantLocationSearchView.swift */; };
+		F8FC546C2CC9F6F400F93E93 /* MediaCategorySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FC546B2CC9F6F200F93E93 /* MediaCategorySelection.swift */; };
+		F8FC546E2CCC2AA400F93E93 /* TaggingSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FC546D2CCC2AA400F93E93 /* TaggingSheetView.swift */; };
 		F8FF600C2BE424CC0095A3F1 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */; };
 		F8FF600E2BE42A0C0095A3F1 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */; };
 		FE388A23A197A32E969C7799 /* Pods_Ketchup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CBE8CA0C93532B6FFF0C2F6 /* Pods_Ketchup.framework */; };
@@ -622,6 +624,8 @@
 		F8FB356C2BF10A910079DE6D /* CollectionReportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReportOption.swift; sourceTree = "<group>"; };
 		F8FB356E2BF112F40079DE6D /* ProfileReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileReportView.swift; sourceTree = "<group>"; };
 		F8FB43D12C94BBE2003D8384 /* RestaurantLocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantLocationSearchView.swift; sourceTree = "<group>"; };
+		F8FC546B2CC9F6F200F93E93 /* MediaCategorySelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCategorySelection.swift; sourceTree = "<group>"; };
+		F8FC546D2CCC2AA400F93E93 /* TaggingSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaggingSheetView.swift; sourceTree = "<group>"; };
 		F8FF600B2BE424CB0095A3F1 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		F8FF600D2BE42A0C0095A3F1 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1204,6 +1208,8 @@
 			children = (
 				F8CC219B2BD5876F00B4B329 /* ReelsUploadView.swift */,
 				F863531B2CC343FD003E9ACC /* GoodForSelectionView.swift */,
+				F8FC546B2CC9F6F200F93E93 /* MediaCategorySelection.swift */,
+				F8FC546D2CCC2AA400F93E93 /* TaggingSheetView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2126,6 +2132,7 @@
 				F86050BF2BBC91EE00318080 /* CuisineCategories.swift in Sources */,
 				F871CE012BCDBD8F003C9BE8 /* CollectionsViewModel.swift in Sources */,
 				F8A24B592BE7F2BD00AB7FDD /* UploadError.swift in Sources */,
+				F8FC546C2CC9F6F400F93E93 /* MediaCategorySelection.swift in Sources */,
 				F8B69F242C6D5A240084AE68 /* UserRegistrationViewModel.swift in Sources */,
 				F8CC21A52BD58A9C00B4B329 /* CameraView.swift in Sources */,
 				F88E0A422B6A5ED400EC159B /* CommentViewModel.swift in Sources */,
@@ -2307,6 +2314,7 @@
 				F88E0B3B2B6CA38D00EC159B /* RestaurantProfileView.swift in Sources */,
 				F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */,
 				F871CE192BCE1AE8003C9BE8 /* CollectionRestaurantSearch.swift in Sources */,
+				F8FC546E2CCC2AA400F93E93 /* TaggingSheetView.swift in Sources */,
 				F8BD815B2BC5B17B007C2CFC /* MapCuisineFilter.swift in Sources */,
 				F81C464C2CC0B6C900DB736F /* SocialViewModel.swift in Sources */,
 				F88E0B322B6CA0F100EC159B /* StandardButtonModifier.swift in Sources */,
@@ -2541,7 +2549,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.7;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2593,7 +2601,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.7;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

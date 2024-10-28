@@ -17,6 +17,8 @@ struct CuisineCategoryView: View {
     @State private var showAllCuisines = false
     @State private var sortedCuisinesWithImages: [(cuisine: String, imageUrl: String)] = []
     @State private var hasCalculatedCuisines = false
+    @State private var showLocationSearch = false
+
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -25,10 +27,17 @@ struct CuisineCategoryView: View {
                     Text("Explore Restaurants")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .foregroundStyle(.black)
-                        
+                    Button {
+                        showLocationSearch = true
+                    } label: {
                     Text("Near \(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")")
                         .font(.custom("MuseoSansRounded-500", size: 12))
-                        .foregroundStyle(.gray)
+                        .foregroundColor(.gray)
+                        +
+                    Text(" (edit)")
+                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .foregroundColor(.red)
+                }
                 }
                 Spacer()
                 Button(action: {
@@ -63,6 +72,10 @@ struct CuisineCategoryView: View {
                 locationViewModel: locationViewModel,
                 showAllCuisines: $showAllCuisines
             )
+        }
+        .sheet(isPresented: $showLocationSearch) {
+            LocationSearchView(locationViewModel: locationViewModel)
+                .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
         }
         .onAppear {
             // Calculate cuisines and images only if it hasn't been done yet

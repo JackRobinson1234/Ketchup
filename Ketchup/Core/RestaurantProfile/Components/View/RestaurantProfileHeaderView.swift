@@ -779,7 +779,7 @@ struct OrderOptionView: View {
         
         switch name {
         case "doordash":
-            return "Doordash"
+            return "DoorDash"
         case "postmates":
             return "Postmates"
         case "caviar":

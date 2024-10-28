@@ -36,7 +36,7 @@ struct ActivityView: View {
             if !isLoading {
                 Color.clear
                     .frame(height: 80)
-                userUpdatesSection
+                //userUpdatesSection
                 
                 if !hasUserVotedToday() {
                     dailyPollContent
@@ -141,52 +141,32 @@ struct ActivityView: View {
         }
     }
     
-    private var userUpdatesSection: some View {
-        VStack{
-            VStack(alignment: .leading, spacing: 2){
-                if let user = AuthService.shared.userSession {
-                    Text("\(greeting), @\(user.username)!")
-                        .font(.custom("MuseoSansRounded-700", size: 22))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                }
-                
-                Text("Daily Fact: \(randomRestaurantFact.lowercased())")
-                    .font(.custom("MuseoSansRounded-500", size: 12))
-                    .foregroundColor(.black)
-                    .padding(.top, 5)
-            }
-            HStack{
-                Button(action: {
-                    showLocationSearch.toggle()
-                }) {
-                    HStack(spacing: 2) {
-                        Image(systemName: "location")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                        Text(locationViewModel.city != nil && locationViewModel.state != nil ? "\(locationViewModel.city!), \(locationViewModel.state!)" : "Any Location")
-                            .font(.custom("MuseoSansRounded-500", size: 12))
-                            .foregroundColor(.black)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
-                    
-                }
-                Spacer()
-            }
-        }
-        .padding()
-        .background(Color.gray.opacity(0.1)) // Light gray background
-        .cornerRadius(10)
-        .padding(.bottom, 8)
-        .padding(.horizontal)
-    }
+//    private var userUpdatesSection: some View {
+//        VStack{
+//            VStack(alignment: .leading, spacing: 2){
+//                if let user = AuthService.shared.userSession {
+//                    Text("\(greeting), @\(user.username)!")
+//                        .font(.custom("MuseoSansRounded-700", size: 22))
+//                        .lineLimit(1)
+//                        .minimumScaleFactor(0.5)
+//                }
+//                
+//                Text("Daily Fact: \(randomRestaurantFact.lowercased())")
+//                    .font(.custom("MuseoSansRounded-500", size: 12))
+//                    .foregroundColor(.black)
+//                    .padding(.top, 5)
+//            }
+//            HStack{
+//                
+//                Spacer()
+//            }
+//        }
+//        .padding()
+//        .background(Color.gray.opacity(0.1)) // Light gray background
+//        .cornerRadius(10)
+//        .padding(.bottom, 8)
+//        .padding(.horizontal)
+//    }
     
     private func loadAllRestaurants(location: CLLocationCoordinate2D) async {
         do {

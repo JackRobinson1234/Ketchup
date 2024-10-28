@@ -39,6 +39,7 @@ struct ReelsUploadView: View {
     @State private var showingWarningAlert = false
     @State private var isShowingGoodForSelection = false
     @State private var showConfirmationAlert = false
+    @State private var showTaggingSheet = false
 
     var overallRatingPercentage: Double {
         ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
@@ -75,7 +76,10 @@ struct ReelsUploadView: View {
                                 if !isVideoExpanded {
                                     restaurantSelector
                                 }
-                                mixedMediaPreview
+                                VStack{
+                                    mixedMediaPreview
+
+                                }
                                 Spacer()
                             }
                             .padding(.vertical)
@@ -90,6 +94,8 @@ struct ReelsUploadView: View {
                                 mentionsList
                             }
                             Divider()
+                            tagPhotosButton
+                                Divider()
                             goodForButton
                             Divider()
                             tagUsersButton
@@ -116,6 +122,9 @@ struct ReelsUploadView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showTaggingSheet) {
+                        TaggingSheetView(uploadViewModel: uploadViewModel)
+                    }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.white, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -211,6 +220,22 @@ struct ReelsUploadView: View {
         .sheet(isPresented: $isShowingGoodForSelection) {
             GoodForSelectionView(selectedOptions: $uploadViewModel.goodFor)
         }
+    }
+    var tagPhotosButton: some View {
+        Button(action: {
+            showTaggingSheet = true
+        }) {
+            HStack {
+                Text("Tag Photos")
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .foregroundColor(.black)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color("Colors/AccentColor"))
+                    .padding(.trailing)
+            }
+        }
+        .padding(.vertical)
     }
     var restaurantSelector: some View {
         Button {

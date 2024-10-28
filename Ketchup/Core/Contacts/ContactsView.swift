@@ -75,19 +75,23 @@ struct ContactsView: View {
     }
     
     private var contactsList: some View {
-        List {
-            ForEach(filteredContacts) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
-            }
-
-            if viewModel.hasMoreContacts {
-                ProgressView()
-                    .onAppear {
-                        viewModel.fetchContacts()
-                    }
+        ScrollView(showsIndicators: false) {
+            LazyVStack {
+                ForEach(filteredContacts) { contact in
+                    ContactRow(viewModel: viewModel, contact: contact)
+                        .padding(.horizontal)
+                        .onAppear {
+                            // Check if this is the last item and pagination is needed
+                            if contact == filteredContacts.last && viewModel.hasMoreContacts && !viewModel.isLoading {
+                                viewModel.fetchContacts()
+                            }
+                        }
+                }
+                if viewModel.isLoading {
+                    ProgressView()
+                }
             }
         }
-        .listStyle(PlainListStyle())
     }
     private var copyInviteLinkButton: some View {
         Button(action: copyInviteLink) {
@@ -275,15 +279,18 @@ struct ContactRow: View {
                         }
                     }
                 }
+            } else {
+                UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
             }
+        
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
                     Button(action: {
                         isShowingProfile = true
                     }) {
                         Text(contact.user?.fullname ?? contact.deviceContactName ?? "unknown")
-                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 14))
                             .foregroundStyle(.black)
                     }
                     .fullScreenCover(isPresented: $isShowingProfile) {
@@ -299,14 +306,14 @@ struct ContactRow: View {
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
-                    locationText
+                   // locationText
                 } else {
                     Text(contact.deviceContactName ?? "unknown")
-                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .font(.custom("MuseoSansRounded-500", size: 14))
                         .foregroundStyle(.black)
                     
                     Text("\(contact.userCount) friends on Ketchup")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundColor(.gray)
                 }
             }
@@ -400,10 +407,10 @@ struct ContactRow: View {
     private var followButton: some View {
         Button(action: handleFollowAction) {
             Text(isFollowed ? "Following" : "Follow")
-                .font(.custom("MuseoSansRounded-300", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 14))
                 .fontWeight(.semibold)
-                .frame(width: 110)
-                .padding(.vertical, 8)
+                .frame(width: 100)
+                .padding(.vertical, 6)
                 .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
                 .background(isFollowed ? Color.clear : Color.red)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
@@ -421,9 +428,9 @@ struct ContactRow: View {
             isShowingMessageComposer = true
         }) {
             Text("Invite")
-                .font(.custom("MuseoSansRounded-300", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 14))
                 .fontWeight(.semibold)
-               
+                .frame(width: 100)
                 .padding(.vertical, 8)
                 .foregroundColor(Color("Colors/AccentColor"))
                 .background(Color.clear)

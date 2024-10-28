@@ -315,7 +315,7 @@ class ActivityViewModel: ObservableObject {
 
     private func updateFollowStatus(for userId: String, isFollowed: Bool) {
         if let index = topContacts.firstIndex(where: { $0.user?.id == userId }) {
-            self.topContacts[index].isFollowed = isFollowed
+            self.topContacts[index].isFollowed = isFollowed 
         }
     }
 
