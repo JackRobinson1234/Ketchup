@@ -94,7 +94,6 @@ struct PrimaryFeedView: View {
                                         viewModel.initialPrimaryScrollPosition = nil
                                     }
                                     .onChange(of: tabBarController.scrollToTop) { _ in
-                                        
                                         withAnimation(.smooth) {
                                             scrollProxy.scrollTo("userUpdates", anchor: .center)
                                         }

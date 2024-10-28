@@ -24,7 +24,7 @@ struct CuisineCategoryView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Explore Restaurants")
+                    Text("Explore")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .foregroundStyle(.black)
                     Button {
@@ -40,29 +40,26 @@ struct CuisineCategoryView: View {
                 }
                 }
                 Spacer()
-                Button(action: {
-                    showAllCuisines = true
-                }) {
-                    Text("See all")
-                        .font(.custom("MuseoSansRounded-500", size: 12))
-                        .foregroundStyle(.gray)
-                }
+//                Button(action: {
+//                    showAllCuisines = true
+//                }) {
+//                    Text("See all")
+//                        .font(.custom("MuseoSansRounded-500", size: 12))
+//                        .foregroundStyle(.gray)
+//                }
             }
             .padding(.horizontal)
             
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(sortedCuisinesWithImages.prefix(8), id: \.cuisine) { cuisineData in
-                    NavigationLink(destination: CuisineRestaurantsView(
-                        cuisineName: cuisineData.cuisine,
-                        restaurants: groupedRestaurants[cuisineData.cuisine] ?? [],
-                        locationViewModel: locationViewModel
-                    )) {
-                        CuisineCell(
-                            imageUrl: cuisineData.imageUrl,  // Use the pre-computed image URL
-                            cuisineName: cuisineData.cuisine
-                        )
-                    }
+                Button(action: {
+                    showAllCuisines = true
+                }) {
+                    ExploreCell(
+                        imageUrl: sortedCuisinesWithImages.first?.imageUrl,  // Use the pre-computed image URL
+                        cuisineName: "Nearby Cuisines"
+                    )
                 }
+                
             }
             .padding(.horizontal)
         }
@@ -101,27 +98,47 @@ struct CuisineCategoryView: View {
         }
     }
 }
-struct CuisineCell: View {
-    let imageUrl: String
+struct ExploreCell: View {
+    let imageUrl: String?
     let cuisineName: String
+    var alertCount: Int? = 0
     
     var body: some View {
         HStack(spacing: 0) {
-            KFImage(URL(string: imageUrl))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .clipped()
+            if let imageUrl {
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipped()
+            } else {
+                Image("Skip")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipped()
+            }
             
             VStack(alignment: .leading) {
-                Text(cuisineName)
-                    .font(.custom("MuseoSansRounded-700", size: 12))
-                    .foregroundStyle(.black)
-                    .multilineTextAlignment(.leading)
-                
+                HStack {
+                    Text(cuisineName)
+                        .font(.custom("MuseoSansRounded-700", size: 12))
+                        .foregroundStyle(.black)
+                        .multilineTextAlignment(.leading)
+                    
+                    if let alertCount = alertCount, alertCount > 0 {
+                        Spacer()
+                        Text("\(alertCount)")
+                            .font(.custom("MuseoSansRounded-700", size: 12))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.red)
+                            .cornerRadius(10)
+                    }
+                }
             }
             .padding(.horizontal, 4)
-            
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
         .background(Color.gray.opacity(0.1))
@@ -148,7 +165,7 @@ struct AllCuisinesView: View {
                             restaurants: groupedRestaurants[cuisine] ?? [],
                             locationViewModel: locationViewModel
                         )) {
-                            CuisineCell(
+                            ExploreCell(
                                 imageUrl: groupedRestaurants[cuisine]?.randomElement()?.profileImageUrl ?? "",
                                 cuisineName: cuisine
                             )
@@ -156,7 +173,7 @@ struct AllCuisinesView: View {
                     }
                 }
                 .padding(.horizontal)
-                .navigationTitle("All Cuisines")
+                .navigationTitle("Nearby Cuisines")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
