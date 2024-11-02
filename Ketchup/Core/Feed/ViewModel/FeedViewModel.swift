@@ -85,7 +85,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             }
         }
     }
-    @Published var selectedMainTab: MainTab = .dashboard {
+    @Published var selectedMainTab: MainTab = .feed {
         didSet {
             Task {
                 if selectedMainTab == .feed {

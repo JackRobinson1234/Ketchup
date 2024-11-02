@@ -86,7 +86,7 @@ struct MainTabView: View {
                                 .foregroundStyle(.black)
                                 .environment(\.symbolVariants, tabBarController.selectedTab == 3 ? .none : .none)
                                 .padding()
-                            Text("Map")
+                            Text("Restaurants")
                                 .font(.custom("MuseoSansRounded-500", size: 8))
                                 .foregroundStyle(.gray)
                         }

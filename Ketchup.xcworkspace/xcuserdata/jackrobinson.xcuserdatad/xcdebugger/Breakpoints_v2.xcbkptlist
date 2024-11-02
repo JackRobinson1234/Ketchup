@@ -26,10 +26,74 @@
             filePath = "Ketchup/Core/ReelsUpload/View/GoodForSelectionView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
-            landmarkName = "GoodForSelectionView"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7B415FC8-3B61-49AF-9108-F6D6FA57B6E8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Ketchup/Core/Explore/ActivityView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "ActivityView"
             landmarkType = "14">
+            <Locations>
+               <Location
+                  uuid = "7B415FC8-3B61-49AF-9108-F6D6FA57B6E8 - f037be9403c71d7f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "property wrapper backing initializer of Ketchup.ActivityView.greetingType : Ketchup.GreetingType"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Explore/ActivityView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "7B415FC8-3B61-49AF-9108-F6D6FA57B6E8 - 844ece8837820382"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Ketchup.ActivityView.init(locationViewModel: Ketchup.LocationViewModel, feedViewModel: Ketchup.FeedViewModel, newPostsCount: SwiftUI.Binding&lt;Swift.Int&gt;, hideTopUI: SwiftUI.Binding&lt;Swift.Bool&gt;, topBarHeight: SwiftUI.Binding&lt;CoreGraphics.CGFloat&gt;, showAddFriends: SwiftUI.Binding&lt;Swift.Bool&gt;) -&gt; Ketchup.ActivityView"
+                  moduleName = "Ketchup"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackrobinson/Desktop/Ketchup/Ketchup/Core/Explore/ActivityView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "25"
+                  endingLineNumber = "25"
+                  offsetFromSymbolStart = "332">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5BD65047-C3A7-41D4-9DE6-9C90DAF0CE41"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Ketchup/Core/Explore/ActivityViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "fetchMostRecentFriendPosts(limit:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

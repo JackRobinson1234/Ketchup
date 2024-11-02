@@ -99,19 +99,29 @@ struct CuisineCategoryView: View {
     }
 }
 struct ExploreCell: View {
-    let imageUrl: String?
+    var imageUrl: String? = nil
+    var imageName: String? = nil
     let cuisineName: String
     var alertCount: Int? = 0
     
     var body: some View {
         HStack(spacing: 0) {
-            if let imageUrl {
+            if let imageName {
+                // Use SwiftUI Image if imageName is provided
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipped()
+            } else if let imageUrl {
+                // Use KFImage if imageUrl is provided
                 KFImage(URL(string: imageUrl))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 50, height: 50)
                     .clipped()
             } else {
+                // Fallback image
                 Image("Skip")
                     .resizable()
                     .aspectRatio(contentMode: .fill)

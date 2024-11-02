@@ -60,7 +60,7 @@ struct SecondaryFeedView: View {
                 .scrollPosition(id: $scrollPosition)
                 .scrollTargetBehavior(.paging)
             }
-
+            
             if !hideFeedOptions {
                 HStack(spacing: 0) {
                     Button{
@@ -89,7 +89,7 @@ struct SecondaryFeedView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(width: 60, height: 17)
-                        
+                    
                     
                     Spacer()
                     Color.clear
@@ -141,7 +141,7 @@ struct SecondaryFeedView: View {
                 ContentUnavailableView("No posts to show", systemImage: "eye.slash")
                     .foregroundStyle(Color("Colors/AccentColor"))
             }
-           
+            
             if viewModel.showRepostAlert {
                 SuccessMessageOverlay(text: "Reposted!")
                     .transition(.opacity)
@@ -153,17 +153,17 @@ struct SecondaryFeedView: View {
             }
         }
         .onChange(of: scrollPosition) { oldPostId, newPostId in
-                    if let newPostId = newPostId,
-                       let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
-                        viewModel.updateCache(scrollPosition: newPostId)
-                        
-                        if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 {
-                            Task {
-                                await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
-                            }
-                        }
+            if let newPostId = newPostId,
+               let newIndex = viewModel.posts.firstIndex(where: { $0.id == newPostId }) {
+                viewModel.updateCache(scrollPosition: newPostId)
+                
+                if !hideFeedOptions && newIndex >= viewModel.posts.count - 5 {
+                    Task {
+                        await viewModel.loadMoreContentIfNeeded(currentPost: newPostId)
                     }
                 }
+            }
+        }
         
         .background(Color("Colors/HingeGray"))
         .ignoresSafeArea()
@@ -190,15 +190,15 @@ struct SecondaryFeedView: View {
         }
     }
     private func hasValidMedia(_ post: Post) -> Bool {
-           switch post.mediaType {
-           case .mixed:
-               return post.mixedMediaUrls?.isEmpty == false
-           case .video:
-               return !post.mediaUrls.isEmpty
-           case .photo:
-               return !post.mediaUrls.isEmpty
-           case .written:
-               return false // Assuming text-only posts should not be displayed in this feed
-           }
-       }
+        switch post.mediaType {
+        case .mixed:
+            return post.mixedMediaUrls?.isEmpty == false
+        case .video:
+            return !post.mediaUrls.isEmpty
+        case .photo:
+            return !post.mediaUrls.isEmpty
+        case .written:
+            return false // Assuming text-only posts should not be displayed in this feed
+        }
+    }
 }

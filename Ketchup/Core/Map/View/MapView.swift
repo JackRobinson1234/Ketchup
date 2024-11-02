@@ -78,7 +78,7 @@ struct MapView: View {
                             ForEach(viewModel.annotations, id: \.self) { item in
                                 Annotation(item.restaurant.name, coordinate: item.coordinate) {
                                     NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
-                                        RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium)
+                                        RestaurantCircularProfileImageView(imageUrl: item.restaurant.profileImageUrl, color: Color("Colors/AccentColor"), size: .medium, ratingScore: item.restaurant.overallRating)
                                     }
                                 }
                             }
@@ -542,7 +542,6 @@ struct GroupedPostAnnotationView: View {
         .padding(.bottom,5)
     }
 }
-
 
 
 

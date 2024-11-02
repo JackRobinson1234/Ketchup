@@ -80,32 +80,24 @@ struct RestaurantCardView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                    if let goodFor = restaurant.topGoodFor {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(goodFor, id: \.self) { option in
-                                    Text(option)
-                                        .font(.custom("MuseoSansRounded-500", size: 14))
-                                        .padding(.horizontal)
-                                        .padding(.vertical, 8)
-                                        .background(Color.red)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(20)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                    }
-                    if let count = restaurant.stats?.postCount {
-                        HStack {
-                            // Text("\(count) posts")
-                            //    .font(.custom("MuseoSansRounded-300", size: 10))
-                            //    .foregroundColor(.gray)
-                            //    .lineLimit(1)
-                            //    .minimumScaleFactor(0.7)
-                        }
-                    }
+//                    if let goodFor = restaurant.topGoodFor {
+//                        ScrollView(.horizontal, showsIndicators: false) {
+//                            HStack {
+//                                ForEach(goodFor, id: \.self) { option in
+//                                    Text(option)
+//                                        .font(.custom("MuseoSansRounded-500", size: 14))
+//                                        .padding(.horizontal)
+//                                        .padding(.vertical, 8)
+//                                        .background(Color.red)
+//                                        .foregroundColor(.white)
+//                                        .cornerRadius(20)
+//                                }
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                        .padding(.top, 8)
+//                    }
+                   
                     if let distance = distanceString {
                         Text(distance)
                             .font(.custom("MuseoSansRounded-300", size: 10))
@@ -115,7 +107,7 @@ struct RestaurantCardView: View {
                     }
                 }
                 Spacer()
-                if let overallRating = restaurant.overallRating?.average {
+                if let overallRating = restaurant.overallRating?.average, overallRating != 0{
                     ScrollFeedOverallRatingView(rating: overallRating, font: .black, size: 30)
                         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }

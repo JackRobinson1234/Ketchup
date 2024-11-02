@@ -58,12 +58,51 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         resetBadgeCount()
     }
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-      for urlContext in URLContexts {
-          let url = urlContext.url
-          _ = Auth.auth().canHandle(url)
-      }
-      // URL not auth related; it should be handled separately.
+        for urlContext in URLContexts {
+            let url = urlContext.url
+            if Auth.auth().canHandle(url) {
+                continue
+            }
+            // Handle your app's URL if not handled by Firebase
+            handleIncomingURL(url)
+        }
+        // URL not auth related; it should be handled separately.
     }
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+           if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL {
+               handleIncomingURL(incomingURL)
+           }
+       }
+    private func handleIncomingURL(_ url: URL) {
+        print("URL", url)
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+                return
+            }
+            
+            // Handle different paths
+            switch components.path {
+            case "/open":
+                
+                // Navigate to main app screen
+                NotificationCenter.default.post(
+                    name: .navigateToHome, // You'll need to create this notification name
+                    object: nil
+                )
+            case "/profile":
+                if let userId = components.queryItems?.first(where: { $0.name == "id" })?.value {
+                    NotificationCenter.default.post(
+                        name: .navigateToProfile,
+                        object: nil,
+                        userInfo: ["userId": userId]
+                    )
+                }
+            default:
+                // Handle unknown paths or implement default behavior
+                NotificationCenter.default.post(name: .navigateToHome, object: nil)
+            }
+        }
+    
     private func fetchFCMToken() {
         Messaging.messaging().token { token, error in
             if let error = error {
@@ -253,6 +292,41 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
         secondaryWindow.isHidden = false
         self.secondaryWindow = secondaryWindow
     }
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+           if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL {
+               print("Received Universal Link: \(incomingURL)")  // Debug log
+               handleIncomingURL(incomingURL)
+           }
+       }
+    private func handleIncomingURL(_ url: URL) {
+        print("URL", url)
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+                return
+            }
+            
+            // Handle different paths
+            switch components.path {
+            case "/open":
+                
+                // Navigate to main app screen
+                NotificationCenter.default.post(
+                    name: .navigateToHome, // You'll need to create this notification name
+                    object: nil
+                )
+            case "/profile":
+                if let userId = components.queryItems?.first(where: { $0.name == "id" })?.value {
+                    NotificationCenter.default.post(
+                        name: .navigateToProfile,
+                        object: nil,
+                        userInfo: ["userId": userId]
+                    )
+                }
+            default:
+                // Handle unknown paths or implement default behavior
+                NotificationCenter.default.post(name: .navigateToHome, object: nil)
+            }
+        }
 }
 
 class PassThroughWindow: UIWindow {
@@ -306,3 +380,7 @@ extension Foundation.Notification.Name {
     static let presentUploadView = Foundation.Notification.Name("presentUploadView")
 }
 
+extension Foundation.Notification.Name {
+    static let navigateToHome = Foundation.Notification.Name("navigateToHome")
+    // You already have navigateToProfile
+}

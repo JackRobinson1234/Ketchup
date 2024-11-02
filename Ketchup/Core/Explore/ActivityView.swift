@@ -32,21 +32,23 @@ struct ActivityView: View {
     @Binding var hideTopUI: Bool
     @Binding var topBarHeight: CGFloat
     @State private var showAllCuisines = false
-
+    @State private var showAllGoodFors = false
+    @Binding var showAddFriends: Bool
+    
     // MARK: - Computed Properties
     private var groupedRestaurants: [String: [Restaurant]] {
         Dictionary(grouping: viewModel.fetchedRestaurants) { $0.macrocategory ?? "" }
     }
     
     private var cuisineCategorySection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading) {
                     Text("Explore")
                         .font(.custom("MuseoSansRounded-700", size: 25))
                         .foregroundStyle(.black)
-                   
-
+                    
+                    
                     Button {
                         showLocationSearch = true
                     } label: {
@@ -67,16 +69,7 @@ struct ActivityView: View {
             let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 2)
             
             LazyVGrid(columns: columns, spacing: 10) {
-                Button(action: {
-                    showAllCuisines = true
-                }) {
-                    if let firstCuisine = groupedRestaurants.first {
-                        ExploreCell(
-                            imageUrl: firstCuisine.value.first?.profileImageUrl,
-                            cuisineName: "Nearby Cuisines"
-                        )
-                    }
-                } 
+               
                 Button(action: {
                     handlePostTap()
                 }) {
@@ -92,17 +85,62 @@ struct ActivityView: View {
                     feedViewModel.initialPrimaryScrollPosition = "DailyPoll"
                 }) {
                     
+                    ExploreCell(
+                        imageUrl: pollViewModel.polls.first?.imageUrl,
+                        cuisineName: "Daily Poll",
+                        alertCount:  1
+                    )
+                }
+                Button(action: {
+                    showAllCuisines = true
+                }) {
+                    if let firstCuisine = groupedRestaurants.first {
                         ExploreCell(
-                            imageUrl: pollViewModel.polls.first?.imageUrl,
-                            cuisineName: "Daily Poll",
-                            alertCount: hasUserVotedToday() ? 0 : 1
+                            imageUrl: firstCuisine.value.first?.profileImageUrl,
+                            cuisineName: "Restaurant Cuisines Nearby"
                         )
+                    }
+                }
+                Button(action: {
+                    showAllGoodFors = true
+                }) {
+                    if let firstGoodFor = groupedRestaurantsByGoodFor.first {
+                        ExploreCell(
+                            imageUrl: firstGoodFor.value.first?.profileImageUrl,
+                            cuisineName: "Restaurants for an Occasion"
+                        )
+                    }
+                }
+                Button(action: {
+                    //showAllGoodFors = true
+                }) {
+                    
+                        ExploreCell(
+                            imageName: "Leaderboard",
+                            cuisineName: "Leaderboards"
+                        )
+                    
+                }
+                Button(action: {
+                    showAddFriends = true
+                }) {
+                    if let recentPost = viewModel.hasUnseenFriendPosts ? viewModel.recentFriendPost : viewModel.recentGlobalPost {
+                        ExploreCell(
+                            imageUrl: recentPost.user.profileImageUrl,
+                            cuisineName: "Find Your Friends"
+                        )
+                    } else {
+                        ExploreCell(
+                            imageUrl: nil,
+                            cuisineName: "Find Your Friends"
+                        )
+                    }
                 }
             }
             .padding(.horizontal)
         }
     }
-
+    
     var body: some View {
         LazyVStack {
             if !isLoading {
@@ -117,8 +155,10 @@ struct ActivityView: View {
                     .padding(.top)
                 
                 if let recentPost = viewModel.hasUnseenFriendPosts ? viewModel.recentFriendPost : viewModel.recentGlobalPost {
-                    recentPostSection(post: recentPost)
-                        .padding(.top)
+                    if !viewModel.recentFriendPosts.isEmpty {
+                                    recentPostsSection(posts: viewModel.recentFriendPosts)
+                                        .padding(.top)
+                                }
                 }
                 
                 if hasUserVotedToday() {
@@ -130,6 +170,20 @@ struct ActivityView: View {
                 loadingView
             }
         }
+        .fullScreenCover(isPresented: $showAllGoodFors) {
+            AllGoodForsView(
+                groupedRestaurantsByGoodFor: groupedRestaurantsByGoodFor,
+                locationViewModel: locationViewModel,
+                showAllGoodFors: $showAllGoodFors
+            )
+        }
+        .fullScreenCover(isPresented: $showAllCuisines) {
+            AllCuisinesView(
+                groupedRestaurants: groupedRestaurants,
+                locationViewModel: locationViewModel,
+                showAllCuisines: $showAllCuisines
+            )
+        }
         .navigationBarHidden(true)
         .sheet(isPresented: $showLocationSearch) {
             LocationSearchView(locationViewModel: locationViewModel)
@@ -140,13 +194,7 @@ struct ActivityView: View {
         }
         .onAppear(perform: handleOnAppear)
         .onChange(of: locationViewModel.selectedLocationCoordinate, perform: handleLocationChange)
-        .fullScreenCover(isPresented: $showAllCuisines) {
-            AllCuisinesView(
-                groupedRestaurants: groupedRestaurants,
-                locationViewModel: locationViewModel,
-                showAllCuisines: $showAllCuisines
-            )
-        }
+       
     }
     
     // MARK: - View Components
@@ -159,25 +207,26 @@ struct ActivityView: View {
         }
     }
     
-    private func recentPostSection(post: Post) -> some View {
+    private func recentPostsSection(posts: [Post]) -> some View {
         VStack(alignment: .leading) {
-            Text(viewModel.hasUnseenFriendPosts ? "New from friends" : "Featured Post")
-                .font(.custom("MuseoSansRounded-700", size: 25))
-                .padding(.horizontal)
-            
-            if newPostsCount > 0 {
-                Text("\(newPostsCount) new posts from friends")
-                    .font(.custom("MuseoSansRounded-500", size: 12))
-                    .foregroundStyle(.gray)
+            HStack{
+                Text("New from friends")
+                    .font(.custom("MuseoSansRounded-700", size: 25))
                     .padding(.horizontal)
+                Spacer()
             }
-            
-            Button(action: {
-                handlePostTap()
-            }) {
-                PostPreview(post: post)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal)
+            ScrollView(.horizontal, showsIndicators: false){
+                HStack(spacing: 2){
+                    ForEach(posts, id: \.id) { post in
+                        Button(action: {
+                            handlePostTap()
+                        }) {
+                            PostPreview(post: post)
+                                .padding(.vertical, 4)
+                                
+                        }
+                    }
+                }
             }
         }
     }
@@ -190,7 +239,7 @@ struct ActivityView: View {
             topBarHeight = 160
         }
         
-        feedViewModel.selectedFeedSubTab = viewModel.hasUnseenFriendPosts ? .following : .discover
+        feedViewModel.selectedFeedSubTab = .following
     }
     
     private func handleOnAppear() {
@@ -205,6 +254,7 @@ struct ActivityView: View {
                     pollViewModel.fetchPolls()
                     await loadAllRestaurants(location: coordinate)
                     await viewModel.fetchRecentPosts(unseenCount: newPostsCount)
+                    await viewModel.fetchRecentPosts()
                     isLoading = false
                 }
             } else {
@@ -221,6 +271,8 @@ struct ActivityView: View {
                 pollViewModel.fetchPolls()
                 await loadAllRestaurants(location: coordinate)
                 await viewModel.fetchRecentPosts(unseenCount: newPostsCount)
+                await viewModel.fetchRecentPosts()
+
                 isLoading = false
             }
         }
@@ -236,7 +288,16 @@ struct ActivityView: View {
             print("Error fetching restaurants: \(error)")
         }
     }
-    
+    private var groupedRestaurantsByGoodFor: [String: [Restaurant]] {
+        viewModel.fetchedRestaurants.reduce(into: [String: [Restaurant]]()) { result, restaurant in
+            if let goodForDict = restaurant.topGoodFor {
+                for goodForTag in goodForDict {
+                    result[goodForTag, default: []].append(restaurant)
+                }
+            }
+        }
+    }
+   
     private func computeGreeting() {
         let hour = Calendar.current.component(.hour, from: Date())
         
@@ -384,18 +445,17 @@ extension String: Identifiable {
 }
 
 
-
 struct TrendingPostRow: View {
     var index: Int
     var post: Post
-
+    
     var body: some View {
         HStack(spacing: 12) {
             // Ranking number
             Text("\(index + 1).")
                 .font(.custom("MuseoSansRounded-700", size: 16))
                 .foregroundColor(.black)
-
+            
             // Thumbnail Image
             if !post.thumbnailUrl.isEmpty {
                 KFImage(URL(string: post.thumbnailUrl))
@@ -411,7 +471,7 @@ struct TrendingPostRow: View {
                     .frame(width: 60, height: 60)
                     .cornerRadius(8)
             }
-
+            
             VStack(spacing:6) {
                 if let rating = post.overallRating {
                     ScrollFeedOverallRatingView(rating: rating, font: .black, size: 30)
@@ -421,31 +481,31 @@ struct TrendingPostRow: View {
                     Image(systemName: "heart")
                         .font(.footnote)
                         .foregroundColor(.gray)
-
+                    
                     Text("\(post.likes)")
                         .font(.custom("MuseoSansRounded-300", size: 10))
                         .foregroundColor(.gray)
                 }
             }
-
+            
             VStack(alignment: .leading, spacing: 0) {
                 // Restaurant name
                 Text(post.restaurant.name)
                     .font(.custom("MuseoSansRounded-700", size: 14))
                     .foregroundColor(.black)
-
+                
                 // City and state (new addition)
                 if let city = post.restaurant.city, let state = post.restaurant.state {
                     Text("\(city), \(state)")
                         .font(.custom("MuseoSansRounded-500", size: 12))
                         .foregroundColor(.gray)
                 }
-
+                
                 // Username
                 Text("@\(post.user.username)")
                     .font(.custom("MuseoSansRounded-500", size: 12))
                     .foregroundColor(.gray)
-
+                
                 // Rating and caption
                 Text(post.caption)
                     .font(.custom("MuseoSansRounded-300", size: 12))
@@ -453,7 +513,7 @@ struct TrendingPostRow: View {
                     .lineLimit(2)
                     .truncationMode(.tail)
             }
-
+            
             Spacer()
         }
     }

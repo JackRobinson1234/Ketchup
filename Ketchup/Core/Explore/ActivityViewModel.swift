@@ -16,7 +16,6 @@ import GeoFire
 import GeohashKit
 @MainActor
 class ActivityViewModel: ObservableObject {
-    // MARK: - Published Properties (used in the UI)
     @Published var followingActivity: [Activity] = []
     @Published var topContacts: [Contact] = []
     @Published var mealRestaurants: [Restaurant] = []
@@ -27,7 +26,6 @@ class ActivityViewModel: ObservableObject {
     @Published var friendPostsRestaurants: [Restaurant] = []
     @Published var fetchedRestaurants: [Restaurant] = []
     @Published var topRestaurants: [Restaurant] = []
-
     // UI State Properties
     @Published var isFetching: Bool = false
     @Published var isLoadingMore: Bool = false
@@ -38,7 +36,6 @@ class ActivityViewModel: ObservableObject {
     @Published var hasMoreFriendPosts: Bool = true
     @Published var hasMoreTrendingPosts: Bool = true
     @Published var hasMoreGlobalTrendingPosts: Bool = true
-
     @Published var isLoadingMoreTrendingPosts = false
     @Published var isLoadingGlobalTrendingPosts = false
     @Published var isLoadingMoreGlobalTrendingPosts = false
@@ -54,6 +51,7 @@ class ActivityViewModel: ObservableObject {
     @Published var collection: Collection?
     @Published var selectedRestaurantId: String? = nil
     @Published var selectedUid: String? = nil
+    @Published var recentFriendPosts: [Post] = []
 
     // Private Properties
     private let pageSize = 30
@@ -92,7 +90,28 @@ class ActivityViewModel: ObservableObject {
         @Published var recentGlobalPost: Post?
         @Published var hasUnseenFriendPosts: Bool = false
     // MARK: - Methods
+    func fetchRecentPosts() async {
+        do {
+            recentFriendPosts = try await fetchMostRecentFriendPosts(limit: 8)
+            
+        } catch {
+            print("Error fetching recent posts: \(error)")
+        }
+    }
+    private func fetchMostRecentFriendPosts(limit: Int) async throws -> [Post] {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return [] }
+        let db = Firestore.firestore()
+        let followingRef = db.collection("followingposts").document(currentUserId).collection("posts")
+        let query = followingRef
+            .order(by: "timestamp", descending: true)
+            .limit(to: limit)
 
+        let snapshot = try await query.getDocuments()
+        let simplifiedPosts = snapshot.documents.compactMap { try? $0.data(as: SimplifiedPost.self) }
+
+        let fullPosts = simplifiedPosts.map { $0.toPost() }
+        return fullPosts
+    }
     func checkContactPermission() {
         let authorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
         self.isContactPermissionGranted = authorizationStatus == .authorized
@@ -141,8 +160,8 @@ class ActivityViewModel: ObservableObject {
         let geohash = GFUtils.geoHash(forLocation: location)
         let truncatedGeohash5 = String(geohash.prefix(5))
         let geohashNeighborsList = geohashNeighborsOfNeighbors(geohash: truncatedGeohash5)
-
         let db = Firestore.firestore()
+        
         let postsRef = db.collection("followingposts").document(currentUserId).collection("posts")
 
         var query: Query = postsRef
@@ -181,7 +200,6 @@ class ActivityViewModel: ObservableObject {
                     newRestaurants.append(restaurant)
                 }
             }
-
             self.friendPostsRestaurants.append(contentsOf: newRestaurants)
 
         } catch {
