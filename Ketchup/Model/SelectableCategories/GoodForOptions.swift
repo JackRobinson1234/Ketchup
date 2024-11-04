@@ -7,10 +7,66 @@
 
 import Foundation
 let goodForOptions: [String: [String]] = [
-    "Activity": ["Live Music", "People Watching", "Watching Sports", "Catching up with Friends", "Dancing", "Bars with Food", "Trivia Nights", "Getting Work Done"],
-    "Dietary": ["Very Healthy", "Kind of Healthy", "Not Healthy, but Good",],
-    "Occasion": ["Big Groups", "Birthdays", "Corporate Card", "Formal Dates", "First Dates", "Solo Dining", "Impressing Out of Towners", "Coffee Date", "Happy Hours"],
-    "Price": ["Cheap Food", "Cheap Drinks", "Worth the Splurge", "Not Worth It"],
-    "Time of day": ["Quick Breakfast", "Sit Down Breakfast", "Brunch", "Quick Lunch", "Formal Lunch",  "Afternoon Tea", "Day Drinking", "Casual Dinner", "Formal Dinner", "Dessert", "Late Night Munchies"],
-    "Vibe": ["Famous", "Trendy", "Historic", "Pet Friendly", "Great Cocktails", "Great Wine", "Good for Kids", "Sitting Outside", "Street Eats", "Incredible Views"]
+    "Occasion": [
+        "First Date",
+        "Anniversary",
+        "Business Lunch",
+        "Family Gathering",
+        "Friend Groups",
+        "Solo Dining",
+        "Impressing Visitors"
+    ],
+    "Vibe": [
+        "Trendy & Hip",
+        "Old School Classic",
+        "Intimate & Romantic",
+        "Buzzy & Energetic",
+        "Casual & Relaxed",
+        "Upscale & Refined",
+        "Hidden Gem"
+    ],
+    "Price": [
+        "Budget Friendly",
+        "Solid Value",
+        "Worth the Splurge",
+        "Expense Account"
+    ],
+    "Time": [
+        "Quick Breakfast",
+        "Coffee Date",
+        "Weekend Brunch",
+        "Power Lunch",
+        "Casual Lunch",
+        "Date Night Dinner",
+        "Family Dinner",
+        "Late Night Eats"
+    ],
+    "Features": [
+        "Notable Cocktails",
+        "Wine Focus",
+        "Great Outdoor Space",
+        "Kid Friendly",
+        "Good for Work",
+        "Quick Service",
+        "Photo-Worthy Setting",
+        "People Watching"
+    ],
+    "Food Style": [
+        "Health Conscious",
+        "Comfort Food",
+        "Fine Dining",
+        "Street Food",
+        "Farm to Table",
+        "Chef's Tasting Menu",
+        "Small Plates"
+    ],
+    "Atmosphere": [
+        "Quiet Conversation",
+        "Live Music",
+        "Sports Viewing",
+        "Historic Setting",
+        "Water Views",
+        "City Skyline",
+        "See and Be Seen"
+    ]
 ]

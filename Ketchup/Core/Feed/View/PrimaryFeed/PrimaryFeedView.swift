@@ -4,6 +4,7 @@ import AVKit
 import Combine
 import Contacts
 import CryptoKit
+import Kingfisher
 
 struct PrimaryFeedView: View {
     @StateObject var viewModel: FeedViewModel
@@ -35,6 +36,8 @@ struct PrimaryFeedView: View {
     @State private var newPostsCount: Int = 0
     @State private var scrollOffset: CGFloat = 0
     @StateObject var locationViewModel = LocationViewModel()
+    @StateObject private var pollViewModel = PollViewModel()
+    @State private var showPollView = false // Add this line
     
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -52,6 +55,7 @@ struct PrimaryFeedView: View {
                     Task {
                         updateNewPostsCount()
                         viewModel.setupLocation()
+                        pollViewModel.fetchPolls()
                         isLoading = false
                     }
                 }
@@ -100,6 +104,7 @@ struct PrimaryFeedView: View {
                                         
                                     }
                             }
+                    
                         }
                     } else {
                         ScrollViewReader { scrollProxy in
@@ -128,13 +133,61 @@ struct PrimaryFeedView: View {
                                 LazyVStack {
                                     if viewModel.isInitialLoading {
                                         FastCrossfadeFoodImageView()
+                                        Spacer()
                                     } else {
                                         if isRefreshing{
                                             FastCrossfadeFoodImageView()
+                                            Spacer()
                                         }
-                                        Spacer()
+                                       
+                                        
+                                        if let poll = pollViewModel.polls.first {
+                                            Button(action: {
+                                                // Navigate to the daily poll
+                                                showPollView = true
+                                                pauseVideo = true
+                                                
+                                            }) {
+                                                HStack {
+                                                    if let imageUrl = poll.imageUrl {
+                                                        KFImage(URL(string: imageUrl))
+                                                            .resizable()
+                                                            .frame(width: 80, height: 80)
+                                                            .cornerRadius(8)
+                                                    }
+                                                    VStack(alignment: .leading) {
+                                                        Text("Daily Poll")
+                                                            .font(.custom("MuseoSansRounded-700", size: 16))
+                                                            .foregroundColor(.black)  // Changed to white
+                                                        
+                                                        Text(poll.question)
+                                                            .foregroundColor(.black)  // Changed to white
+                                                            .font(.custom("MuseoSansRounded-500", size: 14))
+                                                            .multilineTextAlignment(.leading)
+                                                            .lineLimit(2)
+                                                        
+                                                    }
+                                                    Spacer()
+                                                    Image(systemName: "chevron.right")
+                                                        .foregroundColor(.gray)
+                                                        .padding(.trailing)
+                                                    // Changed to white
+                                                }
+                                               
+                                                .overlay(
+                                                            RoundedRectangle(cornerRadius: 12)
+                                                                .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Thin gray stencil outline
+                                                        )
+                                                .cornerRadius(8)
+                                                .id("DailyPoll")
+                                                .padding(.horizontal)
+                                                .padding(.bottom, 30)
+                                            }
+                                        }
+                                       Divider()
                                         ForEach($viewModel.posts) { $post in
                                             if !post.isReported{
+                                            
                                                 WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                                     .id(post.id)
                                                     .onAppear {
@@ -167,9 +220,8 @@ struct PrimaryFeedView: View {
                                             }
                                     }
                                 }
-                                .edgesIgnoringSafeArea(.top)
-                                .padding(.top, 160)
                             }
+                            .padding(.top, 50)
                             .refreshable {
                                 await refreshFeed()
                             }
@@ -190,19 +242,19 @@ struct PrimaryFeedView: View {
                             .onChange(of: tabBarController.scrollToTop) { _ in
                                 if let post = viewModel.posts.first {
                                     withAnimation(.smooth) {
-                                        scrollProxy.scrollTo(post.id, anchor: .center)
+                                        scrollProxy.scrollTo("DailyPoll", anchor: .center)
                                     }
                                 }
                             }
-                            .onChange(of: viewModel.isInitialLoading) { newValue in
-                                if !viewModel.isInitialLoading {
-                                    if let post = viewModel.posts.first {
-                                        withAnimation(.smooth) {
-                                            scrollProxy.scrollTo(post.id, anchor: .center)
-                                        }
-                                    }
-                                }
-                            }
+//                            .onChange(of: viewModel.isInitialLoading) { newValue in
+//                                if !viewModel.isInitialLoading {
+//                                    if let post = viewModel.posts.first {
+//                                        withAnimation(.smooth) {
+//                                            scrollProxy.scrollTo(post.id, anchor: .center)
+//                                        }
+//                                    }
+//                                }
+//                            }
                         }
                         
                         .background(.white)
@@ -218,12 +270,10 @@ struct PrimaryFeedView: View {
                         .shadow(color: Color.gray.opacity(0.1), radius: 2, x: 0, y: 2)
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
+                        
                     
                     VStack(spacing: 5) {
                         HStack(spacing: 0) {
-                            
-                            
-                            
                             Button {
                                 tabBarController.scrollToTop.toggle()
                             } label: {
@@ -456,6 +506,23 @@ struct PrimaryFeedView: View {
                             SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
                         } else {
                             IOS16SecondaryFeedView(viewModel: viewModel, hideFeedOptions: false, initialScrollPosition: post.id, titleText: ("Discover"))
+                        }
+                    }
+                }
+                .sheet(isPresented: $showPollView) {
+                    if let poll = pollViewModel.polls.first {
+                        NavigationStack{
+                            ScrollView {
+                                PollView(poll: .constant(poll), pollViewModel: pollViewModel, feedViewModel: viewModel)
+                                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.75)])
+                                    .toolbar {
+                                        ToolbarItem(placement: .confirmationAction) {
+                                            Button("Done") {
+                                                showPollView = false
+                                            }
+                                        }
+                                    }
+                            }
                         }
                     }
                 }

@@ -16,6 +16,7 @@ struct ZoomableImage: View {
             KFImage(URL(string: imageURL))
                 .resizable()
                 .scaledToFit()
+                .cornerRadius(10)
         }
     }
 }

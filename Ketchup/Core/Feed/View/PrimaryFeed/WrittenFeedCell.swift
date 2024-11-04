@@ -275,13 +275,13 @@ struct WrittenFeedCell: View {
     
     @ViewBuilder
     private func mediaItemView(for mediaItem: MixedMediaItem, at index: Int) -> some View {
-        VStack(spacing: 0) {
-            Button {
-                pauseAllVideos()
-                viewModel.startingImageIndex = index
-                viewModel.startingPostId = post.id
-                selectedPost = post
-            } label: {
+        Button {
+            pauseAllVideos()
+            viewModel.startingImageIndex = index
+            viewModel.startingPostId = post.id
+            selectedPost = post
+        } label: {
+            ZStack(alignment: .bottomTrailing) {
                 if mediaItem.type == .photo {
                     KFImage(URL(string: mediaItem.url))
                         .resizable()
@@ -290,25 +290,27 @@ struct WrittenFeedCell: View {
                         .clipped()
                         .cornerRadius(10)
                 } else if mediaItem.type == .video {
-                    ZStack {
-                        VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
-                            .frame(width: mediaWidth, height: mediaHeight)
-                            .cornerRadius(10)
-                            .id(mediaItem.id)
-                        
-                        // Show play icon overlay when video is not playing or not the current one
-//                        if !isCurrentVideoPlaying {
-//                            Image(systemName: "play.circle.fill")
-//                                .resizable()
-//                                .frame(width: 50, height: 50)
-//                                .foregroundColor(.white)
-//                                .opacity(0.8)
-//                        }
-                    }
+                    VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                        .frame(width: mediaWidth, height: mediaHeight)
+                        .cornerRadius(10)
+                        .id(mediaItem.id)
+                }
+                
+                // Overlay the description if it exists
+                if let description = mediaItem.description, !description.isEmpty {
+                    Text(description)
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color.gray.opacity(0.7))
+                        .clipShape(Capsule())
+                        .padding(8)
                 }
             }
         }
     }
+
     
     private func goodForTagsView() -> some View {
         VStack{

@@ -226,7 +226,7 @@ struct ReelsUploadView: View {
             showTaggingSheet = true
         }) {
             HStack {
-                Text("Tag Photos")
+                Text("What's in your photos?")
                     .font(.custom("MuseoSansRounded-500", size: 16))
                     .foregroundColor(.black)
                 Spacer()
@@ -555,11 +555,11 @@ struct ReelsUploadView: View {
                 alertMessage = "Please select a restaurant."
                 showAlert = true
             } else {
-                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
-                    showConfirmationAlert = true
-                } else {
+//                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
+//                    showConfirmationAlert = true
+//                } else {
                     uploadPost()
-                }
+              //  }
             }
         } label: {
             ProgressButton(uploadViewModel: uploadViewModel)

@@ -32,10 +32,13 @@ struct User: Codable, Identifiable, Hashable {
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
+    var ratingDistribution: [String: Int]? = nil // Stores counts for each rating bucket: "0-0.99": 5, "1-1.99": 10, etc.
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak, lastVotedPoll // Added new keys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak, lastVotedPoll, ratingDistribution // Add the new key here
+ // Added new keys
     }
+    
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -92,6 +95,9 @@ struct User: Codable, Identifiable, Hashable {
         } else {
             self.lastVotedPoll = nil
         }
+        self.ratingDistribution = try container.decodeIfPresent([String: Int].self, forKey: .ratingDistribution)
+
+
     }
 
     init(
@@ -117,7 +123,8 @@ struct User: Codable, Identifiable, Hashable {
         hasContactsSynced: Bool = false,
         statusImageName: String? = "ADVANCED1",
         pollStreak: Int = 0,  // New parameter
-        lastVotedPoll: Date? = nil // New parameter
+        lastVotedPoll: Date? = nil,
+        ratingDistribution: [String: Int]? = nil// New parameter
     ) {
         self.id = id
         self.username = username
@@ -149,7 +156,8 @@ struct User: Codable, Identifiable, Hashable {
         self.hasContactsSynced = hasContactsSynced
         self.statusImageName = statusImageName
         self.pollStreak = pollStreak  // Assigning new parameter
-        self.lastVotedPoll = lastVotedPoll  // Assigning new parameter
+        self.lastVotedPoll = lastVotedPoll
+        self.ratingDistribution = ratingDistribution// Assigning new parameter
     }
 
     func encode(to encoder: Encoder) throws {
@@ -198,6 +206,8 @@ struct User: Codable, Identifiable, Hashable {
         if let lastVotedPoll = lastVotedPoll {
             try container.encode(Timestamp(date: lastVotedPoll), forKey: .lastVotedPoll)
         }
+        try container.encodeIfPresent(ratingDistribution, forKey: .ratingDistribution)
+
     }
 
     

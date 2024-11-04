@@ -47,6 +47,7 @@ struct Post: Identifiable, Codable {
             return nil
         }
     }
+    
 
     // Decoding initializer
     init(from decoder: Decoder) throws {
@@ -161,6 +162,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     var profileImageUrl: String?
     var cuisine: String?
     var price: String?
+    var macroCategory: String?
 }
 
 struct PostUser: Codable, Hashable, Identifiable {

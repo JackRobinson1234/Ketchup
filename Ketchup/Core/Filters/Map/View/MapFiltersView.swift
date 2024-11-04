@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MapFiltersView: View {
-    
     @Environment(\.dismiss) var dismiss
     @State private var selectedOption: MapFiltersViewOptions = .cuisine
     @State private var cuisineText = ""
