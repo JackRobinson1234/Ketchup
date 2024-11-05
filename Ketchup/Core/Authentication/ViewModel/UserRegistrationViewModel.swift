@@ -27,8 +27,10 @@ class UserRegistrationViewModel: ObservableObject {
                 birthday: birthday,
                 location: location,
                 hasCompletedSetup: true,
-                referrer: referrer?.id
+                referrer: referrer?.id,
+                generateReferralCode: true
             )
+            
             Task{
                 ////print("Successfully updated user: \(updatedUser)")
                 try await AuthService.shared.createContactAlertUser(user: updatedUser)

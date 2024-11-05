@@ -24,23 +24,28 @@ struct ContactsView: View {
     }
     var body: some View {
         NavigationView {
-            ZStack {
-                if ContactService.shared.isSyncing {
-                    VStack {
-                        FastCrossfadeFoodImageView()
-                        Text("Loading contacts- please check in soon")
-                    }
-                } else if isContactsPermissionDenied {
-                    deniedPermissionView
-                } else if viewModel.contacts.isEmpty && !viewModel.isLoading && !viewModel.isLoadingExistingUsers {
-                    emptyView
-                } else {
-                    VStack {
-                        
-                        contactsList
-                        if viewModel.isLoadingExistingUsers {
+            VStack{
+                Text("Your referral code: \(AuthService.shared.userSession?.referralCode ?? "ketchup583")")
+                    .font(.custom("MuseoSansRounded-700", size: 14))
+                    .foregroundStyle(.black)
+                ZStack {
+                    if ContactService.shared.isSyncing {
+                        VStack {
                             FastCrossfadeFoodImageView()
+                            Text("Loading contacts- please check in soon")
+                        }
+                    } else if isContactsPermissionDenied {
+                        deniedPermissionView
+                    } else if viewModel.contacts.isEmpty && !viewModel.isLoading && !viewModel.isLoadingExistingUsers {
+                        emptyView
+                    } else {
+                        VStack {
                             
+                            contactsList
+                            if viewModel.isLoadingExistingUsers {
+                                FastCrossfadeFoodImageView()
+                                
+                            }
                         }
                     }
                 }
@@ -60,6 +65,7 @@ struct ContactsView: View {
             )) { alertItem in
                 Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
             }
+            .modifier(BackButtonModifier())
             .sheet(isPresented: $showMessageComposer) {
                 if MFMessageComposeViewController.canSendText() {
                     ContactMessageComposeView(
@@ -179,22 +185,18 @@ struct ContactsView: View {
     }
     
     var inviteMessage: String {
-        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
-        if let username = AuthService.shared.userSession?.username {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+        let appStoreLink = "https://ketchup-app.com/open"
+        
+        return """
+        Hey! Here's my invite for Ketchup to share your restaurant reviews. It's invite only right now, use my code:
+                   
+        \(AuthService.shared.userSession?.referralCode ?? "ketchup583")
+                   
+        here is the download link:
 
-            \(appStoreLink)
-
-            (P.S. Follow me @\(username))
-            """
-        } else {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
-
-            \(appStoreLink)
-            """
-        }
+        \(appStoreLink)
+        """
+        
     }
     
     // Other view components (contactsList, filteredContacts) remain unchanged

@@ -72,7 +72,8 @@ class AuthService {
         location: Location? = nil,
         phoneNumber: String? = nil,
         hasCompletedSetup: Bool,
-        referrer: String? = nil
+        referrer: String? = nil,
+        generateReferralCode: Bool = false  // New parameter with default value
     ) async throws -> User {
         let userRef = FirestoreConstants.UserCollection.document(id)
         
@@ -80,6 +81,14 @@ class AuthService {
         
         if let username = username, !username.isEmpty {
             updatedUserData["username"] = username
+            
+            // Generate referral code if requested and username is available
+            if generateReferralCode {
+                let randomDigits = String(format: "%03d", Int.random(in: 0...999))
+                let referralCode = "\(username)\(randomDigits)"
+                updatedUserData["referralCode"] = referralCode
+                updatedUserData["remainingReferrals"] = 3
+            }
         }
         
         if let fullname = fullname, !fullname.isEmpty {
@@ -97,27 +106,39 @@ class AuthService {
         if let location = location {
             updatedUserData["location"] = try Firestore.Encoder().encode(location)
         }
+        
         if let referrer = referrer {
             updatedUserData["referredBy"] = referrer
         }
+        
         updatedUserData["createdAt"] = Timestamp(date: Date())
         updatedUserData["lastActive"] = Timestamp(date: Date())
-        
         updatedUserData["hasCompletedSetup"] = hasCompletedSetup
-        // Assuming profile setup is completed
         
         do {
             try await userRef.setData(updatedUserData, merge: true)
-            //print("DEBUG: Successfully updated user document in Firestore with ID: \(id)")
             
             let updatedUser = try await userRef.getDocument(as: User.self)
             self.userSession = updatedUser
             
             return updatedUser
         } catch {
-            //print("DEBUG: Failed to update user document in Firestore with error: \(error.localizedDescription)")
             throw error
         }
+    }
+    private func generateAlphanumericCode() -> String {
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        let numbers = "0123456789"
+        let allowedChars = Array(letters + numbers)
+        var code = ""
+        
+        // Generate 7 random characters
+        for _ in 0..<7 {
+            if let randomChar = allowedChars.randomElement() {
+                code.append(randomChar)
+            }
+        }
+        return code
     }
     func createContactAlertUser(
         user: User
@@ -144,6 +165,21 @@ class AuthService {
         phoneNumber: String? = nil,
         privateMode: Bool = false
     ) async throws -> User {
+        let db = Firestore.firestore()
+           let usersCollection = db.collection("users")
+
+           // Fetch the user with the highest waitlistNumber
+           let querySnapshot = try await usersCollection
+               .order(by: "waitlistNumber", descending: true)
+               .limit(to: 1)
+               .getDocuments()
+
+           var highestWaitlistNumber = 0
+           if let highestUserDoc = querySnapshot.documents.first,
+              let waitlistNumber = highestUserDoc.data()["waitlistNumber"] as? Int {
+               highestWaitlistNumber = waitlistNumber
+           }
+           let newWaitlistNumber = max(highestWaitlistNumber + 1, 537)
         // Get the current date for createdAt and lastActive
         let user = User(
             id: id,
@@ -155,7 +191,8 @@ class AuthService {
             notificationAlert: 0,
             location: location,
             birthday: birthday,
-            hasCompletedSetup: false // Set this to false for incomplete profiles
+            hasCompletedSetup: false,
+            waitlistNumber: newWaitlistNumber// Set this to false for incomplete profiles
             // Set the lastActive timestamp
         )
         

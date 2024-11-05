@@ -32,14 +32,23 @@ struct User: Codable, Identifiable, Hashable {
     var isCurrentUser: Bool {
         return id == Auth.auth().currentUser?.uid
     }
+    var referralCode: String
+    var remainingReferrals: Int = 10
+    
     var ratingDistribution: [String: Int]? = nil // Stores counts for each rating bucket: "0-0.99": 5, "1-1.99": 10, etc.
+    var waitlistNumber: Int? = nil  // New property
 
     enum CodingKeys: String, CodingKey {
-        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites, privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt, lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals, weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak, lastVotedPoll, ratingDistribution // Add the new key here
- // Added new keys
+        case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites
+        case privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt
+        case lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals
+        case weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak
+        case lastVotedPoll, ratingDistribution, referralCode, remainingReferrals
+        case waitlistNumber
     }
     
-
+    
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -96,10 +105,11 @@ struct User: Codable, Identifiable, Hashable {
             self.lastVotedPoll = nil
         }
         self.ratingDistribution = try container.decodeIfPresent([String: Int].self, forKey: .ratingDistribution)
-
-
+        self.referralCode = try container.decodeIfPresent(String.self, forKey: .referralCode) ?? Self.generateReferralCode(username: username)
+        self.remainingReferrals = try container.decodeIfPresent(Int.self, forKey: .remainingReferrals) ?? 10
+        self.waitlistNumber = try container.decodeIfPresent(Int.self, forKey: .waitlistNumber) ?? 0  // New decoding
     }
-
+    
     init(
         id: String,
         username: String,
@@ -124,7 +134,11 @@ struct User: Codable, Identifiable, Hashable {
         statusImageName: String? = "ADVANCED1",
         pollStreak: Int = 0,  // New parameter
         lastVotedPoll: Date? = nil,
-        ratingDistribution: [String: Int]? = nil// New parameter
+        ratingDistribution: [String: Int]? = nil,
+        remainingReferrals: Int = 10,
+        waitlistNumber: Int? = nil  // New parameter
+
+        // New parameter
     ) {
         self.id = id
         self.username = username
@@ -157,9 +171,14 @@ struct User: Codable, Identifiable, Hashable {
         self.statusImageName = statusImageName
         self.pollStreak = pollStreak  // Assigning new parameter
         self.lastVotedPoll = lastVotedPoll
-        self.ratingDistribution = ratingDistribution// Assigning new parameter
-    }
+        self.ratingDistribution = ratingDistribution
+        self.referralCode = Self.generateReferralCode(username: username)
+        self.remainingReferrals = remainingReferrals
+        self.waitlistNumber = waitlistNumber 
+        // New initialization
 
+    }
+    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -207,15 +226,18 @@ struct User: Codable, Identifiable, Hashable {
             try container.encode(Timestamp(date: lastVotedPoll), forKey: .lastVotedPoll)
         }
         try container.encodeIfPresent(ratingDistribution, forKey: .ratingDistribution)
+        try container.encode(referralCode, forKey: .referralCode)
+        try container.encode(remainingReferrals, forKey: .remainingReferrals)
+        try container.encodeIfPresent(waitlistNumber, forKey: .waitlistNumber)  // New encoding
 
     }
-
+    
     
     // Add a method to fetch badges from Firestore sub-collection
     func fetchBadges(completion: @escaping ([Badge]) -> Void) {
         let db = Firestore.firestore()
         let badgesRef = db.collection("users").document(self.id).collection("user-badges")
-
+        
         badgesRef.getDocuments { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 completion([])  // Return an empty array if there's an error
@@ -226,6 +248,11 @@ struct User: Codable, Identifiable, Hashable {
             }
             completion(badges)
         }
+    }
+    private static func generateReferralCode(username: String) -> String {
+        let prefix = String(username.prefix(3)).uppercased()
+        let randomDigits = String(format: "%04d", Int.random(in: 0...9999))
+        return "\(prefix)\(randomDigits)"
     }
 }
 

@@ -22,7 +22,7 @@ struct NotificationCell: View {
     @ObservedObject var collectionsViewModel: CollectionsViewModel
     @State private var inviteStatus: InviteStatus
     @State private var showRejectAlert: Bool = false
-
+    @State var showContacts = false
     // New state variables for Poll
     @State private var showPoll: Bool = false
     @State private var poll: Poll?
@@ -42,7 +42,14 @@ struct NotificationCell: View {
             Button(action: {
                 showUserProfile = true
             }) {
-                UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
+                if notification.profileImageUrl != "Skip" {
+                    UserCircularProfileImageView(profileImageUrl: notification.user?.profileImageUrl, size: .medium)
+                } else {
+                    Image("Skip")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                }
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -74,6 +81,9 @@ struct NotificationCell: View {
             set: { showPoll = $0 }
         ))  {
             pollDetailView
+        }
+        .sheet(isPresented: $showContacts) {
+            ContactsView()
         }
         .fullScreenCover(isPresented: Binding(
             get: { showUserProfile  },
@@ -138,7 +148,10 @@ struct NotificationCell: View {
         let username = notification.user?.username ?? ""
         let message = generateMessage(for: notification)
         let additionalText = shouldAppendAdditionalText(notification) ? (notification.text ?? "") : ""
-        let fullText = "@\(username)\(message)\(additionalText.isEmpty ? "" : " \(additionalText)")"
+        
+        // Only prepend @ if username is not empty
+        let usernamePrefix = username.isEmpty ? "" : "@"
+        let fullText = "\(usernamePrefix)\(username)\(message)\(additionalText.isEmpty ? "" : "\(additionalText)")"
 
         var result = AttributedString(fullText)
         result.font = .custom("MuseoSansRounded-300", size: 14)
@@ -260,6 +273,12 @@ struct NotificationCell: View {
             inviteActionButtons
         case .collectionInviteAccepted:
             collectionButton(notification.collectionCoverImage ?? [])
+        case .freshReferralInvites:
+            Button{ showContacts = true} label: {
+                Text("Invite")
+                    .foregroundColor(Color("Colors/AccentColor"))
+                    .font(.custom("MuseoSansRounded-700", size: 16))
+            }
         case .badgeUpgrade:
             if let image = notification.postThumbnail {
                 Image(image)
@@ -348,6 +367,9 @@ struct NotificationCell: View {
         switch notification.type {
         case .collectionInvite, .collectionInviteAccepted, .newCollectionItem:
             handleCollectionTap()
+        case .freshReferralInvites:
+            showContacts = true
+        
         default:
             if let pollId = notification.pollId {
                 fetchPoll(pollId: pollId)

@@ -35,4 +35,9 @@ class ContentViewModel: ObservableObject {
         // Check if userSession is complete. Here we assume `hasCompletedProfile` is part of the User model.
         return userSession?.hasCompletedSetup ?? false
     }
+    
+    var isOnWaitlist: Bool {
+       
+        return (userSession?.waitlistNumber ?? 0 > 0)
+    }
 }

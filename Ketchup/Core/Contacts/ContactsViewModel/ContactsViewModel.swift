@@ -46,22 +46,18 @@ class ContactsViewModel: ObservableObject {
     }
     @MainActor
     var inviteMessage: String {
-        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
-        if let username = AuthService.shared.userSession?.username {
+        let appStoreLink = "https://ketchup-app.com/open/"
+        
             return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
-
-            \(appStoreLink)
-
-            (P.S. Follow me @\(username))
-            """
-        } else {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+            Hey! Here's my invite for Ketchup to share your restaurant reviews. It's invite only right now, use my code:
+                       
+            \(AuthService.shared.userSession?.referralCode ?? "ketchup583")
+                       
+            here is the download link:
 
             \(appStoreLink)
             """
-        }
+        
     }
 
     func fetchContacts() {

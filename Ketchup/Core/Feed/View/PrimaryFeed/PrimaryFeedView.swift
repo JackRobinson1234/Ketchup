@@ -140,8 +140,9 @@ struct PrimaryFeedView: View {
                                             Spacer()
                                         }
                                        
-                                        
+                                        inviteContactsButton
                                         if let poll = pollViewModel.polls.first {
+                                            
                                             Button(action: {
                                                 // Navigate to the daily poll
                                                 showPollView = true
@@ -538,6 +539,7 @@ struct PrimaryFeedView: View {
                 }
                 .onChange(of: showAddFriends) { newValue in
                     pauseVideo = newValue
+                    
                 }
                 .sheet(isPresented: $showAddFriends) {
                     ContactsView()
@@ -646,6 +648,51 @@ struct PrimaryFeedView: View {
         }
         .foregroundColor(.black)
         
+    }
+    private var inviteContactsButton: some View {
+        Button {
+            pauseVideo = true
+            showAddFriends = true
+        } label: {
+            HStack {
+                VStack{
+                    Image(systemName: "envelope")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 80)
+                        .cornerRadius(8)
+                        .foregroundColor(.black)
+                        
+                }
+                .frame(width: 80, height: 80)
+                VStack(alignment: .leading) {
+                    Text("Invite Friends")
+                        .font(.custom("MuseoSansRounded-700", size: 16))
+                        .foregroundColor(.black)
+                    
+                    Text("You have \(AuthService.shared.userSession?.remainingReferrals ?? 3) invites left!")
+                        .font(.custom("MuseoSansRounded-500", size: 14))
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    
+                    Text("Share your code: \(AuthService.shared.userSession?.referralCode ?? "ketchup583")")
+                        .font(.custom("MuseoSansRounded-300", size: 12))
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+                    .padding(.trailing)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+            )
+            .cornerRadius(8)
+            .padding(.horizontal)
+         
+        }
     }
 }
 

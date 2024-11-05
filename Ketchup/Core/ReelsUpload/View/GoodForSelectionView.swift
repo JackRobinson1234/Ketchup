@@ -31,7 +31,7 @@ struct GoodForSelectionView: View {
                                     if optionsSelected.contains(option) {
                                         optionsSelected.remove(option)
                                     } else {
-                                        if optionsSelected.count < 5 {  // Changed limit to 5
+                                        if optionsSelected.count < 7 {  // Changed limit to 5
                                             optionsSelected.insert(option)
                                         } else {
                                             showingLimitAlert = true
@@ -61,7 +61,7 @@ struct GoodForSelectionView: View {
                     .padding(.bottom)
                 }
             }
-            .navigationTitle("Selected \(optionsSelected.count)/5")  // Update navigation title to reflect 5
+            .navigationTitle("Selected \(optionsSelected.count)/7")  // Update navigation title to reflect 5
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button("Cancel") {
                 dismiss()
