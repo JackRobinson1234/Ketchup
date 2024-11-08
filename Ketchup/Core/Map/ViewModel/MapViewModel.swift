@@ -33,11 +33,11 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var selectedRating: Double = 0.0 {
-           didSet {
-               print(selectedRating)
-               updateFilters(radius: calculateRadius())
-           }
-       }
+        didSet {
+            print(selectedRating)
+            updateFilters(radius: calculateRadius())
+        }
+    }
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var annotations: [RestaurantMapAnnotation] = []
     @Published var clusters: [ExampleClusterAnnotation] = []
@@ -55,7 +55,7 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var flattenedRestaurants: [ClusterRestaurant] = []
-
+    
     var mapSize: CGSize = .zero
     let maxZoomOutSpan: Double = 0.2
     let longitudeDeltaToConvertToRestaurant: Double = 0.006
@@ -71,7 +71,7 @@ class MapViewModel: ObservableObject {
             return .region
         } else  {
             return .city
-        } 
+        }
     }
     
     
@@ -103,13 +103,13 @@ class MapViewModel: ObservableObject {
         }
     }
     func centerMapOnLocation(location: CLLocation) {
-           let newRegion = MKCoordinateRegion(
-               center: location.coordinate,
-               span: currentRegion.span // Keep the current span to maintain zoom level
-           )
-            selectedLocation = [location.coordinate]
-           currentRegion = newRegion
-       }
+        let newRegion = MKCoordinateRegion(
+            center: location.coordinate,
+            span: currentRegion.span // Keep the current span to maintain zoom level
+        )
+        selectedLocation = [location.coordinate]
+        currentRegion = newRegion
+    }
     func fetchFilteredClusters(limit: Int = 0) async {
         do {
             isLoading = true
@@ -294,13 +294,13 @@ class MapViewModel: ObservableObject {
         selectedPrice = []
     }
     func clearData() {
-            visibleRestaurants = []
-            annotations = []
-            clusters = []
-            largeClusters = []
-            allClusters = []
-            // Reset other properties if necessary
-        }
+        visibleRestaurants = []
+        annotations = []
+        clusters = []
+        largeClusters = []
+        allClusters = []
+        // Reset other properties if necessary
+    }
     
 }
 
@@ -311,7 +311,7 @@ class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, I
     var coordinate: CLLocationCoordinate2D
     let restaurant: ClusterRestaurant
     var title: String?
-
+    
     init(coordinate: CLLocationCoordinate2D, restaurant: ClusterRestaurant) {
         self.coordinate = coordinate
         self.restaurant = restaurant
@@ -327,7 +327,7 @@ class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, 
     let count: Int
     let memberAnnotations: [RestaurantMapAnnotation]
     var title: String?
-
+    
     init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
         self.id = id
         self.coordinate = coordinate
@@ -345,7 +345,7 @@ class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Id
     let count: Int
     let memberAnnotations: [ClusterRestaurant]
     var title: String? // Add this line
-
+    
     init(coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [ClusterRestaurant]) {
         self.coordinate = coordinate
         self.count = count
