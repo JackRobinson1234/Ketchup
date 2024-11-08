@@ -880,6 +880,7 @@ struct CustomPagingView<Content: View>: View {
         }
     }
 }
+
 struct PagingScrollView<Content: View>: UIViewRepresentable {
     let content: Content
     let itemWidth: CGFloat
@@ -996,6 +997,214 @@ struct PagingScrollView<Content: View>: UIViewRepresentable {
         func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
             // Update currentIndex after decelerating
             DispatchQueue.main.async {
+                self.parent.currentIndex = self.targetIndex
+            }
+        }
+    }
+}
+
+
+struct RecyclablePagingScrollView<Content: View>: UIViewRepresentable {
+    let viewProvider: (Int) -> Content
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    let itemCount: Int
+    @Binding var currentIndex: Int
+
+    // Cache for reusable views
+    class ViewCache {
+        var unusedViews: [UIHostingController<Content>] = []
+        var visibleViews: [Int: UIHostingController<Content>] = [:]
+        
+        func dequeueView(forIndex index: Int, viewProvider: (Int) -> Content) -> UIHostingController<Content> {
+            if let view = unusedViews.popLast() {
+                view.rootView = viewProvider(index)
+                return view
+            }
+            let controller = UIHostingController(rootView: viewProvider(index))
+            controller.view.backgroundColor = .clear
+            return controller
+        }
+        
+        func recycleView(_ view: UIHostingController<Content>) {
+            view.view.removeFromSuperview()
+            unusedViews.append(view)
+        }
+        
+        func recycleAllViews() {
+            visibleViews.values.forEach { $0.view.removeFromSuperview() }
+            unusedViews.append(contentsOf: visibleViews.values)
+            visibleViews.removeAll()
+        }
+    }
+    
+    init(itemWidth: CGFloat, itemSpacing: CGFloat = 10, itemCount: Int, currentIndex: Binding<Int>, @ViewBuilder viewProvider: @escaping (Int) -> Content) {
+        self.viewProvider = viewProvider
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self.itemCount = itemCount
+        self._currentIndex = currentIndex
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.isPagingEnabled = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.delegate = context.coordinator
+        scrollView.decelerationRate = .fast
+        scrollView.clipsToBounds = true
+        
+        let contentView = UIView()
+        contentView.backgroundColor = .clear
+        scrollView.addSubview(contentView)
+        context.coordinator.contentView = contentView
+        
+        let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        
+        DispatchQueue.main.async {
+            context.coordinator.loadVisibleViews(in: scrollView)
+        }
+        
+        return scrollView
+    }
+    
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        let totalItemWidth = itemWidth + itemSpacing
+        let totalWidth = CGFloat(itemCount) * totalItemWidth - itemSpacing
+        
+        context.coordinator.contentView?.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: totalWidth,
+            height: scrollView.frame.size.height
+        )
+        scrollView.contentSize = CGSize(width: totalWidth, height: scrollView.frame.size.height)
+        
+        let targetX = CGFloat(currentIndex) * totalItemWidth - scrollView.contentInset.left
+        if abs(scrollView.contentOffset.x - targetX) > 0.5 {
+            scrollView.setContentOffset(CGPoint(x: targetX, y: 0), animated: false)
+            context.coordinator.targetIndex = currentIndex
+        }
+        
+        scrollView.layoutIfNeeded()
+        context.coordinator.loadVisibleViews(in: scrollView)
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: RecyclablePagingScrollView
+        var viewCache = ViewCache()
+        var isUserScrolling = false
+        var targetIndex: Int = 0
+        weak var contentView: UIView?
+        
+        init(_ parent: RecyclablePagingScrollView) {
+            self.parent = parent
+        }
+        
+        func loadVisibleViews(in scrollView: UIScrollView) {
+            let totalItemWidth = parent.itemWidth + parent.itemSpacing
+            let visibleBounds = scrollView.bounds.offsetBy(dx: scrollView.contentOffset.x, dy: 0)
+            
+            guard parent.itemCount > 0, totalItemWidth > 0, let contentView = contentView else {
+                viewCache.recycleAllViews()
+                return
+            }
+            
+            let visibleMinX = visibleBounds.minX - scrollView.contentInset.left
+            let visibleMaxX = visibleBounds.maxX - scrollView.contentInset.left
+            
+            let bufferWidth = totalItemWidth * 2.0
+            let extendedMinX = visibleMinX - bufferWidth
+            let extendedMaxX = visibleMaxX + bufferWidth
+            
+            var minIndex = max(0, Int(floor(extendedMinX / totalItemWidth)))
+            var maxIndex = min(parent.itemCount - 1, Int(ceil(extendedMaxX / totalItemWidth)))
+            
+            if maxIndex < minIndex {
+                let centerX = (visibleMinX + visibleMaxX) / 2
+                let centerIndex = max(0, min(parent.itemCount - 1, Int(round(centerX / totalItemWidth))))
+                minIndex = centerIndex
+                maxIndex = centerIndex
+            }
+            
+            viewCache.visibleViews.forEach { (index, view) in
+                if index < minIndex || index > maxIndex {
+                    viewCache.recycleView(view)
+                    viewCache.visibleViews.removeValue(forKey: index)
+                }
+            }
+            
+            for index in minIndex...maxIndex {
+                if viewCache.visibleViews[index] == nil {
+                    let view = viewCache.dequeueView(forIndex: index, viewProvider: parent.viewProvider)
+                    let xPosition = CGFloat(index) * totalItemWidth
+                    
+                    view.view.frame = CGRect(
+                        x: xPosition,
+                        y: 0,
+                        width: parent.itemWidth,
+                        height: contentView.bounds.height
+                    )
+                    
+                    if view.view.superview != contentView {
+                        contentView.addSubview(view.view)
+                    }
+                    
+                    viewCache.visibleViews[index] = view
+                }
+            }
+        }
+        
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            isUserScrolling = true
+        }
+        
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let pageWidth = parent.itemWidth + parent.itemSpacing
+            let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
+            var index = Int(round(offsetX / pageWidth))
+
+            let velocityX = velocity.x
+
+            if velocityX > 0.2 {
+                index = min(index + 1, parent.itemCount - 1)
+            } else if velocityX < -0.2 {
+                index = max(index - 1, 0)
+            } else {
+                index = Int(round(offsetX / pageWidth))
+            }
+
+            index = max(0, min(index, parent.itemCount - 1))
+            targetIndex = index
+            
+            let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
+            targetContentOffset.pointee.x = newOffsetX
+        }
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            DispatchQueue.main.async { [weak self] in
+                self?.loadVisibleViews(in: scrollView)
+            }
+        }
+        
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            isUserScrolling = false
+            updateCurrentIndex()
+        }
+        
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            isUserScrolling = false
+            updateCurrentIndex()
+        }
+        
+        private func updateCurrentIndex() {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
                 self.parent.currentIndex = self.targetIndex
             }
         }

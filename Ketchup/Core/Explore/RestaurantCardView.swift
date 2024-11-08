@@ -80,23 +80,6 @@ struct RestaurantCardView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-//                    if let goodFor = restaurant.topGoodFor {
-//                        ScrollView(.horizontal, showsIndicators: false) {
-//                            HStack {
-//                                ForEach(goodFor, id: \.self) { option in
-//                                    Text(option)
-//                                        .font(.custom("MuseoSansRounded-500", size: 14))
-//                                        .padding(.horizontal)
-//                                        .padding(.vertical, 8)
-//                                        .background(Color.red)
-//                                        .foregroundColor(.white)
-//                                        .cornerRadius(20)
-//                                }
-//                            }
-//                        }
-//                        .padding(.horizontal)
-//                        .padding(.top, 8)
-//                    }
                    
                     if let distance = distanceString {
                         Text(distance)

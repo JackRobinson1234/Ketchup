@@ -94,8 +94,8 @@ class ClusterService {
     
     private func adjustClusterForFilters(_ cluster: Cluster, filters: [String: [Any]]) -> Cluster? {
         let filteredRestaurants = cluster.restaurants.filter { restaurant in
-            if let cuisines = filters["cuisine"] as? [String], !cuisines.isEmpty {
-                guard let restaurantCuisine = restaurant.cuisine, cuisines.contains(restaurantCuisine) else {
+            if let cuisines = filters["macrocategory"] as? [String], !cuisines.isEmpty {
+                guard let restaurantCuisine = restaurant.macrocategory, cuisines.contains(restaurantCuisine) else {
                     return false
                 }
             }
@@ -105,6 +105,11 @@ class ClusterService {
                     return false
                 }
             }
+            if let ratings = filters["overallRating"] as? [Double], !ratings.isEmpty {
+                      guard let restaurantRating = restaurant.overallRating, restaurantRating >= ratings[0] else {
+                          return false
+                      }
+                  }
             return true
         }
         
@@ -183,7 +188,6 @@ class ClusterService {
             throw error
         }
     }
-    
     private func applyFiltersToPost(toQuery query: Query, filters: [String: [Any]]) -> Query {
         var updatedQuery = query
         for (field, value) in filters {

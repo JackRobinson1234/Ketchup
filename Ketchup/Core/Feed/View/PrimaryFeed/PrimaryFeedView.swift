@@ -38,7 +38,8 @@ struct PrimaryFeedView: View {
     @StateObject var locationViewModel = LocationViewModel()
     @StateObject private var pollViewModel = PollViewModel()
     @State private var showPollView = false // Add this line
-    
+    @State private var showPollUploadView = false
+
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -141,6 +142,14 @@ struct PrimaryFeedView: View {
                                         }
                                        
                                         inviteContactsButton
+                                        Button {
+                                            showPollUploadView = true
+                                        } label: {
+                                            Text("Poll Manager")
+                                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                                .modifier(StandardButtonModifier(width: 80))
+                                                .padding(.trailing)
+                                        }
                                         if let poll = pollViewModel.polls.first {
                                             
                                             Button(action: {
@@ -234,6 +243,9 @@ struct PrimaryFeedView: View {
                                     }
                                     triggerHapticFeedback()
                                 }
+                            }
+                            .sheet(isPresented: $showPollUploadView) {
+                                PollUploadView()
                             }
                             .onChange(of: viewModel.initialPrimaryScrollPosition) { newValue in
                                 if let newPosition = newValue {
@@ -666,7 +678,7 @@ struct PrimaryFeedView: View {
                 }
                 .frame(width: 80, height: 80)
                 VStack(alignment: .leading) {
-                    Text("Invite Friends")
+                    Text("Ketchup is Invite Only")
                         .font(.custom("MuseoSansRounded-700", size: 16))
                         .foregroundColor(.black)
                     

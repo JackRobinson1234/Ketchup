@@ -32,6 +32,12 @@ class MapViewModel: ObservableObject {
             updateFilters(radius: calculateRadius())
         }
     }
+    @Published var selectedRating: Double = 0.0 {
+           didSet {
+               print(selectedRating)
+               updateFilters(radius: calculateRadius())
+           }
+       }
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     @Published var annotations: [RestaurantMapAnnotation] = []
     @Published var clusters: [ExampleClusterAnnotation] = []
@@ -43,8 +49,13 @@ class MapViewModel: ObservableObject {
     
     private var fetchTask: Task<Void, Never>?
     private let fetchDebouncer = Debouncer(delay: 0.3)
-    private var allClusters: [Cluster] = []
-    
+    @Published var allClusters: [Cluster] = [] {
+        didSet {
+            self.flattenedRestaurants = allClusters.flatMap { $0.restaurants }
+        }
+    }
+    @Published var flattenedRestaurants: [ClusterRestaurant] = []
+
     var mapSize: CGSize = .zero
     let maxZoomOutSpan: Double = 0.2
     let longitudeDeltaToConvertToRestaurant: Double = 0.006
@@ -115,6 +126,7 @@ class MapViewModel: ObservableObject {
             if determineZoomLevel(for: currentRegion) == .maxZoomOut {
                 return
             }
+            print(filters)
             let fetchedClusters = try await ClusterService.shared.fetchClustersWithLocation(
                 filters: self.filters,
                 center: self.currentRegion.center,
@@ -127,7 +139,6 @@ class MapViewModel: ObservableObject {
                 self.allClusters = fetchedClusters
                 updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
             }
-            
             isLoading = false
         } catch {
             ////print("DEBUG: Failed to fetch clusters \(error.localizedDescription)")
@@ -225,21 +236,29 @@ class MapViewModel: ObservableObject {
     }
     private func updateFilters(radius: Double) {
         if selectedCuisines.isEmpty {
-            filters.removeValue(forKey: "cuisine")
+            filters.removeValue(forKey: "macrocategory")
         } else {
-            filters["cuisine"] = selectedCuisines
-        }
-        
-        if selectedLocation.isEmpty {
-            filters.removeValue(forKey: "location")
-        } else {
-            filters["location"] = selectedLocation + [radius]
+            filters["macrocategory"] = selectedCuisines
         }
         
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
         } else {
             filters["price"] = selectedPrice
+        }
+        
+        // Add rating filter
+        if selectedRating > 0 {
+            filters["overallRating"] = [selectedRating]
+        } else {
+            filters.removeValue(forKey: "overallRating")
+        }
+        
+        // Update location filter
+        if selectedLocation.isEmpty {
+            filters.removeValue(forKey: "location")
+        } else {
+            filters["location"] = selectedLocation + [radius]
         }
     }
     private func applyChanges(_ difference: ClusterManager<RestaurantMapAnnotation>.Difference) {

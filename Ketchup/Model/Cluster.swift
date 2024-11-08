@@ -65,7 +65,12 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
     var macrocategory: String?
     var city: String?
     var topGoodFor: [String]? // Added city as an optional string
-
+    var coordinate: CLLocationCoordinate2D {
+            CLLocationCoordinate2D(
+                latitude: geoPoint.latitude,
+                longitude: geoPoint.longitude
+            )
+        }
     enum CodingKeys: String, CodingKey {
         case id
         case name

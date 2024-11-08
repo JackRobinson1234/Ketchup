@@ -133,6 +133,9 @@
 		F88322052C3DDD9E006744D2 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = F88322042C3DDD9E006744D2 /* SwiftyCrop */; };
 		F88322072C3DE8B0006744D2 /* RatingSliderGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */; };
 		F88322092C3DE8EA006744D2 /* OverallRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88322082C3DE8EA006744D2 /* OverallRatingView.swift */; };
+		F88775782CDD38A6000D43DF /* SimplifiedPostClusterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88775772CDD38A6000D43DF /* SimplifiedPostClusterListView.swift */; };
+		F887757A2CDD38CC000D43DF /* GroupedPostAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88775792CDD38CC000D43DF /* GroupedPostAnnotationView.swift */; };
+		F887757C2CDD38E9000D43DF /* GroupedPostClusterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F887757B2CDD38E9000D43DF /* GroupedPostClusterListView.swift */; };
 		F88C32942C604160004CF72E /* ClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88C32932C604160004CF72E /* ClusterService.swift */; };
 		F88C32962C60419C004CF72E /* Cluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88C32952C60419C004CF72E /* Cluster.swift */; };
 		F88E0A382B6A5D8D00EC159B /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88E0A372B6A5D8D00EC159B /* Comment.swift */; };
@@ -465,6 +468,9 @@
 		F87D33E72C7EA56500E5A962 /* PostUploadedSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostUploadedSuccessView.swift; sourceTree = "<group>"; };
 		F88322062C3DE8B0006744D2 /* RatingSliderGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingSliderGroup.swift; sourceTree = "<group>"; };
 		F88322082C3DE8EA006744D2 /* OverallRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverallRatingView.swift; sourceTree = "<group>"; };
+		F88775772CDD38A6000D43DF /* SimplifiedPostClusterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedPostClusterListView.swift; sourceTree = "<group>"; };
+		F88775792CDD38CC000D43DF /* GroupedPostAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedPostAnnotationView.swift; sourceTree = "<group>"; };
+		F887757B2CDD38E9000D43DF /* GroupedPostClusterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedPostClusterListView.swift; sourceTree = "<group>"; };
 		F88C32932C604160004CF72E /* ClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterService.swift; sourceTree = "<group>"; };
 		F88C32952C60419C004CF72E /* Cluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cluster.swift; sourceTree = "<group>"; };
 		F88E0A372B6A5D8D00EC159B /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
@@ -1244,6 +1250,9 @@
 				F846F4702BFF97A9009D1303 /* ClusterCell.swift */,
 				F868686F2C34811000F6CE56 /* ClusterRestaurantListView.swift */,
 				F8B5CF382C9DE94D001C9433 /* MapView.swift */,
+				F88775772CDD38A6000D43DF /* SimplifiedPostClusterListView.swift */,
+				F88775792CDD38CC000D43DF /* GroupedPostAnnotationView.swift */,
+				F887757B2CDD38E9000D43DF /* GroupedPostClusterListView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2208,6 +2217,7 @@
 				F8631E312BD6DCE100A48565 /* CollectionsSearchListView.swift in Sources */,
 				F8FB35622BEFD97B0079DE6D /* Report.swift in Sources */,
 				F89342072C72CA9000E313AC /* ContactService.swift in Sources */,
+				F88775782CDD38A6000D43DF /* SimplifiedPostClusterListView.swift in Sources */,
 				F86868702C34811000F6CE56 /* ClusterRestaurantListView.swift in Sources */,
 				F88E0ABA2B6B04B600EC159B /* CurrentUserProfileView.swift in Sources */,
 				F8FB356F2BF112F40079DE6D /* ProfileReportView.swift in Sources */,
@@ -2237,6 +2247,7 @@
 				F8B6FB672CA8BBB4006CCE2D /* PollCommentService.swift in Sources */,
 				F8A96F232C3C95B3009E67A9 /* PhotoCameraControls.swift in Sources */,
 				F8D62A262C92014900E40B45 /* PollViewModel.swift in Sources */,
+				F887757A2CDD38CC000D43DF /* GroupedPostAnnotationView.swift in Sources */,
 				F8D62A192C90F06A00E40B45 /* LocationSearchView.swift in Sources */,
 				F88E0ACE2B6B060200EC159B /* MapRestaurantProfileView.swift in Sources */,
 				F8D62A1B2C9119E400E40B45 /* ReverseGeoCodingView.swift in Sources */,
@@ -2291,6 +2302,7 @@
 				F87D33E82C7EA56500E5A962 /* PostUploadedSuccessView.swift in Sources */,
 				F879874B2C56F4B6007BAAB4 /* ClearCircle.swift in Sources */,
 				F8DC87F02C0820FD00CBB8A2 /* DownloadViewModel.swift in Sources */,
+				F887757C2CDD38E9000D43DF /* GroupedPostClusterListView.swift in Sources */,
 				F88E0B2E2B6CA06C00EC159B /* CollapsibleFilterViewModifier.swift in Sources */,
 				F81C464A2CC0B5A800DB736F /* Social Page.swift in Sources */,
 				F88E0AF82B6B08BD00EC159B /* RestaurantListView.swift in Sources */,
@@ -2549,7 +2561,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.9;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2601,7 +2613,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.9;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -174,7 +174,7 @@ struct ContactsView: View {
         Button(action: {
             showMessageComposer = true
         }) {
-            Text("Invite Friends")
+            Text("Ketchup is Invite Only!")
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
