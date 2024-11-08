@@ -1217,6 +1217,10 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
     let itemCount: Int
     @Binding var currentIndex: Int
     let contentProvider: (Int) -> Content
+    
+    // Preview properties
+    let previewScale: CGFloat = 0.8
+    let previewAlpha: CGFloat = 0.5
 
     init(
         itemWidth: CGFloat,
@@ -1227,9 +1231,9 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
     ) {
         self.itemWidth = itemWidth
         self.itemSpacing = itemSpacing
-        self.itemCount = itemCount
+        self.itemCount = max(0, itemCount) // Ensure non-negative count
         // Clamp the binding to ensure currentIndex remains within valid range
-        self._currentIndex = currentIndex.clamped(to: 0...(itemCount > 0 ? itemCount - 1 : 0))
+        self._currentIndex = currentIndex.clamped(to: 0...(max(0, itemCount - 1)))
         self.contentProvider = contentProvider
     }
 
@@ -1238,19 +1242,22 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UICollectionView {
-        let layout = UICollectionViewFlowLayout()
+        let layout = PeekingCollectionViewLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = itemSpacing
         layout.minimumInteritemSpacing = 0
+        layout.itemWidth = itemWidth
+        layout.previewScale = previewScale
+        layout.previewAlpha = previewAlpha
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.decelerationRate = .fast
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.isPagingEnabled = false // Custom paging
+        collectionView.isPagingEnabled = false
         collectionView.dataSource = context.coordinator
         collectionView.delegate = context.coordinator
         collectionView.register(HostingCollectionViewCell<Content>.self, forCellWithReuseIdentifier: "Cell")
-
+        
         // Center the items
         let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
         collectionView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
@@ -1260,9 +1267,10 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UICollectionView, context: Context) {
+        guard itemCount > 0 else { return }
+        
         uiView.reloadData()
 
-        // Ensure currentIndex is within bounds before scrolling
         let clampedIndex = max(0, min(currentIndex, itemCount - 1))
         if clampedIndex != currentIndex {
             currentIndex = clampedIndex
@@ -1288,57 +1296,46 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
         }
 
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            return parent.itemCount
+            return max(0, parent.itemCount)
         }
 
         func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? HostingCollectionViewCell<Content> else {
-                // Return an empty cell if dequeuing fails
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? HostingCollectionViewCell<Content>,
+                  indexPath.item >= 0 && indexPath.item < parent.itemCount else {
                 return UICollectionViewCell()
             }
-            if parent.itemCount > indexPath.item {
-                let content = parent.contentProvider(indexPath.item)
-                cell.host(rootView: content)
-            }
+            
+            let content = parent.contentProvider(indexPath.item)
+            cell.host(rootView: content)
             return cell
         }
 
-        // Set the correct size for each cell
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+                          sizeForItemAt indexPath: IndexPath) -> CGSize {
             return CGSize(width: parent.itemWidth, height: collectionView.frame.height)
         }
 
         // MARK: - Scroll View Delegate
 
-        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-            // No additional state needed
-        }
-
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            let pageWidth = self.parent.itemWidth + self.parent.itemSpacing
+            guard parent.itemCount > 0 else { return }
+            
+            let pageWidth = parent.itemWidth + parent.itemSpacing
             let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
             var index = Int(round(offsetX / pageWidth))
 
-            let velocityX = velocity.x
-
-            if velocityX > 0.2 {
-                // Swiping to the left (next item)
-                index = min(index + 1, self.parent.itemCount - 1)
-            } else if velocityX < -0.2 {
-                // Swiping to the right (previous item)
+            // Apply velocity-based changes
+            if velocity.x > 0.2 {
+                index = min(index + 1, parent.itemCount - 1)
+            } else if velocity.x < -0.2 {
                 index = max(index - 1, 0)
-            } else {
-                // Not enough velocity, snap to nearest
-                index = Int(round(offsetX / pageWidth))
             }
 
-            // Clamp the index to ensure it's within valid range
-            index = max(0, min(index, self.parent.itemCount - 1))
+            // Clamp index to valid range
+            index = max(0, min(index, parent.itemCount - 1))
+            
             let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
             targetContentOffset.pointee.x = newOffsetX
-
-            // Store the target index to update the currentIndex later
             self.targetIndex = index
         }
 
@@ -1351,15 +1348,53 @@ struct PagingCollectionView<Content: View>: UIViewRepresentable {
         }
 
         private func updateCurrentIndex() {
-            DispatchQueue.main.async {
-                self.parent.currentIndex = self.targetIndex
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                // Ensure index is within bounds before updating
+                let clampedIndex = max(0, min(self.targetIndex, self.parent.itemCount - 1))
+                self.parent.currentIndex = clampedIndex
             }
         }
     }
 }
 
-// MARK: - HostingCollectionViewCell
+// MARK: - Custom Layout for Peeking Items
+class PeekingCollectionViewLayout: UICollectionViewFlowLayout {
+    var itemWidth: CGFloat = 240
+    var previewScale: CGFloat = 0.8
+    var previewAlpha: CGFloat = 0.5
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        
+        guard let collectionView = collectionView else { return attributes }
+        let centerX = collectionView.contentOffset.x + collectionView.bounds.width / 2
+        
+        for attribute in attributes {
+            let distanceFromCenter = abs(attribute.center.x - centerX)
+            let normalizedDistance = distanceFromCenter / (itemWidth + minimumLineSpacing)
+            
+            if normalizedDistance > 0 {
+                let scale = max(previewScale, 1 - normalizedDistance * 0.2)
+                let alpha = max(previewAlpha, 1 - normalizedDistance * 0.5)
+                
+                attribute.transform = CGAffineTransform(scaleX: scale, y: scale)
+                attribute.alpha = alpha
+            } else {
+                attribute.transform = .identity
+                attribute.alpha = 1.0
+            }
+        }
+        
+        return attributes
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return true
+    }
+}
 
+// MARK: - HostingCollectionViewCell (unchanged)
 class HostingCollectionViewCell<Content: View>: UICollectionViewCell {
     private var hostingController: UIHostingController<Content>?
 
@@ -1386,7 +1421,6 @@ class HostingCollectionViewCell<Content: View>: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        //hostingController?.rootView = EmptyView()
     }
 }
 

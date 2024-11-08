@@ -285,6 +285,7 @@
 		F8D62A282C92383E00E40B45 /* ActivityContactRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */; };
 		F8D6353C2CC0496A00F3377E /* RestaurantCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */; };
 		F8D6353E2CC04A3100F3377E /* DailyPollContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */; };
+		F8D81B052CDE791C000A2196 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = F8D81B042CDE791C000A2196 /* SwiftUIPager */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -652,6 +653,7 @@
 				F8C645662C3B738E0004F1B0 /* CachingPlayerItem in Frameworks */,
 				F8C645602C3B73770004F1B0 /* InstantSearchSwiftUI in Frameworks */,
 				F8C645552C3B736A0004F1B0 /* ClusterMap in Frameworks */,
+				F8D81B052CDE791C000A2196 /* SwiftUIPager in Frameworks */,
 				F8C6455C2C3B73770004F1B0 /* InstantSearchCore in Frameworks */,
 				F8C645572C3B736A0004F1B0 /* ClusterMapSwiftUI in Frameworks */,
 				FE388A23A197A32E969C7799 /* Pods_Ketchup.framework in Frameworks */,
@@ -1846,6 +1848,7 @@
 				F88322042C3DDD9E006744D2 /* SwiftyCrop */,
 				F8628A6D2C501B62000B046B /* YPImagePicker */,
 				F82EC7422C9249DF00DDA688 /* GeohashKit */,
+				F8D81B042CDE791C000A2196 /* SwiftUIPager */,
 			);
 			productName = Foodi;
 			productReference = F84FE2482B6A531200144F01 /* Ketchup.app */;
@@ -1930,6 +1933,7 @@
 				F88322032C3DDD9E006744D2 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
 				F8628A6C2C501B62000B046B /* XCRemoteSwiftPackageReference "YPImagePicker" */,
 				F82EC7412C9249DF00DDA688 /* XCRemoteSwiftPackageReference "GeohashKit" */,
+				F8D81B032CDE791B000A2196 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 			);
 			productRefGroup = F84FE2492B6A531200144F01 /* Products */;
 			projectDirPath = "";
@@ -2822,6 +2826,14 @@
 				minimumVersion = 1.0.8;
 			};
 		};
+		F8D81B032CDE791B000A2196 /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2879,6 +2891,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F8C645642C3B738E0004F1B0 /* XCRemoteSwiftPackageReference "CachingPlayerItem" */;
 			productName = CachingPlayerItem;
+		};
+		F8D81B042CDE791C000A2196 /* SwiftUIPager */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8D81B032CDE791B000A2196 /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
+			productName = SwiftUIPager;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

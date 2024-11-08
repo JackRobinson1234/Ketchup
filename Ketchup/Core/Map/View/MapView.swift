@@ -14,6 +14,7 @@ import ClusterMap
 import ClusterMapSwiftUI
 import Kingfisher
 import FirebaseAuth
+import SwiftUIPager
 @available(iOS 17.0, *)
 struct MapView: View {
     @ObservedObject var viewModel: MapViewModel = MapViewModel()
@@ -438,6 +439,7 @@ struct RestaurantSlideUpSheet: View {
 
     @State private var currentHeight: CGFloat = 0.0
     @State private var previewOpacity = 0.0
+    @StateObject private var page: Page = .first()
 
     private var tipHeight: CGFloat {
         60 // Display a minimal part of the sheet in `tip` mode
@@ -451,8 +453,6 @@ struct RestaurantSlideUpSheet: View {
 
     var body: some View {
         VStack {
-            //Spacer()
-
             VStack(spacing: 0) {
                 // Always visible hook
                 Capsule()
@@ -488,29 +488,25 @@ struct RestaurantSlideUpSheet: View {
                             .font(.headline)
                             .padding()
                     } else {
-                        // Using PagingCollectionView in half mode
-                        PagingCollectionView(
-                            itemWidth: 240, // Adjusted item width
-                            itemSpacing: 10, // Adjusted item spacing
-                            itemCount: restaurants.count,
-                            currentIndex: $selectedIndex.clamped(to: 0...(restaurants.count > 0 ? restaurants.count - 1 : 0))
-                        ) { index in
+                        Pager(page: page,
+                              data: restaurants,
+                              id: \.self) { restaurant in
+                            RestaurantPreviewView(userLocation: nil, restaurant: restaurant)
+                                .onTapGesture {
+                                    onSelectRestaurant(restaurant)
+                                }
+                        }
+                        .sensitivity(.high)
+                        .preferredItemSize(CGSize(width: 240, height: halfHeight))
+                        .itemSpacing(10)
+                        .interactive(scale: 0.8)
+                        .interactive(opacity: 0.5)
+                        .onPageChanged({ index in
+                            selectedIndex = index
                             if restaurants.indices.contains(index) {
-                                RestaurantPreviewView(userLocation: nil, restaurant: restaurants[index])
-                                    .onTapGesture {
-                                        onSelectRestaurant(restaurants[index])
-                                    }
-                            } else {
-                                // Fallback for invalid index
-                                Text("Invalid Restaurant")
-                                    .padding()
+                                onRestaurantSwipe(index)
                             }
-                        }
-                        .onChange(of: selectedIndex) { newIndex in
-                            if restaurants.indices.contains(newIndex) {
-                                onRestaurantSwipe(newIndex)
-                            }
-                        }
+                        })
                         .opacity(previewOpacity)
                         .animation(.easeInOut(duration: 0.3), value: previewOpacity)
                     }
@@ -550,6 +546,9 @@ struct RestaurantSlideUpSheet: View {
                     }
             )
             .onAppear {
+                // Set initial page position
+                page.update(.new(index: selectedIndex))
+                
                 // Ensure selectedIndex is valid on appear
                 if !restaurants.indices.contains(selectedIndex) {
                     selectedIndex = restaurants.isEmpty ? 0 : 0
@@ -557,10 +556,15 @@ struct RestaurantSlideUpSheet: View {
                 currentHeight = currentPosition == .half ? halfHeight : tipHeight
                 previewOpacity = currentPosition != .tip ? 1.0 : 0.0
             }
+            .onChange(of: selectedIndex) { newIndex in
+                // Update page when selectedIndex changes externally
+                page.update(.new(index: newIndex))
+            }
             .onChange(of: restaurants) { newRestaurants in
                 // Adjust selectedIndex if restaurants array changes
                 if !newRestaurants.indices.contains(selectedIndex) {
                     selectedIndex = newRestaurants.isEmpty ? 0 : min(selectedIndex, newRestaurants.count - 1)
+                    page.update(.new(index: selectedIndex))
                 }
             }
         }
@@ -584,13 +588,11 @@ struct RestaurantSlideUpSheet: View {
     }
 
     // MARK: - SheetPosition Enum
-
     enum SheetPosition {
         case tip
         case half
     }
 }
-
 struct RoundedCornerShape: Shape {
     var corners: UIRectCorner
     var radius: CGFloat
