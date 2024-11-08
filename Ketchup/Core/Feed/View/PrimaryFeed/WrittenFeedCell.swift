@@ -1210,3 +1210,169 @@ struct RecyclablePagingScrollView<Content: View>: UIViewRepresentable {
         }
     }
 }
+
+struct PagingCollectionView<Content: View>: UIViewRepresentable {
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    let itemCount: Int
+    @Binding var currentIndex: Int
+    let contentProvider: (Int) -> Content
+
+    init(
+        itemWidth: CGFloat,
+        itemSpacing: CGFloat = 10,
+        itemCount: Int,
+        currentIndex: Binding<Int>,
+        @ViewBuilder contentProvider: @escaping (Int) -> Content
+    ) {
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self.itemCount = itemCount
+        self._currentIndex = currentIndex
+        self.contentProvider = contentProvider
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> UICollectionView {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = itemSpacing
+        layout.minimumInteritemSpacing = 0
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.decelerationRate = .fast
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isPagingEnabled = false // Custom paging
+        collectionView.dataSource = context.coordinator
+        collectionView.delegate = context.coordinator
+        collectionView.register(HostingCollectionViewCell<Content>.self, forCellWithReuseIdentifier: "Cell")
+
+        // Center the items
+        let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        collectionView.contentOffset = CGPoint(x: -horizontalInset, y: 0)
+
+        return collectionView
+    }
+
+    func updateUIView(_ uiView: UICollectionView, context: Context) {
+        uiView.reloadData()
+        DispatchQueue.main.async {
+            // Scroll to the current index
+            let totalItemWidth = self.itemWidth + self.itemSpacing
+            let targetX = CGFloat(self.currentIndex) * totalItemWidth - uiView.contentInset.left
+            if abs(uiView.contentOffset.x - targetX) > 0.5 {
+                uiView.setContentOffset(CGPoint(x: targetX, y: 0), animated: false)
+            }
+        }
+    }
+
+    class Coordinator: NSObject, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate {
+        var parent: PagingCollectionView
+        var isUserScrolling = false
+        var targetIndex: Int = 0
+
+        init(_ parent: PagingCollectionView) {
+            self.parent = parent
+        }
+
+        func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+            return parent.itemCount
+        }
+
+        func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? HostingCollectionViewCell<Content> else {
+                fatalError("Failed to dequeue HostingCollectionViewCell")
+            }
+            let content = parent.contentProvider(indexPath.item)
+            cell.host(rootView: content)
+            return cell
+        }
+
+        // Implement sizeForItemAt to set the correct size for each cell
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+            return CGSize(width: parent.itemWidth, height: collectionView.frame.height)
+        }
+
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            isUserScrolling = true
+        }
+
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let pageWidth = self.parent.itemWidth + self.parent.itemSpacing
+            let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
+            var index = Int(round(offsetX / pageWidth))
+
+            let velocityX = velocity.x
+
+            if velocityX > 0.2 {
+                // Swiping to the left (next item)
+                index = min(index + 1, self.parent.itemCount - 1)
+            } else if velocityX < -0.2 {
+                // Swiping to the right (previous item)
+                index = max(index - 1, 0)
+            } else {
+                // Not enough velocity, snap to nearest
+                index = Int(round(offsetX / pageWidth))
+            }
+
+            let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
+            targetContentOffset.pointee.x = newOffsetX
+
+            // Store the target index to update the currentIndex later
+            self.targetIndex = index
+            isUserScrolling = false
+        }
+
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            DispatchQueue.main.async {
+                self.parent.currentIndex = self.targetIndex
+            }
+        }
+
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            DispatchQueue.main.async {
+                self.parent.currentIndex = self.targetIndex
+            }
+        }
+    }
+}
+
+class HostingCollectionViewCell<Content: View>: UICollectionViewCell {
+    var hostingController: UIHostingController<Content>?
+
+    func host(rootView: Content) {
+        if let hostingController = hostingController {
+            hostingController.rootView = rootView
+        } else {
+            hostingController = UIHostingController(rootView: rootView)
+            guard let hostingView = hostingController?.view else { return }
+            hostingView.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(hostingView)
+
+            NSLayoutConstraint.activate([
+                hostingView.topAnchor.constraint(equalTo: contentView.topAnchor),
+                hostingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+                hostingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                hostingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            ])
+        }
+    }
+}
+extension Binding where Value == Int {
+    /// Clamps the binding value within the specified range.
+    func clamped(to range: ClosedRange<Int>) -> Binding<Int> {
+        return Binding<Int>(
+            get: {
+                Swift.min(Swift.max(self.wrappedValue, range.lowerBound), range.upperBound)
+            },
+            set: { newValue in
+                self.wrappedValue = Swift.min(Swift.max(newValue, range.lowerBound), range.upperBound)
+            }
+        )
+    }
+}

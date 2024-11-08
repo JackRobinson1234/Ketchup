@@ -516,36 +516,56 @@ struct RestaurantSlideUpSheet: View {
                     }
 
                 if currentPosition == .tip {
-                    // Minimal content in low mode
-                    Text(restaurants[selectedIndex].name)
-                        .font(.headline)
-                        .padding()
-                        .onTapGesture {
-                            togglePosition()
-                        }
+                    if restaurants.indices.contains(selectedIndex) {
+                        // Minimal content in low mode
+                        Text(restaurants[selectedIndex].name)
+                            .font(.headline)
+                            .padding()
+                            .onTapGesture {
+                                togglePosition()
+                            }
+                    } else {
+                        // Fallback for invalid index
+                        Text("No Restaurant Selected")
+                            .font(.headline)
+                            .padding()
+                            .onTapGesture {
+                                togglePosition()
+                            }
+                    }
                 } else {
-                    // Using PagingScrollView in half mode
-                    PagingScrollView(
-                        itemWidth: 240,
-                        itemSpacing: 10,
-                        itemCount: restaurants.count,
-                        currentIndex: $selectedIndex
-                    ) {
-                        HStack(spacing: 10) {
-                            ForEach(restaurants.indices, id: \.self) { index in
+                    if restaurants.isEmpty {
+                        // Handle empty restaurants array
+                        Text("No Restaurants Available")
+                            .font(.headline)
+                            .padding()
+                    } else {
+                        // Using PagingCollectionView in half mode
+                        PagingCollectionView(
+                            itemWidth: 240, // Adjusted item width
+                            itemSpacing: 10, // Adjusted item spacing
+                            itemCount: restaurants.count,
+                            currentIndex: $selectedIndex
+                        ) { index in
+                            if restaurants.indices.contains(index) {
                                 RestaurantPreviewView(userLocation: nil, restaurant: restaurants[index])
                                     .onTapGesture {
                                         onSelectRestaurant(restaurants[index])
                                     }
-                                   
+                            } else {
+                                // Fallback for invalid index
+                                Text("Invalid Restaurant")
+                                    .padding()
                             }
                         }
+                        .onChange(of: selectedIndex) { newIndex in
+                            if restaurants.indices.contains(newIndex) {
+                                onRestaurantSwipe(newIndex)
+                            }
+                        }
+                        .opacity(previewOpacity)
+                        .animation(.easeInOut(duration: 0.3), value: previewOpacity)
                     }
-                    .onChange(of: selectedIndex) { newIndex in
-                        onRestaurantSwipe(newIndex)
-                    }
-                    .opacity(previewOpacity)
-                    .animation(.easeInOut(duration: 0.3), value: previewOpacity)
                 }
             }
             .frame(height: currentHeight)
@@ -582,8 +602,18 @@ struct RestaurantSlideUpSheet: View {
                     }
             )
             .onAppear {
+                // Ensure selectedIndex is valid on appear
+                if !restaurants.indices.contains(selectedIndex) {
+                    selectedIndex = restaurants.isEmpty ? 0 : 0
+                }
                 currentHeight = currentPosition == .half ? halfHeight : tipHeight
                 previewOpacity = currentPosition != .tip ? 1.0 : 0.0
+            }
+            .onChange(of: restaurants) { newRestaurants in
+                // Adjust selectedIndex if restaurants array changes
+                if !newRestaurants.indices.contains(selectedIndex) {
+                    selectedIndex = newRestaurants.isEmpty ? 0 : min(selectedIndex, newRestaurants.count - 1)
+                }
             }
         }
     }
@@ -592,9 +622,11 @@ struct RestaurantSlideUpSheet: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
             switch currentPosition {
             case .tip:
-                currentPosition = .half
-                currentHeight = halfHeight
-                previewOpacity = 1.0
+                if !restaurants.isEmpty {
+                    currentPosition = .half
+                    currentHeight = halfHeight
+                    previewOpacity = 1.0
+                }
             case .half:
                 currentPosition = .tip
                 currentHeight = tipHeight
@@ -602,8 +634,8 @@ struct RestaurantSlideUpSheet: View {
             }
         }
     }
-    
 }
+
 struct RoundedCornerShape: Shape {
     var corners: UIRectCorner
     var radius: CGFloat
@@ -678,13 +710,12 @@ struct LoadingIcon: View {
 struct RestaurantPreviewView: View {
     let userLocation: CLLocation?
     let restaurant: ClusterRestaurant
-    
+
     var body: some View {
-        let screenWidth = UIScreen.main.bounds.width
-        let cardWidth: CGFloat = 240 // Adjust padding as needed
-        
+        let cardWidth: CGFloat = 240
+
         VStack(alignment: .leading) {
-            ZStack(alignment: .bottomLeading){
+            ZStack(alignment: .bottomLeading) {
                 if let imageUrl = restaurant.profileImageUrl {
                     KFImage(URL(string: imageUrl))
                         .resizable()
@@ -692,58 +723,43 @@ struct RestaurantPreviewView: View {
                         .frame(width: cardWidth, height: 140)
                         .clipped()
                 } else {
-                    Image("Skip")
+                    Image("Placeholder")
                         .resizable()
                         .scaledToFill()
                         .frame(width: cardWidth, height: 140)
                         .cornerRadius(8)
                         .clipped()
                 }
-               
             }
-            HStack(alignment: .top){
-                VStack(alignment: .leading){
+            HStack(alignment: .top) {
+                VStack(alignment: .leading) {
                     Text(restaurant.name)
-                        .font(.custom("MuseoSansRounded-700", size: 14))
+                        .font(.headline)
                         .foregroundColor(.black)
-                        .multilineTextAlignment(.leading)
                         .lineLimit(2)
                     if let city = restaurant.city {
                         Text(city)
-                            .font(.custom("MuseoSansRounded-500", size: 12))
+                            .font(.subheadline)
                             .foregroundColor(.gray)
                             .lineLimit(1)
                     }
                     if let cuisine = restaurant.macrocategory, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    } else if let cuisine = restaurant.macrocategory {
-                        Text(cuisine)
-                            .font(.custom("MuseoSansRounded-300", size: 12))
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    } else if let price = restaurant.price {
-                        Text(price)
-                            .font(.custom("MuseoSansRounded-300", size: 12))
+                            .font(.footnote)
                             .foregroundColor(.gray)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                   
                     if let distance = distanceString {
                         Text(distance)
-                            .font(.custom("MuseoSansRounded-300", size: 10))
+                            .font(.caption)
                             .foregroundColor(.gray)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
                 }
                 Spacer()
-                if let overallRating = restaurant.overallRating, overallRating != 0{
+                if let overallRating = restaurant.overallRating, overallRating != 0 {
                     ScrollFeedOverallRatingView(rating: overallRating, font: .black, size: 30)
                         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }
@@ -755,9 +771,8 @@ struct RestaurantPreviewView: View {
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        
     }
-    
+
     private var distanceString: String? {
         guard let userLocation = userLocation else {
             return nil
@@ -767,10 +782,11 @@ struct RestaurantPreviewView: View {
         let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
         let distanceInMeters = userLocation.distance(from: restaurantLocation)
         let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-        
+
         return String(format: "%.1f mi", distanceInMiles)
     }
 }
+
 
 
 struct GroupedPostClusterCell: View {
