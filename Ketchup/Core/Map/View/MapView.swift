@@ -40,12 +40,14 @@ struct MapView: View {
     @State private var navigateToProfile = false
     //@State private var isMapCenteredOnRestaurant = false
     @State private var currentMapCamera: MapCamera?
-//    private var flattenedRestaurants: [ClusterRestaurant] {
-//        viewModel.allClusters.flatMap { $0.restaurants }
-//    }
+    //    private var flattenedRestaurants: [ClusterRestaurant] {
+    //        viewModel.allClusters.flatMap { $0.restaurants }
+    //    }
     @State private var isUserSelectingRestaurant = false
     @State private var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
-
+    @State private var showLocationSearch = false
+    
+    
     private var noNearbyRestaurants: Bool {
         if showFollowingPosts {
             return followingViewModel.annotations.isEmpty && followingViewModel.clusters.isEmpty && !followingViewModel.isLoading
@@ -56,190 +58,181 @@ struct MapView: View {
     init() {
         self._position = State(initialValue: .userLocation(fallback: .automatic))
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 VStack(spacing:0){
-                GeometryReader { geometryProxy in
-                    Map(position: $position, scope: mapScope) {
-                        if showFollowingPosts {
-                            ForEach(followingViewModel.annotations, id: \.self) { item in
-                                Annotation(item.restaurant.name, coordinate: item.coordinate) {
-                                    NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
-                                        GroupedPostAnnotationView(groupedPost: item)
+                    GeometryReader { geometryProxy in
+                        Map(position: $position, scope: mapScope) {
+                            if showFollowingPosts {
+                                ForEach(followingViewModel.annotations, id: \.self) { item in
+                                    Annotation(item.restaurant.name, coordinate: item.coordinate) {
+                                        NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
+                                            GroupedPostAnnotationView(groupedPost: item)
+                                        }
                                     }
                                 }
-                            }
-                            ForEach(followingViewModel.clusters) { cluster in
-                                Annotation("", coordinate: cluster.coordinate) {
-                                    GroupedPostClusterCell(cluster: cluster)
-                                        .onTapGesture {
-                                            selectedFollowingCluster = cluster
-                                        }
+                                ForEach(followingViewModel.clusters) { cluster in
+                                    Annotation("", coordinate: cluster.coordinate) {
+                                        GroupedPostClusterCell(cluster: cluster)
+                                            .onTapGesture {
+                                                selectedFollowingCluster = cluster
+                                            }
+                                    }
                                 }
-                            }
-                        } else {
-                            ForEach(viewModel.annotations, id: \.self) { item in
-                                Annotation(item.restaurant.name, coordinate: item.coordinate) {
-                                    MapRestaurantAnnotationView(
-                                        restaurant: item.restaurant,
-                                        isSelected: item.restaurant.id == selectedRestaurant?.id
-                                    )
-                                    .onTapGesture {
-                                        isUserSelectingRestaurant = true
-                                        selectedRestaurant = item.restaurant
-                                        if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
-                                            selectedRestaurantIndex = index
+                            } else {
+                                ForEach(viewModel.annotations, id: \.self) { item in
+                                    Annotation(item.restaurant.name, coordinate: item.coordinate) {
+                                        MapRestaurantAnnotationView(
+                                            restaurant: item.restaurant,
+                                            isSelected: item.restaurant.id == selectedRestaurant?.id
+                                        )
+                                        .onTapGesture {
+                                            isUserSelectingRestaurant = true
+                                            selectedRestaurant = item.restaurant
+                                            if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
+                                                selectedRestaurantIndex = index
+                                            }
+                                            
+                                            // Reset isUserSelectingRestaurant after 2 seconds
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                isUserSelectingRestaurant = false
+                                            }
                                         }
                                         
-                                        // Reset isUserSelectingRestaurant after 2 seconds
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            isUserSelectingRestaurant = false
-                                        }
                                     }
-                                    
+                                }
+                                ForEach(viewModel.clusters) { cluster in
+                                    Annotation("", coordinate: cluster.coordinate) {
+                                        ClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
+                                            .onTapGesture {
+                                                selectedCluster = cluster
+                                            }
+                                    }
+                                }
+                                
+                                ForEach(viewModel.largeClusters) { cluster in
+                                    Annotation("", coordinate: cluster.coordinate) {
+                                        LargeClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
+                                            .onTapGesture {
+                                                selectedLargeCluster = cluster
+                                            }
+                                    }
                                 }
                             }
-                            ForEach(viewModel.clusters) { cluster in
-                                Annotation("", coordinate: cluster.coordinate) {
-                                    ClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
+                            UserAnnotation()
+                        }
+                        .readSize(onChange: { newValue in
+                            viewModel.mapSize = newValue
+                            followingViewModel.mapSize = newValue
+                        })
+                        .onReceive(viewModel.$allClusters) { _ in
+                            if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
+                                updateSelectedRestaurant(for: currentRegion)
+                            }
+                        }
+                        .overlay(
+                            Group {
+                                if isCuisineMenuOpen || isPriceMenuOpen {
+                                    Color.black.opacity(0.001)
                                         .onTapGesture {
-                                            selectedCluster = cluster
+                                            withAnimation {
+                                                isCuisineMenuOpen = false
+                                                isPriceMenuOpen = false
+                                            }
                                         }
+                                        .edgesIgnoringSafeArea(.all)
                                 }
+                            }
+                        )
+                        .onChange(of: viewModel.selectedCuisines) { _ in
+                            Task {
+                                await viewModel.fetchFilteredClusters()
+                            }
+                        }
+                        .onChange(of: viewModel.selectedPrice) { _ in
+                            Task {
+                                await viewModel.fetchFilteredClusters()
+                            }
+                        }
+                        .onChange(of: viewModel.selectedRating) { _ in
+                            Task {
+                                await viewModel.fetchFilteredClusters()
+                            }
+                        }
+                        .onMapCameraChange(frequency: .onEnd) { context in
+                            let newRegion = context.region
+                            currentRegion = newRegion
+                            currentMapCamera = context.camera
+                            
+                            if !showFollowingPosts{
+                                viewModel.updateMapState(newRegion: newRegion)
+                                Task.detached { await viewModel.reloadAnnotations() }
+                            } else {
+                                followingViewModel.updateMapState(newRegion: newRegion)
+                                Task.detached { await followingViewModel.reloadAnnotations() }
                             }
                             
-                            ForEach(viewModel.largeClusters) { cluster in
-                                Annotation("", coordinate: cluster.coordinate) {
-                                    LargeClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
-                                        .onTapGesture {
-                                            selectedLargeCluster = cluster
-                                        }
+                            // Update selected restaurant if data is ready and user is not interacting
+                            if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
+                                updateSelectedRestaurant(for: newRegion)
+                            }
+                        }
+                        
+                        
+                        .onChange(of: isFiltersPresented) {
+                            
+                            Task.detached { await viewModel.reloadAnnotations() }
+                            
+                        }
+                        .overlay {
+                            if showFollowingPosts {
+                                if followingViewModel.currentZoomLevel == .maxZoomOut {
+                                    Text("Zoom in to see posts")
+                                        .modifier(OverlayModifier())
+                                        .font(.custom("MuseoSansRounded-300", size: 14))
+                                } else if noNearbyRestaurants {
+                                    Text("No posts found nearby")
+                                        .modifier(OverlayModifier())
+                                        .font(.custom("MuseoSansRounded-300", size: 14))
+                                }
+                            } else {
+                                if viewModel.currentZoomLevel == .maxZoomOut {
+                                    Text("Zoom in to see restaurants")
+                                        .modifier(OverlayModifier())
+                                        .font(.custom("MuseoSansRounded-300", size: 14))
+                                } else if noNearbyRestaurants {
+                                    Text("No restaurants found nearby")
+                                        .modifier(OverlayModifier())
+                                        .font(.custom("MuseoSansRounded-300", size: 14))
                                 }
                             }
                         }
-                        UserAnnotation()
-                    }
-                    .readSize(onChange: { newValue in
-                        viewModel.mapSize = newValue
-                        followingViewModel.mapSize = newValue
-                    })
-                    .onReceive(viewModel.$allClusters) { _ in
-                        if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
-                            updateSelectedRestaurant(for: currentRegion)
+                        .overlay(alignment: .bottomTrailing) {
+                            userLocationButton
                         }
+                        .mapScope(mapScope)
+                        .mapStyle(.standard(pointsOfInterest: .excludingAll))
                     }
-                    .overlay(
-                        Group {
-                            if isCuisineMenuOpen || isPriceMenuOpen {
-                                Color.black.opacity(0.001)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            isCuisineMenuOpen = false
-                                            isPriceMenuOpen = false
-                                        }
-                                    }
-                                    .edgesIgnoringSafeArea(.all)
-                            }
+                    RestaurantSlideUpSheet(
+                        restaurants: $viewModel.flattenedRestaurants,
+                        selectedIndex: $selectedRestaurantIndex,
+                        onDismiss: {
+                            selectedRestaurant = nil
+                        },
+                        onSelectRestaurant: { restaurant in
+                            navigateToRestaurantProfile(restaurant)
+                        },
+                        onRestaurantSwipe: { newIndex in
+                            selectedRestaurant = viewModel.flattenedRestaurants[newIndex]
                         }
                     )
-                    .onChange(of: viewModel.selectedCuisines) { _ in
-                        Task {
-                            await viewModel.fetchFilteredClusters()
-                        }
-                    }
-                    .onChange(of: viewModel.selectedPrice) { _ in
-                        Task {
-                            await viewModel.fetchFilteredClusters()
-                        }
-                    }
-                    .onChange(of: viewModel.selectedRating) { _ in
-                        Task {
-                            await viewModel.fetchFilteredClusters()
-                        }
-                    }
-                    .onMapCameraChange(frequency: .onEnd) { context in
-                        let newRegion = context.region
-                        currentRegion = newRegion
-                        currentMapCamera = context.camera
-                        
-                        if !showFollowingPosts{
-                            viewModel.updateMapState(newRegion: newRegion)
-                            Task.detached { await viewModel.reloadAnnotations() }
-                        } else {
-                            followingViewModel.updateMapState(newRegion: newRegion)
-                            Task.detached { await followingViewModel.reloadAnnotations() }
-                        }
-                        
-                        // Update selected restaurant if data is ready and user is not interacting
-                        if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
-                            updateSelectedRestaurant(for: newRegion)
-                        }
-                    }
-                    
-                    
-                    .onChange(of: isFiltersPresented) {
-                        
-                        Task.detached { await viewModel.reloadAnnotations() }
-                        
-                    }
-                    .overlay {
-                        if showFollowingPosts {
-                            if followingViewModel.currentZoomLevel == .maxZoomOut {
-                                Text("Zoom in to see posts")
-                                    .modifier(OverlayModifier())
-                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                            } else if noNearbyRestaurants {
-                                Text("No posts found nearby")
-                                    .modifier(OverlayModifier())
-                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                            }
-                        } else {
-                            if viewModel.currentZoomLevel == .maxZoomOut {
-                                Text("Zoom in to see restaurants")
-                                    .modifier(OverlayModifier())
-                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                            } else if noNearbyRestaurants {
-                                Text("No restaurants found nearby")
-                                    .modifier(OverlayModifier())
-                                    .font(.custom("MuseoSansRounded-300", size: 14))
-                            }
-                        }
-                    }
-                    .overlay(alignment: .bottomTrailing) {
-                        userLocationButton
-                    }
-                    .mapScope(mapScope)
-                    .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
-                RestaurantSlideUpSheet(
-                    restaurants: $viewModel.flattenedRestaurants,
-                    selectedIndex: $selectedRestaurantIndex,
-                    onDismiss: {
-                        selectedRestaurant = nil
-                    },
-                    onSelectRestaurant: { restaurant in
-                        navigateToRestaurantProfile(restaurant)
-                    },
-                    onRestaurantSwipe: { newIndex in
-                        selectedRestaurant = viewModel.flattenedRestaurants[newIndex]
-                    }
-                )
-            }
                 .frame(maxHeight: .infinity)
                 VStack{
-                    if !inSearchView{
-                        MapTopRow(
-                            inSearchView: $inSearchView,
-                            showFollowingPosts: $showFollowingPosts,
-                            selectedRating: $viewModel.selectedRating,
-                            selectedCuisines: $viewModel.selectedCuisines,
-                            selectedPrices: $viewModel.selectedPrice,
-                            onToggle: handleToggleChange
-                        )
-                        Spacer()
-                    } else {
+                    if inSearchView{
+                        
                         VStack {
                             MapSearchView(cameraPosition: $position, inSearchView: $inSearchView)
                                 .padding(32)
@@ -259,7 +252,7 @@ struct MapView: View {
                         }
                     }
                 }
-               
+                
                 
             }
             NavigationLink(
@@ -268,13 +261,17 @@ struct MapView: View {
             ) {
                 EmptyView()
             }
+            .sheet(isPresented: $showLocationSearch) {
+                LocationSearchSheet(cameraPosition: $position)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+            }
             .sheet(item: $selectedCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations.map { $0.restaurant })
             }
             .sheet(item: $selectedLargeCluster) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
             }
-
+            
             .sheet(item: $selectedFollowingCluster) { cluster in
                 GroupedPostClusterListView(groupedPosts: cluster.memberAnnotations)
             }
@@ -316,19 +313,19 @@ struct MapView: View {
         }
     }
     
-
+    
     private func updateSelectedRestaurant(for region: MKCoordinateRegion) {
         if isUserSelectingRestaurant {
             return
         }
-
+        
         let centerCoordinate = region.center
-
+        
         // Find the restaurant closest to centerCoordinate
         var closestRestaurant: ClusterRestaurant?
         var closestDistance: CLLocationDistance = Double.greatestFiniteMagnitude
         var closestIndex: Int = 0
-
+        
         for (index, restaurant) in viewModel.flattenedRestaurants.enumerated() {
             let distance = calculateDistance(from: centerCoordinate, to: restaurant.coordinate)
             if distance < closestDistance {
@@ -337,23 +334,61 @@ struct MapView: View {
                 closestIndex = index
             }
         }
-
+        
         if let closestRestaurant = closestRestaurant {
             selectedRestaurant = closestRestaurant
             selectedRestaurantIndex = closestIndex
         }
     }
     private func calculateDistance(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D) -> Double {
-            let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
-            let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
-            return location1.distance(from: location2)
-        }
+        let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
+        let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
+        return location1.distance(from: location2)
+    }
     private func navigateToRestaurantProfile(_ restaurant: ClusterRestaurant) {
-           selectedRestaurantForProfile = restaurant
-           navigateToProfile = true
-       }
+        selectedRestaurantForProfile = restaurant
+        navigateToProfile = true
+    }
     private var userLocationButton: some View {
         VStack {
+            Button(action: {
+                
+                    showLocationSearch = true
+                
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "scope")
+                        .foregroundColor(.black)
+                        .font(.system(size: 20))
+                    Text("Location")
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.black)
+                }
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white)
+                        .shadow(color: .gray, radius: 1)
+                )
+            }
+            Button(action: {
+                isFiltersPresented = true
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundColor(.red)
+                        .font(.system(size: 20))
+                    Text("Filters")
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.black)
+                }
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white)
+                        .shadow(color: .gray, radius: 1)
+                )
+            }
             if LocationManager.shared.userLocation == nil {
                 Button {
                     showAlert = true
@@ -369,19 +404,19 @@ struct MapView: View {
         }
         .padding([.bottom, .trailing], 20)
     }
-
+    
     private func handleToggleChange() {
-           Task {
-               await MainActor.run {
-                   if showFollowingPosts {
-                       followingViewModel.updateMapState(newRegion: viewModel.currentRegion, shouldAutoFetch: true)
-                   } else {
-                       viewModel.updateMapState(newRegion: followingViewModel.currentRegion, shouldAutoFetch: true)
-                   }
-               }
-           }
-       }
-
+        Task {
+            await MainActor.run {
+                if showFollowingPosts {
+                    followingViewModel.updateMapState(newRegion: viewModel.currentRegion, shouldAutoFetch: true)
+                } else {
+                    viewModel.updateMapState(newRegion: followingViewModel.currentRegion, shouldAutoFetch: true)
+                }
+            }
+        }
+    }
+    
     private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
         if showFollowingPosts {
             if followingViewModel.currentZoomLevel == .maxZoomOut {
@@ -417,7 +452,6 @@ struct MapView: View {
             }
         }
     }
-
 }
 extension MKCoordinateRegion {
     func contains(coordinate: CLLocationCoordinate2D) -> Bool {
@@ -436,21 +470,21 @@ struct RestaurantSlideUpSheet: View {
     var onDismiss: () -> Void
     var onSelectRestaurant: (ClusterRestaurant) -> Void
     var onRestaurantSwipe: (Int) -> Void
-
+    
     @State private var currentHeight: CGFloat = 0.0
     @State private var previewOpacity = 0.0
     @StateObject private var page: Page = .first()
-
+    
     private var tipHeight: CGFloat {
         60 // Display a minimal part of the sheet in `tip` mode
     }
     private var halfHeight: CGFloat {
         UIScreen.main.bounds.height * 0.3
     }
-
+    
     @GestureState private var dragOffset = CGFloat.zero
     @State private var currentPosition: SheetPosition = .half
-
+    
     var body: some View {
         VStack {
             VStack(spacing: 0) {
@@ -462,7 +496,7 @@ struct RestaurantSlideUpSheet: View {
                     .onTapGesture {
                         togglePosition()
                     }
-
+                
                 if currentPosition == .tip {
                     if restaurants.indices.contains(selectedIndex) {
                         // Minimal content in low mode
@@ -496,19 +530,19 @@ struct RestaurantSlideUpSheet: View {
                                     onSelectRestaurant(restaurant)
                                 }
                         }
-                        .sensitivity(.high)
-                        .preferredItemSize(CGSize(width: 240, height: halfHeight))
-                        .itemSpacing(10)
-                        .interactive(scale: 0.8)
-                        .interactive(opacity: 0.5)
-                        .onPageChanged({ index in
-                            selectedIndex = index
-                            if restaurants.indices.contains(index) {
-                                onRestaurantSwipe(index)
-                            }
-                        })
-                        .opacity(previewOpacity)
-                        .animation(.easeInOut(duration: 0.3), value: previewOpacity)
+                              .sensitivity(.custom(0.2))
+                              .preferredItemSize(CGSize(width: 240, height: halfHeight))
+                              .itemSpacing(10)
+                              .interactive(scale: 0.8)
+                              .interactive(opacity: 0.5)
+                              .onPageChanged({ index in
+                                  selectedIndex = index
+                                  if restaurants.indices.contains(index) {
+                                      onRestaurantSwipe(index)
+                                  }
+                              })
+                              .opacity(previewOpacity)
+                              .animation(.easeInOut(duration: 0.3), value: previewOpacity)
                     }
                 }
             }
@@ -567,9 +601,10 @@ struct RestaurantSlideUpSheet: View {
                     page.update(.new(index: selectedIndex))
                 }
             }
+         
         }
     }
-
+    
     private func togglePosition() {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
             switch currentPosition {
@@ -586,7 +621,7 @@ struct RestaurantSlideUpSheet: View {
             }
         }
     }
-
+    
     // MARK: - SheetPosition Enum
     enum SheetPosition {
         case tip
@@ -596,7 +631,7 @@ struct RestaurantSlideUpSheet: View {
 struct RoundedCornerShape: Shape {
     var corners: UIRectCorner
     var radius: CGFloat
-
+    
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(
             roundedRect: rect,
@@ -610,9 +645,10 @@ struct RoundedCornerShape: Shape {
 struct MapRestaurantAnnotationView: View {
     let restaurant: ClusterRestaurant
     let isSelected: Bool
-
+    
     @State private var scale: CGFloat = 1.0
-
+    @State private var shadowRadius: CGFloat = 0
+    
     var body: some View {
         RestaurantCircularProfileImageView(
             imageUrl: restaurant.profileImageUrl,
@@ -621,29 +657,32 @@ struct MapRestaurantAnnotationView: View {
             ratingScore: restaurant.overallRating
         )
         .scaleEffect(scale)
+        .shadow(color: Color.black.opacity(0.3), radius: shadowRadius)
         .onAppear {
             if isSelected {
-                bounce()
+                animateSelection()
             }
         }
         .onChange(of: isSelected) { newValue in
             if newValue {
-                bounce()
+                animateSelection()
             } else {
-                withAnimation {
-                    scale = 1.0
-                }
+                resetAnimation()
             }
         }
     }
-
-    func bounce() {
-        scale = 1.0
-        withAnimation(Animation.interpolatingSpring(stiffness: 300, damping: 5)) {
-            scale = 1.5
+    
+    private func animateSelection() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            scale = 1.3
+            shadowRadius = 4
         }
-        withAnimation(Animation.spring().delay(0.2)) {
-            scale = 1.2
+    }
+    
+    private func resetAnimation() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            scale = 1.0
+            shadowRadius = 0
         }
     }
 }
@@ -667,10 +706,10 @@ struct LoadingIcon: View {
 struct RestaurantPreviewView: View {
     let userLocation: CLLocation?
     let restaurant: ClusterRestaurant
-
+    
     var body: some View {
         let cardWidth: CGFloat = 240
-
+        
         VStack(alignment: .leading) {
             ZStack(alignment: .bottomLeading) {
                 if let imageUrl = restaurant.profileImageUrl {
@@ -723,13 +762,31 @@ struct RestaurantPreviewView: View {
             }
             .padding(.horizontal)
             .padding(.bottom, 6)
+            if let goodFor = restaurant.topGoodFor {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(goodFor, id: \.self) { tag in
+                            Text(tag)
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 6)
+                    
+                }
+            }
         }
         .frame(width: cardWidth)
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
-
+    
     private var distanceString: String? {
         guard let userLocation = userLocation else {
             return nil
@@ -739,7 +796,7 @@ struct RestaurantPreviewView: View {
         let restaurantLocation = CLLocation(latitude: restaurantLat, longitude: restaurantLon)
         let distanceInMeters = userLocation.distance(from: restaurantLocation)
         let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-
+        
         return String(format: "%.1f mi", distanceInMiles)
     }
 }
@@ -881,105 +938,105 @@ struct RatingDropDownMenu: View {
         .frame(maxHeight: 200)
     }
 }
-struct MapTopRow: View {
-    @Binding var inSearchView: Bool
-    @Binding var showFollowingPosts: Bool
-    @Binding var selectedRating: Double
-    @Binding var selectedCuisines: [String]
-    @Binding var selectedPrices: [String]
-    var onToggle: () -> Void
-    
-    @State private var activeDropdown: DropdownMenu?
-    
-    private enum DropdownMenu {
-        case rating
-        case cuisine
-        case price
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Main button row
-            ScrollView(.horizontal, showsIndicators: false){
-                HStack(spacing: 12) {
-                    // Select Location Button with updated UI
-                    FilterButton(
-                        title: "Select Location",
-                        isActive: false,
-                        hasSelection: false,
-                        showChevron: false // Hide chevron for this button
-                    ) {
-                        withAnimation {
-                            inSearchView = true
-                            activeDropdown = nil
-                        }
-                    }
-                    
-                    // Single Toggle Button for Any/Following
-                    FollowToggleButton(showFollowingPosts: $showFollowingPosts, onToggle: onToggle)
-                    
-                    // Filter Buttons Group
-                    HStack(spacing: 8) {
-                        // Rating Filter
-                        FilterButton(
-                            title: "Rating",
-                            isActive: activeDropdown == .rating,
-                            hasSelection: selectedRating > 0,
-                            showChevron: true
-                        ) {
-                            withAnimation {
-                                activeDropdown = activeDropdown == .rating ? nil : .rating
-                            }
-                        }
-                        
-                        // Cuisine Filter
-                        FilterButton(
-                            title: "Cuisine",
-                            isActive: activeDropdown == .cuisine,
-                            hasSelection: !selectedCuisines.isEmpty,
-                            showChevron: true
-                        ) {
-                            withAnimation {
-                                activeDropdown = activeDropdown == .cuisine ? nil : .cuisine
-                            }
-                        }
-                        
-                        // Price Filter
-                        FilterButton(
-                            title: "Price",
-                            isActive: activeDropdown == .price,
-                            hasSelection: !selectedPrices.isEmpty,
-                            showChevron: true
-                        ) {
-                            withAnimation {
-                                activeDropdown = activeDropdown == .price ? nil : .price
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 60)
-                .zIndex(1)
-            }
-            
-            // Dropdown Menus
-            if let activeMenu = activeDropdown {
-                VStack {
-                    switch activeMenu {
-                    case .rating:
-                        RatingDropdownContent(selectedRating: $selectedRating)
-                    case .cuisine:
-                        CuisineDropdownContent(selectedCategories: $selectedCuisines)
-                    case .price:
-                        PriceDropdownContent(selectedPrices: $selectedPrices)
-                    }
-                }
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .zIndex(0)
-            }
-        }
-    }
-}
+//struct MapTopRow: View {
+//    @Binding var inSearchView: Bool
+//    @Binding var showFollowingPosts: Bool
+//    @Binding var selectedRating: Double
+//    @Binding var selectedCuisines: [String]
+//    @Binding var selectedPrices: [String]
+//    var onToggle: () -> Void
+//
+//    @State private var activeDropdown: DropdownMenu?
+//
+//    private enum DropdownMenu {
+//        case rating
+//        case cuisine
+//        case price
+//    }
+//
+//    var body: some View {
+//        VStack(spacing: 0) {
+//            // Main button row
+//            ScrollView(.horizontal, showsIndicators: false){
+//                HStack(spacing: 12) {
+//                    // Select Location Button with updated UI
+//                    FilterButton(
+//                        title: "Select Location",
+//                        isActive: false,
+//                        hasSelection: false,
+//                        showChevron: false // Hide chevron for this button
+//                    ) {
+//                        withAnimation {
+//                            inSearchView = true
+//                            activeDropdown = nil
+//                        }
+//                    }
+//
+//                    // Single Toggle Button for Any/Following
+//                    FollowToggleButton(showFollowingPosts: $showFollowingPosts, onToggle: onToggle)
+//
+//                    // Filter Buttons Group
+//                    HStack(spacing: 8) {
+//                        // Rating Filter
+//                        FilterButton(
+//                            title: "Rating",
+//                            isActive: activeDropdown == .rating,
+//                            hasSelection: selectedRating > 0,
+//                            showChevron: true
+//                        ) {
+//                            withAnimation {
+//                                activeDropdown = activeDropdown == .rating ? nil : .rating
+//                            }
+//                        }
+//
+//                        // Cuisine Filter
+//                        FilterButton(
+//                            title: "Cuisine",
+//                            isActive: activeDropdown == .cuisine,
+//                            hasSelection: !selectedCuisines.isEmpty,
+//                            showChevron: true
+//                        ) {
+//                            withAnimation {
+//                                activeDropdown = activeDropdown == .cuisine ? nil : .cuisine
+//                            }
+//                        }
+//
+//                        // Price Filter
+//                        FilterButton(
+//                            title: "Price",
+//                            isActive: activeDropdown == .price,
+//                            hasSelection: !selectedPrices.isEmpty,
+//                            showChevron: true
+//                        ) {
+//                            withAnimation {
+//                                activeDropdown = activeDropdown == .price ? nil : .price
+//                            }
+//                        }
+//                    }
+//                }
+//                .padding(.horizontal, 16)
+//                .padding(.top, 60)
+//                .zIndex(1)
+//            }
+//
+//            // Dropdown Menus
+//            if let activeMenu = activeDropdown {
+//                VStack {
+//                    switch activeMenu {
+//                    case .rating:
+//                        RatingDropdownContent(selectedRating: $selectedRating)
+//                    case .cuisine:
+//                        CuisineDropdownContent(selectedCategories: $selectedCuisines)
+//                    case .price:
+//                        PriceDropdownContent(selectedPrices: $selectedPrices)
+//                    }
+//                }
+//                .transition(.move(edge: .top).combined(with: .opacity))
+//                .zIndex(0)
+//            }
+//        }
+//    }
+//}
 
 // Supporting Views
 struct TopRowButton: View {

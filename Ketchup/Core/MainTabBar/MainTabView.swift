@@ -18,7 +18,6 @@ struct MainTabView: View {
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
-    
   
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
@@ -39,7 +38,7 @@ struct MainTabView: View {
                     tabBarController.selectedTab = 0
                     tabBarController.visibility = .visible
                 }
-                .badge(AuthService.shared.userSession?.followingPosts ?? 0)
+                //.badge(AuthService.shared.userSession?.followingPosts ?? 0)
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)

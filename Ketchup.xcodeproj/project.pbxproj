@@ -286,6 +286,7 @@
 		F8D6353C2CC0496A00F3377E /* RestaurantCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */; };
 		F8D6353E2CC04A3100F3377E /* DailyPollContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */; };
 		F8D81B052CDE791C000A2196 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = F8D81B042CDE791C000A2196 /* SwiftUIPager */; };
+		F8D81B072CDEA4B5000A2196 /* LocationSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D81B062CDEA4B5000A2196 /* LocationSearchSheet.swift */; };
 		F8DA34512C875AE600660978 /* PostCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34502C875AE600660978 /* PostCluster.swift */; };
 		F8DA34532C875F7D00660978 /* FollowingPostsMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */; };
 		F8DA34552C87643D00660978 /* PostClusterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA34542C87643D00660978 /* PostClusterService.swift */; };
@@ -613,6 +614,7 @@
 		F8D62A272C92383E00E40B45 /* ActivityContactRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityContactRow.swift; sourceTree = "<group>"; };
 		F8D6353B2CC0496A00F3377E /* RestaurantCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCardView.swift; sourceTree = "<group>"; };
 		F8D6353D2CC04A3100F3377E /* DailyPollContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPollContentView.swift; sourceTree = "<group>"; };
+		F8D81B062CDEA4B5000A2196 /* LocationSearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchSheet.swift; sourceTree = "<group>"; };
 		F8DA34502C875AE600660978 /* PostCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCluster.swift; sourceTree = "<group>"; };
 		F8DA34522C875F7D00660978 /* FollowingPostsMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingPostsMapViewModel.swift; sourceTree = "<group>"; };
 		F8DA34542C87643D00660978 /* PostClusterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterService.swift; sourceTree = "<group>"; };
@@ -1255,6 +1257,7 @@
 				F88775772CDD38A6000D43DF /* SimplifiedPostClusterListView.swift */,
 				F88775792CDD38CC000D43DF /* GroupedPostAnnotationView.swift */,
 				F887757B2CDD38E9000D43DF /* GroupedPostClusterListView.swift */,
+				F8D81B062CDEA4B5000A2196 /* LocationSearchSheet.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2091,6 +2094,7 @@
 				F88E0AC72B6B059F00EC159B /* ListingImageCarouselView.swift in Sources */,
 				F8670A542BF3D1C500F527D9 /* EditNotesView.swift in Sources */,
 				F83F403A2C6C5948006BCEE9 /* UsernameSelectionView.swift in Sources */,
+				F8D81B072CDEA4B5000A2196 /* LocationSearchSheet.swift in Sources */,
 				F823E1822B71D32200E18135 /* BackButtonModifier.swift in Sources */,
 				F88E0AA82B6B037200EC159B /* NotificationService.swift in Sources */,
 				F8BD81662BC6E9BA007C2CFC /* Collection.swift in Sources */,
