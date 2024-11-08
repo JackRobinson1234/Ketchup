@@ -39,9 +39,9 @@ struct MapView: View {
     @State private var navigateToProfile = false
     //@State private var isMapCenteredOnRestaurant = false
     @State private var currentMapCamera: MapCamera?
-    private var flattenedRestaurants: [ClusterRestaurant] {
-        viewModel.allClusters.flatMap { $0.restaurants }
-    }
+//    private var flattenedRestaurants: [ClusterRestaurant] {
+//        viewModel.allClusters.flatMap { $0.restaurants }
+//    }
     @State private var isUserSelectingRestaurant = false
     @State private var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
 
@@ -59,6 +59,7 @@ struct MapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
+                VStack(spacing:0){
                 GeometryReader { geometryProxy in
                     Map(position: $position, scope: mapScope) {
                         if showFollowingPosts {
@@ -81,37 +82,36 @@ struct MapView: View {
                             ForEach(viewModel.annotations, id: \.self) { item in
                                 Annotation(item.restaurant.name, coordinate: item.coordinate) {
                                     MapRestaurantAnnotationView(
-                                                restaurant: item.restaurant,
-                                                isSelected: item.restaurant.id == selectedRestaurant?.id
-                                            )
+                                        restaurant: item.restaurant,
+                                        isSelected: item.restaurant.id == selectedRestaurant?.id
+                                    )
                                     .onTapGesture {
                                         isUserSelectingRestaurant = true
                                         selectedRestaurant = item.restaurant
                                         if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
                                             selectedRestaurantIndex = index
                                         }
-
+                                        
                                         // Reset isUserSelectingRestaurant after 2 seconds
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                             isUserSelectingRestaurant = false
                                         }
                                     }
-
+                                    
                                 }
                             }
                             ForEach(viewModel.clusters) { cluster in
                                 Annotation("", coordinate: cluster.coordinate) {
-                                    ClusterCell(cluster: cluster)
+                                    ClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
                                         .onTapGesture {
-                                            // Populate with restaurants in the cluster
-                                            //previewRestaurants = cluster.memberAnnotations.map { $0.restaurant }
-                                            selectedRestaurantIndex = 0
+                                            selectedCluster = cluster
                                         }
                                 }
                             }
+                            
                             ForEach(viewModel.largeClusters) { cluster in
                                 Annotation("", coordinate: cluster.coordinate) {
-                                    LargeClusterCell(cluster: cluster)
+                                    LargeClusterCell(cluster: cluster, selectedRestaurantId: selectedRestaurant?.id)
                                         .onTapGesture {
                                             selectedLargeCluster = cluster
                                         }
@@ -159,24 +159,24 @@ struct MapView: View {
                         }
                     }
                     .onMapCameraChange(frequency: .onEnd) { context in
-                                let newRegion = context.region
-                                currentRegion = newRegion
-                                currentMapCamera = context.camera
-
-                                if !showFollowingPosts{
-                                    viewModel.updateMapState(newRegion: newRegion)
-                                    Task.detached { await viewModel.reloadAnnotations() }
-                                } else {
-                                    followingViewModel.updateMapState(newRegion: newRegion)
-                                    Task.detached { await followingViewModel.reloadAnnotations() }
-                                }
-
-                                // Update selected restaurant if data is ready and user is not interacting
-                                if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
-                                    updateSelectedRestaurant(for: newRegion)
-                                }
-                            }
-
+                        let newRegion = context.region
+                        currentRegion = newRegion
+                        currentMapCamera = context.camera
+                        
+                        if !showFollowingPosts{
+                            viewModel.updateMapState(newRegion: newRegion)
+                            Task.detached { await viewModel.reloadAnnotations() }
+                        } else {
+                            followingViewModel.updateMapState(newRegion: newRegion)
+                            Task.detached { await followingViewModel.reloadAnnotations() }
+                        }
+                        
+                        // Update selected restaurant if data is ready and user is not interacting
+                        if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
+                            updateSelectedRestaurant(for: newRegion)
+                        }
+                    }
+                    
                     
                     .onChange(of: isFiltersPresented) {
                         
@@ -212,7 +212,21 @@ struct MapView: View {
                     .mapScope(mapScope)
                     .mapStyle(.standard(pointsOfInterest: .excludingAll))
                 }
-                
+                RestaurantSlideUpSheet(
+                    restaurants: $viewModel.flattenedRestaurants,
+                    selectedIndex: $selectedRestaurantIndex,
+                    onDismiss: {
+                        selectedRestaurant = nil
+                    },
+                    onSelectRestaurant: { restaurant in
+                        navigateToRestaurantProfile(restaurant)
+                    },
+                    onRestaurantSwipe: { newIndex in
+                        selectedRestaurant = viewModel.flattenedRestaurants[newIndex]
+                    }
+                )
+            }
+                .frame(maxHeight: .infinity)
                 VStack{
                     if !inSearchView{
                         MapTopRow(
@@ -244,19 +258,7 @@ struct MapView: View {
                         }
                     }
                 }
-                RestaurantSlideUpSheet(
-                        restaurants: flattenedRestaurants,
-                        selectedIndex: $selectedRestaurantIndex,
-                        onDismiss: {
-                            selectedRestaurant = nil
-                        },
-                        onSelectRestaurant: { restaurant in
-                            navigateToRestaurantProfile(restaurant)
-                        },
-                        onRestaurantSwipe: { newIndex in
-                            selectedRestaurant = flattenedRestaurants[newIndex]
-                        }
-                    )
+               
                 
             }
             NavigationLink(
@@ -313,61 +315,7 @@ struct MapView: View {
         }
     }
     
-//    private func centerMapOnRestaurant(_ restaurant: ClusterRestaurant) {
-//        isMapCenteredOnRestaurant = true
-//        withAnimation {
-//            if let currentCamera = currentMapCamera {
-//                let newCamera = MapCamera(
-//                    centerCoordinate: restaurant.coordinate,
-//                    distance: currentCamera.distance,
-//                    heading: currentCamera.heading,
-//                    pitch: currentCamera.pitch
-//                )
-//                position = .camera(newCamera)
-//            } else {
-//                // Fallback if currentCamera is not available
-//                position = .camera(
-//                    MapCamera(
-//                        centerCoordinate: restaurant.coordinate,
-//                        distance: 1000,  // Adjust as needed
-//                        heading: 0,
-//                        pitch: 0
-//                    )
-//                )
-//            }
-//        }
-//        // Reset the flag after a delay to allow the map to update
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            isMapCenteredOnRestaurant = false
-//        }
-//    }
-//    private func updatePreviewRestaurants(for region: MKCoordinateRegion) {
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            // Flatten the array of restaurants within all clusters
-//            let allRestaurants = viewModel.allClusters.flatMap { $0.restaurants }
-//            
-//            // Filter restaurants within the visible region
-//            let visibleRestaurants = allRestaurants.filter { restaurant in
-//                region.contains(coordinate: restaurant.coordinate)
-//            }
-//            
-//            // Sort restaurants by distance to the center
-//            let centerCoordinate = region.center
-//            let sortedRestaurants = visibleRestaurants.sorted { (restaurant1, restaurant2) -> Bool in
-//                let distance1 = calculateDistance(from: centerCoordinate, to: restaurant1.coordinate)
-//                let distance2 = calculateDistance(from: centerCoordinate, to: restaurant2.coordinate)
-//                return distance1 < distance2
-//            }
-//            
-//            DispatchQueue.main.async {
-//                //previewRestaurants = sortedRestaurants
-//                // Keep the selectedRestaurantIndex within bounds
-//                if selectedRestaurantIndex >= previewRestaurants.count {
-//                    selectedRestaurantIndex = 0
-//                }
-//            }
-//        }
-//    }
+
     private func updateSelectedRestaurant(for region: MKCoordinateRegion) {
         if isUserSelectingRestaurant {
             return
@@ -482,7 +430,7 @@ enum SheetPosition: CGFloat {
     case tip = 0.1    // 10% of the screen height (minimized)
 }
 struct RestaurantSlideUpSheet: View {
-    let restaurants: [ClusterRestaurant]
+    @Binding var restaurants: [ClusterRestaurant]
     @Binding var selectedIndex: Int
     var onDismiss: () -> Void
     var onSelectRestaurant: (ClusterRestaurant) -> Void
@@ -503,7 +451,7 @@ struct RestaurantSlideUpSheet: View {
 
     var body: some View {
         VStack {
-            Spacer()
+            //Spacer()
 
             VStack(spacing: 0) {
                 // Always visible hook
@@ -545,7 +493,7 @@ struct RestaurantSlideUpSheet: View {
                             itemWidth: 240, // Adjusted item width
                             itemSpacing: 10, // Adjusted item spacing
                             itemCount: restaurants.count,
-                            currentIndex: $selectedIndex
+                            currentIndex: $selectedIndex.clamped(to: 0...(restaurants.count > 0 ? restaurants.count - 1 : 0))
                         ) { index in
                             if restaurants.indices.contains(index) {
                                 RestaurantPreviewView(userLocation: nil, restaurant: restaurants[index])
@@ -590,12 +538,12 @@ struct RestaurantSlideUpSheet: View {
                         let newHeight = currentHeight - value.translation.height
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
                             if newHeight > halfHeight * 0.5 {
-                                currentHeight = halfHeight
                                 currentPosition = .half
+                                currentHeight = halfHeight
                                 previewOpacity = 1.0
                             } else {
-                                currentHeight = tipHeight
                                 currentPosition = .tip
+                                currentHeight = tipHeight
                                 previewOpacity = 0.0
                             }
                         }
@@ -633,6 +581,13 @@ struct RestaurantSlideUpSheet: View {
                 previewOpacity = 0.0
             }
         }
+    }
+
+    // MARK: - SheetPosition Enum
+
+    enum SheetPosition {
+        case tip
+        case half
     }
 }
 
