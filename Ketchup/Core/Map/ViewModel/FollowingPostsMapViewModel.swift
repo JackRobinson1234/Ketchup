@@ -16,7 +16,7 @@ enum PostZoomLevel: String {
     case maxZoomOut = "max_zoom_out"
     case region = "region"
     case city = "city"
-    case neighborhood = "neighborhood"
+    //case neighborhood = "neighborhood"
 }
 @MainActor
 class FollowingPostsMapViewModel: ObservableObject {
@@ -39,7 +39,7 @@ class FollowingPostsMapViewModel: ObservableObject {
     @Published var lastFetchedRegion: MKCoordinateRegion?
 
     @Published var isLoading = false
-    @Published var currentZoomLevel: ZoomLevel = .neighborhood
+    @Published var currentZoomLevel: ZoomLevel = .city
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     private var fetchTask: Task<Void, Never>?
     private let fetchDebouncer = Debouncer(delay: 0.3)
@@ -64,17 +64,17 @@ class FollowingPostsMapViewModel: ObservableObject {
                     }
 
                     let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
-                    ////print("DEBUG: Should fetch new data: \(shouldFetch)")
+                    print("DEBUG: Should fetch new data: \(shouldFetch)")
 
                     if shouldFetch || shouldAutoFetch{
-                        ////print("DEBUG: Fetching new data...")
+                        print("DEBUG: Fetching new data...")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         await self.fetchFollowingPosts()
                         self.lastFetchedRegion = newRegion
-                        ////print("DEBUG: Data fetch complete, region updated.")
+                        print("DEBUG: Data fetch complete, region updated.")
                     } else {
-                        ////print("DEBUG: No need to fetch new data, updating clusters only.")
+                        print("DEBUG: No need to fetch new data, updating clusters only.")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         self.updateAnnotations()
@@ -116,7 +116,7 @@ class FollowingPostsMapViewModel: ObservableObject {
         ////print("DEBUG: Distance moved from last fetched region: \(distance) km")
 
         let shouldFetch = distance >= distanceThreshold
-        ////print("DEBUG: Should fetch based on distance: \(shouldFetch)")
+        print("DEBUG: Should fetch based on distance: \(shouldFetch)")
         
         return shouldFetch
     }

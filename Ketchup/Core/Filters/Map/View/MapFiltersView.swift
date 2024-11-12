@@ -137,91 +137,72 @@ struct MapFiltersView: View {
     @ObservedObject var followingPostsMapViewModel: FollowingPostsMapViewModel
     @Binding var showFollowingPosts: Bool
     
+    // Constants
+    private let spacing: CGFloat = 20
+    private let headerFont = Font.system(.title2, weight: .bold)
+    
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    // View Type Selection
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("View")
-                            .font(.custom("MuseoSansRounded-700", size: 16))
-                        
-                        CustomToggle(showFollowingPosts: $showFollowingPosts) {
-                            // Toggle action here if needed
-                        }
+                VStack(alignment: .leading, spacing: spacing) {
+                    filterSection("View Type") {
+                        CustomToggle(showFollowingPosts: $showFollowingPosts){}
+                            .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                     
-                    // Rating Filter
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Rating")
-                            .font(.custom("MuseoSansRounded-700", size: 16))
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach([10.0, 9.0, 8.0, 7.0, 6.0, 5.0], id: \.self) { rating in
-                                    FilterChip(
-                                        title: "\(String(format: "%.1f", rating))+",
-                                        isSelected: mapViewModel.selectedRating == rating
-                                    ) {
-                                        mapViewModel.selectedRating = mapViewModel.selectedRating == rating ? 0 : rating
+                    filterSection("Rating") {
+                        FlowLayout(spacing: 8) {
+                            ForEach([10.0, 9.0, 8.0, 7.0, 6.0, 5.0], id: \.self) { rating in
+                                NewFilterButton(
+                                    title: "\(String(format: "%.1f", rating))+",
+                                    isSelected: mapViewModel.selectedRating == rating
+                                ) {
+                                    mapViewModel.selectedRating = mapViewModel.selectedRating == rating ? 0 : rating
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    filterSection("Price") {
+                        FlowLayout(spacing: 8) {
+                            ForEach(["$", "$$", "$$$", "$$$$"], id: \.self) { price in
+                                NewFilterButton(
+                                    title: price,
+                                    isSelected: mapViewModel.selectedPrice.contains(price)
+                                ) {
+                                    if mapViewModel.selectedPrice.contains(price) {
+                                        mapViewModel.selectedPrice.removeAll { $0 == price }
+                                    } else {
+                                        mapViewModel.selectedPrice.append(price)
                                     }
                                 }
                             }
-                            .padding(.horizontal)
                         }
+                        .padding(.horizontal)
                     }
                     
-                    // Cuisine Filter
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Cuisine")
-                            .font(.custom("MuseoSansRounded-700", size: 16))
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(Cuisines.all, id: \.self) { cuisine in
-                                    FilterChip(
-                                        title: cuisine,
-                                        isSelected: mapViewModel.selectedCuisines.contains(cuisine)
-                                    ) {
-                                        if mapViewModel.selectedCuisines.contains(cuisine) {
-                                            mapViewModel.selectedCuisines.removeAll { $0 == cuisine }
-                                        } else if mapViewModel.selectedCuisines.count < 5 {
-                                            mapViewModel.selectedCuisines.append(cuisine)
-                                        }
+                    filterSection("Cuisine") {
+                        FlowLayout(spacing: 8) {
+                            ForEach(Cuisines.all, id: \.self) { cuisine in
+                                NewFilterButton(
+                                    title: cuisine,
+                                    isSelected: mapViewModel.selectedCuisines.contains(cuisine)
+                                ) {
+                                    if mapViewModel.selectedCuisines.contains(cuisine) {
+                                        mapViewModel.selectedCuisines.removeAll { $0 == cuisine }
+                                    } else if mapViewModel.selectedCuisines.count < 5 {
+                                        mapViewModel.selectedCuisines.append(cuisine)
                                     }
                                 }
                             }
-                            .padding(.horizontal)
                         }
-                    }
-                    
-                    // Price Filter
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Price")
-                            .font(.custom("MuseoSansRounded-700", size: 16))
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(["$", "$$", "$$$", "$$$$"], id: \.self) { price in
-                                    FilterChip(
-                                        title: price,
-                                        isSelected: mapViewModel.selectedPrice.contains(price)
-                                    ) {
-                                        if mapViewModel.selectedPrice.contains(price) {
-                                            mapViewModel.selectedPrice.removeAll { $0 == price }
-                                        } else {
-                                            mapViewModel.selectedPrice.append(price)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
+                        .padding(.horizontal)
                     }
                 }
-                .padding(.top, 24)
+                .padding(.top)
             }
+            .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -232,16 +213,80 @@ struct MapFiltersView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Reset") {
-                        mapViewModel.selectedRating = 0
-                        mapViewModel.selectedCuisines = []
-                        mapViewModel.selectedPrice = []
+                        withAnimation {
+                            mapViewModel.selectedRating = 0
+                            mapViewModel.selectedCuisines = []
+                            mapViewModel.selectedPrice = []
+                        }
                     }
+                    .foregroundColor(.red)
                 }
             }
         }
     }
+    
+    private func filterSection<Content: View>(_ title: String, @ViewBuilder content: @escaping () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(headerFont)
+                .padding(.horizontal)
+            
+            content()
+        }
+    }
 }
-struct FilterChip: View {
+
+// Flow layout that arranges items in rows based on available width
+struct FlowLayout: Layout {
+    var spacing: CGFloat
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = arrangeSubviews(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrangeSubviews(proposal: proposal, subviews: subviews)
+        
+        for idx in subviews.indices {
+            subviews[idx].place(
+                at: CGPoint(x: bounds.minX + result.positions[idx].x,
+                           y: bounds.minY + result.positions[idx].y),
+                proposal: ProposedViewSize(result.sizes[idx])
+            )
+        }
+    }
+    
+    private func arrangeSubviews(proposal: ProposedViewSize, subviews: Subviews) -> (positions: [CGPoint], sizes: [CGSize], size: CGSize) {
+        var positions: [CGPoint] = []
+        var sizes: [CGSize] = []
+        
+        let maxWidth = proposal.width ?? .infinity
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            
+            if currentX + size.width > maxWidth && currentX > 0 {
+                // Move to next row
+                currentX = 0
+                currentY += rowHeight + spacing
+                rowHeight = 0
+            }
+            
+            positions.append(CGPoint(x: currentX, y: currentY))
+            sizes.append(size)
+            
+            rowHeight = max(rowHeight, size.height)
+            currentX += size.width + spacing
+        }
+        
+        return (positions, sizes, CGSize(width: maxWidth, height: currentY + rowHeight))
+    }
+}
+struct NewFilterButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
@@ -250,14 +295,16 @@ struct FilterChip: View {
         Button(action: action) {
             Text(title)
                 .font(.custom("MuseoSansRounded-500", size: 14))
-                .foregroundColor(isSelected ? .white : .black)
-                .padding(.horizontal, 16)
+                .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(
+                .frame(maxWidth: .infinity)
+                .background(isSelected ? Color.red : Color.clear)
+                .foregroundColor(isSelected ? .white : Color.red)
+                .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? Color.red : Color.white)
-                        .shadow(color: .gray.opacity(0.2), radius: 2)
+                        .stroke(Color.red, lineWidth: 1)
                 )
+                .cornerRadius(20)
         }
     }
 }

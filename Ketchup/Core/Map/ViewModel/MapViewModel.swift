@@ -17,6 +17,10 @@ enum ZoomLevel: String {
     case city = "city"
     case neighborhood = "neighborhood"
 }
+enum MapMode {
+    case following
+    case all
+}
 @MainActor
 class MapViewModel: ObservableObject {
     let clusterManager = ClusterManager<RestaurantMapAnnotation>()
@@ -55,7 +59,6 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var flattenedRestaurants: [ClusterRestaurant] = []
-    
     var mapSize: CGSize = .zero
     let maxZoomOutSpan: Double = 0.2
     let longitudeDeltaToConvertToRestaurant: Double = 0.006
@@ -67,7 +70,7 @@ class MapViewModel: ObservableObject {
         let span = region.span
         if span.longitudeDelta > maxZoomOutSpan {
             return .maxZoomOut
-        } else if span.longitudeDelta > 0.04 {
+        } else if span.longitudeDelta > 0.06 {
             return .region
         } else  {
             return .city
@@ -92,12 +95,13 @@ class MapViewModel: ObservableObject {
                     self.currentZoomLevel = newZoomLevel
                     
                     if self.clusters.isEmpty || newZoomLevel == .maxZoomOut {
+                        self.lastFetchedRegion = newRegion
                         await self.fetchFilteredClusters()
                     } else {
                         self.updateVisibleData(for: newRegion, zoomLevel: newZoomLevel)
                     }
                     
-                    self.lastFetchedRegion = newRegion
+                   
                 }
             }
         }
@@ -134,7 +138,7 @@ class MapViewModel: ObservableObject {
                 zoomLevel: currentZoomLevel.rawValue,
                 limit: limit
             )
-            
+           
             await MainActor.run {
                 self.allClusters = fetchedClusters
                 updateVisibleData(for: currentRegion, zoomLevel: currentZoomLevel)
@@ -196,7 +200,14 @@ class MapViewModel: ObservableObject {
     }
     private func calculateDistanceThreshold(for region: MKCoordinateRegion) -> CLLocationDistance {
         // Adjust this calculation based on your app's requirements
-        return max(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * 0.20 // 25% of the visible region
+        var multiplier = 0.08
+        if currentZoomLevel == .city{
+            multiplier = 0.08
+        } else if currentZoomLevel == .region {
+            multiplier = 0.18
+        }
+                    
+        return min(region.span.longitudeDelta, region.span.latitudeDelta) * 111000 * multiplier // 25% of the visible region
     }
     
     private func calculateDistance(from coord1: CLLocationCoordinate2D, to coord2: CLLocationCoordinate2D) -> CLLocationDistance {
@@ -240,7 +251,6 @@ class MapViewModel: ObservableObject {
         } else {
             filters["macrocategory"] = selectedCuisines
         }
-        
         if selectedPrice.isEmpty {
             filters.removeValue(forKey: "price")
         } else {
@@ -253,7 +263,6 @@ class MapViewModel: ObservableObject {
         } else {
             filters.removeValue(forKey: "overallRating")
         }
-        
         // Update location filter
         if selectedLocation.isEmpty {
             filters.removeValue(forKey: "location")
@@ -288,7 +297,6 @@ class MapViewModel: ObservableObject {
     func checkForNearbyRestaurants() async {
         // Implementation of checkForNearbyRestaurants
     }
-    
     func clearFilters() {
         selectedCuisines = []
         selectedPrice = []
@@ -301,7 +309,6 @@ class MapViewModel: ObservableObject {
         allClusters = []
         // Reset other properties if necessary
     }
-    
 }
 
 

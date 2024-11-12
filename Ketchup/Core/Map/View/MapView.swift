@@ -43,6 +43,8 @@ struct MapView: View {
     //    private var flattenedRestaurants: [ClusterRestaurant] {
     //        viewModel.allClusters.flatMap { $0.restaurants }
     //    }
+    @State private var lastCameraCenter: CLLocationCoordinate2D?
+
     @State private var isUserSelectingRestaurant = false
     @State private var currentRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
     @State private var showLocationSearch = false
@@ -89,16 +91,18 @@ struct MapView: View {
                                             isSelected: item.restaurant.id == selectedRestaurant?.id
                                         )
                                         .onTapGesture {
-                                            isUserSelectingRestaurant = true
-                                            selectedRestaurant = item.restaurant
-                                            if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
-                                                selectedRestaurantIndex = index
-                                            }
-                                            
-                                            // Reset isUserSelectingRestaurant after 2 seconds
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                isUserSelectingRestaurant = false
-                                            }
+                                            selectedRestaurantForProfile = item.restaurant
+                                            navigateToProfile = true
+//                                            isUserSelectingRestaurant = true
+//                                            selectedRestaurant = item.restaurant
+//                                            if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
+//                                                selectedRestaurantIndex = index
+//                                            }
+//                                            
+//                                            // Reset isUserSelectingRestaurant after 2 seconds
+//                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                                                isUserSelectingRestaurant = false
+//                                            }
                                         }
                                         
                                     }
@@ -165,20 +169,36 @@ struct MapView: View {
                             let newRegion = context.region
                             currentRegion = newRegion
                             currentMapCamera = context.camera
-                            
-                            if !showFollowingPosts{
+
+                            let minDistanceThreshold: CLLocationDistance = 10 // meters
+
+                            if let lastCenter = lastCameraCenter {
+                                let distance = calculateDistance(from: lastCenter, to: newRegion.center)
+                                if distance < minDistanceThreshold {
+                                    // Movement is too small, do not proceed
+                                    print("Distance too small)")
+                                    return
+                                }
+                            }
+                            lastCameraCenter = newRegion.center
+
+                            if !showFollowingPosts {
+                                print("updateMaptat")
+
                                 viewModel.updateMapState(newRegion: newRegion)
                                 Task.detached { await viewModel.reloadAnnotations() }
                             } else {
                                 followingViewModel.updateMapState(newRegion: newRegion)
                                 Task.detached { await followingViewModel.reloadAnnotations() }
                             }
-                            
+
                             // Update selected restaurant if data is ready and user is not interacting
                             if !isUserSelectingRestaurant && !viewModel.isLoading && !viewModel.flattenedRestaurants.isEmpty {
                                 updateSelectedRestaurant(for: newRegion)
                             }
                         }
+
+                        
                         
                         
                         .onChange(of: isFiltersPresented) {
@@ -303,11 +323,11 @@ struct MapView: View {
                     secondaryButton: .cancel()
                 )
             }
-            .fullScreenCover(isPresented: $isFiltersPresented) {
+            .sheet(isPresented: $isFiltersPresented) {
                 MapFiltersView(mapViewModel: viewModel, followingPostsMapViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
             }
             .mapStyle(.standard(elevation: .realistic))
-            //.clipShape(RoundedRectangle(cornerRadius: 12))
             .edgesIgnoringSafeArea(.top)
             
         }
@@ -394,11 +414,11 @@ struct MapView: View {
                     showAlert = true
                 } label: {
                     MapUserLocationButton(scope: mapScope)
-                        .buttonBorderShape(.circle)
+                        .buttonBorderShape(.roundedRectangle)
                 }
             } else {
                 MapUserLocationButton(scope: mapScope)
-                    .buttonBorderShape(.circle)
+                    .buttonBorderShape(.roundedRectangle)
                 
             }
         }
@@ -476,10 +496,10 @@ struct RestaurantSlideUpSheet: View {
     @StateObject private var page: Page = .first()
     
     private var tipHeight: CGFloat {
-        60 // Display a minimal part of the sheet in `tip` mode
+        50 // Display a minimal part of the sheet in `tip` mode
     }
     private var halfHeight: CGFloat {
-        UIScreen.main.bounds.height * 0.3
+        UIScreen.main.bounds.height * 0.2
     }
     
     @GestureState private var dragOffset = CGFloat.zero
@@ -709,79 +729,83 @@ struct RestaurantPreviewView: View {
     
     var body: some View {
         let cardWidth: CGFloat = 240
+        let cardHeight: CGFloat = 140
         
-        VStack(alignment: .leading) {
-            ZStack(alignment: .bottomLeading) {
-                if let imageUrl = restaurant.profileImageUrl {
-                    KFImage(URL(string: imageUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: cardWidth, height: 140)
-                        .clipped()
-                } else {
-                    Image("Placeholder")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: cardWidth, height: 140)
-                        .cornerRadius(8)
-                        .clipped()
-                }
+        ZStack(alignment: .bottomLeading) {
+            // Background Image with Gradient Overlay
+            if let imageUrl = restaurant.profileImageUrl {
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipped()
+                    .overlay(
+                        LinearGradient(gradient: Gradient(colors: [.black.opacity(0.8), .clear]),
+                                       startPoint: .bottom,
+                                       endPoint: .center)
+                    )
+            } else {
+                Image("Placeholder")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: cardWidth, height: cardHeight)
+                    .cornerRadius(8)
+                    .clipped()
+                    .overlay(
+                        LinearGradient(gradient: Gradient(colors: [.black.opacity(0.8), .clear]),
+                                       startPoint: .bottom,
+                                       endPoint: .center)
+                    )
             }
-            HStack(alignment: .top) {
-                VStack(alignment: .leading) {
+            
+            // Overlayed Text and Rating
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(restaurant.name)
                         .font(.headline)
-                        .foregroundColor(.black)
-                        .lineLimit(2)
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.8), radius: 5, x: 0, y: 2)
+                        .lineLimit(1)
+                    
                     if let city = restaurant.city {
                         Text(city)
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.8), radius: 5, x: 0, y: 2)
                             .lineLimit(1)
                     }
+                    
                     if let cuisine = restaurant.macrocategory, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.8), radius: 5, x: 0, y: 2)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
+                    
                     if let distance = distanceString {
                         Text(distance)
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.8), radius: 5, x: 0, y: 2)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
                 }
+                
                 Spacer()
+                
+                // Rating View
                 if let overallRating = restaurant.overallRating, overallRating != 0 {
-                    ScrollFeedOverallRatingView(rating: overallRating, font: .black, size: 30)
+                    ScrollFeedOverallRatingView(rating: overallRating, font: .white, size: 30)
                         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                        .padding([.trailing, .bottom], 8)
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom, 6)
-            if let goodFor = restaurant.topGoodFor {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(goodFor, id: \.self) { tag in
-                            Text(tag)
-                                .font(.custom("MuseoSansRounded-500", size: 12))
-                                .foregroundColor(.gray)
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 8)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(Capsule())
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 6)
-                    
-                }
-            }
+            .padding([.leading, .bottom], 8)
         }
-        .frame(width: cardWidth)
+        .frame(width: cardWidth, height: cardHeight)
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
@@ -800,7 +824,6 @@ struct RestaurantPreviewView: View {
         return String(format: "%.1f mi", distanceInMiles)
     }
 }
-
 
 
 struct GroupedPostClusterCell: View {
