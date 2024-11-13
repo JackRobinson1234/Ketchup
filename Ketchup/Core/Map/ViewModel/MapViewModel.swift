@@ -277,7 +277,7 @@ class MapViewModel: ObservableObject {
             case .annotation(let annotation):
                 annotations.removeAll { $0 == annotation }
             case .cluster(let clusterAnnotation):
-                clusters.removeAll { $0.id == clusterAnnotation.id }
+                clusters.removeAll { $0.id == clusterAnnotation.id.uuidString }
             }
         }
         for insertion in difference.insertions {
@@ -286,7 +286,7 @@ class MapViewModel: ObservableObject {
                 annotations.append(newItem)
             case .cluster(let newItem):
                 clusters.append(ExampleClusterAnnotation(
-                    id: newItem.id,
+                    id: newItem.id.uuidString,
                     coordinate: newItem.coordinate,
                     count: newItem.memberAnnotations.count,
                     memberAnnotations: newItem.memberAnnotations
@@ -314,12 +314,13 @@ class MapViewModel: ObservableObject {
 
 
 
-class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
-    let id = UUID()
+class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable, IdentifiableAnnotation {
+    var id: String = UUID().uuidString
     var coordinate: CLLocationCoordinate2D
     let restaurant: ClusterRestaurant
     var title: String?
-    
+    var isSelected: Bool = false // Add this property
+
     init(coordinate: CLLocationCoordinate2D, restaurant: ClusterRestaurant) {
         self.coordinate = coordinate
         self.restaurant = restaurant
@@ -327,16 +328,19 @@ class RestaurantMapAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, I
         super.init()
     }
 }
-
+protocol IdentifiableAnnotation: MKAnnotation {
+    var id: String { get }
+}
 // MARK: - ExampleClusterAnnotation
-class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
-    let id: UUID
+class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable, IdentifiableAnnotation {
+    var id: String = UUID().uuidString
     var coordinate: CLLocationCoordinate2D
     let count: Int
     let memberAnnotations: [RestaurantMapAnnotation]
     var title: String?
-    
-    init(id: UUID, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
+    var isSelected: Bool = false // Add this property
+
+    init(id: String, coordinate: CLLocationCoordinate2D, count: Int, memberAnnotations: [RestaurantMapAnnotation]) {
         self.id = id
         self.coordinate = coordinate
         self.count = count
@@ -347,8 +351,8 @@ class ExampleClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, 
 }
 
 // MARK: - LargeClusterAnnotation
-class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable {
-    let id = UUID()
+class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Identifiable, IdentifiableAnnotation  {
+    var id: String = UUID().uuidString
     var coordinate: CLLocationCoordinate2D
     let count: Int
     let memberAnnotations: [ClusterRestaurant]

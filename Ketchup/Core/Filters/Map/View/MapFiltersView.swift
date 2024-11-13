@@ -100,14 +100,8 @@ struct MapFiltersView: View {
             .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Done Button
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
                 // Reset Button
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) { // Move Reset to the left
                     Button("Reset") {
                         withAnimation {
                             // Reset filters in both view models
@@ -120,6 +114,13 @@ struct MapFiltersView: View {
                         }
                     }
                     .foregroundColor(.red)
+                }
+                
+                // Done Button
+                ToolbarItem(placement: .navigationBarTrailing) { // Move Done to the right
+                    Button("Done") {
+                        dismiss()
+                    }
                 }
             }
         }

@@ -320,6 +320,7 @@ struct MapView: View {
             ) {
                 EmptyView()
             }
+            .navigationBarHidden(true)
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchSheet(cameraPosition: $position)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
@@ -1221,10 +1222,10 @@ struct CustomToggle: View {
     var onToggle: () -> Void
     
     var body: some View {
-        HStack(spacing: 1) {
+        HStack(spacing: 0) {
             ToggleButton(
                 icon: "building.2",
-                title: "All",
+                title: "All Restaurants",
                 isSelected: !showFollowingPosts
             ) {
                 if showFollowingPosts {
@@ -1235,7 +1236,7 @@ struct CustomToggle: View {
             
             ToggleButton(
                 icon: "person.2",
-                title: "Friends",
+                title: "Restaurants Friends Have Been",
                 isSelected: showFollowingPosts
             ) {
                 if !showFollowingPosts {
@@ -1245,10 +1246,12 @@ struct CustomToggle: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.white)
-                .shadow(color: .gray, radius: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.white)
+                .shadow(color: .gray.opacity(0.3), radius: 2, x: 0, y: 2)
         )
+        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
     }
 }
 
@@ -1260,25 +1263,28 @@ struct ToggleButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            HStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundColor(isSelected ? .white : .black)
+                    .font(.system(size: 14))
+                    .foregroundColor(isSelected ? .white : .gray)
                 
                 Text(title)
                     .font(.custom("MuseoSansRounded-500", size: 10))
-                    .foregroundColor(isSelected ? .white : .gray)
-                    .minimumScaleFactor(0.5)
+                    .foregroundColor(isSelected ? .white : .black)
+                    .multilineTextAlignment(.leading)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
-            .frame(width: 50, height: 50)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity)
             .background(isSelected ? Color("Colors/AccentColor") : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .cornerRadius(8)
+            .shadow(color: isSelected ? Color.gray.opacity(0.2) : Color.clear, radius: 2, x: 0, y: 1)
         }
         .disabled(isSelected)
     }
 }
-
 // Dropdown Content Views
 struct RatingDropdownContent: View {
     @Binding var selectedRating: Double

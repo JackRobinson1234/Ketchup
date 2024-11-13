@@ -100,7 +100,7 @@ struct PrimaryFeedView: View {
                                     }
                                     .onChange(of: tabBarController.scrollToTop) { _ in
                                         withAnimation(.smooth) {
-                                            scrollProxy.scrollTo("userUpdates", anchor: .center)
+                                            scrollProxy.scrollTo("InviteButton", anchor: .center)
                                         }
                                         
                                     }
@@ -708,6 +708,7 @@ struct PrimaryFeedView: View {
             .padding(.horizontal)
          
         }
+        .id("InviteButton")
     }
 }
 

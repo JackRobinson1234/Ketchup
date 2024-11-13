@@ -204,6 +204,7 @@ struct Ios16MapSearchView: View {
                 
 
             }
+            Spacer()
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
