@@ -12,19 +12,10 @@ struct GoodForSelectionView: View {
     @Environment(\.dismiss) var dismiss
     @State private var optionsSelected: Set<String> = []
     @State private var showingLimitAlert = false
-    let goodForOptions: [String: [String]] = [
-        "Activity": ["Bars with Food", "Working", "Live Music", "People Watching", "Watching Sports", "Perfect Noise Level", "New Friends", "Dancing", "Views"],
-        "Dietary": ["Gluten-Free", "Healthy", "Vegan", "Vegetarian", "Seed-oil free"],
-        "Occasion": ["Big Groups", "Birthdays", "Corporate Card", "Date Nights", "Dinner with the Parents", "First Dates", "Impressing visitors", "Out of Towners", "Dinner Pregame", "Private Dining", "Celebrate", "Late Night Eats", "Takeout"],
-        "Price": ["BYOB", "Cheap Eats", "Fine Dining", "Happy Hours", "Not Worth It"],
-        "Time of day": ["Afternoon Tea", "Breakfast", "Brunch", "Casual Dinners", "Day Drinking", "Late Nights", "Lunch"],
-        "Vibe": ["Iconic", "Viral", "Coffee Date", "Dogs", "Great Cocktails", "Great Mocktails", "Great Wine", "Kids", "Sitting Outside", "Walk-Ins", "Street Eats"]
-    ]
-    
+  
     let columns = [
         GridItem(.adaptive(minimum: 150), spacing: 10)
     ]
-
     var body: some View {
         NavigationView {
             ScrollView {
@@ -40,7 +31,7 @@ struct GoodForSelectionView: View {
                                     if optionsSelected.contains(option) {
                                         optionsSelected.remove(option)
                                     } else {
-                                        if optionsSelected.count < 5 {  // Changed limit to 5
+                                        if optionsSelected.count < 7 {  // Changed limit to 5
                                             optionsSelected.insert(option)
                                         } else {
                                             showingLimitAlert = true
@@ -70,7 +61,7 @@ struct GoodForSelectionView: View {
                     .padding(.bottom)
                 }
             }
-            .navigationTitle("Selected \(optionsSelected.count)/5")  // Update navigation title to reflect 5
+            .navigationTitle("Selected \(optionsSelected.count)/7")  // Update navigation title to reflect 5
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button("Cancel") {
                 dismiss()

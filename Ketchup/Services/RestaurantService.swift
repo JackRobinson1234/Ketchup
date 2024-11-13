@@ -465,7 +465,8 @@ class RestaurantService {
             profileImageUrl: clusterRestaurant.profileImageUrl,
             stats: stats,
             overallRating: overallRating,
-            macrocategory: clusterRestaurant.macrocategory
+            macrocategory: clusterRestaurant.macrocategory,
+            topGoodFor: clusterRestaurant.topGoodFor
         )
     }
 }

@@ -28,13 +28,7 @@ struct UsernameSelectionView: View {
                     .font(.custom("MuseoSansRounded-700", size: 26))
                     .foregroundStyle(.black)
                     .fixedSize(horizontal: false, vertical: true)
-//                Color.clear
-//                    .onAppear{
-//                        Task{
-//                            AuthService.shared.userSession = nil
-//                            try Auth.auth().signOut()
-//                        }
-//                    }
+
                 
                 // Full Name TextField
                 TextField("Name", text: $viewModel.fullName)
@@ -166,5 +160,3 @@ struct UsernameSelectionView: View {
         }
     }
 }
-
-

@@ -63,8 +63,14 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
     var postCount: Int?  // Changed to optional
     var overallRating: Double?
     var macrocategory: String?
-    var city: String?  // Added city as an optional string
-
+    var city: String?
+    var topGoodFor: [String]? // Added city as an optional string
+    var coordinate: CLLocationCoordinate2D {
+            CLLocationCoordinate2D(
+                latitude: geoPoint.latitude,
+                longitude: geoPoint.longitude
+            )
+        }
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -77,13 +83,14 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         case postCount
         case overallRating
         case macrocategory
-        case city  // Added city to CodingKeys
+        case city 
+        case topGoodFor// Added city to CodingKeys
     }
 
     // Custom initializer
     init(id: String, name: String, geoPoint: GeoPoint, cuisine: String? = nil, price: String? = nil,
          profileImageUrl: String? = nil, fullGeoHash: String? = nil, attributes: [String: Bool]? = nil,
-         postCount: Int? = nil, overallRating: Double? = nil, macrocategory: String? = nil, city: String? = nil) {
+         postCount: Int? = nil, overallRating: Double? = nil, macrocategory: String? = nil, city: String? = nil, topGoodFor: [String]? = nil) {
         self.id = id
         self.name = name
         self.geoPoint = geoPoint
@@ -95,7 +102,8 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         self.postCount = postCount
         self.overallRating = overallRating
         self.macrocategory = macrocategory
-        self.city = city  // Initialize city
+        self.city = city
+        self.topGoodFor = topGoodFor
     }
 
     // Decoding function
@@ -112,6 +120,7 @@ struct ClusterRestaurant: Identifiable, Codable, Equatable, Hashable {
         postCount = try container.decodeIfPresent(Int.self, forKey: .postCount)
         overallRating = try container.decodeIfPresent(Double.self, forKey: .overallRating)
         macrocategory = try container.decodeIfPresent(String.self, forKey: .macrocategory)
-        city = try container.decodeIfPresent(String.self, forKey: .city)  // Decode city
+        city = try container.decodeIfPresent(String.self, forKey: .city)
+        topGoodFor = try container.decodeIfPresent([String].self, forKey: .topGoodFor)
     }
 }

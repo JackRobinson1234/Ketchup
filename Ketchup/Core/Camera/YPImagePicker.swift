@@ -66,7 +66,7 @@ struct ImagePicker: View {
                         config.library.mediaType = .photoAndVideo
                         config.library.maxNumberOfItems = 8
                         config.library.minNumberOfItems = 1
-                        config.library.skipSelectionsGallery = false
+                        config.library.skipSelectionsGallery = true
                         config.library.defaultMultipleSelection = false
                         config.gallery.hidesRemoveButton = false
                         config.screens = [.library]
@@ -102,6 +102,19 @@ struct ImagePicker: View {
             ReelsUploadView(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel)
                 .onDisappear { isPresented = true }
         }
+        .fullScreenCover(isPresented: $uploadViewModel.navigateToMediaCategorySelection) {
+                    NavigationView {
+                        MediaCategorySelectionView(uploadViewModel: uploadViewModel)
+                    }
+                    .onDisappear {
+                        if uploadViewModel.navigateToUpload {
+                            isPresented = false
+                        } else if !uploadViewModel.navigateToMediaCategorySelection {
+                            // Re-present the image picker
+                            isPresented = true
+                        }
+                    }
+                }
     }
     
     private func dismissKeyboard() {

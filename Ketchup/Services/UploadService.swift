@@ -127,7 +127,8 @@ class UploadService {
             state: restaurant.state,
             profileImageUrl: restaurant.profileImageUrl,
             cuisine: restaurant.categoryName,
-            price: restaurant.price
+            price: restaurant.price,
+            macroCategory: restaurant.macrocategory
         )
     }
 }

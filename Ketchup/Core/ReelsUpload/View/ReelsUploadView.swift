@@ -39,6 +39,7 @@ struct ReelsUploadView: View {
     @State private var showingWarningAlert = false
     @State private var isShowingGoodForSelection = false
     @State private var showConfirmationAlert = false
+    @State private var showTaggingSheet = false
 
     var overallRatingPercentage: Double {
         ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
@@ -75,7 +76,10 @@ struct ReelsUploadView: View {
                                 if !isVideoExpanded {
                                     restaurantSelector
                                 }
-                                mixedMediaPreview
+                                VStack{
+                                    mixedMediaPreview
+
+                                }
                                 Spacer()
                             }
                             .padding(.vertical)
@@ -90,9 +94,11 @@ struct ReelsUploadView: View {
                                 mentionsList
                             }
                             Divider()
+                            tagPhotosButton
+                                Divider()
                             goodForButton
+                            Divider()
                             tagUsersButton
-                                .padding(.vertical)
                             Divider()
                             
                             ratingsSection
@@ -116,6 +122,9 @@ struct ReelsUploadView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showTaggingSheet) {
+                        TaggingSheetView(uploadViewModel: uploadViewModel)
+                    }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.white, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -185,9 +194,8 @@ struct ReelsUploadView: View {
 
             if uploadViewModel.goodFor.isEmpty {
                 Text("0/5 selected")
-                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .font(.custom("MuseoSansRounded-300", size: 14))
                     .foregroundColor(.red)
-                    .padding(.top, 8)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -202,15 +210,32 @@ struct ReelsUploadView: View {
                         }
                     }
                     .padding(.horizontal)
+
                 }
                 .padding(.top, 8)
             }
-            Divider()
+
         }
         .padding(.vertical)
         .sheet(isPresented: $isShowingGoodForSelection) {
             GoodForSelectionView(selectedOptions: $uploadViewModel.goodFor)
         }
+    }
+    var tagPhotosButton: some View {
+        Button(action: {
+            showTaggingSheet = true
+        }) {
+            HStack {
+                Text("What's in your photos?")
+                    .font(.custom("MuseoSansRounded-500", size: 16))
+                    .foregroundColor(.black)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color("Colors/AccentColor"))
+                    .padding(.trailing)
+            }
+        }
+        .padding(.vertical)
     }
     var restaurantSelector: some View {
         Button {
@@ -469,10 +494,33 @@ struct ReelsUploadView: View {
             isTaggingUsers = true
         } label: {
             HStack {
-                Text("Went with anyone?")
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundColor(.black)
-                    .frame(alignment: .trailing)
+                VStack(alignment: .leading){
+                    Text("Went with anyone?")
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundColor(.black)
+                        .frame(alignment: .trailing)
+                    if uploadViewModel.taggedUsers.isEmpty {
+                        Text("0 selected")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                            .foregroundColor(Color("Colors/AccentColor"))
+                            .frame(alignment: .trailing)
+                    } else {
+                        HStack{
+                            ForEach(uploadViewModel.taggedUsers.prefix(3), id: \.id) { user in
+                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                            }
+                            if uploadViewModel.taggedUsers.count > 3 {
+                                VStack {
+                                    Spacer()
+                                    Text("and \(uploadViewModel.taggedUsers.count - 3) others")
+                                        .font(.custom("MuseoSansRounded-300", size: 12))
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                
                 
                 Spacer()
                 if uploadViewModel.taggedUsers.isEmpty {
@@ -482,9 +530,9 @@ struct ReelsUploadView: View {
                         .padding(.trailing, 10)
                 } else {
                     HStack {
-                        Text("\(uploadViewModel.taggedUsers.count) people")
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .foregroundColor(.black)
+//                        Text("\(uploadViewModel.taggedUsers.count) \(uploadViewModel.taggedUsers.count == 1 ? "person" : "people")")
+//                              .font(.custom("MuseoSansRounded-300", size: 16))
+//                              .foregroundColor(.black)
                         
                         Image(systemName: "chevron.right")
                             .frame(width: 25, height: 25)
@@ -493,6 +541,7 @@ struct ReelsUploadView: View {
                     .padding(.trailing, 10)
                 }
             }
+            .padding(.vertical)
         }
     }
     
@@ -506,11 +555,11 @@ struct ReelsUploadView: View {
                 alertMessage = "Please select a restaurant."
                 showAlert = true
             } else {
-                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
-                    showConfirmationAlert = true
-                } else {
+//                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
+//                    showConfirmationAlert = true
+//                } else {
                     uploadPost()
-                }
+              //  }
             }
         } label: {
             ProgressButton(uploadViewModel: uploadViewModel)

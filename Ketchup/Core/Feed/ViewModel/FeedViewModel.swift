@@ -19,12 +19,15 @@ enum FeedType: String, CaseIterable {
     case discover = "Discover"
     case following = "Following"
 }
-
-enum FeedTab {
+enum MainTab {
     case dashboard
-    case discover
-    case following
+    case feed
 }
+enum FeedSubTab {
+    case following
+    case discover
+}
+
 enum FeedLocationSetting: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 
@@ -40,7 +43,6 @@ protocol CommentableViewModel: ObservableObject {
 }
 @MainActor
 class FeedViewModel: ObservableObject, CommentableViewModel  {
-    
     @Published var posts = [Post]()
     @Published var showEmptyView = false
     @Published var currentlyPlayingPostID: String?
@@ -70,16 +72,31 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     @Published var isLoadingMoreContent = false
     private var fetchTask: Task<Void, Error>?
     @Published var isShowingProfileSheet: Bool = false
-    @Published var selectedTab: FeedTab = .dashboard {
+    @Published var selectedFeedSubTab: FeedSubTab = .discover {
         didSet {
             Task {
-                if selectedTab == .following {
+                if selectedFeedSubTab == .following {
                     currentLocationFilter = .anywhere
                 }
                 isInitialLoading = true
                 await handleTabChange()
                 isInitialLoading = false
                 resetNewPostsCount()
+            }
+        }
+    }
+    @Published var selectedMainTab: MainTab = .feed {
+        didSet {
+            Task {
+                if selectedMainTab == .feed {
+                    if selectedFeedSubTab == .following {
+                        currentLocationFilter = .anywhere
+                    }
+                    isInitialLoading = true
+                    await handleTabChange()
+                    isInitialLoading = false
+                    resetNewPostsCount()
+                }
             }
         }
     }
@@ -257,7 +274,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
         
         resetFeedState()
         do {
-            if selectedTab == .following {
+            if selectedFeedSubTab == .following {
                 await fetchFollowingUsers()
             }
             var newPosts = try await fetchPostsPage(withFilters: self.filters, isInitialLoad: true)
@@ -314,7 +331,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
         return false
     }
     private func fetchPostsPage(withFilters filters: [String: [Any]]? = nil, isInitialLoad: Bool = false) async throws -> [Post] {
-        if selectedTab == .following {
+        if selectedFeedSubTab == .following {
             return try await fetchFollowingPostsPage()
         } else {
             return try await fetchRegularPostsPage(withFilters: filters, isInitialLoad: isInitialLoad)
@@ -348,7 +365,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             query = query.whereField(key, in: value)
         }
         
-        if selectedTab != .following {
+        if selectedFeedSubTab != .following {
             query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
         }
        
@@ -472,10 +489,10 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
             for (key, value) in updatedFilters {
                 query = query.whereField(key, in: value)
             }
-            if selectedTab != .following{
+            if selectedFeedSubTab != .following{
                 query = query.whereField("user.id", isNotEqualTo: "6nLYduH5e0RtMvjhediR7GkaI003")
             }
-            if selectedTab == .following {
+            if selectedFeedSubTab == .following {
                 let followingBatch = Array(followingUsers.prefix(30))
                 if followingBatch.isEmpty {
                     await MainActor.run {

@@ -16,7 +16,7 @@ enum PostZoomLevel: String {
     case maxZoomOut = "max_zoom_out"
     case region = "region"
     case city = "city"
-    case neighborhood = "neighborhood"
+    //case neighborhood = "neighborhood"
 }
 @MainActor
 class FollowingPostsMapViewModel: ObservableObject {
@@ -39,10 +39,12 @@ class FollowingPostsMapViewModel: ObservableObject {
     @Published var lastFetchedRegion: MKCoordinateRegion?
 
     @Published var isLoading = false
-    @Published var currentZoomLevel: ZoomLevel = .neighborhood
+    @Published var currentZoomLevel: ZoomLevel = .city
     @Published var selectedLocation: [CLLocationCoordinate2D] = []
     private var fetchTask: Task<Void, Never>?
     private let fetchDebouncer = Debouncer(delay: 0.3)
+    @Published var selectedRating: Double = 0.0
+
     var mapSize: CGSize = .zero
 
     func updateMapState(newRegion: MKCoordinateRegion, shouldAutoFetch: Bool = false) {
@@ -64,17 +66,17 @@ class FollowingPostsMapViewModel: ObservableObject {
                     }
 
                     let shouldFetch = self.shouldFetchNewData(newRegion: newRegion, newZoomLevel: newZoomLevel)
-                    ////print("DEBUG: Should fetch new data: \(shouldFetch)")
+                    print("DEBUG: Should fetch new data: \(shouldFetch)")
 
                     if shouldFetch || shouldAutoFetch{
-                        ////print("DEBUG: Fetching new data...")
+                        print("DEBUG: Fetching new data...")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         await self.fetchFollowingPosts()
                         self.lastFetchedRegion = newRegion
-                        ////print("DEBUG: Data fetch complete, region updated.")
+                        print("DEBUG: Data fetch complete, region updated.")
                     } else {
-                        ////print("DEBUG: No need to fetch new data, updating clusters only.")
+                        print("DEBUG: No need to fetch new data, updating clusters only.")
                         self.currentRegion = newRegion
                         self.currentZoomLevel = newZoomLevel
                         self.updateAnnotations()
@@ -116,7 +118,7 @@ class FollowingPostsMapViewModel: ObservableObject {
         ////print("DEBUG: Distance moved from last fetched region: \(distance) km")
 
         let shouldFetch = distance >= distanceThreshold
-        ////print("DEBUG: Should fetch based on distance: \(shouldFetch)")
+        print("DEBUG: Should fetch based on distance: \(shouldFetch)")
         
         return shouldFetch
     }
@@ -149,8 +151,39 @@ class FollowingPostsMapViewModel: ObservableObject {
                 radiusInM: radiusInM,
                 zoomLevel: currentZoomLevel.rawValue
             )
+            let filteredPosts = posts.filter { post in
+                        // Rating Filter
+                        if selectedRating > 0 {
+                            guard let overallRating = calculateOverallRating(for: post) else {
+                                return false
+                            }
+                            if overallRating < selectedRating {
+                                return false
+                            }
+                        }
+                        // Cuisine Filter
+                        if !selectedCuisines.isEmpty {
+                            guard let cuisine = post.restaurant.macroCategory else {
+                                return false
+                            }
+                            if !selectedCuisines.contains(cuisine) {
+                                return false
+                            }
+                        }
+                        // Price Filter
+                        if !selectedPrice.isEmpty {
+                            guard let price = post.restaurant.price else {
+                                return false
+                            }
+                            if !selectedPrice.contains(price) {
+                                return false
+                            }
+                        }
+                        return true
+                    }
+
             await MainActor.run {
-                self.visiblePosts = posts
+                self.visiblePosts = filteredPosts
                 let groupedPosts = Dictionary(grouping: visiblePosts) { $0.restaurant.id }
                 let groupedAnnotations = groupedPosts.compactMap { (restaurantId, posts) -> GroupedPostMapAnnotation? in
                     guard let firstPost = posts.first,
@@ -206,7 +239,12 @@ class FollowingPostsMapViewModel: ObservableObject {
             }
         }
 
-
+    private func calculateOverallRating(for post: SimplifiedPost) -> Double? {
+        let ratings = [post.serviceRating, post.atmosphereRating, post.valueRating, post.foodRating]
+        let validRatings = ratings.compactMap { $0 }
+        guard !validRatings.isEmpty else { return nil }
+        return validRatings.reduce(0, +) / Double(validRatings.count)
+    }
     func reloadAnnotations() async {
         let changes = await clusterManager.reload(mapViewSize: mapSize, coordinateRegion: currentRegion)
         applyChanges(changes)

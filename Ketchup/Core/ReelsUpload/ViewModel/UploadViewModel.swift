@@ -16,7 +16,6 @@ class UploadViewModel: ObservableObject {
     @Published var caption = ""
     @Published var uploadSuccess: Bool = false
     @Published var uploadFailure: Bool = false
-    // MEDIA TO BE UPLOADED
     @Published var videoURL: URL?
     @Published var images: [UIImage]?
     @Published var mediaType: MediaType = .video
@@ -47,7 +46,9 @@ class UploadViewModel: ObservableObject {
     @Published var fromRestaurantProfile = false
     @Published var showSuccessMessage = false
     @Published var uploadProgress: Double = 0.0
-    @Published var goodFor: [String] = [] // Add this line
+    @Published var goodFor: [String] = []
+    @Published var navigateToMediaCategorySelection = false
+// Add this line
     var mentionableUsers: [User] = []  // Assuming you have this data available
     
     init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
@@ -112,7 +113,7 @@ class UploadViewModel: ObservableObject {
             return nil
         }
     }
-
+    
     private func createPostRestaurant() async throws -> PostRestaurant? {
         if let restaurant = restaurant {
             return UploadService.shared.createPostRestaurant(from: restaurant)
@@ -132,7 +133,7 @@ class UploadViewModel: ObservableObject {
         }
         return nil
     }
-
+    
     private func extractMentionedUsers(from caption: String) async throws -> [PostUser] {
         var mentionedUsers: [PostUser] = []
         let words = caption.split(separator: " ")
@@ -171,16 +172,16 @@ class UploadViewModel: ObservableObject {
         
         return mentionedUsers
     }
-
+    
     private func uploadMixedMediaItems() async throws -> [MixedMediaItem]? {
         guard !mixedMediaItems.isEmpty else { return nil }
-        
+
         var uploadedItems: [MixedMediaItem] = []
         let totalItems = Double(mixedMediaItems.count)
-        
+
         for (index, item) in mixedMediaItems.enumerated() {
             let baseProgress = Double(index) / totalItems
-            
+
             switch item.type {
             case .photo:
                 if let image = item.localMedia as? UIImage {
@@ -188,11 +189,16 @@ class UploadViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             let itemProgress = progress / totalItems
                             self.uploadProgress = baseProgress + itemProgress
-                            //print(self.uploadProgress)
                         }
                     }
                     if let imageUrl = imageUrl {
-                        uploadedItems.append(MixedMediaItem(url: imageUrl, type: .photo))
+                        let mixedItem = MixedMediaItem(
+                            url: imageUrl,
+                            type: .photo,
+                            description: item.description,
+                            descriptionCategory: item.descriptionCategory
+                        )
+                        uploadedItems.append(mixedItem)
                     }
                 }
             case .video:
@@ -201,21 +207,25 @@ class UploadViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             let itemProgress = progress / totalItems
                             self.uploadProgress = baseProgress + itemProgress
-                            //print(self.uploadProgress)
                         }
                     }
                     if let videoUrl = videoUrl {
-                        uploadedItems.append(MixedMediaItem(url: videoUrl, type: .video))
+                        let mixedItem = MixedMediaItem(
+                            url: videoUrl,
+                            type: .video,
+                            description: item.description,
+                            descriptionCategory: item.descriptionCategory
+                        )
+                        uploadedItems.append(mixedItem)
                     }
                 }
             default:
                 break
             }
         }
-        
+
         return uploadedItems
     }
-    
     private func uploadPostToService(
         mixedMediaItems: [MixedMediaItem]?,
         postRestaurant: PostRestaurant?,
@@ -242,31 +252,32 @@ class UploadViewModel: ObservableObject {
         }
         
         return try await UploadService.shared.uploadPost(
-               mixedMediaItems: mixedMediaItems,
-               mediaType: .mixed,
-               caption: caption,
-               postRestaurant: postRestaurant,
-               fromInAppCamera: fromInAppCamera,
-               overallRating: averageRating, // Use calculated average rating
-               serviceRating: isServiceNA ? nil : serviceRating,
-               atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
-               valueRating: isValueNA ? nil : valueRating,
-               foodRating: isFoodNA ? nil : foodRating,
-               taggedUsers: taggedUsers,
-               captionMentions: mentionedUsers,
-               goodFor: self.goodFor.isEmpty ? nil : self.goodFor, // Add this line
-               thumbnailImage: thumbnailImage,
-               progressHandler: { progress in
-                   DispatchQueue.main.async {
-                       //self.uploadProgress = progress
-                   }
-               }
-           )
+            mixedMediaItems: mixedMediaItems,
+            mediaType: .mixed,
+            caption: caption,
+            postRestaurant: postRestaurant,
+            fromInAppCamera: fromInAppCamera,
+            overallRating: averageRating, // Use calculated average rating
+            serviceRating: isServiceNA ? nil : serviceRating,
+            atmosphereRating: isAtmosphereNA ? nil : atmosphereRating,
+            valueRating: isValueNA ? nil : valueRating,
+            foodRating: isFoodNA ? nil : foodRating,
+            taggedUsers: taggedUsers,
+            captionMentions: mentionedUsers,
+            goodFor: self.goodFor.isEmpty ? nil : self.goodFor, // Add this line
+            thumbnailImage: thumbnailImage,
+            progressHandler: { progress in
+                DispatchQueue.main.async {
+                    //self.uploadProgress = progress
+                }
+            }
+        )
     }
 
     private func handleUploadSuccess(post: Post) {
         uploadSuccess = true
         feedViewModel.showPostAlert = true
+        feedViewModel.selectedMainTab = .feed
         feedViewModel.posts.insert(post, at: 0)
         
         if !fromRestaurantProfile{
@@ -398,9 +409,16 @@ class UploadViewModel: ObservableObject {
     }
     
 }
-struct MixedMediaItemHolder: Identifiable {
+class MixedMediaItemHolder: Identifiable, ObservableObject {
     let id = UUID()
     var localMedia: Any  // UIImage for photos, URL for videos
     var type: MediaType
     var url: String?  // This will be set after uploading to Firebase
+    @Published var description: String?
+    @Published var descriptionCategory: DescriptionCategory?
+
+    init(localMedia: Any, type: MediaType) {
+        self.localMedia = localMedia
+        self.type = type
+    }
 }

@@ -24,7 +24,7 @@ class ContactsViewModel: ObservableObject {
     @Published var messageRecipient: String?
     
     private let userService = UserService.shared
-    private let pageSize = 20
+    private let pageSize = 30
     private var lastDocument: DocumentSnapshot?
     private var lastNewDocument: DocumentSnapshot?
     private var lastExistingDocument: DocumentSnapshot?
@@ -46,52 +46,49 @@ class ContactsViewModel: ObservableObject {
     }
     @MainActor
     var inviteMessage: String {
-        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
-        if let username = AuthService.shared.userSession?.username {
+        let appStoreLink = "https://ketchup-app.com/open/"
+        
             return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
-
-            \(appStoreLink)
-
-            (P.S. Follow me @\(username))
-            """
-        } else {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+            Hey! Here's my invite for Ketchup to share your restaurant reviews. It's invite only right now, use my code:
+                       
+            \(AuthService.shared.userSession?.referralCode ?? "ketchup583")
+                       
+            here is the download link:
 
             \(appStoreLink)
             """
-        }
+        
     }
 
     func fetchContacts() {
-            guard !isLoading else { return }
-            isLoading = true
-            
-            Task {
-                do {
-                    if deviceContacts.isEmpty {
-                        try await loadDeviceContacts()
-                    }
-                    
-                    if shouldFetchExistingUsers {
-                        await fetchExistingUsers()
-                    } else {
-                        await fetchInviteList()
-                    }
-                    
-                    await MainActor.run {
-                        self.isLoading = false
-                    }
-                } catch {
-                    await MainActor.run {
-                        self.error = error
-                        self.isLoading = false
-                        self.isLoadingExistingUsers = false
-                    }
+        guard !isLoading else { return }
+        isLoading = true
+        
+        Task {
+            do {
+                if deviceContacts.isEmpty {
+                    try await loadDeviceContacts()
+                }
+                
+                let (contacts, lastDoc) = try await fetchAllContacts()
+                let updatedContacts = try await fetchUserDetailsForContacts(contacts)
+                let matchedContacts = matchWithDeviceContacts(updatedContacts)
+                
+                await MainActor.run {
+                    self.contacts.append(contentsOf: matchedContacts)
+                    self.lastDocument = lastDoc
+                    self.hasMoreContacts = contacts.count == self.pageSize
+                    self.currentPage += 1
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error
+                    self.isLoading = false
                 }
             }
         }
+    }
         
         private func fetchExistingUsers() async {
             await MainActor.run { self.isLoadingExistingUsers = true }
@@ -156,7 +153,29 @@ class ContactsViewModel: ObservableObject {
            
            return (contacts, snapshot.documents.last)
        }
-       
+    private func fetchAllContacts() async throws -> ([Contact], DocumentSnapshot?) {
+           guard let userId = Auth.auth().currentUser?.uid else {
+               throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+           }
+        
+        let db = Firestore.firestore()
+        var query = db.collection("users").document(userId).collection("contacts")
+            .order(by: "userCount", descending: true)
+        
+            .limit(to: pageSize)
+        
+        if let lastDocument = lastDocument {
+            query = query.start(afterDocument: lastDocument)
+        }
+        
+        let snapshot = try await query.getDocuments()
+        
+        let contacts = snapshot.documents.compactMap { document -> Contact? in
+            try? document.data(as: Contact.self)
+        }
+        
+        return (contacts, snapshot.documents.last)
+    }
        private func fetchContactsToInvite() async throws -> ([Contact], DocumentSnapshot?) {
            guard let userId = Auth.auth().currentUser?.uid else {
                throw NSError(domain: "ContactsViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])

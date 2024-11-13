@@ -24,23 +24,28 @@ struct ContactsView: View {
     }
     var body: some View {
         NavigationView {
-            ZStack {
-                if ContactService.shared.isSyncing {
-                    VStack {
-                        FastCrossfadeFoodImageView()
-                        Text("Loading contacts- please check in soon")
-                    }
-                } else if isContactsPermissionDenied {
-                    deniedPermissionView
-                } else if viewModel.contacts.isEmpty && !viewModel.isLoading && !viewModel.isLoadingExistingUsers {
-                    emptyView
-                } else {
-                    VStack {
-                        
-                        contactsList
-                        if viewModel.isLoadingExistingUsers {
+            VStack{
+                Text("Your referral code: \(AuthService.shared.userSession?.referralCode ?? "ketchup583")")
+                    .font(.custom("MuseoSansRounded-700", size: 14))
+                    .foregroundStyle(.black)
+                ZStack {
+                    if ContactService.shared.isSyncing {
+                        VStack {
                             FastCrossfadeFoodImageView()
+                            Text("Loading contacts- please check in soon")
+                        }
+                    } else if isContactsPermissionDenied {
+                        deniedPermissionView
+                    } else if viewModel.contacts.isEmpty && !viewModel.isLoading && !viewModel.isLoadingExistingUsers {
+                        emptyView
+                    } else {
+                        VStack {
                             
+                            contactsList
+                            if viewModel.isLoadingExistingUsers {
+                                FastCrossfadeFoodImageView()
+                                
+                            }
                         }
                     }
                 }
@@ -60,6 +65,7 @@ struct ContactsView: View {
             )) { alertItem in
                 Alert(title: Text("Error"), message: Text(alertItem.error.localizedDescription))
             }
+            .modifier(BackButtonModifier())
             .sheet(isPresented: $showMessageComposer) {
                 if MFMessageComposeViewController.canSendText() {
                     ContactMessageComposeView(
@@ -75,19 +81,23 @@ struct ContactsView: View {
     }
     
     private var contactsList: some View {
-        List {
-            ForEach(filteredContacts) { contact in
-                ContactRow(viewModel: viewModel, contact: contact)
-            }
-
-            if viewModel.hasMoreContacts {
-                ProgressView()
-                    .onAppear {
-                        viewModel.fetchContacts()
-                    }
+        ScrollView(showsIndicators: false) {
+            LazyVStack {
+                ForEach(filteredContacts) { contact in
+                    ContactRow(viewModel: viewModel, contact: contact)
+                        .padding(.horizontal)
+                        .onAppear {
+                            // Check if this is the last item and pagination is needed
+                            if contact == filteredContacts.last && viewModel.hasMoreContacts && !viewModel.isLoading {
+                                viewModel.fetchContacts()
+                            }
+                        }
+                }
+                if viewModel.isLoading {
+                    ProgressView()
+                }
             }
         }
-        .listStyle(PlainListStyle())
     }
     private var copyInviteLinkButton: some View {
         Button(action: copyInviteLink) {
@@ -164,7 +174,7 @@ struct ContactsView: View {
         Button(action: {
             showMessageComposer = true
         }) {
-            Text("Invite Friends")
+            Text("Ketchup is Invite Only!")
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
@@ -175,22 +185,18 @@ struct ContactsView: View {
     }
     
     var inviteMessage: String {
-        let appStoreLink = "https://apps.apple.com/us/app/ketchup/id6503178927"
-        if let username = AuthService.shared.userSession?.username {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
+        let appStoreLink = "https://ketchup-app.com/open"
+        
+        return """
+        Hey! Here's my invite for Ketchup to share your restaurant reviews. It's invite only right now, use my code:
+                   
+        \(AuthService.shared.userSession?.referralCode ?? "ketchup583")
+                   
+        here is the download link:
 
-            \(appStoreLink)
-
-            (P.S. Follow me @\(username))
-            """
-        } else {
-            return """
-            Hey! I'm inviting you to Ketchup — not the condiment, it's a restaurant reviewing app that's basically Instagram + Yelp combined. Check it out on the App Store:
-
-            \(appStoreLink)
-            """
-        }
+        \(appStoreLink)
+        """
+        
     }
     
     // Other view components (contactsList, filteredContacts) remain unchanged
@@ -275,15 +281,18 @@ struct ContactRow: View {
                         }
                     }
                 }
+            } else {
+                UserCircularProfileImageView(profileImageUrl: contact.user?.profileImageUrl, size: .small)
             }
+        
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 if let hasExistingAccount = contact.hasExistingAccount, hasExistingAccount {
                     Button(action: {
                         isShowingProfile = true
                     }) {
                         Text(contact.user?.fullname ?? contact.deviceContactName ?? "unknown")
-                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .font(.custom("MuseoSansRounded-500", size: 14))
                             .foregroundStyle(.black)
                     }
                     .fullScreenCover(isPresented: $isShowingProfile) {
@@ -299,14 +308,14 @@ struct ContactRow: View {
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
-                    locationText
+                   // locationText
                 } else {
                     Text(contact.deviceContactName ?? "unknown")
-                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .font(.custom("MuseoSansRounded-500", size: 14))
                         .foregroundStyle(.black)
                     
                     Text("\(contact.userCount) friends on Ketchup")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundColor(.gray)
                 }
             }
@@ -400,10 +409,10 @@ struct ContactRow: View {
     private var followButton: some View {
         Button(action: handleFollowAction) {
             Text(isFollowed ? "Following" : "Follow")
-                .font(.custom("MuseoSansRounded-300", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 14))
                 .fontWeight(.semibold)
-                .frame(width: 110)
-                .padding(.vertical, 8)
+                .frame(width: 100)
+                .padding(.vertical, 6)
                 .foregroundColor(isFollowed ? Color("Colors/AccentColor") : .white)
                 .background(isFollowed ? Color.clear : Color.red)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
@@ -421,9 +430,9 @@ struct ContactRow: View {
             isShowingMessageComposer = true
         }) {
             Text("Invite")
-                .font(.custom("MuseoSansRounded-300", size: 16))
+                .font(.custom("MuseoSansRounded-300", size: 14))
                 .fontWeight(.semibold)
-               
+                .frame(width: 100)
                 .padding(.vertical, 8)
                 .foregroundColor(Color("Colors/AccentColor"))
                 .background(Color.clear)

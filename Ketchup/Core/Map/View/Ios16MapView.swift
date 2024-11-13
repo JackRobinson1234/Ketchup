@@ -178,7 +178,7 @@ struct Ios16MapView: View {
                 )
             }
             .fullScreenCover(isPresented: $isFiltersPresented) {
-                MapFiltersView(mapViewModel: viewModel, followingPostsMapViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
+                MapFiltersView(mapViewModel: viewModel, followingViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
             }
         }
     }
@@ -651,7 +651,8 @@ class Ios16RestaurantAnnotationMapView: MKAnnotationView {
             imageUrl: annotation.restaurant.profileImageUrl,
             color: Color("Colors/AccentColor"),
             size: .medium,
-            name: annotation.restaurant.name
+            name: annotation.restaurant.name,
+            rating: annotation.restaurant.overallRating
         )
         
         let hostingController = UIHostingController(rootView: restaurantView)
@@ -732,10 +733,11 @@ struct Ios16RestaurantAnnotationContentMapView: View {
     let color: Color
     let size: RestaurantImageSize
     let name: String
+    var rating: Double? = nil
     
     var body: some View {
         VStack(spacing: 4) {
-            RestaurantCircularProfileImageView(imageUrl: imageUrl, color: color, size: size)
+            RestaurantCircularProfileImageView(imageUrl: imageUrl, color: color, size: size, ratingScore: rating)
             Text(name)
                 .font(.headline) // Increased from .caption2 to .headline
                 .foregroundColor(.black)

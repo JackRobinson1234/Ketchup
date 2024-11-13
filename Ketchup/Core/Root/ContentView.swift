@@ -44,15 +44,17 @@ struct ContentView: View {
                         .onAppear {
                             checkInitialNavigation()
                         }
+                } else if viewModel.isOnWaitlist {
+                    WaitlistView()
                 } else if user.phoneNumber != nil{
                     UsernameSelectionView()
-                } else {
+                }
+                else {
                     PhoneAuthView()
                 }
             } else {
                 WelcomeView()
                     .customFont()
-                    //.onAppear{AuthService.shared.signout()}
             }
         }
     }

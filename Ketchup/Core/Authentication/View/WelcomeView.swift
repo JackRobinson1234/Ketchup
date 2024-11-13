@@ -10,7 +10,6 @@ import FirebaseAuth
 struct WelcomeView: View {
     @State private var showRegistration = false
     @State private var showLogin = false
-    
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in

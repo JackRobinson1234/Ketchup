@@ -47,7 +47,6 @@ struct Post: Identifiable, Codable {
             return nil
         }
     }
-
     // Decoding initializer
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -161,6 +160,7 @@ struct PostRestaurant: Codable, Hashable, Identifiable {
     var profileImageUrl: String?
     var cuisine: String?
     var price: String?
+    var macroCategory: String?
 }
 
 struct PostUser: Codable, Hashable, Identifiable {
@@ -192,14 +192,17 @@ struct MixedMediaItem: Codable, Hashable, Identifiable {
     var url: String
     var type: MediaType
     var description: String?
-    
-    init(id: String = NSUUID().uuidString, url: String, type: MediaType, description: String? = nil) {
+    var descriptionCategory: DescriptionCategory?
+
+    init(id: String = NSUUID().uuidString, url: String, type: MediaType, description: String? = nil, descriptionCategory: DescriptionCategory? = nil) {
         self.id = id
         self.url = url
         self.type = type
         self.description = description
+        self.descriptionCategory = descriptionCategory
     }
 }
+
 extension Post: Commentable {
     var ownerUid: String? {
         return user.id
@@ -216,4 +219,10 @@ protocol Commentable {
     var ownerUid: String? { get }
     var commentCount: Int { get set }
     var commentsCollectionPath: String { get }
+}
+enum DescriptionCategory: String, Codable, Hashable, CaseIterable {
+    case food
+    case menu
+    case atmosphere
+    case other
 }

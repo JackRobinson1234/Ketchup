@@ -186,9 +186,10 @@ struct WrittenFeedCell: View {
 
             // Restaurant info and ratings
             restaurantInfoView()
-
+           
             // Caption
             captionView()
+            goodForTagsView()
 
             // Tagged users
             taggedUsersView()
@@ -274,13 +275,13 @@ struct WrittenFeedCell: View {
     
     @ViewBuilder
     private func mediaItemView(for mediaItem: MixedMediaItem, at index: Int) -> some View {
-        VStack(spacing: 0) {
-            Button {
-                pauseAllVideos()
-                viewModel.startingImageIndex = index
-                viewModel.startingPostId = post.id
-                selectedPost = post
-            } label: {
+        Button {
+            pauseAllVideos()
+            viewModel.startingImageIndex = index
+            viewModel.startingPostId = post.id
+            selectedPost = post
+        } label: {
+            ZStack(alignment: .bottomTrailing) {
                 if mediaItem.type == .photo {
                     KFImage(URL(string: mediaItem.url))
                         .resizable()
@@ -289,26 +290,48 @@ struct WrittenFeedCell: View {
                         .clipped()
                         .cornerRadius(10)
                 } else if mediaItem.type == .video {
-                    ZStack {
-                        VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
-                            .frame(width: mediaWidth, height: mediaHeight)
-                            .cornerRadius(10)
-                            .id(mediaItem.id)
-                        
-                        // Show play icon overlay when video is not playing or not the current one
-//                        if !isCurrentVideoPlaying {
-//                            Image(systemName: "play.circle.fill")
-//                                .resizable()
-//                                .frame(width: 50, height: 50)
-//                                .foregroundColor(.white)
-//                                .opacity(0.8)
-//                        }
-                    }
+                    VideoPlayerView(coordinator: getVideoCoordinator(for: mediaItem.id), videoGravity: .resizeAspectFill)
+                        .frame(width: mediaWidth, height: mediaHeight)
+                        .cornerRadius(10)
+                        .id(mediaItem.id)
+                }
+                
+                // Overlay the description if it exists
+                if let description = mediaItem.description, !description.isEmpty {
+                    Text(description)
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color.gray.opacity(0.7))
+                        .clipShape(Capsule())
+                        .padding(8)
                 }
             }
         }
     }
+
     
+    private func goodForTagsView() -> some View {
+        VStack{
+            if let goodFor = post.goodFor, !goodFor.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(goodFor, id: \.self) { tag in
+                            Text(tag)
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+    }
 
     private func videoView() -> some View {
         HStack(alignment: .bottom) {
@@ -857,6 +880,7 @@ struct CustomPagingView<Content: View>: View {
         }
     }
 }
+
 struct PagingScrollView<Content: View>: UIViewRepresentable {
     let content: Content
     let itemWidth: CGFloat
@@ -976,5 +1000,440 @@ struct PagingScrollView<Content: View>: UIViewRepresentable {
                 self.parent.currentIndex = self.targetIndex
             }
         }
+    }
+}
+
+
+struct RecyclablePagingScrollView<Content: View>: UIViewRepresentable {
+    let viewProvider: (Int) -> Content
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    let itemCount: Int
+    @Binding var currentIndex: Int
+
+    // Cache for reusable views
+    class ViewCache {
+        var unusedViews: [UIHostingController<Content>] = []
+        var visibleViews: [Int: UIHostingController<Content>] = [:]
+        
+        func dequeueView(forIndex index: Int, viewProvider: (Int) -> Content) -> UIHostingController<Content> {
+            if let view = unusedViews.popLast() {
+                view.rootView = viewProvider(index)
+                return view
+            }
+            let controller = UIHostingController(rootView: viewProvider(index))
+            controller.view.backgroundColor = .clear
+            return controller
+        }
+        
+        func recycleView(_ view: UIHostingController<Content>) {
+            view.view.removeFromSuperview()
+            unusedViews.append(view)
+        }
+        
+        func recycleAllViews() {
+            visibleViews.values.forEach { $0.view.removeFromSuperview() }
+            unusedViews.append(contentsOf: visibleViews.values)
+            visibleViews.removeAll()
+        }
+    }
+    
+    init(itemWidth: CGFloat, itemSpacing: CGFloat = 10, itemCount: Int, currentIndex: Binding<Int>, @ViewBuilder viewProvider: @escaping (Int) -> Content) {
+        self.viewProvider = viewProvider
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self.itemCount = itemCount
+        self._currentIndex = currentIndex
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.isPagingEnabled = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.delegate = context.coordinator
+        scrollView.decelerationRate = .fast
+        scrollView.clipsToBounds = true
+        
+        let contentView = UIView()
+        contentView.backgroundColor = .clear
+        scrollView.addSubview(contentView)
+        context.coordinator.contentView = contentView
+        
+        let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        
+        DispatchQueue.main.async {
+            context.coordinator.loadVisibleViews(in: scrollView)
+        }
+        
+        return scrollView
+    }
+    
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        let totalItemWidth = itemWidth + itemSpacing
+        let totalWidth = CGFloat(itemCount) * totalItemWidth - itemSpacing
+        
+        context.coordinator.contentView?.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: totalWidth,
+            height: scrollView.frame.size.height
+        )
+        scrollView.contentSize = CGSize(width: totalWidth, height: scrollView.frame.size.height)
+        
+        let targetX = CGFloat(currentIndex) * totalItemWidth - scrollView.contentInset.left
+        if abs(scrollView.contentOffset.x - targetX) > 0.5 {
+            scrollView.setContentOffset(CGPoint(x: targetX, y: 0), animated: false)
+            context.coordinator.targetIndex = currentIndex
+        }
+        
+        scrollView.layoutIfNeeded()
+        context.coordinator.loadVisibleViews(in: scrollView)
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: RecyclablePagingScrollView
+        var viewCache = ViewCache()
+        var isUserScrolling = false
+        var targetIndex: Int = 0
+        weak var contentView: UIView?
+        
+        init(_ parent: RecyclablePagingScrollView) {
+            self.parent = parent
+        }
+        
+        func loadVisibleViews(in scrollView: UIScrollView) {
+            let totalItemWidth = parent.itemWidth + parent.itemSpacing
+            let visibleBounds = scrollView.bounds.offsetBy(dx: scrollView.contentOffset.x, dy: 0)
+            
+            guard parent.itemCount > 0, totalItemWidth > 0, let contentView = contentView else {
+                viewCache.recycleAllViews()
+                return
+            }
+            
+            let visibleMinX = visibleBounds.minX - scrollView.contentInset.left
+            let visibleMaxX = visibleBounds.maxX - scrollView.contentInset.left
+            
+            let bufferWidth = totalItemWidth * 2.0
+            let extendedMinX = visibleMinX - bufferWidth
+            let extendedMaxX = visibleMaxX + bufferWidth
+            
+            var minIndex = max(0, Int(floor(extendedMinX / totalItemWidth)))
+            var maxIndex = min(parent.itemCount - 1, Int(ceil(extendedMaxX / totalItemWidth)))
+            
+            if maxIndex < minIndex {
+                let centerX = (visibleMinX + visibleMaxX) / 2
+                let centerIndex = max(0, min(parent.itemCount - 1, Int(round(centerX / totalItemWidth))))
+                minIndex = centerIndex
+                maxIndex = centerIndex
+            }
+            
+            viewCache.visibleViews.forEach { (index, view) in
+                if index < minIndex || index > maxIndex {
+                    viewCache.recycleView(view)
+                    viewCache.visibleViews.removeValue(forKey: index)
+                }
+            }
+            
+            for index in minIndex...maxIndex {
+                if viewCache.visibleViews[index] == nil {
+                    let view = viewCache.dequeueView(forIndex: index, viewProvider: parent.viewProvider)
+                    let xPosition = CGFloat(index) * totalItemWidth
+                    
+                    view.view.frame = CGRect(
+                        x: xPosition,
+                        y: 0,
+                        width: parent.itemWidth,
+                        height: contentView.bounds.height
+                    )
+                    
+                    if view.view.superview != contentView {
+                        contentView.addSubview(view.view)
+                    }
+                    
+                    viewCache.visibleViews[index] = view
+                }
+            }
+        }
+        
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            isUserScrolling = true
+        }
+        
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let pageWidth = parent.itemWidth + parent.itemSpacing
+            let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
+            var index = Int(round(offsetX / pageWidth))
+
+            let velocityX = velocity.x
+
+            if velocityX > 0.2 {
+                index = min(index + 1, parent.itemCount - 1)
+            } else if velocityX < -0.2 {
+                index = max(index - 1, 0)
+            } else {
+                index = Int(round(offsetX / pageWidth))
+            }
+
+            index = max(0, min(index, parent.itemCount - 1))
+            targetIndex = index
+            
+            let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
+            targetContentOffset.pointee.x = newOffsetX
+        }
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            DispatchQueue.main.async { [weak self] in
+                self?.loadVisibleViews(in: scrollView)
+            }
+        }
+        
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            isUserScrolling = false
+            updateCurrentIndex()
+        }
+        
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            isUserScrolling = false
+            updateCurrentIndex()
+        }
+        
+        private func updateCurrentIndex() {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.parent.currentIndex = self.targetIndex
+            }
+        }
+    }
+}
+
+struct PagingCollectionView<Content: View>: UIViewRepresentable {
+    let itemWidth: CGFloat
+    let itemSpacing: CGFloat
+    let itemCount: Int
+    @Binding var currentIndex: Int
+    let contentProvider: (Int) -> Content
+    
+    // Preview properties
+    let previewScale: CGFloat = 0.8
+    let previewAlpha: CGFloat = 0.5
+
+    init(
+        itemWidth: CGFloat,
+        itemSpacing: CGFloat = 10,
+        itemCount: Int,
+        currentIndex: Binding<Int>,
+        @ViewBuilder contentProvider: @escaping (Int) -> Content
+    ) {
+        self.itemWidth = itemWidth
+        self.itemSpacing = itemSpacing
+        self.itemCount = max(0, itemCount) // Ensure non-negative count
+        // Clamp the binding to ensure currentIndex remains within valid range
+        self._currentIndex = currentIndex.clamped(to: 0...(max(0, itemCount - 1)))
+        self.contentProvider = contentProvider
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> UICollectionView {
+        let layout = PeekingCollectionViewLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = itemSpacing
+        layout.minimumInteritemSpacing = 0
+        layout.itemWidth = itemWidth
+        layout.previewScale = previewScale
+        layout.previewAlpha = previewAlpha
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.decelerationRate = .fast
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isPagingEnabled = false
+        collectionView.dataSource = context.coordinator
+        collectionView.delegate = context.coordinator
+        collectionView.register(HostingCollectionViewCell<Content>.self, forCellWithReuseIdentifier: "Cell")
+        
+        // Center the items
+        let horizontalInset = (UIScreen.main.bounds.width - itemWidth) / 2
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        collectionView.contentOffset = CGPoint(x: -horizontalInset, y: 0)
+
+        return collectionView
+    }
+
+    func updateUIView(_ uiView: UICollectionView, context: Context) {
+        guard itemCount > 0 else { return }
+        
+        uiView.reloadData()
+
+        let clampedIndex = max(0, min(currentIndex, itemCount - 1))
+        if clampedIndex != currentIndex {
+            currentIndex = clampedIndex
+        }
+
+        DispatchQueue.main.async {
+            let totalItemWidth = self.itemWidth + self.itemSpacing
+            let targetX = CGFloat(clampedIndex) * totalItemWidth - uiView.contentInset.left
+            if abs(uiView.contentOffset.x - targetX) > 0.5 {
+                uiView.setContentOffset(CGPoint(x: targetX, y: 0), animated: false)
+            }
+        }
+    }
+
+    // MARK: - Coordinator
+
+    class Coordinator: NSObject, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate {
+        var parent: PagingCollectionView
+        var targetIndex: Int = 0
+
+        init(_ parent: PagingCollectionView) {
+            self.parent = parent
+        }
+
+        func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+            return max(0, parent.itemCount)
+        }
+
+        func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? HostingCollectionViewCell<Content>,
+                  indexPath.item >= 0 && indexPath.item < parent.itemCount else {
+                return UICollectionViewCell()
+            }
+            
+            let content = parent.contentProvider(indexPath.item)
+            cell.host(rootView: content)
+            return cell
+        }
+
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                          sizeForItemAt indexPath: IndexPath) -> CGSize {
+            return CGSize(width: parent.itemWidth, height: collectionView.frame.height)
+        }
+
+        // MARK: - Scroll View Delegate
+
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            guard parent.itemCount > 0 else { return }
+            
+            let pageWidth = parent.itemWidth + parent.itemSpacing
+            let offsetX = scrollView.contentOffset.x + scrollView.contentInset.left
+            var index = Int(round(offsetX / pageWidth))
+
+            // Apply velocity-based changes
+            if velocity.x > 0.2 {
+                index = min(index + 1, parent.itemCount - 1)
+            } else if velocity.x < -0.2 {
+                index = max(index - 1, 0)
+            }
+
+            // Clamp index to valid range
+            index = max(0, min(index, parent.itemCount - 1))
+            
+            let newOffsetX = CGFloat(index) * pageWidth - scrollView.contentInset.left
+            targetContentOffset.pointee.x = newOffsetX
+            self.targetIndex = index
+        }
+
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            updateCurrentIndex()
+        }
+
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            updateCurrentIndex()
+        }
+
+        private func updateCurrentIndex() {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                // Ensure index is within bounds before updating
+                let clampedIndex = max(0, min(self.targetIndex, self.parent.itemCount - 1))
+                self.parent.currentIndex = clampedIndex
+            }
+        }
+    }
+}
+
+// MARK: - Custom Layout for Peeking Items
+class PeekingCollectionViewLayout: UICollectionViewFlowLayout {
+    var itemWidth: CGFloat = 240
+    var previewScale: CGFloat = 0.8
+    var previewAlpha: CGFloat = 0.5
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        
+        guard let collectionView = collectionView else { return attributes }
+        let centerX = collectionView.contentOffset.x + collectionView.bounds.width / 2
+        
+        for attribute in attributes {
+            let distanceFromCenter = abs(attribute.center.x - centerX)
+            let normalizedDistance = distanceFromCenter / (itemWidth + minimumLineSpacing)
+            
+            if normalizedDistance > 0 {
+                let scale = max(previewScale, 1 - normalizedDistance * 0.2)
+                let alpha = max(previewAlpha, 1 - normalizedDistance * 0.5)
+                
+                attribute.transform = CGAffineTransform(scaleX: scale, y: scale)
+                attribute.alpha = alpha
+            } else {
+                attribute.transform = .identity
+                attribute.alpha = 1.0
+            }
+        }
+        
+        return attributes
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return true
+    }
+}
+
+// MARK: - HostingCollectionViewCell (unchanged)
+class HostingCollectionViewCell<Content: View>: UICollectionViewCell {
+    private var hostingController: UIHostingController<Content>?
+
+    func host(rootView: Content) {
+        if let hostingController = hostingController {
+            hostingController.rootView = rootView
+            hostingController.view.invalidateIntrinsicContentSize()
+        } else {
+            let hostingController = UIHostingController(rootView: rootView)
+            hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+            hostingController.view.backgroundColor = .clear
+            contentView.addSubview(hostingController.view)
+
+            NSLayoutConstraint.activate([
+                hostingController.view.topAnchor.constraint(equalTo: contentView.topAnchor),
+                hostingController.view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+                hostingController.view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                hostingController.view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            ])
+
+            self.hostingController = hostingController
+        }
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+    }
+}
+
+extension Binding where Value == Int {
+    /// Clamps the binding value within the specified range.
+    func clamped(to range: ClosedRange<Int>) -> Binding<Int> {
+        return Binding<Int>(
+            get: {
+                Swift.min(Swift.max(self.wrappedValue, range.lowerBound), range.upperBound)
+            },
+            set: { newValue in
+                self.wrappedValue = Swift.min(Swift.max(newValue, range.lowerBound), range.upperBound)
+            }
+        )
     }
 }

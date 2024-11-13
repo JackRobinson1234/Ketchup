@@ -31,25 +31,48 @@ struct RestaurantCircularProfileImageView: View {
     var imageUrl: String?
     var color: Color? = .white
     let size: RestaurantImageSize
+    var ratingScore: Double? = nil  // Optional rating score
+
     var body: some View {
-        ZStack{
-            if let color = color{
-                Circle()
-                .fill(color)
-                .frame(width: size.dimension + 4, height: size.dimension + 4)}
-            
-            if let imageUrl, !imageUrl.isEmpty {
-            KFImage(URL(string: imageUrl))
-                .resizable()
-                .scaledToFill()
-                .frame(width: size.dimension, height: size.dimension)
-                .clipShape(Circle())
+        ZStack {
+            ZStack {
+                if let color = color {
+                    Circle()
+                        .fill(color)
+                        .frame(width: size.dimension + 4, height: size.dimension + 4)
+                }
+
+                if let imageUrl, !imageUrl.isEmpty {
+                    KFImage(URL(string: imageUrl))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: "building.2.crop.circle.fill")
+                        .resizable()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .foregroundColor(Color(.systemGray5))
+                }
             }
-            else {
-            Image(systemName: "building.2.crop.circle.fill")
-                .resizable()
-                .frame(width: size.dimension, height: size.dimension)
-                .foregroundColor(Color(.systemGray5))
+
+            // Overlay the rating score if provided
+            if let ratingScore = ratingScore, ratingScore != 0 {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text(String(format: "%.1f", ratingScore))
+                            .font(.custom("MuseoSansRounded-700", size: 11))
+                            .foregroundColor(.black)
+                            .padding(2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.white)
+                                    .shadow(color: Color.gray.opacity(0.5), radius: 1, x: 0, y: 1)
+                            )
+                    }
+                    Spacer()
+                }
             }
         }
     }

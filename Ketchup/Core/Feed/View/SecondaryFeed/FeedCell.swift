@@ -18,6 +18,7 @@ import Photos
 import Kingfisher
 import FirebaseAuth
 import UIKit
+
 struct FeedCell: View {
     @Binding var post: Post
     @State private var isPlaying: Bool = false
@@ -267,7 +268,7 @@ struct FeedCell: View {
     }
     
     private func videoControlButtons(for videoId: String) -> some View {
-        HStack(spacing: 15) {
+        VStack(spacing: 15) {
             Button(action: {
                 togglePlayPause()
             }) {
@@ -329,177 +330,182 @@ struct FeedCell: View {
     }
     
     private var captionAndRatingsBox: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            
-            actionButtons
+        VStack{
+          
+           
+            VStack(alignment: .leading, spacing: 7) {
+                actionButtons
                 
-            if post.repost {
-                HStack(spacing: 1){
-                    Image(systemName: "arrow.2.squarepath")
-                        .foregroundStyle(.black)
-                        .font(.custom("MuseoSansRounded-300", size: 16))
-                    Text("reposted")
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.black)
-                        
-                        
-                }
-            }
-                       
-                
-            HStack {
-                let restaurant = post.restaurant
-                NavigationLink(value: restaurant) {
-                    RestaurantRectangleProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
-                }
-                VStack(alignment: .leading) {
-                    NavigationLink(value: restaurant) {
-                        Text("\(restaurant.name)")
-                            .font(.custom("MuseoSansRounded-300", size: 18))
-                            .bold()
-                            .multilineTextAlignment(.leading)
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                    }
-                    Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                        .font(.custom("MuseoSansRounded-300", size: 14))
-                    NavigationLink(value: post.user) {
-                        Text("by \(post.user.fullname)")
+                if post.repost {
+                    HStack(spacing: 1){
+                        Image(systemName: "arrow.2.squarepath")
+                            .foregroundStyle(.black)
+                            .font(.custom("MuseoSansRounded-300", size: 16))
+                        Text("reposted")
                             .font(.custom("MuseoSansRounded-300", size: 14))
                             .fontWeight(.semibold)
-                            .foregroundStyle(Color("Colors/AccentColor"))
-                            .bold()
-                            .multilineTextAlignment(.leading)
+                            .foregroundStyle(.black)
+                        
+                        
+                    }
+                }
+                
+                
+                HStack {
+                    let restaurant = post.restaurant
+                    NavigationLink(value: restaurant) {
+                        RestaurantRectangleProfileImageView(imageUrl: restaurant.profileImageUrl, size: .large)
+                    }
+                    VStack(alignment: .leading) {
+                        NavigationLink(value: restaurant) {
+                            Text("\(restaurant.name)")
+                                .font(.custom("MuseoSansRounded-300", size: 18))
+                                .bold()
+                                .multilineTextAlignment(.leading)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                        }
+                        Text("\(restaurant.city ?? ""), \(restaurant.state ?? "")")
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
-                    }
-                    .disabled(post.user.username == "ketchup_media")
-                    if let timestamp = post.timestamp {
-                        Text(getTimeElapsedString(from: timestamp))
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundColor(.gray)
-                    }
-                }
-                Spacer()
-                if let overallRating = overallRating {
-                    Button(action: {
-                        withAnimation(.spring()) { expandCaption.toggle() }
-                    }) {
-                        HStack(alignment: .center, spacing: 4) {
-                            ScrollFeedOverallRatingView(rating: overallRating, font: .black)
-                            
-                            Image(systemName: expandCaption ? "chevron.down" : "chevron.right")
+                            .font(.custom("MuseoSansRounded-300", size: 14))
+                        NavigationLink(value: post.user) {
+                            Text("by \(post.user.fullname)")
+                                .font(.custom("MuseoSansRounded-300", size: 14))
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color("Colors/AccentColor"))
+                                .bold()
+                                .multilineTextAlignment(.leading)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                        }
+                        .disabled(post.user.username == "ketchup_media")
+                        if let timestamp = post.timestamp {
+                            Text(getTimeElapsedString(from: timestamp))
+                                .font(.custom("MuseoSansRounded-300", size: 10))
                                 .foregroundColor(.gray)
-                                .frame(width: 25)
-                                .rotationEffect(.degrees(expandCaption ? 0 : -90))
-                                .animation(.easeInOut(duration: 0.3), value: expandCaption)
+                        }
+                    }
+                    Spacer()
+                    if let overallRating = overallRating {
+                        Button(action: {
+                            withAnimation(.spring()) { expandCaption.toggle() }
+                        }) {
+                            HStack(alignment: .center, spacing: 4) {
+                                ScrollFeedOverallRatingView(rating: overallRating, font: .black)
+                                
+                                Image(systemName: expandCaption ? "chevron.down" : "chevron.right")
+                                    .foregroundColor(.gray)
+                                    .frame(width: 25)
+                                    .rotationEffect(.degrees(expandCaption ? 0 : -90))
+                                    .animation(.easeInOut(duration: 0.3), value: expandCaption)
+                            }
                         }
                     }
                 }
-            }
-            
-            Button(action: {
-                withAnimation(.spring()) { expandCaption.toggle() }
-            }) {
-                VStack(alignment: .leading, spacing: 7) {
-                    if let parsed = parsedCaption {
-                        Text(parsed)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .lineLimit(expandCaption ? 50 : 1)
-                            .multilineTextAlignment(.leading)
-                            .environment(\.openURL, OpenURLAction { url in
-                                if url.scheme == "user",
-                                   let userId = url.host,
-                                   let user = post.captionMentions.first(where: { $0.id == userId }) {
-                                    selectedUser = user
-                                    isShowingProfileSheet = true
-                                    return .handled
-                                }
-                                return .systemAction
-                            })
-                    } else {
-                        Text(post.caption)
-                            .font(.custom("MuseoSansRounded-300", size: 16))
-                            .onAppear {
-                                parsedCaption = parseCaption(post.caption)
-                            }
-                            .lineLimit(expandCaption ? 50 : 1)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    if !expandCaption {
-                        Text("See more...")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundColor(Color("Colors/AccentColor"))
-                    } else {
-                        if !post.taggedUsers.isEmpty {
-                            Button(action: {
-                                isTaggedSheetPresented.toggle()
-                            }) {
-                                HStack {
-                                    Text("Went with:")
-                                        .font(.custom("MuseoSansRounded-300", size: 16))
-                                        .bold()
-                                    
-                                    ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
-                                        UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
+                goodForTagsView()
+                
+                Button(action: {
+                    withAnimation(.spring()) { expandCaption.toggle() }
+                }) {
+                    VStack(alignment: .leading, spacing: 7) {
+                        if let parsed = parsedCaption {
+                            Text(parsed)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .lineLimit(expandCaption ? 50 : 1)
+                                .multilineTextAlignment(.leading)
+                                .environment(\.openURL, OpenURLAction { url in
+                                    if url.scheme == "user",
+                                       let userId = url.host,
+                                       let user = post.captionMentions.first(where: { $0.id == userId }) {
+                                        selectedUser = user
+                                        isShowingProfileSheet = true
+                                        return .handled
                                     }
-                                    
-                                    if post.taggedUsers.count > 3 {
-                                        VStack {
-                                            Spacer()
-                                            Text("and \(post.taggedUsers.count - 3) others")
-                                                .font(.custom("MuseoSansRounded-300", size: 12))
+                                    return .systemAction
+                                })
+                        } else {
+                            Text(post.caption)
+                                .font(.custom("MuseoSansRounded-300", size: 16))
+                                .onAppear {
+                                    parsedCaption = parseCaption(post.caption)
+                                }
+                                .lineLimit(expandCaption ? 50 : 1)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        if !expandCaption {
+                            Text("See more...")
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .foregroundColor(Color("Colors/AccentColor"))
+                        } else {
+                            if !post.taggedUsers.isEmpty {
+                                Button(action: {
+                                    isTaggedSheetPresented.toggle()
+                                }) {
+                                    HStack {
+                                        Text("Went with:")
+                                            .font(.custom("MuseoSansRounded-300", size: 16))
+                                            .bold()
+                                        
+                                        ForEach(post.taggedUsers.prefix(3), id: \.id) { user in
+                                            UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
                                         }
+                                        
+                                        if post.taggedUsers.count > 3 {
+                                            VStack {
+                                                Spacer()
+                                                Text("and \(post.taggedUsers.count - 3) others")
+                                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                                            }
+                                        }
+                                        
+                                        Spacer()
                                     }
-                                    
-                                    Spacer()
+                                    .frame(height: 15)
                                 }
-                                .frame(height: 15)
+                                .padding(.vertical, 3)
                             }
-                            .padding(.vertical, 3)
+                            
+                            VStack(alignment: .leading, spacing: 5) {
+                                if let foodRating = post.foodRating {
+                                    RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
+                                }
+                                if let atmosphereRating = post.atmosphereRating {
+                                    RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
+                                }
+                                if let valueRating = post.valueRating {
+                                    RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
+                                }
+                                if let serviceRating = post.serviceRating {
+                                    RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
+                                }
+                            }
+                            
+                            
+                            
+                            Text("See less...")
+                                .font(.custom("MuseoSansRounded-300", size: 10))
+                                .foregroundColor(Color("Colors/AccentColor"))
                         }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            if let foodRating = post.foodRating {
-                                RatingSlider(rating: foodRating, label: "Food", isOverall: false, fontColor: .black)
-                            }
-                            if let atmosphereRating = post.atmosphereRating {
-                                RatingSlider(rating: atmosphereRating, label: "Atmosphere", isOverall: false, fontColor: .black)
-                            }
-                            if let valueRating = post.valueRating {
-                                RatingSlider(rating: valueRating, label: "Value", isOverall: false, fontColor: .black)
-                            }
-                            if let serviceRating = post.serviceRating {
-                                RatingSlider(rating: serviceRating, label: "Service", isOverall: false, fontColor: .black)
-                            }
-                        }
-                        
-                        
-                        
-                        Text("See less...")
-                            .font(.custom("MuseoSansRounded-300", size: 10))
-                            .foregroundColor(Color("Colors/AccentColor"))
+                    }
+                    .onChange(of: post.caption) {newValue in
+                        parsedCaption = parseCaption(post.caption)
                     }
                 }
-                .onChange(of: post.caption) {newValue in
-                    parsedCaption = parseCaption(post.caption)
-                }
             }
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .frame(maxWidth: .infinity)
+            .background(.white)
+            .cornerRadius(12)
+            
+            .font(.custom("MuseoSansRounded-300", size: 16))
+            .foregroundStyle(.black)
+            .frame(width: UIScreen.main.bounds.width)
         }
-        .padding(.horizontal)
-        .padding(.top, 10)
-        .frame(maxWidth: .infinity)
-        .background(.white)
-        .cornerRadius(12)
-       
-        .font(.custom("MuseoSansRounded-300", size: 16))
-        .foregroundStyle(.black)
-        .frame(width: UIScreen.main.bounds.width)
         
+
     }
     
     private func togglePlayPause() {
@@ -616,8 +622,9 @@ struct FeedCell: View {
             currentlyPlayingVideoId = nil
         }
     }
+    @ViewBuilder
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             if mediaItem.type == .photo {
                 ZoomableImage(imageURL: mediaItem.url)
                     .frame(width: mediaWidth, height: mediaHeight)
@@ -628,22 +635,45 @@ struct FeedCell: View {
                     .cornerRadius(10)
                     .id(mediaItem.id)
             }
-            
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    if mediaItem.type == .video {
-                        videoControlButtons(for: mediaItem.id)
-                    }
-                    taggedUsersButton
+            HStack{
+                
+                // Overlay the description if it exists
+                if let description = mediaItem.description, !description.isEmpty {
+                    Text(description)
+                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color.gray.opacity(0.7))
+                        .clipShape(Capsule())
+                        .padding(8)
+                       
                 }
-                .padding()
             }
+            .padding(.bottom, 25)
         }
         .frame(width: mediaWidth)
     }
-    
+    private func goodForTagsView() -> some View {
+        VStack{
+            if let goodFor = post.goodFor, !goodFor.isEmpty {
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(goodFor, id: \.self) { tag in
+                            Text(tag)
+                                .font(.custom("MuseoSansRounded-500", size: 12))
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+        }
+    }
     @ViewBuilder
     private func singleMediaItemView(coordinator: VideoPlayerCoordinator? = nil, imageURL: String? = nil) -> some View {
         ZStack {
@@ -654,18 +684,25 @@ struct FeedCell: View {
             } else if let imageURL = imageURL {
                 ZoomableImage(imageURL: imageURL)
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.333)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+
             }
             
             VStack {
                 Spacer()
                 HStack {
-                    Spacer()
+                    
+                      
+                   // taggedUsersButton
+                  
                     if coordinator != nil, let videoId = videoCoordinators.first(where: { $0.1 === coordinator })?.0 {
                         videoControlButtons(for: videoId)
                     }
-                    taggedUsersButton
+                    Spacer()
                 }
                 .padding()
+                .padding(.bottom)
+                
             }
         }
     }

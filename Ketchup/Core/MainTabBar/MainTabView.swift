@@ -18,11 +18,10 @@ struct MainTabView: View {
     @State private var tabStartTime: Date?
     @State private var sessionTimeSpent: [Int: TimeInterval] = [:]
     @Environment(\.scenePhase) private var scenePhase
-    
   
     var body: some View {
         TabView(selection: $tabBarController.selectedTab) {
-            PrimaryFeedView(viewModel: feedViewModel)
+            LazyView(PrimaryFeedView(viewModel: feedViewModel))
                 .tabItem {
                     VStack(spacing:1){
                         Image(systemName: tabBarController.selectedTab == 0 ? "house.fill" : "house")
@@ -39,11 +38,11 @@ struct MainTabView: View {
                     tabBarController.selectedTab = 0
                     tabBarController.visibility = .visible
                 }
-                .badge(AuthService.shared.userSession?.followingPosts ?? 0)
+                //.badge(AuthService.shared.userSession?.followingPosts ?? 0)
                 .tag(0)
                 .toolbarBackground(.visible, for: .tabBar)
                 .toolbar(tabBarController.visibility, for: .tabBar)
-            SearchView(initialSearchConfig: .restaurants)
+            LazyView(SearchView(initialSearchConfig: .restaurants))
                 .tabItem {
                     VStack(spacing:1){
                         Image(systemName: tabBarController.selectedTab == 1 ? "magnifyingglass" : "magnifyingglass")
@@ -63,7 +62,7 @@ struct MainTabView: View {
                     tabBarController.visibility = .visible
                 }
             
-            UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false)
+            LazyView(UploadFlowRestaurantSelector(uploadViewModel: UploadViewModel(feedViewModel: feedViewModel, currentUserFeedViewModel: currentUserFeedViewModel), cameraViewModel: CameraViewModel(), isEditingRestaurant: false))
                 .tabItem {
                     Image(systemName: "plus.rectangle")
                         .foregroundStyle(.black)
@@ -79,7 +78,7 @@ struct MainTabView: View {
 
            
             if #available(iOS 17, *) {
-                MapView()
+                LazyView(MapView())
                     .tabItem {
                         VStack(spacing:1){
                             Image(systemName: tabBarController.selectedTab == 3 ? "location.fill" : "location")
@@ -100,7 +99,7 @@ struct MainTabView: View {
                     .toolbarBackground(.visible, for: .tabBar)
                     .toolbar(tabBarController.visibility, for: .tabBar)
             } else {
-                Ios16MapView()
+                LazyView(Ios16MapView())
                     .tabItem {
                         VStack(spacing:1){
                             Image(systemName: tabBarController.selectedTab == 3 ? "location.fill" : "location")
@@ -121,7 +120,7 @@ struct MainTabView: View {
                     .toolbarBackground(.visible, for: .tabBar)
                     .toolbar(tabBarController.visibility, for: .tabBar)
             }
-            CurrentUserProfileView( feedViewModel: currentUserFeedViewModel)
+            LazyView(CurrentUserProfileView( feedViewModel: currentUserFeedViewModel))
                 .tabItem {
                     
                         VStack(spacing:1){
@@ -214,4 +213,15 @@ struct MainTabView: View {
 
 extension Foundation.Notification.Name {
     static let navigateToProfile = Foundation.Notification.Name("navigateToProfile")
+}
+struct LazyView<Content: View>: View {
+    private let build: () -> Content
+    
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+    
+    var body: some View {
+        build()
+    }
 }
