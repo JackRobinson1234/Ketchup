@@ -59,6 +59,7 @@ class MapViewModel: ObservableObject {
         }
     }
     @Published var flattenedRestaurants: [ClusterRestaurant] = []
+    
     var mapSize: CGSize = .zero
     let maxZoomOutSpan: Double = 0.2
     let longitudeDeltaToConvertToRestaurant: Double = 0.006

@@ -178,7 +178,7 @@ struct Ios16MapView: View {
                 )
             }
             .fullScreenCover(isPresented: $isFiltersPresented) {
-                MapFiltersView(mapViewModel: viewModel, followingPostsMapViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
+                MapFiltersView(mapViewModel: viewModel, followingViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
             }
         }
     }

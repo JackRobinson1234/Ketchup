@@ -93,16 +93,7 @@ struct MapView: View {
                                         .onTapGesture {
                                             selectedRestaurantForProfile = item.restaurant
                                             navigateToProfile = true
-//                                            isUserSelectingRestaurant = true
-//                                            selectedRestaurant = item.restaurant
-//                                            if let index = viewModel.flattenedRestaurants.firstIndex(where: { $0.id == item.restaurant.id }) {
-//                                                selectedRestaurantIndex = index
-//                                            }
-//                                            
-//                                            // Reset isUserSelectingRestaurant after 2 seconds
-//                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//                                                isUserSelectingRestaurant = false
-//                                            }
+
                                         }
                                         
                                     }
@@ -136,6 +127,33 @@ struct MapView: View {
                                 updateSelectedRestaurant(for: currentRegion)
                             }
                         }
+                        .onReceive(followingViewModel.$visiblePosts) { _ in
+                            // Group the visiblePosts by restaurant ID
+                            let groupedPosts = Dictionary(grouping: followingViewModel.visiblePosts) { $0.restaurant.id }
+
+                            // Map the grouped posts into ClusterRestaurant objects
+                            let clusterRestaurants = groupedPosts.compactMap { (restaurantId, posts) -> ClusterRestaurant? in
+                                guard let firstPost = posts.first else { return nil }
+
+                                // Calculate the average overall rating using the helper function
+                                let averageOverallRating = calculateAverageOverallRating(for: posts)
+
+                                // Create a ClusterRestaurant using the first post's data
+                                var clusterRestaurant = firstPost.toClusterRestaurant()
+
+                                // Set the overallRating to the calculated average
+                                clusterRestaurant.overallRating = averageOverallRating
+
+                                // Optionally, combine data from all posts for the same restaurant
+                                clusterRestaurant.postCount = posts.count
+
+                                // You can also calculate other aggregated data here
+                                return clusterRestaurant
+                            }
+
+                            // Update the flattenedRestaurants in MapViewModel
+                            viewModel.flattenedRestaurants = clusterRestaurants
+                        }
                         .overlay(
                             Group {
                                 if isCuisineMenuOpen || isPriceMenuOpen {
@@ -150,19 +168,40 @@ struct MapView: View {
                                 }
                             }
                         )
+                        .onChange(of: showFollowingPosts){
+                            Task {
+                                if showFollowingPosts{
+                                    followingViewModel.updateMapState(newRegion: currentRegion)
+                                } else {
+                                    await viewModel.fetchFilteredClusters()
+                                }
+                            }
+                        }
                         .onChange(of: viewModel.selectedCuisines) { _ in
                             Task {
-                                await viewModel.fetchFilteredClusters()
+                                if showFollowingPosts{
+                                    await followingViewModel.fetchFollowingPosts()
+                                } else {
+                                    await viewModel.fetchFilteredClusters()
+                                }
                             }
                         }
                         .onChange(of: viewModel.selectedPrice) { _ in
                             Task {
-                                await viewModel.fetchFilteredClusters()
+                                if showFollowingPosts{
+                                    await followingViewModel.fetchFollowingPosts()
+                                } else {
+                                    await viewModel.fetchFilteredClusters()
+                                }
                             }
                         }
                         .onChange(of: viewModel.selectedRating) { _ in
                             Task {
-                                await viewModel.fetchFilteredClusters()
+                                if showFollowingPosts{
+                                    await followingViewModel.fetchFollowingPosts()
+                                } else {
+                                    await viewModel.fetchFilteredClusters()
+                                }
                             }
                         }
                         .onMapCameraChange(frequency: .onEnd) { context in
@@ -324,7 +363,7 @@ struct MapView: View {
                 )
             }
             .sheet(isPresented: $isFiltersPresented) {
-                MapFiltersView(mapViewModel: viewModel, followingPostsMapViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
+                MapFiltersView(mapViewModel: viewModel, followingViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
                     .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
             }
             .mapStyle(.standard(elevation: .realistic))
@@ -378,13 +417,16 @@ struct MapView: View {
             }) {
                 VStack(spacing: 4) {
                     Image(systemName: "scope")
-                        .foregroundColor(.black)
-                        .font(.system(size: 20))
+                        .foregroundColor(Color("Colors/AccentColor"))
+                        .font(.system(size: 18))
                     Text("Location")
-                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .font(.custom("MuseoSansRounded-500", size: 10))
                         .foregroundColor(.black)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                 }
-                .padding(8)
+                .frame(width: 34)
+                .padding(4)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.white)
@@ -399,10 +441,12 @@ struct MapView: View {
                         .foregroundColor(.red)
                         .font(.system(size: 20))
                     Text("Filters")
-                        .font(.custom("MuseoSansRounded-500", size: 12))
+                        .font(.custom("MuseoSansRounded-500", size: 10))
                         .foregroundColor(.black)
+                        .minimumScaleFactor(0.5)
                 }
-                .padding(8)
+                .frame(width: 34)
+                .padding(4)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.white)
@@ -436,7 +480,19 @@ struct MapView: View {
             }
         }
     }
-    
+    func calculateAverageOverallRating(for posts: [SimplifiedPost]) -> Double? {
+        let allRatings = posts.compactMap { post in
+            calculateOverallRating(for: [post.serviceRating, post.atmosphereRating, post.valueRating, post.foodRating])
+        }
+        guard !allRatings.isEmpty else { return nil }
+        return allRatings.reduce(0, +) / Double(allRatings.count)
+    }
+    // Helper function to calculate average rating
+    func calculateOverallRating(for ratings: [Double?]) -> Double? {
+        let validRatings = ratings.compactMap { $0 }
+        guard !validRatings.isEmpty else { return nil }
+        return validRatings.reduce(0, +) / Double(validRatings.count)
+    }
     private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
         if showFollowingPosts {
             if followingViewModel.currentZoomLevel == .maxZoomOut {

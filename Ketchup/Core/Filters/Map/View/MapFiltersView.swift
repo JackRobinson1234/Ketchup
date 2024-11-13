@@ -7,134 +7,10 @@
 
 import SwiftUI
 
-//struct MapFiltersView: View {
-//    @Environment(\.dismiss) var dismiss
-//    @State private var selectedOption: MapFiltersViewOptions = .cuisine
-//    @State private var cuisineText = ""
-//    @ObservedObject var mapViewModel: MapViewModel
-//    @ObservedObject var followingPostsMapViewModel: FollowingPostsMapViewModel
-//    @State var selectedPrice: [String] = []
-//    @State var selectedCuisines: [String] = []
-//    @Binding var showFollowingPosts: Bool
-//    init(mapViewModel: MapViewModel,followingPostsMapViewModel: FollowingPostsMapViewModel, showFollowingPosts: Binding<Bool> ) {
-//        self.mapViewModel = mapViewModel
-//        self.followingPostsMapViewModel = followingPostsMapViewModel
-//        _selectedPrice = State(initialValue: mapViewModel.selectedPrice)
-//        _selectedCuisines = State(initialValue: mapViewModel.selectedCuisines)
-//        self._showFollowingPosts = showFollowingPosts
-//    }
-//    
-//    var body: some View {
-//        NavigationStack {
-//            //MARK: Cuisine
-//            VStack{
-//                Button{
-//                    mapViewModel.clearFilters()
-//                } label: {
-//                    Text("Remove all filters")
-//                        .foregroundStyle(Color("Colors/AccentColor"))
-//                }
-//                
-//                if selectedOption == .cuisine {
-//                    VStack(alignment: .leading){
-//                        MapCuisineFilter(selectedCuisines: $selectedCuisines)
-//                    }
-//                    .modifier(CollapsibleFilterViewModifier(frame: 260))
-//                    .onTapGesture(count:2){
-//                        withAnimation(.snappy){ selectedOption = .noneSelected}}
-//                }
-//                else {
-//                    CollapsedPickerView(title: "Cuisine", emptyDescription: "Filter by Cuisine", count: selectedCuisines.count, singularDescription: "Cuisine Selected", pluralDescription: "Cuisines Selected")
-//                        .onTapGesture{
-//                            withAnimation(.snappy){ selectedOption = .cuisine}
-//                        }
-//                }
-//            }
-//            
-//            //MARK: Price
-//            VStack{
-//                if selectedOption == .price {
-//                    VStack(alignment: .leading){
-//                        MapPriceFilter(selectedPrice: $selectedPrice)
-//                    }
-//                    .modifier(CollapsibleFilterViewModifier(frame: 210))
-//                    .onTapGesture(count:2){
-//                        withAnimation(.snappy){ selectedOption = .noneSelected}}
-//                }
-//                else {
-//                    /// "Filter Price" if no options selected
-//                    CollapsedPickerView(title: "Price", emptyDescription: "Filter by Price", count: selectedPrice.count, singularDescription: "Price Selected", pluralDescription: "Prices Selected")
-//                        .onTapGesture{
-//                            withAnimation(.snappy){ selectedOption = .price}
-//                        }
-//                }
-//            }
-//            //MARK: Dietary Restrictions
-//            
-//            Spacer()
-//            //MARK: Navigation Title
-//                .navigationTitle("Add Filters")
-//                .navigationBarTitleDisplayMode(.inline)
-//                .toolbar {
-//                    ToolbarItem(placement: .topBarLeading) {
-//                        Button {
-//                            dismiss()
-//                        } label: {
-//                            Image(systemName: "xmark")
-//                                .imageScale(.small)
-//                                .foregroundColor(.black)
-//                                .padding(6)
-//                                .overlay(
-//                                    Circle()
-//                                        .stroke(lineWidth: 1.0)
-//                                        .foregroundColor(.gray)
-//                                )
-//                        }
-//                    }
-//                    //MARK: Save Button
-//                    ToolbarItem(placement: .topBarTrailing) {
-//                        Button {
-//                            saveFilters()
-//                            dismiss()
-//                        } label: {
-//                            Text("Save")
-//                                .foregroundColor(.blue)
-//                                .padding(6)
-//                        }
-//                    }
-//                }
-//        }
-//    }
-//    //MARK: saveFilters
-//    private func saveFilters() {
-//        mapViewModel.selectedPrice = selectedPrice
-//        followingPostsMapViewModel.selectedPrice = selectedPrice
-//        mapViewModel.selectedCuisines = selectedCuisines
-//        followingPostsMapViewModel.selectedCuisines = selectedCuisines
-//        if showFollowingPosts{
-//            Task {
-//                await  followingPostsMapViewModel.fetchFollowingPosts()
-//            }
-//        } else {
-//            Task {
-//                await mapViewModel.fetchFilteredClusters()
-//            }
-//        }
-//    }
-//}
-//
-//
-//
-////MARK: Filter Options Enum
-//enum MapFiltersViewOptions{
-//    case cuisine
-//    case price
-//    case noneSelected
-//}
 struct MapFiltersView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var mapViewModel: MapViewModel
-    @ObservedObject var followingPostsMapViewModel: FollowingPostsMapViewModel
+    @ObservedObject var followingViewModel: FollowingPostsMapViewModel
     @Binding var showFollowingPosts: Bool
     
     // Constants
@@ -145,36 +21,49 @@ struct MapFiltersView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: spacing) {
+                    // View Type Section
                     filterSection("View Type") {
-                        CustomToggle(showFollowingPosts: $showFollowingPosts){}
-                            .padding(.horizontal)
+                        CustomToggle(showFollowingPosts: $showFollowingPosts) {
+                            // Handle toggle change if needed
+                        }
+                        .padding(.horizontal)
                     }
                     
+                    // Rating Filter Section
                     filterSection("Rating") {
                         FlowLayout(spacing: 8) {
                             ForEach([10.0, 9.0, 8.0, 7.0, 6.0, 5.0], id: \.self) { rating in
                                 NewFilterButton(
                                     title: "\(String(format: "%.1f", rating))+",
-                                    isSelected: mapViewModel.selectedRating == rating
+                                    isSelected: mapViewModel.selectedRating == rating || followingViewModel.selectedRating == rating
                                 ) {
-                                    mapViewModel.selectedRating = mapViewModel.selectedRating == rating ? 0 : rating
+                                    let isSelected = mapViewModel.selectedRating == rating
+                                    // Update both view models
+                                    mapViewModel.selectedRating = isSelected ? 0 : rating
+                                    followingViewModel.selectedRating = isSelected ? 0 : rating
                                 }
                             }
                         }
                         .padding(.horizontal)
                     }
                     
+                    // Price Filter Section
                     filterSection("Price") {
                         FlowLayout(spacing: 8) {
                             ForEach(["$", "$$", "$$$", "$$$$"], id: \.self) { price in
                                 NewFilterButton(
                                     title: price,
-                                    isSelected: mapViewModel.selectedPrice.contains(price)
+                                    isSelected: mapViewModel.selectedPrice.contains(price) || followingViewModel.selectedPrice.contains(price)
                                 ) {
                                     if mapViewModel.selectedPrice.contains(price) {
                                         mapViewModel.selectedPrice.removeAll { $0 == price }
                                     } else {
                                         mapViewModel.selectedPrice.append(price)
+                                    }
+                                    if followingViewModel.selectedPrice.contains(price) {
+                                        followingViewModel.selectedPrice.removeAll { $0 == price }
+                                    } else {
+                                        followingViewModel.selectedPrice.append(price)
                                     }
                                 }
                             }
@@ -182,17 +71,23 @@ struct MapFiltersView: View {
                         .padding(.horizontal)
                     }
                     
+                    // Cuisine Filter Section
                     filterSection("Cuisine") {
                         FlowLayout(spacing: 8) {
                             ForEach(Cuisines.all, id: \.self) { cuisine in
                                 NewFilterButton(
                                     title: cuisine,
-                                    isSelected: mapViewModel.selectedCuisines.contains(cuisine)
+                                    isSelected: mapViewModel.selectedCuisines.contains(cuisine) || followingViewModel.selectedCuisines.contains(cuisine)
                                 ) {
                                     if mapViewModel.selectedCuisines.contains(cuisine) {
                                         mapViewModel.selectedCuisines.removeAll { $0 == cuisine }
                                     } else if mapViewModel.selectedCuisines.count < 5 {
                                         mapViewModel.selectedCuisines.append(cuisine)
+                                    }
+                                    if followingViewModel.selectedCuisines.contains(cuisine) {
+                                        followingViewModel.selectedCuisines.removeAll { $0 == cuisine }
+                                    } else if followingViewModel.selectedCuisines.count < 5 {
+                                        followingViewModel.selectedCuisines.append(cuisine)
                                     }
                                 }
                             }
@@ -205,18 +100,23 @@ struct MapFiltersView: View {
             .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // Done Button
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Done") {
                         dismiss()
                     }
                 }
-                
+                // Reset Button
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Reset") {
                         withAnimation {
+                            // Reset filters in both view models
                             mapViewModel.selectedRating = 0
                             mapViewModel.selectedCuisines = []
                             mapViewModel.selectedPrice = []
+                            followingViewModel.selectedRating = 0
+                            followingViewModel.selectedCuisines = []
+                            followingViewModel.selectedPrice = []
                         }
                     }
                     .foregroundColor(.red)
@@ -225,6 +125,7 @@ struct MapFiltersView: View {
         }
     }
     
+    // Helper function to create filter sections
     private func filterSection<Content: View>(_ title: String, @ViewBuilder content: @escaping () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
@@ -236,7 +137,14 @@ struct MapFiltersView: View {
     }
 }
 
-// Flow layout that arranges items in rows based on available width
+// Custom Toggle between "All" and "Friends" views
+
+// Individual Toggle Button used in CustomToggle
+
+// NewFilterButton used for individual filter options
+
+
+// FlowLayout to arrange filter buttons in a responsive grid
 struct FlowLayout: Layout {
     var spacing: CGFloat
     

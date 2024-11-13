@@ -142,15 +142,17 @@ struct PrimaryFeedView: View {
                                         }
                                        
                                         inviteContactsButton
-                                    
-//                                        Button {
-//                                            showPollUploadView = true
-//                                        } label: {
-//                                            Text("Poll Manager")
-//                                                .font(.custom("MuseoSansRounded-300", size: 12))
-//                                                .modifier(StandardButtonModifier(width: 80))
-//                                                .padding(.trailing)
-//                                        }
+                                        if AuthService.shared.userSession?.id == "cQlKGlOWTOSeZcsqObd4Iuy6jr93" {
+                                            
+                                            Button {
+                                                showPollUploadView = true
+                                            } label: {
+                                                Text("Poll Manager")
+                                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                                                    .modifier(StandardButtonModifier(width: 80))
+                                                    .padding(.trailing)
+                                            }
+                                        }
                                         if let poll = pollViewModel.polls.first {
                                             
                                             Button(action: {
