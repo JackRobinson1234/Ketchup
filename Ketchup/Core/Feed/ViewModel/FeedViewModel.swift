@@ -165,11 +165,7 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
     
     func updateLocation(latitude: Double, longitude: Double) {
         surroundingGeohash = GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-        // print(surroundingGeohash, "2")
         reverseGeocodeLocation(latitude: latitude, longitude: longitude)
-        //        Task{
-        //            try await fetchInitialPosts()
-        //        }
     }
     
     private func reverseGeocodeLocation(latitude: Double, longitude: Double) {
@@ -198,13 +194,6 @@ class FeedViewModel: ObservableObject, CommentableViewModel  {
         filters?.removeValue(forKey: "restaurant.truncatedGeohash")
         filters?.removeValue(forKey: "restaurant.city")
         switch currentLocationFilter {
-//        case .exactCity:
-//            if let city = self.city {
-//                filters?["restaurant.city"] = [city]
-//            } else {
-//                filters?.removeValue(forKey: "restaurant.city")
-//            }
-//            filters?.removeValue(forKey: "restaurant.truncatedGeohash")
         case .twoMiles:
             if let geohash = surroundingGeohash {
                 let geohashPrefix = String(geohash.prefix(6))

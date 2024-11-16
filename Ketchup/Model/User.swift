@@ -37,14 +37,16 @@ struct User: Codable, Identifiable, Hashable {
     
     var ratingDistribution: [String: Int]? = nil // Stores counts for each rating bucket: "0-0.99": 5, "1-1.99": 10, etc.
     var waitlistNumber: Int? = nil  // New property
-
+    var totalPoints: Int = 0
+    var rankOnKetchup: Int? = nil
+    
     enum CodingKeys: String, CodingKey {
         case id, username, fullname, phoneNumber, profileImageUrl, isFollowed, stats, favorites
         case privateMode, notificationAlert, location, birthday, hasCompletedSetup, createdAt
         case lastActive, contactsSynced, inviteCount, followingPosts, referredBy, totalReferrals
         case weeklyStreak, mostRecentPost, hasContactsSynced, statusImageName, pollStreak
         case lastVotedPoll, ratingDistribution, referralCode, remainingReferrals
-        case waitlistNumber
+        case waitlistNumber, totalPoints, rankOnKetchup
     }
     
     
@@ -107,7 +109,9 @@ struct User: Codable, Identifiable, Hashable {
         self.ratingDistribution = try container.decodeIfPresent([String: Int].self, forKey: .ratingDistribution)
         self.referralCode = try container.decodeIfPresent(String.self, forKey: .referralCode) ?? Self.generateReferralCode(username: username)
         self.remainingReferrals = try container.decodeIfPresent(Int.self, forKey: .remainingReferrals) ?? 10
-        self.waitlistNumber = try container.decodeIfPresent(Int.self, forKey: .waitlistNumber) ?? 0  // New decoding
+        self.waitlistNumber = try container.decodeIfPresent(Int.self, forKey: .waitlistNumber) ?? 0 
+        self.totalPoints = try container.decodeIfPresent(Int.self, forKey: .totalPoints) ?? 0
+        self.rankOnKetchup = try container.decodeIfPresent(Int.self, forKey: .rankOnKetchup) ?? 0// New decoding
     }
     
     init(
@@ -136,7 +140,9 @@ struct User: Codable, Identifiable, Hashable {
         lastVotedPoll: Date? = nil,
         ratingDistribution: [String: Int]? = nil,
         remainingReferrals: Int = 10,
-        waitlistNumber: Int? = nil  // New parameter
+        waitlistNumber: Int? = nil,
+        totalPoints: Int = 0,
+        rankOnKetchup: Int? = nil
 
         // New parameter
     ) {
@@ -175,6 +181,8 @@ struct User: Codable, Identifiable, Hashable {
         self.referralCode = Self.generateReferralCode(username: username)
         self.remainingReferrals = remainingReferrals
         self.waitlistNumber = waitlistNumber 
+        self.totalPoints = totalPoints
+        self.rankOnKetchup = rankOnKetchup
         // New initialization
 
     }
@@ -228,7 +236,9 @@ struct User: Codable, Identifiable, Hashable {
         try container.encodeIfPresent(ratingDistribution, forKey: .ratingDistribution)
         try container.encode(referralCode, forKey: .referralCode)
         try container.encode(remainingReferrals, forKey: .remainingReferrals)
-        try container.encodeIfPresent(waitlistNumber, forKey: .waitlistNumber)  // New encoding
+        try container.encodeIfPresent(waitlistNumber, forKey: .waitlistNumber)
+        try container.encodeIfPresent(totalPoints, forKey: .totalPoints)
+        try container.encodeIfPresent(rankOnKetchup, forKey: .rankOnKetchup)
 
     }
     

@@ -166,20 +166,20 @@ class AuthService {
         privateMode: Bool = false
     ) async throws -> User {
         let db = Firestore.firestore()
-           let usersCollection = db.collection("users")
-
-           // Fetch the user with the highest waitlistNumber
-           let querySnapshot = try await usersCollection
-               .order(by: "waitlistNumber", descending: true)
-               .limit(to: 1)
-               .getDocuments()
-
-           var highestWaitlistNumber = 0
-           if let highestUserDoc = querySnapshot.documents.first,
-              let waitlistNumber = highestUserDoc.data()["waitlistNumber"] as? Int {
-               highestWaitlistNumber = waitlistNumber
-           }
-           let newWaitlistNumber = max(highestWaitlistNumber + 1, 537)
+        let usersCollection = db.collection("users")
+        
+        // Fetch the user with the highest waitlistNumber
+        let querySnapshot = try await usersCollection
+            .order(by: "waitlistNumber", descending: true)
+            .limit(to: 1)
+            .getDocuments()
+        
+        var highestWaitlistNumber = 0
+        if let highestUserDoc = querySnapshot.documents.first,
+           let waitlistNumber = highestUserDoc.data()["waitlistNumber"] as? Int {
+            highestWaitlistNumber = waitlistNumber
+        }
+        let newWaitlistNumber = max(highestWaitlistNumber + 1, 537)
         // Get the current date for createdAt and lastActive
         let user = User(
             id: id,
@@ -339,8 +339,65 @@ class AuthService {
             throw error
         }
     }
-    func deleteAccount() async throws{
-        try await Auth.auth().currentUser?.delete()
+    func deleteAccount() async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "NoUser", code: 404, userInfo: [NSLocalizedDescriptionKey: "No current user found."])
+        }
+        
+        let userId = currentUser.uid
+        let db = Firestore.firestore()
+        
+        // Get user data to access collections array
+        let userDoc = try await db.collection("users").document(userId).getDocument()
+        if let userData = userDoc.data(),
+           let collections = userData["collections"] as? [String] {
+            
+            // Delete each collection and its saved posts
+            for collectionId in collections {
+                let collectionRef = db.collection("collections").document(collectionId)
+                
+                // Delete all saved posts in the collection
+                let savedPostsSnapshot = try await collectionRef.collection("saved-posts").getDocuments()
+                for savedPost in savedPostsSnapshot.documents {
+                    try await savedPost.reference.delete()
+                }
+                
+                // Delete the collection document itself
+                try await collectionRef.delete()
+            }
+        }
+        
+        // Delete the user's posts
+        let postsQuery = db.collection("posts").whereField("user.id", isEqualTo: userId)
+        let postsSnapshot = try await postsQuery.getDocuments()
+        for document in postsSnapshot.documents {
+            // Delete comments subcollection for each post
+            let commentsSnapshot = try await document.reference.collection("post-comments").getDocuments()
+            for comment in commentsSnapshot.documents {
+                try await comment.reference.delete()
+            }
+            
+            // Delete the post document
+            try await document.reference.delete()
+        }
+        
+        // Delete user's subcollections
+        let userRef = db.collection("users").document(userId)
+        let subcollections = ["user-badges"] // Add other subcollections if needed
+        for subcollection in subcollections {
+            let subcollectionSnapshot = try await userRef.collection(subcollection).getDocuments()
+            for doc in subcollectionSnapshot.documents {
+                try await doc.reference.delete()
+            }
+        }
+        
+        // Delete the user's data in the "users" collection
+        try await userRef.delete()
+        
+        // Delete the user's authentication account
+        try await currentUser.delete()
+        
+        // Clear the user session
         self.userSession = nil
     }
 }
