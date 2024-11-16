@@ -8,15 +8,16 @@ import SwiftUI
 import AVKit
 import AVFoundation
 import InstantSearchSwiftUI
+enum Field: Hashable {
+        case caption
+        
+    }
 struct ReelsUploadView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var uploadViewModel: UploadViewModel
     @ObservedObject var cameraViewModel: CameraViewModel
     @EnvironmentObject var tabBarController: TabBarController
-    @FocusState private var isCaptionEditorFocused: Bool
-    @State private var isEditingCaption = false
     @State private var isPickingRestaurant = false
-    @State private var titleText: String = ""
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @State private var isVideoExpanded = false
@@ -24,94 +25,146 @@ struct ReelsUploadView: View {
     @StateObject var searchViewModel = SearchViewModel(initialSearchConfig: .users)
     let writtenReview: Bool
     @State private var currentMediaIndex = 0
-    private let maxCharacters = 25
-    private let spacing: CGFloat = 20
+    private let spacing: CGFloat = 12  // Adjusted spacing
     private var width: CGFloat {
-        (UIScreen.main.bounds.width - (spacing * 2)) / 3
+        (UIScreen.main.bounds.width - (spacing * 2)) / 4  // Adjusted to make preview smaller
     }
     private var expandedWidth: CGFloat {
         UIScreen.main.bounds.width * 5/6
     }
-    @Namespace private var animationNamespace
     @State private var videoPlayers: [Int: VideoPlayerTest] = [:]
     @State private var isPlaying: Bool = false
     @State private var volume: Float = 0.5
-    @State private var showingWarningAlert = false
     @State private var isShowingGoodForSelection = false
-    @State private var showConfirmationAlert = false
     @State private var showTaggingSheet = false
+    @State private var showPointsInfo = false
+   // @FocusState private var isCaptionFocused: Bool// Set default to false
+    @State private var isKeyboardVisible = false
 
-    var overallRatingPercentage: Double {
-        ((uploadViewModel.foodRating + uploadViewModel.atmosphereRating + uploadViewModel.valueRating + uploadViewModel.serviceRating) / 4)
-    }
-    
     init(uploadViewModel: UploadViewModel, cameraViewModel: CameraViewModel, writtenReview: Bool = false) {
         self.uploadViewModel = uploadViewModel
         self.cameraViewModel = cameraViewModel
         self.writtenReview = writtenReview
     }
-    
-    var body: some View {
-        NavigationStack{
-            VStack {
-                HStack{
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title2)
-                            .foregroundColor(Color("Colors/AccentColor"))
-                    }
-                    .padding([.leading, .top])
-                    Spacer()
-                }
-                ScrollView {
-                    VStack {
-                        if writtenReview {
-                            restaurantSelector
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        } else if !writtenReview {
-                            HStack {
-                                Spacer()
-                                if !isVideoExpanded {
-                                    restaurantSelector
-                                }
-                                VStack{
-                                    mixedMediaPreview
 
-                                }
-                                Spacer()
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VStack(spacing: 0) {
+                    // Top bar with back button
+                    HStack {
+                        Button(action: {
+                            if !isKeyboardVisible{
+                                dismiss()
+                            } else {
+                                isKeyboardVisible = false
                             }
-                            .padding(.vertical)
-                            
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.title2)
+                                .foregroundColor(Color("Colors/AccentColor"))
                         }
-                        
-                        if !isVideoExpanded {
-                            Divider()
-                            
-                            captionEditor
-                            if uploadViewModel.isMentioning {
-                                mentionsList
+                        .padding([.leading, .top])
+                        Spacer()
+                    }
+                    ScrollViewReader { scrollProxy in
+                        ScrollView {
+                            VStack(spacing: spacing) {
+                                if !isKeyboardVisible {
+                                    if writtenReview {
+                                        restaurantSelector
+                                        restaurantSelector
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                    } else {
+                                        HStack {
+                                            if !isVideoExpanded {
+                                                VStack {
+                                                    restaurantSelector
+                                                }
+                                                .frame(maxWidth: .infinity, alignment: .center)
+                                            }
+                                            VStack {
+                                                mixedMediaPreview
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.vertical, spacing)
+                                    }
+                                    
+                                }
+                                if !isVideoExpanded {
+                                    if !isKeyboardVisible {
+                                        Divider()
+                                    }
+                                    captionEditor
+                                    if uploadViewModel.isMentioning {
+                                        mentionsList
+                                    }
+                                    if !isKeyboardVisible {
+                                        Divider()
+                                        tagPhotosButton
+                                        Divider()
+                                        goodForButton
+                                        Divider()
+                                        tagUsersButton
+                                        Divider()
+                                        ratingsSection
+                                    }
+                                }
                             }
-                            Divider()
-                            tagPhotosButton
-                                Divider()
-                            goodForButton
-                            Divider()
-                            tagUsersButton
-                            Divider()
-                            
-                            ratingsSection
-                            
-                            Divider()
-                            
+                            .padding(.horizontal, spacing)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Bottom bar with points and post button
+                    if !isKeyboardVisible {
+                        HStack {
+                            //pointsProgressBar
+                            //Spacer()
                             postButton
                         }
+                        .padding([.bottom, .horizontal])
+                        .padding(.top, 2)
+                        .background(Color.white)
+                    } else if isKeyboardVisible {
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                dismissKeyboard()
+                                //isCaptionFocused = false
+                            }) {
+                                Text("Done")
+                                    .font(.custom("MuseoSansRounded-500", size: 12))
+                                    .foregroundColor(Color("Colors/AccentColor"))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(Color("Colors/AccentColor"), lineWidth: 1)
+                                    )
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.bottom, 4)
+                        }
                     }
-                    .padding()
+                    
                 }
-                .if(writtenReview) { view in
-                    view.padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 + 100)
+                if showPointsInfo {
+                    Color.black.opacity(0.3)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            // Tap outside the box to dismiss
+                            showPointsInfo = false
+                        }
+                    PointsInfoOverlay(uploadViewModel: uploadViewModel)
+                        .onTapGesture {
+                            showPointsInfo = false
+                        }
+                    
                 }
             }
             .onTapGesture {
@@ -123,8 +176,8 @@ struct ReelsUploadView: View {
                 }
             }
             .sheet(isPresented: $showTaggingSheet) {
-                        TaggingSheetView(uploadViewModel: uploadViewModel)
-                    }
+                TaggingSheetView(uploadViewModel: uploadViewModel)
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.white, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -136,107 +189,148 @@ struct ReelsUploadView: View {
                     }
                 }
             )
-            .onChange(of: uploadViewModel.caption) { newValue in
+            .onChange(of: uploadViewModel.caption) { _ in
                 uploadViewModel.checkForMentioning()
             }
             .navigationDestination(isPresented: $isPickingRestaurant) {
-                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel,  isEditingRestaurant: true)
+                UploadFlowRestaurantSelector(uploadViewModel: uploadViewModel, cameraViewModel: cameraViewModel, isEditingRestaurant: true)
                     .navigationTitle("Select Restaurant")
             }
             .sheet(isPresented: $isTaggingUsers) {
-                NavigationStack{
+                NavigationStack {
                     SelectFollowingView(uploadViewModel: uploadViewModel)
                         .navigationTitle("Tag Users")
                 }
                 .presentationDetents([.height(UIScreen.main.bounds.height * 0.5)])
             }
-            .onChange(of: uploadViewModel.caption){ newValue in
-                if uploadViewModel.filteredMentionedUsers.isEmpty{
+            .onChange(of: uploadViewModel.caption) { _ in
+                if uploadViewModel.filteredMentionedUsers.isEmpty {
                     let text = uploadViewModel.checkForAlgoliaTagging()
-                    if !text.isEmpty{
+                    if !text.isEmpty {
                         searchViewModel.searchQuery = text
-                        Debouncer(delay: 0).schedule{
+                        Debouncer(delay: 0).schedule {
                             searchViewModel.notifyQueryChanged()
                         }
                     }
                 }
             }
-            .onAppear{
+            .onAppear {
+                //isCaptionFocused = false
+                setupKeyboardObservers()
                 uploadViewModel.fetchFollowingUsers()
             }
-        }
-        .confirmationDialog("Are you sure you want to go back?",
-                            isPresented: $showingWarningAlert,
-                            titleVisibility: .visible) {
-            Button("Yes, go back", role: .destructive) {
-                dismiss()
+            .onDisappear {
+                removeKeyboardObservers()
             }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("All progress will be lost.")
         }
     }
+
+    var pointsProgressBar: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Points: \(uploadViewModel.currentPoints)/\(uploadViewModel.maxPoints)")
+                    .font(.custom("MuseoSansRounded-500", size: 14))
+                    .foregroundColor(.black)
+
+                Button(action: {
+                    showPointsInfo.toggle()
+                }) {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(.gray)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .padding(.leading, 4)
+            }
+
+            ProgressView(value: Double(uploadViewModel.currentPoints), total: Double(uploadViewModel.maxPoints))
+                .progressViewStyle(LinearProgressViewStyle(tint: Color("Colors/AccentColor")))
+                .frame(width: 150)
+        }
+    }
+
     var goodForButton: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Button(action: {
-                isShowingGoodForSelection = true
-            }) {
-                HStack {
-                    Text("What is this place good for?")
+        Button(action: {
+            isShowingGoodForSelection = true
+        }) {
+            HStack {
+                Image(systemName: "star.fill")
+                    .foregroundColor(.gray)
+                    .frame(width: 20)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("What's this place good for?")
                         .font(.custom("MuseoSansRounded-500", size: 16))
                         .foregroundColor(.black)
-                    Spacer()
-                    Image(systemName: "chevron.right")
+                }
+                Spacer()
+                HStack {
+                    Text("\(uploadViewModel.goodFor.count)/7 selected")
+                        .font(.custom("MuseoSansRounded-500", size: 14))
                         .foregroundColor(Color("Colors/AccentColor"))
-                        .padding(.trailing)
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.black)
                 }
             }
-
-            if uploadViewModel.goodFor.isEmpty {
-                Text("0/5 selected")
-                    .font(.custom("MuseoSansRounded-300", size: 14))
-                    .foregroundColor(.red)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(uploadViewModel.goodFor, id: \.self) { option in
-                            Text(option)
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                .background(Color.red)
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
-                        }
-                    }
-                    .padding(.horizontal)
-
-                }
-                .padding(.top, 8)
-            }
-
         }
-        .padding(.vertical)
         .sheet(isPresented: $isShowingGoodForSelection) {
             GoodForSelectionView(selectedOptions: $uploadViewModel.goodFor)
         }
     }
+
     var tagPhotosButton: some View {
-        Button(action: {
-            showTaggingSheet = true
-        }) {
-            HStack {
-                Text("What's in your photos?")
-                    .font(.custom("MuseoSansRounded-500", size: 16))
-                    .foregroundColor(.black)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color("Colors/AccentColor"))
-                    .padding(.trailing)
+        VStack{
+            Button(action: {
+                showTaggingSheet = true
+            }) {
+                HStack {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .foregroundColor(.gray)
+                        .frame(width: 20)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("What's in your photos?")
+                            .font(.custom("MuseoSansRounded-500", size: 16))
+                            .foregroundColor(.black)
+                    }
+                    Spacer()
+                    HStack {
+                        Text("\(taggedPhotosCount)/\(uploadViewModel.mixedMediaItems.count) tagged")
+                            .font(.custom("MuseoSansRounded-500", size: 14))
+                            .foregroundColor(Color("Colors/AccentColor"))
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.black)
+                    }
+                }
             }
         }
-        .padding(.vertical)
+       
     }
+    private var taggedPhotosCount: Int {
+        uploadViewModel.mixedMediaItems.filter { $0.description != nil || $0.descriptionCategory != nil }.count
+    }
+    var tagUsersButton: some View {
+        Button {
+            isTaggingUsers = true
+        } label: {
+            HStack {
+                Image(systemName: "person.2.fill")
+                    .foregroundColor(.gray)
+                    .frame(width: 20)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Went with anyone?")
+                        .font(.custom("MuseoSansRounded-500", size: 16))
+                        .foregroundColor(.black)
+                }
+                Spacer()
+                HStack {
+                    Text(uploadViewModel.taggedUsers.count == 1 ? "1 person" : "\(uploadViewModel.taggedUsers.count) people")
+                        .font(.custom("MuseoSansRounded-500", size: 14))
+                        .foregroundColor(Color("Colors/AccentColor"))
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.black)
+                }
+            }
+        }
+    }
+
     var restaurantSelector: some View {
         Button {
             isPickingRestaurant = true
@@ -244,16 +338,16 @@ struct ReelsUploadView: View {
             if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil {
                 VStack {
                     Image(systemName: "plus")
-                        .font(.largeTitle)
+                        .font(.title)
                         .foregroundColor(Color("Colors/AccentColor"))
                     Text("Add a restaurant")
                         .foregroundColor(.black)
                 }
             } else if let restaurant = uploadViewModel.restaurant {
                 VStack {
-                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .xLarge)
+                    RestaurantCircularProfileImageView(imageUrl: restaurant.profileImageUrl, size: .medium)
                     Text(restaurant.name)
-                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
                     if let cuisine = restaurant.categoryName, let price = restaurant.price {
                         Text("\(cuisine), \(price)")
                             .font(.custom("MuseoSansRounded-300", size: 10))
@@ -280,9 +374,9 @@ struct ReelsUploadView: View {
                 }
             } else if let request = uploadViewModel.restaurantRequest {
                 VStack {
-                    RestaurantCircularProfileImageView(size: .xLarge)
+                    RestaurantCircularProfileImageView(size: .medium)
                     Text(request.name)
-                        .font(.custom("MuseoSansRounded-500", size: 20))
+                        .font(.custom("MuseoSansRounded-500", size: 16))
                     Text("\(request.city), \(request.state)")
                         .font(.custom("MuseoSansRounded-300", size: 10))
                     Text("(To be created)")
@@ -296,7 +390,7 @@ struct ReelsUploadView: View {
         }
         .disabled(uploadViewModel.fromRestaurantProfile)
     }
-    
+
     var mixedMediaPreview: some View {
         VStack(spacing: 8) {
             if !uploadViewModel.mixedMediaItems.isEmpty {
@@ -310,7 +404,7 @@ struct ReelsUploadView: View {
                                         .resizable()
                                         .scaledToFill()
                                 } else {
-                                    Color.gray // Placeholder
+                                    Color.gray  // Placeholder
                                 }
                             } else if item.type == .video {
                                 VideoPlayerTest(videoURL: item.localMedia as? URL, isVideoExpanded: $isVideoExpanded, isPlaying: $isPlaying, volume: $volume) { player in
@@ -328,7 +422,7 @@ struct ReelsUploadView: View {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
                 .frame(width: isVideoExpanded ? expandedWidth : width,
                        height: isVideoExpanded ? expandedWidth * 6/5 : width * 6/5)
-                
+
                 if uploadViewModel.mixedMediaItems[currentMediaIndex].type == .video {
                     VideoControlButtons(
                         isPlaying: $isPlaying,
@@ -342,7 +436,7 @@ struct ReelsUploadView: View {
                     )
                     .frame(width: isVideoExpanded ? expandedWidth : width)
                 }
-                
+
                 if uploadViewModel.mixedMediaItems.count > 1 {
                     Text("\(currentMediaIndex + 1) / \(uploadViewModel.mixedMediaItems.count)")
                         .font(.caption)
@@ -361,27 +455,17 @@ struct ReelsUploadView: View {
             }
         }
     }
-    
-    
-    
-    
+
     var captionEditor: some View {
         VStack {
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $uploadViewModel.caption)
-                    .font(.custom("MuseoSansRounded-300", size: 16))
-                    .frame(height: 75)
+                    .font(.custom("MuseoSansRounded-300", size: 14))
+                    .frame(height: isKeyboardVisible ? 200 : 75)
                     .background(Color.white)
                     .cornerRadius(5)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") {
-                                dismissKeyboard()
-                            }
-                        }
-                    }
-                    .onChange(of: uploadViewModel.caption) { newValue in
+                   // .focused($isCaptionFocused)
+                    .onChange(of: uploadViewModel.caption) { _ in
                         uploadViewModel.checkForMentioning()
                     }
                 if uploadViewModel.caption.isEmpty {
@@ -394,19 +478,21 @@ struct ReelsUploadView: View {
             }
             HStack {
                 Spacer()
-                Text("\(uploadViewModel.caption.count)/500")
+                Text("\(uploadViewModel.caption.count)/750")
                     .font(.custom("MuseoSansRounded-300", size: 10))
                     .foregroundColor(.gray)
-                    .padding(.horizontal, 10)
+                
+                // Done button to dismiss the keyboard
+              
             }
         }
-        .onChange(of: uploadViewModel.caption) { newValue in
-            if uploadViewModel.caption.count >= 500 {
-                uploadViewModel.caption = String(uploadViewModel.caption.prefix(500))
+        .onChange(of: uploadViewModel.caption) { _ in
+            if uploadViewModel.caption.count >= 7500 {
+                uploadViewModel.caption = String(uploadViewModel.caption.prefix(750))
             }
         }
     }
-    
+
     var mentionsList: some View {
         Group {
             if !uploadViewModel.filteredMentionedUsers.isEmpty {
@@ -450,21 +536,21 @@ struct ReelsUploadView: View {
             }
         }
     }
-    
+
     var ratingsSection: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             OverallRatingView(rating: calculateOverallRating())
-//            RatingSliderGroup(label: "Overall", rating: $uploadViewModel.overallRating, isNA: .constant(false), showNAButton: false)
             RatingSliderGroup(label: "Food", rating: $uploadViewModel.foodRating, isNA: $uploadViewModel.isFoodNA)
             RatingSliderGroup(label: "Atmosphere", rating: $uploadViewModel.atmosphereRating, isNA: $uploadViewModel.isAtmosphereNA)
             RatingSliderGroup(label: "Value", rating: $uploadViewModel.valueRating, isNA: $uploadViewModel.isValueNA)
             RatingSliderGroup(label: "Service", rating: $uploadViewModel.serviceRating, isNA: $uploadViewModel.isServiceNA)
         }
     }
+
     func calculateOverallRating() -> String {
         var totalRating = 0.0
         var count = 0
-        
+
         if !uploadViewModel.isFoodNA {
             totalRating += uploadViewModel.foodRating
             count += 1
@@ -481,105 +567,41 @@ struct ReelsUploadView: View {
             totalRating += uploadViewModel.serviceRating
             count += 1
         }
-        
+
         if count == 0 {
             return "N/A"
         } else {
             return String(format: "%.1f", totalRating / Double(count))
         }
     }
-    
-    var tagUsersButton: some View {
-        Button {
-            isTaggingUsers = true
-        } label: {
-            HStack {
-                VStack(alignment: .leading){
-                    Text("Went with anyone?")
-                        .font(.custom("MuseoSansRounded-500", size: 16))
-                        .foregroundColor(.black)
-                        .frame(alignment: .trailing)
-                    if uploadViewModel.taggedUsers.isEmpty {
-                        Text("0 selected")
-                            .font(.custom("MuseoSansRounded-300", size: 14))
-                            .foregroundColor(Color("Colors/AccentColor"))
-                            .frame(alignment: .trailing)
-                    } else {
-                        HStack{
-                            ForEach(uploadViewModel.taggedUsers.prefix(3), id: \.id) { user in
-                                UserCircularProfileImageView(profileImageUrl: user.profileImageUrl, size: .xxSmall)
-                            }
-                            if uploadViewModel.taggedUsers.count > 3 {
-                                VStack {
-                                    Spacer()
-                                    Text("and \(uploadViewModel.taggedUsers.count - 3) others")
-                                        .font(.custom("MuseoSansRounded-300", size: 12))
-                                }
-                            }
-                            Spacer()
-                        }
-                    }
-                }
-                
-                
-                Spacer()
-                if uploadViewModel.taggedUsers.isEmpty {
-                    Image(systemName: "chevron.right")
-                        .frame(width: 25, height: 25)
-                        .foregroundColor(Color("Colors/AccentColor"))
-                        .padding(.trailing, 10)
-                } else {
-                    HStack {
-//                        Text("\(uploadViewModel.taggedUsers.count) \(uploadViewModel.taggedUsers.count == 1 ? "person" : "people")")
-//                              .font(.custom("MuseoSansRounded-300", size: 16))
-//                              .foregroundColor(.black)
-                        
-                        Image(systemName: "chevron.right")
-                            .frame(width: 25, height: 25)
-                            .foregroundColor(Color("Colors/AccentColor"))
-                    }
-                    .padding(.trailing, 10)
-                }
-            }
-            .padding(.vertical)
-        }
-    }
-    
+
     var postButton: some View {
         Button {
             triggerHapticFeedback()
             if writtenReview {
                 uploadViewModel.mediaType = .written
             }
-            if (uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) {
+            if uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil {
                 alertMessage = "Please select a restaurant."
                 showAlert = true
             } else {
-//                if uploadViewModel.taggedUsers.isEmpty && uploadViewModel.goodFor.isEmpty {
-//                    showConfirmationAlert = true
-//                } else {
-                    uploadPost()
-              //  }
+                uploadPost()
             }
         } label: {
-            ProgressButton(uploadViewModel: uploadViewModel)
+            Text(uploadViewModel.isLoading ? "Creating Post" : "Post")
+                .foregroundColor(.white)
+                .font(.custom("MuseoSansRounded-700", size: 16))
+                .frame(width: 100, height: 40)
+                .background(uploadViewModel.isLoading ? .gray : Color("Colors/AccentColor"))
+                .cornerRadius(12)
         }
         .disabled(uploadViewModel.isLoading)
         .opacity((uploadViewModel.restaurant == nil && uploadViewModel.restaurantRequest == nil) ? 0.5 : 1.0)
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Enter Details"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
-        .alert(isPresented: $showConfirmationAlert) {
-            Alert(
-                title: Text("Confirm Post"),
-                message: Text("You haven't tagged any users or selected any 'Good For' options. Are you sure you want to post without them?"),
-                primaryButton: .default(Text("Yes, Post")) {
-                    uploadPost()
-                },
-                secondaryButton: .cancel()
-            )
-        }
     }
+
     func uploadPost() {
         Task {
             do {
@@ -587,7 +609,7 @@ struct ReelsUploadView: View {
                 let post = try await uploadViewModel.uploadPost()
                 UploadService.shared.newestPost = post
                 NotificationCenter.default.post(name: .presentUploadView, object: nil)
-                if !uploadViewModel.fromRestaurantProfile{
+                if !uploadViewModel.fromRestaurantProfile {
                     tabBarController.selectedTab = 0
                 }
                 uploadViewModel.reset()
@@ -603,15 +625,63 @@ struct ReelsUploadView: View {
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = true
+        }
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = false
+        }
+    }
+    
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
 }
-
-
 func dismissKeyboard() {
     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
+struct PointsInfoOverlay: View {
+    @ObservedObject var uploadViewModel: UploadViewModel
 
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("How to Earn Points")
+                .font(.headline)
+                .padding(.bottom, 8)
 
+            ForEach(pointCriteria, id: \.0) { (description, conditionMet) in
+                HStack {
+                    Image(systemName: conditionMet ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(conditionMet ? .green : .gray)
+                    Text(description)
+                        .font(.body)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(radius: 10)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: 300)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+        )
+    }
 
+    private var pointCriteria: [(String, Bool)] {
+        [
+            ("Add a caption to get more points.", !uploadViewModel.caption.isEmpty),
+            ("Tag your media to get more points.", uploadViewModel.mixedMediaItems.contains { $0.description != nil || $0.descriptionCategory != nil }),
+            ("Tag a user to get more points.", !uploadViewModel.taggedUsers.isEmpty),
+            ("Add 'What is this place good for?' to get more points.", !uploadViewModel.goodFor.isEmpty)
+        ]
+    }
+   
+}
 struct VideoPlayerTest: View {
     let videoURL: URL?
     @State private var player: AVPlayer?

@@ -223,6 +223,7 @@
 		F8A96F2B2C3C9683009E67A9 /* PhotoReorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */; };
 		F8A96F2D2C3C96A3009E67A9 /* CameraTabBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */; };
 		F8A98C282B9A66A700D399AB /* GeoFireScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */; };
+		F8AC304C2CE844E200A2EBCC /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AC304B2CE844E200A2EBCC /* LeaderboardView.swift */; };
 		F8ADD96E2CD990C500A8F0AF /* WaitlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8ADD96D2CD990C500A8F0AF /* WaitlistView.swift */; };
 		F8AE36812C2B236D00577F28 /* WrittenFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */; };
 		F8B1B1282C7F8AF40035842E /* CollectionInviteUserList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */; };
@@ -560,6 +561,7 @@
 		F8A96F2A2C3C9683009E67A9 /* PhotoReorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoReorderView.swift; sourceTree = "<group>"; };
 		F8A96F2C2C3C96A3009E67A9 /* CameraTabBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTabBarButton.swift; sourceTree = "<group>"; };
 		F8A98C272B9A66A700D399AB /* GeoFireScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoFireScripts.swift; sourceTree = "<group>"; };
+		F8AC304B2CE844E200A2EBCC /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
 		F8ADD96D2CD990C500A8F0AF /* WaitlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistView.swift; sourceTree = "<group>"; };
 		F8AE36802C2B236D00577F28 /* WrittenFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrittenFeedCell.swift; sourceTree = "<group>"; };
 		F8B1B1272C7F8AF40035842E /* CollectionInviteUserList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionInviteUserList.swift; sourceTree = "<group>"; };
@@ -1430,6 +1432,7 @@
 		F88E0A862B6B015B00EC159B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F8AC304A2CE844CC00A2EBCC /* Leaderboards */,
 				F879874C2C56F4F8007BAAB4 /* Sheets */,
 				F87987432C56F41F007BAAB4 /* SecondaryFeed */,
 				F87987422C56F40F007BAAB4 /* PrimaryFeed */,
@@ -1689,6 +1692,14 @@
 				F8E47CD42CC870C4001A97F2 /* CuisineCategoryView.swift */,
 			);
 			path = Explore;
+			sourceTree = "<group>";
+		};
+		F8AC304A2CE844CC00A2EBCC /* Leaderboards */ = {
+			isa = PBXGroup;
+			children = (
+				F8AC304B2CE844E200A2EBCC /* LeaderboardView.swift */,
+			);
+			path = Leaderboards;
 			sourceTree = "<group>";
 		};
 		F8B1B1292C80CF7D0035842E /* CollectionInvites */ = {
@@ -2186,6 +2197,7 @@
 				F8A24B5D2BE7F44200AB7FDD /* ImageView.swift in Sources */,
 				F89D42A52C9F53450078D17A /* ProfileMapView.swift in Sources */,
 				F871CDFF2BCDBC9F003C9BE8 /* CollectionsListView.swift in Sources */,
+				F8AC304C2CE844E200A2EBCC /* LeaderboardView.swift in Sources */,
 				6F1302932C7F9E740003BA96 /* ProfileBadgeView.swift in Sources */,
 				F88E0B2C2B6CA05300EC159B /* CollapsableDestination.swift in Sources */,
 				F863531C2CC343FD003E9ACC /* GoodForSelectionView.swift in Sources */,
@@ -2569,7 +2581,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2621,7 +2633,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = Ketchup.Ketchup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

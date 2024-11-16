@@ -9,6 +9,8 @@ import SwiftUI
 import Firebase
 import PhotosUI
 import YPImagePicker
+import Combine
+import Foundation
 @MainActor
 class UploadViewModel: ObservableObject {
     @Published var isLoading = false
@@ -50,11 +52,65 @@ class UploadViewModel: ObservableObject {
     @Published var navigateToMediaCategorySelection = false
 // Add this line
     var mentionableUsers: [User] = []  // Assuming you have this data available
-    
-    init(feedViewModel: FeedViewModel,  currentUserFeedViewModel: FeedViewModel) {
-        self.feedViewModel = feedViewModel
-        self.currentUserFeedViewModel = currentUserFeedViewModel
-    }
+    var currentPoints: Int {
+            var points = 2 // Automatically get 2 points for uploading.
+
+            if !caption.isEmpty {
+                points += 2
+            }
+
+            if mixedMediaItems.contains(where: { $0.description != nil || $0.descriptionCategory != nil }) {
+                points += 2
+            }
+
+            if !taggedUsers.isEmpty {
+                points += 2
+            }
+
+            if !goodFor.isEmpty {
+                points += 2
+            }
+
+            return points
+        }
+
+        // Maximum possible points
+        let maxPoints: Int = 10
+
+        // Determine the next step to achieve full points
+        var nextStep: String? {
+            if currentPoints == maxPoints {
+                return nil // All steps completed.
+            }
+            if caption.isEmpty {
+                return "Add a caption to get more points."
+            } else if !mixedMediaItems.contains(where: { $0.description != nil || $0.descriptionCategory != nil }) {
+                return "Tag your media to get more points."
+            } else if taggedUsers.isEmpty {
+                return "Tag a user to get more points."
+            } else if goodFor.isEmpty {
+                return "Add 'What is this place good for?' to get more points."
+            } else {
+                return nil
+            }
+        }
+    init(feedViewModel: FeedViewModel, currentUserFeedViewModel: FeedViewModel) {
+           self.feedViewModel = feedViewModel
+           self.currentUserFeedViewModel = currentUserFeedViewModel
+
+           // Observe changes in mixedMediaItems
+           $mixedMediaItems
+               .flatMap { items in
+                   Publishers.MergeMany(items.map { $0.objectWillChange })
+               }
+               .receive(on: RunLoop.main)
+               .sink { [weak self] _ in
+                   self?.objectWillChange.send()
+               }
+               .store(in: &cancellables)
+       }
+    private var cancellables = Set<AnyCancellable>()
+
     func addMixedMediaItem(_ item: YPMediaItem) {
         switch item {
         case .photo(let photo):

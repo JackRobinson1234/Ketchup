@@ -591,17 +591,35 @@ struct FeedCell: View {
     }
     
     private func handleIndexChange(_ index: Int) {
+        // First pause all videos as a safety measure
         pauseAllVideos()
+        
+        // Early validation of index
+        guard index >= 0 else {
+            currentlyPlayingVideoId = nil
+            return
+        }
         
         switch post.mediaType {
         case .mixed:
-            guard let mixedMediaUrls = post.mixedMediaUrls, !mixedMediaUrls.isEmpty else {
+            guard let mixedMediaUrls = post.mixedMediaUrls else {
                 currentlyPlayingVideoId = nil
                 return
             }
             
-            let safeIndex = max(0, min(index, mixedMediaUrls.count - 1))
-            let mediaItem = mixedMediaUrls[safeIndex]
+            // Validate array is not empty and index is within bounds
+            guard !mixedMediaUrls.isEmpty, index < mixedMediaUrls.count else {
+                currentlyPlayingVideoId = nil
+                return
+            }
+            
+            let mediaItem = mixedMediaUrls[index] // Now safe to access directly
+            
+            // Validate media item
+            guard mediaItem.id != nil else {
+                currentlyPlayingVideoId = nil
+                return
+            }
             
             if mediaItem.type == .video {
                 currentlyPlayingVideoId = mediaItem.id
@@ -611,17 +629,26 @@ struct FeedCell: View {
             }
             
         case .video:
-            if let firstVideoId = videoCoordinators.first?.0 {
-                currentlyPlayingVideoId = firstVideoId
-                playVideo(id: firstVideoId)
-            } else {
+            // More explicit validation of video coordinators
+            guard !videoCoordinators.isEmpty else {
                 currentlyPlayingVideoId = nil
+                return
             }
+            
+            guard let firstVideoId = videoCoordinators.first?.0,
+                  firstVideoId != nil else {
+                currentlyPlayingVideoId = nil
+                return
+            }
+            
+            currentlyPlayingVideoId = firstVideoId
+            playVideo(id: firstVideoId)
             
         default:
             currentlyPlayingVideoId = nil
         }
     }
+
     @ViewBuilder
     private func mediaItemView(for mediaItem: MixedMediaItem) -> some View {
         ZStack(alignment: .bottomTrailing) {

@@ -18,13 +18,10 @@ struct SettingsView: View {
     @State var showOptOutAlert: Bool = false
     @State private var toggleEnabled = true
     var privateRateDebouncer = Debouncer(delay: 1.0)
-
     init(profileViewModel: ProfileViewModel) {
         self.profileViewModel = profileViewModel
         self._viewModel = StateObject(wrappedValue: SettingsViewModel(profileViewModel: profileViewModel))
     }
-
-   
     var body: some View {
         NavigationStack {
             List {

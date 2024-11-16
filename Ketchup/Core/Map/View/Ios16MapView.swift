@@ -15,28 +15,28 @@ import MapKit
 import Combine
 
 // MARK: - MapView
+
 struct Ios16MapView: View {
     @StateObject var viewModel: MapViewModel = MapViewModel()
     @StateObject var followingViewModel = FollowingPostsMapViewModel()
-    @State private var selectedRestaurant: RestaurantMapAnnotation?
-    @State private var selectedGroupedPost: GroupedPostMapAnnotation?
-    @State private var showRestaurantPreview = false
+    @State private var selectedRestaurant: ClusterRestaurant?
+    @State private var selectedRestaurantForProfile: ClusterRestaurant?
+    @State private var selectedRestaurantIndex: Int = 0 // Declare selectedRestaurantIndex
+    @State private var isUserSelectingRestaurant = false
+    @State private var currentRegion: MKCoordinateRegion = MKCoordinateRegion()
+    @State private var lastCameraCenter: CLLocationCoordinate2D?
+    @State private var hasAppeared = false
+    @State private var showFollowingPosts = false
     @State private var inSearchView: Bool = false
-    @State private var isSearchPresented: Bool = false
     @State private var isFiltersPresented: Bool = false
-    @State var isLoading = true
-    @Namespace var mapScope
-    @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0)
+    @State private var isLoading = true
     @State private var showAlert = false
     @State private var selectedCluster: ExampleClusterAnnotation?
     @State private var selectedFollowingCluster: GroupedPostClusterAnnotation?
-    @State private var hasAppeared = false
-    @State private var showMoveWarning = false
-    @State private var showFollowingPosts = false
-    @State private var selectedClusterAnnotations: [RestaurantMapAnnotation] = []
     @State private var selectedLargeCluster: LargeClusterAnnotation?
     @State var selectedLocation: CLLocationCoordinate2D?
-    
+    @Namespace var mapScope
+
     private var noNearbyRestaurants: Bool {
         if showFollowingPosts {
             return followingViewModel.annotations.isEmpty && followingViewModel.clusters.isEmpty && !followingViewModel.isLoading
@@ -51,48 +51,82 @@ struct Ios16MapView: View {
             return viewModel.currentZoomLevel == .maxZoomOut
         }
     }
-    
+
     var body: some View {
         NavigationView {
-            ZStack(alignment: .bottom) {
+            VStack(spacing:0) {
                 GeometryReader { geometryProxy in
                     UIKitMapView(
                         viewModel: viewModel,
                         followingViewModel: followingViewModel,
                         showFollowingPosts: $showFollowingPosts,
                         selectedRestaurant: $selectedRestaurant,
+                        selectedRestaurantIndex: $selectedRestaurantIndex, // Pass as binding
+                        selectedRestaurantForProfile: $selectedRestaurantForProfile,
                         selectedCluster: $selectedCluster,
                         selectedFollowingCluster: $selectedFollowingCluster,
-                        selectedGroupedPost: $selectedGroupedPost,
+                        selectedGroupedPost: .constant(nil),
                         selectedLargeCluster: $selectedLargeCluster,
                         isLoading: $isLoading,
                         showAlert: $showAlert,
                         mapSize: geometryProxy.size,
-                        selectedLocation: $selectedLocation
-                        
+                        selectedLocation: $selectedLocation,
+                        currentRegion: $currentRegion,
+                        isUserSelectingRestaurant: $isUserSelectingRestaurant,
+                        lastCameraCenter: $lastCameraCenter
                     )
                     .edgesIgnoringSafeArea(.all)
-                }
-                topRow
-                if (showFollowingPosts ? followingViewModel.isLoading : viewModel.isLoading) {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            LoadingIcon()
-                                .padding([.bottom, .trailing], 20)
-                                .padding(.bottom, 50)
-                        }
+                    // Place buttons over the map only
+                    .overlay(alignment: .bottomTrailing) {
+                        userLocationButton
                     }
                 }
-                VStack {
-                                  Spacer()
-                                  HStack {
-                                      Spacer()
-                                      userLocationButton
-                                  }
+                .overlay(
+                    Group {
+                        if showFollowingPosts {
+                            if followingViewModel.currentZoomLevel == .maxZoomOut {
+                                Text("Zoom in to see posts")
+                                    .modifier(OverlayModifier())
+                            } else if noNearbyRestaurants {
+                                Text("No posts found nearby")
+                                    .modifier(OverlayModifier())
+                            }
+                        } else {
+                            if viewModel.currentZoomLevel == .maxZoomOut {
+                                Text("Zoom in to see restaurants")
+                                    .modifier(OverlayModifier())
+                            } else if noNearbyRestaurants {
+                                Text("No restaurants found nearby")
+                                    .modifier(OverlayModifier())
+                            }
+                        }
+                    }
+                    
+                )
+                // Loading indicator
+               
+                // RestaurantSlideUpSheet
+                RestaurantSlideUpSheet(
+                    restaurants: $viewModel.flattenedRestaurants,
+                    selectedIndex: $selectedRestaurantIndex,
+                    onDismiss: {
+                        selectedRestaurant = nil
+                    },
+                    onSelectRestaurant: { restaurant in
+                        navigateToRestaurantProfile(restaurant)
+                    },
+                    onRestaurantSwipe: { newIndex in
+                        selectedRestaurant = viewModel.flattenedRestaurants[newIndex]
+                    }
+                )
 
-                              }
+                // Overlay for alerts and messages
+                
+            }
+            // Present search view as a sheet
+            .sheet(isPresented: $inSearchView) {
+                Ios16MapSearchView(selectedLocation: $selectedLocation, inSearchView: $inSearchView)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
             }
             .sheet(item: $selectedCluster, onDismiss: {
                 selectedCluster = nil
@@ -107,68 +141,33 @@ struct Ios16MapView: View {
             }) { cluster in
                 ClusterRestaurantListView(restaurants: cluster.memberAnnotations)
             }
-            .sheet(item: $selectedGroupedPost, onDismiss: {
-                selectedGroupedPost = nil
-            }) { groupedPost in
-                // Present the view for the grouped post
+            .sheet(item: $selectedRestaurantForProfile, onDismiss: {
+                selectedRestaurantForProfile = nil
+            }) { restaurant in
                 NavigationView {
-                    RestaurantProfileView(restaurantId: groupedPost.restaurant.id)
+                    RestaurantProfileView(restaurantId: restaurant.id)
                 }
             }
-            .sheet(item: $selectedRestaurant, onDismiss: {
-                selectedRestaurant = nil
-            }) { annotation in
-                NavigationView {
-                    RestaurantProfileView(restaurantId: annotation.restaurant.id)
-                }
-            }
-            .sheet(isPresented: .constant(!selectedClusterAnnotations.isEmpty)) {
-                NavigationView {
-                    ClusterRestaurantListView(restaurants: selectedClusterAnnotations.map { $0.restaurant })
-                        .onDisappear {
-                            selectedClusterAnnotations = []
-                        }
-                }
-            }
+            .navigationBarHidden(true)
+
             .onAppear {
                 if !hasAppeared {
                     Task {
                         LocationManager.shared.requestLocation()
                         if let userLocation = LocationManager.shared.userLocation {
-                            center = userLocation.coordinate
+                            selectedLocation = userLocation.coordinate
                         } else {
-                            center = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
+                            selectedLocation = CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426)
                         }
-                        await fetchRestaurantsInView(center: center)
+                        await fetchRestaurantsInView(center: selectedLocation ?? CLLocationCoordinate2D(latitude: 34.0549, longitude: -118.2426))
                         hasAppeared = true
                     }
                 }
             }
-            .overlay(
-                Group {
-                    if showFollowingPosts {
-                        if followingViewModel.currentZoomLevel == .maxZoomOut {
-                            Text("Zoom in to see posts")
-                                .modifier(OverlayModifier())
-                        } else if noNearbyRestaurants {
-                            Text("No posts found nearby")
-                                .modifier(OverlayModifier())
-                        }
-                    } else {
-                        if viewModel.currentZoomLevel == .maxZoomOut {
-                            Text("Zoom in to see restaurants")
-                                .modifier(OverlayModifier())
-                        } else if noNearbyRestaurants {
-                            Text("No restaurants found nearby")
-                                .modifier(OverlayModifier())
-                        }
-                    }
-                }
-            )
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Location Permission Required"),
-                    message: Text("Ketchup needs access to your location to show nearby restaurants. Please go to Settings and enable location permissions."),
+                    message: Text("The app needs access to your location to show nearby restaurants. Please go to Settings and enable location permissions."),
                     primaryButton: .default(Text("Go to Settings")) {
                         if let url = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(url) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -177,137 +176,97 @@ struct Ios16MapView: View {
                     secondaryButton: .cancel()
                 )
             }
-            .fullScreenCover(isPresented: $isFiltersPresented) {
+            .sheet(isPresented: $isFiltersPresented) {
                 MapFiltersView(mapViewModel: viewModel, followingViewModel: followingViewModel, showFollowingPosts: $showFollowingPosts)
+                    .presentationDetents([.height(UIScreen.main.bounds.height * 0.65)])
+            }
+            // OnChange modifiers for filters
+            .onChange(of: viewModel.selectedCuisines) { _ in
+                Task {
+                    if showFollowingPosts {
+                        await followingViewModel.fetchFollowingPosts()
+                    } else {
+                        await viewModel.fetchFilteredClusters()
+                    }
+                }
+            }
+            .onChange(of: viewModel.selectedPrice) { _ in
+                Task {
+                    if showFollowingPosts {
+                        await followingViewModel.fetchFollowingPosts()
+                    } else {
+                        await viewModel.fetchFilteredClusters()
+                    }
+                }
+            }
+            .onChange(of: viewModel.selectedRating) { _ in
+                Task {
+                    if showFollowingPosts {
+                        await followingViewModel.fetchFollowingPosts()
+                    } else {
+                        await viewModel.fetchFilteredClusters()
+                    }
+                }
             }
         }
     }
-    
+
     // MARK: - User Location Button
     private var userLocationButton: some View {
         VStack {
-            if LocationManager.shared.userLocation == nil {
-                Button {
-                    showAlert = true
-                } label: {
-                    Image(systemName: "location.fill")
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .padding()
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(radius: 2)
+            // Location Button
+            Button(action: {
+                inSearchView = true
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "scope")
+                        .foregroundColor(Color("Colors/AccentColor"))
+                        .font(.system(size: 18))
+                    Text("Location")
+                        .font(.custom("MuseoSansRounded-500", size: 10))
+                        .foregroundColor(.black)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                 }
-            } else {
-                Button {
-                    
-                    // Center on user location
-                    if let userLocation = LocationManager.shared.userLocation {
-                        center = userLocation.coordinate
-                        self.selectedLocation = userLocation.coordinate
-                        viewModel.centerMapOnLocation(location: userLocation)
-                    }
-                } label: {
-                    Image(systemName: "location.fill")
-                        .foregroundStyle(Color("Colors/AccentColor"))
-                        .padding()
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(radius: 2)
+                .frame(width: 34)
+                .padding(4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white)
+                        .shadow(color: .gray, radius: 1)
+                )
+            }
+
+            // Filters Button
+            Button(action: {
+                isFiltersPresented = true
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundColor(.red)
+                        .font(.system(size: 20))
+                    Text("Filters")
+                        .font(.custom("MuseoSansRounded-500", size: 10))
+                        .foregroundColor(.black)
+                        .minimumScaleFactor(0.5)
                 }
+                .frame(width: 34)
+                .padding(4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white)
+                        .shadow(color: .gray, radius: 1)
+                )
             }
         }
         .padding([.bottom, .trailing], 20)
     }
-    
-    // MARK: - Top Row
-    private var topRow: some View {
-        VStack {
-            if !inSearchView {
-                HStack(alignment: .bottom) {
-                    Button {
-                        inSearchView.toggle()
-                    } label: {
-                        VStack {
-                            Image(systemName: "magnifyingglass")
-                                .imageScale(.large)
-                                .font(.title3)
-                                .foregroundStyle(.black)
-                            Text("Search")
-                                .foregroundStyle(.gray)
-                                .font(.custom("MuseoSansRounded-500", size: 10))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                        }
-                        .frame(width: 50, height: 50)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white)
-                                .shadow(color: Color.gray, radius: 1)
-                        )
-                    }
-                    Spacer()
-                    VerticalToggleView(showFollowingPosts: $showFollowingPosts) {
-                        handleToggleChange()
-                    }
-                    Spacer()
-                    Button {
-                        isFiltersPresented.toggle()
-                    } label: {
-                        VStack {
-                            ZStack {
-                                Image(systemName: "slider.horizontal.3")
-                                    .imageScale(.large)
-                                    .font(.title3)
-                                    .foregroundStyle(.black)
-                                if viewModel.filters.count > 1 {
-                                    Circle()
-                                        .fill(Color("Colors/AccentColor"))
-                                        .frame(width: 12, height: 12)
-                                        .offset(x: 12, y: 12)
-                                }
-                            }
-                            Text("Filters")
-                                .foregroundStyle(.gray)
-                                .font(.custom("MuseoSansRounded-500", size: 10))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                        }
-                        .frame(width: 50, height: 50)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white)
-                                .shadow(color: Color.gray, radius: 1)
-                        )
-                    }
-                }
-                .padding(.horizontal, 25)
-                .padding(.top, 30)
-                Spacer()
-            } else {
-                VStack {
-                    Ios16MapSearchView(selectedLocation: $selectedLocation, inSearchView: $inSearchView)
-                        .padding(32)
-                        .padding(.top, 20)
-                    Spacer()
-                }
-            }
-        }
-        .animation(.spring(), value: inSearchView)
+
+    // MARK: - Navigate to Restaurant Profile
+    private func navigateToRestaurantProfile(_ restaurant: ClusterRestaurant) {
+        selectedRestaurantForProfile = restaurant
     }
-    
-    // MARK: - Handle Toggle Change
-    private func handleToggleChange() {
-        Task {
-            await MainActor.run {
-                if showFollowingPosts {
-                    followingViewModel.updateMapState(newRegion: viewModel.currentRegion, shouldAutoFetch: true)
-                } else {
-                    viewModel.updateMapState(newRegion: followingViewModel.currentRegion, shouldAutoFetch: true)
-                }
-            }
-        }
-    }
-    
+
     // MARK: - Fetch Restaurants In View
     private func fetchRestaurantsInView(center: CLLocationCoordinate2D) async {
         if showFollowingPosts {
@@ -344,12 +303,14 @@ struct Ios16MapView: View {
     }
 }
 
-// MARK: - UIKitMapView
+
 struct UIKitMapView: UIViewRepresentable {
     @ObservedObject var viewModel: MapViewModel
     @ObservedObject var followingViewModel: FollowingPostsMapViewModel
     @Binding var showFollowingPosts: Bool
-    @Binding var selectedRestaurant: RestaurantMapAnnotation?
+    @Binding var selectedRestaurant: ClusterRestaurant?
+    @Binding var selectedRestaurantIndex: Int // Add binding for selectedRestaurantIndex
+    @Binding var selectedRestaurantForProfile: ClusterRestaurant?
     @Binding var selectedCluster: ExampleClusterAnnotation?
     @Binding var selectedFollowingCluster: GroupedPostClusterAnnotation?
     @Binding var selectedGroupedPost: GroupedPostMapAnnotation?
@@ -358,71 +319,100 @@ struct UIKitMapView: UIViewRepresentable {
     @Binding var showAlert: Bool
     var mapSize: CGSize
     @Binding var selectedLocation: CLLocationCoordinate2D?
-    
+    @Binding var currentRegion: MKCoordinateRegion
+    @Binding var isUserSelectingRestaurant: Bool
+    @Binding var lastCameraCenter: CLLocationCoordinate2D?
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self, viewModel: viewModel, followingViewModel: followingViewModel)
     }
-    
+
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView(frame: .zero)
         mapView.pointOfInterestFilter = .excludingAll
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
-        // Set the mapSize here
         DispatchQueue.main.async {
             self.viewModel.mapSize = mapView.bounds.size
             self.followingViewModel.mapSize = mapView.bounds.size
         }
-        
+
         // Register annotation views
         mapView.register(Ios16RestaurantAnnotationMapView.self, forAnnotationViewWithReuseIdentifier: Ios16RestaurantAnnotationMapView.identifier)
-        mapView.register(Ios16ClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: Ios16ClusterAnnotationView.identifier)
-        mapView.register(Ios16LargeClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: Ios16LargeClusterAnnotationView.identifier)
-        mapView.register(Ios16GroupedPostAnnotationView.self, forAnnotationViewWithReuseIdentifier: Ios16GroupedPostAnnotationView.identifier)
-        mapView.register(Ios16GroupedPostClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: Ios16GroupedPostClusterAnnotationView.identifier)
-        
+        // ... register other annotation views ...
+
+        // Add gesture recognizer to detect user interaction
+        let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handlePanGesture(_:)))
+        panGesture.delegate = context.coordinator
+        mapView.addGestureRecognizer(panGesture)
+
         return mapView
     }
-    
+
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        uiView.removeAnnotations(uiView.annotations)
+        var newAnnotations: [MKAnnotation] = []
+        if showFollowingPosts {
+            newAnnotations = followingViewModel.annotations + followingViewModel.clusters
+        } else {
+            newAnnotations = viewModel.annotations + viewModel.clusters + viewModel.largeClusters
+        }
+
+        let currentAnnotations = uiView.annotations
+
+        // Compute annotations to add and remove
+        let annotationsToRemove = currentAnnotations.filter { currentAnnotation in
+            guard let currentIdentifiable = currentAnnotation as? IdentifiableAnnotation else { return false }
+            return !newAnnotations.contains(where: { newAnnotation in
+                guard let newIdentifiable = newAnnotation as? IdentifiableAnnotation else { return false }
+                return newIdentifiable.id == currentIdentifiable.id
+            })
+        }
+
+        let annotationsToAdd = newAnnotations.filter { newAnnotation in
+            guard let newIdentifiable = newAnnotation as? IdentifiableAnnotation else { return false }
+            return !currentAnnotations.contains(where: { currentAnnotation in
+                guard let currentIdentifiable = currentAnnotation as? IdentifiableAnnotation else { return false }
+                return currentIdentifiable.id == newIdentifiable.id
+            })
+        }
+
+        uiView.removeAnnotations(annotationsToRemove)
+        uiView.addAnnotations(annotationsToAdd)
+
         if let selectedLocation = selectedLocation {
             let coordinateRegion = MKCoordinateRegion(center: selectedLocation, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
             uiView.setRegion(coordinateRegion, animated: true)
-            // After moving the map, set selectedLocation to nil so that we don't keep moving it
             DispatchQueue.main.async {
                 self.selectedLocation = nil
             }
         }
-        if showFollowingPosts {
-            uiView.addAnnotations(followingViewModel.annotations)
-            uiView.addAnnotations(followingViewModel.clusters)
-        } else {
-            uiView.addAnnotations(viewModel.annotations)
-            uiView.addAnnotations(viewModel.clusters)
-            uiView.addAnnotations(viewModel.largeClusters)
-        }
+
         DispatchQueue.main.async {
             viewModel.mapSize = mapSize
             followingViewModel.mapSize = mapSize
         }
     }
-    
-    class Coordinator: NSObject, MKMapViewDelegate {
+
+    class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         var parent: UIKitMapView
         var viewModel: MapViewModel
         var followingViewModel: FollowingPostsMapViewModel
-        
+
         init(_ parent: UIKitMapView, viewModel: MapViewModel, followingViewModel: FollowingPostsMapViewModel) {
             self.parent = parent
             self.viewModel = viewModel
             self.followingViewModel = followingViewModel
         }
-        
-        func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+
+        func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+            parent.isUserSelectingRestaurant = true
+        }
+
+        func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
             let newRegion = mapView.region
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
+                self.parent.currentRegion = newRegion
                 if !self.parent.showFollowingPosts {
                     self.viewModel.updateMapState(newRegion: newRegion)
                     Task { await self.viewModel.reloadAnnotations() }
@@ -430,10 +420,15 @@ struct UIKitMapView: UIViewRepresentable {
                     self.followingViewModel.updateMapState(newRegion: newRegion)
                     Task { await self.followingViewModel.reloadAnnotations() }
                 }
+                if !self.parent.isUserSelectingRestaurant && !self.viewModel.isLoading && !self.viewModel.flattenedRestaurants.isEmpty {
+                    self.parent.updateSelectedRestaurant(for: newRegion)
+                }
+                self.parent.isUserSelectingRestaurant = false
             }
         }
-        
+
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            // Your existing code to return the appropriate annotation view
             if let restaurantAnnotation = annotation as? RestaurantMapAnnotation {
                 let identifier = Ios16RestaurantAnnotationMapView.identifier
                 var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? Ios16RestaurantAnnotationMapView
@@ -487,7 +482,7 @@ struct UIKitMapView: UIViewRepresentable {
             if let restaurantAnnotation = view.annotation as? RestaurantMapAnnotation {
                 mapView.deselectAnnotation(restaurantAnnotation, animated: false)
                 DispatchQueue.main.async {
-                    self.parent.selectedRestaurant = restaurantAnnotation
+                    self.parent.selectedRestaurantForProfile = restaurantAnnotation.restaurant
                 }
             } else if let clusterAnnotation = view.annotation as? ExampleClusterAnnotation {
                 mapView.deselectAnnotation(clusterAnnotation, animated: false)
@@ -511,90 +506,61 @@ struct UIKitMapView: UIViewRepresentable {
                 }
             }
         }
+
+
+        @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+            switch gesture.state {
+            case .began:
+                parent.isUserSelectingRestaurant = true
+            case .ended, .cancelled, .failed:
+                parent.isUserSelectingRestaurant = false
+            default:
+                break
+            }
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+        }
+    }
+
+    // Update selectedRestaurant and selectedRestaurantIndex
+    func updateSelectedRestaurant(for region: MKCoordinateRegion) {
+        if isUserSelectingRestaurant {
+            return
+        }
+
+        let centerCoordinate = region.center
+
+        var closestRestaurant: ClusterRestaurant?
+        var closestDistance: CLLocationDistance = Double.greatestFiniteMagnitude
+        var closestIndex: Int = 0
+
+        for (index, restaurant) in viewModel.flattenedRestaurants.enumerated() {
+            let distance = calculateDistance(from: centerCoordinate, to: restaurant.coordinate)
+            if distance < closestDistance {
+                closestDistance = distance
+                closestRestaurant = restaurant
+                closestIndex = index
+            }
+        }
+
+        if let closestRestaurant = closestRestaurant {
+            selectedRestaurant = closestRestaurant
+            selectedRestaurantIndex = closestIndex // Update selectedRestaurantIndex
+        }
+    }
+
+    private func calculateDistance(from coordinate1: CLLocationCoordinate2D, to coordinate2: CLLocationCoordinate2D) -> Double {
+        let location1 = CLLocation(latitude: coordinate1.latitude, longitude: coordinate1.longitude)
+        let location2 = CLLocation(latitude: coordinate2.latitude, longitude: coordinate2.longitude)
+        return location1.distance(from: location2)
     }
 }
 
-// MARK: - LoadingIcon
-//struct LoadingIcon: View {
-//    var body: some View {
-//        ZStack {
-//            Circle()
-//                .fill(Color.white)
-//                .frame(width: 50, height: 50)
-//                .shadow(color: .gray, radius: 2, x: 0, y: 2)
-//            ProgressView()
-//                .progressViewStyle(CircularProgressViewStyle(tint: .red))
-//                .scaleEffect(1.5)
-//        }
-//    }
-//}
 
-// MARK: - VerticalToggleView
-//struct VerticalToggleView: View {
-//    @Binding var showFollowingPosts: Bool
-//    let cornerSize: CGFloat = 12
-//    var onToggle: () -> Void
-//    
-//    var body: some View {
-//        HStack(spacing: 1) {
-//            VStack {
-//                Button {
-//                    withAnimation {
-//                        showFollowingPosts = false
-//                        onToggle()
-//                    }
-//                } label: {
-//                    VStack(spacing: 0) {
-//                        Image(systemName: "building.2")
-//                            .font(.title3)
-//                            .foregroundColor(showFollowingPosts ? .black : .white)
-//                        Text("All")
-//                            .font(.custom("MuseoSansRounded-500", size: 10))
-//                            .foregroundColor(showFollowingPosts ? .gray : .white)
-//                            .minimumScaleFactor(0.5)
-//                            .lineLimit(1)
-//                    }
-//                    .frame(width: 50, height: 50)
-//                    .background(showFollowingPosts ? Color.clear : Color.red)
-//                    .clipShape(RoundedRectangle(cornerRadius: cornerSize))
-//                }
-//                .disabled(!showFollowingPosts)
-//            }
-//            .padding(.trailing, 4)
-//            VStack {
-//                Button {
-//                    withAnimation {
-//                        showFollowingPosts = true
-//                        onToggle()
-//                    }
-//                } label: {
-//                    VStack(spacing: 1) {
-//                        Image(systemName: "person.2")
-//                            .font(.title3)
-//                            .foregroundColor(showFollowingPosts ? .white : .black)
-//                        Text("Friends")
-//                            .font(.custom("MuseoSansRounded-500", size: 10))
-//                            .foregroundColor(showFollowingPosts ? .white : .gray)
-//                            .minimumScaleFactor(0.5)
-//                            .lineLimit(1)
-//                    }
-//                    .frame(width: 50, height: 50)
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 12)
-//                            .fill(showFollowingPosts ? Color.red : Color.clear)
-//                            .shadow(color: Color.gray, radius: 1)
-//                    )
-//                }
-//                .disabled(showFollowingPosts)
-//            }
-//        }
-//        .background(
-//            RoundedRectangle(cornerRadius: cornerSize)
-//                .fill(Color.white)
-//                .shadow(color: Color.gray, radius: 1)
-//        )
-//    }
-//}
+
+
 struct Ios16GroupedPostClusterListView: View {
     let groupedPosts: [GroupedPostMapAnnotation]
     

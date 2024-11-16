@@ -213,13 +213,13 @@ extension Post: Commentable {
     }
 }
 
-
 protocol Commentable {
     var id: String { get }
     var ownerUid: String? { get }
     var commentCount: Int { get set }
     var commentsCollectionPath: String { get }
 }
+
 enum DescriptionCategory: String, Codable, Hashable, CaseIterable {
     case food
     case menu

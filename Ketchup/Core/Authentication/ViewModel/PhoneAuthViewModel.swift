@@ -31,12 +31,10 @@ class PhoneAuthViewModel: ObservableObject {
     private let phoneNumberKit = PhoneNumberUtility()
     private let debounceDuration: TimeInterval = 0.5
     @Published var deletionSuccessful: Bool = false
-    
     init(isDelete: Bool = false) {
         self.isDelete = isDelete
         setupPhoneNumberValidation()
     }
-    
     private func setupPhoneNumberValidation() {
         $phoneNumber
             .debounce(for: .seconds(debounceDuration), scheduler: RunLoop.main)

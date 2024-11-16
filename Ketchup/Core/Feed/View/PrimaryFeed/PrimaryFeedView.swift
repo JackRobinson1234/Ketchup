@@ -39,7 +39,7 @@ struct PrimaryFeedView: View {
     @StateObject private var pollViewModel = PollViewModel()
     @State private var showPollView = false // Add this line
     @State private var showPollUploadView = false
-
+    
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -100,12 +100,11 @@ struct PrimaryFeedView: View {
                                     }
                                     .onChange(of: tabBarController.scrollToTop) { _ in
                                         withAnimation(.smooth) {
-                                            scrollProxy.scrollTo("userUpdates", anchor: .center)
+                                            scrollProxy.scrollTo("InviteButton", anchor: .center)
                                         }
                                         
                                     }
                             }
-                    
                         }
                     } else {
                         ScrollViewReader { scrollProxy in
@@ -140,9 +139,9 @@ struct PrimaryFeedView: View {
                                             FastCrossfadeFoodImageView()
                                             Spacer()
                                         }
-                                       
+                                        
                                         inviteContactsButton
-                                        if AuthService.shared.userSession?.id == "cQlKGlOWTOSeZcsqObd4Iuy6jr93" {
+                                        if AuthService.shared.userSession?.id == "cQlKGlOWTOSeZcsqObd4Iuy6jr93" || AuthService.shared.userSession?.id == "M74knlXXTLfeckpnAm4kc5XGNXb2" {
                                             
                                             Button {
                                                 showPollUploadView = true
@@ -186,21 +185,21 @@ struct PrimaryFeedView: View {
                                                         .padding(.trailing)
                                                     // Changed to white
                                                 }
-                                               
+                                                
                                                 .overlay(
-                                                            RoundedRectangle(cornerRadius: 12)
-                                                                .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Thin gray stencil outline
-                                                        )
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Thin gray stencil outline
+                                                )
                                                 .cornerRadius(8)
                                                 .id("DailyPoll")
                                                 .padding(.horizontal)
                                                 .padding(.bottom, 30)
                                             }
                                         }
-                                       Divider()
+                                        Divider()
                                         ForEach($viewModel.posts) { $post in
                                             if !post.isReported{
-                                            
+                                                
                                                 WrittenFeedCell(viewModel: viewModel, post: $post, scrollPosition: $scrollPosition, pauseVideo: $pauseVideo, selectedPost: $selectedPost)
                                                     .id(post.id)
                                                     .onAppear {
@@ -262,15 +261,15 @@ struct PrimaryFeedView: View {
                                     }
                                 }
                             }
-//                            .onChange(of: viewModel.isInitialLoading) { newValue in
-//                                if !viewModel.isInitialLoading {
-//                                    if let post = viewModel.posts.first {
-//                                        withAnimation(.smooth) {
-//                                            scrollProxy.scrollTo(post.id, anchor: .center)
-//                                        }
-//                                    }
-//                                }
-//                            }
+                            //                            .onChange(of: viewModel.isInitialLoading) { newValue in
+                            //                                if !viewModel.isInitialLoading {
+                            //                                    if let post = viewModel.posts.first {
+                            //                                        withAnimation(.smooth) {
+                            //                                            scrollProxy.scrollTo(post.id, anchor: .center)
+                            //                                        }
+                            //                                    }
+                            //                                }
+                            //                            }
                         }
                         
                         .background(.white)
@@ -286,7 +285,7 @@ struct PrimaryFeedView: View {
                         .shadow(color: Color.gray.opacity(0.1), radius: 2, x: 0, y: 2)
                         .animation(.easeInOut(duration: 0.3), value: topBarHeight)
                         .edgesIgnoringSafeArea(.top)
-                        
+                    
                     
                     VStack(spacing: 5) {
                         HStack(spacing: 0) {
@@ -355,17 +354,17 @@ struct PrimaryFeedView: View {
                                 }
                                 .padding(.horizontal, 16)
                             }
-//                            Button{
-//                                //showAddFriends = true
-//                            } label: {
-//                                Text("Check In")
-//                                    .font(.custom("MuseoSansRounded-300", size: 12))
-//                                    .fontWeight(.semibold)
-//                                    .foregroundColor(.white)
-//                                    .frame(width: 80, height: 28)
-//                                    .background(Color("Colors/AccentColor"))
-//                                    .cornerRadius(8)
-//                            }
+                            //                            Button{
+                            //                                //showAddFriends = true
+                            //                            } label: {
+                            //                                Text("Check In")
+                            //                                    .font(.custom("MuseoSansRounded-300", size: 12))
+                            //                                    .fontWeight(.semibold)
+                            //                                    .foregroundColor(.white)
+                            //                                    .frame(width: 80, height: 28)
+                            //                                    .background(Color("Colors/AccentColor"))
+                            //                                    .cornerRadius(8)
+                            //                            }
                         }
                         .padding(.horizontal, 20)
                         .foregroundStyle(.black)
@@ -374,73 +373,73 @@ struct PrimaryFeedView: View {
                             VStack{
                                 HStack {
                                     // Dashboard Tab
-//                                    Button {
-//                                        if canSwitchTab {
-//                                            withAnimation(.easeInOut(duration: 0.5)) {
-//                                                viewModel.selectedMainTab = .dashboard
-//                                                hideTopUI = false
-//                                                topBarHeight = 120
-//                                            }
-//                                            canSwitchTab = false
-//                                            // Re-enable switching after a delay
-//                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//                                                canSwitchTab = true
-//                                            }
-//                                        }
-//                                        
-//                                    } label: {
-//                                        Text("Home")
-//                                            .font(.custom("MuseoSansRounded-500", size: 18))
-//                                            .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .gray)
-//                                            .overlay(
-//                                                Rectangle()
-//                                                    .frame(height: 2)
-//                                                    .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .clear)
-//                                                    .offset(y: 17)
-//                                            )
-//                                    }
-//                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
-//                                    .disabled(viewModel.selectedMainTab == .dashboard || !canSwitchTab)
+                                    //                                    Button {
+                                    //                                        if canSwitchTab {
+                                    //                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                    //                                                viewModel.selectedMainTab = .dashboard
+                                    //                                                hideTopUI = false
+                                    //                                                topBarHeight = 120
+                                    //                                            }
+                                    //                                            canSwitchTab = false
+                                    //                                            // Re-enable switching after a delay
+                                    //                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    //                                                canSwitchTab = true
+                                    //                                            }
+                                    //                                        }
+                                    //
+                                    //                                    } label: {
+                                    //                                        Text("Home")
+                                    //                                            .font(.custom("MuseoSansRounded-500", size: 18))
+                                    //                                            .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .gray)
+                                    //                                            .overlay(
+                                    //                                                Rectangle()
+                                    //                                                    .frame(height: 2)
+                                    //                                                    .foregroundColor(viewModel.selectedMainTab == .dashboard ? Color("Colors/AccentColor") : .clear)
+                                    //                                                    .offset(y: 17)
+                                    //                                            )
+                                    //                                    }
+                                    //                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
+                                    //                                    .disabled(viewModel.selectedMainTab == .dashboard || !canSwitchTab)
                                     
                                     // Following Tab
-//                                    Button {
-//                                        newPostsCount = 0
-//                                        if canSwitchTab {
-//                                            withAnimation(.easeInOut(duration: 0.5)) {
-//                                                viewModel.selectedMainTab = .feed
-//                                                hideTopUI = false
-//                                                topBarHeight = 160
-//                                            }
-//                                            canSwitchTab = false
-//                                            // Re-enable switching after a delay
-//                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//                                                canSwitchTab = true
-//                                            }
-//                                        }
-//                                        
-//                                    } label: {
-//                                        HStack{
-//                                            if newPostsCount > 0  {
-//                                                ZStack {
-//                                                    Circle()
-//                                                        .fill(Color("Colors/AccentColor"))
-//                                                        .frame(width: 8, height: 8)
-//                                                }
-//                                                .padding(.leading, 1)
-//                                            }
-//                                            Text("Feed")
-//                                                .font(.custom("MuseoSansRounded-500", size: 18))
-//                                                .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .gray)
-//                                                .overlay(
-//                                                    Rectangle()
-//                                                        .frame(height: 2)
-//                                                        .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .clear)
-//                                                        .offset(y: 17)
-//                                                )
-//                                        }
-//                                    }
-//                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
-//                                    .disabled(viewModel.selectedMainTab == .feed || !canSwitchTab)
+                                    //                                    Button {
+                                    //                                        newPostsCount = 0
+                                    //                                        if canSwitchTab {
+                                    //                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                    //                                                viewModel.selectedMainTab = .feed
+                                    //                                                hideTopUI = false
+                                    //                                                topBarHeight = 160
+                                    //                                            }
+                                    //                                            canSwitchTab = false
+                                    //                                            // Re-enable switching after a delay
+                                    //                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    //                                                canSwitchTab = true
+                                    //                                            }
+                                    //                                        }
+                                    //
+                                    //                                    } label: {
+                                    //                                        HStack{
+                                    //                                            if newPostsCount > 0  {
+                                    //                                                ZStack {
+                                    //                                                    Circle()
+                                    //                                                        .fill(Color("Colors/AccentColor"))
+                                    //                                                        .frame(width: 8, height: 8)
+                                    //                                                }
+                                    //                                                .padding(.leading, 1)
+                                    //                                            }
+                                    //                                            Text("Feed")
+                                    //                                                .font(.custom("MuseoSansRounded-500", size: 18))
+                                    //                                                .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .gray)
+                                    //                                                .overlay(
+                                    //                                                    Rectangle()
+                                    //                                                        .frame(height: 2)
+                                    //                                                        .foregroundColor(viewModel.selectedMainTab == .feed ? Color("Colors/AccentColor") : .clear)
+                                    //                                                        .offset(y: 17)
+                                    //                                                )
+                                    //                                        }
+                                    //                                    }
+                                    //                                    .frame(width:(UIScreen.main.bounds.width - (16 * 2)) / 4)
+                                    //                                    .disabled(viewModel.selectedMainTab == .feed || !canSwitchTab)
                                     
                                     // Discover Tab
                                     //                                Button {
@@ -470,7 +469,7 @@ struct PrimaryFeedView: View {
                                 }
                                 .padding(.bottom, 6)
                                 .padding(.bottom, 6)
-                          
+                                
                             }
                         }
                     }
@@ -677,7 +676,7 @@ struct PrimaryFeedView: View {
                         .frame(width: 40, height: 80)
                         .cornerRadius(8)
                         .foregroundColor(.black)
-                        
+                    
                 }
                 .frame(width: 80, height: 80)
                 VStack(alignment: .leading) {
@@ -706,8 +705,9 @@ struct PrimaryFeedView: View {
             )
             .cornerRadius(8)
             .padding(.horizontal)
-         
+            
         }
+        .id("InviteButton")
     }
 }
 
