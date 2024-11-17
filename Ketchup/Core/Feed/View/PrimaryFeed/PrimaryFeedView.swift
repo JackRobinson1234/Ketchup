@@ -139,9 +139,9 @@ struct PrimaryFeedView: View {
                                             FastCrossfadeFoodImageView()
                                             Spacer()
                                         }
-                                        NavigationLink(destination: LeaderboardView()) {
-                                            Text("Show Leaderboards")
-                                        }
+//                                        NavigationLink(destination: LeaderboardView()) {
+//                                            Text("Show Leaderboards")
+//                                        }
                                         inviteContactsButton
                                         if AuthService.shared.userSession?.id == "cQlKGlOWTOSeZcsqObd4Iuy6jr93" || AuthService.shared.userSession?.id == "M74knlXXTLfeckpnAm4kc5XGNXb2" {
                                             
