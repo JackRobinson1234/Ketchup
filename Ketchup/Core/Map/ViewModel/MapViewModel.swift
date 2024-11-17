@@ -365,4 +365,4 @@ class LargeClusterAnnotation: NSObject, MKAnnotation, CoordinateIdentifiable, Id
         self.title = "Cluster of \(count) Restaurants" // Set an appropriate title
         super.init()
     }
-}
+} 

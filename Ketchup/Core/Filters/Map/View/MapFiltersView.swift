@@ -95,6 +95,15 @@ struct MapFiltersView: View {
                         .padding(.horizontal)
                     }
                 }
+                .onChange(of: mapViewModel.selectedPrice) { _ in
+                    Task {
+                        if showFollowingPosts{
+                            await followingViewModel.fetchFollowingPosts()
+                        } else {
+                            await mapViewModel.fetchFilteredClusters()
+                        }
+                    }
+                }
                 .padding(.top)
             }
             .navigationTitle("Filters")

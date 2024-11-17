@@ -7,9 +7,7 @@
 
 import SwiftUI
 import MapKit
-
 import SwiftUI
-import MapKit
 import ClusterMap
 import ClusterMapSwiftUI
 import Kingfisher
@@ -58,7 +56,22 @@ struct MapView: View {
         }
     }
     init() {
-        self._position = State(initialValue: .userLocation(fallback: .automatic))
+        let fallbackLocation: MapCameraPosition = {
+            if let userLocation = AuthService.shared.userSession?.location?.geoPoint {
+                // Convert GeoPoint to CLLocationCoordinate2D
+                let coordinate = CLLocationCoordinate2D(
+                    latitude: userLocation.latitude,
+                    longitude: userLocation.longitude
+                )
+                return .region(MKCoordinateRegion(
+                    center: coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                ))
+            }
+            return .automatic
+        }()
+        
+        self._position = State(initialValue: .userLocation(fallback: fallbackLocation))
     }
     
     var body: some View {
@@ -86,14 +99,11 @@ struct MapView: View {
                             } else {
                                 ForEach(viewModel.annotations, id: \.self) { item in
                                     Annotation(item.restaurant.name, coordinate: item.coordinate) {
-                                        MapRestaurantAnnotationView(
-                                            restaurant: item.restaurant,
-                                            isSelected: item.restaurant.id == selectedRestaurant?.id
-                                        )
-                                        .onTapGesture {
-                                            selectedRestaurantForProfile = item.restaurant
-                                            navigateToProfile = true
-
+                                        NavigationLink(destination: RestaurantProfileView(restaurantId: item.restaurant.id)) {
+                                            MapRestaurantAnnotationView(
+                                                restaurant: item.restaurant,
+                                                isSelected: item.restaurant.id == selectedRestaurant?.id
+                                            )
                                         }
                                         
                                     }
@@ -186,15 +196,7 @@ struct MapView: View {
                                 }
                             }
                         }
-                        .onChange(of: viewModel.selectedPrice) { _ in
-                            Task {
-                                if showFollowingPosts{
-                                    await followingViewModel.fetchFollowingPosts()
-                                } else {
-                                    await viewModel.fetchFilteredClusters()
-                                }
-                            }
-                        }
+                        
                         .onChange(of: viewModel.selectedRating) { _ in
                             Task {
                                 if showFollowingPosts{
@@ -237,7 +239,15 @@ struct MapView: View {
                             }
                         }
 
-                        
+//                        .onChange(of: viewModel.selectedPrice) { _ in
+//                            Task {
+//                                if showFollowingPosts{
+//                                    await followingViewModel.fetchFollowingPosts()
+//                                } else {
+//                                    await viewModel.fetchFilteredClusters()
+//                                }
+//                            }
+//                        }
                         
                         
                         .onChange(of: isFiltersPresented) {
@@ -262,9 +272,16 @@ struct MapView: View {
                                         .modifier(OverlayModifier())
                                         .font(.custom("MuseoSansRounded-300", size: 14))
                                 } else if noNearbyRestaurants {
-                                    Text("No restaurants found nearby")
-                                        .modifier(OverlayModifier())
-                                        .font(.custom("MuseoSansRounded-300", size: 14))
+                                    VStack{
+                                        Text("No restaurants found nearby")
+                                            .font(.custom("MuseoSansRounded-500", size: 14))
+                                        Text("Ketchup may not have restaurants in your area yet")
+                                            .font(.custom("MuseoSansRounded-300", size: 10))
+                                        
+                                    }
+                                            .modifier(OverlayModifier())
+                                            
+                                    
                                 }
                             }
                         }
@@ -314,12 +331,7 @@ struct MapView: View {
                 
                 
             }
-            NavigationLink(
-                destination: RestaurantProfileView(restaurantId: selectedRestaurantForProfile?.id ?? ""),
-                isActive: $navigateToProfile
-            ) {
-                EmptyView()
-            }
+
             .navigationBarHidden(true)
             .sheet(isPresented: $showLocationSearch) {
                 LocationSearchSheet(cameraPosition: $position)
@@ -421,7 +433,7 @@ struct MapView: View {
                         .foregroundColor(Color("Colors/AccentColor"))
                         .font(.system(size: 18))
                     Text("Location")
-                        .font(.custom("MuseoSansRounded-500", size: 10))
+                        .font(.custom("MuseoSansRounded-700", size: 10))
                         .foregroundColor(.black)
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
@@ -442,9 +454,10 @@ struct MapView: View {
                         .foregroundColor(.red)
                         .font(.system(size: 20))
                     Text("Filters")
-                        .font(.custom("MuseoSansRounded-500", size: 10))
+                        .font(.custom("MuseoSansRounded-700", size: 10))
                         .foregroundColor(.black)
                         .minimumScaleFactor(0.5)
+                        
                 }
                 .frame(width: 34)
                 .padding(4)
@@ -547,21 +560,22 @@ struct RestaurantSlideUpSheet: View {
     var onDismiss: () -> Void
     var onSelectRestaurant: (ClusterRestaurant) -> Void
     var onRestaurantSwipe: (Int) -> Void
-    
+
     @State private var currentHeight: CGFloat = 0.0
     @State private var previewOpacity = 0.0
     @StateObject private var page: Page = .first()
-    
+    @State private var selectedRestaurantForSheet: ClusterRestaurant?
+
     private var tipHeight: CGFloat {
         50 // Display a minimal part of the sheet in `tip` mode
     }
     private var halfHeight: CGFloat {
         UIScreen.main.bounds.height * 0.2
     }
-    
+
     @GestureState private var dragOffset = CGFloat.zero
     @State private var currentPosition: SheetPosition = .half
-    
+
     var body: some View {
         VStack {
             VStack(spacing: 0) {
@@ -573,7 +587,7 @@ struct RestaurantSlideUpSheet: View {
                     .onTapGesture {
                         togglePosition()
                     }
-                
+
                 if currentPosition == .tip {
                     if restaurants.indices.contains(selectedIndex) {
                         // Minimal content in low mode
@@ -602,24 +616,24 @@ struct RestaurantSlideUpSheet: View {
                         Pager(page: page,
                               data: restaurants,
                               id: \.self) { restaurant in
-                            RestaurantPreviewView(userLocation: nil, restaurant: restaurant)
-                                .onTapGesture {
-                                    onSelectRestaurant(restaurant)
-                                }
+                                RestaurantPreviewView(userLocation: nil, restaurant: restaurant)
+                                    .onTapGesture {
+                                        selectedRestaurantForSheet = restaurant
+                                    }
                         }
-                              .sensitivity(.custom(0.2))
-                              .preferredItemSize(CGSize(width: 240, height: halfHeight))
-                              .itemSpacing(10)
-                              .interactive(scale: 0.8)
-                              .interactive(opacity: 0.5)
-                              .onPageChanged({ index in
-                                  selectedIndex = index
-                                  if restaurants.indices.contains(index) {
-                                      onRestaurantSwipe(index)
-                                  }
-                              })
-                              .opacity(previewOpacity)
-                              .animation(.easeInOut(duration: 0.3), value: previewOpacity)
+                        .sensitivity(.custom(0.2))
+                        .preferredItemSize(CGSize(width: 240, height: halfHeight))
+                        .itemSpacing(10)
+                        .interactive(scale: 0.8)
+                        .interactive(opacity: 0.5)
+                        .onPageChanged({ index in
+                            selectedIndex = index
+                            if restaurants.indices.contains(index) {
+                                onRestaurantSwipe(index)
+                            }
+                        })
+                        .opacity(previewOpacity)
+                        .animation(.easeInOut(duration: 0.3), value: previewOpacity)
                     }
                 }
             }
@@ -659,7 +673,7 @@ struct RestaurantSlideUpSheet: View {
             .onAppear {
                 // Set initial page position
                 page.update(.new(index: selectedIndex))
-                
+
                 // Ensure selectedIndex is valid on appear
                 if !restaurants.indices.contains(selectedIndex) {
                     selectedIndex = restaurants.isEmpty ? 0 : 0
@@ -678,10 +692,12 @@ struct RestaurantSlideUpSheet: View {
                     page.update(.new(index: selectedIndex))
                 }
             }
-         
+        }
+        .fullScreenCover(item: $selectedRestaurantForSheet) { restaurant in
+            RestaurantProfileView(restaurantId: restaurant.id)
         }
     }
-    
+
     private func togglePosition() {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
             switch currentPosition {
@@ -698,7 +714,7 @@ struct RestaurantSlideUpSheet: View {
             }
         }
     }
-    
+
     // MARK: - SheetPosition Enum
     enum SheetPosition {
         case tip
