@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "foodi-v1-e989b",
+  "private_key_id": "7e79f4c9fe9d58c6b2510bd74af423ba04cf70ca",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC3Q2bVDE622t0d\nuw5E+bqa0DLxJMGlZ0EOFz0j+knPH4OHMkG2PnUeBH01ZeWWiRZe36H25h890aQI\n8FrIQA75HJTvwSSUBL8o5yDwIz5yDilvzH8YowsM4vZgvAQDRv93yzJpSKbDV/Ln\nnBST0gp/TqybX2bw1on75nDrZepqmzxmotYgOQnFC83Mze7YEQ551xcHaCYz48m2\nnx1iKhpxz2Rx9foA2Kv8xzWnU9uvz7uwS2QUD0UWq1xUVflpNSPx+VkrJsS6Cpf4\nuNx7jyzlK8selleXcYSUx+2kgSB0We67wOacblJbgbvDZ+Nva7NDmGLM+MMRgEVk\nVDKMWTgrAgMBAAECggEADwQs1uQtRvpkB92d67Tyv2Cz6+JxI5Z0VC0/S0Vk6t3Q\nLzHFBKPVgOIpSEjTKSSOerOkV9C/Wpdk836OUb49+9eFtKeE0cQZzcYygrrAkSPr\n7Uc6WtBxRVsLiR2ezo3wvOYfeVUEpRj9xFCbtwkM5yWRKyIEE1Pg9o0JT6CINrfi\nFUOmI9KAiDJb1tm9WR+glcHRi/P1sVxvB/9XM0+K8V6VnzfzzL/N6nCCob+7YEHo\nDAi88D45ujDUPnXKlUCgcxKzhxlWq3eqw/Z+8UrF5cAYtWPiqp+e10Moc5WuUdCV\nYaHKvUND5nb/f79H0P+1LET6wLjCQ+0OQ9cUeiZdMQKBgQDfxh1S5sJNUSFz8sBr\nbSS0BwGaCtJj9QKcqXoUP7NBIgi4raLmnNB2oJ78zCXOPKvd76g6uM1QElGPjxdO\nxLBxQOJjd9JirGKMROb26CGKJPA58th4LngbSNAAMG1Ug6r2SKQV/U/w0IfIDex5\noSKpwviSTNfXXEBj/pt24gQyTwKBgQDRp8fOMMHBYJ0GXiAALrbhAk7lHR759Y27\nGBdwjWfFuPatZarvUSw3ipHQD2lNnfvnAPUciJYNZ8TBdVgrTtdgO6pt2BdfoZ1z\njNv1y2i3amxEKC+FSQUqCo/rm0HyrJB/o00KotY+wUeo0/SFiajyDHzGN7CnN877\nw9udMRvxZQKBgQC33nfV2JqrIRDVzw9gtevEqUUdp+q8C2Q8Cd2vqa/GwwpbhQEn\ncI6yCsTYf35I+f1WfUfECHlbY9H0neTO6jr4tBHRHXGXdoH7M9p74r08X6GsW+iW\nx8gU0z1mCmSrXw0pFQMOtnfrLc2ECjzWrBppVzUcMVvhL4IRJ/HiO1CrbQKBgQCt\nGMaJwY2nODpNEJeBLxCE1CAJYDK8E3XyO+DWZ5l/EMhxv1gTAMTuEnVy/9ZkZASf\n5BV7enXRGZTEWTrzfsOpy3lZ+ajKpyfVSD4vQMLzdGVxHHCnrfMak9/hma0oTDt9\ndnlcR7d11qRwipb/Tfnz5kV6bm5mkVhOW5XNwccdVQKBgE9b6gNV87769xNqC1Jv\n11f0tFMaQFOBihUrdd4h3a+CNYShkTGbAyi5C3YmLo52pQV81sVhbPG2zIv4Z0NF\naEwMcAGAbftTTeIPPwyB8XP448Fi1Hs1qQRrJRMHbnxritt0uT3BB5YbYM+sfNwQ\n6aH2Hot6pom34cL9QV9kPQAM\n-----END PRIVATE KEY-----\n",
+  "client_email": "backupaccount@foodi-v1-e989b.iam.gserviceaccount.com",
+  "client_id": "101557053646036326321",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/backupaccount%40foodi-v1-e989b.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

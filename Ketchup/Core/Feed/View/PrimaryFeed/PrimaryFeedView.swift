@@ -39,7 +39,7 @@ struct PrimaryFeedView: View {
     @StateObject private var pollViewModel = PollViewModel()
     @State private var showPollView = false // Add this line
     @State private var showPollUploadView = false
-    
+    @State private var showLeaderboards = false
     init(viewModel: FeedViewModel, initialScrollPosition: String? = nil, titleText: String = "") {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self._filtersViewModel = StateObject(wrappedValue: FiltersViewModel(feedViewModel: viewModel))
@@ -139,7 +139,9 @@ struct PrimaryFeedView: View {
                                             FastCrossfadeFoodImageView()
                                             Spacer()
                                         }
-                                        
+//                                        NavigationLink(destination: LeaderboardView()) {
+//                                            Text("Show Leaderboards")
+//                                        }
                                         inviteContactsButton
                                         if AuthService.shared.userSession?.id == "cQlKGlOWTOSeZcsqObd4Iuy6jr93" || AuthService.shared.userSession?.id == "M74knlXXTLfeckpnAm4kc5XGNXb2" {
                                             
@@ -249,6 +251,7 @@ struct PrimaryFeedView: View {
                             .sheet(isPresented: $showPollUploadView) {
                                 PollUploadView()
                             }
+                            
                             .onChange(of: viewModel.initialPrimaryScrollPosition) { newValue in
                                 if let newPosition = newValue {
                                     scrollProxy.scrollTo(newPosition, anchor: .center)

@@ -10,83 +10,10 @@ import FirebaseFirestoreInternal
 
 struct LeaderboardView: View {
     @StateObject private var viewModel = LeaderboardViewModel()
-    @State private var selectedTab = 0
-    @State private var selectedLocation: String?
-    
-    private let tabs = ["Been", "Influence", "Notes", "Photos"]
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Tab Selector
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 20) {
-                        ForEach(Array(tabs.enumerated()), id: \.element) { index, tab in
-                            Button(action: { selectedTab = index }) {
-                                Text(tab)
-                                    .font(.custom("MuseoSansRounded-500", size: 16))
-                                    .foregroundColor(selectedTab == index ? .black : .gray)
-                                    .padding(.bottom, 8)
-                                    .overlay(
-                                        Rectangle()
-                                            .frame(height: 2)
-                                            .foregroundColor(selectedTab == index ? .black : .clear)
-                                            .offset(y: 4)
-                                    )
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.vertical, 8)
-                .background(Color(.systemBackground))
-                
-                // Description Text
-                Text("Number of places on your been list")
-                    .font(.system(size: 16, weight: .regular))
-                    .foregroundColor(.gray)
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
-                
-                // Filters
-                HStack(spacing: 12) {
-                    Menu {
-                        Button("All Members") { selectedLocation = nil }
-                        // Add other member filter options
-                    } label: {
-                        HStack {
-                            Text(selectedLocation == nil ? "All Members" : "Selected")
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 14))
-                        }
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(.systemGray6))
-                        .clipShape(Capsule())
-                    }
-                    
-                    Menu {
-                        Button("Los Angeles, CA") { selectedLocation = "Los Angeles, CA" }
-                        // Add other location options
-                    } label: {
-                        HStack {
-                            Text(selectedLocation ?? "Select Location")
-                                .font(.custom("MuseoSansRounded-500", size: 14))
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 14))
-                        }
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(.systemGray6))
-                        .clipShape(Capsule())
-                    }
-                }
-                .padding(.bottom, 16)
-                
-                // Leaderboard List
+            ZStack {
                 if viewModel.users.isEmpty && !viewModel.isLoading {
                     emptyView
                 } else {
@@ -95,6 +22,11 @@ struct LeaderboardView: View {
             }
             .navigationTitle("Leaderboard")
             .navigationBarTitleDisplayMode(.large)
+            .onAppear {
+                if viewModel.users.isEmpty {
+                    viewModel.fetchUsers()
+                }
+            }
         }
     }
     
@@ -112,25 +44,26 @@ struct LeaderboardView: View {
     }
     
     private var leaderboardList: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(Array(viewModel.users.enumerated()), id: \.element.id) { index, user in
-                    LeaderboardRow(rank: index + 1, user: user)
-                    
-                    if index < viewModel.users.count - 1 {
-                        Divider()
-                            .padding(.leading, 60)
-                    }
-                }
-                
-                if viewModel.hasMoreUsers {
-                    ProgressView()
-                        .padding()
-                        .onAppear {
-                            viewModel.fetchUsers()
-                        }
-                }
+        List {
+            ForEach(Array(viewModel.users.enumerated()), id: \.element.id) { index, user in
+                LeaderboardRow(rank: index + 1, user: user)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .listRowSeparator(.hidden)
             }
+            
+            if viewModel.hasMoreUsers {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .onAppear {
+                        viewModel.fetchUsers()
+                    }
+            }
+        }
+        .listStyle(PlainListStyle())
+        .refreshable {
+            viewModel.refresh()
         }
     }
 }
@@ -172,13 +105,12 @@ struct LeaderboardRow: View {
             
             Spacer()
             
-            // Score
-            Text("\(user.stats.posts)")
+            // Points
+            Text("\(user.totalPoints)")
                 .font(.custom("MuseoSansRounded-700", size: 18))
                 .foregroundColor(.black)
         }
         .padding(.vertical, 12)
-        .padding(.horizontal, 16)
     }
 }
 
@@ -191,22 +123,34 @@ class LeaderboardViewModel: ObservableObject {
     private var lastDocument: QueryDocumentSnapshot?
     private let limit = 20
     
+    func refresh() {
+        users.removeAll()
+        lastDocument = nil
+        hasMoreUsers = true
+        fetchUsers()
+    }
+    
     func fetchUsers() {
         guard !isLoading, hasMoreUsers else { return }
         isLoading = true
         
-        let query = Firestore.firestore().collection("users")
-            .order(by: "stats.posts", descending: true)
-            .limit(to: limit)
-        
+        let query: Query
         if let last = lastDocument {
-            query.start(afterDocument: last)
+            query = Firestore.firestore().collection("users")
+                .order(by: "totalPoints", descending: true)
+                .limit(to: limit)
+                .start(afterDocument: last)
+        } else {
+            query = Firestore.firestore().collection("users")
+                .order(by: "totalPoints", descending: true)
+                .limit(to: limit)
         }
         
         Task {
             do {
                 let snapshot = try await query.getDocuments()
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     let newUsers = snapshot.documents.compactMap { try? $0.data(as: User.self) }
                     self.users.append(contentsOf: newUsers)
                     self.lastDocument = snapshot.documents.last
@@ -214,9 +158,9 @@ class LeaderboardViewModel: ObservableObject {
                     self.isLoading = false
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.error = error
-                    self.isLoading = false
+                DispatchQueue.main.async { [weak self] in
+                    self?.error = error
+                    self?.isLoading = false
                 }
             }
         }
