@@ -23,8 +23,8 @@ final class SearchViewModel: ObservableObject {
     private var collectionsItemsSearcher: HitsSearcher
     private var usersItemsSearcher: HitsSearcher
     private var filterState = FilterState()
-    let appID: ApplicationID = "74A8XPTT50"
-    let apiKey: APIKey = "d7d6db8cc90a900cd8fa87fb302b3448"
+    let appID: ApplicationID = ""
+    let apiKey: APIKey = ""
     @Published var selectedLocation: CLLocation?
     
     init(initialSearchConfig: SearchModelConfig) {

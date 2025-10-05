@@ -20,7 +20,7 @@ final class PostListViewModel: ObservableObject {
     
     init() {
         let appID: ApplicationID = "74A8XPTT50"
-        let apiKey: APIKey = "d7d6db8cc90a900cd8fa87fb302b3448"
+        let apiKey: APIKey = ""
         self.itemsSearcher = HitsSearcher(appID: appID,
                                           apiKey: apiKey,
                                           indexName: "posts")

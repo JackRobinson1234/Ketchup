@@ -19,8 +19,8 @@ final class CollectionListSearchViewModel: ObservableObject {
     private var filterState = FilterState()
     
     init() {
-        let appID: ApplicationID = "74A8XPTT50"
-        let apiKey: APIKey = "d7d6db8cc90a900cd8fa87fb302b3448"
+        let appID: ApplicationID = ""
+        let apiKey: APIKey = ""
         let itemsSearcher = HitsSearcher(appID: appID,
                                          apiKey: apiKey,
                                          indexName: "collections")
